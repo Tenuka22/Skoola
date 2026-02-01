@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use actix_cors::Cors;
 use actix_web::{App, HttpServer, middleware::Logger, web::Data};
 use apistos::{
@@ -24,7 +26,7 @@ mod utils;
 
 struct AppState {
     config: Config,
-    database: Surreal<Client>,
+    database: Arc<Surreal<Client>>,
 }
 
 #[actix_web::main]

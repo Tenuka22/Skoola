@@ -1,0 +1,45 @@
+use apistos::ApiComponent;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
+
+use crate::database::tables::{Role, User};
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct RegisterRequest {
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct LoginRequest {
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct UserResponse {
+    pub id: String,
+    pub email: String,
+    pub role: Role,
+}
+
+impl From<User> for UserResponse {
+    fn from(user: User) -> Self {
+        UserResponse {
+            id: user.id.to_string(),
+            email: user.email,
+            role: user.role,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct TokenResponse {
+    pub token: String,
+    pub refresh_token: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct RefreshTokenRequest {
+    pub refresh_token: String,
+}
