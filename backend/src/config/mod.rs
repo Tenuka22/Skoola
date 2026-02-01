@@ -8,6 +8,11 @@ pub struct Config {
     pub api_title: String,
     pub api_description: String,
     pub api_version: String,
+    pub db_passwrod: String,
+    pub db_username: String,
+    pub db_url: String,
+    pub db_nameserver: String,
+    pub db_database: String,
 }
 
 impl Config {
@@ -24,6 +29,11 @@ impl Config {
             api_description: env::var("API_DESCRIPTION")
                 .unwrap_or_else(|_| "An API for the Skoola Backend.".to_string()),
             api_version: env::var("API_VERSION").unwrap_or_else(|_| "1.0.0".to_string()),
+            db_passwrod: env::var("DB_PASSWORD").unwrap_or_else(|_| "secret".to_string()),
+            db_url: env::var("DB_URL").unwrap_or_else(|_| "127.0.0.1:8000".to_string()),
+            db_username: env::var("DB_USERNAME").unwrap_or_else(|_| "root".to_string()),
+            db_nameserver: env::var("DB_NAMESERVER").unwrap_or_else(|_| "main".to_string()),
+            db_database: env::var("DB_DATABASE").unwrap_or_else(|_| "main".to_string()),
         })
     }
 

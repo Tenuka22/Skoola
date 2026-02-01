@@ -1,5 +1,5 @@
 use actix_cors::Cors;
-use actix_web::{middleware::Logger, web::Data, App, HttpServer};
+use actix_web::{App, HttpServer, middleware::Logger, web::Data};
 use apistos::{
     app::{BuildConfig, OpenApiWrapper},
     spec::Spec,
@@ -9,8 +9,12 @@ use apistos_scalar::ScalarConfig;
 use config::Config;
 use env_logger::Env;
 use log::{error, info};
+use surrealdb::{Surreal, engine::remote::ws::Client};
+
+use crate::database::init_db;
 
 mod config;
+mod database;
 mod errors;
 mod handlers;
 mod models;
@@ -20,6 +24,7 @@ mod utils;
 
 struct AppState {
     config: Config,
+    database: Surreal<Client>,
 }
 
 #[actix_web::main]
@@ -57,6 +62,8 @@ async fn main() -> std::io::Result<()> {
     let bind_address = (config.host.clone(), config.port);
     let allowed_origin = config.allowed_origin.clone();
 
+    let database = init_db(&config).await?;
+
     HttpServer::new(move || {
         let cors = Cors::default()
             .allowed_origin(&allowed_origin)
@@ -69,6 +76,7 @@ async fn main() -> std::io::Result<()> {
             .document(spec.clone())
             .app_data(Data::new(AppState {
                 config: config.clone(),
+                database: database.clone(),
             }))
             .wrap(cors)
             .wrap(Logger::new(
