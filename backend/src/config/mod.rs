@@ -9,8 +9,9 @@ pub struct Config {
     pub api_description: String,
     pub api_version: String,
     pub db_passwrod: String,
-    pub db_username: String,
     pub db_url: String,
+    pub db_username: String,
+
     pub db_nameserver: String,
     pub db_database: String,
     pub jwt_secret: String,

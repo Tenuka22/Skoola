@@ -13,4 +13,7 @@ dev-web:
     cd web; bun run dev
 
 start-db:
-    surreal start --user {{db_user}} --pass {{db_pass}}
+    Start-Process -FilePath "surreal" -ArgumentList "start", "--user", "{{db_user}}", "--pass", "{{db_pass}}" -NoNewWindow
+
+stop-db:
+    $p = Get-Process -Name "surreal"; if ($p) { Stop-Process -Id $p.Id -Force } else { Write-Host "SurrealDB process not found." }

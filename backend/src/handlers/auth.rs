@@ -1,12 +1,13 @@
-use actix_web::web::Json;
+use actix_web::{HttpRequest, web::Json};
 use actix_web::{HttpResponse, web};
 use apistos::api_operation;
+use chrono::{Duration, Utc};
 use uuid::Uuid;
 
-use crate::database::constants::USER_TABLE;
+use crate::database::constants::{SESSION_TABLE, USER_TABLE};
 use crate::{
     AppState,
-    database::tables::{Role, User},
+    database::tables::{Role, Session, User},
     errors::APIError,
     models::auth::{
         LoginRequest, RefreshTokenRequest, RegisterRequest, TokenResponse, UserResponse,
@@ -42,10 +43,9 @@ pub async fn register(
         id: Uuid::new_v4(),
         email: body.email.clone(),
         password_hash,
-        role: Role::Student, // Default role
+        role: Role::Guest, // Default role
         google_id: None,
         github_id: None,
-        refresh_token: None,
         created_at: chrono::Utc::now().into(),
         updated_at: chrono::Utc::now().into(),
     };
@@ -68,6 +68,7 @@ pub async fn register(
 pub async fn login(
     data: web::Data<AppState>,
     body: web::Json<LoginRequest>,
+    req: HttpRequest,
 ) -> Result<Json<TokenResponse>, APIError> {
     let mut response = data
         .database
@@ -88,19 +89,48 @@ pub async fn login(
     }
 
     let (token, refresh_token) = create_token_pair(&user, &data.config)?;
+
     let hashed_refresh_token = hash_password(&refresh_token)?;
 
-    let updated_user_option: Option<User> = data
+    let ip_address = req
+        .connection_info()
+        .realip_remote_addr()
+        .map(|s| s.to_string());
+
+    let user_agent = req
+        .headers()
+        .get("User-Agent")
+        .and_then(|v| v.to_str().ok())
+        .map(|s| s.to_string());
+
+    let new_session = Session {
+        id: Uuid::new_v4(),
+
+        user_id: user.id,
+
+        refresh_token_hash: hashed_refresh_token,
+
+        user_agent,
+
+        ip_address,
+
+        created_at: Utc::now(),
+
+        expires_at: Utc::now()
+            .checked_add_signed(Duration::days(data.config.jwt_expiration))
+            .expect("valid timestamp"),
+    };
+
+    let _: Option<Session> = data
         .database
-        .update((USER_TABLE, user.id.to_string()))
-        .merge(serde_json::json!({
-            "refresh_token": hashed_refresh_token,
-        }))
-        .await?;
-    let _: User = updated_user_option.ok_or_else(|| APIError::internal("Failed to update user"))?;
+        .create(SESSION_TABLE)
+        .content(new_session)
+        .await
+        .map_err(|_| APIError::internal("Failed to create session"))?;
 
     Ok(Json(TokenResponse {
         token,
+
         refresh_token,
     }))
 }
@@ -113,9 +143,26 @@ pub async fn login(
 pub async fn refresh(
     data: web::Data<AppState>,
     body: web::Json<RefreshTokenRequest>,
+    req: HttpRequest,
 ) -> Result<HttpResponse, APIError> {
-    let (new_token, new_refresh_token) =
-        refresh_jwt(&body.refresh_token, &data.config, &data.database).await?;
+    let ip_address = req
+        .connection_info()
+        .realip_remote_addr()
+        .map(|s: &str| s.to_string());
+    let user_agent = req
+        .headers()
+        .get("User-Agent")
+        .and_then(|v: &actix_web::http::header::HeaderValue| v.to_str().ok())
+        .map(|s: &str| s.to_string());
+
+    let (new_token, new_refresh_token) = refresh_jwt(
+        &body.refresh_token,
+        &data.config,
+        &data.database,
+        ip_address,
+        user_agent,
+    )
+    .await?;
 
     Ok(HttpResponse::Ok().json(TokenResponse {
         token: new_token,

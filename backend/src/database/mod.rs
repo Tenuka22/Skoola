@@ -1,6 +1,10 @@
 use std::sync::Arc;
 
-use surrealdb::{Surreal, engine::remote::ws::Client, opt::auth::Root};
+use surrealdb::{
+    Surreal,
+    engine::remote::ws::{Client, Ws},
+    opt::auth::Root,
+};
 
 use crate::{config::Config, errors::APIError};
 
@@ -8,7 +12,7 @@ pub mod constants;
 pub mod tables;
 
 pub async fn init_db(config: &Config) -> Result<Arc<Surreal<Client>>, APIError> {
-    let db: Surreal<Client> = Surreal::init();
+    let db: Surreal<Client> = Surreal::new::<Ws>(&config.db_url).await?;
 
     db.signin(Root {
         username: &config.db_username,

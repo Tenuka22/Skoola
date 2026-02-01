@@ -114,7 +114,7 @@ impl From<surrealdb::Error> for APIError {
         } else if msg.contains("not found") {
             APIError::not_found("Resource not found")
         } else {
-            APIError::internal("Database error occurred")
+            APIError::internal(&msg)
         }
     }
 }

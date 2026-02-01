@@ -10,7 +10,7 @@ use apistos_models::info::Info;
 use apistos_scalar::ScalarConfig;
 use config::Config;
 use env_logger::Env;
-use log::{error, info};
+use log::{error, info, warn};
 use surrealdb::{Surreal, engine::remote::ws::Client};
 
 use crate::database::init_db;
@@ -31,11 +31,14 @@ struct AppState {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenvy::dotenv().ok();
-
     env_logger::Builder::from_env(Env::default().default_filter_or("info"))
         .format_timestamp_secs()
         .init();
+
+    match dotenvy::dotenv() {
+        Ok(path) => info!(".env loaded from: {}", path.display()),
+        Err(err) => warn!("No .env file found: {}", err),
+    }
 
     info!("╔════════════════════════════════════════╗");
     info!("║   🚀 Skoola Backend Starting Up       ║");

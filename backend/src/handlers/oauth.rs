@@ -1,17 +1,12 @@
-use actix_web::{HttpResponse, web};
+use actix_web::{HttpRequest, HttpResponse, web};
 use apistos::api_operation;
 use schemars::JsonSchema;
 use uuid::Uuid;
+use chrono::{Utc, Duration};
 
-use crate::database::constants::USER_TABLE;
-use crate::{
-    AppState,
-    database::tables::{Role, User},
-    errors::APIError,
-    services::{
-        auth::{create_token_pair, hash_password},
-        oauth::{get_github_user_info, get_google_user_info},
-    },
+use crate::database::constants::{USER_TABLE, SESSION_TABLE};
+use crate::{AppState, database::tables::{Role, User, Session}, errors::APIError,
+    services::{auth::{create_token_pair, hash_password}, oauth::{get_github_user_info, get_google_user_info}},
 };
 
 use apistos::ApiComponent;
@@ -30,6 +25,7 @@ pub struct OAuthQuery {
 pub async fn google_callback(
     data: web::Data<AppState>,
     query: web::Query<OAuthQuery>,
+    req: HttpRequest,
 ) -> Result<HttpResponse, APIError> {
     let user_info = get_google_user_info(&query.code, &data.config).await?;
 
@@ -62,7 +58,6 @@ pub async fn google_callback(
                 role: Role::Student,
                 google_id: Some(user_info.id),
                 github_id: None,
-                refresh_token: None,
                 created_at: chrono::Utc::now().into(),
                 updated_at: chrono::Utc::now().into(),
             };
@@ -79,15 +74,27 @@ pub async fn google_callback(
     let (token, refresh_token) = create_token_pair(&user, &data.config)?;
     let hashed_refresh_token = hash_password(&refresh_token)?;
 
-    let updated_refresh_token_user_option: Option<User> = data
+    let ip_address = req.connection_info().realip_remote_addr().map(|s| s.to_string());
+    let user_agent = req.headers().get("User-Agent").and_then(|v| v.to_str().ok()).map(|s| s.to_string());
+
+    let new_session = Session {
+        id: Uuid::new_v4(),
+        user_id: user.id,
+        refresh_token_hash: hashed_refresh_token,
+        user_agent,
+        ip_address,
+        created_at: Utc::now(),
+        expires_at: Utc::now()
+            .checked_add_signed(Duration::days(data.config.jwt_expiration))
+            .expect("valid timestamp"),
+    };
+
+    let _: Option<Session> = data
         .database
-        .update((USER_TABLE, user.id.to_string()))
-        .merge(serde_json::json!({
-            "refresh_token": hashed_refresh_token,
-        }))
-        .await?;
-    let _: User = updated_refresh_token_user_option
-        .ok_or_else(|| APIError::internal("Failed to update user"))?;
+        .create(SESSION_TABLE)
+        .content(new_session)
+        .await
+        .map_err(|_| APIError::internal("Failed to create session"))?;
 
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "token": token,
@@ -104,6 +111,7 @@ pub async fn google_callback(
 pub async fn github_callback(
     data: web::Data<AppState>,
     query: web::Query<OAuthQuery>,
+    req: HttpRequest,
 ) -> Result<HttpResponse, APIError> {
     let user_info = get_github_user_info(&query.code, &data.config).await?;
 
@@ -140,7 +148,6 @@ pub async fn github_callback(
                 role: Role::Student,
                 google_id: None,
                 github_id: Some(user_info.id.to_string()),
-                refresh_token: None,
                 created_at: chrono::Utc::now().into(),
                 updated_at: chrono::Utc::now().into(),
             };
@@ -157,15 +164,27 @@ pub async fn github_callback(
     let (token, refresh_token) = create_token_pair(&user, &data.config)?;
     let hashed_refresh_token = hash_password(&refresh_token)?;
 
-    let updated_refresh_token_user_option: Option<User> = data
+    let ip_address = req.connection_info().realip_remote_addr().map(|s| s.to_string());
+    let user_agent = req.headers().get("User-Agent").and_then(|v| v.to_str().ok()).map(|s| s.to_string());
+
+    let new_session = Session {
+        id: Uuid::new_v4(),
+        user_id: user.id,
+        refresh_token_hash: hashed_refresh_token,
+        user_agent,
+        ip_address,
+        created_at: Utc::now(),
+        expires_at: Utc::now()
+            .checked_add_signed(Duration::days(data.config.jwt_expiration))
+            .expect("valid timestamp"),
+    };
+
+    let _: Option<Session> = data
         .database
-        .update((USER_TABLE, user.id.to_string()))
-        .merge(serde_json::json!({
-            "refresh_token": hashed_refresh_token,
-        }))
-        .await?;
-    let _: User = updated_refresh_token_user_option
-        .ok_or_else(|| APIError::internal("Failed to update user"))?;
+        .create(SESSION_TABLE)
+        .content(new_session)
+        .await
+        .map_err(|_| APIError::internal("Failed to create session"))?;
 
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "token": token,

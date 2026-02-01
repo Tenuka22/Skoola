@@ -28,7 +28,17 @@ pub struct User {
     pub role: Role,
     pub google_id: Option<String>,
     pub github_id: Option<String>,
-    pub refresh_token: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+pub struct Session {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub refresh_token_hash: String,
+    pub user_agent: Option<String>,
+    pub ip_address: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
 }
