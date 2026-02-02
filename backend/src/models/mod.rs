@@ -1,2 +1,9 @@
 pub mod auth;
+pub mod permissions;
 pub mod profile;
+pub mod roles;
+pub mod staff;
+pub mod staff_roles;
+pub mod teacher_assignments;
+
+

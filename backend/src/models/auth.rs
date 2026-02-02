@@ -2,7 +2,7 @@ use apistos::ApiComponent;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use crate::database::tables::{Role, User};
+use crate::database::tables::User;
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct RegisterRequest {
@@ -20,7 +20,6 @@ pub struct LoginRequest {
 pub struct UserResponse {
     pub id: String,
     pub email: String,
-    pub role: Role,
     pub is_verified: bool,
 }
 
@@ -29,7 +28,6 @@ impl From<User> for UserResponse {
         UserResponse {
             id: user.id.to_string(),
             email: user.email,
-            role: user.role,
             is_verified: user.is_verified,
         }
     }
@@ -49,4 +47,14 @@ pub struct RefreshTokenRequest {
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct ResendVerificationEmailRequest {
     pub email: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct PasswordResetRequest {
+    pub email: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct PasswordReset {
+    pub new_password: String,
 }

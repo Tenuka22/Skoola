@@ -7,9 +7,9 @@ use diesel::prelude::*;
 
 use tracing::{info, warn}; // Added warn for logging errors
 
-use crate::{AppState, database::tables::{Role, User}, errors::APIError,
+use crate::{AppState, database::tables::{Role, RoleEnum, User, UserRole}, errors::APIError,
     services::{auth::{create_token_pair, hash_password}, oauth::{get_github_user_info, get_google_user_info}, session::SessionService},
-    schema::users,
+    schema::{roles, user_roles, users},
 };
 
 use apistos::ApiComponent;
@@ -65,7 +65,6 @@ pub async fn google_callback(
                 id: Uuid::new_v4().to_string(),
                 email: user_info.email.clone(),
                 password_hash: "".to_string(),
-                role: Role::Student.clone(),
                 google_id: Some(user_info.id.clone()),
                 github_id: None,
                 is_verified: true,
@@ -73,9 +72,27 @@ pub async fn google_callback(
                 verification_sent_at: Some(Utc::now().naive_utc()),
                 created_at: Utc::now().naive_utc(),
                 updated_at: Utc::now().naive_utc(),
+                password_reset_token: None,
+                password_reset_sent_at: None,
+                failed_login_attempts: 0,
+                lockout_until: None,
             };
             diesel::insert_into(users::table)
                 .values(&new_user)
+                .execute(&mut conn)?;
+
+            let student_role = roles::table
+                .filter(roles::name.eq(RoleEnum::Student.to_string()))
+                .select(Role::as_select())
+                .first::<Role>(&mut conn)?;
+
+            let new_user_role = UserRole {
+                user_id: new_user.id.clone(),
+                role_id: student_role.id,
+            };
+
+            diesel::insert_into(user_roles::table)
+                .values(&new_user_role)
                 .execute(&mut conn)?;
             
             info!("ACTION: New user registered via Google OAuth | user_id: {} | email: {} | google_id: {}", new_user.id, new_user.email, user_info.id);
@@ -85,7 +102,7 @@ pub async fn google_callback(
                 .first(&mut conn)?
         }
     };
-    let (token, refresh_token, _access_token_expiration) = create_token_pair(&user, &data.config)?;
+    let (token, refresh_token, _access_token_expiration) = create_token_pair(&user, &data.config, &data.db_pool)?;
     let hashed_refresh_token = hash_password(&refresh_token)?;
     let session_service = SessionService::new(data.db_pool.clone());
 
@@ -165,7 +182,6 @@ pub async fn github_callback(
                 id: Uuid::new_v4().to_string(),
                 email: email.clone(),
                 password_hash: "".to_string(),
-                role: Role::Student.clone(),
                 google_id: None,
                 github_id: Some(user_info.id.to_string()),
                 is_verified: true,
@@ -173,9 +189,27 @@ pub async fn github_callback(
                 verification_sent_at: Some(Utc::now().naive_utc()),
                 created_at: Utc::now().naive_utc(),
                 updated_at: Utc::now().naive_utc(),
+                password_reset_token: None,
+                password_reset_sent_at: None,
+                failed_login_attempts: 0,
+                lockout_until: None,
             };
             diesel::insert_into(users::table)
                 .values(&new_user)
+                .execute(&mut conn)?;
+
+            let student_role = roles::table
+                .filter(roles::name.eq(RoleEnum::Student.to_string()))
+                .select(Role::as_select())
+                .first::<Role>(&mut conn)?;
+
+            let new_user_role = UserRole {
+                user_id: new_user.id.clone(),
+                role_id: student_role.id,
+            };
+
+            diesel::insert_into(user_roles::table)
+                .values(&new_user_role)
                 .execute(&mut conn)?;
             
             info!("ACTION: New user registered via GitHub OAuth | user_id: {} | email: {} | github_id: {}", new_user.id, new_user.email, user_info.id);
@@ -186,7 +220,7 @@ pub async fn github_callback(
         }
     };
 
-    let (token, refresh_token, _access_token_expiration) = create_token_pair(&user, &data.config)?;
+    let (token, refresh_token, _access_token_expiration) = create_token_pair(&user, &data.config, &data.db_pool)?;
     let hashed_refresh_token = hash_password(&refresh_token)?;
 
     let session_service = SessionService::new(data.db_pool.clone());

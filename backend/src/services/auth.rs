@@ -10,7 +10,7 @@ use tracing::{info, warn};
 use crate::{
     config::Config,
     database::{connection::DbPool, tables::User},
-    schema::users,
+    schema::{roles, user_roles, users},
     services::session::SessionService,
 };
 
@@ -31,7 +31,15 @@ pub fn verify_password(password: &str, hash: &str) -> Result<bool, APIError> {
         .map_err(|e| APIError::internal(format!("Failed to verify password hash: {}", e).as_str()))
 }
 
-pub fn create_token_pair(user: &User, config: &Config) -> Result<(String, String, i64), APIError> {
+pub fn create_token_pair(user: &User, config: &Config, db_pool: &DbPool) -> Result<(String, String, i64), APIError> {
+    let mut conn = db_pool.get()?;
+    let user_role = user_roles::table
+        .inner_join(roles::table)
+        .filter(user_roles::user_id.eq(&user.id))
+        .select(roles::name)
+        .first::<String>(&mut conn)
+        .unwrap_or_else(|_| "Guest".to_string());
+
     let expiration = Utc::now()
         .checked_add_signed(Duration::days(config.jwt_expiration as i64))
         .ok_or_else(|| APIError::internal("Failed to calculate JWT expiration timestamp"))?
@@ -39,7 +47,7 @@ pub fn create_token_pair(user: &User, config: &Config) -> Result<(String, String
 
     let claims = Claims {
         sub: user.id.to_string(),
-        role: user.role.to_string(),
+        role: user_role,
         exp: expiration,
     };
 
@@ -111,7 +119,7 @@ pub async fn refresh_jwt(
     info!("User {} found for session refresh.", user.id);
 
     let (access_token, new_refresh_token, _access_token_expiration) =
-        create_token_pair(&user, config)?;
+        create_token_pair(&user, config, db_pool)?;
     let hashed_new_refresh_token = hash_password(&new_refresh_token)?;
 
     let expires_at = Utc::now()

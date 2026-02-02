@@ -8,7 +8,7 @@ use std::future::Future;
 use std::pin::Pin;
 use tracing::{info, warn};
 
-use crate::{config::Config, database::tables::Role, services::auth::decode_jwt};
+use crate::{config::Config, database::tables::RoleEnum, services::auth::decode_jwt};
 
 pub struct Authenticated;
 
@@ -57,7 +57,7 @@ where
             match decode_jwt(token, &config) {
                 Ok(claims) => {
                     let user_id = claims.sub.clone();
-                    let user_role = claims.role.parse::<Role>().unwrap_or_else(|_| Role::Guest);
+                    let user_role = claims.role.parse::<RoleEnum>().unwrap_or_else(|_| RoleEnum::Guest);
                     info!(
                         "ACTION: JWT decoded successfully | user_id: {} | role: {:?}",
                         user_id, user_role
@@ -110,7 +110,7 @@ impl FromRequest for UserId {
 }
 
 #[derive(Debug, Clone, ApiComponent, JsonSchema)]
-pub struct UserRole(pub Role);
+pub struct UserRole(pub RoleEnum);
 
 impl FromRequest for UserRole {
     type Error = Error;
@@ -127,7 +127,7 @@ impl FromRequest for UserRole {
                 warn!(
                     "ACTION: Failed to extract UserRole from request extensions, defaulting to Guest."
                 );
-                ok(UserRole(Role::Guest))
+                ok(UserRole(RoleEnum::Guest))
             }
         }
     }
