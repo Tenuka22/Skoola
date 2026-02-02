@@ -1,6 +1,7 @@
+use crate::errors::APIError;
 use reqwest::Client;
 use serde::Deserialize;
-use crate::{config::Config, errors::APIError};
+use crate::config::Config;
 
 #[derive(Deserialize)]
 struct GoogleTokenResponse {
@@ -38,20 +39,20 @@ pub async fn get_google_user_info(code: &str, config: &Config) -> Result<GoogleU
         ])
         .send()
         .await
-        .map_err(|_| APIError::internal("Internal Server Error"))?
+        .map_err(|e| APIError::internal(format!("Failed to send Google token request: {}", e).as_str()))?
         .json::<GoogleTokenResponse>()
         .await
-        .map_err(|_| APIError::internal("Internal Server Error"))?;
+        .map_err(|e| APIError::internal(format!("Failed to parse Google token response: {}", e).as_str()))?;
 
     let user_info_response = client
         .get("https://www.googleapis.com/oauth2/v2/userinfo")
         .bearer_auth(token_response.access_token)
         .send()
         .await
-        .map_err(|_| APIError::internal("Internal Server Error"))?
+        .map_err(|e| APIError::internal(format!("Failed to send Google user info request: {}", e).as_str()))?
         .json::<GoogleUserInfo>()
         .await
-        .map_err(|_| APIError::internal("Internal Server Error"))?;
+        .map_err(|e| APIError::internal(format!("Failed to parse Google user info response: {}", e).as_str()))?;
 
     Ok(user_info_response)
 }
@@ -70,10 +71,10 @@ pub async fn get_github_user_info(code: &str, config: &Config) -> Result<GithubU
         ])
         .send()
         .await
-        .map_err(|_| APIError::internal("Internal Server Error"))?
+        .map_err(|e| APIError::internal(format!("Failed to send GitHub token request: {}", e).as_str()))?
         .json::<GithubTokenResponse>()
         .await
-        .map_err(|_| APIError::internal("Internal Server Error"))?;
+        .map_err(|e| APIError::internal(format!("Failed to parse GitHub token response: {}", e).as_str()))?;
 
     let user_info_response = client
         .get("https://api.github.com/user")
@@ -81,10 +82,10 @@ pub async fn get_github_user_info(code: &str, config: &Config) -> Result<GithubU
         .header("User-Agent", "skoola-backend")
         .send()
         .await
-        .map_err(|_| APIError::internal("Internal Server Error"))?
+        .map_err(|e| APIError::internal(format!("Failed to send GitHub user info request: {}", e).as_str()))?
         .json::<GithubUserInfo>()
         .await
-        .map_err(|_| APIError::internal("Internal Server Error"))?;
+        .map_err(|e| APIError::internal(format!("Failed to parse GitHub user info response: {}", e).as_str()))?;
 
     Ok(user_info_response)
 }

@@ -24,3 +24,5 @@ target
 #.idea/
 
 .env
+migrations
+database.sqlite

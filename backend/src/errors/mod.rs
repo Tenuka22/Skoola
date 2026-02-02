@@ -3,11 +3,15 @@ use actix_web::{
     error::ResponseError,
     http::{StatusCode, header::ContentType},
 };
+
 use apistos::ApiErrorComponent;
 use derive_more::{Display, Error};
+use diesel::result::Error as DieselError;
 use schemars::JsonSchema;
 use serde::{Serialize, Serializer};
 use serde_json::json;
+use tracing::error;
+use r2d2::Error as R2d2Error;
 
 fn serialize_status_code_as_u16<S>(
     status_code: &StatusCode,
@@ -103,24 +107,31 @@ impl ResponseError for APIError {
     }
 }
 
-impl From<surrealdb::Error> for APIError {
-    fn from(error: surrealdb::Error) -> Self {
-        eprintln!("SurrealDB Error: {error}");
-
-        let msg = error.to_string();
-
-        if msg.contains("already exists") {
-            APIError::conflict("Resource already exists")
-        } else if msg.contains("not found") {
-            APIError::not_found("Resource not found")
-        } else {
-            APIError::internal(&msg)
-        }
-    }
-}
-
 impl From<APIError> for std::io::Error {
     fn from(error: APIError) -> Self {
         std::io::Error::new(std::io::ErrorKind::Other, error.message)
+    }
+}
+
+impl From<DieselError> for APIError {
+    fn from(error: DieselError) -> Self {
+        error!("Database error: {:?}", error);
+        APIError::internal("An internal database error occurred.")
+    }
+}
+
+
+
+impl From<std::io::Error> for APIError {
+    fn from(error: std::io::Error) -> Self {
+        error!("I/O error: {:?}", error);
+        APIError::internal("An internal I/O error occurred.")
+    }
+}
+
+impl From<R2d2Error> for APIError {
+    fn from(error: R2d2Error) -> Self {
+        error!("Database connection pool error: {:?}", error);
+        APIError::internal("Failed to get database connection.")
     }
 }

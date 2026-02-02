@@ -1,44 +1,46 @@
-use anyhow::Result;
-use bcrypt::{DEFAULT_COST, hash, verify};
+use crate::errors::APIError;
+use bcrypt::DEFAULT_COST;
 use chrono::{Duration, Utc};
+use diesel::prelude::*;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
-use rand::{RngCore, rng};
+use rand::RngCore;
 use serde::{Deserialize, Serialize};
-use surrealdb::{Surreal, engine::remote::ws::Client};
-use uuid::Uuid;
+use tracing::{info, warn};
 
-use crate::database::constants::{SESSION_TABLE, USER_TABLE};
 use crate::{
     config::Config,
-    database::tables::{Session, User},
-    errors::APIError,
+    database::{connection::DbPool, tables::User},
+    schema::users,
+    services::session::SessionService,
 };
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     pub sub: String,
     pub role: String,
-    pub exp: usize,
+    pub exp: i64,
 }
 
 pub fn hash_password(password: &str) -> Result<String, APIError> {
-    hash(password, DEFAULT_COST).map_err(|_| APIError::internal("Internal Server Error"))
+    bcrypt::hash(password, DEFAULT_COST)
+        .map_err(|e| APIError::internal(format!("Failed to hash password: {}", e).as_str()))
 }
 
 pub fn verify_password(password: &str, hash: &str) -> Result<bool, APIError> {
-    verify(password, hash).map_err(|_| APIError::internal("Internal Server Error"))
+    bcrypt::verify(password, hash)
+        .map_err(|e| APIError::internal(format!("Failed to verify password hash: {}", e).as_str()))
 }
 
-pub fn create_token_pair(user: &User, config: &Config) -> Result<(String, String), APIError> {
+pub fn create_token_pair(user: &User, config: &Config) -> Result<(String, String, i64), APIError> {
     let expiration = Utc::now()
-        .checked_add_signed(Duration::days(config.jwt_expiration))
-        .expect("valid timestamp")
+        .checked_add_signed(Duration::days(config.jwt_expiration as i64))
+        .ok_or_else(|| APIError::internal("Failed to calculate JWT expiration timestamp"))?
         .timestamp();
 
     let claims = Claims {
         sub: user.id.to_string(),
         role: user.role.to_string(),
-        exp: expiration as usize,
+        exp: expiration,
     };
 
     let header = Header::new(jsonwebtoken::Algorithm::HS512);
@@ -47,15 +49,19 @@ pub fn create_token_pair(user: &User, config: &Config) -> Result<(String, String
         &claims,
         &EncodingKey::from_secret(config.jwt_secret.as_ref()),
     )
-    .map_err(|_| APIError::internal("Internal Server Error"))?;
+    .map_err(|e| APIError::internal(format!("Failed to encode access token: {}", e).as_str()))?;
 
     let refresh_token = generate_refresh_token();
-    Ok((access_token, refresh_token))
+    info!(
+        "Access token and refresh token created for user_id: {}",
+        user.id
+    );
+    Ok((access_token, refresh_token, expiration))
 }
 
 #[allow(deprecated)]
 pub fn generate_refresh_token() -> String {
-    let mut rng = rng();
+    let mut rng = rand::thread_rng();
     let mut token_bytes = vec![0u8; 32];
     rng.fill_bytes(&mut token_bytes);
     base64_url::encode(&token_bytes)
@@ -64,67 +70,68 @@ pub fn generate_refresh_token() -> String {
 pub async fn refresh_jwt(
     refresh_token: &str,
     config: &Config,
-    db: &Surreal<Client>,
+    db_pool: &DbPool,
     ip_address: Option<String>,
     user_agent: Option<String>,
 ) -> Result<(String, String), APIError> {
+    let session_service = SessionService::new(db_pool.clone());
+
     let hashed_refresh_token = hash_password(refresh_token)?;
+    info!("Attempting to refresh JWT for a session.");
 
-    let mut response = db
-        .query("SELECT * FROM type::table($table) WHERE refresh_token_hash = $token")
-        .bind(("table", SESSION_TABLE))
-        .bind(("token", hashed_refresh_token.clone()))
-        .await
-        .map_err(|_| APIError::internal("Internal Server Error"))?;
-
-    let sessions_option: Option<Vec<Session>> = response
-        .take(0)
-        .map_err(|_| APIError::internal("Internal Server Error"))?;
-
-    let mut sessions: Vec<Session> = sessions_option.unwrap_or_default();
-
-    let session = sessions
-        .pop()
+    let session = session_service
+        .find_session_by_refresh_token_hash(&hashed_refresh_token)
+        .await?
         .ok_or_else(|| APIError::unauthorized("Invalid refresh token or session expired"))?;
 
-    if session.expires_at < Utc::now() {
-        return Err(APIError::unauthorized("Refresh token expired"));
-    }
+    info!(
+        "Found session {} for user_id: {}",
+        session.id, session.user_id
+    );
 
-    if !verify_password(refresh_token, &session.refresh_token_hash)? {
-        return Err(APIError::unauthorized("Invalid refresh token"));
-    }
+    // Delete the old session
+    session_service.delete_session(&session.id).await?;
+    info!(
+        "Old session {} for user_id {} deleted.",
+        session.id, session.user_id
+    );
 
-    // Invalidate the old session
-    let _: Option<Session> = db
-        .update((SESSION_TABLE, session.id.to_string()))
-        .merge(serde_json::json!({ "expires_at": Utc::now() }))
-        .await
-        .map_err(|_| APIError::internal("Failed to invalidate old session"))?;
+    let user_result: Option<User> = users::table
+        .find(&session.user_id)
+        .select(User::as_select())
+        .first(&mut session_service.db_pool.get().map_err(|e| {
+            APIError::internal(format!("Failed to get DB connection from pool: {}", e).as_str())
+        })?)
+        .optional()
+        .map_err(|e| {
+            APIError::internal(format!("Failed to query user for session: {}", e).as_str())
+        })?;
 
-    let user: Option<User> = db.select((USER_TABLE, session.user_id.to_string())).await?;
-    let user = user.ok_or_else(|| APIError::internal("User not found for session"))?;
+    let user = user_result.ok_or_else(|| APIError::internal("User not found for session"))?;
+    info!("User {} found for session refresh.", user.id);
 
-    let (access_token, new_refresh_token) = create_token_pair(&user, config)?;
+    let (access_token, new_refresh_token, _access_token_expiration) =
+        create_token_pair(&user, config)?;
     let hashed_new_refresh_token = hash_password(&new_refresh_token)?;
 
-    let new_session = Session {
-        id: Uuid::new_v4(),
-        user_id: user.id,
-        refresh_token_hash: hashed_new_refresh_token,
-        user_agent,
-        ip_address,
-        created_at: Utc::now(),
-        expires_at: Utc::now()
-            .checked_add_signed(Duration::days(config.jwt_expiration))
-            .expect("valid timestamp"),
-    };
+    let expires_at = Utc::now()
+        .checked_add_signed(Duration::days(config.jwt_expiration as i64))
+        .ok_or_else(|| APIError::internal("Failed to calculate new session expiration timestamp"))?
+        .naive_utc();
 
-    let _: Option<Session> = db
-        .create(SESSION_TABLE)
-        .content(new_session)
-        .await
-        .map_err(|_| APIError::internal("Failed to create new session"))?;
+    let created_session = session_service
+        .create_session(
+            user.id.clone(),
+            hashed_new_refresh_token,
+            user_agent,
+            ip_address,
+            expires_at,
+        )
+        .await?;
+    info!(
+        "New session {} created for user_id: {}. Refresh successful.",
+        created_session.id, user.id
+    );
 
     Ok((access_token, new_refresh_token))
 }
@@ -138,8 +145,12 @@ pub fn decode_jwt(token: &str, config: &Config) -> Result<Claims, APIError> {
     .map(|data| data.claims)
     .map_err(|e| match e.kind() {
         jsonwebtoken::errors::ErrorKind::ExpiredSignature => {
+            warn!("JWT expired.");
             APIError::unauthorized("Token has expired")
         }
-        _ => APIError::unauthorized("Invalid token"),
+        _ => {
+            warn!("Invalid JWT: {:?}", e);
+            APIError::unauthorized("Invalid token")
+        }
     })
 }

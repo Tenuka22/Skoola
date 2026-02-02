@@ -6,6 +6,7 @@ use crate::{
         profile::{
             change_email, change_password, get_profile, link_github, link_google, update_profile,
         },
+        verification::{resend_verification_email, verify_email},
     },
     utils::jwt::Authenticated,
 };
@@ -18,7 +19,9 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/login", web::post().to(login))
             .route("/refresh", web::post().to(refresh))
             .route("/google/callback", web::get().to(google_callback))
-            .route("/github/callback", web::get().to(github_callback)),
+            .route("/github/callback", web::get().to(github_callback))
+            .route("/verify-email/{token}", web::get().to(verify_email))
+            .route("/resend-verification", web::post().to(resend_verification_email)),
     )
     .service(
         web::scope("/profile")

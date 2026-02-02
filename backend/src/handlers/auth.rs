@@ -2,17 +2,23 @@ use actix_web::{HttpRequest, web::Json};
 use actix_web::{HttpResponse, web};
 use apistos::api_operation;
 use chrono::{Duration, Utc};
+use diesel::prelude::*;
 use uuid::Uuid;
 
-use crate::database::constants::{SESSION_TABLE, USER_TABLE};
+use rand::distributions::{Alphanumeric, DistString};
+use tracing::{info, warn};
+
 use crate::{
     AppState,
-    database::tables::{Role, Session, User},
+    database::tables::{Role, User},
     errors::APIError,
     models::auth::{
         LoginRequest, RefreshTokenRequest, RegisterRequest, TokenResponse, UserResponse,
     },
+    schema::users,
     services::auth::{create_token_pair, hash_password, refresh_jwt, verify_password},
+    services::email::EmailService,
+    services::session::SessionService,
 };
 
 #[api_operation(
@@ -24,39 +30,65 @@ pub async fn register(
     data: web::Data<AppState>,
     body: web::Json<RegisterRequest>,
 ) -> Result<HttpResponse, APIError> {
-    let mut response = data
-        .database
-        .query("SELECT * FROM type::table($table) WHERE email = $email")
-        .bind(("table", USER_TABLE))
-        .bind(("email", body.email.clone()))
-        .await?;
-    let users_option: Option<Vec<User>> = response.take(0)?;
-    let users: Vec<User> = users_option.unwrap_or_default();
+    let mut conn = data.db_pool.get()?;
 
-    if !users.is_empty() {
+    let existing_user: Option<User> = users::table
+        .filter(users::email.eq(&body.email))
+        .select(User::as_select())
+        .first(&mut conn)
+        .optional()?;
+
+    if existing_user.is_some() {
+        warn!(
+            "ACTION: User registration failed | reason: email already exists | email: {}",
+            body.email
+        );
         return Err(APIError::conflict("User with this email already exists"));
     }
 
     let password_hash = hash_password(&body.password)?;
 
+    let verification_token: String = Alphanumeric.sample_string(&mut rand::thread_rng(), 30);
+
     let new_user = User {
-        id: Uuid::new_v4(),
+        id: Uuid::new_v4().to_string(),
         email: body.email.clone(),
         password_hash,
-        role: Role::Guest, // Default role
+        role: Role::Guest.clone(),
         google_id: None,
         github_id: None,
-        created_at: chrono::Utc::now().into(),
-        updated_at: chrono::Utc::now().into(),
+        is_verified: false,
+        verification_token: Some(verification_token.clone()),
+        verification_sent_at: Some(Utc::now().naive_utc()),
+        created_at: Utc::now().naive_utc(),
+        updated_at: Utc::now().naive_utc(),
     };
 
-    let created_user: User = data
-        .database
-        .create(USER_TABLE)
-        .content(new_user)
-        .await?
-        .ok_or_else(|| APIError::internal("Failed to create user"))?;
+    diesel::insert_into(users::table)
+        .values(&new_user)
+        .execute(&mut conn)?;
 
+    let email_service = EmailService::new(data.config.clone());
+    email_service
+        .send_verification_email(&new_user.email, &verification_token)
+        .await
+        .unwrap_or_else(|e| {
+            warn!(
+                "ACTION: Failed to send verification email to {} | error: {:?}",
+                new_user.email, e
+            );
+            false
+        });
+
+    let created_user: User = users::table
+        .filter(users::email.eq(&body.email))
+        .select(User::as_select())
+        .first(&mut conn)?;
+
+    info!(
+        "ACTION: User registered successfully | user_id: {} | email: {}",
+        created_user.id, created_user.email
+    );
     Ok(HttpResponse::Created().json(UserResponse::from(created_user)))
 }
 
@@ -70,25 +102,39 @@ pub async fn login(
     body: web::Json<LoginRequest>,
     req: HttpRequest,
 ) -> Result<Json<TokenResponse>, APIError> {
-    let mut response = data
-        .database
-        .query("SELECT * FROM type::table($table) WHERE email = $email")
-        .bind(("table", USER_TABLE))
-        .bind(("email", body.email.clone()))
-        .await?;
-    let users_option: Option<Vec<User>> = response.take(1)?;
-    let mut users: Vec<User> =
-        users_option.ok_or_else(|| APIError::unauthorized("Invalid email or password"))?;
+    let mut conn = data.db_pool.get()?;
 
-    let user = users
-        .pop()
-        .ok_or_else(|| APIError::unauthorized("Invalid email or password"))?;
+    let user: User = users::table
+        .filter(users::email.eq(&body.email))
+        .select(User::as_select())
+        .first(&mut conn)
+        .map_err(|_| {
+            warn!(
+                "ACTION: User login failed | reason: user not found | email: {}",
+                body.email
+            );
+            APIError::unauthorized("Invalid email or password")
+        })?;
+
+    if !user.is_verified {
+        warn!(
+            "ACTION: User login failed | reason: email not verified | user_id: {} | email: {}",
+            user.id, user.email
+        );
+        return Err(APIError::unauthorized(
+            "Email not verified. Please check your inbox for a verification link.",
+        ));
+    }
 
     if !verify_password(&body.password, &user.password_hash)? {
+        warn!(
+            "ACTION: User login failed | reason: invalid password | user_id: {} | email: {}",
+            user.id, user.email
+        );
         return Err(APIError::unauthorized("Invalid email or password"));
     }
 
-    let (token, refresh_token) = create_token_pair(&user, &data.config)?;
+    let (token, refresh_token, _access_token_expiration) = create_token_pair(&user, &data.config)?;
 
     let hashed_refresh_token = hash_password(&refresh_token)?;
 
@@ -103,34 +149,29 @@ pub async fn login(
         .and_then(|v| v.to_str().ok())
         .map(|s| s.to_string());
 
-    let new_session = Session {
-        id: Uuid::new_v4(),
+    let session_service = SessionService::new(data.db_pool.clone());
 
-        user_id: user.id,
+    let expires_at = Utc::now()
+        .checked_add_signed(Duration::days(data.config.jwt_expiration as i64))
+        .ok_or_else(|| APIError::internal("Failed to calculate session expiration"))?
+        .naive_utc();
 
-        refresh_token_hash: hashed_refresh_token,
+    session_service
+        .create_session(
+            user.id.clone(),
+            hashed_refresh_token,
+            user_agent.clone(),
+            ip_address.clone(),
+            expires_at,
+        )
+        .await?;
 
-        user_agent,
-
-        ip_address,
-
-        created_at: Utc::now(),
-
-        expires_at: Utc::now()
-            .checked_add_signed(Duration::days(data.config.jwt_expiration))
-            .expect("valid timestamp"),
-    };
-
-    let _: Option<Session> = data
-        .database
-        .create(SESSION_TABLE)
-        .content(new_session)
-        .await
-        .map_err(|_| APIError::internal("Failed to create session"))?;
-
+    info!(
+        "ACTION: User logged in successfully | user_id: {} | email: {} | ip_address: {:?} | user_agent: {:?}",
+        user.id, user.email, ip_address, user_agent
+    );
     Ok(Json(TokenResponse {
         token,
-
         refresh_token,
     }))
 }
@@ -158,12 +199,23 @@ pub async fn refresh(
     let (new_token, new_refresh_token) = refresh_jwt(
         &body.refresh_token,
         &data.config,
-        &data.database,
-        ip_address,
-        user_agent,
+        &data.db_pool,
+        ip_address.clone(),
+        user_agent.clone(),
     )
-    .await?;
+    .await
+    .map_err(|e| {
+        warn!(
+            "ACTION: JWT refresh failed | reason: {:?} | ip_address: {:?} | user_agent: {:?}",
+            e, ip_address, user_agent
+        );
+        e
+    })?;
 
+    info!(
+        "ACTION: JWT refreshed successfully | ip_address: {:?} | user_agent: {:?}",
+        ip_address, user_agent
+    );
     Ok(HttpResponse::Ok().json(TokenResponse {
         token: new_token,
         refresh_token: new_refresh_token,

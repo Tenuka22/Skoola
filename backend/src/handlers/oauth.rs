@@ -3,10 +3,13 @@ use apistos::api_operation;
 use schemars::JsonSchema;
 use uuid::Uuid;
 use chrono::{Utc, Duration};
+use diesel::prelude::*;
 
-use crate::database::constants::{USER_TABLE, SESSION_TABLE};
-use crate::{AppState, database::tables::{Role, User, Session}, errors::APIError,
-    services::{auth::{create_token_pair, hash_password}, oauth::{get_github_user_info, get_google_user_info}},
+use tracing::{info, warn}; // Added warn for logging errors
+
+use crate::{AppState, database::tables::{Role, User}, errors::APIError,
+    services::{auth::{create_token_pair, hash_password}, oauth::{get_github_user_info, get_google_user_info}, session::SessionService},
+    schema::users,
 };
 
 use apistos::ApiComponent;
@@ -27,75 +30,82 @@ pub async fn google_callback(
     query: web::Query<OAuthQuery>,
     req: HttpRequest,
 ) -> Result<HttpResponse, APIError> {
-    let user_info = get_google_user_info(&query.code, &data.config).await?;
-
-    let mut response = data
-        .database
-        .query("SELECT * FROM type::table($table) WHERE email = $email")
-        .bind(("table", USER_TABLE))
-        .bind(("email", user_info.email.clone()))
-        .await?;
-    let users_option: Option<Vec<User>> = response.take(0)?;
-    let mut users: Vec<User> = users_option.unwrap_or_default();
-
-    let user = match users.pop() {
-        Some(mut user) => {
-            user.google_id = Some(user_info.id);
-            let updated_user_option: Option<User> = data
-                .database
-                .update((USER_TABLE, user.id.to_string()))
-                .merge(serde_json::json!({ "google_id": user.google_id }))
-                .await?;
-            let updated_user = updated_user_option
-                .ok_or_else(|| APIError::internal("Failed to update user"))?;
-            updated_user
-        }
-        None => {
-            let new_user = User {
-                id: Uuid::new_v4(),
-                email: user_info.email,
-                password_hash: "".to_string(), // No password for OAuth users
-                role: Role::Student,
-                google_id: Some(user_info.id),
-                github_id: None,
-                created_at: chrono::Utc::now().into(),
-                updated_at: chrono::Utc::now().into(),
-            };
-            let created_user: User = data
-                .database
-                .create(USER_TABLE)
-                .content(new_user)
-                .await?
-                .ok_or_else(|| APIError::internal("Failed to create user"))?;
-            created_user
-        }
-    };
-
-    let (token, refresh_token) = create_token_pair(&user, &data.config)?;
-    let hashed_refresh_token = hash_password(&refresh_token)?;
-
     let ip_address = req.connection_info().realip_remote_addr().map(|s| s.to_string());
     let user_agent = req.headers().get("User-Agent").and_then(|v| v.to_str().ok()).map(|s| s.to_string());
 
-    let new_session = Session {
-        id: Uuid::new_v4(),
-        user_id: user.id,
-        refresh_token_hash: hashed_refresh_token,
-        user_agent,
-        ip_address,
-        created_at: Utc::now(),
-        expires_at: Utc::now()
-            .checked_add_signed(Duration::days(data.config.jwt_expiration))
-            .expect("valid timestamp"),
+    let user_info = get_google_user_info(&query.code, &data.config).await
+        .map_err(|e| {
+            warn!("ACTION: Google OAuth failed | reason: {:?} | ip_address: {:?} | user_agent: {:?}", e, ip_address, user_agent);
+            APIError::internal("Failed to get Google user info")
+        })?;
+
+    let mut conn = data.db_pool.get()?;
+
+    let existing_user_result: Option<User> = users::table
+        .filter(users::email.eq(&user_info.email))
+        .select(User::as_select())
+        .first(&mut conn)
+        .optional()?;
+
+    let user = match existing_user_result {
+        Some(mut user) => {
+            user.google_id = Some(user_info.id.clone());
+            diesel::update(users::table.find(&user.id))
+                .set(users::google_id.eq(&user.google_id))
+                .execute(&mut conn)?;
+            
+            info!("ACTION: Existing user logged in via Google OAuth | user_id: {} | email: {} | google_id: {}", user.id, user.email, user_info.id);
+            users::table
+                .find(&user.id)
+                .select(User::as_select())
+                .first(&mut conn)?
+        },
+        None => {
+            let new_user = User {
+                id: Uuid::new_v4().to_string(),
+                email: user_info.email.clone(),
+                password_hash: "".to_string(),
+                role: Role::Student.clone(),
+                google_id: Some(user_info.id.clone()),
+                github_id: None,
+                is_verified: true,
+                verification_token: None,
+                verification_sent_at: Some(Utc::now().naive_utc()),
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            };
+            diesel::insert_into(users::table)
+                .values(&new_user)
+                .execute(&mut conn)?;
+            
+            info!("ACTION: New user registered via Google OAuth | user_id: {} | email: {} | google_id: {}", new_user.id, new_user.email, user_info.id);
+            users::table
+                .filter(users::email.eq(&new_user.email))
+                .select(User::as_select())
+                .first(&mut conn)?
+        }
     };
+    let (token, refresh_token, _access_token_expiration) = create_token_pair(&user, &data.config)?;
+    let hashed_refresh_token = hash_password(&refresh_token)?;
+    let session_service = SessionService::new(data.db_pool.clone());
 
-    let _: Option<Session> = data
-        .database
-        .create(SESSION_TABLE)
-        .content(new_session)
-        .await
-        .map_err(|_| APIError::internal("Failed to create session"))?;
+    let expires_at = Utc::now()
+        .checked_add_signed(Duration::days(data.config.jwt_expiration as i64))
+        .ok_or_else(|| APIError::internal("Failed to calculate session expiration"))?
+        .naive_utc();
 
+    session_service.create_session(
+        user.id.clone(),
+        hashed_refresh_token,
+        user_agent.clone(),
+        ip_address.clone(),
+        expires_at,
+    ).await?;
+
+    info!(
+        "ACTION: Google OAuth successful | user_id: {} | email: {} | ip_address: {:?} | user_agent: {:?}",
+        user.id, user.email, ip_address, user_agent
+    );
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "token": token,
         "refresh_token": refresh_token,
@@ -113,79 +123,91 @@ pub async fn github_callback(
     query: web::Query<OAuthQuery>,
     req: HttpRequest,
 ) -> Result<HttpResponse, APIError> {
-    let user_info = get_github_user_info(&query.code, &data.config).await?;
-
-    let email = user_info
-        .email
-        .ok_or_else(|| APIError::bad_request("GitHub user email is private."))?;
-
-    let mut response = data
-        .database
-        .query("SELECT * FROM type::table($table) WHERE email = $email")
-        .bind(("table", USER_TABLE))
-        .bind(("email", email.clone()))
-        .await?;
-    let users_option: Option<Vec<User>> = response.take(0)?;
-    let mut users: Vec<User> = users_option.unwrap_or_default();
-
-    let user = match users.pop() {
-        Some(mut user) => {
-            user.github_id = Some(user_info.id.to_string());
-            let updated_user_option: Option<User> = data
-                .database
-                .update((USER_TABLE, user.id.to_string()))
-                .merge(serde_json::json!({ "github_id": user.github_id }))
-                .await?;
-            let updated_user = updated_user_option
-                .ok_or_else(|| APIError::internal("Failed to update user"))?;
-            updated_user
-        }
-        None => {
-            let new_user = User {
-                id: Uuid::new_v4(),
-                email,
-                password_hash: "".to_string(), // No password for OAuth users
-                role: Role::Student,
-                google_id: None,
-                github_id: Some(user_info.id.to_string()),
-                created_at: chrono::Utc::now().into(),
-                updated_at: chrono::Utc::now().into(),
-            };
-            let created_user: User = data
-                .database
-                .create(USER_TABLE)
-                .content(new_user)
-                .await?
-                .ok_or_else(|| APIError::internal("Failed to create user"))?;
-            created_user
-        }
-    };
-
-    let (token, refresh_token) = create_token_pair(&user, &data.config)?;
-    let hashed_refresh_token = hash_password(&refresh_token)?;
-
     let ip_address = req.connection_info().realip_remote_addr().map(|s| s.to_string());
     let user_agent = req.headers().get("User-Agent").and_then(|v| v.to_str().ok()).map(|s| s.to_string());
 
-    let new_session = Session {
-        id: Uuid::new_v4(),
-        user_id: user.id,
-        refresh_token_hash: hashed_refresh_token,
-        user_agent,
-        ip_address,
-        created_at: Utc::now(),
-        expires_at: Utc::now()
-            .checked_add_signed(Duration::days(data.config.jwt_expiration))
-            .expect("valid timestamp"),
+    let user_info = get_github_user_info(&query.code, &data.config).await
+        .map_err(|e| {
+            warn!("ACTION: GitHub OAuth failed | reason: {:?} | ip_address: {:?} | user_agent: {:?}", e, ip_address, user_agent);
+            APIError::internal("Failed to get GitHub user info")
+        })?;
+
+    let email = user_info
+        .email
+        .ok_or_else(|| {
+            warn!("ACTION: GitHub OAuth failed | reason: GitHub user email is private | ip_address: {:?} | user_agent: {:?}", ip_address, user_agent);
+            APIError::bad_request("GitHub user email is private.")
+        })?;
+
+    let mut conn = data.db_pool.get()?;
+
+    let existing_user_result: Option<User> = users::table
+        .filter(users::email.eq(&email))
+        .select(User::as_select())
+        .first(&mut conn)
+        .optional()?;
+
+    let user = match existing_user_result {
+        Some(mut user) => {
+            user.github_id = Some(user_info.id.to_string());
+            diesel::update(users::table.find(&user.id))
+                .set(users::github_id.eq(&user.github_id))
+                .execute(&mut conn)?;
+            
+            info!("ACTION: Existing user logged in via GitHub OAuth | user_id: {} | email: {} | github_id: {}", user.id, user.email, user_info.id);
+            users::table
+                .find(&user.id)
+                .select(User::as_select())
+                .first(&mut conn)?
+        }
+        None => {
+            let new_user = User {
+                id: Uuid::new_v4().to_string(),
+                email: email.clone(),
+                password_hash: "".to_string(),
+                role: Role::Student.clone(),
+                google_id: None,
+                github_id: Some(user_info.id.to_string()),
+                is_verified: true,
+                verification_token: None,
+                verification_sent_at: Some(Utc::now().naive_utc()),
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            };
+            diesel::insert_into(users::table)
+                .values(&new_user)
+                .execute(&mut conn)?;
+            
+            info!("ACTION: New user registered via GitHub OAuth | user_id: {} | email: {} | github_id: {}", new_user.id, new_user.email, user_info.id);
+            users::table
+                .filter(users::email.eq(&new_user.email))
+                .select(User::as_select())
+                .first(&mut conn)?
+        }
     };
 
-    let _: Option<Session> = data
-        .database
-        .create(SESSION_TABLE)
-        .content(new_session)
-        .await
-        .map_err(|_| APIError::internal("Failed to create session"))?;
+    let (token, refresh_token, _access_token_expiration) = create_token_pair(&user, &data.config)?;
+    let hashed_refresh_token = hash_password(&refresh_token)?;
 
+    let session_service = SessionService::new(data.db_pool.clone());
+
+    let expires_at = Utc::now()
+        .checked_add_signed(Duration::days(data.config.jwt_expiration as i64))
+        .ok_or_else(|| APIError::internal("Failed to calculate session expiration"))?
+        .naive_utc();
+
+    session_service.create_session(
+        user.id.clone(),
+        hashed_refresh_token,
+        user_agent.clone(),
+        ip_address.clone(),
+        expires_at,
+    ).await?;
+
+    info!(
+        "ACTION: GitHub OAuth successful | user_id: {} | email: {} | ip_address: {:?} | user_agent: {:?}",
+        user.id, user.email, ip_address, user_agent
+    );
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "token": token,
         "refresh_token": refresh_token,

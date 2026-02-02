@@ -1,7 +1,5 @@
-use std::sync::Arc;
-
 use actix_cors::Cors;
-use actix_web::{App, HttpServer, middleware::Logger, web::Data};
+use actix_web::{App, HttpServer, web::Data};
 use apistos::{
     app::{BuildConfig, OpenApiWrapper},
     spec::Spec,
@@ -9,11 +7,13 @@ use apistos::{
 use apistos_models::info::Info;
 use apistos_scalar::ScalarConfig;
 use config::Config;
-use env_logger::Env;
-use log::{error, info, warn};
-use surrealdb::{Surreal, engine::remote::ws::Client};
-
-use crate::database::init_db;
+use tracing::{error, info};
+use tracing_subscriber::{EnvFilter, FmtSubscriber};
+use tracing_actix_web::TracingLogger;
+use tokio::time::{interval, Duration}; // Add this line
+use crate::database::connection::{DbPool, establish_connection}; // Updated import
+use crate::errors::APIError;
+use crate::services::cleanup::remove_unverified_users; // Add this line
 
 mod config;
 mod database;
@@ -23,31 +23,28 @@ mod models;
 mod routes;
 mod services;
 mod utils;
+mod schema;
 
+#[derive(Clone)] // Add Clone derive
 struct AppState {
     config: Config,
-    database: Arc<Surreal<Client>>,
+    db_pool: DbPool,
 }
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    env_logger::Builder::from_env(Env::default().default_filter_or("info"))
-        .format_timestamp_secs()
+async fn main() -> Result<(), APIError> {
+    // Initialize tracing subscriber
+    FmtSubscriber::builder()
+        .with_env_filter(EnvFilter::from_default_env())
         .init();
-
-    match dotenvy::dotenv() {
-        Ok(path) => info!(".env loaded from: {}", path.display()),
-        Err(err) => warn!("No .env file found: {}", err),
-    }
 
     info!("╔════════════════════════════════════════╗");
     info!("║   🚀 Skoola Backend Starting Up       ║");
     info!("╚════════════════════════════════════════╝");
 
-    let config = Config::from_env().map_err(|e| {
-        error!("❌ Configuration error: {}", e);
-        std::io::Error::new(std::io::ErrorKind::InvalidInput, e)
-    })?;
+    dotenvy::dotenv().ok();
+
+    let config = Config::from_env()?;
 
     info!("📍 Server will bind to {}", config.server_url());
     info!("📚 API Documentation: {}", config.docs_url());
@@ -67,7 +64,23 @@ async fn main() -> std::io::Result<()> {
     let bind_address = (config.host.clone(), config.port);
     let allowed_origin = config.allowed_origin.clone();
 
-    let database = init_db(&config).await?;
+    let pool = establish_connection(&config.database_url)
+        .map_err(|e| APIError::internal(format!("Failed to establish database connection pool: {}", e).as_str()))?;
+
+    let app_data = Data::new(AppState {
+        config: config.clone(),
+        db_pool: pool.clone(),
+    });
+
+    // Spawn background task for removing unverified users
+    let cleanup_app_data = app_data.clone();
+    tokio::spawn(async move {
+        let mut interval = interval(Duration::from_secs(3600)); // Every 1 hour
+        loop {
+            interval.tick().await;
+            remove_unverified_users(cleanup_app_data.clone()).await;
+        }
+    });
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -79,14 +92,9 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             .document(spec.clone())
-            .app_data(Data::new(AppState {
-                config: config.clone(),
-                database: database.clone(),
-            }))
+            .app_data(app_data.clone()) // Use the cloned app_data here
             .wrap(cors)
-            .wrap(Logger::new(
-                r#"%a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T"#,
-            ))
+            .wrap(TracingLogger::default()) // Replaced Logger with TracingLogger
             .configure(routes::configure)
             .build_with(
                 "/openapi.json",
@@ -96,7 +104,7 @@ async fn main() -> std::io::Result<()> {
     .bind(bind_address)
     .map_err(|e| {
         error!("❌ Failed to bind - {}", e);
-        e
+        APIError::internal(format!("Failed to bind server: {}", e).as_str())
     })?
     .run()
     .await?;

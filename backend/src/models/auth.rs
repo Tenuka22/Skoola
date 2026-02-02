@@ -21,6 +21,7 @@ pub struct UserResponse {
     pub id: String,
     pub email: String,
     pub role: Role,
+    pub is_verified: bool,
 }
 
 impl From<User> for UserResponse {
@@ -29,6 +30,7 @@ impl From<User> for UserResponse {
             id: user.id.to_string(),
             email: user.email,
             role: user.role,
+            is_verified: user.is_verified,
         }
     }
 }
@@ -42,4 +44,9 @@ pub struct TokenResponse {
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct RefreshTokenRequest {
     pub refresh_token: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct ResendVerificationEmailRequest {
+    pub email: String,
 }

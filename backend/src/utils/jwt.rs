@@ -6,8 +6,9 @@ use actix_web::{
 use futures_util::future::{Ready, ok};
 use std::future::Future;
 use std::pin::Pin;
+use tracing::{info, warn};
 
-use crate::{config::Config, services::auth::decode_jwt};
+use crate::{config::Config, database::tables::Role, services::auth::decode_jwt};
 
 pub struct Authenticated;
 
@@ -53,12 +54,28 @@ where
             .and_then(|h| h.strip_prefix("Bearer "));
 
         if let Some(token) = token {
-            if let Ok(claims) = decode_jwt(token, &config) {
-                req.extensions_mut().insert(UserId(claims.sub));
-                return Box::pin(self.service.call(req));
+            match decode_jwt(token, &config) {
+                Ok(claims) => {
+                    let user_id = claims.sub.clone();
+                    let user_role = claims.role.parse::<Role>().unwrap_or_else(|_| Role::Guest);
+                    info!(
+                        "ACTION: JWT decoded successfully | user_id: {} | role: {:?}",
+                        user_id, user_role
+                    );
+                    req.extensions_mut().insert(UserId(user_id));
+                    req.extensions_mut().insert(UserRole(user_role));
+                    return Box::pin(self.service.call(req));
+                }
+                Err(e) => {
+                    warn!("ACTION: JWT decoding failed | reason: {:?}", e);
+                    return Box::pin(async {
+                        Err(actix_web::error::ErrorUnauthorized("Invalid token"))
+                    });
+                }
             }
         }
 
+        warn!("ACTION: Missing or invalid Authorization header");
         Box::pin(async {
             Err(actix_web::error::ErrorUnauthorized(
                 "Missing or invalid token",
@@ -84,7 +101,34 @@ impl FromRequest for UserId {
         let extensions = req.extensions();
         match extensions.get::<UserId>() {
             Some(user_id) => ok(user_id.clone()),
-            None => ok(UserId("".to_string())),
+            None => {
+                warn!("ACTION: Failed to extract UserId from request extensions.");
+                ok(UserId("".to_string()))
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, ApiComponent, JsonSchema)]
+pub struct UserRole(pub Role);
+
+impl FromRequest for UserRole {
+    type Error = Error;
+    type Future = Ready<Result<Self, Self::Error>>;
+
+    fn from_request(
+        req: &actix_web::HttpRequest,
+        _payload: &mut actix_web::dev::Payload,
+    ) -> Self::Future {
+        let extensions = req.extensions();
+        match extensions.get::<UserRole>() {
+            Some(user_role) => ok(user_role.clone()),
+            None => {
+                warn!(
+                    "ACTION: Failed to extract UserRole from request extensions, defaulting to Guest."
+                );
+                ok(UserRole(Role::Guest))
+            }
         }
     }
 }
