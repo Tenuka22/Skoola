@@ -1,33 +1,6 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    academic_years (id) {
-        id -> Text,
-        year_name -> Text,
-        start_date -> Date,
-        end_date -> Date,
-        is_active -> Bool,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    classes (id) {
-        id -> Text,
-        name -> Text,
-        academic_year_id -> Text,
-        grade_id -> Text,
-        class_teacher_id -> Nullable<Text>,
-        medium -> Text,
-        room_number -> Nullable<Text>,
-        max_capacity -> Integer,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
     permissions (id) {
         id -> Text,
         name -> Text,
@@ -45,6 +18,7 @@ diesel::table! {
     roles (id) {
         id -> Text,
         name -> Text,
+        parent_id -> Nullable<Text>,
     }
 }
 
@@ -71,10 +45,11 @@ diesel::table! {
         address -> Text,
         phone -> Text,
         email -> Text,
-        employment_status -> Text,
-        staff_type -> Text,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        employment_status -> Text,
+        staff_type -> Text,
+        photo_url -> Nullable<Text>,
     }
 }
 
@@ -157,20 +132,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    subjects (id) {
-        id -> Text,
-        subject_code -> Text,
-        subject_name_en -> Text,
-        subject_name_si -> Nullable<Text>,
-        subject_name_ta -> Nullable<Text>,
-        is_core -> Bool,
-        grade_level -> Integer,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
     teacher_class_assignments (id) {
         id -> Text,
         teacher_id -> Text,
@@ -228,19 +189,12 @@ diesel::joinable!(staff_qualifications -> staff (staff_id));
 diesel::joinable!(staff_roles -> roles (role_id));
 diesel::joinable!(staff_roles -> staff (staff_id));
 diesel::joinable!(staff_subjects -> staff (staff_id));
-diesel::joinable!(staff_subjects -> subjects (subject_id));
-diesel::joinable!(teacher_class_assignments -> academic_years (academic_year_id));
-diesel::joinable!(teacher_class_assignments -> classes (class_id));
 diesel::joinable!(teacher_class_assignments -> staff (teacher_id));
-diesel::joinable!(teacher_subject_assignments -> academic_years (academic_year_id));
 diesel::joinable!(teacher_subject_assignments -> staff (teacher_id));
-diesel::joinable!(teacher_subject_assignments -> subjects (subject_id));
 diesel::joinable!(user_roles -> roles (role_id));
 diesel::joinable!(user_roles -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    academic_years,
-    classes,
     permissions,
     role_permissions,
     roles,
@@ -253,7 +207,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     staff_qualifications,
     staff_roles,
     staff_subjects,
-    subjects,
     teacher_class_assignments,
     teacher_subject_assignments,
     user_roles,

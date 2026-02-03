@@ -7,7 +7,7 @@ use diesel::serialize::{IsNull, Output, ToSql};
 use diesel::sql_types::Text;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Formatter, Result};
+use std::fmt::{Display, Formatter};
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 
 use diesel::FromSqlRow;
@@ -29,7 +29,7 @@ pub enum RoleEnum {
 }
 
 impl Display for RoleEnum {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             RoleEnum::Admin => write!(f, "Admin"),
             RoleEnum::Teacher => write!(f, "Teacher"),
@@ -119,6 +119,7 @@ pub struct User {
 pub struct Role {
     pub id: String,
     pub name: String,
+    pub parent_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
@@ -162,8 +163,9 @@ pub struct Staff {
     pub address: String,
     pub phone: String,
     pub email: String,
-    pub employment_status: EmploymentStatus,
-    pub staff_type: StaffType,
+    pub photo_url: Option<String>,
+    pub employment_status: crate::database::enums::EmploymentStatus,
+    pub staff_type: crate::database::enums::StaffType,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -219,6 +221,18 @@ pub struct StaffRole {
     pub role_id: String,
 }
 
+impl StaffRole {
+    pub fn find_by_staff_id(
+        conn: &mut SqliteConnection,
+        staff_id_to_find: &str,
+    ) -> diesel::result::QueryResult<Vec<Self>> {
+        staff_roles::table
+            .filter(staff_roles::staff_id.eq(staff_id_to_find))
+            .select(StaffRole::as_select())
+            .load(conn)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
 #[diesel(table_name = staff_subjects)]
 #[diesel(belongs_to(Staff))]
@@ -226,6 +240,18 @@ pub struct StaffRole {
 pub struct StaffSubject {
     pub staff_id: String,
     pub subject_id: String,
+}
+
+impl RolePermission {
+    pub fn find_by_role_id(
+        conn: &mut SqliteConnection,
+        role_id_to_find: &str,
+    ) -> diesel::result::QueryResult<Vec<Self>> {
+        role_permissions::table
+            .filter(role_permissions::role_id.eq(role_id_to_find))
+            .select(RolePermission::as_select())
+            .load(conn)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]

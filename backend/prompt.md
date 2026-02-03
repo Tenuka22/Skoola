@@ -230,7 +230,7 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Add staff photo upload functionality
-- [ ] **Run `cargo check` to verify code compiles**
+- [✅] **Run `cargo check` to verify code compiles**
 - [ ] **Run `cargo check` to verify all staff CRUD endpoints have no type errors**
 
 ### 3.4 Staff Role Assignment
@@ -284,10 +284,7 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] **Run `cargo check` to verify migration compiles**
 - [✅] **Run `cargo check` to verify migration compiles**
 - [✅] Create endpoint to mark staff attendance (daily)
-- [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create endpoint to mark bulk staff attendance
-- [✅] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create endpoint to update attendance record
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create endpoint to view staff attendance by date
@@ -312,8 +309,8 @@ Add your notes to help you future self. Only simple things and where which files
 ## 4. STUDENT MANAGEMENT MODULE
 
 ### 4.1 Student Database Schema
-- [ ] Create students table migration (id, admission_number, name, nic/birth_certificate, dob, gender, address, religion, ethnicity, etc.)
-- [ ] **Run `cargo check` to verify migration compiles**
+- [✅] Create students table migration (id, admission_number, name, nic/birth_certificate, dob, gender, address, religion, ethnicity, etc.)
+- [✅] **Run `cargo check` to verify migration compiles**
 - [ ] **Run `cargo check` to verify migration compiles**
 - [ ] Create student_guardians table migration
 - [ ] **Run `cargo check` to verify migration compiles**

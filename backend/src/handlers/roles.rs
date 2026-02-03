@@ -54,6 +54,7 @@ pub async fn create_role(
     let new_role = Role {
         id: Uuid::new_v4().to_string(),
         name: body.name.clone(),
+        parent_id: body.parent_id.clone(),
     };
     diesel::insert_into(roles::table)
         .values(&new_role)
@@ -74,7 +75,10 @@ pub async fn update_role(
     let mut conn = data.db_pool.get()?;
     let role_id_inner = role_id.into_inner();
     diesel::update(roles::table.find(&role_id_inner))
-        .set(roles::name.eq(&body.name))
+        .set((
+            roles::name.eq(&body.name),
+            roles::parent_id.eq(&body.parent_id),
+        ))
         .execute(&mut conn)?;
 
     let updated_role = roles::table

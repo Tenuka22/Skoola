@@ -8,6 +8,11 @@ pub struct AssignRoleToStaffRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct UpdateStaffRolesRequest {
+    pub role_ids: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct StaffRoleResponse {
     pub staff_id: String,
     pub role_id: String,

@@ -1,8 +1,9 @@
 use actix_web::{
     HttpResponse,
-    error::ResponseError,
+    error::{ResponseError, BlockingError},
     http::{StatusCode, header::ContentType},
 };
+use actix_multipart::MultipartError;
 
 use apistos::ApiErrorComponent;
 use derive_more::{Display, Error};
@@ -24,7 +25,7 @@ where
 }
 
 #[derive(Debug, Display, Error, Serialize, JsonSchema, ApiErrorComponent)]
-#[display("API Error: {name} ({status_code})")]
+#[display(fmt = "API Error: {name} ({status_code})")]
 #[openapi_error(
     status(code = 400, description = "Bad Request"),
     status(code = 401, description = "Unauthorized"),
@@ -120,7 +121,19 @@ impl From<DieselError> for APIError {
     }
 }
 
+impl From<MultipartError> for APIError {
+    fn from(error: MultipartError) -> Self {
+        error!("Multipart error: {:?}", error);
+        APIError::bad_request("Invalid multipart form data.")
+    }
+}
 
+impl From<BlockingError> for APIError {
+    fn from(error: BlockingError) -> Self {
+        error!("Blocking error: {:?}", error);
+        APIError::internal("An internal error occurred.")
+    }
+}
 
 impl From<std::io::Error> for APIError {
     fn from(error: std::io::Error) -> Self {
