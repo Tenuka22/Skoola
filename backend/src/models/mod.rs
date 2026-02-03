@@ -7,3 +7,5 @@ pub mod staff_roles;
 pub mod teacher_assignments;
 pub mod staff_attendance;
 pub mod staff_leaves;
+pub mod student;
+pub mod student_guardian;

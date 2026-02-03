@@ -332,11 +332,11 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] **Run `cargo check` to verify all student migrations compile together**
 
 ### 4.2 Student Models & Validation
-- [ ] Create Student struct in Rust
-- [ ] **Run `cargo check` to verify struct compiles**
+- [✅] Create Student struct in Rust
+- [✅] **Run `cargo check` to verify struct compiles**
 - [ ] **Run `cargo check` to verify Student struct compiles**
-- [ ] Create StudentGuardian struct
-- [ ] **Run `cargo check` to verify struct compiles**
+- [✅] Create StudentGuardian struct
+- [✅] **Run `cargo check` to verify struct compiles**
 - [ ] **Run `cargo check` to verify StudentGuardian struct compiles**
 - [ ] Create StudentMedicalInfo struct
 - [ ] **Run `cargo check` to verify struct compiles**
