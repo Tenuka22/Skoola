@@ -3,3 +3,8 @@ pub mod oauth;
 pub mod session;
 pub mod email;
 pub mod cleanup;
+pub mod staff_leaves;
+pub mod student;
+pub mod student_guardian;
+pub mod student_class_assignment;
+pub mod student_attendance;

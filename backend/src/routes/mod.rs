@@ -18,7 +18,11 @@ use crate::{
         teacher_assignments::{assign_class_to_teacher, assign_subject_to_teacher, get_teacher_workload},
         verification::{resend_verification_email, verify_email},
         staff_attendance::{mark_staff_attendance_daily, mark_bulk_staff_attendance, update_staff_attendance, get_staff_attendance_by_date, get_staff_attendance_by_staff_member, calculate_monthly_attendance_percentage},
-        staff_leaves::{apply_for_leave, approve_reject_leave},
+        staff_leaves::{apply_for_leave, approve_reject_leave, view_leave_balance},
+        student,
+        student_guardian,
+        student_class_assignment,
+        student_attendance,
     },
     utils::{jwt::Authenticated, roles::RoleVerification},
 };
@@ -151,8 +155,64 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/leaves/{leave_id}/status",
                 web::put().to(approve_reject_leave),
+            )
+            .route(
+                "/{staff_id}/leaves/balance",
+                web::get().to(view_leave_balance),
             ),
-    );
+    )
+    .service(
+        web::scope("/students")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming only Admin can create students
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(student::create_student))
+            .route("/{student_id}", web::put().to(student::update_student))
+            .route("/{student_id}", web::get().to(student::get_student_by_id))
+            .route("", web::get().to(student::get_all_students))
+            .route("/search", web::get().to(student::search_students))
+            .route("/filter", web::get().to(student::filter_students))
+            .route("/{student_id}", web::delete().to(student::delete_student))
+            .route("/{student_id}/photo", web::post().to(student::upload_student_photo))
+            .route("/{student_id}/current-class", web::get().to(student_class_assignment::get_current_class_of_student))
+            .route("/{student_id}/class-history", web::get().to(student_class_assignment::get_class_history_of_student)),
+    )
+    .service(
+        web::scope("/students/{student_id}/guardians")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming only Admin can manage guardians
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(student_guardian::add_guardian_to_student))
+            .route("/{guardian_id}", web::put().to(student_guardian::update_guardian_information))
+            .route("/{guardian_id}", web::delete().to(student_guardian::remove_guardian_from_student))
+            .route("", web::get().to(student_guardian::get_all_guardians_for_student)),
+    )
+    .service(
+        web::scope("/student-class-assignments")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming only Admin can assign classes
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(student_class_assignment::assign_student_to_class))
+            .route("/{student_id}/{assignment_id}/transfer", web::put().to(student_class_assignment::transfer_student_class))
+            .route("/bulk", web::post().to(student_class_assignment::bulk_assign_students_to_classes))
+            .route("/promote", web::post().to(student_class_assignment::promote_student_to_next_grade))
+    )
+    .service(
+        web::scope("/student-attendance")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming Admin or Teacher can mark attendance
+            })
+            .wrap(Authenticated)
+            .route("/bulk", web::post().to(student_attendance::bulk_mark_student_attendance))
+            .route("", web::post().to(student_attendance::mark_individual_student_attendance))
+            .route("/{attendance_id}", web::put().to(student_attendance::update_student_attendance))
+            .route("/class/{class_id}/date/{date}", web::get().to(student_attendance::get_attendance_by_class_and_date))
+            .route("/student/{student_id}", web::get().to(student_attendance::get_attendance_by_student))
+            .route("/student/{student_id}/percentage", web::get().to(student_attendance::calculate_student_attendance_percentage)),
+    ); // <-- Added semicolon here
     cfg.route("/", web::get().to(hello));
     cfg.route("/error", web::get().to(hello_error));
 }

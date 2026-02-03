@@ -1,0 +1,86 @@
+use crate::schema::student_attendance;
+use diesel::prelude::*;
+use serde::{Deserialize, Serialize};
+use schemars::JsonSchema;
+use chrono::{NaiveDate, NaiveDateTime};
+use apistos::ApiComponent;
+use crate::database::enums::AttendanceStatus;
+
+#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema)]
+#[diesel(table_name = student_attendance)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct StudentAttendance {
+    pub id: String,
+    pub student_id: String,
+    pub class_id: String,
+    pub date: NaiveDate,
+    pub status: AttendanceStatus,
+    pub marked_by: String, // User ID of the staff member marking attendance
+    pub remarks: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
+pub struct MarkStudentAttendanceRequest {
+    pub student_id: String,
+    pub class_id: String,
+    pub date: NaiveDate,
+    pub status: AttendanceStatus,
+    pub marked_by: String,
+    pub remarks: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
+pub struct BulkMarkStudentAttendanceRequest {
+    pub attendance_records: Vec<MarkStudentAttendanceRequest>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
+#[diesel(table_name = student_attendance)]
+pub struct UpdateStudentAttendanceRequest {
+    pub date: Option<NaiveDate>,
+    pub status: Option<AttendanceStatus>,
+    pub marked_by: Option<String>,
+    pub remarks: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
+pub struct StudentAttendanceResponse {
+    pub id: String,
+    pub student_id: String,
+    pub class_id: String,
+    pub date: NaiveDate,
+    pub status: AttendanceStatus,
+    pub marked_by: String,
+    pub remarks: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+impl From<StudentAttendance> for StudentAttendanceResponse {
+    fn from(attendance: StudentAttendance) -> Self {
+        StudentAttendanceResponse {
+            id: attendance.id,
+            student_id: attendance.student_id,
+            class_id: attendance.class_id,
+            date: attendance.date,
+            status: attendance.status,
+            marked_by: attendance.marked_by,
+            remarks: attendance.remarks,
+            created_at: attendance.created_at,
+            updated_at: attendance.updated_at,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
+pub struct GetAttendanceByClassAndDatePath {
+    pub class_id: String,
+    pub date: NaiveDate,
+}
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
+pub struct GetAttendanceByStudentPath {
+    pub student_id: String,
+}

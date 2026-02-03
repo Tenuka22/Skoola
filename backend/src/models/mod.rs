@@ -9,6 +9,8 @@ pub mod staff_attendance;
 pub mod staff_leaves;
 pub mod student;
 pub mod student_guardian;
+pub mod student_class_assignment;
+pub mod student_attendance;
 pub mod student_medical_info;
 pub mod student_emergency_contact;
 pub mod student_previous_school;

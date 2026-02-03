@@ -41,6 +41,12 @@ pub struct StaffLeaveChangeset {
     pub updated_at: NaiveDateTime,
 }
 
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct LeaveBalanceResponse {
+    pub staff_id: String,
+    pub leave_type: String,
+    pub total_days_taken: i64,
+}
 
 impl From<StaffLeave> for StaffLeaveResponse {
     fn from(staff_leave: StaffLeave) -> Self {
@@ -57,3 +63,4 @@ impl From<StaffLeave> for StaffLeaveResponse {
         }
     }
 }
+

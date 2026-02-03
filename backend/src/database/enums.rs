@@ -119,8 +119,8 @@ pub enum AttendanceStatus {
     Present,
     Absent,
     Late,
+    Excused,
     HalfDay,
-    Leave,
 }
 
 impl Display for AttendanceStatus {
@@ -129,8 +129,8 @@ impl Display for AttendanceStatus {
             AttendanceStatus::Present => write!(f, "Present"),
             AttendanceStatus::Absent => write!(f, "Absent"),
             AttendanceStatus::Late => write!(f, "Late"),
+            AttendanceStatus::Excused => write!(f, "Excused"),
             AttendanceStatus::HalfDay => write!(f, "HalfDay"),
-            AttendanceStatus::Leave => write!(f, "Leave"),
         }
     }
 }
@@ -143,8 +143,8 @@ impl std::str::FromStr for AttendanceStatus {
             "Present" => Ok(AttendanceStatus::Present),
             "Absent" => Ok(AttendanceStatus::Absent),
             "Late" => Ok(AttendanceStatus::Late),
+            "Excused" => Ok(AttendanceStatus::Excused),
             "HalfDay" => Ok(AttendanceStatus::HalfDay),
-            "Leave" => Ok(AttendanceStatus::Leave),
             _ => Err("Invalid AttendanceStatus"),
         }
     }
@@ -166,8 +166,8 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for AttendanceStatus {
             "Present" => Ok(AttendanceStatus::Present),
             "Absent" => Ok(AttendanceStatus::Absent),
             "Late" => Ok(AttendanceStatus::Late),
+            "Excused" => Ok(AttendanceStatus::Excused),
             "HalfDay" => Ok(AttendanceStatus::HalfDay),
-            "Leave" => Ok(AttendanceStatus::Leave),
             _ => Err("Unrecognized enum variant".into()),
         }
     }

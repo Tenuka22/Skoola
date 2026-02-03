@@ -132,6 +132,109 @@ diesel::table! {
 }
 
 diesel::table! {
+    student_attendance (id) {
+        id -> Text,
+        student_id -> Text,
+        class_id -> Text,
+        date -> Date,
+        status -> Text,
+        marked_by -> Text,
+        remarks -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    student_class_assignments (id) {
+        id -> Text,
+        student_id -> Text,
+        academic_year_id -> Text,
+        grade_id -> Text,
+        class_id -> Text,
+        from_date -> Date,
+        to_date -> Nullable<Date>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    student_emergency_contacts (id) {
+        id -> Text,
+        student_id -> Text,
+        name -> Text,
+        relationship -> Text,
+        phone -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    student_guardians (id) {
+        id -> Text,
+        student_id -> Text,
+        name -> Text,
+        relationship -> Text,
+        phone -> Text,
+        email -> Nullable<Text>,
+        address -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    student_medical_info (id) {
+        id -> Text,
+        student_id -> Text,
+        blood_group -> Nullable<Text>,
+        allergies -> Nullable<Text>,
+        medical_conditions -> Nullable<Text>,
+        emergency_contact_name -> Nullable<Text>,
+        emergency_contact_phone -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    student_previous_schools (id) {
+        id -> Text,
+        student_id -> Text,
+        school_name -> Text,
+        grade_left -> Nullable<Text>,
+        date_left -> Nullable<Date>,
+        reason_for_leaving -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    students (id) {
+        id -> Text,
+        admission_number -> Text,
+        name_english -> Text,
+        name_sinhala -> Nullable<Text>,
+        name_tamil -> Nullable<Text>,
+        nic_or_birth_certificate -> Text,
+        dob -> Date,
+        gender -> Text,
+        address -> Text,
+        phone -> Text,
+        email -> Nullable<Text>,
+        religion -> Nullable<Text>,
+        ethnicity -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+        status -> Text,
+        photo_url -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
     teacher_class_assignments (id) {
         id -> Text,
         teacher_id -> Text,
@@ -189,6 +292,12 @@ diesel::joinable!(staff_qualifications -> staff (staff_id));
 diesel::joinable!(staff_roles -> roles (role_id));
 diesel::joinable!(staff_roles -> staff (staff_id));
 diesel::joinable!(staff_subjects -> staff (staff_id));
+diesel::joinable!(student_attendance -> students (student_id));
+diesel::joinable!(student_class_assignments -> students (student_id));
+diesel::joinable!(student_emergency_contacts -> students (student_id));
+diesel::joinable!(student_guardians -> students (student_id));
+diesel::joinable!(student_medical_info -> students (student_id));
+diesel::joinable!(student_previous_schools -> students (student_id));
 diesel::joinable!(teacher_class_assignments -> staff (teacher_id));
 diesel::joinable!(teacher_subject_assignments -> staff (teacher_id));
 diesel::joinable!(user_roles -> roles (role_id));
@@ -207,6 +316,13 @@ diesel::allow_tables_to_appear_in_same_query!(
     staff_qualifications,
     staff_roles,
     staff_subjects,
+    student_attendance,
+    student_class_assignments,
+    student_emergency_contacts,
+    student_guardians,
+    student_medical_info,
+    student_previous_schools,
+    students,
     teacher_class_assignments,
     teacher_subject_assignments,
     user_roles,

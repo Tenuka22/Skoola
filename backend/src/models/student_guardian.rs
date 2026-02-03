@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
 use chrono::NaiveDateTime;
+use apistos::ApiComponent;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema)]
 #[diesel(table_name = student_guardians)]
@@ -19,7 +20,7 @@ pub struct StudentGuardian {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct CreateStudentGuardianRequest {
     pub student_id: String,
     pub name: String,
@@ -29,7 +30,7 @@ pub struct CreateStudentGuardianRequest {
     pub address: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = student_guardians)]
 pub struct UpdateStudentGuardianRequest {
     pub name: Option<String>,
@@ -39,7 +40,7 @@ pub struct UpdateStudentGuardianRequest {
     pub address: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct StudentGuardianResponse {
     pub id: String,
     pub student_id: String,

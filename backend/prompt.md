@@ -65,36 +65,36 @@ Add your notes to help you future self. Only simple things and where which files
 ## 1. CORE SYSTEM SETUP & INFRASTRUCTURE
 
 ### 1.1 Database Schema Design
-- [ ] Design database schema for all entities
-- [ ] **Run `cargo check` to verify code compiles**
-- [ ] Create ER diagram for relationships
-- [ ] **Run `cargo check` to verify code compiles**
-- [ ] Define naming conventions for tables/columns
-- [ ] **Run `cargo check` to verify code compiles**
-- [ ] Plan indexing strategy for performance
-- [ ] **Run `cargo check` to verify code compiles**
+- [✅] Design database schema for all entities
+- [✅] **Run `cargo check` to verify code compiles**
+- [✅] Create ER diagram for relationships
+- [✅] **Run `cargo check` to verify code compiles**
+- [✅] Define naming conventions for tables/columns
+- [✅] **Run `cargo check` to verify code compiles**
+- [✅] Plan indexing strategy for performance
+- [✅] **Run `cargo check` to verify code compiles**
 
 ### 1.2 Diesel Migrations Setup
-- [ ] Initialize Diesel migrations folder
-- [ ] **Run `cargo check` to verify migration compiles**
-- [ ] Configure database connection pooling
-- [ ] **Run `cargo check` to verify code compiles**
-- [ ] Set up .env file for database credentials
-- [ ] **Run `cargo check` to verify code compiles**
-- [ ] Test database connection from Rust
-- [ ] **Run `cargo check` to verify code compiles**
+- [✅] Initialize Diesel migrations folder
+- [✅] **Run `cargo check` to verify migration compiles**
+- [✅] Configure database connection pooling
+- [✅] **Run `cargo check` to verify code compiles**
+- [✅] Set up .env file for database credentials
+- [✅] **Run `cargo check` to verify code compiles**
+- [✅] Test database connection from Rust
+- [✅] **Run `cargo check` to verify code compiles**
 
 ### 1.3 Project Structure
-- [ ] Create modular folder structure (models, controllers, routes, services)
+- [✅] Create modular folder structure (models, controllers, routes, services)
 - [✅] **Run `cargo check` to verify struct compiles**
-- [ ] Set up error handling middleware
-- [ ] **Run `cargo check` to verify middleware compiles**
-- [ ] Configure logging (tracing/env_logger)
-- [ ] **Run `cargo check` to verify code compiles**
-- [ ] Set up CORS configuration
-- [ ] **Run `cargo check` to verify code compiles**
-- [ ] Create constants file for application-wide settings
-- [ ] **Run `cargo check` to verify code compiles**
+- [✅] Set up error handling middleware
+- [✅] **Run `cargo check` to verify middleware compiles**
+- [✅] Configure logging (tracing/env_logger)
+- [✅] **Run `cargo check` to verify code compiles**
+- [✅] Set up CORS configuration
+- [✅] **Run `cargo check` to verify code compiles**
+- [✅] Create constants file for application-wide settings
+- [✅] **Run `cargo check` to verify code compiles**
 
 ---
 
@@ -158,7 +158,7 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] **Run `cargo check` to verify endpoints compile**
 - [✅] Implement hierarchical role permissions
-- [ ] **Run `cargo check` to verify logic compiles**
+- [✅] **Run `cargo check` to verify logic compiles**
 - [✅] **Run `cargo check` to verify complete RBAC system has no type errors**
 
 ---
@@ -199,7 +199,7 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] **Run `cargo check` to verify struct compiles**
 - [✅] **Run `cargo check` to verify StaffEmploymentHistory struct compiles**
 - [✅] Implement validation for staff data (email format, NIC format, phone)
-- [ ] **Run `cargo check` to verify logic compiles**
+- [✅] **Run `cargo check` to verify logic compiles**
 - [✅] **Run `cargo check` to verify validation logic compiles**
 - [✅] Create enum for employment status (Permanent, Contract, Temporary)
 - [✅] **Run `cargo check` to verify enum compiles**
@@ -225,13 +225,13 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create staff filter endpoint (by role, department, employment status)
 - [✅] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
+- [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create staff deletion/deactivation endpoint
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Add staff photo upload functionality
 - [✅] **Run `cargo check` to verify code compiles**
-- [ ] **Run `cargo check` to verify all staff CRUD endpoints have no type errors**
+- [✅] **Run `cargo check` to verify all staff CRUD endpoints have no type errors**
 
 ### 3.4 Staff Role Assignment
 - [✅] Create endpoint to assign roles to staff
@@ -289,20 +289,20 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create endpoint to view staff attendance by date
 - [✅] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
+- [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create endpoint to view staff attendance by staff member
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create endpoint to calculate monthly attendance percentage
 - [✅] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
+- [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create endpoint to apply for leave
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create endpoint to approve/reject leave
 - [✅] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to view leave balance
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify all staff attendance endpoints have no type errors**
+- [✅] **Run `cargo check` to verify endpoint compiles**
+- [✅] Create endpoint to view leave balance
+- [✅] **Run `cargo check` to verify endpoint compiles**
+- [✅] **Run `cargo check` to verify all staff attendance endpoints have no type errors**
 
 ---
 
@@ -326,7 +326,7 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] **Run `cargo check` to verify migration compiles**
 - [✅] Add multi-language name fields (Sinhala, Tamil, English)
 - [✅] **Run `cargo check` to verify code compiles**
-- [ ] **Run `cargo check` to verify migration compiles**
+- [✅] **Run `cargo check` to verify migration compiles**
 - [✅] Add indexes on admission_number, name fields
 - [✅] **Run `cargo check` to verify code compiles**
 - [✅] **Run `cargo check` to verify all student migrations compile together**
@@ -355,103 +355,105 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] **Run `cargo check` to verify enum compiles**
 - [✅] Create enum for ethnicity
 - [✅] **Run `cargo check` to verify enum compiles**
-- [ ] **Run `cargo check` to verify all student models have no type errors**
+- [✅] **Run `cargo check` to verify all student models have no type errors**
 
 ### 4.3 Student CRUD Operations
-- [ ] Create student registration endpoint
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Generate unique admission number logic
+- [✅] Create student registration endpoint
+- [✅] **Run `cargo check` to verify endpoint compiles**
+- [✅] **Run `cargo check` to verify endpoint compiles**
+- [✅] Generate unique admission number logic
 - [✅] **Run `cargo check` to verify logic compiles**
 - [✅] **Run `cargo check` to verify logic compiles**
-- [ ] Create student profile update endpoint
+- [✅] Create student profile update endpoint
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create student retrieval endpoint (single)
+- [✅] Create student retrieval endpoint (single)
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create student list endpoint (with pagination)
+- [✅] Create student list endpoint (with pagination)
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create student search endpoint (by name, admission_number)
+- [✅] Create student search endpoint (by name, admission_number)
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create student filter endpoint (by grade, class, status)
+- [✅] Create student filter endpoint (by grade, class, status) (Status filtering implemented, Grade/Class filtering pending until `student_class_assignments` is available)
+- [✅] Add 'status' column to students table
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create student deletion/deactivation endpoint
+- [✅] Create student deletion/deactivation endpoint
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Add student photo upload functionality
+- [✅] Add student photo upload functionality
+- [✅] Add 'photo_url' column to students table
 - [ ] **Run `cargo check` to verify code compiles**
 - [ ] **Run `cargo check` to verify all student CRUD endpoints have no type errors**
 
 ### 4.4 Student-Guardian Management
-- [ ] Create endpoint to add guardian to student
+- [✅] Create endpoint to add guardian to student
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to update guardian information
+- [✅] Create endpoint to update guardian information
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to remove guardian from student
+- [✅] Create endpoint to remove guardian from student
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to view all guardians of a student
+- [✅] Create endpoint to view all guardians of a student
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Support multiple guardians per student
+- [✅] Support multiple guardians per student
 - [ ] **Run `cargo check` to verify code compiles**
 - [ ] **Run `cargo check` to verify guardian management has no type errors**
 
 ### 4.5 Student Class Assignment
-- [ ] Create student_class_assignments table migration (student_id, academic_year_id, grade_id, class_id, from_date, to_date)
+- [✅] Create student_class_assignments table migration (student_id, academic_year_id, grade_id, class_id, from_date, to_date)
 - [ ] **Run `cargo check` to verify migration compiles**
 - [ ] **Run `cargo check` to verify migration compiles**
-- [ ] Create endpoint to assign student to class
+- [✅] Create endpoint to assign student to class
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to transfer student to different class (e.g., 10F → 11D)
+- [✅] Create endpoint to transfer student to different class (e.g., 10F → 11D)
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to view current class of student
+- [✅] Create endpoint to view current class of student
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to view class history of student
+- [✅] Create endpoint to view class history of student
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to bulk assign students to classes
+- [✅] Create endpoint to bulk assign students to classes
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Implement validation to prevent duplicate active assignments
+- [✅] Implement validation to prevent duplicate active assignments
 - [ ] **Run `cargo check` to verify logic compiles**
 - [ ] **Run `cargo check` to verify validation logic compiles**
-- [ ] Create endpoint to promote students to next grade with class assignment
+- [✅] Create endpoint to promote students to next grade with class assignment
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify all class assignment endpoints have no type errors**
 
 ### 4.6 Student Attendance Management
-- [ ] Create student_attendance table migration (date, student_id, class_id, status, marked_by, remarks)
+- [✅] Create student_attendance table migration (date, student_id, class_id, status, marked_by, remarks)
 - [ ] **Run `cargo check` to verify migration compiles**
 - [ ] **Run `cargo check` to verify migration compiles**
-- [ ] Create enum for attendance status (Present, Absent, Late, Excused, Half-Day)
+- [✅] Create enum for attendance status (Present, Absent, Late, Excused, Half-Day)
 - [ ] **Run `cargo check` to verify enum compiles**
 - [ ] **Run `cargo check` to verify enum compiles**
-- [ ] Create endpoint to mark attendance by class (bulk)
+- [✅] Create endpoint to mark attendance by class (bulk)
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to mark individual student attendance
+- [✅] Create endpoint to mark individual student attendance
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to update attendance record
+- [✅] Create endpoint to update attendance record
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to view attendance by class and date
+- [✅] Create endpoint to view attendance by class and date
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to view attendance by student
+- [✅] Create endpoint to view attendance by student
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to calculate attendance percentage
+- [✅] Create endpoint to calculate attendance percentage
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] Create endpoint to generate attendance reports (daily, weekly, monthly)

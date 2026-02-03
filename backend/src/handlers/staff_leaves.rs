@@ -88,3 +88,17 @@ pub async fn approve_reject_leave(
 
     Ok(HttpResponse::Ok().json(StaffLeaveResponse::from(updated_leave)))
 }
+
+#[api_operation(
+    summary = "View staff leave balance",
+    description = "Retrieves the leave balance for a specific staff member.",
+    tag = "staff_leaves"
+)]
+pub async fn view_leave_balance(
+    data: web::Data<AppState>,
+    staff_id: web::Path<String>,
+) -> Result<HttpResponse, APIError> {
+    let staff_id_inner = staff_id.into_inner();
+    let leave_balances = crate::services::staff_leaves::get_staff_leave_balance(data.clone(), staff_id_inner).await?;
+    Ok(HttpResponse::Ok().json(leave_balances))
+}

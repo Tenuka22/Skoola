@@ -11,3 +11,7 @@ pub mod teacher_assignments;
 pub mod verification;
 pub mod staff_attendance;
 pub mod staff_leaves;
+pub mod student;
+pub mod student_guardian;
+pub mod student_class_assignment;
+pub mod student_attendance;

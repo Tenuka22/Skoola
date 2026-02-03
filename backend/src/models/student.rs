@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
 use chrono::{NaiveDate, NaiveDateTime};
 use crate::database::enums::{Gender, Religion, Ethnicity, StudentStatus};
+use apistos::ApiComponent;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema)]
 #[diesel(table_name = students)]
@@ -22,11 +23,13 @@ pub struct Student {
     pub email: Option<String>,
     pub religion: Option<Religion>,
     pub ethnicity: Option<Ethnicity>,
+    pub status: StudentStatus,
+    pub photo_url: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct CreateStudentRequest {
     pub admission_number: String,
     pub name_english: String,
@@ -40,9 +43,11 @@ pub struct CreateStudentRequest {
     pub email: Option<String>,
     pub religion: Option<Religion>,
     pub ethnicity: Option<Ethnicity>,
+    pub status: Option<StudentStatus>,
+    pub photo_url: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = students)]
 pub struct UpdateStudentRequest {
     pub name_english: Option<String>,
@@ -56,9 +61,11 @@ pub struct UpdateStudentRequest {
     pub email: Option<String>,
     pub religion: Option<Religion>,
     pub ethnicity: Option<Ethnicity>,
+    pub status: Option<StudentStatus>,
+    pub photo_url: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct StudentResponse {
     pub id: String,
     pub admission_number: String,
@@ -73,6 +80,8 @@ pub struct StudentResponse {
     pub email: Option<String>,
     pub religion: Option<Religion>,
     pub ethnicity: Option<Ethnicity>,
+    pub status: StudentStatus,
+    pub photo_url: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -93,8 +102,41 @@ impl From<Student> for StudentResponse {
             email: student.email,
             religion: student.religion,
             ethnicity: student.ethnicity,
+            status: student.status,
+            photo_url: student.photo_url,
             created_at: student.created_at,
             updated_at: student.updated_at,
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
+pub struct PaginatedStudentResponse {
+    pub students: Vec<StudentResponse>,
+    pub total_students: i64,
+    pub limit: i64,
+    pub offset: i64,
+}
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
+pub struct StudentSearchQuery {
+    pub name: Option<String>,
+    pub admission_number: Option<String>,
+    #[serde(flatten)]
+    pub pagination: PaginationInfo,
+}
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
+pub struct StudentFilterQuery {
+    pub grade_id: Option<String>,
+    pub class_id: Option<String>,
+    pub status: Option<StudentStatus>, // Assuming StudentStatus enum exists
+    #[serde(flatten)]
+    pub pagination: PaginationInfo,
+}
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
+pub struct PaginationInfo {
+    pub limit: Option<i64>,
+    pub offset: Option<i64>,
 }
