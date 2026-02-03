@@ -68,7 +68,10 @@ pub async fn approve_reject_leave(
         .select(StaffLeave::as_select())
         .first(&mut conn)?;
 
-    if existing_leave.status.parse::<LeaveStatus>().expect("Invalid LeaveStatus in DB") != LeaveStatus::Pending {
+    if existing_leave.status.parse::<LeaveStatus>()
+        .map_err(|_| APIError::internal("Invalid LeaveStatus in DB"))?
+        != LeaveStatus::Pending
+    {
         return Err(APIError::bad_request("Only pending leave applications can be approved or rejected"));
     }
 

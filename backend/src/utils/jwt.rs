@@ -9,6 +9,7 @@ use std::pin::Pin;
 use tracing::{info, warn};
 
 use crate::{config::Config, database::tables::RoleEnum, services::auth::decode_jwt};
+use crate::errors::APIError;
 
 pub struct Authenticated;
 
@@ -46,40 +47,46 @@ where
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        let config = req.app_data::<web::Data<Config>>().unwrap().clone();
-        let token = req
-            .headers()
-            .get("Authorization")
-            .and_then(|h| h.to_str().ok())
-            .and_then(|h| h.strip_prefix("Bearer "));
+        let fut = self.service.call(req);
 
-        if let Some(token) = token {
-            match decode_jwt(token, &config) {
-                Ok(claims) => {
-                    let user_id = claims.sub.clone();
-                    let user_role = claims.role.parse::<RoleEnum>().unwrap_or_else(|_| RoleEnum::Guest);
-                    info!(
-                        "ACTION: JWT decoded successfully | user_id: {} | role: {:?}",
-                        user_id, user_role
-                    );
-                    req.extensions_mut().insert(UserId(user_id));
-                    req.extensions_mut().insert(UserRole(user_role));
-                    return Box::pin(self.service.call(req));
-                }
-                Err(e) => {
-                    warn!("ACTION: JWT decoding failed | reason: {:?}", e);
-                    return Box::pin(async {
+        Box::pin(async move {
+            let res = fut.await?;
+
+            let config = res.request()
+                .app_data::<web::Data<Config>>()
+                .ok_or_else(|| APIError::internal("Application configuration not found"))
+                .map_err(|e: APIError| actix_web::Error::from(e))?;
+
+            let token = res.request()
+                .headers()
+                .get("Authorization")
+                .and_then(|h| h.to_str().ok())
+                .and_then(|h| h.strip_prefix("Bearer "));
+
+            if let Some(token) = token {
+                match decode_jwt(token, &config) {
+                    Ok(claims) => {
+                        let user_id = claims.sub.clone();
+                        let user_role = claims.role.parse::<RoleEnum>().unwrap_or_else(|_| RoleEnum::Guest);
+                        info!(
+                            "ACTION: JWT decoded successfully | user_id: {} | role: {:?}",
+                            user_id, user_role
+                        );
+                        res.request().extensions_mut().insert(UserId(user_id));
+                        res.request().extensions_mut().insert(UserRole(user_role));
+                        Ok(res)
+                    }
+                    Err(e) => {
+                        warn!("ACTION: JWT decoding failed | reason: {:?}", e);
                         Err(actix_web::error::ErrorUnauthorized("Invalid token"))
-                    });
+                    }
                 }
+            } else {
+                warn!("ACTION: Missing or invalid Authorization header");
+                Err(actix_web::error::ErrorUnauthorized(
+                    "Missing or invalid token",
+                ))
             }
-        }
-
-        warn!("ACTION: Missing or invalid Authorization header");
-        Box::pin(async {
-            Err(actix_web::error::ErrorUnauthorized(
-                "Missing or invalid token",
-            ))
         })
     }
 }

@@ -7,6 +7,15 @@
 **Authentication:** Already configured
 
 Add your notes to help you future self. Only simple things and where which files existc.
+// Error Handling:
+// - Custom `APIError` struct in `src/errors/mod.rs` is used for consistent API error responses.
+// - `APIError` implements `actix_web::ResponseError` for automatic conversion to HTTP responses.
+// - `APIError` has convenient constructors for common HTTP status codes (e.g., `bad_request`, `unauthorized`, `internal`).
+// - Database errors (`diesel::result::Error`, `r2d2::Error`) are converted to `APIError::internal`.
+// - For `Option` types that should always be present (e.g., application data like `Config` or `AppState`), `ok_or_else` is used to convert `None` into an `APIError::internal`.
+// - When parsing enums from database strings, `unwrap_or` is used with a sensible default if the `From` implementation is infallible. If the parsing can result in a recoverable error, `map_err` is used to convert the parsing error into an `APIError::internal` or other appropriate `APIError`.
+// - In `actix-web` middleware `call` methods returning `Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>>>>`, the `?` operator is used after `map_err(|e: APIError| actix_web::Error::from(e))` to ensure proper error propagation with `actix_web::Error`.
+
 //
 // Notes:
 // - `src/main.rs`: The entry point of the application, likely contains the Actix web server setup and routes.

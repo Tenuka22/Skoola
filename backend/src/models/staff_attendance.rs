@@ -99,7 +99,7 @@ impl From<StaffAttendance> for StaffAttendanceResponse {
             id: attendance.id,
             staff_id: attendance.staff_id,
             date: attendance.date,
-            status: attendance.status.parse().expect("Invalid AttendanceStatus in DB"),
+            status: attendance.status.parse().unwrap_or(AttendanceStatus::Absent),
             time_in: attendance.time_in,
             time_out: attendance.time_out,
             remarks: attendance.remarks,

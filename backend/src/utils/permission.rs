@@ -78,17 +78,21 @@ where
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        let required_permission = self.required_permission.clone();
         let fut = self.service.call(req);
+        let required_permission_cloned = self.required_permission.clone();
 
         Box::pin(async move {
             let res = fut.await?;
+
+            let data = res.request()
+                .app_data::<web::Data<AppState>>()
+                .ok_or_else(|| APIError::internal("Application state not found"))
+                .map_err(|e: APIError| actix_web::Error::from(e))?;
+
             let session = {
                 let extensions = res.request().extensions();
                 extensions.get::<Session>().cloned()
             };
-
-            let data = res.request().app_data::<web::Data<AppState>>().unwrap();
 
             if let Some(session) = session {
                 let mut conn = data.db_pool.get().map_err(APIError::from)?;
@@ -103,7 +107,7 @@ where
                     user_permissions.extend(permissions);
                 }
 
-                if user_permissions.contains(&required_permission) {
+                if user_permissions.contains(&required_permission_cloned) {
                     return Ok(res);
                 }
             }
