@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
 use chrono::{NaiveDate, NaiveDateTime};
+use crate::database::enums::{Gender, Religion, Ethnicity, StudentStatus};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema)]
 #[diesel(table_name = students)]
@@ -15,12 +16,12 @@ pub struct Student {
     pub name_tamil: Option<String>,
     pub nic_or_birth_certificate: String,
     pub dob: NaiveDate,
-    pub gender: String,
+    pub gender: Gender,
     pub address: String,
     pub phone: String,
     pub email: Option<String>,
-    pub religion: Option<String>,
-    pub ethnicity: Option<String>,
+    pub religion: Option<Religion>,
+    pub ethnicity: Option<Ethnicity>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -33,12 +34,12 @@ pub struct CreateStudentRequest {
     pub name_tamil: Option<String>,
     pub nic_or_birth_certificate: String,
     pub dob: NaiveDate,
-    pub gender: String,
+    pub gender: Gender,
     pub address: String,
     pub phone: String,
     pub email: Option<String>,
-    pub religion: Option<String>,
-    pub ethnicity: Option<String>,
+    pub religion: Option<Religion>,
+    pub ethnicity: Option<Ethnicity>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema)]
@@ -49,12 +50,12 @@ pub struct UpdateStudentRequest {
     pub name_tamil: Option<String>,
     pub nic_or_birth_certificate: Option<String>,
     pub dob: Option<NaiveDate>,
-    pub gender: Option<String>,
+    pub gender: Option<Gender>,
     pub address: Option<String>,
     pub phone: Option<String>,
     pub email: Option<String>,
-    pub religion: Option<String>,
-    pub ethnicity: Option<String>,
+    pub religion: Option<Religion>,
+    pub ethnicity: Option<Ethnicity>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
@@ -66,12 +67,12 @@ pub struct StudentResponse {
     pub name_tamil: Option<String>,
     pub nic_or_birth_certificate: String,
     pub dob: NaiveDate,
-    pub gender: String,
+    pub gender: Gender,
     pub address: String,
     pub phone: String,
     pub email: Option<String>,
-    pub religion: Option<String>,
-    pub ethnicity: Option<String>,
+    pub religion: Option<Religion>,
+    pub ethnicity: Option<Ethnicity>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }

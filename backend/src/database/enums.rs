@@ -392,3 +392,71 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for Religion {
         }
     }
 }
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum Ethnicity {
+    Sinhala,
+    Tamil,
+    Muslim,
+    Burger,
+    Malay,
+    Vedda,
+    Other,
+}
+
+impl Display for Ethnicity {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            Ethnicity::Sinhala => write!(f, "Sinhala"),
+            Ethnicity::Tamil => write!(f, "Tamil"),
+            Ethnicity::Muslim => write!(f, "Muslim"),
+            Ethnicity::Burger => write!(f, "Burger"),
+            Ethnicity::Malay => write!(f, "Malay"),
+            Ethnicity::Vedda => write!(f, "Vedda"),
+            Ethnicity::Other => write!(f, "Other"),
+        }
+    }
+}
+
+impl std::str::FromStr for Ethnicity {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Sinhala" => Ok(Ethnicity::Sinhala),
+            "Tamil" => Ok(Ethnicity::Tamil),
+            "Muslim" => Ok(Ethnicity::Muslim),
+            "Burger" => Ok(Ethnicity::Burger),
+            "Malay" => Ok(Ethnicity::Malay),
+            "Vedda" => Ok(Ethnicity::Vedda),
+            "Other" => Ok(Ethnicity::Other),
+            _ => Err("Invalid Ethnicity"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for Ethnicity {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for Ethnicity {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Sinhala" => Ok(Ethnicity::Sinhala),
+            "Tamil" => Ok(Ethnicity::Tamil),
+            "Muslim" => Ok(Ethnicity::Muslim),
+            "Burger" => Ok(Ethnicity::Burger),
+            "Malay" => Ok(Ethnicity::Malay),
+            "Vedda" => Ok(Ethnicity::Vedda),
+            "Other" => Ok(Ethnicity::Other),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}

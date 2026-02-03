@@ -1,5 +1,5 @@
-use crate::database::enums::{EmploymentStatus, StaffType};
-use crate::schema::{permissions, role_permissions, roles, sessions, staff, staff_attendance, staff_departments, staff_employment_history, staff_leaves, staff_qualifications, staff_roles, staff_subjects, teacher_class_assignments, teacher_subject_assignments, user_roles, users};
+use crate::database::enums::{EmploymentStatus, StaffType, Gender, Religion, Ethnicity, StudentStatus};
+use crate::schema::{permissions, role_permissions, roles, sessions, staff, staff_attendance, staff_departments, staff_employment_history, staff_leaves, staff_qualifications, staff_roles, staff_subjects, teacher_class_assignments, teacher_subject_assignments, user_roles, users, students, student_guardians, student_medical_info, student_emergency_contacts, student_previous_schools};
 use diesel::deserialize::FromSql;
 use diesel::expression::AsExpression;
 use diesel::prelude::*;
@@ -308,6 +308,88 @@ pub struct StaffLeave {
     pub to_date: NaiveDate,
     pub reason: String,
     pub status: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = students)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct Student {
+    pub id: String,
+    pub admission_number: String,
+    pub name_english: String,
+    pub name_sinhala: Option<String>,
+    pub name_tamil: Option<String>,
+    pub nic_or_birth_certificate: String,
+    pub dob: NaiveDate,
+    pub gender: Gender,
+    pub address: String,
+    pub phone: String,
+    pub email: Option<String>,
+    pub religion: Option<Religion>,
+    pub ethnicity: Option<Ethnicity>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = student_guardians)]
+#[diesel(belongs_to(Student))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct StudentGuardian {
+    pub id: String,
+    pub student_id: String,
+    pub name: String,
+    pub relationship: String,
+    pub phone: String,
+    pub email: Option<String>,
+    pub address: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = student_medical_info)]
+#[diesel(belongs_to(Student))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct StudentMedicalInfo {
+    pub id: String,
+    pub student_id: String,
+    pub blood_group: Option<String>,
+    pub allergies: Option<String>,
+    pub medical_conditions: Option<String>,
+    pub emergency_contact_name: Option<String>,
+    pub emergency_contact_phone: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = student_emergency_contacts)]
+#[diesel(belongs_to(Student))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct StudentEmergencyContact {
+    pub id: String,
+    pub student_id: String,
+    pub name: String,
+    pub relationship: String,
+    pub phone: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = student_previous_schools)]
+#[diesel(belongs_to(Student))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct StudentPreviousSchool {
+    pub id: String,
+    pub student_id: String,
+    pub school_name: String,
+    pub grade_left: Option<String>,
+    pub date_left: Option<NaiveDate>,
+    pub reason_for_leaving: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
