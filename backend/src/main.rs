@@ -14,6 +14,7 @@ use tokio::time::{interval, Duration}; // Add this line
 use crate::database::connection::{DbPool, establish_connection}; // Updated import
 use crate::errors::APIError;
 use crate::services::cleanup::remove_unverified_users; // Add this line
+use crate::services::email::EmailService; // Add this line
 
 mod config;
 mod database;
@@ -29,6 +30,7 @@ mod schema;
 struct AppState {
     config: Config,
     db_pool: DbPool,
+    email_service: EmailService, // Add this line
 }
 
 #[actix_web::main]
@@ -66,10 +68,13 @@ async fn main() -> Result<(), APIError> {
 
     let pool = establish_connection(&config.database_url)
         .map_err(|e| APIError::internal(format!("Failed to establish database connection pool: {}", e).as_str()))?;
+    
+    let email_service = EmailService::new(config.clone()); // Initialize EmailService
 
     let app_data = Data::new(AppState {
         config: config.clone(),
         db_pool: pool.clone(),
+        email_service: email_service.clone(), // Pass EmailService to AppState
     });
 
     // Spawn background task for removing unverified users

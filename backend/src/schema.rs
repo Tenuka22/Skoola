@@ -1,6 +1,84 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    academic_years (id) {
+        id -> Text,
+        year_start -> Integer,
+        year_end -> Integer,
+        name -> Text,
+        current -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    classes (id) {
+        id -> Text,
+        grade_id -> Text,
+        section_name -> Text,
+        academic_year_id -> Text,
+        class_teacher_id -> Nullable<Text>,
+        medium -> Text,
+        room_number -> Nullable<Text>,
+        max_capacity -> Integer,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    class_subject_teachers (class_id, subject_id, teacher_id, academic_year_id) {
+        class_id -> Text,
+        subject_id -> Text,
+        teacher_id -> Text,
+        academic_year_id -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    exam_types (id) {
+        id -> Text,
+        name -> Text,
+        description -> Nullable<Text>,
+        weightage -> Integer,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    grade_levels (id) {
+        id -> Text,
+        grade_number -> Integer,
+        grade_name -> Text,
+        education_level -> Text, // Store as Text, map to enum in Rust
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    grade_streams (grade_id, stream_id) {
+        grade_id -> Text,
+        stream_id -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    grade_subjects (grade_id, subject_id) {
+        grade_id -> Text,
+        subject_id -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     permissions (id) {
         id -> Text,
         name -> Text,
@@ -45,11 +123,11 @@ diesel::table! {
         address -> Text,
         phone -> Text,
         email -> Text,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
+        photo_url -> Nullable<Text>,
         employment_status -> Text,
         staff_type -> Text,
-        photo_url -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -128,6 +206,38 @@ diesel::table! {
     staff_subjects (staff_id, subject_id) {
         staff_id -> Text,
         subject_id -> Text,
+    }
+}
+
+diesel::table! {
+    streams (id) {
+        id -> Text,
+        name -> Text,
+        description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    stream_subjects (stream_id, subject_id) {
+        stream_id -> Text,
+        subject_id -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    subjects (id) {
+        id -> Text,
+        subject_code -> Text,
+        subject_name_en -> Text,
+        subject_name_si -> Nullable<Text>,
+        subject_name_ta -> Nullable<Text>,
+        is_core -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -227,10 +337,27 @@ diesel::table! {
         email -> Nullable<Text>,
         religion -> Nullable<Text>,
         ethnicity -> Nullable<Text>,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
         status -> Text,
         photo_url -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    timetable (id) {
+        id -> Text,
+        class_id -> Text,
+        day_of_week -> Text,
+        period_number -> Integer,
+        subject_id -> Text,
+        teacher_id -> Text,
+        start_time -> Time,
+        end_time -> Time,
+        room -> Text,
+        academic_year_id -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -272,27 +399,40 @@ diesel::table! {
         github_id -> Nullable<Text>,
         is_verified -> Bool,
         verification_token -> Nullable<Text>,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
         verification_sent_at -> Nullable<Timestamp>,
         password_reset_token -> Nullable<Text>,
         password_reset_sent_at -> Nullable<Timestamp>,
         failed_login_attempts -> Integer,
         lockout_until -> Nullable<Timestamp>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
+diesel::joinable!(classes -> academic_years (academic_year_id));
+diesel::joinable!(classes -> grade_levels (grade_id));
+diesel::joinable!(classes -> staff (class_teacher_id));
+diesel::joinable!(class_subject_teachers -> academic_years (academic_year_id));
+diesel::joinable!(class_subject_teachers -> classes (class_id));
+diesel::joinable!(class_subject_teachers -> staff (teacher_id));
+diesel::joinable!(class_subject_teachers -> subjects (subject_id));
+diesel::joinable!(grade_streams -> grade_levels (grade_id));
+diesel::joinable!(grade_streams -> streams (stream_id));
+diesel::joinable!(grade_subjects -> grade_levels (grade_id));
+diesel::joinable!(grade_subjects -> subjects (subject_id));
 diesel::joinable!(role_permissions -> permissions (permission_id));
 diesel::joinable!(role_permissions -> roles (role_id));
-diesel::joinable!(sessions -> users (user_id));
-diesel::joinable!(staff_attendance -> staff (staff_id));
 diesel::joinable!(staff_employment_history -> staff (staff_id));
 diesel::joinable!(staff_leaves -> staff (staff_id));
 diesel::joinable!(staff_qualifications -> staff (staff_id));
 diesel::joinable!(staff_roles -> roles (role_id));
 diesel::joinable!(staff_roles -> staff (staff_id));
 diesel::joinable!(staff_subjects -> staff (staff_id));
+diesel::joinable!(stream_subjects -> streams (stream_id));
+diesel::joinable!(stream_subjects -> subjects (subject_id));
 diesel::joinable!(student_attendance -> students (student_id));
+diesel::joinable!(student_class_assignments -> academic_years (academic_year_id));
+diesel::joinable!(student_class_assignments -> grade_levels (grade_id));
 diesel::joinable!(student_class_assignments -> students (student_id));
 diesel::joinable!(student_emergency_contacts -> students (student_id));
 diesel::joinable!(student_guardians -> students (student_id));
@@ -300,10 +440,21 @@ diesel::joinable!(student_medical_info -> students (student_id));
 diesel::joinable!(student_previous_schools -> students (student_id));
 diesel::joinable!(teacher_class_assignments -> staff (teacher_id));
 diesel::joinable!(teacher_subject_assignments -> staff (teacher_id));
+diesel::joinable!(timetable -> academic_years (academic_year_id));
+diesel::joinable!(timetable -> classes (class_id));
+diesel::joinable!(timetable -> staff (teacher_id));
+diesel::joinable!(timetable -> subjects (subject_id));
 diesel::joinable!(user_roles -> roles (role_id));
 diesel::joinable!(user_roles -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
+    academic_years,
+    classes,
+    class_subject_teachers,
+    exam_types, // Added this
+    grade_levels,
+    grade_streams,
+    grade_subjects,
     permissions,
     role_permissions,
     roles,
@@ -316,6 +467,9 @@ diesel::allow_tables_to_appear_in_same_query!(
     staff_qualifications,
     staff_roles,
     staff_subjects,
+    streams,
+    stream_subjects,
+    subjects,
     student_attendance,
     student_class_assignments,
     student_emergency_contacts,
@@ -325,6 +479,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     students,
     teacher_class_assignments,
     teacher_subject_assignments,
+    timetable,
     user_roles,
     users,
 );

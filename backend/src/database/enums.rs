@@ -1,15 +1,13 @@
-use diesel::deserialize::FromSql;
+use diesel::deserialize::{FromSql, FromSqlRow};
 use diesel::expression::AsExpression;
 use diesel::serialize::{IsNull, Output, ToSql};
 use diesel::sql_types::Text;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result};
-
-use diesel::FromSqlRow;
 use diesel::backend::Backend;
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
 #[diesel(sql_type = Text)]
 pub enum EmploymentStatus {
     Permanent,
@@ -61,7 +59,7 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for EmploymentStatus {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
 #[diesel(sql_type = Text)]
 pub enum StaffType {
     Teaching,
@@ -456,6 +454,114 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for Ethnicity {
             "Malay" => Ok(Ethnicity::Malay),
             "Vedda" => Ok(Ethnicity::Vedda),
             "Other" => Ok(Ethnicity::Other),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum EducationLevel {
+    Primary,
+    JuniorSecondary,
+    SeniorSecondary,
+    Collegiate,
+}
+
+impl Display for EducationLevel {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            EducationLevel::Primary => write!(f, "Primary"),
+            EducationLevel::JuniorSecondary => write!(f, "JuniorSecondary"),
+            EducationLevel::SeniorSecondary => write!(f, "SeniorSecondary"),
+            EducationLevel::Collegiate => write!(f, "Collegiate"),
+        }
+    }
+}
+
+impl std::str::FromStr for EducationLevel {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Primary" => Ok(EducationLevel::Primary),
+            "JuniorSecondary" => Ok(EducationLevel::JuniorSecondary),
+            "SeniorSecondary" => Ok(EducationLevel::SeniorSecondary),
+            "Collegiate" => Ok(EducationLevel::Collegiate),
+            _ => Err("Invalid EducationLevel"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for EducationLevel {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for EducationLevel {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Primary" => Ok(EducationLevel::Primary),
+            "JuniorSecondary" => Ok(EducationLevel::JuniorSecondary),
+            "SeniorSecondary" => Ok(EducationLevel::SeniorSecondary),
+            "Collegiate" => Ok(EducationLevel::Collegiate),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum Medium {
+    Sinhala,
+    Tamil,
+    English,
+}
+
+impl Display for Medium {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            Medium::Sinhala => write!(f, "Sinhala"),
+            Medium::Tamil => write!(f, "Tamil"),
+            Medium::English => write!(f, "English"),
+        }
+    }
+}
+
+impl std::str::FromStr for Medium {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Sinhala" => Ok(Medium::Sinhala),
+            "Tamil" => Ok(Medium::Tamil),
+            "English" => Ok(Medium::English),
+            _ => Err("Invalid Medium"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for Medium {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for Medium {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Sinhala" => Ok(Medium::Sinhala),
+            "Tamil" => Ok(Medium::Tamil),
+            "English" => Ok(Medium::English),
             _ => Err("Unrecognized enum variant".into()),
         }
     }

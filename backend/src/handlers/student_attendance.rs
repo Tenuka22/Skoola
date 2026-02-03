@@ -9,7 +9,11 @@ use apistos::ApiComponent;
 use crate::{
     AppState,
     errors::APIError,
-    models::student_attendance::{BulkMarkStudentAttendanceRequest, MarkStudentAttendanceRequest, UpdateStudentAttendanceRequest, GetAttendanceByClassAndDatePath, GetAttendanceByStudentPath},
+    models::student_attendance::{
+        BulkMarkStudentAttendanceRequest, MarkStudentAttendanceRequest, UpdateStudentAttendanceRequest,
+        GetAttendanceByClassAndDatePath, GetAttendanceByStudentPath, GenerateAttendanceReportRequest,
+        LowAttendanceStudentQuery, SendAbsenceNotificationRequest
+    },
     services::student_attendance,
 };
 
@@ -120,4 +124,45 @@ pub async fn calculate_student_attendance_percentage(
     )
     .await?;
     Ok(HttpResponse::Ok().json(percentage))
+}
+
+#[api_operation(
+    summary = "Generate attendance report for a class",
+    description = "Generates a detailed attendance report for all students in a specific class within a date range.",
+    tag = "student_attendance"
+)]
+pub async fn generate_attendance_report(
+    data: web::Data<AppState>,
+    web::Query(query): web::Query<GenerateAttendanceReportRequest>,
+) -> Result<HttpResponse, APIError> {
+    let report = student_attendance::generate_attendance_report(data.clone(), query).await?;
+    Ok(HttpResponse::Ok().json(report))
+}
+
+#[api_operation(
+    summary = "Get students with low attendance",
+    description = "Retrieves a list of students in a class with attendance percentage below a specified threshold.",
+    tag = "student_attendance"
+)]
+pub async fn get_students_with_low_attendance(
+    data: web::Data<AppState>,
+    web::Query(query): web::Query<LowAttendanceStudentQuery>,
+) -> Result<HttpResponse, APIError> {
+    let students = student_attendance::get_students_with_low_attendance(data.clone(), query).await?;
+    Ok(HttpResponse::Ok().json(students))
+}
+
+
+
+#[api_operation(
+    summary = "Send absence notifications to parents",
+    description = "Sends email notifications to parents of absent students for a specific class on a given date.",
+    tag = "student_attendance"
+)]
+pub async fn send_absence_notifications(
+    data: web::Data<AppState>,
+    body: web::Json<SendAbsenceNotificationRequest>,
+) -> Result<HttpResponse, APIError> {
+    student_attendance::send_absence_notifications(data.clone(), body.class_id.clone(), body.date).await?;
+    Ok(HttpResponse::Ok().body("Absence notifications process initiated."))
 }

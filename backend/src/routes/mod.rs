@@ -14,7 +14,7 @@ use crate::{
         role_permissions::{assign_permission_to_role, unassign_permission_from_role},
         roles::{create_role, delete_role, get_role, get_roles, update_role},
         staff::{create_staff, delete_staff, get_all_staff, get_staff_by_id, update_staff, upload_staff_photo},
-        staff_roles::{assign_role_to_staff, get_staff_roles, remove_role_from_staff, update_staff_roles},
+        staff_roles::{assign_role_to_staff, get_staff_roles, remove_role_from_staff},
         teacher_assignments::{assign_class_to_teacher, assign_subject_to_teacher, get_teacher_workload},
         verification::{resend_verification_email, verify_email},
         staff_attendance::{mark_staff_attendance_daily, mark_bulk_staff_attendance, update_staff_attendance, get_staff_attendance_by_date, get_staff_attendance_by_staff_member, calculate_monthly_attendance_percentage},
@@ -23,6 +23,12 @@ use crate::{
         student_guardian,
         student_class_assignment,
         student_attendance,
+        academic_year,
+        grade_level,
+        class,
+        subject,
+        class_subject_teacher,
+        timetable, // Add this line
     },
     utils::{jwt::Authenticated, roles::RoleVerification},
 };
@@ -211,8 +217,86 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{attendance_id}", web::put().to(student_attendance::update_student_attendance))
             .route("/class/{class_id}/date/{date}", web::get().to(student_attendance::get_attendance_by_class_and_date))
             .route("/student/{student_id}", web::get().to(student_attendance::get_attendance_by_student))
-            .route("/student/{student_id}/percentage", web::get().to(student_attendance::calculate_student_attendance_percentage)),
-    ); // <-- Added semicolon here
+            .route("/student/{student_id}/percentage", web::get().to(student_attendance::calculate_student_attendance_percentage))
+            .route("/report", web::get().to(student_attendance::generate_attendance_report))
+            .route("/low-attendance", web::get().to(student_attendance::get_students_with_low_attendance))
+            .route("/notifications/absent", web::post().to(student_attendance::send_absence_notifications)),
+    )
+    .service(
+        web::scope("/academic-years")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming only Admin can manage academic years
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(academic_year::create_academic_year))
+            .route("/{id}", web::get().to(academic_year::get_academic_year_by_id))
+            .route("", web::get().to(academic_year::get_all_academic_years))
+            .route("/{id}", web::put().to(academic_year::update_academic_year))
+            .route("/{id}", web::delete().to(academic_year::delete_academic_year))
+            .route("/{id}/set-current", web::put().to(academic_year::set_current_academic_year)),
+    )
+    .service(
+        web::scope("/grade-levels")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming only Admin can manage grade levels
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(grade_level::create_grade_level))
+            .route("/{id}", web::get().to(grade_level::get_grade_level_by_id))
+            .route("", web::get().to(grade_level::get_all_grade_levels))
+            .route("/{id}", web::put().to(grade_level::update_grade_level))
+            .route("/{id}", web::delete().to(grade_level::delete_grade_level)),
+    )
+    .service(
+        web::scope("/classes")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming only Admin can manage classes
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(class::create_class))
+            .route("/{id}", web::get().to(class::get_class_by_id))
+            .route("", web::get().to(class::get_all_classes))
+            .route("/{id}", web::put().to(class::update_class))
+            .route("/{id}", web::delete().to(class::delete_class))
+            .route("/grade/{id}", web::get().to(class::get_classes_by_grade)),
+    )
+    .service(
+        web::scope("/subjects")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming only Admin can manage subjects
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(subject::create_subject))
+            .route("/{id}", web::get().to(subject::get_subject_by_id))
+            .route("", web::get().to(subject::get_all_subjects))
+            .route("/{id}", web::put().to(subject::update_subject))
+            .route("/{id}", web::delete().to(subject::delete_subject)),
+    )
+    .service(
+        web::scope("/class-subject-teachers")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming only Admin can manage assignments
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(class_subject_teacher::assign_subject_teacher_to_class))
+            .route("/{class_id}/{subject_id}/{academic_year_id}", web::put().to(class_subject_teacher::update_subject_teacher_assignment))
+            .route("/{class_id}/{subject_id}/{teacher_id}/{academic_year_id}", web::delete().to(class_subject_teacher::remove_subject_teacher_assignment))
+            .route("/class/{class_id}/academic-year/{academic_year_id}/subjects", web::get().to(class_subject_teacher::get_subjects_by_class))
+            .route("/teacher/{teacher_id}/academic-year/{academic_year_id}/classes", web::get().to(class_subject_teacher::get_classes_by_teacher)),
+    )
+    .service(
+        web::scope("/timetables")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming only Admin can manage timetables
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(timetable::create_timetable_entry))
+            .route("/{id}", web::get().to(timetable::get_timetable_entry_by_id))
+            .route("/class/{class_id}/day/{day_of_week}/academic-year/{academic_year_id}", web::get().to(timetable::get_timetable_by_class_and_day))
+            .route("/teacher/{teacher_id}/academic-year/{academic_year_id}", web::get().to(timetable::get_timetable_by_teacher))
+            .route("/{id}", web::put().to(timetable::update_timetable_entry))
+            .route("/{id}", web::delete().to(timetable::delete_timetable_entry)),
+    );
     cfg.route("/", web::get().to(hello));
     cfg.route("/error", web::get().to(hello_error));
 }

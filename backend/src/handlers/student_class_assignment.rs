@@ -4,7 +4,7 @@ use apistos::api_operation;
 use crate::{
     AppState,
     errors::APIError,
-    models::student_class_assignment::{CreateStudentClassAssignmentRequest, UpdateStudentClassAssignmentRequest, BulkAssignStudentClassRequest, PromoteStudentRequest},
+    models::student_class_assignment::{CreateStudentClassAssignmentRequest, BulkAssignStudentClassRequest, PromoteStudentRequest},
     services::student_class_assignment,
 };
 

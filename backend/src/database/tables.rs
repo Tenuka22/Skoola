@@ -1,4 +1,4 @@
-use crate::database::enums::{EmploymentStatus, StaffType, Gender, Religion, Ethnicity, StudentStatus};
+use crate::database::enums::{Gender, Religion, Ethnicity};
 use crate::schema::{permissions, role_permissions, roles, sessions, staff, staff_attendance, staff_departments, staff_employment_history, staff_leaves, staff_qualifications, staff_roles, staff_subjects, teacher_class_assignments, teacher_subject_assignments, user_roles, users, students, student_guardians, student_medical_info, student_emergency_contacts, student_previous_schools};
 use diesel::deserialize::FromSql;
 use diesel::expression::AsExpression;

@@ -2,13 +2,13 @@ use actix_web::{web, HttpResponse};
 use apistos::api_operation;
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::{Utc, NaiveDate, Datelike, Days, Months};
+use chrono::{Utc, NaiveDate, Days};
 
 use crate::{
     AppState,
     database::tables::StaffAttendance,
     errors::APIError,
-    models::staff_attendance::{MarkStaffAttendanceRequest, BulkMarkStaffAttendanceRequest, StaffAttendanceResponse, BulkMarkStaffAttendanceItem, UpdateStaffAttendanceRequest, StaffAttendanceChangeset, StaffAttendanceDateQuery, StaffAttendanceByStaffQuery, MonthlyAttendancePercentageResponse},
+    models::staff_attendance::{MarkStaffAttendanceRequest, BulkMarkStaffAttendanceRequest, StaffAttendanceResponse, UpdateStaffAttendanceRequest, StaffAttendanceChangeset, StaffAttendanceDateQuery, StaffAttendanceByStaffQuery, MonthlyAttendancePercentageResponse},
     schema::staff_attendance,
 };
 

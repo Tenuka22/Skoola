@@ -84,3 +84,35 @@ pub struct GetAttendanceByClassAndDatePath {
 pub struct GetAttendanceByStudentPath {
     pub student_id: String,
 }
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
+pub struct GenerateAttendanceReportRequest {
+    pub class_id: String,
+    pub from_date: NaiveDate,
+    pub to_date: NaiveDate,
+}
+
+#[derive(Debug, Serialize, JsonSchema, ApiComponent)]
+pub struct StudentAttendanceReportResponse {
+    pub student_id: String,
+    pub student_name: String, // Assuming student name can be retrieved or joined
+    pub total_days: i64,
+    pub days_present: i64,
+    pub days_absent: i64,
+    pub days_late: i64,
+    pub percentage: f64,
+}
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
+pub struct LowAttendanceStudentQuery {
+    pub class_id: String,
+    pub from_date: NaiveDate,
+    pub to_date: NaiveDate,
+    pub threshold_percentage: f64,
+}
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
+pub struct SendAbsenceNotificationRequest {
+    pub class_id: String,
+    pub date: NaiveDate,
+}

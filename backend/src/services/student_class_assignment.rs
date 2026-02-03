@@ -2,7 +2,7 @@ use diesel::prelude::*;
 use crate::{
     errors::APIError,
     AppState,
-    models::student_class_assignment::{StudentClassAssignment, CreateStudentClassAssignmentRequest, StudentClassAssignmentResponse, UpdateStudentClassAssignmentRequest, BulkAssignStudentClassRequest, PromoteStudentRequest},
+    models::student_class_assignment::{StudentClassAssignment, CreateStudentClassAssignmentRequest, StudentClassAssignmentResponse, BulkAssignStudentClassRequest, PromoteStudentRequest},
 };
 use actix_web::web;
 use uuid::Uuid;
