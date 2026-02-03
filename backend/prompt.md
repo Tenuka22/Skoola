@@ -321,11 +321,11 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create student_emergency_contacts table migration
 - [✅] **Run `cargo check` to verify migration compiles**
 - [ ] **Run `cargo check` to verify migration compiles**
-- [ ] Create student_previous_schools table migration
+- [✅] Create student_previous_schools table migration
+- [✅] **Run `cargo check` to verify migration compiles**
 - [ ] **Run `cargo check` to verify migration compiles**
-- [ ] **Run `cargo check` to verify migration compiles**
-- [ ] Add multi-language name fields (Sinhala, Tamil, English)
-- [ ] **Run `cargo check` to verify code compiles**
+- [✅] Add multi-language name fields (Sinhala, Tamil, English)
+- [✅] **Run `cargo check` to verify code compiles**
 - [ ] **Run `cargo check` to verify migration compiles**
 - [ ] Add indexes on admission_number, name fields
 - [ ] **Run `cargo check` to verify code compiles**
