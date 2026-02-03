@@ -253,7 +253,7 @@ Add your notes to help you future self. Only simple things and where which files
 
 ### 5.1 Academic Year Management
 - [✅] Create academic_years table migration (id, year_name, start_date, end_date, is_active)
-- [ ] Create terms table migration (id, academic_year_id, term_number, name, start_date, end_date)
+- [✅] Create terms table migration (id, academic_year_id, term_number, name, start_date, end_date)
 - [✅] Create endpoint to create academic year
 - [✅] Create endpoint to update academic year
 - [✅] Create endpoint to activate/deactivate academic year

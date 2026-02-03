@@ -4,7 +4,7 @@ use apistos::api_operation;
 use crate::{
     AppState,
     errors::APIError,
-    models::subject::{CreateSubjectRequest, UpdateSubjectRequest},
+    models::subject::{CreateSubjectRequest, UpdateSubjectRequest, AssignSubjectToGradeRequest, AssignSubjectToStreamRequest},
     services::subject,
 };
 
@@ -74,4 +74,58 @@ pub async fn delete_subject(
     let subject_id = path.into_inner();
     subject::delete_subject(data.clone(), subject_id).await?;
     Ok(HttpResponse::NoContent().finish())
+}
+
+#[api_operation(
+    summary = "Get Subjects by Grade",
+    description = "Retrieves a list of subjects associated with a specific grade.",
+    tag = "subjects"
+)]
+pub async fn get_subjects_by_grade_handler(
+    data: web::Data<AppState>,
+    path: web::Path<String>, // grade_id
+) -> Result<HttpResponse, APIError> {
+    let grade_id = path.into_inner();
+    let subjects = subject::get_subjects_by_grade(data.clone(), grade_id).await?;
+    Ok(HttpResponse::Ok().json(subjects))
+}
+
+#[api_operation(
+    summary = "Get Subjects by Stream",
+    description = "Retrieves a list of subjects associated with a specific stream.",
+    tag = "subjects"
+)]
+pub async fn get_subjects_by_stream_handler(
+    data: web::Data<AppState>,
+    path: web::Path<String>, // stream_id
+) -> Result<HttpResponse, APIError> {
+    let stream_id = path.into_inner();
+    let subjects = subject::get_subjects_by_stream(data.clone(), stream_id).await?;
+    Ok(HttpResponse::Ok().json(subjects))
+}
+
+#[api_operation(
+    summary = "Assign Subject to Grade",
+    description = "Assigns a subject to a specific grade.",
+    tag = "subjects"
+)]
+pub async fn assign_subject_to_grade_handler(
+    data: web::Data<AppState>,
+    body: web::Json<AssignSubjectToGradeRequest>,
+) -> Result<HttpResponse, APIError> {
+    subject::assign_subject_to_grade(data.clone(), body.into_inner()).await?;
+    Ok(HttpResponse::Created().finish())
+}
+
+#[api_operation(
+    summary = "Assign Subject to Stream",
+    description = "Assigns a subject to a specific stream.",
+    tag = "subjects"
+)]
+pub async fn assign_subject_to_stream_handler(
+    data: web::Data<AppState>,
+    body: web::Json<AssignSubjectToStreamRequest>,
+) -> Result<HttpResponse, APIError> {
+    subject::assign_subject_to_stream(data.clone(), body.into_inner()).await?;
+    Ok(HttpResponse::Created().finish())
 }

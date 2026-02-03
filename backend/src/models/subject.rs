@@ -40,6 +40,18 @@ pub struct UpdateSubjectRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
+pub struct AssignSubjectToGradeRequest {
+    pub grade_id: String,
+    pub subject_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
+pub struct AssignSubjectToStreamRequest {
+    pub stream_id: String,
+    pub subject_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct SubjectResponse {
     pub id: String,
     pub subject_code: String,

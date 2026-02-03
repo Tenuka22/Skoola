@@ -31,6 +31,7 @@ use crate::{
         teacher_assignments::{
             assign_class_to_teacher, assign_subject_to_teacher, get_teacher_workload,
         },
+        terms, // Add this line
         timetable,
         verification::{resend_verification_email, verify_email},
     },
@@ -303,6 +304,14 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             ),
     )
     .service(
+        web::scope("/terms")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming only Admin can manage terms
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(terms::create_term_handler)),
+    )
+    .service(
         web::scope("/grade-levels")
             .wrap(RoleVerification {
                 required_role: RoleEnum::Admin, // Assuming only Admin can manage grade levels
@@ -337,7 +346,11 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{id}", web::get().to(subject::get_subject_by_id))
             .route("", web::get().to(subject::get_all_subjects))
             .route("/{id}", web::put().to(subject::update_subject))
-            .route("/{id}", web::delete().to(subject::delete_subject)),
+            .route("/{id}", web::delete().to(subject::delete_subject))
+            .route("/grade/{grade_id}", web::get().to(subject::get_subjects_by_grade_handler))
+            .route("/stream/{stream_id}", web::get().to(subject::get_subjects_by_stream_handler))
+            .route("/assign-to-grade", web::post().to(subject::assign_subject_to_grade_handler))
+            .route("/assign-to-stream", web::post().to(subject::assign_subject_to_stream_handler)),
     )
     .service(
         web::scope("/class-subject-teachers")

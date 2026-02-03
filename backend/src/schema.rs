@@ -432,6 +432,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    terms (id) {
+        id -> Text,
+        academic_year_id -> Text,
+        term_number -> Integer,
+        name -> Text,
+        start_date -> Date,
+        end_date -> Date,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     timetable (id) {
         id -> Text,
         class_id -> Text,
@@ -474,6 +487,7 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(student_class_assignments -> students (student_id));
 diesel::joinable!(class_subject_teachers -> academic_years (academic_year_id));
 diesel::joinable!(class_subject_teachers -> classes (class_id));
 diesel::joinable!(class_subject_teachers -> staff (teacher_id));
@@ -485,6 +499,7 @@ diesel::joinable!(exam_subjects -> exams (exam_id));
 diesel::joinable!(exam_subjects -> subjects (subject_id));
 diesel::joinable!(exams -> academic_years (academic_year_id));
 diesel::joinable!(exams -> exam_types (exam_type_id));
+diesel::joinable!(exams -> terms (term_id));
 diesel::joinable!(grade_streams -> grade_levels (grade_id));
 diesel::joinable!(grade_streams -> streams (stream_id));
 diesel::joinable!(grade_subjects -> grade_levels (grade_id));
@@ -508,13 +523,13 @@ diesel::joinable!(student_guardians -> students (student_id));
 diesel::joinable!(student_marks -> students (student_id));
 diesel::joinable!(student_medical_info -> students (student_id));
 diesel::joinable!(student_previous_schools -> students (student_id));
-diesel::joinable!(student_class_assignments -> students (student_id));
 diesel::joinable!(teacher_class_assignments -> academic_years (academic_year_id));
 diesel::joinable!(teacher_class_assignments -> classes (class_id));
 diesel::joinable!(teacher_class_assignments -> staff (teacher_id));
 diesel::joinable!(teacher_subject_assignments -> academic_years (academic_year_id));
 diesel::joinable!(teacher_subject_assignments -> staff (teacher_id));
 diesel::joinable!(teacher_subject_assignments -> subjects (subject_id));
+diesel::joinable!(terms -> academic_years (academic_year_id));
 diesel::joinable!(timetable -> academic_years (academic_year_id));
 diesel::joinable!(timetable -> classes (class_id));
 diesel::joinable!(timetable -> staff (teacher_id));
@@ -559,6 +574,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     subjects,
     teacher_class_assignments,
     teacher_subject_assignments,
+    terms,
     timetable,
     user_roles,
     users,
