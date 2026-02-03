@@ -221,16 +221,15 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create staff list endpoint (with pagination)
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create staff search endpoint (by name, employee_id, department)
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create staff filter endpoint (by role, department, employment status)
-- [ ] **Run `cargo check` to verify endpoint compiles**
+- - [✅] Create staff search endpoint (by name, employee_id, department)
+- [✅] **Run `cargo check` to verify endpoint compiles**
+- [✅] Create staff filter endpoint (by role, department, employment status)
+- [✅] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create staff deletion/deactivation endpoint
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] **Run `cargo check` to verify endpoint compiles**
-- [ ] Add staff photo upload functionality
+- [✅] Add staff photo upload functionality
 - [ ] **Run `cargo check` to verify code compiles**
 - [ ] **Run `cargo check` to verify all staff CRUD endpoints have no type errors**
 
@@ -241,7 +240,7 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create endpoint to remove roles from staff
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to update staff roles
+- [✅] Create endpoint to update staff roles
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create endpoint to view staff with specific roles

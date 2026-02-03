@@ -9,6 +9,13 @@ use crate::database::tables::Staff;
 use crate::schema::staff;
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct StaffQuery {
+    pub search: Option<String>,
+    pub employment_status: Option<EmploymentStatus>,
+    pub staff_type: Option<StaffType>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct CreateStaffRequest {
     pub employee_id: String,
     pub name: String,
@@ -58,6 +65,7 @@ pub struct StaffResponse {
     pub address: String,
     pub phone: String,
     pub email: String,
+    pub photo_url: Option<String>,
     pub employment_status: EmploymentStatus,
     pub staff_type: StaffType,
     pub created_at: NaiveDateTime,
@@ -76,6 +84,7 @@ impl From<Staff> for StaffResponse {
             address: staff.address,
             phone: staff.phone,
             email: staff.email,
+            photo_url: staff.photo_url,
             employment_status: staff.employment_status,
             staff_type: staff.staff_type,
             created_at: staff.created_at,

@@ -3,15 +3,76 @@ use apistos::api_operation;
 use diesel::prelude::*;
 use uuid::Uuid;
 use chrono::Utc;
+use actix_multipart::Multipart;
+use futures_util::stream::{StreamExt, TryStreamExt};
+use std::io::Write;
+use std::fs::create_dir_all;
 
 use crate::{
     AppState,
     database::tables::{Staff},
     errors::APIError,
-    models::staff::{CreateStaffRequest, StaffChangeset, UpdateStaffRequest, StaffResponse},
+    models::staff::{CreateStaffRequest, StaffChangeset, UpdateStaffRequest, StaffResponse, StaffQuery},
     schema::staff,
-    database::enums::{EmploymentStatus, StaffType},
+    utils::validation::{is_valid_email, is_valid_nic, is_valid_phone},
 };
+
+#[api_operation(
+    summary = "Upload a staff photo",
+    description = "Uploads a photo for a staff member.",
+    tag = "staff"
+)]
+pub async fn upload_staff_photo(
+    data: web::Data<AppState>,
+    staff_id: web::Path<String>,
+    mut payload: Multipart,
+) -> Result<HttpResponse, APIError> {
+    let staff_id_inner = staff_id.into_inner();
+    let mut conn = data.db_pool.get()?;
+
+    // Check if staff exists
+    let _staff_member: Staff = staff::table
+        .find(&staff_id_inner)
+        .select(Staff::as_select())
+        .first(&mut conn)?;
+
+    // Create uploads directory if it doesn't exist
+    create_dir_all("./uploads")?;
+
+    let mut file_path = None;
+
+    while let Some(mut field) = payload.try_next().await? {
+        if let Some(content_disposition) = field.content_disposition() {
+            if let Some(filename) = content_disposition.get_filename() {
+                let sanitized_filename = sanitize_filename::sanitize(filename);
+                let filepath = format!("./uploads/{}", sanitized_filename);
+                let filepath_clone = filepath.clone();
+                let mut f = web::block(move || std::fs::File::create(&filepath_clone)).await??;
+                while let Some(chunk) = field.next().await {
+                    let data = chunk?;
+                    f = web::block(move || f.write_all(&data).map(|_| f)).await??;
+                }
+                file_path = Some(filepath);
+                break; // Process only the first file
+            }
+        }
+    }
+
+    if let Some(filepath) = file_path {
+        diesel::update(staff::table.find(&staff_id_inner))
+            .set(staff::photo_url.eq(&filepath))
+            .execute(&mut conn)?;
+
+        let updated_staff = staff::table
+            .find(&staff_id_inner)
+            .select(Staff::as_select())
+            .first::<Staff>(&mut conn)?;
+
+        Ok(HttpResponse::Ok().json(StaffResponse::from(updated_staff)))
+    } else {
+        Err(APIError::bad_request("No file was uploaded"))
+    }
+}
 
 #[api_operation(
     summary = "Get all staff members",
@@ -20,9 +81,27 @@ use crate::{
 )]
 pub async fn get_all_staff(
     data: web::Data<AppState>,
+    query: web::Query<StaffQuery>,
 ) -> Result<HttpResponse, APIError> {
     let mut conn = data.db_pool.get()?;
-    let staff_list = staff::table
+    let mut staff_query = staff::table.into_boxed();
+
+    if let Some(search) = &query.search {
+        staff_query = staff_query.filter(
+            staff::name.like(format!("%{}%", search))
+                .or(staff::employee_id.like(format!("%{}%", search)))
+        );
+    }
+
+    if let Some(employment_status) = &query.employment_status {
+        staff_query = staff_query.filter(staff::employment_status.eq(employment_status.clone()));
+    }
+
+    if let Some(staff_type) = &query.staff_type {
+        staff_query = staff_query.filter(staff::staff_type.eq(staff_type.clone()));
+    }
+
+    let staff_list = staff_query
         .select(Staff::as_select())
         .load::<Staff>(&mut conn)?;
 
@@ -56,6 +135,16 @@ pub async fn create_staff(
     data: web::Data<AppState>,
     body: web::Json<CreateStaffRequest>,
 ) -> Result<HttpResponse, APIError> {
+    if !is_valid_email(&body.email) {
+        return Err(APIError::bad_request("Invalid email format"));
+    }
+    if !is_valid_nic(&body.nic) {
+        return Err(APIError::bad_request("Invalid NIC format"));
+    }
+    if !is_valid_phone(&body.phone) {
+        return Err(APIError::bad_request("Invalid phone number format"));
+    }
+
     let mut conn = data.db_pool.get()?;
 
     // Check for existing employee_id or email
@@ -80,6 +169,7 @@ pub async fn create_staff(
         address: body.address.clone(),
         phone: body.phone.clone(),
         email: body.email.clone(),
+        photo_url: None,
         employment_status: body.employment_status.clone(),
         staff_type: body.staff_type.clone(),
         created_at: Utc::now().naive_utc(),
@@ -103,6 +193,22 @@ pub async fn update_staff(
     staff_id: web::Path<String>,
     body: web::Json<UpdateStaffRequest>,
 ) -> Result<HttpResponse, APIError> {
+    if let Some(ref email) = body.email {
+        if !is_valid_email(email) {
+            return Err(APIError::bad_request("Invalid email format"));
+        }
+    }
+    if let Some(ref nic) = body.nic {
+        if !is_valid_nic(nic) {
+            return Err(APIError::bad_request("Invalid NIC format"));
+        }
+    }
+    if let Some(ref phone) = body.phone {
+        if !is_valid_phone(phone) {
+            return Err(APIError::bad_request("Invalid phone number format"));
+        }
+    }
+
     let mut conn = data.db_pool.get()?;
     let staff_id_inner = staff_id.into_inner();
 
@@ -138,8 +244,8 @@ pub async fn update_staff(
         address: body.address.clone(),
         phone: body.phone.clone(),
         email: body.email.clone(),
-        employment_status: body.employment_status.clone(),
-        staff_type: body.staff_type.clone(),
+        employment_status: None,
+        staff_type: None,
     };
 
     diesel::update(staff::table.find(&staff_id_inner))
