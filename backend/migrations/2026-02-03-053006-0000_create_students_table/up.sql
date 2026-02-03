@@ -15,3 +15,8 @@ CREATE TABLE students (
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL
 );
+
+CREATE INDEX idx_students_admission_number ON students(admission_number);
+CREATE INDEX idx_students_name_english ON students(name_english);
+CREATE INDEX idx_students_name_sinhala ON students(name_sinhala);
+CREATE INDEX idx_students_name_tamil ON students(name_tamil);

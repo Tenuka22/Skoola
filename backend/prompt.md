@@ -327,9 +327,9 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Add multi-language name fields (Sinhala, Tamil, English)
 - [✅] **Run `cargo check` to verify code compiles**
 - [ ] **Run `cargo check` to verify migration compiles**
-- [ ] Add indexes on admission_number, name fields
-- [ ] **Run `cargo check` to verify code compiles**
-- [ ] **Run `cargo check` to verify all student migrations compile together**
+- [✅] Add indexes on admission_number, name fields
+- [✅] **Run `cargo check` to verify code compiles**
+- [✅] **Run `cargo check` to verify all student migrations compile together**
 
 ### 4.2 Student Models & Validation
 - [ ] Create Student struct in Rust
