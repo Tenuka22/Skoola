@@ -338,11 +338,11 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create StudentGuardian struct
 - [✅] **Run `cargo check` to verify struct compiles**
 - [ ] **Run `cargo check` to verify StudentGuardian struct compiles**
-- [ ] Create StudentMedicalInfo struct
-- [ ] **Run `cargo check` to verify struct compiles**
+- [✅] Create StudentMedicalInfo struct
+- [✅] **Run `cargo check` to verify struct compiles**
 - [ ] **Run `cargo check` to verify StudentMedicalInfo struct compiles**
-- [ ] Create StudentEmergencyContact struct
-- [ ] **Run `cargo check` to verify struct compiles**
+- [✅] Create StudentEmergencyContact struct
+- [✅] **Run `cargo check` to verify struct compiles**
 - [ ] **Run `cargo check` to verify StudentEmergencyContact struct compiles**
 - [ ] Implement validation for student data
 - [ ] **Run `cargo check` to verify logic compiles**
