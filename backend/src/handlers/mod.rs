@@ -21,3 +21,7 @@ pub mod class;
 pub mod subject;
 pub mod class_subject_teacher;
 pub mod timetable;
+pub mod exam_types;
+pub mod exams;
+pub mod exam_subjects;
+pub mod student_marks;

@@ -320,25 +320,25 @@ Add your notes to help you future self. Only simple things and where which files
 ## 6. ASSESSMENT & GRADING MODULE
 
 ### 6.1 Exam/Assessment Configuration
-- [ ] Create exam_types table migration (id, name, description, weightage)
-- [ ] Create exams table migration (id, exam_type_id, name, academic_year_id, term_id, start_date, end_date)
-- [ ] Create exam_subjects table migration (exam_id, subject_id, date, time, duration, max_marks, pass_marks)
-- [ ] Create endpoint to create exam types
-- [ ] Create endpoint to create exams
-- [ ] Create endpoint to configure exam subjects
-- [ ] Create endpoint to view exams by term
-- [ ] Create endpoint to view exam schedule
+- [✅] Create exam_types table migration (id, name, description, weightage)
+- [✅] Create exams table migration (id, exam_type_id, name, academic_year_id, term_id, start_date, end_date)
+- [✅] Create exam_subjects table migration (exam_id, subject_id, date, time, duration, max_marks, pass_marks)
+- [✅] Create endpoint to create exam types
+- [✅] Create endpoint to create exams
+- [✅] Create endpoint to configure exam subjects
+- [✅] Create endpoint to view exams by term
+- [✅] Create endpoint to view exam schedule
 
 ### 6.2 Paper Marks Entry System
-- [ ] Create student_marks table migration (id, student_id, exam_subject_id, marks_obtained, is_absent, remarks, entered_by, entered_at, updated_by, updated_at)
-- [ ] Create endpoint to enter marks for a student (single)
-- [ ] Create endpoint to enter marks for multiple students (bulk)
-- [ ] Create endpoint to update student marks
-- [ ] Create endpoint to view marks by student
-- [ ] Create endpoint to view marks by exam and class
-- [ ] Create endpoint to mark student as absent for exam
-- [ ] Implement validation for marks range (0 to max_marks)
-- [ ] Add audit trail for marks entry/modification
+- [✅] Create student_marks table migration (id, student_id, exam_subject_id, marks_obtained, is_absent, remarks, entered_by, entered_at, updated_by, updated_at)
+- [✅] Create endpoint to enter marks for a student (single)
+- [✅] Create endpoint to enter marks for multiple students (bulk)
+- [✅] Create endpoint to update student marks
+- [✅] Create endpoint to view marks by student
+- [✅] Create endpoint to view marks by exam and class
+- [✅] Create endpoint to mark student as absent for exam
+- [✅] Implement validation for marks range (0 to max_marks)
+- [✅] Add audit trail for marks entry/modification
 
 ### 6.3 Grading System
 - [ ] Create grading_schemes table migration (id, name, grade_level, description)

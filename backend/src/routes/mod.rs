@@ -28,7 +28,10 @@ use crate::{
         class,
         subject,
         class_subject_teacher,
-        timetable, // Add this line
+        timetable,
+        exam_types,
+        exams,
+        exam_subjects,
     },
     utils::{jwt::Authenticated, roles::RoleVerification},
 };
@@ -296,6 +299,61 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/teacher/{teacher_id}/academic-year/{academic_year_id}", web::get().to(timetable::get_timetable_by_teacher))
             .route("/{id}", web::put().to(timetable::update_timetable_entry))
             .route("/{id}", web::delete().to(timetable::delete_timetable_entry)),
+    )
+    .service(
+        web::scope("/exam-types")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming Admin can manage exam types
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(exam_types::create_exam_type))
+            .route("/{id}", web::get().to(exam_types::get_exam_type_by_id))
+            .route("", web::get().to(exam_types::get_all_exam_types))
+            .route("/{id}", web::put().to(exam_types::update_exam_type))
+            .route("/{id}", web::delete().to(exam_types::delete_exam_type)),
+    )
+    .service(
+        web::scope("/exams")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming Admin can manage exams
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(exams::create_exam))
+            .route("/{id}", web::get().to(exams::get_exam_by_id))
+            .route("", web::get().to(exams::get_all_exams))
+            .route("/term/{term_id}", web::get().to(exams::get_exams_by_term_id)) // New route
+            .route("/{id}", web::put().to(exams::update_exam))
+            .route("/{id}", web::delete().to(exams::delete_exam)),
+    )
+    .service(
+        web::scope("/exam-subjects")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming Admin can manage exam subjects
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(exam_subjects::create_exam_subject))
+            .route("/{exam_id}/{subject_id}", web::get().to(exam_subjects::get_exam_subject_by_ids))
+            .route("", web::get().to(exam_subjects::get_all_exam_subjects))
+            .route("/exam/{exam_id}", web::get().to(exam_subjects::get_exam_subjects_by_exam_id))
+            .route("/subject/{subject_id}", web::get().to(exam_subjects::get_exam_subjects_by_subject_id))
+            .route("/schedule/academic-year/{academic_year_id}/term/{term_id}", web::get().to(exam_subjects::get_exam_schedule)) // New route
+            .route("/{exam_id}/{subject_id}", web::put().to(exam_subjects::update_exam_subject))
+            .route("/{exam_id}/{subject_id}", web::delete().to(exam_subjects::delete_exam_subject)),
+    )
+    .service(
+        web::scope("/student-marks")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Admin, // Assuming Admin can manage student marks
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(student_marks::create_student_mark))
+            .route("/bulk", web::post().to(student_marks::bulk_create_student_marks))
+            .route("/{id}", web::get().to(student_marks::get_student_mark_by_id))
+            .route("/student/{student_id}", web::get().to(student_marks::get_student_marks_by_student_id))
+            .route("/exam/{exam_id}/class/{class_id}", web::get().to(student_marks::get_student_marks_by_exam_and_class)) // New route
+            .route("", web::get().to(student_marks::get_all_student_marks))
+            .route("/{id}", web::put().to(student_marks::update_student_mark))
+            .route("/{id}", web::delete().to(student_marks::delete_student_mark)),
     );
     cfg.route("/", web::get().to(hello));
     cfg.route("/error", web::get().to(hello_error));
