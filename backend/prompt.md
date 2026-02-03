@@ -241,14 +241,14 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create endpoint to update staff roles
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
+- [✅] **Run `cargo check` to verify endpoint compiles**
+- [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create endpoint to view staff with specific roles
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Implement validation to prevent duplicate role assignments
 - [✅] **Run `cargo check` to verify logic compiles**
-- [✅] **Run `cargo check` to verify validation logic has no type errors**
+- [✅] **Run `cargo check` to verify validation logic has no type errors__
 
 ### 3.5 Teacher-Specific Features
 - [✅] Create teacher_class_assignments table migration
@@ -264,14 +264,14 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [✅] Create endpoint to view teacher workload
+- [✅] **Run `cargo check` to verify endpoint compiles__
 - [✅] **Run `cargo check` to verify endpoint compiles**
-- [✅] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to view teacher timetable
+- [⏸️] Create endpoint to view teacher timetable
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Implement workload calculation logic
-- [ ] **Run `cargo check` to verify logic compiles**
-- [ ] **Run `cargo check` to verify workload logic has no type errors**
+- [✅] Implement workload calculation logic
+- [✅] **Run `cargo check` to verify logic compiles**
+- [✅] **Run `cargo check` to verify workload logic has no type errors**
 
 ### 3.6 Staff Attendance Management
 - [✅] Create staff_attendance table migration (date, staff_id, status, time_in, time_out, remarks)

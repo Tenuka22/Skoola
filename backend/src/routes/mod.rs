@@ -13,8 +13,8 @@ use crate::{
         },
         role_permissions::{assign_permission_to_role, unassign_permission_from_role},
         roles::{create_role, delete_role, get_role, get_roles, update_role},
-        staff::{create_staff, delete_staff, get_all_staff, get_staff_by_id, update_staff},
-        staff_roles::{assign_role_to_staff, get_staff_roles, remove_role_from_staff},
+        staff::{create_staff, delete_staff, get_all_staff, get_staff_by_id, update_staff, upload_staff_photo},
+        staff_roles::{assign_role_to_staff, get_staff_roles, remove_role_from_staff, update_staff_roles},
         teacher_assignments::{assign_class_to_teacher, assign_subject_to_teacher, get_teacher_workload},
         verification::{resend_verification_email, verify_email},
     },
@@ -89,10 +89,15 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::post().to(create_staff))
             .route("/{staff_id}", web::put().to(update_staff))
             .route("/{staff_id}", web::delete().to(delete_staff))
+            .route("/{staff_id}/photo", web::post().to(upload_staff_photo))
             .route(
                 "/{staff_id}/roles",
                 web::post().to(assign_role_to_staff),
             )
+            //.route(
+            //    "/{staff_id}/roles",
+            //    apistos::web::put().to(update_staff_roles),
+            //)
             .route(
                 "/{staff_id}/roles/{role_id}",
                 web::delete().to(remove_role_from_staff),

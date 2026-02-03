@@ -29,3 +29,10 @@ pub struct TeacherSubjectAssignmentResponse {
     pub subject_id: String,
     pub academic_year_id: String,
 }
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct TeacherWorkloadResponse {
+    pub teacher_id: String,
+    pub total_classes_assigned: i64,
+    pub total_subjects_assigned: i64,
+}

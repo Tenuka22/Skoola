@@ -6,9 +6,38 @@ use crate::{
     AppState,
     database::tables::{StaffRole, Role},
     errors::APIError,
-    models::staff_roles::{AssignRoleToStaffRequest},
+    models::staff_roles::{AssignRoleToStaffRequest, UpdateStaffRolesRequest},
     schema::{staff_roles, roles},
 };
+
+pub async fn update_staff_roles(
+    data: web::Data<AppState>,
+    staff_id: web::Path<String>,
+    body: web::Json<UpdateStaffRolesRequest>,
+) -> Result<HttpResponse, APIError> {
+    let mut conn = data.db_pool.get()?;
+    let staff_id_inner = staff_id.into_inner();
+
+    conn.transaction::<_, APIError, _>(|conn| {
+        diesel::delete(staff_roles::table.filter(staff_roles::staff_id.eq(&staff_id_inner)))
+            .execute(conn)?;
+
+        let new_roles: Vec<StaffRole> = body
+            .role_ids
+            .iter()
+            .map(|role_id| StaffRole {
+                staff_id: staff_id_inner.clone(),
+                role_id: role_id.clone(),
+            })
+            .collect();
+
+        diesel::insert_into(staff_roles::table)
+            .values(&new_roles)
+            .execute(conn)?;
+
+        Ok(HttpResponse::Ok().finish())
+    })
+}
 
 #[api_operation(
     summary = "Assign a role to a staff member",

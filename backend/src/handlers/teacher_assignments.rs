@@ -8,7 +8,7 @@ use crate::{
     AppState,
     database::tables::{TeacherClassAssignment, TeacherSubjectAssignment},
     errors::APIError,
-    models::teacher_assignments::{AssignClassToTeacherRequest, AssignSubjectToTeacherRequest, TeacherClassAssignmentResponse, TeacherSubjectAssignmentResponse},
+    models::teacher_assignments::{AssignClassToTeacherRequest, AssignSubjectToTeacherRequest, TeacherClassAssignmentResponse, TeacherSubjectAssignmentResponse, TeacherWorkloadResponse},
     schema::{teacher_class_assignments, teacher_subject_assignments},
 };
 
@@ -130,9 +130,13 @@ pub async fn get_teacher_workload(
         .select(TeacherSubjectAssignment::as_select())
         .load::<TeacherSubjectAssignment>(&mut conn)?;
 
-    Ok(HttpResponse::Ok().json(serde_json::json!({
-        "teacher_id": teacher_id_inner,
-        "assigned_classes": assigned_classes,
-        "assigned_subjects": assigned_subjects,
-    })))
+    let total_classes_assigned = assigned_classes.len() as i64;
+    let total_subjects_assigned = assigned_subjects.len() as i64;
+
+    Ok(HttpResponse::Ok().json(TeacherWorkloadResponse {
+        teacher_id: teacher_id_inner,
+        total_classes_assigned,
+        total_subjects_assigned,
+    }))
 }
+
