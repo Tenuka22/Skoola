@@ -312,8 +312,8 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create students table migration (id, admission_number, name, nic/birth_certificate, dob, gender, address, religion, ethnicity, etc.)
 - [✅] **Run `cargo check` to verify migration compiles**
 - [ ] **Run `cargo check` to verify migration compiles**
-- [ ] Create student_guardians table migration
-- [ ] **Run `cargo check` to verify migration compiles**
+- [✅] Create student_guardians table migration
+- [✅] **Run `cargo check` to verify migration compiles**
 - [ ] **Run `cargo check` to verify migration compiles**
 - [ ] Create student_medical_info table migration
 - [ ] **Run `cargo check` to verify migration compiles**
