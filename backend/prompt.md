@@ -293,17 +293,15 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create endpoint to view staff attendance by date
 - [✅] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to view staff attendance by staff member
+- [✅] Create endpoint to view staff attendance by staff member
+- [✅] **Run `cargo check` to verify endpoint compiles**
+- [✅] Create endpoint to calculate monthly attendance percentage
+- [✅] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to calculate monthly attendance percentage
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to apply for leave
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to approve/reject leave
-- [ ] **Run `cargo check` to verify endpoint compiles**
+- [✅] Create endpoint to apply for leave
+- [✅] **Run `cargo check` to verify endpoint compiles**
+- [✅] Create endpoint to approve/reject leave
+- [✅] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] Create endpoint to view leave balance
 - [ ] **Run `cargo check` to verify endpoint compiles**

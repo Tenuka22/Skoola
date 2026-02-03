@@ -2,13 +2,13 @@ use actix_web::{web, HttpResponse};
 use apistos::api_operation;
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::Utc;
+use chrono::{Utc, NaiveDate, Datelike, Days, Months};
 
 use crate::{
     AppState,
     database::tables::StaffAttendance,
     errors::APIError,
-    models::staff_attendance::{MarkStaffAttendanceRequest, BulkMarkStaffAttendanceRequest, StaffAttendanceResponse, BulkMarkStaffAttendanceItem, UpdateStaffAttendanceRequest, StaffAttendanceChangeset, StaffAttendanceDateQuery},
+    models::staff_attendance::{MarkStaffAttendanceRequest, BulkMarkStaffAttendanceRequest, StaffAttendanceResponse, BulkMarkStaffAttendanceItem, UpdateStaffAttendanceRequest, StaffAttendanceChangeset, StaffAttendanceDateQuery, StaffAttendanceByStaffQuery, MonthlyAttendancePercentageResponse},
     schema::staff_attendance,
 };
 
@@ -159,4 +159,87 @@ pub async fn get_staff_attendance_by_date(
         .load::<StaffAttendance>(&mut conn)?;
 
     Ok(HttpResponse::Ok().json(attendance_list.into_iter().map(StaffAttendanceResponse::from).collect::<Vec<_>>()))
+}
+
+#[api_operation(
+    summary = "View staff attendance by staff member",
+    description = "Returns a list of staff attendance records for a specific staff member, optionally filtered by a date range.",
+    tag = "staff_attendance"
+)]
+pub async fn get_staff_attendance_by_staff_member(
+    data: web::Data<AppState>,
+    staff_id: web::Path<String>,
+    query: web::Query<StaffAttendanceByStaffQuery>,
+) -> Result<HttpResponse, APIError> {
+    let mut conn = data.db_pool.get()?;
+    let staff_id_inner = staff_id.into_inner();
+    let mut attendance_query = staff_attendance::table.into_boxed();
+
+    attendance_query = attendance_query.filter(staff_attendance::staff_id.eq(&staff_id_inner));
+
+    if let Some(start_date) = query.start_date {
+        attendance_query = attendance_query.filter(staff_attendance::date.ge(start_date));
+    }
+    if let Some(end_date) = query.end_date {
+        attendance_query = attendance_query.filter(staff_attendance::date.le(end_date));
+    }
+
+    let attendance_list = attendance_query
+        .select(StaffAttendance::as_select())
+        .load::<StaffAttendance>(&mut conn)?;
+
+    Ok(HttpResponse::Ok().json(attendance_list.into_iter().map(StaffAttendanceResponse::from).collect::<Vec<_>>()))
+}
+
+#[api_operation(
+    summary = "Calculate monthly attendance percentage",
+    description = "Calculates the attendance percentage for a staff member for a given month and year.",
+    tag = "staff_attendance"
+)]
+pub async fn calculate_monthly_attendance_percentage(
+    data: web::Data<AppState>,
+    staff_id: web::Path<String>,
+    path_info: web::Path<(i32, u32)>, // (year, month)
+) -> Result<HttpResponse, APIError> {
+    let (year, month) = path_info.into_inner();
+    let staff_id_inner = staff_id.into_inner();
+    let mut conn = data.db_pool.get()?;
+
+    // Determine the start and end dates of the month
+    let start_of_month = NaiveDate::from_ymd_opt(year, month, 1)
+        .ok_or_else(|| APIError::bad_request("Invalid month or year"))?;
+    let end_of_month = NaiveDate::from_ymd_opt(year, month, 1)
+        .and_then(|d| d.checked_add_months(chrono::Months::new(1)))
+        .and_then(|d| d.checked_sub_days(Days::new(1)))
+        .ok_or_else(|| APIError::internal("Could not determine end of month"))?;
+
+    // Filter attendance records for the given staff, month, and year
+    let attendance_records = staff_attendance::table
+        .filter(staff_attendance::staff_id.eq(&staff_id_inner))
+        .filter(staff_attendance::date.ge(start_of_month))
+        .filter(staff_attendance::date.le(end_of_month))
+        .select(StaffAttendance::as_select())
+        .load::<StaffAttendance>(&mut conn)?;
+
+    let present_days = attendance_records
+        .iter()
+        .filter(|rec| matches!(rec.status.parse::<crate::database::enums::AttendanceStatus>(), Ok(crate::database::enums::AttendanceStatus::Present)))
+        .count() as i64;
+
+    let total_working_days = attendance_records.len() as i64;
+
+    let attendance_percentage = if total_working_days > 0 {
+        (present_days as f64 / total_working_days as f64) * 100.0
+    } else {
+        0.0
+    };
+
+    Ok(HttpResponse::Ok().json(MonthlyAttendancePercentageResponse {
+        staff_id: staff_id_inner,
+        month,
+        year,
+        present_days,
+        total_working_days,
+        attendance_percentage,
+    }))
 }

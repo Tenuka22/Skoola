@@ -113,7 +113,7 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for StaffType {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
 #[diesel(sql_type = Text)]
 pub enum AttendanceStatus {
     Present,
@@ -168,6 +168,58 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for AttendanceStatus {
             "Late" => Ok(AttendanceStatus::Late),
             "HalfDay" => Ok(AttendanceStatus::HalfDay),
             "Leave" => Ok(AttendanceStatus::Leave),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum LeaveStatus {
+    Pending,
+    Approved,
+    Rejected,
+}
+
+impl Display for LeaveStatus {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            LeaveStatus::Pending => write!(f, "Pending"),
+            LeaveStatus::Approved => write!(f, "Approved"),
+            LeaveStatus::Rejected => write!(f, "Rejected"),
+        }
+    }
+}
+
+impl std::str::FromStr for LeaveStatus {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Pending" => Ok(LeaveStatus::Pending),
+            "Approved" => Ok(LeaveStatus::Approved),
+            "Rejected" => Ok(LeaveStatus::Rejected),
+            _ => Err("Invalid LeaveStatus"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for LeaveStatus {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for LeaveStatus {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Pending" => Ok(LeaveStatus::Pending),
+            "Approved" => Ok(LeaveStatus::Approved),
+            "Rejected" => Ok(LeaveStatus::Rejected),
             _ => Err("Unrecognized enum variant".into()),
         }
     }

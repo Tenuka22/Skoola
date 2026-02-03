@@ -60,6 +60,22 @@ pub struct StaffAttendanceDateQuery {
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct StaffAttendanceByStaffQuery {
+    pub start_date: Option<NaiveDate>,
+    pub end_date: Option<NaiveDate>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct MonthlyAttendancePercentageResponse {
+    pub staff_id: String,
+    pub month: u32,
+    pub year: i32,
+    pub present_days: i64,
+    pub total_working_days: i64,
+    pub attendance_percentage: f64,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct UpdateStaffAttendanceRequest {
     pub status: Option<AttendanceStatus>,
     pub time_in: Option<NaiveTime>,

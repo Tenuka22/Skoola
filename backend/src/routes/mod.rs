@@ -17,7 +17,8 @@ use crate::{
         staff_roles::{assign_role_to_staff, get_staff_roles, remove_role_from_staff, update_staff_roles},
         teacher_assignments::{assign_class_to_teacher, assign_subject_to_teacher, get_teacher_workload},
         verification::{resend_verification_email, verify_email},
-        staff_attendance::{mark_staff_attendance_daily, mark_bulk_staff_attendance, update_staff_attendance, get_staff_attendance_by_date},
+        staff_attendance::{mark_staff_attendance_daily, mark_bulk_staff_attendance, update_staff_attendance, get_staff_attendance_by_date, get_staff_attendance_by_staff_member, calculate_monthly_attendance_percentage},
+        staff_leaves::{apply_for_leave, approve_reject_leave},
     },
     utils::{jwt::Authenticated, roles::RoleVerification},
 };
@@ -134,6 +135,22 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/attendance/date",
                 web::get().to(get_staff_attendance_by_date),
+            )
+            .route(
+                "/{staff_id}/attendance/member",
+                web::get().to(get_staff_attendance_by_staff_member),
+            )
+            .route(
+                "/{staff_id}/attendance/percentage/{year}/{month}",
+                web::get().to(calculate_monthly_attendance_percentage),
+            )
+            .route(
+                "/{staff_id}/leaves",
+                web::post().to(apply_for_leave),
+            )
+            .route(
+                "/leaves/{leave_id}/status",
+                web::put().to(approve_reject_leave),
             ),
     );
     cfg.route("/", web::get().to(hello));
