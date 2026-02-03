@@ -11,3 +11,4 @@ pub mod student;
 pub mod student_guardian;
 pub mod student_medical_info;
 pub mod student_emergency_contact;
+pub mod student_previous_school;
