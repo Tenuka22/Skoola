@@ -280,3 +280,115 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for StudentStatus {
         }
     }
 }
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum Gender {
+    Male,
+    Female,
+    Other,
+}
+
+impl Display for Gender {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            Gender::Male => write!(f, "Male"),
+            Gender::Female => write!(f, "Female"),
+            Gender::Other => write!(f, "Other"),
+        }
+    }
+}
+
+impl std::str::FromStr for Gender {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Male" => Ok(Gender::Male),
+            "Female" => Ok(Gender::Female),
+            "Other" => Ok(Gender::Other),
+            _ => Err("Invalid Gender"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for Gender {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for Gender {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Male" => Ok(Gender::Male),
+            "Female" => Ok(Gender::Female),
+            "Other" => Ok(Gender::Other),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum Religion {
+    Buddhism,
+    Hinduism,
+    Islam,
+    Christianity,
+    Other,
+}
+
+impl Display for Religion {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            Religion::Buddhism => write!(f, "Buddhism"),
+            Religion::Hinduism => write!(f, "Hinduism"),
+            Religion::Islam => write!(f, "Islam"),
+            Religion::Christianity => write!(f, "Christianity"),
+            Religion::Other => write!(f, "Other"),
+        }
+    }
+}
+
+impl std::str::FromStr for Religion {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Buddhism" => Ok(Religion::Buddhism),
+            "Hinduism" => Ok(Religion::Hinduism),
+            "Islam" => Ok(Religion::Islam),
+            "Christianity" => Ok(Religion::Christianity),
+            "Other" => Ok(Religion::Other),
+            _ => Err("Invalid Religion"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for Religion {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for Religion {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Buddhism" => Ok(Religion::Buddhism),
+            "Hinduism" => Ok(Religion::Hinduism),
+            "Islam" => Ok(Religion::Islam),
+            "Christianity" => Ok(Religion::Christianity),
+            "Other" => Ok(Religion::Other),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}

@@ -348,13 +348,11 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] **Run `cargo check` to verify logic compiles**
 - [ ] **Run `cargo check` to verify validation logic compiles**
 - [✅] Create enum for student status (Active, Transferred, Graduated, Withdrawn)
+    - [✅] **Run `cargo check` to verify enum compiles**- [✅] Create enum for gender
 - [✅] **Run `cargo check` to verify enum compiles**
 - [ ] **Run `cargo check` to verify enum compiles**
-- [ ] Create enum for gender
-- [ ] **Run `cargo check` to verify enum compiles**
-- [ ] **Run `cargo check` to verify enum compiles**
-- [ ] Create enum for religion
-- [ ] **Run `cargo check` to verify enum compiles**
+- [✅] Create enum for religion
+- [✅] **Run `cargo check` to verify enum compiles**
 - [ ] **Run `cargo check` to verify enum compiles**
 - [ ] Create enum for ethnicity
 - [ ] **Run `cargo check` to verify enum compiles**
