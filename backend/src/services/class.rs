@@ -7,7 +7,7 @@ use crate::{
 use actix_web::{web, HttpResponse};
 use uuid::Uuid;
 use chrono::Utc;
-use crate::schema::{classes, grade_levels, academic_years, staff};
+use crate::schema::{classes};
 
 pub async fn create_class(
     pool: web::Data<AppState>,

@@ -1,9 +1,11 @@
+use actix_web::{web, HttpResponse};
+use apistos::api_operation;
 use crate::{
     AppState,
     errors::APIError,
     models::student_marks::{CreateStudentMarkRequest, UpdateStudentMarkRequest, BulkCreateStudentMarkRequest},
     services::student_marks,
-    utils::jwt::Claims, // Added this
+    services::auth::Claims, // Corrected import
 };
 
 #[api_operation(
@@ -14,9 +16,9 @@ use crate::{
 pub async fn create_student_mark(
     data: web::Data<AppState>,
     body: web::Json<CreateStudentMarkRequest>,
-    claims: web::Extensions<Claims>, // Added this
+    claims: web::ReqData<Claims>, // Added this
 ) -> Result<HttpResponse, APIError> {
-    let current_user_id = claims.user_id.clone(); // Get user_id from claims
+    let current_user_id = claims.sub.clone(); // Get user_id from claims
     let new_student_mark = student_marks::create_student_mark(data.clone(), body.into_inner(), current_user_id).await?;
     Ok(HttpResponse::Created().json(new_student_mark))
 }
@@ -84,10 +86,10 @@ pub async fn update_student_mark(
     data: web::Data<AppState>,
     path: web::Path<String>, // student_mark_id
     body: web::Json<UpdateStudentMarkRequest>,
-    claims: web::Extensions<Claims>, // Added this
+    claims: web::ReqData<Claims>, // Added this
 ) -> Result<HttpResponse, APIError> {
     let student_mark_id = path.into_inner();
-    let current_user_id = claims.user_id.clone(); // Get user_id from claims
+    let current_user_id = claims.sub.clone(); // Get user_id from claims
     let updated_student_mark = student_marks::update_student_mark(data.clone(), student_mark_id, body.into_inner(), current_user_id).await?;
     Ok(HttpResponse::Ok().json(updated_student_mark))
 }
@@ -114,9 +116,9 @@ pub async fn delete_student_mark(
 pub async fn bulk_create_student_marks(
     data: web::Data<AppState>,
     body: web::Json<BulkCreateStudentMarkRequest>,
-    claims: web::Extensions<Claims>, // Added this
+    claims: web::ReqData<Claims>, // Added this
 ) -> Result<HttpResponse, APIError> {
-    let current_user_id = claims.user_id.clone(); // Get user_id from claims
+    let current_user_id = claims.sub.clone(); // Get user_id from claims
     let new_student_marks = student_marks::bulk_create_student_marks(data.clone(), body.into_inner(), current_user_id).await?;
     Ok(HttpResponse::Created().json(new_student_marks))
 }

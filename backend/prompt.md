@@ -341,13 +341,13 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Add audit trail for marks entry/modification
 
 ### 6.3 Grading System
-- [ ] Create grading_schemes table migration (id, name, grade_level, description)
-- [ ] Create grading_criteria table migration (id, scheme_id, min_marks, max_marks, grade, grade_point, description)
-- [ ] Create endpoint to create grading scheme
-- [ ] Create endpoint to create grading criteria
-- [ ] Create endpoint to assign grading scheme to grade level
+- [✅] Create grading_schemes table migration (id, name, grade_level, description)
+- [✅] Create grading_criteria table migration (id, scheme_id, min_marks, max_marks, grade, grade_point, description)
+- [✅] Create endpoint to create grading scheme
+- [✅] Create endpoint to create grading criteria
+- [✅] Create endpoint to assign grading scheme to grade level
 - [ ] Implement automatic grade calculation based on marks
-- [ ] Create endpoint to view grading scheme
+- [✅] Create endpoint to view grading scheme
 - [ ] Support percentage-based and marks-based grading
 
 ### 6.4 Z-Score Calculation (for A/L)

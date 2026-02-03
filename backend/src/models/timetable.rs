@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
 use chrono::{NaiveDateTime, NaiveTime};
 use apistos::ApiComponent;
-use uuid::Uuid;
+
 use crate::schema::timetable;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent)]

@@ -6,7 +6,7 @@ use crate::{
 };
 use actix_web::{web, HttpResponse};
 use chrono::Utc;
-use crate::schema::exam_subjects;
+use crate::schema::{exam_subjects, exams::dsl::*};
 
 // Service to create a new ExamSubject
 pub async fn create_exam_subject(
@@ -169,15 +169,15 @@ pub async fn delete_exam_subject(
 // Service to get Exam Schedule by Academic Year ID and Term ID
 pub async fn get_exam_schedule_by_academic_year_and_term(
     pool: web::Data<AppState>,
-    academic_year_id: String,
-    term_id: String,
+    req_academic_year_id: String,
+    req_term_id: String,
 ) -> Result<Vec<ExamSubjectResponse>, APIError> {
     let mut conn = pool.db_pool.get()?;
 
     let exam_subjects_list: Vec<ExamSubject> = exam_subjects::table
-        .inner_join(exams::table)
-        .filter(exams::academic_year_id.eq(&academic_year_id))
-        .filter(exams::term_id.eq(&term_id))
+        .inner_join(exams)
+        .filter(academic_year_id.eq(&req_academic_year_id))
+        .filter(term_id.eq(&req_term_id))
         .select(exam_subjects::all_columns)
         .order((exam_subjects::date.asc(), exam_subjects::time.asc()))
         .load::<ExamSubject>(&mut conn)?;

@@ -1,12 +1,12 @@
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::{Utc, NaiveDate, NaiveTime};
+use chrono::{Utc};
 use actix_web::{web, HttpResponse};
 
 use crate::{
     errors::APIError,
     AppState,
-    schema::{timetable, classes, subjects, staff, academic_years},
+    schema::{timetable},
     models::timetable::{Timetable, TimetableResponse, CreateTimetableRequest, UpdateTimetableRequest},
 };
 

@@ -6,7 +6,7 @@ use crate::{
     errors::APIError,
     models::class::{CreateClassRequest, UpdateClassRequest},
     services::class,
-    database::enums::Medium, // For ApiComponent derive
+
 };
 
 #[api_operation(

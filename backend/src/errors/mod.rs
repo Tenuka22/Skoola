@@ -24,7 +24,7 @@ where
     serializer.serialize_u16(status_code.as_u16())
 }
 
-#[derive(Debug, Display, Error, Serialize, JsonSchema, ApiErrorComponent)]
+#[derive(Debug, Display, Error, Serialize, JsonSchema, ApiErrorComponent, Clone)]
 #[display(fmt = "API Error: {name} ({status_code})")]
 #[openapi_error(
     status(code = 400, description = "Bad Request"),
