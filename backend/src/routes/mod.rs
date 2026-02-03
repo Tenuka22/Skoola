@@ -17,6 +17,7 @@ use crate::{
         staff_roles::{assign_role_to_staff, get_staff_roles, remove_role_from_staff, update_staff_roles},
         teacher_assignments::{assign_class_to_teacher, assign_subject_to_teacher, get_teacher_workload},
         verification::{resend_verification_email, verify_email},
+        staff_attendance::{mark_staff_attendance_daily, mark_bulk_staff_attendance, update_staff_attendance, get_staff_attendance_by_date},
     },
     utils::{jwt::Authenticated, roles::RoleVerification},
 };
@@ -117,6 +118,22 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/{teacher_id}/workload",
                 web::get().to(get_teacher_workload),
+            )
+            .route(
+                "/{staff_id}/attendance",
+                web::post().to(mark_staff_attendance_daily),
+            )
+            .route(
+                "/attendance/bulk",
+                web::post().to(mark_bulk_staff_attendance),
+            )
+            .route(
+                "/attendance/{attendance_id}",
+                web::put().to(update_staff_attendance),
+            )
+            .route(
+                "/attendance/date",
+                web::get().to(get_staff_attendance_by_date),
             ),
     );
     cfg.route("/", web::get().to(hello));

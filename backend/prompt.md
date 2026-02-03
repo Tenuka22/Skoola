@@ -283,17 +283,15 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create staff_leaves table migration (type, from_date, to_date, reason, status)
 - [✅] **Run `cargo check` to verify migration compiles**
 - [✅] **Run `cargo check` to verify migration compiles**
-- [ ] Create endpoint to mark staff attendance (daily)
+- [✅] Create endpoint to mark staff attendance (daily)
+- [✅] **Run `cargo check` to verify endpoint compiles**
+- [✅] Create endpoint to mark bulk staff attendance
+- [✅] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to mark bulk staff attendance
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to update attendance record
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] **Run `cargo check` to verify endpoint compiles**
-- [ ] Create endpoint to view staff attendance by date
-- [ ] **Run `cargo check` to verify endpoint compiles**
+- [✅] Create endpoint to update attendance record
+- [✅] **Run `cargo check` to verify endpoint compiles**
+- [✅] Create endpoint to view staff attendance by date
+- [✅] **Run `cargo check` to verify endpoint compiles**
 - [ ] **Run `cargo check` to verify endpoint compiles**
 - [ ] Create endpoint to view staff attendance by staff member
 - [ ] **Run `cargo check` to verify endpoint compiles**

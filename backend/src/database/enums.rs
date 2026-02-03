@@ -112,3 +112,63 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for StaffType {
         }
     }
 }
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow)]
+#[diesel(sql_type = Text)]
+pub enum AttendanceStatus {
+    Present,
+    Absent,
+    Late,
+    HalfDay,
+    Leave,
+}
+
+impl Display for AttendanceStatus {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            AttendanceStatus::Present => write!(f, "Present"),
+            AttendanceStatus::Absent => write!(f, "Absent"),
+            AttendanceStatus::Late => write!(f, "Late"),
+            AttendanceStatus::HalfDay => write!(f, "HalfDay"),
+            AttendanceStatus::Leave => write!(f, "Leave"),
+        }
+    }
+}
+
+impl std::str::FromStr for AttendanceStatus {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Present" => Ok(AttendanceStatus::Present),
+            "Absent" => Ok(AttendanceStatus::Absent),
+            "Late" => Ok(AttendanceStatus::Late),
+            "HalfDay" => Ok(AttendanceStatus::HalfDay),
+            "Leave" => Ok(AttendanceStatus::Leave),
+            _ => Err("Invalid AttendanceStatus"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for AttendanceStatus {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for AttendanceStatus {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Present" => Ok(AttendanceStatus::Present),
+            "Absent" => Ok(AttendanceStatus::Absent),
+            "Late" => Ok(AttendanceStatus::Late),
+            "HalfDay" => Ok(AttendanceStatus::HalfDay),
+            "Leave" => Ok(AttendanceStatus::Leave),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
