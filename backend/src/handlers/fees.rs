@@ -1,12 +1,20 @@
 use crate::AppState;
 use crate::errors::APIError;
-use crate::models::fees::{CreateFeeCategoryRequest, UpdateFeeCategoryRequest, CreateFeeStructureRequest, UpdateFeeStructureRequest, AssignFeeToStudentRequest, RecordFeePaymentRequest, ExemptFeeRequest, FeeCategoryResponse, FeeStructureResponse, StudentFeeResponse, FeePaymentResponse, StudentBalanceResponse, SendRemindersResponse, FeePaymentHistoryResponse, GradeFeeCollectionReport};
+use crate::models::fees::{
+    CreateFeeCategoryRequest, UpdateFeeCategoryRequest, CreateFeeStructureRequest, UpdateFeeStructureRequest, 
+    AssignFeeToStudentRequest, RecordFeePaymentRequest, ExemptFeeRequest, FeeCategoryResponse, FeeStructureResponse, 
+    StudentFeeResponse, FeePaymentResponse, StudentBalanceResponse, SendRemindersResponse, FeePaymentHistoryResponse, 
+    GradeFeeCollectionReport, ApplyWaiverRequest, BulkAssignFeesRequest, FeeReceiptResponse, ExportReportResponse
+};
 use crate::services::fees::FeeService;
 use crate::services::email::EmailService;
-use actix_web::web;
-use apistos::api_operation;
+use actix_web::web::{self};
+use apistos::{api_operation, ApiComponent};
 use apistos::web as api_web;
 use diesel::prelude::*;
+use chrono::NaiveDateTime;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 #[api_operation(summary = "Create fee category", tag = "fees")]
 pub async fn create_category(
@@ -215,6 +223,64 @@ pub async fn send_reminders(
     Ok(web::Json(SendRemindersResponse { reminders_sent: count as i32 }))
 }
 
+#[api_operation(summary = "Apply fee waiver/discount", tag = "fees")]
+pub async fn apply_waiver(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+    req: web::Json<ApplyWaiverRequest>,
+) -> Result<web::Json<StudentFeeResponse>, APIError> {
+    let mut conn = data.db_pool.get().map_err(|e| APIError::internal(&e.to_string()))?;
+    let fee_id = path.into_inner();
+    let student_fee = FeeService::apply_waiver(&mut conn, &fee_id, req.into_inner())?;
+    Ok(web::Json(StudentFeeResponse::from(student_fee)))
+}
+
+#[api_operation(summary = "Bulk assign fees to grade", tag = "fees")]
+pub async fn bulk_assign_fees(
+    data: web::Data<AppState>,
+    req: web::Json<BulkAssignFeesRequest>,
+) -> Result<web::Json<i32>, APIError> {
+    let mut conn = data.db_pool.get().map_err(|e| APIError::internal(&e.to_string()))?;
+    let count = FeeService::bulk_assign_fees(&mut conn, req.into_inner())?;
+    Ok(web::Json(count))
+}
+
+#[derive(Deserialize, JsonSchema, ApiComponent)]
+pub struct DateRangeQuery {
+    pub start: NaiveDateTime,
+    pub end: NaiveDateTime,
+}
+
+#[api_operation(summary = "Get payments by date range", tag = "fees")]
+pub async fn get_payments_by_date_range(
+    data: web::Data<AppState>,
+    query: web::Query<DateRangeQuery>,
+) -> Result<web::Json<Vec<FeePaymentResponse>>, APIError> {
+    let mut conn = data.db_pool.get().map_err(|e| APIError::internal(&e.to_string()))?;
+    let payments = FeeService::get_payments_by_date_range(&mut conn, query.start, query.end)?;
+    let responses: Vec<FeePaymentResponse> = payments.into_iter().map(FeePaymentResponse::from).collect();
+    Ok(web::Json(responses))
+}
+
+#[api_operation(summary = "Get fee receipt data", tag = "fees")]
+pub async fn get_receipt(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+) -> Result<web::Json<FeeReceiptResponse>, APIError> {
+    let mut conn = data.db_pool.get().map_err(|e| APIError::internal(&e.to_string()))?;
+    let receipt = FeeService::get_receipt_data(&mut conn, &path.into_inner())?;
+    Ok(web::Json(receipt))
+}
+
+#[api_operation(summary = "Export fee reports", tag = "fees")]
+pub async fn export_reports(
+    data: web::Data<AppState>,
+) -> Result<web::Json<ExportReportResponse>, APIError> {
+    let mut conn = data.db_pool.get().map_err(|e| APIError::internal(&e.to_string()))?;
+    let report = FeeService::export_fee_reports(&mut conn)?;
+    Ok(web::Json(report))
+}
+
 pub fn config(cfg: &mut api_web::ServiceConfig) {
     cfg.service(
         api_web::scope("/fees")
@@ -226,15 +292,20 @@ pub fn config(cfg: &mut api_web::ServiceConfig) {
             .route("/structures/grade/{grade_id}", api_web::get().to(get_structures_by_grade))
             .route("/structures/year/{year_id}", api_web::get().to(get_structures_by_year))
             .route("/assignments", api_web::post().to(assign_fee_to_student))
+            .route("/assignments/bulk", api_web::post().to(bulk_assign_fees))
             .route("/assignments/student/{student_id}", api_web::get().to(get_student_fees))
             .route("/assignments/{id}", api_web::put().to(update_student_fee))
+            .route("/assignments/{id}/waiver", api_web::post().to(apply_waiver))
             .route("/assignments/exempted", api_web::get().to(get_exempted_students))
             .route("/payments", api_web::post().to(record_payment))
+            .route("/payments/report", api_web::get().to(get_payments_by_date_range))
+            .route("/payments/{id}/receipt", api_web::get().to(get_receipt))
             .route("/history/{student_id}", api_web::get().to(get_payment_history))
             .route("/balance/{student_id}", api_web::get().to(get_student_balance))
             .route("/defaulters", api_web::get().to(get_defaulters))
             .route("/reports/collection", api_web::get().to(get_collection_report))
             .route("/reports/grade", api_web::get().to(get_grade_collection_report))
+            .route("/reports/export", api_web::get().to(export_reports))
             .route("/reminders", api_web::post().to(send_reminders)),
     );
 }

@@ -1,5 +1,15 @@
-use crate::database::enums::{Gender, Religion, Ethnicity, FeeFrequency, PaymentMethod};
-use crate::schema::{permissions, role_permissions, roles, sessions, staff, staff_attendance, staff_departments, staff_employment_history, staff_leaves, staff_qualifications, staff_roles, staff_subjects, teacher_class_assignments, teacher_subject_assignments, user_roles, users, students, student_guardians, student_medical_info, student_emergency_contacts, student_previous_schools, fee_categories, fee_structures, student_fees, fee_payments};
+use crate::database::enums::{Gender, Religion, Ethnicity, FeeFrequency, PaymentMethod, AllocationType, MaintenanceStatus, TransactionType, ComponentType};
+use crate::schema::{
+    permissions, role_permissions, roles, sessions, staff, staff_attendance, staff_departments,
+    staff_employment_history, staff_leaves, staff_qualifications, staff_roles, staff_subjects,
+    teacher_class_assignments, teacher_subject_assignments, user_roles, users, students,
+    student_guardians, student_medical_info, student_emergency_contacts, student_previous_schools,
+    fee_categories, fee_structures, student_fees, fee_payments,
+    asset_categories, inventory_items, uniform_items, uniform_issues, asset_allocations,
+    maintenance_requests, budget_categories, budgets, income_sources, income_transactions,
+    expense_categories, expense_transactions, petty_cash_transactions, salary_components,
+    staff_salaries, salary_payments
+};
 use diesel::deserialize::FromSql;
 use diesel::expression::AsExpression;
 use diesel::prelude::*;
@@ -466,6 +476,247 @@ pub struct FeePayment {
     pub payment_method: PaymentMethod,
     pub receipt_number: String,
     pub collected_by: String,
+    pub remarks: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = asset_categories)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct AssetCategory {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = inventory_items)]
+#[diesel(belongs_to(AssetCategory, foreign_key = category_id))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct InventoryItem {
+    pub id: String,
+    pub category_id: String,
+    pub item_name: String,
+    pub description: Option<String>,
+    pub unit: String,
+    pub quantity: i32,
+    pub reorder_level: i32,
+    pub unit_price: f32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = uniform_items)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct UniformItem {
+    pub id: String,
+    pub item_name: String,
+    pub size: String,
+    pub gender: String,
+    pub grade_level: Option<String>,
+    pub price: f32,
+    pub quantity: i32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = uniform_issues)]
+#[diesel(belongs_to(Student))]
+#[diesel(belongs_to(UniformItem))]
+#[diesel(belongs_to(Staff, foreign_key = issued_by))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct UniformIssue {
+    pub id: String,
+    pub student_id: String,
+    pub uniform_item_id: String,
+    pub quantity: i32,
+    pub issue_date: NaiveDateTime,
+    pub issued_by: String,
+    pub amount_collected: f32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = asset_allocations)]
+#[diesel(belongs_to(InventoryItem, foreign_key = item_id))]
+#[diesel(belongs_to(Staff, foreign_key = allocated_by))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct AssetAllocation {
+    pub id: String,
+    pub item_id: String,
+    pub allocated_to_type: AllocationType,
+    pub allocated_to_id: String,
+    pub quantity: i32,
+    pub allocation_date: NaiveDateTime,
+    pub return_date: Option<NaiveDateTime>,
+    pub allocated_by: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = maintenance_requests)]
+#[diesel(belongs_to(InventoryItem, foreign_key = item_id))]
+#[diesel(belongs_to(Staff, foreign_key = reported_by))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct MaintenanceRequest {
+    pub id: String,
+    pub item_id: String,
+    pub issue_description: String,
+    pub reported_by: String,
+    pub reported_date: NaiveDateTime,
+    pub status: MaintenanceStatus,
+    pub assigned_to: Option<String>,
+    pub resolved_date: Option<NaiveDateTime>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = budget_categories)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct BudgetCategory {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = budgets)]
+#[diesel(belongs_to(BudgetCategory, foreign_key = category_id))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct Budget {
+    pub id: String,
+    pub academic_year_id: String,
+    pub category_id: String,
+    pub allocated_amount: f32,
+    pub spent_amount: f32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = income_sources)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct IncomeSource {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = income_transactions)]
+#[diesel(belongs_to(IncomeSource, foreign_key = source_id))]
+#[diesel(belongs_to(Staff, foreign_key = received_by))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct IncomeTransaction {
+    pub id: String,
+    pub source_id: String,
+    pub amount: f32,
+    pub date: NaiveDateTime,
+    pub description: Option<String>,
+    pub received_by: String,
+    pub receipt_number: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = expense_categories)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct ExpenseCategory {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = expense_transactions)]
+#[diesel(belongs_to(ExpenseCategory, foreign_key = category_id))]
+#[diesel(belongs_to(Staff, foreign_key = approved_by))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct ExpenseTransaction {
+    pub id: String,
+    pub category_id: String,
+    pub amount: f32,
+    pub date: NaiveDateTime,
+    pub description: Option<String>,
+    pub vendor: Option<String>,
+    pub payment_method: PaymentMethod,
+    pub approved_by: Option<String>,
+    pub receipt_url: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = petty_cash_transactions)]
+#[diesel(belongs_to(Staff, foreign_key = handled_by))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct PettyCashTransaction {
+    pub id: String,
+    pub amount: f32,
+    pub transaction_type: TransactionType,
+    pub date: NaiveDateTime,
+    pub description: Option<String>,
+    pub handled_by: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = salary_components)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct SalaryComponent {
+    pub id: String,
+    pub name: String,
+    pub component_type: ComponentType,
+    pub description: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = staff_salaries)]
+#[diesel(belongs_to(Staff))]
+#[diesel(belongs_to(SalaryComponent, foreign_key = component_id))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+#[diesel(primary_key(staff_id, component_id))]
+pub struct StaffSalary {
+    pub staff_id: String,
+    pub component_id: String,
+    pub amount: f32,
+    pub effective_from: NaiveDate,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = salary_payments)]
+#[diesel(belongs_to(Staff))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct SalaryPayment {
+    pub id: String,
+    pub staff_id: String,
+    pub payment_month: i32,
+    pub payment_year: i32,
+    pub gross_salary: f32,
+    pub total_deductions: f32,
+    pub net_salary: f32,
+    pub payment_date: NaiveDateTime,
+    pub payment_method: String,
     pub remarks: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,

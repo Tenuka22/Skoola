@@ -34,4 +34,6 @@ pub mod zscore;
 pub mod fees;
 pub mod library;
 pub mod co_curricular;
+pub mod property;
+pub mod financial;
 

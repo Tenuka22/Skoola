@@ -1,0 +1,9 @@
+    Blocking waiting for file lock on build directory
+    Checking backend v0.1.0 (D:\Projects\Skoola\backend)
+src\services\fees.rs:483:17: error[E0425]: cannot find type `FeeReceiptResponse` in this scope: not found in this scope
+src\services\fees.rs:490:12: error[E0422]: cannot find struct, variant or union type `FeeReceiptResponse` in this scope: not found in this scope
+src\services\fees.rs:504:17: error[E0425]: cannot find type `ExportReportResponse` in this scope: not found in this scope
+src\services\fees.rs:511:12: error[E0422]: cannot find struct, variant or union type `ExportReportResponse` in this scope: not found in this scope
+src\handlers\fees.rs:11:28: warning: unused import: `Query`
+src\errors\mod.rs:50:9: warning: value assigned to `message` is never read
+^C

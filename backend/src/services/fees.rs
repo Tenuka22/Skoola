@@ -1,11 +1,15 @@
 use crate::database::tables::{FeeCategory, FeeStructure, StudentFee, FeePayment};
 use crate::errors::APIError;
-use crate::models::fees::{CreateFeeCategoryRequest, UpdateFeeCategoryRequest, CreateFeeStructureRequest, AssignFeeToStudentRequest, RecordFeePaymentRequest};
-use crate::schema::{fee_categories, fee_structures, student_fees, fee_payments, students};
+use crate::models::fees::{
+    CreateFeeCategoryRequest, UpdateFeeCategoryRequest, CreateFeeStructureRequest, 
+    AssignFeeToStudentRequest, RecordFeePaymentRequest, ApplyWaiverRequest, BulkAssignFeesRequest,
+    FeeReceiptResponse, ExportReportResponse
+};
+use crate::schema::{fee_categories, fee_structures, student_fees, fee_payments, students, student_class_assignments};
 use diesel::prelude::*;
 use diesel::SqliteConnection;
 use uuid::Uuid;
-use chrono::Utc;
+use chrono::{Utc, NaiveDateTime};
 
 pub struct FeeService;
 
@@ -395,7 +399,119 @@ impl FeeService {
                 total_expected,
             });
         }
-
         Ok(report)
+    }
+
+    pub fn apply_waiver(
+        conn: &mut SqliteConnection,
+        fee_id: &str,
+        req: ApplyWaiverRequest,
+    ) -> Result<StudentFee, APIError> {
+        let mut target = student_fees::table
+            .filter(student_fees::id.eq(fee_id))
+            .first::<StudentFee>(conn)
+            .map_err(|_| APIError::bad_request("Student fee record not found"))?;
+
+        target.amount -= req.discount_amount;
+        if target.amount < 0.0 { target.amount = 0.0; }
+        target.exemption_reason = Some(format!("Waiver applied: {}. Reason: {}", req.discount_amount, req.reason));
+        target.updated_at = Utc::now().naive_utc();
+
+        diesel::update(student_fees::table.filter(student_fees::id.eq(fee_id)))
+            .set((
+                student_fees::amount.eq(target.amount),
+                student_fees::exemption_reason.eq(&target.exemption_reason),
+                student_fees::updated_at.eq(target.updated_at),
+            ))
+            .execute(conn)
+            .map_err(|e| APIError::internal(&format!("Failed to apply waiver: {}", e)))?;
+
+        Ok(target)
+    }
+
+    pub fn bulk_assign_fees(
+        conn: &mut SqliteConnection,
+        req: BulkAssignFeesRequest,
+    ) -> Result<i32, APIError> {
+        let student_ids = student_class_assignments::table
+            .filter(student_class_assignments::grade_id.eq(&req.grade_id))
+            .filter(student_class_assignments::academic_year_id.eq(&req.academic_year_id))
+            .select(student_class_assignments::student_id)
+            .load::<String>(conn)
+            .map_err(|e| APIError::internal(&e.to_string()))?;
+
+        let structure = fee_structures::table
+            .find(&req.fee_structure_id)
+            .first::<FeeStructure>(conn)
+            .map_err(|_| APIError::bad_request("Fee structure not found"))?;
+
+        let mut count = 0;
+        for sid in student_ids {
+            let new_fee = StudentFee {
+                id: Uuid::new_v4().to_string(),
+                student_id: sid,
+                fee_structure_id: req.fee_structure_id.clone(),
+                amount: structure.amount,
+                is_exempted: false,
+                exemption_reason: None,
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            };
+            diesel::insert_into(student_fees::table)
+                .values(&new_fee)
+                .execute(conn)
+                .ok(); // Ignore duplicates if already assigned
+            count += 1;
+        }
+
+        Ok(count)
+    }
+
+    pub fn get_payments_by_date_range(
+        conn: &mut SqliteConnection,
+        start: NaiveDateTime,
+        end: NaiveDateTime,
+    ) -> Result<Vec<FeePayment>, APIError> {
+        fee_payments::table
+            .filter(fee_payments::payment_date.between(start, end))
+            .load::<FeePayment>(conn)
+            .map_err(|e| APIError::internal(&e.to_string()))
+    }
+
+    pub fn get_receipt_data(
+        conn: &mut SqliteConnection,
+        payment_id: &str,
+    ) -> Result<FeeReceiptResponse, APIError> {
+        let payment = fee_payments::table.find(payment_id).first::<FeePayment>(conn).map_err(|_| APIError::bad_request("Payment not found"))?;
+        let student_fee = student_fees::table.find(&payment.student_fee_id).first::<StudentFee>(conn).map_err(|_| APIError::internal("Fee record missing"))?;
+        let student = students::table.find(&student_fee.student_id).first::<crate::database::tables::Student>(conn).map_err(|_| APIError::internal("Student record missing"))?;
+        
+        let balance = Self::get_student_balance(conn, &student.id)?;
+
+        Ok(FeeReceiptResponse {
+            receipt_number: payment.receipt_number,
+            student_name: student.name_english,
+            admission_number: student.admission_number,
+            amount_paid: payment.amount_paid,
+            date: payment.payment_date,
+            payment_method: payment.payment_method,
+            collected_by: payment.collected_by,
+            balance_remaining: balance,
+        })
+    }
+
+    pub fn export_fee_reports(
+        conn: &mut SqliteConnection,
+    ) -> Result<ExportReportResponse, APIError> {
+        let report = Self::get_collection_report(conn)?;
+        let mut csv_data = String::from("Category,Collected,Expected,Percentage\n");
+        for row in report {
+            csv_data.push_str(&format!("{},{},{},{}%\n", row.category_name, row.total_collected, row.total_expected, row.collection_percentage));
+        }
+
+        Ok(ExportReportResponse {
+            csv_data,
+            filename: format!("fee_report_{}.csv", Utc::now().format("%Y%m%d")),
+        })
     }
 }

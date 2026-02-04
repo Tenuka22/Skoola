@@ -211,3 +211,34 @@ pub struct GradeFeeCollectionReport {
     pub total_collected: f32,
     pub total_expected: f32,
 }
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
+pub struct ApplyWaiverRequest {
+    pub discount_amount: f32,
+    pub reason: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
+pub struct BulkAssignFeesRequest {
+    pub grade_id: String,
+    pub fee_structure_id: String,
+    pub academic_year_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
+pub struct FeeReceiptResponse {
+    pub receipt_number: String,
+    pub student_name: String,
+    pub admission_number: String,
+    pub amount_paid: f32,
+    pub date: NaiveDateTime,
+    pub payment_method: PaymentMethod,
+    pub collected_by: String,
+    pub balance_remaining: f32,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
+pub struct ExportReportResponse {
+    pub csv_data: String,
+    pub filename: String,
+}

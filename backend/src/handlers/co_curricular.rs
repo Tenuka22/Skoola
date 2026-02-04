@@ -1,5 +1,5 @@
-use actix_web::{web, HttpResponse};
-use apistos::api_operation;
+use actix_web::{web::{Data, Json, Path}, HttpResponse};
+use apistos::{api_operation, web};
 use crate::{
     AppState,
     errors::APIError,
@@ -11,23 +11,23 @@ use crate::{
 
 #[api_operation(summary = "Create a new sport", tag = "co-curricular")]
 pub async fn create_sport(
-    data: web::Data<AppState>,
-    body: web::Json<CreateSportRequest>,
+    data: Data<AppState>,
+    body: Json<CreateSportRequest>,
 ) -> Result<HttpResponse, APIError> {
     let sport = co_curricular::create_sport(data, body.into_inner()).await?;
     Ok(HttpResponse::Created().json(sport))
 }
 
 #[api_operation(summary = "Get all sports", tag = "co-curricular")]
-pub async fn get_all_sports(data: web::Data<AppState>) -> Result<HttpResponse, APIError> {
+pub async fn get_all_sports(data: Data<AppState>) -> Result<HttpResponse, APIError> {
     let sports = co_curricular::get_all_sports(data).await?;
     Ok(HttpResponse::Ok().json(sports))
 }
 
 #[api_operation(summary = "Create a sport team", tag = "co-curricular")]
 pub async fn create_sport_team(
-    data: web::Data<AppState>,
-    body: web::Json<CreateSportTeamRequest>,
+    data: Data<AppState>,
+    body: Json<CreateSportTeamRequest>,
 ) -> Result<HttpResponse, APIError> {
     let team = co_curricular::create_sport_team(data, body.into_inner()).await?;
     Ok(HttpResponse::Created().json(team))
@@ -35,9 +35,9 @@ pub async fn create_sport_team(
 
 #[api_operation(summary = "Add member to sport team", tag = "co-curricular")]
 pub async fn add_sport_team_member(
-    data: web::Data<AppState>,
-    path: web::Path<String>,
-    body: web::Json<AddSportTeamMemberRequest>,
+    data: Data<AppState>,
+    path: Path<String>,
+    body: Json<AddSportTeamMemberRequest>,
 ) -> Result<HttpResponse, APIError> {
     let team_id = path.into_inner();
     let member = co_curricular::add_sport_team_member(data, team_id, body.into_inner()).await?;
@@ -46,8 +46,8 @@ pub async fn add_sport_team_member(
 
 #[api_operation(summary = "Create sport event", tag = "co-curricular")]
 pub async fn create_sport_event(
-    data: web::Data<AppState>,
-    body: web::Json<CreateSportEventRequest>,
+    data: Data<AppState>,
+    body: Json<CreateSportEventRequest>,
 ) -> Result<HttpResponse, APIError> {
     let event = co_curricular::create_sport_event(data, body.into_inner()).await?;
     Ok(HttpResponse::Created().json(event))
@@ -55,9 +55,9 @@ pub async fn create_sport_event(
 
 #[api_operation(summary = "Record sport event result", tag = "co-curricular")]
 pub async fn record_sport_event_result(
-    data: web::Data<AppState>,
-    path: web::Path<String>,
-    body: web::Json<RecordEventResultRequest>,
+    data: Data<AppState>,
+    path: Path<String>,
+    body: Json<RecordEventResultRequest>,
 ) -> Result<HttpResponse, APIError> {
     let event_id = path.into_inner();
     let participant = co_curricular::record_sport_event_result(data, event_id, body.into_inner()).await?;
@@ -68,8 +68,8 @@ pub async fn record_sport_event_result(
 
 #[api_operation(summary = "Create a new club", tag = "co-curricular")]
 pub async fn create_club(
-    data: web::Data<AppState>,
-    body: web::Json<CreateClubRequest>,
+    data: Data<AppState>,
+    body: Json<CreateClubRequest>,
 ) -> Result<HttpResponse, APIError> {
     let club = co_curricular::create_club(data, body.into_inner()).await?;
     Ok(HttpResponse::Created().json(club))
@@ -77,9 +77,9 @@ pub async fn create_club(
 
 #[api_operation(summary = "Add member to club", tag = "co-curricular")]
 pub async fn add_club_member(
-    data: web::Data<AppState>,
-    path: web::Path<String>,
-    body: web::Json<AddClubMemberRequest>,
+    data: Data<AppState>,
+    path: Path<String>,
+    body: Json<AddClubMemberRequest>,
 ) -> Result<HttpResponse, APIError> {
     let club_id = path.into_inner();
     let member = co_curricular::add_club_member(data, club_id, body.into_inner()).await?;
@@ -88,8 +88,8 @@ pub async fn add_club_member(
 
 #[api_operation(summary = "Create club activity", tag = "co-curricular")]
 pub async fn create_club_activity(
-    data: web::Data<AppState>,
-    body: web::Json<CreateClubActivityRequest>,
+    data: Data<AppState>,
+    body: Json<CreateClubActivityRequest>,
 ) -> Result<HttpResponse, APIError> {
     let activity = co_curricular::create_club_activity(data, body.into_inner()).await?;
     Ok(HttpResponse::Created().json(activity))
@@ -99,8 +99,8 @@ pub async fn create_club_activity(
 
 #[api_operation(summary = "Create a competition", tag = "co-curricular")]
 pub async fn create_competition(
-    data: web::Data<AppState>,
-    body: web::Json<CreateCompetitionRequest>,
+    data: Data<AppState>,
+    body: Json<CreateCompetitionRequest>,
 ) -> Result<HttpResponse, APIError> {
     let comp = co_curricular::create_competition(data, body.into_inner()).await?;
     Ok(HttpResponse::Created().json(comp))
@@ -108,9 +108,9 @@ pub async fn create_competition(
 
 #[api_operation(summary = "Add participant to competition", tag = "co-curricular")]
 pub async fn add_competition_participant(
-    data: web::Data<AppState>,
-    path: web::Path<String>,
-    body: web::Json<AddCompetitionParticipantRequest>,
+    data: Data<AppState>,
+    path: Path<String>,
+    body: Json<AddCompetitionParticipantRequest>,
 ) -> Result<HttpResponse, APIError> {
     let competition_id = path.into_inner();
     let participant = co_curricular::add_competition_participant(data, competition_id, body.into_inner()).await?;
@@ -119,8 +119,8 @@ pub async fn add_competition_participant(
 
 #[api_operation(summary = "Create student achievement", tag = "co-curricular")]
 pub async fn create_student_achievement(
-    data: web::Data<AppState>,
-    body: web::Json<CreateStudentAchievementRequest>,
+    data: Data<AppState>,
+    body: Json<CreateStudentAchievementRequest>,
 ) -> Result<HttpResponse, APIError> {
     let achievement = co_curricular::create_student_achievement(data, body.into_inner()).await?;
     Ok(HttpResponse::Created().json(achievement))
@@ -130,8 +130,8 @@ pub async fn create_student_achievement(
 
 #[api_operation(summary = "Create cultural event", tag = "co-curricular")]
 pub async fn create_cultural_event(
-    data: web::Data<AppState>,
-    body: web::Json<CreateCulturalEventRequest>,
+    data: Data<AppState>,
+    body: Json<CreateCulturalEventRequest>,
 ) -> Result<HttpResponse, APIError> {
     let event = co_curricular::create_cultural_event(data, body.into_inner()).await?;
     Ok(HttpResponse::Created().json(event))
@@ -139,9 +139,9 @@ pub async fn create_cultural_event(
 
 #[api_operation(summary = "Add participant to cultural event", tag = "co-curricular")]
 pub async fn add_cultural_event_participant(
-    data: web::Data<AppState>,
-    path: web::Path<String>,
-    body: web::Json<AddCulturalEventParticipantRequest>,
+    data: Data<AppState>,
+    path: Path<String>,
+    body: Json<AddCulturalEventParticipantRequest>,
 ) -> Result<HttpResponse, APIError> {
     let event_id = path.into_inner();
     let participant = co_curricular::add_cultural_event_participant(data, event_id, body.into_inner()).await?;
@@ -150,17 +150,17 @@ pub async fn add_cultural_event_participant(
 
 #[api_operation(summary = "Get student co-curricular summary", tag = "co-curricular")]
 pub async fn get_student_summary(
-    data: web::Data<AppState>,
-    path: web::Path<String>,
+    data: Data<AppState>,
+    path: Path<String>,
 ) -> Result<HttpResponse, APIError> {
     let student_id = path.into_inner();
     let summary = co_curricular::get_student_co_curricular_summary(data, student_id).await?;
     Ok(HttpResponse::Ok().json(summary))
 }
 
-pub fn config(cfg: &mut apistos::web::ServiceConfig) {
+pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        apistos::web::scope("/co-curricular")
+        web::scope("/co-curricular")
             // Sports
             .route("/sports", web::post().to(create_sport))
             .route("/sports", web::get().to(get_all_sports))

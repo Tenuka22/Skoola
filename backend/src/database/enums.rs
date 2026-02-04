@@ -678,3 +678,211 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for PaymentMethod {
         }
     }
 }
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum AllocationType {
+    Student,
+    Teacher,
+    Department,
+    Class,
+}
+
+impl Display for AllocationType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            AllocationType::Student => write!(f, "Student"),
+            AllocationType::Teacher => write!(f, "Teacher"),
+            AllocationType::Department => write!(f, "Department"),
+            AllocationType::Class => write!(f, "Class"),
+        }
+    }
+}
+
+impl std::str::FromStr for AllocationType {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Student" => Ok(AllocationType::Student),
+            "Teacher" => Ok(AllocationType::Teacher),
+            "Department" => Ok(AllocationType::Department),
+            "Class" => Ok(AllocationType::Class),
+            _ => Err("Invalid AllocationType"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for AllocationType {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for AllocationType {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Student" => Ok(AllocationType::Student),
+            "Teacher" => Ok(AllocationType::Teacher),
+            "Department" => Ok(AllocationType::Department),
+            "Class" => Ok(AllocationType::Class),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum MaintenanceStatus {
+    Pending,
+    InProgress,
+    Completed,
+    Cancelled,
+}
+
+impl Display for MaintenanceStatus {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            MaintenanceStatus::Pending => write!(f, "Pending"),
+            MaintenanceStatus::InProgress => write!(f, "InProgress"),
+            MaintenanceStatus::Completed => write!(f, "Completed"),
+            MaintenanceStatus::Cancelled => write!(f, "Cancelled"),
+        }
+    }
+}
+
+impl std::str::FromStr for MaintenanceStatus {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Pending" => Ok(MaintenanceStatus::Pending),
+            "InProgress" => Ok(MaintenanceStatus::InProgress),
+            "Completed" => Ok(MaintenanceStatus::Completed),
+            "Cancelled" => Ok(MaintenanceStatus::Cancelled),
+            _ => Err("Invalid MaintenanceStatus"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for MaintenanceStatus {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for MaintenanceStatus {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Pending" => Ok(MaintenanceStatus::Pending),
+            "InProgress" => Ok(MaintenanceStatus::InProgress),
+            "Completed" => Ok(MaintenanceStatus::Completed),
+            "Cancelled" => Ok(MaintenanceStatus::Cancelled),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum TransactionType {
+    Received,
+    Spent,
+}
+
+impl Display for TransactionType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            TransactionType::Received => write!(f, "Received"),
+            TransactionType::Spent => write!(f, "Spent"),
+        }
+    }
+}
+
+impl std::str::FromStr for TransactionType {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Received" => Ok(TransactionType::Received),
+            "Spent" => Ok(TransactionType::Spent),
+            _ => Err("Invalid TransactionType"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for TransactionType {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for TransactionType {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Received" => Ok(TransactionType::Received),
+            "Spent" => Ok(TransactionType::Spent),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum ComponentType {
+    Allowance,
+    Deduction,
+}
+
+impl Display for ComponentType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            ComponentType::Allowance => write!(f, "Allowance"),
+            ComponentType::Deduction => write!(f, "Deduction"),
+        }
+    }
+}
+
+impl std::str::FromStr for ComponentType {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Allowance" => Ok(ComponentType::Allowance),
+            "Deduction" => Ok(ComponentType::Deduction),
+            _ => Err("Invalid ComponentType"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for ComponentType {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for ComponentType {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Allowance" => Ok(ComponentType::Allowance),
+            "Deduction" => Ok(ComponentType::Deduction),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}

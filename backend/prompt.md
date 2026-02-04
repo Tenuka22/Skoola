@@ -398,9 +398,9 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create student_fees table migration (id, student_id, fee_structure_id, amount, is_exempted, exemption_reason)
 - [✅] Create endpoint to assign fees to student
 - [✅] Create endpoint to mark student as fee-exempted (low income)
-- [ ] Create endpoint to apply fee waiver/discount
+- [✅] Create endpoint to apply fee waiver/discount
 - [✅] Create endpoint to view fees assigned to student
-- [ ] Create endpoint to bulk assign fees to students in a grade
+- [✅] Create endpoint to bulk assign fees to students in a grade
 
 ### 7.3 Fee Collection & Payment
 - [✅] Create fee_payments table migration (id, student_fee_id, amount_paid, payment_date, payment_method, receipt_number, collected_by, remarks)
@@ -408,9 +408,9 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create endpoint to record fee payment
 - [✅] Generate unique receipt number logic
 - [✅] Create endpoint to view payment history by student
-- [ ] Create endpoint to view payments by date range
+- [✅] Create endpoint to view payments by date range
 - [✅] Create endpoint to calculate outstanding balance
-- [ ] Create endpoint to generate fee receipt (PDF)
+- [✅] Create endpoint to generate fee receipt (PDF)
 - [✅] Create endpoint to view defaulters list
 
 ### 7.4 Fee Reporting
@@ -419,13 +419,13 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create endpoint to view fee collection by grade
 - [✅] Create endpoint to calculate total collected vs expected
 - [✅] Create endpoint to view exempted students list
-- [ ] Create endpoint to export fee reports
+- [✅] Create endpoint to export fee reports
 
 ### 7.5 Fee Reminders & Notifications
 - [✅] Create endpoint to get students with pending fees
 - [✅] Create endpoint to send email reminders for due fees
-- [ ] Implement automated reminder scheduling
-- [ ] Create endpoint to send payment confirmation emails
+- [✅] Implement automated reminder scheduling
+- [✅] Create endpoint to send payment confirmation emails
 
 ---
 
@@ -522,84 +522,86 @@ Add your notes to help you future self. Only simple things and where which files
 ## 10. SCHOOL PROPERTY MANAGEMENT MODULE
 
 ### 10.1 Asset Categories Setup
-- [ ] Create asset_categories table migration (Uniforms, Stationery, Furniture, Electronics, Sports Equipment, etc.)
-- [ ] Create endpoint to create asset categories
-- [ ] Create endpoint to view all categories
+- [✅] Create asset_categories table migration (Uniforms, Stationery, Furniture, Electronics, Sports Equipment, etc.)
+- [✅] Create endpoint to create asset categories
+- [✅] Create endpoint to view all categories
 
 ### 10.2 Inventory Management
-- [ ] Create inventory_items table migration (id, category_id, item_name, description, unit, quantity, reorder_level, unit_price)
-- [ ] Create endpoint to add inventory item
-- [ ] Create endpoint to update inventory item
-- [ ] Create endpoint to update stock quantity
-- [ ] Create endpoint to view inventory by category
-- [ ] Create endpoint to view low stock items
-- [ ] Create endpoint to search inventory
+- [✅] Create inventory_items table migration (id, category_id, item_name, description, unit, quantity, reorder_level, unit_price)
+- [✅] Create endpoint to add inventory item
+- [✅] Create endpoint to update inventory item
+- [✅] Create endpoint to update stock quantity
+- [✅] Create endpoint to view inventory by category
+- [✅] Create endpoint to view low stock items
+- [✅] Create endpoint to search inventory
 
 ### 10.3 Uniform/Clothing Management
-- [ ] Create uniform_items table migration (id, item_name, size, gender, grade_level, price)
-- [ ] Create uniform_issues table migration (id, student_id, uniform_item_id, quantity, issue_date, issued_by, amount_collected)
-- [ ] Create endpoint to create uniform items
-- [ ] Create endpoint to issue uniform to student
-- [ ] Create endpoint to record uniform payment
-- [ ] Create endpoint to view uniform issue history
-- [ ] Create endpoint to view uniform inventory
+- [✅] Create uniform_items table migration (id, item_name, size, gender, grade_level, price)
+- [✅] Create uniform_issues table migration (id, student_id, uniform_item_id, quantity, issue_date, issued_by, amount_collected)
+- [✅] Create endpoint to create uniform items
+- [✅] Create endpoint to issue uniform to student
+- [✅] Create endpoint to record uniform payment (integrated in issue)
+- [✅] Create endpoint to view uniform issue history
+- [✅] Create endpoint to view uniform inventory
 
 ### 10.4 Asset Allocation
-- [ ] Create asset_allocations table migration (id, item_id, allocated_to_type, allocated_to_id, quantity, allocation_date, return_date, allocated_by)
-- [ ] Create enum for allocation type (Student, Teacher, Department, Class)
-- [ ] Create endpoint to allocate asset
-- [ ] Create endpoint to return asset
-- [ ] Create endpoint to view allocations by item
-- [ ] Create endpoint to view allocations by person/department
+- [✅] Create asset_allocations table migration (id, item_id, allocated_to_type, allocated_to_id, quantity, allocation_date, return_date, allocated_by)
+- [✅] Create enum for allocation type (Student, Teacher, Department, Class)
+- [✅] Create endpoint to allocate asset
+- [✅] Create endpoint to return asset
+- [✅] Create endpoint to view allocations by item
+- [✅] Create endpoint to view allocations by person/department
 
 ### 10.5 Maintenance & Repairs
-- [ ] Create maintenance_requests table migration (id, item_id, issue_description, reported_by, reported_date, status, assigned_to, resolved_date)
-- [ ] Create enum for maintenance status (Pending, In Progress, Completed, Cancelled)
-- [ ] Create endpoint to create maintenance request
-- [ ] Create endpoint to update maintenance status
-- [ ] Create endpoint to view pending maintenance requests
-- [ ] Create endpoint to view maintenance history
+- [✅] Create maintenance_requests table migration (id, item_id, issue_description, reported_by, reported_date, status, assigned_to, resolved_date)
+- [✅] Create enum for maintenance status (Pending, In Progress, Completed, Cancelled)
+- [✅] Create endpoint to create maintenance request
+- [✅] Create endpoint to update maintenance status
+- [✅] Create endpoint to view pending maintenance requests
+- [✅] Create maintenance history
 
 ---
 
 ## 11. FINANCIAL MANAGEMENT MODULE
 
 ### 11.1 Budget Management
-- [ ] Create budget_categories table migration (Salaries, Utilities, Maintenance, Sports, Events, etc.)
-- [ ] Create budgets table migration (id, academic_year_id, category_id, allocated_amount, spent_amount)
-- [ ] Create endpoint to create budget categories
-- [ ] Create endpoint to set budget for academic year
-- [ ] Create endpoint to update budget allocation
-- [ ] Create endpoint to view budget summary
-- [ ] Create endpoint to view budget vs actual spending
+- [✅] Create budget_categories table migration (Salaries, Utilities, Maintenance, Sports, Events, etc.)
+- [✅] Create budgets table migration (id, academic_year_id, category_id, allocated_amount, spent_amount)
+- [✅] Create endpoint to create budget categories
+- [✅] Create endpoint to set budget for academic year
+- [✅] Create endpoint to update budget allocation
+- [✅] Create endpoint to view budget summary
+- [✅] Create endpoint to view budget vs actual spending
 
 ### 11.2 Income Tracking
-- [ ] Create income_sources table migration (Fees, Donations, Government Grants, Fundraising, etc.)
-- [ ] Create income_transactions table migration (id, source_id, amount, date, description, received_by, receipt_number)
-- [ ] Create endpoint to record income transaction
-- [ ] Create endpoint to view income by source
-- [ ] Create endpoint to view income by date range
-- [ ] Create endpoint to generate income report
+- [✅] Create income_sources table migration (Fees, Donations, Government Grants, Fundraising, etc.)
+- [✅] Create income_transactions table migration (id, source_id, amount, date, description, received_by, receipt_number)
+- [✅] Create endpoint to record income transaction
+- [✅] Create endpoint to view income by source
+- [✅] Create endpoint to view income by date range
+- [✅] Create endpoint to generate income report
 
 ### 11.3 Expense Tracking
-- [ ] Create expense_categories table migration (overlaps with budget categories)
-- [ ] Create expense_transactions table migration (id, category_id, amount, date, description, vendor, payment_method, approved_by, receipt_url)
-- [ ] Create endpoint to record expense transaction
-- [ ] Create endpoint to view expenses by category
-- [ ] Create endpoint to view expenses by date range
-- [ ] Create endpoint to generate expense report
-- [ ] Implement budget validation before expense approval
+- [✅] Create expense_categories table migration (overlaps with budget categories)
+- [✅] Create expense_transactions table migration (id, category_id, amount, date, description, vendor, payment_method, approved_by, receipt_url)
+- [✅] Create endpoint to record expense transaction
+- [✅] Create endpoint to view expenses by category
+- [✅] Create endpoint to view expenses by date range
+- [✅] Create endpoint to generate expense report
+- [✅] Implement budget validation before expense approval
 
 ### 11.4 Petty Cash Management
-- [ ] Create petty_cash_transactions table migration (id, amount, type, date, description, handled_by)
-- [ ] Create enum for transaction type (Received, Spent)
-- [ ] Create endpoint to record petty cash transaction
-- [ ] Create endpoint to view petty cash balance
-- [ ] Create endpoint to view petty cash history
-- [ ] Create endpoint to reconcile petty cash
+- [✅] Create petty_cash_transactions table migration (id, amount, type, date, description, handled_by)
+- [✅] Create enum for transaction type (Received, Spent)
+- [✅] Create endpoint to record petty cash transaction
+- [✅] Create endpoint to view petty cash balance
+- [✅] Create endpoint to view petty cash history
+- [✅] Create endpoint to reconcile petty cash
 
 ### 11.5 Salary Management
-- [ ] Create salary_components table migration (Basic, Allowances, Deductions, etc.)
-- [ ] Create staff_salaries table migration (staff_id, component_id, amount, effective_from)
-- [ ] Create salary_payments table migration (id, staff_id, month, year, gross_salary, deductions, net_salary, payment_date, payment_method)
-- [ ] Create endpoint to configure staff
+- [✅] Create salary_components table migration (Basic, Allowances, Deductions, etc.)
+- [✅] Create staff_salaries table migration (staff_id, component_id, amount, effective_from)
+- [✅] Create salary_payments table migration (id, staff_id, month, year, gross_salary, deductions, net_salary, payment_date, payment_method)
+- [✅] Create endpoint to create salary component
+- [✅] Create endpoint to set staff salary
+- [✅] Create endpoint to record salary payment

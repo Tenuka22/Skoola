@@ -582,6 +582,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/stats", apistos::web::get().to(crate::handlers::library::get_library_stats))
     );
 
+    cfg.configure(crate::handlers::property::config);
+    cfg.configure(crate::handlers::financial::config);
 
     cfg.route("/", apistos::web::get().to(hello));
     cfg.route("/error", apistos::web::get().to(hello_error));

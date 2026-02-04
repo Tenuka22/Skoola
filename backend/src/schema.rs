@@ -30,6 +30,53 @@ diesel::table! {
 }
 
 diesel::table! {
+    asset_allocations (id) {
+        id -> Text,
+        item_id -> Text,
+        allocated_to_type -> Text,
+        allocated_to_id -> Text,
+        quantity -> Integer,
+        allocation_date -> Timestamp,
+        return_date -> Nullable<Timestamp>,
+        allocated_by -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    asset_categories (id) {
+        id -> Text,
+        name -> Text,
+        description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    budget_categories (id) {
+        id -> Text,
+        name -> Text,
+        description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    budgets (id) {
+        id -> Text,
+        academic_year_id -> Text,
+        category_id -> Text,
+        allocated_amount -> Float,
+        spent_amount -> Float,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     class_subject_teachers (class_id, subject_id, teacher_id, academic_year_id) {
         class_id -> Text,
         subject_id -> Text,
@@ -178,6 +225,32 @@ diesel::table! {
 }
 
 diesel::table! {
+    expense_categories (id) {
+        id -> Text,
+        name -> Text,
+        description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    expense_transactions (id) {
+        id -> Text,
+        category_id -> Text,
+        amount -> Float,
+        date -> Timestamp,
+        description -> Nullable<Text>,
+        vendor -> Nullable<Text>,
+        payment_method -> Text,
+        approved_by -> Nullable<Text>,
+        receipt_url -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     fee_categories (id) {
         id -> Text,
         name -> Text,
@@ -268,6 +341,45 @@ diesel::table! {
 }
 
 diesel::table! {
+    income_sources (id) {
+        id -> Text,
+        name -> Text,
+        description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    income_transactions (id) {
+        id -> Text,
+        source_id -> Text,
+        amount -> Float,
+        date -> Timestamp,
+        description -> Nullable<Text>,
+        received_by -> Text,
+        receipt_number -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    inventory_items (id) {
+        id -> Text,
+        category_id -> Text,
+        item_name -> Text,
+        description -> Nullable<Text>,
+        unit -> Text,
+        quantity -> Integer,
+        reorder_level -> Integer,
+        unit_price -> Float,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     library_books (id) {
         id -> Integer,
         isbn -> Nullable<Text>,
@@ -327,6 +439,21 @@ diesel::table! {
 }
 
 diesel::table! {
+    maintenance_requests (id) {
+        id -> Text,
+        item_id -> Text,
+        issue_description -> Text,
+        reported_by -> Text,
+        reported_date -> Timestamp,
+        status -> Text,
+        assigned_to -> Nullable<Text>,
+        resolved_date -> Nullable<Timestamp>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     ol_exams (id) {
         id -> Text,
         student_id -> Text,
@@ -343,6 +470,19 @@ diesel::table! {
     permissions (id) {
         id -> Text,
         name -> Text,
+    }
+}
+
+diesel::table! {
+    petty_cash_transactions (id) {
+        id -> Text,
+        amount -> Float,
+        transaction_type -> Text,
+        date -> Timestamp,
+        description -> Nullable<Text>,
+        handled_by -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -384,6 +524,34 @@ diesel::table! {
         id -> Text,
         name -> Text,
         parent_id -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
+    salary_components (id) {
+        id -> Text,
+        name -> Text,
+        component_type -> Text,
+        description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    salary_payments (id) {
+        id -> Text,
+        staff_id -> Text,
+        payment_month -> Integer,
+        payment_year -> Integer,
+        gross_salary -> Float,
+        total_deductions -> Float,
+        net_salary -> Float,
+        payment_date -> Timestamp,
+        payment_method -> Text,
+        remarks -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -559,6 +727,17 @@ diesel::table! {
     staff_roles (staff_id, role_id) {
         staff_id -> Text,
         role_id -> Text,
+    }
+}
+
+diesel::table! {
+    staff_salaries (staff_id, component_id) {
+        staff_id -> Text,
+        component_id -> Text,
+        amount -> Float,
+        effective_from -> Date,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -808,6 +987,34 @@ diesel::table! {
 }
 
 diesel::table! {
+    uniform_issues (id) {
+        id -> Text,
+        student_id -> Text,
+        uniform_item_id -> Text,
+        quantity -> Integer,
+        issue_date -> Timestamp,
+        issued_by -> Text,
+        amount_collected -> Float,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    uniform_items (id) {
+        id -> Text,
+        item_name -> Text,
+        size -> Text,
+        gender -> Text,
+        grade_level -> Nullable<Text>,
+        price -> Float,
+        quantity -> Integer,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     user_roles (user_id, role_id) {
         user_id -> Text,
         role_id -> Text,
@@ -845,6 +1052,10 @@ diesel::table! {
 
 diesel::joinable!(al_exams -> streams (stream_id));
 diesel::joinable!(al_exams -> students (student_id));
+diesel::joinable!(asset_allocations -> inventory_items (item_id));
+diesel::joinable!(asset_allocations -> staff (allocated_by));
+diesel::joinable!(budgets -> academic_years (academic_year_id));
+diesel::joinable!(budgets -> budget_categories (category_id));
 diesel::joinable!(class_subject_teachers -> academic_years (academic_year_id));
 diesel::joinable!(class_subject_teachers -> classes (class_id));
 diesel::joinable!(class_subject_teachers -> staff (teacher_id));
@@ -865,6 +1076,8 @@ diesel::joinable!(exam_subjects -> subjects (subject_id));
 diesel::joinable!(exams -> academic_years (academic_year_id));
 diesel::joinable!(exams -> exam_types (exam_type_id));
 diesel::joinable!(exams -> terms (term_id));
+diesel::joinable!(expense_transactions -> expense_categories (category_id));
+diesel::joinable!(expense_transactions -> staff (approved_by));
 diesel::joinable!(fee_payments -> staff (collected_by));
 diesel::joinable!(fee_payments -> student_fees (student_fee_id));
 diesel::joinable!(fee_structures -> academic_years (academic_year_id));
@@ -875,10 +1088,16 @@ diesel::joinable!(grade_streams -> streams (stream_id));
 diesel::joinable!(grade_subjects -> grade_levels (grade_id));
 diesel::joinable!(grade_subjects -> subjects (subject_id));
 diesel::joinable!(grading_criteria -> grading_schemes (scheme_id));
+diesel::joinable!(income_transactions -> income_sources (source_id));
+diesel::joinable!(income_transactions -> staff (received_by));
+diesel::joinable!(inventory_items -> asset_categories (category_id));
 diesel::joinable!(library_books -> library_categories (category_id));
 diesel::joinable!(library_issues -> library_books (book_id));
 diesel::joinable!(library_issues -> students (student_id));
+diesel::joinable!(maintenance_requests -> inventory_items (item_id));
+diesel::joinable!(maintenance_requests -> staff (reported_by));
 diesel::joinable!(ol_exams -> students (student_id));
+diesel::joinable!(petty_cash_transactions -> staff (handled_by));
 diesel::joinable!(report_card_marks -> report_cards (report_card_id));
 diesel::joinable!(report_card_marks -> subjects (subject_id));
 diesel::joinable!(report_cards -> academic_years (academic_year_id));
@@ -887,6 +1106,7 @@ diesel::joinable!(report_cards -> students (student_id));
 diesel::joinable!(report_cards -> terms (term_id));
 diesel::joinable!(role_permissions -> permissions (permission_id));
 diesel::joinable!(role_permissions -> roles (role_id));
+diesel::joinable!(salary_payments -> staff (staff_id));
 diesel::joinable!(scholarship_exams -> students (student_id));
 diesel::joinable!(sessions -> users (user_id));
 diesel::joinable!(sport_event_participants -> sport_events (event_id));
@@ -903,6 +1123,8 @@ diesel::joinable!(staff_leaves -> staff (staff_id));
 diesel::joinable!(staff_qualifications -> staff (staff_id));
 diesel::joinable!(staff_roles -> roles (role_id));
 diesel::joinable!(staff_roles -> staff (staff_id));
+diesel::joinable!(staff_salaries -> salary_components (component_id));
+diesel::joinable!(staff_salaries -> staff (staff_id));
 diesel::joinable!(staff_subjects -> staff (staff_id));
 diesel::joinable!(staff_subjects -> subjects (subject_id));
 diesel::joinable!(stream_subjects -> streams (stream_id));
@@ -917,7 +1139,6 @@ diesel::joinable!(student_medical_info -> students (student_id));
 diesel::joinable!(student_previous_schools -> students (student_id));
 diesel::joinable!(student_class_assignments -> academic_years (academic_year_id));
 diesel::joinable!(student_class_assignments -> classes (class_id));
-diesel::joinable!(student_class_assignments -> grade_levels (grade_id));
 diesel::joinable!(student_class_assignments -> students (student_id));
 diesel::joinable!(student_zscores -> students (student_id));
 diesel::joinable!(teacher_class_assignments -> academic_years (academic_year_id));
@@ -931,12 +1152,19 @@ diesel::joinable!(timetable -> academic_years (academic_year_id));
 diesel::joinable!(timetable -> classes (class_id));
 diesel::joinable!(timetable -> staff (teacher_id));
 diesel::joinable!(timetable -> subjects (subject_id));
+diesel::joinable!(uniform_issues -> staff (issued_by));
+diesel::joinable!(uniform_issues -> students (student_id));
+diesel::joinable!(uniform_issues -> uniform_items (uniform_item_id));
 diesel::joinable!(user_roles -> roles (role_id));
 diesel::joinable!(user_roles -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     academic_years,
     al_exams,
+    asset_allocations,
+    asset_categories,
+    budget_categories,
+    budgets,
     class_subject_teachers,
     classes,
     club_activities,
@@ -949,6 +1177,8 @@ diesel::allow_tables_to_appear_in_same_query!(
     exam_subjects,
     exam_types,
     exams,
+    expense_categories,
+    expense_transactions,
     fee_categories,
     fee_payments,
     fee_structures,
@@ -957,16 +1187,23 @@ diesel::allow_tables_to_appear_in_same_query!(
     grade_subjects,
     grading_criteria,
     grading_schemes,
+    income_sources,
+    income_transactions,
+    inventory_items,
     library_books,
     library_categories,
     library_issues,
     library_settings,
+    maintenance_requests,
     ol_exams,
     permissions,
+    petty_cash_transactions,
     report_card_marks,
     report_cards,
     role_permissions,
     roles,
+    salary_components,
+    salary_payments,
     scholarship_exams,
     sessions,
     sport_event_participants,
@@ -981,6 +1218,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     staff_leaves,
     staff_qualifications,
     staff_roles,
+    staff_salaries,
     staff_subjects,
     stream_subjects,
     streams,
@@ -1000,6 +1238,8 @@ diesel::allow_tables_to_appear_in_same_query!(
     teacher_subject_assignments,
     terms,
     timetable,
+    uniform_issues,
+    uniform_items,
     user_roles,
     users,
     zscore_calculations,
