@@ -1,5 +1,13 @@
+use crate::config::AppState;
+use crate::database::connection::establish_connection; // Updated import
+use crate::errors::APIError;
+use crate::services::cleanup::remove_unverified_users; // Add this line
+use crate::services::email::EmailService; // Add this line
 use actix_cors::Cors;
-use actix_web::{App, HttpServer, web::Data};
+use actix_web::{
+    App, HttpServer,
+    web::{self, Data},
+};
 use apistos::{
     app::{BuildConfig, OpenApiWrapper},
     spec::Spec,
@@ -7,14 +15,10 @@ use apistos::{
 use apistos_models::info::Info;
 use apistos_scalar::ScalarConfig;
 use config::Config;
-use tracing::{error, info};
-use tracing_subscriber::{EnvFilter, FmtSubscriber};
+use tokio::time::{Duration, interval}; // Add this line
+use tracing::info; // Removed unused error
 use tracing_actix_web::TracingLogger;
-use tokio::time::{interval, Duration}; // Add this line
-use crate::database::connection::{DbPool, establish_connection}; // Updated import
-use crate::errors::APIError;
-use crate::services::cleanup::remove_unverified_users; // Add this line
-use crate::services::email::EmailService; // Add this line
+use tracing_subscriber::{EnvFilter, FmtSubscriber}; // Import AppState
 
 mod config;
 mod database;
@@ -22,16 +26,9 @@ mod errors;
 mod handlers;
 mod models;
 mod routes;
+mod schema;
 mod services;
 mod utils;
-mod schema;
-
-#[derive(Clone)] // Add Clone derive
-pub struct AppState {
-    config: Config,
-    db_pool: DbPool,
-    email_service: EmailService, // Add this line
-}
 
 #[actix_web::main]
 async fn main() -> Result<(), APIError> {
@@ -66,9 +63,8 @@ async fn main() -> Result<(), APIError> {
     let bind_address = (config.host.clone(), config.port);
     let allowed_origin = config.allowed_origin.clone();
 
-    let pool = establish_connection(&config.database_url)
-        .map_err(|e| APIError::internal(format!("Failed to establish database connection pool: {}", e).as_str()))?;
-    
+    let pool = establish_connection(&config.database_url)?;
+
     let email_service = EmailService::new(config.clone()); // Initialize EmailService
 
     let app_data = Data::new(AppState {
@@ -98,6 +94,18 @@ async fn main() -> Result<(), APIError> {
         App::new()
             .document(spec.clone())
             .app_data(app_data.clone()) // Use the cloned app_data here
+            .app_data(
+                web::JsonConfig::default()
+                    .error_handler(|err, _req| APIError::bad_request(&err.to_string()).into()),
+            )
+            .app_data(
+                web::QueryConfig::default()
+                    .error_handler(|err, _req| APIError::bad_request(&err.to_string()).into()),
+            )
+            .app_data(
+                web::PathConfig::default()
+                    .error_handler(|err, _req| APIError::bad_request(&err.to_string()).into()),
+            )
             .wrap(cors)
             .wrap(TracingLogger::default()) // Replaced Logger with TracingLogger
             .configure(routes::configure)
@@ -106,11 +114,7 @@ async fn main() -> Result<(), APIError> {
                 BuildConfig::default().with(ScalarConfig::new(&"/docs")),
             )
     })
-    .bind(bind_address)
-    .map_err(|e| {
-        error!("❌ Failed to bind - {}", e);
-        APIError::internal(format!("Failed to bind server: {}", e).as_str())
-    })?
+    .bind(bind_address)?
     .run()
     .await?;
 

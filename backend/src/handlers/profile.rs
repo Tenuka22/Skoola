@@ -1,23 +1,23 @@
-use actix_web::{web, HttpResponse};
-use apistos::api_operation;
-use diesel::prelude::*;
-use tracing::{info, warn}; // Added warn for logging errors
-
+use crate::models::auth::UserResponse;
+use crate::schema::users::dsl::*;
 use crate::{
+    AppState,
     database::tables::User,
     errors::APIError,
+    handlers::oauth::OAuthQuery,
     models::profile::{ChangeEmailRequest, ChangePasswordRequest, UpdateProfileRequest},
+    schema::users,
     services::{
         auth::{hash_password, verify_password},
         oauth::{get_github_user_info, get_google_user_info},
         session::SessionService,
     },
     utils::jwt::UserId,
-    AppState,
-    schema::users,
-    handlers::oauth::OAuthQuery,
 };
-use crate::schema::users::dsl::*;
+use actix_web::web::{self, Json};
+use apistos::api_operation;
+use diesel::prelude::*;
+use tracing::{info, warn};
 
 #[api_operation(
     summary = "Get user profile",
@@ -27,7 +27,7 @@ use crate::schema::users::dsl::*;
 pub async fn get_profile(
     data: web::Data<AppState>,
     user_id: UserId,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<UserResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
 
     let user: Option<User> = users::table
@@ -39,12 +39,15 @@ pub async fn get_profile(
     match user {
         Some(user) => {
             info!("ACTION: User profile fetched | user_id: {}", user_id.0);
-            Ok(HttpResponse::Ok().json(user))
-        },
+            Ok(Json(UserResponse::from(user)))
+        }
         None => {
-            warn!("ACTION: User profile fetch failed | reason: user not found | user_id: {}", user_id.0);
+            warn!(
+                "ACTION: User profile fetch failed | reason: user not found | user_id: {}",
+                user_id.0
+            );
             Err(APIError::not_found("User not found"))
-        },
+        }
     }
 }
 
@@ -57,7 +60,7 @@ pub async fn update_profile(
     data: web::Data<AppState>,
     user_id: UserId,
     body: web::Json<UpdateProfileRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<UserResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
 
     let _initial_user: User = users::table
@@ -76,7 +79,8 @@ pub async fn update_profile(
         updated_fields.push(format!("email: {}", new_email));
     }
 
-    let updated_user: Option<User> = users.filter(id.eq(&user_id.0))
+    let updated_user: Option<User> = users
+        .filter(id.eq(&user_id.0))
         .select(User::as_select())
         .first(&mut conn)
         .optional()?;
@@ -90,15 +94,17 @@ pub async fn update_profile(
             };
             info!(
                 "ACTION: User profile updated | user_id: {} | changes: {}",
-                user_id.0,
-                changes_summary
+                user_id.0, changes_summary
             );
-            Ok(HttpResponse::Ok().json(user))
-        },
+            Ok(Json(UserResponse::from(user)))
+        }
         None => {
-            warn!("ACTION: User profile update failed | reason: user not found after update | user_id: {}", user_id.0);
+            warn!(
+                "ACTION: User profile update failed | reason: user not found after update | user_id: {}",
+                user_id.0
+            );
             Err(APIError::not_found("User not found"))
-        },
+        }
     }
 }
 
@@ -111,7 +117,7 @@ pub async fn change_password(
     data: web::Data<AppState>,
     user_id: UserId,
     body: web::Json<ChangePasswordRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<UserResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
 
     let user: User = users::table
@@ -120,12 +126,18 @@ pub async fn change_password(
         .first(&mut conn)
         .optional()?
         .ok_or_else(|| {
-            warn!("ACTION: Change password failed | reason: user not found | user_id: {}", user_id.0);
+            warn!(
+                "ACTION: Change password failed | reason: user not found | user_id: {}",
+                user_id.0
+            );
             APIError::not_found("User not found")
         })?;
 
     if !verify_password(&body.old_password, &user.password_hash)? {
-        warn!("ACTION: Change password failed | reason: invalid old password | user_id: {}", user_id.0);
+        warn!(
+            "ACTION: Change password failed | reason: invalid old password | user_id: {}",
+            user_id.0
+        );
         return Err(APIError::unauthorized("Invalid old password"));
     }
 
@@ -137,7 +149,9 @@ pub async fn change_password(
 
     // Invalidate all sessions for this user after password change
     let session_service = SessionService::new(data.db_pool.clone());
-    session_service.invalidate_sessions_for_user(&user_id.0).await?;
+    session_service
+        .invalidate_sessions_for_user(&user_id.0)
+        .await?;
 
     let updated_user: Option<User> = users::table
         .filter(id.eq(&user_id.0))
@@ -147,13 +161,19 @@ pub async fn change_password(
 
     match updated_user {
         Some(user) => {
-            info!("ACTION: Password changed and all sessions invalidated | user_id: {}", user_id.0);
-            Ok(HttpResponse::Ok().json(user))
-        },
+            info!(
+                "ACTION: Password changed and all sessions invalidated | user_id: {}",
+                user_id.0
+            );
+            Ok(Json(UserResponse::from(user)))
+        }
         None => {
-            warn!("ACTION: Change password failed | reason: user not found after update | user_id: {}", user_id.0);
+            warn!(
+                "ACTION: Change password failed | reason: user not found after update | user_id: {}",
+                user_id.0
+            );
             Err(APIError::not_found("User not found"))
-        },
+        }
     }
 }
 
@@ -166,7 +186,7 @@ pub async fn change_email(
     data: web::Data<AppState>,
     user_id: UserId,
     body: web::Json<ChangeEmailRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<UserResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
 
     let user: User = users::table
@@ -175,12 +195,18 @@ pub async fn change_email(
         .first(&mut conn)
         .optional()?
         .ok_or_else(|| {
-            warn!("ACTION: Change email failed | reason: user not found | user_id: {}", user_id.0);
+            warn!(
+                "ACTION: Change email failed | reason: user not found | user_id: {}",
+                user_id.0
+            );
             APIError::not_found("User not found")
         })?;
 
     if !verify_password(&body.password, &user.password_hash)? {
-        warn!("ACTION: Change email failed | reason: invalid password | user_id: {}", user_id.0);
+        warn!(
+            "ACTION: Change email failed | reason: invalid password | user_id: {}",
+            user_id.0
+        );
         return Err(APIError::unauthorized("Invalid password"));
     }
 
@@ -190,7 +216,9 @@ pub async fn change_email(
 
     // Invalidate all sessions for this user after email change
     let session_service = SessionService::new(data.db_pool.clone());
-    session_service.invalidate_sessions_for_user(&user_id.0).await?;
+    session_service
+        .invalidate_sessions_for_user(&user_id.0)
+        .await?;
 
     let updated_user: Option<User> = users::table
         .filter(id.eq(&user_id.0))
@@ -200,31 +228,35 @@ pub async fn change_email(
 
     match updated_user {
         Some(user) => {
-            info!("ACTION: Email changed to {} and all sessions invalidated | user_id: {}", user.email, user_id.0);
-            Ok(HttpResponse::Ok().json(user))
-        },
+            info!(
+                "ACTION: Email changed to {} and all sessions invalidated | user_id: {}",
+                user.email, user_id.0
+            );
+            Ok(Json(UserResponse::from(user)))
+        }
         None => {
-            warn!("ACTION: Change email failed | reason: user not found after update | user_id: {}", user_id.0);
+            warn!(
+                "ACTION: Change email failed | reason: user not found after update | user_id: {}",
+                user_id.0
+            );
             Err(APIError::not_found("User not found"))
-        },
+        }
     }
 }
 
 #[api_operation(
     summary = "Link Google account",
     description = "Links a Google account to the currently authenticated user.",
-    tag = "profile", tag = "oauth"
+    tag = "profile",
+    tag = "oauth"
 )]
 pub async fn link_google(
     data: web::Data<AppState>,
     user_id: UserId,
     query: web::Query<OAuthQuery>,
-) -> Result<HttpResponse, APIError> {
-    let google_user_info = get_google_user_info(&query.code, &data.config).await
-        .map_err(|e| {
-            warn!("ACTION: Link Google failed | reason: {:?} | user_id: {}", e, user_id.0);
-            APIError::internal("Failed to get Google user info")
-        })?;
+) -> Result<Json<UserResponse>, APIError> {
+    let google_user_info = get_google_user_info(&query.code, &data.config)
+        .await?;
 
     let mut conn = data.db_pool.get()?;
 
@@ -240,31 +272,35 @@ pub async fn link_google(
 
     match updated_user {
         Some(user) => {
-            info!("ACTION: Google account linked | user_id: {} | google_id: {}", user_id.0, google_user_info.id);
-            Ok(HttpResponse::Ok().json(user))
-        },
+            info!(
+                "ACTION: Google account linked | user_id: {} | google_id: {}",
+                user_id.0, google_user_info.id
+            );
+            Ok(Json(UserResponse::from(user)))
+        }
         None => {
-            warn!("ACTION: Link Google failed | reason: user not found after update | user_id: {}", user_id.0);
+            warn!(
+                "ACTION: Link Google failed | reason: user not found after update | user_id: {}",
+                user_id.0
+            );
             Err(APIError::not_found("User not found"))
-        },
+        }
     }
 }
 
 #[api_operation(
     summary = "Link GitHub account",
     description = "Links a GitHub account to the currently authenticated user.",
-    tag = "profile", tag = "oauth"
+    tag = "profile",
+    tag = "oauth"
 )]
 pub async fn link_github(
     data: web::Data<AppState>,
     user_id: UserId,
     query: web::Query<OAuthQuery>,
-) -> Result<HttpResponse, APIError> {
-    let github_user_info = get_github_user_info(&query.code, &data.config).await
-        .map_err(|e| {
-            warn!("ACTION: Link GitHub failed | reason: {:?} | user_id: {}", e, user_id.0);
-            APIError::internal("Failed to get GitHub user info")
-        })?;
+) -> Result<Json<UserResponse>, APIError> {
+    let github_user_info = get_github_user_info(&query.code, &data.config)
+        .await?;
 
     let mut conn = data.db_pool.get()?;
 
@@ -280,12 +316,18 @@ pub async fn link_github(
 
     match updated_user {
         Some(user) => {
-            info!("ACTION: GitHub account linked | user_id: {} | github_id: {}", user_id.0, github_user_info.id);
-            Ok(HttpResponse::Ok().json(user))
-        },
+            info!(
+                "ACTION: GitHub account linked | user_id: {} | github_id: {}",
+                user_id.0, github_user_info.id
+            );
+            Ok(Json(UserResponse::from(user)))
+        }
         None => {
-            warn!("ACTION: Link GitHub failed | reason: user not found after update | user_id: {}", user_id.0);
+            warn!(
+                "ACTION: Link GitHub failed | reason: user not found after update | user_id: {}",
+                user_id.0
+            );
             Err(APIError::not_found("User not found"))
-        },
+        }
     }
 }

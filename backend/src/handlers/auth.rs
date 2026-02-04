@@ -1,5 +1,5 @@
 use actix_web::{HttpRequest, web::Json};
-use actix_web::{HttpResponse, web};
+use actix_web::web;
 use apistos::api_operation;
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
@@ -16,6 +16,7 @@ use crate::{
         LoginRequest, PasswordReset, PasswordResetRequest, RefreshTokenRequest, RegisterRequest,
         TokenResponse, UserResponse,
     },
+    models::MessageResponse,
     schema::{roles, user_roles, users},
     services::auth::{create_token_pair, hash_password, refresh_jwt, verify_password},
     services::email::EmailService,
@@ -30,7 +31,7 @@ use crate::{
 pub async fn register(
     data: web::Data<AppState>,
     body: web::Json<RegisterRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<UserResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
 
     let existing_user: Option<User> = users::table
@@ -107,7 +108,7 @@ pub async fn register(
         "ACTION: User registered successfully | user_id: {} | email: {}",
         created_user.id, created_user.email
     );
-    Ok(HttpResponse::Created().json(UserResponse::from(created_user)))
+    Ok(Json(UserResponse::from(created_user)))
 }
 
 #[api_operation(
@@ -125,14 +126,7 @@ pub async fn login(
     let user: User = users::table
         .filter(users::email.eq(&body.email))
         .select(User::as_select())
-        .first(&mut conn)
-        .map_err(|_| {
-            warn!(
-                "ACTION: User login failed | reason: user not found | email: {}",
-                body.email
-            );
-            APIError::unauthorized("Invalid email or password")
-        })?;
+        .first(&mut conn)?;
 
     if let Some(lockout_until) = user.lockout_until {
         if lockout_until > Utc::now().naive_utc() {
@@ -235,7 +229,7 @@ pub async fn login(
 pub async fn logout(
     data: web::Data<AppState>,
     body: web::Json<RefreshTokenRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let session_service = SessionService::new(data.db_pool.clone());
     let hashed_refresh_token = hash_password(&body.refresh_token)?;
 
@@ -252,7 +246,7 @@ pub async fn logout(
         warn!("ACTION: Logout attempt with invalid refresh token");
     }
 
-    Ok(HttpResponse::NoContent().finish())
+    Ok(Json(MessageResponse { message: "Logged out successfully".to_string() }))
 }
 
 #[api_operation(
@@ -264,7 +258,7 @@ pub async fn refresh(
     data: web::Data<AppState>,
     body: web::Json<RefreshTokenRequest>,
     req: HttpRequest,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<TokenResponse>, APIError> {
     let ip_address = req
         .connection_info()
         .realip_remote_addr()
@@ -282,20 +276,13 @@ pub async fn refresh(
         ip_address.clone(),
         user_agent.clone(),
     )
-    .await
-    .map_err(|e| {
-        warn!(
-            "ACTION: JWT refresh failed | reason: {:?} | ip_address: {:?} | user_agent: {:?}",
-            e, ip_address, user_agent
-        );
-        e
-    })?;
+    .await?;
 
     info!(
         "ACTION: JWT refreshed successfully | ip_address: {:?} | user_agent: {:?}",
         ip_address, user_agent
     );
-    Ok(HttpResponse::Ok().json(TokenResponse {
+    Ok(Json(TokenResponse {
         token: new_token,
         refresh_token: new_refresh_token,
     }))
@@ -309,7 +296,7 @@ pub async fn refresh(
 pub async fn request_password_reset(
     data: web::Data<AppState>,
     body: web::Json<PasswordResetRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
 
     if let Ok(user) = users::table
@@ -338,7 +325,7 @@ pub async fn request_password_reset(
         );
     }
 
-    Ok(HttpResponse::Ok().finish())
+    Ok(Json(MessageResponse { message: "Password reset email sent if user exists".to_string() }))
 }
 
 #[api_operation(
@@ -350,15 +337,14 @@ pub async fn reset_password(
     data: web::Data<AppState>,
     token: web::Path<String>,
     body: web::Json<PasswordReset>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let hashed_token = hash_password(&token)?;
 
     let user: User = users::table
         .filter(users::password_reset_token.eq(hashed_token))
         .select(User::as_select())
-        .first(&mut conn)
-        .map_err(|_| APIError::unauthorized("Invalid or expired password reset token"))?;
+        .first(&mut conn)?;
 
     if let Some(sent_at) = user.password_reset_sent_at {
         if Utc::now().naive_utc() - sent_at > Duration::hours(1) {
@@ -389,5 +375,5 @@ pub async fn reset_password(
         "ACTION: User password reset successfully | user_id: {}",
         user.id
     );
-    Ok(HttpResponse::Ok().finish())
+    Ok(Json(MessageResponse { message: "Password reset successfully".to_string() }))
 }

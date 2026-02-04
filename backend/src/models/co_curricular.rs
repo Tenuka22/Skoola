@@ -293,3 +293,10 @@ pub struct AddCulturalEventParticipantRequest {
     pub performance_type: String,
     pub role: Option<String>,
 }
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
+pub struct StudentCoCurricularSummary {
+    pub sports: Vec<SportTeamMember>,
+    pub clubs: Vec<ClubMember>,
+    pub achievements: Vec<StudentAchievement>,
+}

@@ -1,0 +1,1 @@
+DROP TABLE teacher_subject_assignments;

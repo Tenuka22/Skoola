@@ -59,11 +59,7 @@ pub async fn get_subject_by_id(
 
     let subject: Subject = subjects::table
         .filter(subjects::id.eq(&subject_id))
-        .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Subject with ID {} not found", subject_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        .first(&mut conn)?;
 
     Ok(SubjectResponse::from(subject))
 }
@@ -104,11 +100,7 @@ pub async fn update_subject(
 
     let updated_subject: Subject = subjects::table
         .filter(subjects::id.eq(&subject_id))
-        .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Subject with ID {} not found", subject_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        .first(&mut conn)?;
 
     Ok(SubjectResponse::from(updated_subject))
 }
@@ -143,7 +135,7 @@ pub async fn get_subjects_by_grade(
         .select(subjects::all_columns)
         .order(subjects::subject_name_en.asc())
         .load::<Subject>(&mut conn)
-        .map_err(|e| APIError::internal(&e.to_string()))?;
+?;
 
     let responses: Vec<SubjectResponse> = subjects_list
         .into_iter()
@@ -166,7 +158,7 @@ pub async fn get_subjects_by_stream(
         .select(subjects::all_columns)
         .order(subjects::subject_name_en.asc())
         .load::<Subject>(&mut conn)
-        .map_err(|e| APIError::internal(&e.to_string()))?;
+?;
 
     let responses: Vec<SubjectResponse> = subjects_list
         .into_iter()
@@ -187,7 +179,7 @@ pub async fn assign_subject_to_grade(
         .filter(grade_levels::id.eq(&assign_req.grade_id))
         .select(diesel::dsl::count(grade_levels::id)) // Changed to count
         .get_result::<i64>(&mut conn) // Changed to i64
-        .map_err(|e| APIError::internal(&e.to_string()))? > 0;
+? > 0;
 
     if !grade_exists {
         return Err(APIError::not_found(&format!("Grade with ID {} not found", assign_req.grade_id)));
@@ -198,7 +190,7 @@ pub async fn assign_subject_to_grade(
         .filter(subjects::id.eq(&assign_req.subject_id))
         .select(diesel::dsl::count(subjects::id)) // Changed to count
         .get_result::<i64>(&mut conn) // Changed to i64
-        .map_err(|e| APIError::internal(&e.to_string()))? > 0;
+? > 0;
 
     if !subject_exists {
         return Err(APIError::not_found(&format!("Subject with ID {} not found", assign_req.subject_id)));
@@ -210,7 +202,7 @@ pub async fn assign_subject_to_grade(
         .filter(grade_subjects::subject_id.eq(&assign_req.subject_id))
         .select(diesel::dsl::count(grade_subjects::grade_id)) // Changed to count
         .get_result::<i64>(&mut conn) // Changed to i64
-        .map_err(|e| APIError::internal(&e.to_string()))? > 0;
+? > 0;
 
     if assignment_exists {
         return Err(APIError::bad_request("Subject is already assigned to this grade"));
@@ -224,7 +216,7 @@ pub async fn assign_subject_to_grade(
     diesel::insert_into(grade_subjects::table)
         .values(&new_assignment)
         .execute(&mut conn)
-        .map_err(|e| APIError::internal(&e.to_string()))?;
+?;
 
     Ok(HttpResponse::Created().finish())
 }
@@ -240,7 +232,7 @@ pub async fn assign_subject_to_stream(
         .filter(streams::id.eq(&assign_req.stream_id))
         .select(diesel::dsl::count(streams::id)) // Changed to count
         .get_result::<i64>(&mut conn) // Changed to i64
-        .map_err(|e| APIError::internal(&e.to_string()))? > 0;
+? > 0;
 
     if !stream_exists {
         return Err(APIError::not_found(&format!("Stream with ID {} not found", assign_req.stream_id)));
@@ -251,7 +243,7 @@ pub async fn assign_subject_to_stream(
         .filter(subjects::id.eq(&assign_req.subject_id))
         .select(diesel::dsl::count(subjects::id)) // Changed to count
         .get_result::<i64>(&mut conn) // Changed to i64
-        .map_err(|e| APIError::internal(&e.to_string()))? > 0;
+? > 0;
 
     if !subject_exists {
         return Err(APIError::not_found(&format!("Subject with ID {} not found", assign_req.subject_id)));
@@ -263,7 +255,7 @@ pub async fn assign_subject_to_stream(
         .filter(stream_subjects::subject_id.eq(&assign_req.subject_id))
         .select(diesel::dsl::count(stream_subjects::stream_id)) // Changed to count
         .get_result::<i64>(&mut conn) // Changed to i64
-        .map_err(|e| APIError::internal(&e.to_string()))? > 0;
+? > 0;
 
     if assignment_exists {
         return Err(APIError::bad_request("Subject is already assigned to this stream"));
@@ -277,7 +269,7 @@ pub async fn assign_subject_to_stream(
     diesel::insert_into(stream_subjects::table)
         .values(&new_assignment)
         .execute(&mut conn)
-        .map_err(|e| APIError::internal(&e.to_string()))?;
+?;
 
     Ok(HttpResponse::Created().finish())
 }

@@ -1,9 +1,10 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation; // Added
+use actix_web::web::Json;
 use crate::{
     AppState, // Changed from database::connection::DbPool
     errors::APIError,
-    models::terms::CreateTermRequest,
+    models::terms::{CreateTermRequest, TermResponse},
     services::terms,
 };
 
@@ -16,7 +17,7 @@ use crate::{
 pub async fn create_term_handler(
     app_state: web::Data<AppState>, // Changed parameter name and type
     new_term_req: web::Json<CreateTermRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<TermResponse>, APIError> {
     let term = terms::create_term(app_state, new_term_req.into_inner()).await?; // Passed app_state directly
-    Ok(HttpResponse::Created().json(term))
+    Ok(Json(term))
 }

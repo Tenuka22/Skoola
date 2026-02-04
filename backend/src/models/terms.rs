@@ -38,7 +38,7 @@ pub struct UpdateTermRequest {
     pub end_date: Option<NaiveDate>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct TermResponse {
     pub id: String, // Changed from i32 to String
     pub academic_year_id: String, // Changed from i32 to String

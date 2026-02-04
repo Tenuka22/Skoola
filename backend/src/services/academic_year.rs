@@ -50,10 +50,7 @@ pub async fn get_academic_year_by_id(
     let academic_year: AcademicYear = academic_years::table
         .filter(academic_years::id.eq(&academic_year_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Academic Year with ID {} not found", academic_year_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(AcademicYearResponse::from(academic_year))
 }
@@ -102,10 +99,7 @@ pub async fn update_academic_year(
     let updated_academic_year: AcademicYear = academic_years::table
         .filter(academic_years::id.eq(&academic_year_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Academic Year with ID {} not found", academic_year_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(AcademicYearResponse::from(updated_academic_year))
 }
@@ -151,10 +145,7 @@ pub async fn set_current_academic_year(
     let updated_academic_year: AcademicYear = academic_years::table
         .filter(academic_years::id.eq(&academic_year_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Academic Year with ID {} not found", academic_year_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(AcademicYearResponse::from(updated_academic_year))
 }

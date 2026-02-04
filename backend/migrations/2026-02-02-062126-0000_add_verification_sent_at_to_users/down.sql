@@ -1,0 +1,1 @@
+ALTER TABLE users DROP COLUMN verification_sent_at;

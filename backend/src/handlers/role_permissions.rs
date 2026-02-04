@@ -1,11 +1,13 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
 use diesel::prelude::*;
+use actix_web::web::Json;
 
 use crate::{
     AppState,
     database::tables::RolePermission,
     errors::APIError,
+    models::MessageResponse,
     schema::role_permissions,
 };
 
@@ -22,7 +24,7 @@ pub struct PermissionAssignmentRequest {
 pub async fn assign_permission_to_role(
     data: web::Data<AppState>,
     path: web::Path<(String, String)>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let (role_id, permission_id) = path.into_inner();
 
@@ -35,7 +37,7 @@ pub async fn assign_permission_to_role(
         .values(&new_assignment)
         .execute(&mut conn)?;
 
-    Ok(HttpResponse::Ok().finish())
+    Ok(Json(MessageResponse { message: "Permission assigned to role successfully".to_string() }))
 }
 
 #[api_operation(
@@ -46,7 +48,7 @@ pub async fn assign_permission_to_role(
 pub async fn unassign_permission_from_role(
     data: web::Data<AppState>,
     path: web::Path<(String, String)>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let (role_id, permission_id) = path.into_inner();
 
@@ -57,5 +59,5 @@ pub async fn unassign_permission_from_role(
     )
     .execute(&mut conn)?;
 
-    Ok(HttpResponse::NoContent().finish())
+    Ok(Json(MessageResponse { message: "Permission unassigned from role successfully".to_string() }))
 }

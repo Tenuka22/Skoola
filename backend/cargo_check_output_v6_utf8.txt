@@ -1,0 +1,27 @@
+﻿cargo :     Checking backend v0.1.0 
+(D:\Projects\Skoola\backend)
+At line:1 char:1
++ cargo check > cargo_check_output_v6.txt 2>&1; 
+Get-Content cargo_check ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (    C 
+   hecking ba...Skoola\backend):String) [], Remot  
+  eException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+error: unexpected closing delimiter: `}`
+   --> src\services\library.rs:602:1
+    |
+591 | pub fn get_fine_history(pool: &DbPool) -> 
+Result<Vec<LibraryIssueResponse>, APIError> {
+    |                                              
+                                         - this 
+opening brace...
+...
+601 | }
+    | - ...matches this closing brace
+602 | }
+    | ^ unexpected closing delimiter
+
+error: could not compile `backend` (bin "backend") 
+due to 1 previous error

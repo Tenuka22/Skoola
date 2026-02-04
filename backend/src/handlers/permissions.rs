@@ -1,13 +1,16 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
 use diesel::prelude::*;
 use uuid::Uuid;
+use actix_web::web::Json;
+// use serde_json; // Removed unused import
 
 use crate::{
     AppState,
     database::tables::{Permission},
     errors::APIError,
     models::permissions::{CreatePermissionRequest, UpdatePermissionRequest},
+    models::MessageResponse,
     schema::permissions,
 };
 
@@ -18,10 +21,10 @@ use crate::{
 )]
 pub async fn get_permissions(
     data: web::Data<AppState>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<Permission>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let permissions_list = permissions::table.select(Permission::as_select()).load(&mut conn)?;
-    Ok(HttpResponse::Ok().json(permissions_list))
+    Ok(Json(permissions_list))
 }
 
 #[api_operation(
@@ -32,13 +35,13 @@ pub async fn get_permissions(
 pub async fn get_permission(
     data: web::Data<AppState>,
     permission_id: web::Path<String>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Permission>, APIError> {
     let mut conn = data.db_pool.get()?;
     let permission = permissions::table
         .find(permission_id.into_inner())
         .select(Permission::as_select())
         .first(&mut conn)?;
-    Ok(HttpResponse::Ok().json(permission))
+    Ok(Json(permission))
 }
 
 #[api_operation(
@@ -49,7 +52,7 @@ pub async fn get_permission(
 pub async fn create_permission(
     data: web::Data<AppState>,
     body: web::Json<CreatePermissionRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Permission>, APIError> {
     let mut conn = data.db_pool.get()?;
     let new_permission = Permission {
         id: Uuid::new_v4().to_string(),
@@ -58,7 +61,7 @@ pub async fn create_permission(
     diesel::insert_into(permissions::table)
         .values(&new_permission)
         .execute(&mut conn)?;
-    Ok(HttpResponse::Created().json(new_permission))
+    Ok(Json(new_permission))
 }
 
 #[api_operation(
@@ -70,7 +73,7 @@ pub async fn update_permission(
     data: web::Data<AppState>,
     permission_id: web::Path<String>,
     body: web::Json<UpdatePermissionRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Permission>, APIError> {
     let mut conn = data.db_pool.get()?;
     let permission_id_inner = permission_id.into_inner();
     diesel::update(permissions::table.find(&permission_id_inner))
@@ -82,7 +85,7 @@ pub async fn update_permission(
         .select(Permission::as_select())
         .first(&mut conn)?;
         
-    Ok(HttpResponse::Ok().json(updated_permission))
+    Ok(Json(updated_permission))
 }
 
 #[api_operation(
@@ -93,8 +96,8 @@ pub async fn update_permission(
 pub async fn delete_permission(
     data: web::Data<AppState>,
     permission_id: web::Path<String>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     diesel::delete(permissions::table.find(permission_id.into_inner())).execute(&mut conn)?;
-    Ok(HttpResponse::NoContent().finish())
+    Ok(Json(MessageResponse { message: "Permission deleted successfully".to_string() }))
 }

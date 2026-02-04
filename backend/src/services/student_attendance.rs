@@ -90,11 +90,7 @@ pub async fn update_student_attendance(
 
     let updated_record: StudentAttendance = student_attendance::table
         .filter(student_attendance::id.eq(&attendance_id))
-        .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Attendance record with ID {} not found", attendance_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        .first(&mut conn)?;
     
     Ok(StudentAttendanceResponse::from(updated_record))
 }
@@ -334,8 +330,7 @@ pub async fn send_absence_notifications(
         let student: Student = students::table
             .find(&attendance_record.student_id)
             .select(Student::as_select())
-            .first(&mut conn)
-            .map_err(|e| APIError::internal(&format!("Failed to get student details: {}\n", e)))?;
+            .first(&mut conn)?;
 
         // 3. Retrieve guardians' emails for the student
         let guardians: Vec<String> = student_guardians::table

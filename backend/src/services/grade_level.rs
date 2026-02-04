@@ -42,10 +42,7 @@ pub async fn get_grade_level_by_id(
     let grade_level: GradeLevel = grade_levels::table
         .filter(grade_levels::id.eq(&grade_level_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Grade Level with ID {} not found", grade_level_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(GradeLevelResponse::from(grade_level))
 }
@@ -87,10 +84,7 @@ pub async fn update_grade_level(
     let updated_grade_level: GradeLevel = grade_levels::table
         .filter(grade_levels::id.eq(&grade_level_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Grade Level with ID {} not found", grade_level_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(GradeLevelResponse::from(updated_grade_level))
 }

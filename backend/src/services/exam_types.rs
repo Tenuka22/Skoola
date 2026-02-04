@@ -44,10 +44,7 @@ pub async fn get_exam_type_by_id(
     let exam_type: ExamType = exam_types::table
         .filter(exam_types::id.eq(&exam_type_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Exam Type with ID {} not found", exam_type_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(ExamTypeResponse::from(exam_type))
 }
@@ -91,10 +88,7 @@ pub async fn update_exam_type(
     let updated_exam_type: ExamType = exam_types::table
         .filter(exam_types::id.eq(&exam_type_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Exam Type with ID {} not found", exam_type_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(ExamTypeResponse::from(updated_exam_type))
 }

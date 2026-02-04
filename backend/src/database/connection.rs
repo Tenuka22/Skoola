@@ -6,7 +6,7 @@ pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 
 pub fn establish_connection(database_url: &str) -> Result<DbPool, APIError> {
     let manager = ConnectionManager::<SqliteConnection>::new(database_url);
-    Pool::builder()
+    Ok(Pool::builder()
         .build(manager)
-        .map_err(|e| APIError::internal(format!("Failed to create DB pool: {}", e).as_str()))
+        .map_err(|e| APIError::internal(&format!("Failed to create DB pool: {}", e)))?)
 }

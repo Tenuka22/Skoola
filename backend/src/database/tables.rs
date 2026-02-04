@@ -1,15 +1,19 @@
-use crate::database::enums::{Gender, Religion, Ethnicity, FeeFrequency, PaymentMethod, AllocationType, MaintenanceStatus, TransactionType, ComponentType};
-use crate::schema::{
-    permissions, role_permissions, roles, sessions, staff, staff_attendance, staff_departments,
-    staff_employment_history, staff_leaves, staff_qualifications, staff_roles, staff_subjects,
-    teacher_class_assignments, teacher_subject_assignments, user_roles, users, students,
-    student_guardians, student_medical_info, student_emergency_contacts, student_previous_schools,
-    fee_categories, fee_structures, student_fees, fee_payments,
-    asset_categories, inventory_items, uniform_items, uniform_issues, asset_allocations,
-    maintenance_requests, budget_categories, budgets, income_sources, income_transactions,
-    expense_categories, expense_transactions, petty_cash_transactions, salary_components,
-    staff_salaries, salary_payments
+use crate::database::enums::{
+    AllocationType, ComponentType, Ethnicity, FeeFrequency, Gender, MaintenanceStatus,
+    PaymentMethod, Religion, TransactionType,
 };
+use crate::schema::{
+    asset_allocations, asset_categories, budget_categories, budgets, expense_categories,
+    expense_transactions, fee_categories, fee_payments, fee_structures, income_sources,
+    income_transactions, inventory_items, maintenance_requests, permissions,
+    petty_cash_transactions, role_permissions, roles, salary_components, salary_payments, sessions,
+    staff, staff_attendance, staff_departments, staff_employment_history, staff_leaves,
+    staff_qualifications, staff_roles, staff_salaries, staff_subjects, student_emergency_contacts,
+    student_fees, student_guardians, student_medical_info, student_previous_schools, students,
+    teacher_class_assignments, teacher_subject_assignments, uniform_issues, uniform_items,
+    user_roles, users,
+};
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use diesel::deserialize::FromSql;
 use diesel::expression::AsExpression;
 use diesel::prelude::*;
@@ -17,8 +21,8 @@ use diesel::serialize::{IsNull, Output, ToSql};
 use diesel::sql_types::Text;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use apistos::ApiComponent;
 use std::fmt::{Display, Formatter};
-use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 
 use diesel::FromSqlRow;
 use diesel::backend::Backend;
@@ -76,7 +80,10 @@ impl std::str::FromStr for RoleEnum {
 }
 
 impl ToSql<Text, diesel::sqlite::Sqlite> for RoleEnum {
-    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+    fn to_sql<'b>(
+        &'b self,
+        out: &mut Output<'b, '_, diesel::sqlite::Sqlite>,
+    ) -> diesel::serialize::Result {
         out.set_value(self.to_string());
         Ok(IsNull::No)
     }
@@ -103,7 +110,7 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for RoleEnum {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
 #[diesel(table_name = users)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct User {
@@ -123,7 +130,7 @@ pub struct User {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
 #[diesel(table_name = roles)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Role {
@@ -132,7 +139,7 @@ pub struct Role {
     pub parent_id: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
 #[diesel(table_name = permissions)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Permission {
@@ -140,7 +147,17 @@ pub struct Permission {
     pub name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = role_permissions)]
 #[diesel(belongs_to(Role))]
 #[diesel(belongs_to(Permission))]
@@ -150,7 +167,17 @@ pub struct RolePermission {
     pub permission_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = user_roles)]
 #[diesel(belongs_to(User))]
 #[diesel(belongs_to(Role))]
@@ -160,7 +187,7 @@ pub struct UserRole {
     pub role_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
 #[diesel(table_name = staff)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Staff {
@@ -180,7 +207,17 @@ pub struct Staff {
     pub photo_url: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = staff_qualifications)]
 #[diesel(belongs_to(Staff))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -194,7 +231,17 @@ pub struct StaffQualification {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = staff_employment_history)]
 #[diesel(belongs_to(Staff))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -221,7 +268,17 @@ pub struct StaffDepartment {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = staff_roles)]
 #[diesel(belongs_to(Staff))]
 #[diesel(belongs_to(Role))]
@@ -243,7 +300,17 @@ impl StaffRole {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = staff_subjects)]
 #[diesel(belongs_to(Staff))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -264,7 +331,17 @@ impl RolePermission {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = teacher_class_assignments)]
 #[diesel(belongs_to(Staff, foreign_key = teacher_id))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -277,7 +354,17 @@ pub struct TeacherClassAssignment {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = teacher_subject_assignments)]
 #[diesel(belongs_to(Staff, foreign_key = teacher_id))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -290,7 +377,7 @@ pub struct TeacherSubjectAssignment {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone, Associations)]
 #[diesel(table_name = staff_attendance)]
 #[diesel(belongs_to(Staff))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -306,7 +393,17 @@ pub struct StaffAttendance {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = staff_leaves)]
 #[diesel(belongs_to(Staff))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -322,7 +419,7 @@ pub struct StaffLeave {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
 #[diesel(table_name = students)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Student {
@@ -345,7 +442,17 @@ pub struct Student {
     pub photo_url: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = student_guardians)]
 #[diesel(belongs_to(Student))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -361,7 +468,17 @@ pub struct StudentGuardian {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = student_medical_info)]
 #[diesel(belongs_to(Student))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -377,7 +494,17 @@ pub struct StudentMedicalInfo {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = student_emergency_contacts)]
 #[diesel(belongs_to(Student))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -391,7 +518,17 @@ pub struct StudentEmergencyContact {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = student_previous_schools)]
 #[diesel(belongs_to(Student))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -431,7 +568,17 @@ pub struct FeeCategory {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = fee_structures)]
 #[diesel(belongs_to(FeeCategory, foreign_key = category_id))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -447,7 +594,17 @@ pub struct FeeStructure {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = student_fees)]
 #[diesel(belongs_to(Student))]
 #[diesel(belongs_to(FeeStructure))]
@@ -463,7 +620,17 @@ pub struct StudentFee {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = fee_payments)]
 #[diesel(belongs_to(StudentFee))]
 #[diesel(belongs_to(Staff, foreign_key = collected_by))]
@@ -492,7 +659,17 @@ pub struct AssetCategory {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = inventory_items)]
 #[diesel(belongs_to(AssetCategory, foreign_key = category_id))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -524,7 +701,17 @@ pub struct UniformItem {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = uniform_issues)]
 #[diesel(belongs_to(Student))]
 #[diesel(belongs_to(UniformItem))]
@@ -542,7 +729,17 @@ pub struct UniformIssue {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = asset_allocations)]
 #[diesel(belongs_to(InventoryItem, foreign_key = item_id))]
 #[diesel(belongs_to(Staff, foreign_key = allocated_by))]
@@ -560,7 +757,17 @@ pub struct AssetAllocation {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = maintenance_requests)]
 #[diesel(belongs_to(InventoryItem, foreign_key = item_id))]
 #[diesel(belongs_to(Staff, foreign_key = reported_by))]
@@ -589,7 +796,17 @@ pub struct BudgetCategory {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = budgets)]
 #[diesel(belongs_to(BudgetCategory, foreign_key = category_id))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -614,7 +831,17 @@ pub struct IncomeSource {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = income_transactions)]
 #[diesel(belongs_to(IncomeSource, foreign_key = source_id))]
 #[diesel(belongs_to(Staff, foreign_key = received_by))]
@@ -642,7 +869,17 @@ pub struct ExpenseCategory {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = expense_transactions)]
 #[diesel(belongs_to(ExpenseCategory, foreign_key = category_id))]
 #[diesel(belongs_to(Staff, foreign_key = approved_by))]
@@ -661,7 +898,17 @@ pub struct ExpenseTransaction {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = petty_cash_transactions)]
 #[diesel(belongs_to(Staff, foreign_key = handled_by))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -688,7 +935,17 @@ pub struct SalaryComponent {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = staff_salaries)]
 #[diesel(belongs_to(Staff))]
 #[diesel(belongs_to(SalaryComponent, foreign_key = component_id))]
@@ -703,7 +960,17 @@ pub struct StaffSalary {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = salary_payments)]
 #[diesel(belongs_to(Staff))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]

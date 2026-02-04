@@ -1,12 +1,13 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
+use actix_web::web::Json;
 
 use crate::{
     AppState,
     errors::APIError,
-    models::class::{CreateClassRequest, UpdateClassRequest},
+    models::class::{CreateClassRequest, UpdateClassRequest, ClassResponse},
+    models::MessageResponse,
     services::class,
-
 };
 
 #[api_operation(
@@ -17,9 +18,9 @@ use crate::{
 pub async fn create_class(
     data: web::Data<AppState>,
     body: web::Json<CreateClassRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<ClassResponse>, APIError> {
     let new_class = class::create_class(data.clone(), body.into_inner()).await?;
-    Ok(HttpResponse::Created().json(new_class))
+    Ok(Json(ClassResponse::from(new_class)))
 }
 
 #[api_operation(
@@ -30,10 +31,10 @@ pub async fn create_class(
 pub async fn get_class_by_id(
     data: web::Data<AppState>,
     path: web::Path<String>, // class_id
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<ClassResponse>, APIError> {
     let class_id = path.into_inner();
     let class = class::get_class_by_id(data.clone(), class_id).await?;
-    Ok(HttpResponse::Ok().json(class))
+    Ok(Json(ClassResponse::from(class)))
 }
 
 #[api_operation(
@@ -43,9 +44,9 @@ pub async fn get_class_by_id(
 )]
 pub async fn get_all_classes(
     data: web::Data<AppState>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<ClassResponse>>, APIError> {
     let classes = class::get_all_classes(data.clone()).await?;
-    Ok(HttpResponse::Ok().json(classes))
+    Ok(Json(classes.into_iter().map(ClassResponse::from).collect()))
 }
 
 #[api_operation(
@@ -57,10 +58,10 @@ pub async fn update_class(
     data: web::Data<AppState>,
     path: web::Path<String>, // class_id
     body: web::Json<UpdateClassRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<ClassResponse>, APIError> {
     let class_id = path.into_inner();
     let updated_class = class::update_class(data.clone(), class_id, body.into_inner()).await?;
-    Ok(HttpResponse::Ok().json(updated_class))
+    Ok(Json(ClassResponse::from(updated_class)))
 }
 
 #[api_operation(
@@ -71,10 +72,10 @@ pub async fn update_class(
 pub async fn delete_class(
     data: web::Data<AppState>,
     path: web::Path<String>, // class_id
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let class_id = path.into_inner();
     class::delete_class(data.clone(), class_id).await?;
-    Ok(HttpResponse::NoContent().finish())
+    Ok(Json(MessageResponse { message: "Class deleted successfully".to_string() }))
 }
 
 #[api_operation(
@@ -85,8 +86,8 @@ pub async fn delete_class(
 pub async fn get_classes_by_grade(
     data: web::Data<AppState>,
     path: web::Path<String>, // grade_id
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<ClassResponse>>, APIError> {
     let grade_id = path.into_inner();
     let classes = class::get_classes_by_grade(data.clone(), grade_id).await?;
-    Ok(HttpResponse::Ok().json(classes))
+    Ok(Json(classes.into_iter().map(ClassResponse::from).collect()))
 }

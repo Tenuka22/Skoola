@@ -36,12 +36,12 @@ impl EmailService {
         let recipient = recipient_email.to_string();
 
         let email = Message::builder()
-            .from(sender.parse::<Mailbox>().map_err(|e| APIError::internal(format!("Failed to parse sender email: {}", e).as_str()))?)
-            .to(recipient.parse::<Mailbox>().map_err(|e| APIError::internal(format!("Failed to parse recipient email: {}", e).as_str()))?)
+            .from(sender.parse::<Mailbox>()?)
+            .to(recipient.parse::<Mailbox>()?)
             .subject("Verify your email for Skoola")
             .header(ContentType::TEXT_PLAIN)
             .body(email_body)
-            .map_err(|e| APIError::internal(format!("Failed to build email: {}", e).as_str()))?;
+            ?;
 
         let mailer = if let (Some(username), Some(password)) = (
             &self.config.smtp_username,
@@ -49,13 +49,13 @@ impl EmailService {
         ) {
             let creds = Credentials::new(username.to_owned(), password.to_owned());
             SmtpTransport::relay(self.config.smtp_host.as_deref().ok_or_else(|| APIError::internal("SMTP host not configured"))?)
-                .map_err(|e| APIError::internal(format!("Failed to create SMTP relay transport: {}", e).as_str()))?
+                ?
                 .port(self.config.smtp_port)
                 .credentials(creds)
                 .build()
         } else {
             SmtpTransport::relay(self.config.smtp_host.as_deref().ok_or_else(|| APIError::internal("SMTP host not configured"))?)
-                .map_err(|e| APIError::internal(format!("Failed to create SMTP relay transport: {}", e).as_str()))?
+                ?
                 .port(self.config.smtp_port)
                 .build()
         };
@@ -91,12 +91,12 @@ impl EmailService {
         let recipient = recipient_email.to_string();
 
         let email = Message::builder()
-            .from(sender.parse::<Mailbox>().map_err(|e| APIError::internal(&format!("Failed to parse sender email: {}", e)))?)
-            .to(recipient.parse::<Mailbox>().map_err(|e| APIError::internal(&format!("Failed to parse recipient email: {}", e)))?)
+            .from(sender.parse::<Mailbox>()?)
+            .to(recipient.parse::<Mailbox>()?)
             .subject("Password Reset for Skoola")
             .header(ContentType::TEXT_PLAIN)
             .body(email_body)
-            .map_err(|e| APIError::internal(&format!("Failed to build email: {}", e)))?;
+            ?;
 
         let mailer = if let (Some(username), Some(password)) = (
             &self.config.smtp_username,
@@ -104,13 +104,13 @@ impl EmailService {
         ) {
             let creds = Credentials::new(username.to_owned(), password.to_owned());
             SmtpTransport::relay(self.config.smtp_host.as_deref().ok_or_else(|| APIError::internal("SMTP host not configured"))?)
-                .map_err(|e| APIError::internal(&format!("Failed to create SMTP relay transport: {}", e)))?
+                ?
                 .port(self.config.smtp_port)
                 .credentials(creds)
                 .build()
         } else {
             SmtpTransport::relay(self.config.smtp_host.as_deref().ok_or_else(|| APIError::internal("SMTP host not configured"))?)
-                .map_err(|e| APIError::internal(&format!("Failed to create SMTP relay transport: {}", e)))?
+                ?
                 .port(self.config.smtp_port)
                 .build()
         };
@@ -141,12 +141,12 @@ impl EmailService {
         let recipient = to_email;
 
         let email = Message::builder()
-            .from(sender.parse::<Mailbox>().map_err(|e| APIError::internal(&format!("Failed to parse sender email: {}", e)))?)
-            .to(recipient.parse::<Mailbox>().map_err(|e| APIError::internal(&format!("Failed to parse recipient email: {}", e)))?)
+            .from(sender.parse::<Mailbox>()?)
+            .to(recipient.parse::<Mailbox>()?)
             .subject(subject)
             .header(ContentType::TEXT_PLAIN)
             .body(body)
-            .map_err(|e| APIError::internal(&format!("Failed to build email: {}", e)))?;
+            ?;
 
         let mailer = if let (Some(username), Some(password)) = (
             &self.config.smtp_username,
@@ -154,13 +154,13 @@ impl EmailService {
         ) {
             let creds = Credentials::new(username.to_owned(), password.to_owned());
             SmtpTransport::relay(self.config.smtp_host.as_deref().ok_or_else(|| APIError::internal("SMTP host not configured"))?)
-                .map_err(|e| APIError::internal(&format!("Failed to create SMTP relay transport: {}", e)))?
+                ?
                 .port(self.config.smtp_port)
                 .credentials(creds)
                 .build()
         } else {
             SmtpTransport::relay(self.config.smtp_host.as_deref().ok_or_else(|| APIError::internal("SMTP host not configured"))?)
-                .map_err(|e| APIError::internal(&format!("Failed to create SMTP relay transport: {}", e)))?
+                ?
                 .port(self.config.smtp_port)
                 .build()
         };

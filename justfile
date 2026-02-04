@@ -3,10 +3,13 @@ set shell := ["powershell.exe", "-Command"]
 db_user := "root"
 db_pass := "secret"
 
-dev-backend:
+dev-backend-hr:
     cd backend; $env:RUST_LOG='info'; cargo watch -x run
 
-run-server:
+dev-backend:
+    cd backend; $env:RUST_LOG='info'; cargo run
+
+run-backend:
     cd backend; $env:RUST_LOG='info'; cargo run --release
 
 check-backend:

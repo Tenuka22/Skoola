@@ -1,0 +1,12 @@
+CREATE TABLE staff_attendance (
+    id VARCHAR NOT NULL PRIMARY KEY,
+    staff_id VARCHAR NOT NULL,
+    date DATE NOT NULL,
+    status VARCHAR NOT NULL,
+    time_in TIME,
+    time_out TIME,
+    remarks VARCHAR,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (staff_id) REFERENCES staff (id) ON DELETE CASCADE
+);

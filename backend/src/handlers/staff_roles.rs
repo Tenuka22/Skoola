@@ -1,12 +1,14 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
 use diesel::prelude::*;
+use actix_web::web::Json;
 
 use crate::{
     AppState,
     database::tables::{StaffRole, Role},
     errors::APIError,
     models::staff_roles::{AssignRoleToStaffRequest, UpdateStaffRolesRequest},
+    models::MessageResponse,
     schema::{staff_roles, roles},
 };
 
@@ -14,7 +16,7 @@ pub async fn update_staff_roles(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
     body: web::Json<UpdateStaffRolesRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let staff_id_inner = staff_id.into_inner();
 
@@ -35,7 +37,7 @@ pub async fn update_staff_roles(
             .values(&new_roles)
             .execute(conn)?;
 
-        Ok(HttpResponse::Ok().finish())
+        Ok(Json(MessageResponse { message: "Staff roles updated successfully".to_string() }))
     })
 }
 
@@ -48,7 +50,7 @@ pub async fn assign_role_to_staff(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
     body: web::Json<AssignRoleToStaffRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let staff_id_inner = staff_id.into_inner();
     let role_id_inner = body.role_id.clone();
@@ -74,7 +76,7 @@ pub async fn assign_role_to_staff(
         .values(&new_staff_role)
         .execute(&mut conn)?;
 
-    Ok(HttpResponse::Ok().finish())
+    Ok(Json(MessageResponse { message: "Role assigned to staff successfully".to_string() }))
 }
 
 #[api_operation(
@@ -85,7 +87,7 @@ pub async fn assign_role_to_staff(
 pub async fn remove_role_from_staff(
     data: web::Data<AppState>,
     path: web::Path<(String, String)>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let (staff_id, role_id) = path.into_inner();
 
@@ -96,7 +98,7 @@ pub async fn remove_role_from_staff(
     )
     .execute(&mut conn)?;
 
-    Ok(HttpResponse::NoContent().finish())
+    Ok(Json(MessageResponse { message: "Role removed from staff successfully".to_string() }))
 }
 
 #[api_operation(
@@ -107,7 +109,7 @@ pub async fn remove_role_from_staff(
 pub async fn get_staff_roles(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<Role>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let roles_list = staff_roles::table
         .inner_join(roles::table)
@@ -115,5 +117,5 @@ pub async fn get_staff_roles(
         .select(Role::as_select())
         .load::<Role>(&mut conn)?;
 
-    Ok(HttpResponse::Ok().json(roles_list))
+    Ok(Json(roles_list))
 }

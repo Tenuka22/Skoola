@@ -1,8 +1,10 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
 use diesel::prelude::*;
 use uuid::Uuid;
 use chrono::Utc;
+use actix_web::web::Json;
+// use serde_json; // Removed unused import
 
 use crate::{
     AppState,
@@ -21,7 +23,7 @@ pub async fn assign_class_to_teacher(
     data: web::Data<AppState>,
     teacher_id: web::Path<String>,
     body: web::Json<AssignClassToTeacherRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<TeacherClassAssignmentResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let teacher_id_inner = teacher_id.into_inner();
 
@@ -51,7 +53,7 @@ pub async fn assign_class_to_teacher(
         .values(&new_assignment)
         .execute(&mut conn)?;
 
-    Ok(HttpResponse::Created().json(TeacherClassAssignmentResponse {
+    Ok(Json(TeacherClassAssignmentResponse {
         id: new_assignment.id,
         teacher_id: new_assignment.teacher_id,
         class_id: new_assignment.class_id,
@@ -68,7 +70,7 @@ pub async fn assign_subject_to_teacher(
     data: web::Data<AppState>,
     teacher_id: web::Path<String>,
     body: web::Json<AssignSubjectToTeacherRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<TeacherSubjectAssignmentResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let teacher_id_inner = teacher_id.into_inner();
 
@@ -98,7 +100,7 @@ pub async fn assign_subject_to_teacher(
         .values(&new_assignment)
         .execute(&mut conn)?;
 
-    Ok(HttpResponse::Created().json(TeacherSubjectAssignmentResponse {
+    Ok(Json(TeacherSubjectAssignmentResponse {
         id: new_assignment.id,
         teacher_id: new_assignment.teacher_id,
         subject_id: new_assignment.subject_id,
@@ -114,7 +116,7 @@ pub async fn assign_subject_to_teacher(
 pub async fn get_teacher_workload(
     data: web::Data<AppState>,
     teacher_id: web::Path<String>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<TeacherWorkloadResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let teacher_id_inner = teacher_id.into_inner();
 
@@ -133,7 +135,7 @@ pub async fn get_teacher_workload(
     let total_classes_assigned = assigned_classes.len() as i64;
     let total_subjects_assigned = assigned_subjects.len() as i64;
 
-    Ok(HttpResponse::Ok().json(TeacherWorkloadResponse {
+    Ok(Json(TeacherWorkloadResponse {
         teacher_id: teacher_id_inner,
         total_classes_assigned,
         total_subjects_assigned,

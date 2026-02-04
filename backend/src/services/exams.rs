@@ -47,10 +47,7 @@ pub async fn get_exam_by_id(
     let exam: Exam = exams::table
         .filter(exams::id.eq(&exam_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Exam with ID {} not found", exam_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(ExamResponse::from(exam))
 }
@@ -114,10 +111,7 @@ pub async fn update_exam(
     let updated_exam: Exam = exams::table
         .filter(exams::id.eq(&exam_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Exam with ID {} not found", exam_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(ExamResponse::from(updated_exam))
 }

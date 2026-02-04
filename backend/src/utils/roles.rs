@@ -8,9 +8,11 @@ use tracing::warn;
 use diesel::prelude::*;
 
 use crate::{
-    database::{tables::{RoleEnum}, connection::DbPool},
+    database::{tables::{RoleEnum}},
     schema::{roles, user_roles},
     utils::jwt::UserId,
+    config::AppState, // Import AppState
+    errors::APIError, // Import APIError
 };
 
 pub struct RoleVerification {
@@ -59,18 +61,16 @@ where
         let required_role = self.required_role.clone();
 
         async move {
-            let db_pool = req.app_data::<web::Data<DbPool>>().ok_or_else(|| {
-                warn!("Failed to get DbPool from app data");
-                actix_web::error::ErrorInternalServerError("Failed to get DbPool")
-            })?.clone();
+            let app_state = req.app_data::<web::Data<AppState>>().ok_or_else(|| {
+                warn!("Failed to get AppState from app data");
+                APIError::internal("Failed to get AppState")
+            })?;
+            let db_pool = app_state.db_pool.clone();
 
             let (http_req, payload) = req.parts_mut();
             let user_id = UserId::from_request(http_req, payload).await?;
             
-            let mut conn = db_pool.get().map_err(|e| {
-                warn!("Failed to get DB connection: {}", e);
-                actix_web::error::ErrorInternalServerError("Failed to get DB connection")
-            })?;
+            let mut conn = db_pool.get().map_err(APIError::from)?;
 
             let user_id_clone = user_id.0.clone();
             let user_roles = web::block(move || {
@@ -81,14 +81,8 @@ where
                     .load::<String>(&mut conn)
             })
             .await
-            .map_err(|e| {
-                warn!("DB blocking error: {}", e);
-                actix_web::error::ErrorInternalServerError("Database error")
-            })?
-            .map_err(|e| {
-                warn!("Failed to load user roles: {}", e);
-                actix_web::error::ErrorInternalServerError("Failed to load user roles")
-            })?;
+            .map_err(APIError::from)?
+            .map_err(APIError::from)?;
 
             if user_roles.contains(&required_role.to_string()) {
                 srv.call(req).await
@@ -97,7 +91,12 @@ where
                     "ACTION: User role verification failed | user_id: {} | required_role: {}",
                     user_id.0, required_role
                 );
-                Err(actix_web::error::ErrorForbidden("Insufficient permissions"))
+                Err(actix_web::Error::from(APIError::forbidden(
+                    &format!(
+                        "Insufficient permissions. Required role: {}",
+                        required_role
+                    )
+                )))
             }
         }
         .boxed_local()

@@ -87,7 +87,7 @@ where
             let data = res.request()
                 .app_data::<web::Data<AppState>>()
                 .ok_or_else(|| APIError::internal("Application state not found"))
-                .map_err(|e: APIError| actix_web::Error::from(e))?;
+                ?;
 
             let session = {
                 let extensions = res.request().extensions();
@@ -112,9 +112,7 @@ where
                 }
             }
 
-            Err(actix_web::error::ErrorForbidden(
-                "You don't have the required permission",
-            ))
+            Err(APIError::forbidden("You don't have the required permission").into())
         })
     }
 }

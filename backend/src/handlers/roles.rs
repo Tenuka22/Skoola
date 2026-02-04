@@ -1,13 +1,15 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
 use diesel::prelude::*;
 use uuid::Uuid;
+use actix_web::web::Json;
 
 use crate::{
     AppState,
     database::tables::{Role},
     errors::APIError,
     models::roles::{CreateRoleRequest, UpdateRoleRequest},
+    models::MessageResponse,
     schema::roles,
 };
 
@@ -18,10 +20,10 @@ use crate::{
 )]
 pub async fn get_roles(
     data: web::Data<AppState>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<Role>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let roles_list = roles::table.select(Role::as_select()).load(&mut conn)?;
-    Ok(HttpResponse::Ok().json(roles_list))
+    Ok(Json(roles_list))
 }
 
 #[api_operation(
@@ -32,13 +34,13 @@ pub async fn get_roles(
 pub async fn get_role(
     data: web::Data<AppState>,
     role_id: web::Path<String>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Role>, APIError> {
     let mut conn = data.db_pool.get()?;
     let role = roles::table
         .find(role_id.into_inner())
         .select(Role::as_select())
         .first(&mut conn)?;
-    Ok(HttpResponse::Ok().json(role))
+    Ok(Json(role))
 }
 
 #[api_operation(
@@ -49,7 +51,7 @@ pub async fn get_role(
 pub async fn create_role(
     data: web::Data<AppState>,
     body: web::Json<CreateRoleRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Role>, APIError> {
     let mut conn = data.db_pool.get()?;
     let new_role = Role {
         id: Uuid::new_v4().to_string(),
@@ -59,7 +61,7 @@ pub async fn create_role(
     diesel::insert_into(roles::table)
         .values(&new_role)
         .execute(&mut conn)?;
-    Ok(HttpResponse::Created().json(new_role))
+    Ok(Json(new_role))
 }
 
 #[api_operation(
@@ -71,7 +73,7 @@ pub async fn update_role(
     data: web::Data<AppState>,
     role_id: web::Path<String>,
     body: web::Json<UpdateRoleRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Role>, APIError> {
     let mut conn = data.db_pool.get()?;
     let role_id_inner = role_id.into_inner();
     diesel::update(roles::table.find(&role_id_inner))
@@ -86,7 +88,7 @@ pub async fn update_role(
         .select(Role::as_select())
         .first(&mut conn)?;
         
-    Ok(HttpResponse::Ok().json(updated_role))
+    Ok(Json(updated_role))
 }
 
 #[api_operation(
@@ -97,8 +99,8 @@ pub async fn update_role(
 pub async fn delete_role(
     data: web::Data<AppState>,
     role_id: web::Path<String>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     diesel::delete(roles::table.find(role_id.into_inner())).execute(&mut conn)?;
-    Ok(HttpResponse::NoContent().finish())
+    Ok(Json(MessageResponse { message: "Role deleted successfully".to_string() }))
 }

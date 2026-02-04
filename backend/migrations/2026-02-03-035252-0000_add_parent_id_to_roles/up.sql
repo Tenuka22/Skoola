@@ -1,0 +1,1 @@
+ALTER TABLE roles ADD COLUMN parent_id VARCHAR(36) REFERENCES roles(id);

@@ -34,7 +34,7 @@ use crate::{
             assign_class_to_teacher, assign_subject_to_teacher, get_teacher_workload,
         },
         terms, timetable,
-        verification::{resend_verification_email, verify_email},
+        verification::{verify_email},
         zscore,
     },
     utils::{jwt::Authenticated, roles::RoleVerification},
@@ -53,10 +53,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/google/callback", web::get().to(google_callback))
             .route("/github/callback", web::get().to(github_callback))
             .route("/verify-email/{token}", web::get().to(verify_email))
-            .route(
-                "/resend-verification",
-                web::post().to(resend_verification_email),
-            ),
+
     )
     .service(
         web::scope("/profile")

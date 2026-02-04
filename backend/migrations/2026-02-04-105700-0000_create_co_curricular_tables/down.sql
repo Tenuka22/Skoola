@@ -1,0 +1,13 @@
+DROP TABLE cultural_event_participants;
+DROP TABLE cultural_events;
+DROP TABLE student_achievements;
+DROP TABLE competition_participants;
+DROP TABLE competitions;
+DROP TABLE club_activities;
+DROP TABLE club_members;
+DROP TABLE clubs;
+DROP TABLE sport_event_participants;
+DROP TABLE sport_events;
+DROP TABLE sport_team_members;
+DROP TABLE sport_teams;
+DROP TABLE sports;

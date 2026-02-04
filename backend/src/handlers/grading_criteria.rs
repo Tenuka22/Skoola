@@ -4,9 +4,9 @@ use crate::errors::APIError;
 use crate::models::grading_criteria::{
     GradingCriterion, NewGradingCriterion, UpdateGradingCriterion,
 };
+use crate::models::MessageResponse;
 use crate::services::grading_criteria;
-use actix_web::web::Json;
-use actix_web::{HttpResponse, web};
+use actix_web::web::{self, Json};
 
 #[api_operation(tag = "Grading Criteria", operation_id = "create_grading_criterion")]
 pub async fn create_grading_criterion_handler(
@@ -59,9 +59,9 @@ pub async fn update_grading_criterion_handler(
 pub async fn delete_grading_criterion_handler(
     pool: web::Data<AppState>,
     path: web::Path<String>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     // Changed return type
     let criterion_id = path.into_inner();
     grading_criteria::delete_grading_criterion(pool, criterion_id).await?;
-    Ok(HttpResponse::NoContent().finish())
+    Ok(Json(MessageResponse { message: "Grading criterion deleted successfully".to_string() }))
 }

@@ -80,11 +80,7 @@ pub async fn get_timetable_entry_by_id(
 
     let entry: Timetable = timetable::table
         .filter(timetable::id.eq(&entry_id))
-        .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Timetable entry with ID {} not found", entry_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        .first(&mut conn)?;
 
     Ok(TimetableResponse::from(entry))
 }
@@ -142,11 +138,7 @@ pub async fn update_timetable_entry(
 
     let updated_entry: Timetable = timetable::table
         .filter(timetable::id.eq(&entry_id))
-        .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Timetable entry with ID {} not found", entry_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        .first(&mut conn)?;
 
     Ok(TimetableResponse::from(updated_entry))
 }

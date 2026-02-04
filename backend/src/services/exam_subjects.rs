@@ -46,10 +46,7 @@ pub async fn get_exam_subject_by_ids(
         .filter(exam_subjects::exam_id.eq(&exam_id))
         .filter(exam_subjects::subject_id.eq(&subject_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("ExamSubject with Exam ID {} and Subject ID {} not found", exam_id, subject_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(ExamSubjectResponse::from(exam_subject))
 }
@@ -138,10 +135,7 @@ pub async fn update_exam_subject(
         .filter(exam_subjects::exam_id.eq(&exam_id))
         .filter(exam_subjects::subject_id.eq(&subject_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("ExamSubject with Exam ID {} and Subject ID {} not found", exam_id, subject_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(ExamSubjectResponse::from(updated_exam_subject))
 }

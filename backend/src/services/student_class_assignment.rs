@@ -107,14 +107,7 @@ pub async fn get_current_class_of_student(
         .filter(student_class_assignments::student_id.eq(&student_id))
         .filter(student_class_assignments::to_date.is_null()) // Only active assignments
         .order(student_class_assignments::from_date.desc()) // Get the latest one if multiple exist (shouldn't if validation is strict)
-        .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!(
-                "No current class assignment found for student ID {}",
-                student_id
-            )),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        .first(&mut conn)?;
 
     Ok(StudentClassAssignmentResponse::from(current_assignment))
 }

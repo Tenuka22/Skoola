@@ -1,14 +1,16 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
 use diesel::prelude::*;
 use uuid::Uuid;
 use chrono::Utc;
+use actix_web::web::Json;
+// use serde_json; // Removed unused import
 
 use crate::{
     AppState,
     database::tables::StaffLeave,
     errors::APIError,
-    models::staff_leaves::{ApplyLeaveRequest, ApproveRejectLeaveRequest, StaffLeaveResponse, StaffLeaveChangeset},
+    models::staff_leaves::{ApplyLeaveRequest, ApproveRejectLeaveRequest, StaffLeaveResponse, StaffLeaveChangeset, LeaveBalanceResponse},
     schema::staff_leaves,
     database::enums::LeaveStatus,
 };
@@ -22,7 +24,7 @@ pub async fn apply_for_leave(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
     body: web::Json<ApplyLeaveRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<StaffLeaveResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let staff_id_inner = staff_id.into_inner();
 
@@ -46,7 +48,7 @@ pub async fn apply_for_leave(
         .values(&new_leave)
         .execute(&mut conn)?;
 
-    Ok(HttpResponse::Created().json(StaffLeaveResponse::from(new_leave)))
+    Ok(Json(StaffLeaveResponse::from(new_leave)))
 }
 
 #[api_operation(
@@ -58,7 +60,7 @@ pub async fn approve_reject_leave(
     data: web::Data<AppState>,
     leave_id: web::Path<String>,
     body: web::Json<ApproveRejectLeaveRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<StaffLeaveResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let leave_id_inner = leave_id.into_inner();
 
@@ -68,9 +70,7 @@ pub async fn approve_reject_leave(
         .select(StaffLeave::as_select())
         .first(&mut conn)?;
 
-    if existing_leave.status.parse::<LeaveStatus>()
-        .map_err(|_| APIError::internal("Invalid LeaveStatus in DB"))?
-        != LeaveStatus::Pending
+    if existing_leave.status.parse::<LeaveStatus>()? != LeaveStatus::Pending
     {
         return Err(APIError::bad_request("Only pending leave applications can be approved or rejected"));
     }
@@ -89,7 +89,7 @@ pub async fn approve_reject_leave(
         .select(StaffLeave::as_select())
         .first::<StaffLeave>(&mut conn)?;
 
-    Ok(HttpResponse::Ok().json(StaffLeaveResponse::from(updated_leave)))
+    Ok(Json(StaffLeaveResponse::from(updated_leave)))
 }
 
 #[api_operation(
@@ -100,8 +100,8 @@ pub async fn approve_reject_leave(
 pub async fn view_leave_balance(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<LeaveBalanceResponse>>, APIError> {
     let staff_id_inner = staff_id.into_inner();
     let leave_balances = crate::services::staff_leaves::get_staff_leave_balance(data.clone(), staff_id_inner).await?;
-    Ok(HttpResponse::Ok().json(leave_balances))
+    Ok(Json(leave_balances))
 }

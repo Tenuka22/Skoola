@@ -1,12 +1,14 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
+use actix_web::web::Json;
 
-use crate::{
-    AppState,
-    errors::APIError,
-    models::class_subject_teacher::{CreateClassSubjectTeacherRequest, UpdateClassSubjectTeacherRequest},
-    services::class_subject_teacher,
-};
+use crate::AppState;
+use crate::errors::APIError;
+use crate::models::class_subject_teacher::{CreateClassSubjectTeacherRequest, UpdateClassSubjectTeacherRequest, ClassSubjectTeacherResponse};
+use crate::models::class::ClassResponse;
+use crate::models::subject::SubjectResponse;
+use crate::models::MessageResponse;
+use crate::services::class_subject_teacher;
 
 #[api_operation(
     summary = "Assign Subject and Teacher to Class",
@@ -16,9 +18,9 @@ use crate::{
 pub async fn assign_subject_teacher_to_class(
     data: web::Data<AppState>,
     body: web::Json<CreateClassSubjectTeacherRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<ClassSubjectTeacherResponse>, APIError> {
     let new_assignment = class_subject_teacher::assign_subject_teacher_to_class(data.clone(), body.into_inner()).await?;
-    Ok(HttpResponse::Created().json(new_assignment))
+    Ok(Json(new_assignment))
 }
 
 #[api_operation(
@@ -30,7 +32,7 @@ pub async fn update_subject_teacher_assignment(
     data: web::Data<AppState>,
     path: web::Path<(String, String, String)>, // (class_id, subject_id, academic_year_id)
     body: web::Json<UpdateClassSubjectTeacherRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<ClassSubjectTeacherResponse>, APIError> {
     let (class_id, subject_id, academic_year_id) = path.into_inner();
     let updated_assignment = class_subject_teacher::update_subject_teacher_assignment(
         data.clone(),
@@ -40,7 +42,7 @@ pub async fn update_subject_teacher_assignment(
         body.into_inner(),
     )
     .await?;
-    Ok(HttpResponse::Ok().json(updated_assignment))
+    Ok(Json(updated_assignment))
 }
 
 #[api_operation(
@@ -51,7 +53,7 @@ pub async fn update_subject_teacher_assignment(
 pub async fn remove_subject_teacher_assignment(
     data: web::Data<AppState>,
     path: web::Path<(String, String, String, String)>, // (class_id, subject_id, teacher_id, academic_year_id)
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let (class_id, subject_id, teacher_id, academic_year_id) = path.into_inner();
     class_subject_teacher::remove_subject_teacher_assignment(
         data.clone(),
@@ -61,7 +63,7 @@ pub async fn remove_subject_teacher_assignment(
         academic_year_id,
     )
     .await?;
-    Ok(HttpResponse::NoContent().finish())
+    Ok(Json(MessageResponse { message: "Assignment removed successfully".to_string() }))
 }
 
 #[api_operation(
@@ -72,10 +74,10 @@ pub async fn remove_subject_teacher_assignment(
 pub async fn get_subjects_by_class(
     data: web::Data<AppState>,
     path: web::Path<(String, String)>, // (class_id, academic_year_id)
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<SubjectResponse>>, APIError> {
     let (class_id, academic_year_id) = path.into_inner();
     let subjects = class_subject_teacher::get_subjects_by_class(data.clone(), class_id, academic_year_id).await?;
-    Ok(HttpResponse::Ok().json(subjects))
+    Ok(Json(subjects))
 }
 
 #[api_operation(
@@ -86,8 +88,8 @@ pub async fn get_subjects_by_class(
 pub async fn get_classes_by_teacher(
     data: web::Data<AppState>,
     path: web::Path<(String, String)>, // (teacher_id, academic_year_id)
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<ClassResponse>>, APIError> {
     let (teacher_id, academic_year_id) = path.into_inner();
     let classes = class_subject_teacher::get_classes_by_teacher(data.clone(), teacher_id, academic_year_id).await?;
-    Ok(HttpResponse::Ok().json(classes))
+    Ok(Json(classes))
 }

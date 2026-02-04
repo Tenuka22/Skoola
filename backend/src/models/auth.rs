@@ -1,4 +1,5 @@
 use apistos::ApiComponent;
+use chrono::NaiveDateTime;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -21,6 +22,8 @@ pub struct UserResponse {
     pub id: String,
     pub email: String,
     pub is_verified: bool,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 impl From<User> for UserResponse {
@@ -29,6 +32,8 @@ impl From<User> for UserResponse {
             id: user.id.to_string(),
             email: user.email,
             is_verified: user.is_verified,
+            created_at: user.created_at,
+            updated_at: user.updated_at,
         }
     }
 }

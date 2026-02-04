@@ -1,15 +1,17 @@
 use crate::errors::APIError;
-use actix_web::{HttpResponse, http::StatusCode};
+use actix_web::web::Json;
 use apistos::api_operation;
+use actix_web::http::StatusCode;
+use crate::models::MessageResponse;
 
 #[api_operation(summary = "Get welcome message", tag = "Home")]
-pub async fn hello() -> Result<HttpResponse, APIError> {
+pub async fn hello() -> Result<Json<MessageResponse>, APIError> {
     tracing::info!("✅ Hello endpoint called");
 
-    Ok(HttpResponse::Ok().body("Hey there!"))
+    Ok(Json(MessageResponse { message: "Hey there!".to_string() }))
 }
 #[api_operation(summary = "Get welcome error", tag = "Home")]
-pub async fn hello_error() -> Result<HttpResponse, APIError> {
+pub async fn hello_error() -> Result<Json<MessageResponse>, APIError> {
     tracing::info!("✅ Hello error endpoint called");
 
     return Err(APIError::new(

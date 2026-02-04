@@ -1,18 +1,29 @@
+use actix_multipart::MultipartError;
 use actix_web::{
     HttpResponse,
-    error::{ResponseError, BlockingError},
+    error::{BlockingError, ResponseError},
     http::{StatusCode, header::ContentType},
 };
-use actix_multipart::MultipartError;
 
 use apistos::ApiErrorComponent;
 use derive_more::{Display, Error};
+use anyhow::Error as AnyhowError;
 use diesel::result::Error as DieselError;
+use r2d2::Error as R2d2Error;
 use schemars::JsonSchema;
 use serde::{Serialize, Serializer};
 use serde_json::json;
 use tracing::error;
-use r2d2::Error as R2d2Error;
+
+// New use statements for error types
+use reqwest::Error as ReqwestError;
+use lettre::address::AddressError;
+use lettre::error::Error as LettreError;
+use lettre::transport::smtp::Error as SmtpError;
+use bcrypt::BcryptError;
+use jsonwebtoken::errors::Error as JwtError;
+use std::num::ParseIntError;
+use std::env::VarError;
 
 fn serialize_status_code_as_u16<S>(
     status_code: &StatusCode,
@@ -90,6 +101,22 @@ impl APIError {
             StatusCode::INTERNAL_SERVER_ERROR,
         )
     }
+
+    pub fn unprocessable_entity(message: &str) -> Self {
+        Self::new(
+            "UnprocessableEntity",
+            message,
+            StatusCode::UNPROCESSABLE_ENTITY,
+        )
+    }
+
+    pub fn service_unavailable(message: &str) -> Self {
+        Self::new(
+            "ServiceUnavailable",
+            message,
+            StatusCode::SERVICE_UNAVAILABLE,
+        )
+    }
 }
 
 impl ResponseError for APIError {
@@ -117,7 +144,14 @@ impl From<APIError> for std::io::Error {
 impl From<DieselError> for APIError {
     fn from(error: DieselError) -> Self {
         error!("Database error: {:?}", error);
-        APIError::internal("An internal database error occurred.")
+        match error {
+            DieselError::NotFound => APIError::not_found("Resource not found."),
+            DieselError::DatabaseError(_, info) => {
+                error!("Database error details: {}", info.message());
+                APIError::internal("An internal database error occurred.")
+            }
+            _ => APIError::internal("An internal database error occurred."),
+        }
     }
 }
 
@@ -146,5 +180,91 @@ impl From<R2d2Error> for APIError {
     fn from(error: R2d2Error) -> Self {
         error!("Database connection pool error: {:?}", error);
         APIError::internal("Failed to get database connection.")
+    }
+}
+
+impl From<actix_web::Error> for APIError {
+    fn from(error: actix_web::Error) -> Self {
+        error!("Actix-web error: {:?}", error);
+
+        let status_code = error.as_response_error().status_code();
+
+        match status_code {
+            StatusCode::UNAUTHORIZED => APIError::unauthorized("Authentication failed."),
+            StatusCode::FORBIDDEN => APIError::forbidden("Access denied."),
+            StatusCode::NOT_FOUND => APIError::not_found("Resource not found."),
+            StatusCode::BAD_REQUEST => APIError::bad_request("Bad request."),
+            _ => APIError::internal("An internal error occurred."),
+        }
+    }
+}
+
+impl From<&'static str> for APIError {
+    fn from(error: &'static str) -> Self {
+        error!("Static string error: {:?}", error);
+        APIError::internal(error)
+    }
+}
+
+impl From<AnyhowError> for APIError {
+    fn from(error: AnyhowError) -> Self {
+        APIError::internal(&format!("Internal service error: {}", error))
+    }
+}
+
+// New implementations for various error types
+impl From<ReqwestError> for APIError {
+    fn from(error: ReqwestError) -> Self {
+        error!("Reqwest error: {:?}", error);
+        APIError::internal(&format!("External service request failed: {}", error))
+    }
+}
+
+impl From<AddressError> for APIError {
+    fn from(error: AddressError) -> Self {
+        error!("Lettre Address error: {:?}", error);
+        APIError::bad_request(&format!("Invalid email address: {}", error))
+    }
+}
+
+impl From<LettreError> for APIError {
+    fn from(error: LettreError) -> Self {
+        error!("Lettre error: {:?}", error);
+        APIError::internal(&format!("Email composition error: {}", error))
+    }
+}
+
+impl From<SmtpError> for APIError {
+    fn from(error: SmtpError) -> Self {
+        error!("Lettre SMTP error: {:?}", error);
+        APIError::internal(&format!("SMTP transport error: {}", error))
+    }
+}
+
+impl From<BcryptError> for APIError {
+    fn from(error: BcryptError) -> Self {
+        error!("Bcrypt error: {:?}", error);
+        APIError::internal("Password hashing failed.")
+    }
+}
+
+impl From<JwtError> for APIError {
+    fn from(error: JwtError) -> Self {
+        error!("JWT error: {:?}", error);
+        APIError::unauthorized(&format!("Invalid token: {}", error))
+    }
+}
+
+impl From<ParseIntError> for APIError {
+    fn from(error: ParseIntError) -> Self {
+        error!("ParseInt error: {:?}", error);
+        APIError::bad_request(&format!("Invalid number format: {}", error))
+    }
+}
+
+impl From<VarError> for APIError {
+    fn from(error: VarError) -> Self {
+        error!("Env Var error: {:?}", error);
+        APIError::internal(&format!("Missing environment variable: {}", error))
     }
 }

@@ -1,4 +1,4 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -7,12 +7,14 @@ use actix_multipart::Multipart;
 use futures_util::stream::{StreamExt, TryStreamExt};
 use std::io::Write;
 use std::fs::create_dir_all;
+use actix_web::web::Json;
 
 use crate::{
     AppState,
     database::tables::{Staff},
     errors::APIError,
     models::staff::{CreateStaffRequest, StaffChangeset, UpdateStaffRequest, StaffResponse, StaffQuery},
+    models::MessageResponse,
     schema::staff,
     utils::validation::{is_valid_email, is_valid_nic, is_valid_phone},
 };
@@ -26,7 +28,7 @@ pub async fn upload_staff_photo(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
     mut payload: Multipart,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<StaffResponse>, APIError> {
     let staff_id_inner = staff_id.into_inner();
     let mut conn = data.db_pool.get()?;
 
@@ -68,7 +70,7 @@ pub async fn upload_staff_photo(
             .select(Staff::as_select())
             .first::<Staff>(&mut conn)?;
 
-        Ok(HttpResponse::Ok().json(StaffResponse::from(updated_staff)))
+        Ok(Json(StaffResponse::from(updated_staff)))
     } else {
         Err(APIError::bad_request("No file was uploaded"))
     }
@@ -82,7 +84,7 @@ pub async fn upload_staff_photo(
 pub async fn get_all_staff(
     data: web::Data<AppState>,
     query: web::Query<StaffQuery>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<StaffResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let mut staff_query = staff::table.into_boxed();
 
@@ -105,7 +107,7 @@ pub async fn get_all_staff(
         .select(Staff::as_select())
         .load::<Staff>(&mut conn)?;
 
-    Ok(HttpResponse::Ok().json(staff_list.into_iter().map(StaffResponse::from).collect::<Vec<_>>()))
+    Ok(Json(staff_list.into_iter().map(StaffResponse::from).collect::<Vec<_>>()))
 }
 
 #[api_operation(
@@ -116,14 +118,14 @@ pub async fn get_all_staff(
 pub async fn get_staff_by_id(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<StaffResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let staff_member = staff::table
         .find(staff_id.into_inner())
         .select(Staff::as_select())
         .first::<Staff>(&mut conn)?;
 
-    Ok(HttpResponse::Ok().json(StaffResponse::from(staff_member)))
+    Ok(Json(StaffResponse::from(staff_member)))
 }
 
 #[api_operation(
@@ -134,7 +136,7 @@ pub async fn get_staff_by_id(
 pub async fn create_staff(
     data: web::Data<AppState>,
     body: web::Json<CreateStaffRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<StaffResponse>, APIError> {
     if !is_valid_email(&body.email) {
         return Err(APIError::bad_request("Invalid email format"));
     }
@@ -180,7 +182,7 @@ pub async fn create_staff(
         .values(&new_staff)
         .execute(&mut conn)?;
 
-    Ok(HttpResponse::Created().json(StaffResponse::from(new_staff)))
+    Ok(Json(StaffResponse::from(new_staff)))
 }
 
 #[api_operation(
@@ -192,7 +194,7 @@ pub async fn update_staff(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
     body: web::Json<UpdateStaffRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<StaffResponse>, APIError> {
     if let Some(ref email) = body.email {
         if !is_valid_email(email) {
             return Err(APIError::bad_request("Invalid email format"));
@@ -257,7 +259,7 @@ pub async fn update_staff(
         .select(Staff::as_select())
         .first::<Staff>(&mut conn)?;
 
-    Ok(HttpResponse::Ok().json(StaffResponse::from(updated_staff)))
+    Ok(Json(StaffResponse::from(updated_staff)))
 }
 
 #[api_operation(
@@ -268,9 +270,9 @@ pub async fn update_staff(
 pub async fn delete_staff(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     diesel::delete(staff::table.find(staff_id.into_inner()))
         .execute(&mut conn)?;
-    Ok(HttpResponse::NoContent().finish())
+    Ok(Json(MessageResponse { message: "Staff member deleted successfully".to_string() }))
 }

@@ -1,10 +1,12 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
+use actix_web::web::Json;
 
 use crate::{
     AppState,
     errors::APIError,
-    models::student_guardian::{CreateStudentGuardianRequest, UpdateStudentGuardianRequest},
+    models::student_guardian::{CreateStudentGuardianRequest, UpdateStudentGuardianRequest, StudentGuardianResponse},
+    models::MessageResponse,
     services::student_guardian,
 };
 
@@ -17,10 +19,10 @@ pub async fn add_guardian_to_student(
     data: web::Data<AppState>,
     path: web::Path<String>,
     body: web::Json<CreateStudentGuardianRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<StudentGuardianResponse>, APIError> {
     let student_id = path.into_inner();
     let new_guardian = student_guardian::add_guardian_to_student(data.clone(), student_id, body.into_inner()).await?;
-    Ok(HttpResponse::Created().json(new_guardian))
+    Ok(Json(new_guardian))
 }
 
 #[api_operation(
@@ -32,7 +34,7 @@ pub async fn update_guardian_information(
     data: web::Data<AppState>,
     path: web::Path<(String, String)>,
     body: web::Json<UpdateStudentGuardianRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<StudentGuardianResponse>, APIError> {
     let (student_id, guardian_id) = path.into_inner();
     let updated_guardian = student_guardian::update_guardian_info(
         data.clone(),
@@ -41,7 +43,7 @@ pub async fn update_guardian_information(
         body.into_inner(),
     )
     .await?;
-    Ok(HttpResponse::Ok().json(updated_guardian))
+    Ok(Json(updated_guardian))
 }
 
 #[api_operation(
@@ -52,10 +54,10 @@ pub async fn update_guardian_information(
 pub async fn remove_guardian_from_student(
     data: web::Data<AppState>,
     path: web::Path<(String, String)>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let (student_id, guardian_id) = path.into_inner();
     student_guardian::remove_guardian_from_student(data.clone(), student_id, guardian_id).await?;
-    Ok(HttpResponse::NoContent().finish())
+    Ok(Json(MessageResponse { message: "Guardian removed successfully".to_string() }))
 }
 
 #[api_operation(
@@ -66,8 +68,8 @@ pub async fn remove_guardian_from_student(
 pub async fn get_all_guardians_for_student(
     data: web::Data<AppState>,
     path: web::Path<String>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<StudentGuardianResponse>>, APIError> {
     let student_id = path.into_inner();
     let guardians = student_guardian::get_all_guardians_for_student(data.clone(), student_id).await?;
-    Ok(HttpResponse::Ok().json(guardians))
+    Ok(Json(guardians))
 }

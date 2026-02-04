@@ -1,8 +1,10 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
 use diesel::prelude::*;
 use uuid::Uuid;
 use chrono::{Utc, NaiveDate, Days};
+use actix_web::web::Json;
+// use serde_json; // Removed unused import
 
 use crate::{
     AppState,
@@ -21,7 +23,7 @@ pub async fn mark_staff_attendance_daily(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
     body: web::Json<MarkStaffAttendanceRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<StaffAttendanceResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let staff_id_inner = staff_id.into_inner();
 
@@ -30,8 +32,7 @@ pub async fn mark_staff_attendance_daily(
         .filter(staff_attendance::staff_id.eq(&staff_id_inner))
         .filter(staff_attendance::date.eq(&body.date))
         .select(StaffAttendance::as_select())
-        .first(&mut conn)
-        .optional()?;
+        .first(&mut conn).optional()?;
 
     if existing_attendance.is_some() {
         return Err(APIError::conflict("Attendance already marked for this staff member on this date"));
@@ -53,7 +54,7 @@ pub async fn mark_staff_attendance_daily(
         .values(&new_attendance)
         .execute(&mut conn)?;
 
-    Ok(HttpResponse::Created().json(StaffAttendanceResponse::from(new_attendance)))
+    Ok(Json(StaffAttendanceResponse::from(new_attendance)))
 }
 
 #[api_operation(
@@ -64,7 +65,7 @@ pub async fn mark_staff_attendance_daily(
 pub async fn mark_bulk_staff_attendance(
     data: web::Data<AppState>,
     body: web::Json<BulkMarkStaffAttendanceRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<StaffAttendanceResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let mut new_attendance_records = Vec::new();
     let mut conflicts = Vec::new();
@@ -75,8 +76,7 @@ pub async fn mark_bulk_staff_attendance(
             .filter(staff_attendance::staff_id.eq(&item.staff_id))
             .filter(staff_attendance::date.eq(&body.date))
             .select(StaffAttendance::as_select())
-            .first(&mut conn)
-            .optional()?;
+            .first(&mut conn).optional()?;
 
         if existing_attendance.is_some() {
             conflicts.push(item.staff_id.clone());
@@ -102,7 +102,7 @@ pub async fn mark_bulk_staff_attendance(
     }
 
     if conflicts.is_empty() {
-        Ok(HttpResponse::Created().json(new_attendance_records.into_iter().map(StaffAttendanceResponse::from).collect::<Vec<_>>()))
+        Ok(Json(new_attendance_records.into_iter().map(StaffAttendanceResponse::from).collect::<Vec<_>>()))
     } else {
         let error_message = format!("Attendance already marked for staff IDs: {:?}", conflicts);
         Err(APIError::conflict(&error_message))
@@ -118,7 +118,7 @@ pub async fn update_staff_attendance(
     data: web::Data<AppState>,
     attendance_id: web::Path<String>,
     body: web::Json<UpdateStaffAttendanceRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<StaffAttendanceResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let attendance_id_inner = attendance_id.into_inner();
 
@@ -139,7 +139,7 @@ pub async fn update_staff_attendance(
         .select(StaffAttendance::as_select())
         .first::<StaffAttendance>(&mut conn)?;
 
-    Ok(HttpResponse::Ok().json(StaffAttendanceResponse::from(updated_attendance)))
+    Ok(Json(StaffAttendanceResponse::from(updated_attendance)))
 }
 
 #[api_operation(
@@ -150,7 +150,7 @@ pub async fn update_staff_attendance(
 pub async fn get_staff_attendance_by_date(
     data: web::Data<AppState>,
     query: web::Query<StaffAttendanceDateQuery>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<StaffAttendanceResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
 
     let attendance_list = staff_attendance::table
@@ -158,7 +158,7 @@ pub async fn get_staff_attendance_by_date(
         .select(StaffAttendance::as_select())
         .load::<StaffAttendance>(&mut conn)?;
 
-    Ok(HttpResponse::Ok().json(attendance_list.into_iter().map(StaffAttendanceResponse::from).collect::<Vec<_>>()))
+    Ok(Json(attendance_list.into_iter().map(StaffAttendanceResponse::from).collect::<Vec<_>>()))
 }
 
 #[api_operation(
@@ -170,7 +170,7 @@ pub async fn get_staff_attendance_by_staff_member(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
     query: web::Query<StaffAttendanceByStaffQuery>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<StaffAttendanceResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let staff_id_inner = staff_id.into_inner();
     let mut attendance_query = staff_attendance::table.into_boxed();
@@ -188,7 +188,7 @@ pub async fn get_staff_attendance_by_staff_member(
         .select(StaffAttendance::as_select())
         .load::<StaffAttendance>(&mut conn)?;
 
-    Ok(HttpResponse::Ok().json(attendance_list.into_iter().map(StaffAttendanceResponse::from).collect::<Vec<_>>()))
+    Ok(Json(attendance_list.into_iter().map(StaffAttendanceResponse::from).collect::<Vec<_>>()))
 }
 
 #[api_operation(
@@ -200,7 +200,7 @@ pub async fn calculate_monthly_attendance_percentage(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
     path_info: web::Path<(i32, u32)>, // (year, month)
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MonthlyAttendancePercentageResponse>, APIError> {
     let (year, month) = path_info.into_inner();
     let staff_id_inner = staff_id.into_inner();
     let mut conn = data.db_pool.get()?;
@@ -234,7 +234,7 @@ pub async fn calculate_monthly_attendance_percentage(
         0.0
     };
 
-    Ok(HttpResponse::Ok().json(MonthlyAttendancePercentageResponse {
+    Ok(Json(MonthlyAttendancePercentageResponse {
         staff_id: staff_id_inner,
         month,
         year,

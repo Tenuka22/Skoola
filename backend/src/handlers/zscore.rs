@@ -1,12 +1,14 @@
 use crate::models::zscore::CalculateZScoreRequest;
-use actix_web::{HttpResponse, Responder};
 use apistos::api_operation;
 use apistos::web as api_web;
+use actix_web::web::Json;
+use crate::errors::APIError;
+use crate::models::MessageResponse;
 
 #[api_operation(summary = "Calculate Z-Scores", tag = "zscore")]
-pub async fn calculate_zscores(_req: actix_web::web::Json<CalculateZScoreRequest>) -> impl Responder {
+pub async fn calculate_zscores(_req: actix_web::web::Json<CalculateZScoreRequest>) -> Result<Json<MessageResponse>, APIError> {
     // Placeholder logic
-    HttpResponse::Ok().json("Z-Scores calculation started")
+    Ok(Json(MessageResponse { message: "Z-Scores calculation started".to_string() }))
 }
 
 pub fn config(cfg: &mut api_web::ServiceConfig) {

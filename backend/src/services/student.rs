@@ -83,10 +83,7 @@ pub async fn get_student_by_id(
         .filter(students::id.eq(&student_id))
         .select(Student::as_select())
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Student with ID {} not found", student_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(StudentResponse::from(student))
 }

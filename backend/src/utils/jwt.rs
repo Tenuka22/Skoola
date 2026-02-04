@@ -6,16 +6,18 @@ use actix_web::{
 use futures_util::future::{Ready, ok};
 use std::future::Future;
 use std::pin::Pin;
+use std::rc::Rc;
 use tracing::{info, warn};
 
-use crate::{config::Config, database::tables::RoleEnum, services::auth::decode_jwt};
+use crate::config::AppState;
 use crate::errors::APIError;
+use crate::{database::tables::RoleEnum, services::auth::decode_jwt}; // Import AppState
 
 pub struct Authenticated;
 
 impl<S, B> Transform<S, ServiceRequest> for Authenticated
 where
-    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
     S::Future: 'static,
     B: 'static,
 {
@@ -26,17 +28,19 @@ where
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
 
     fn new_transform(&self, service: S) -> Self::Future {
-        ok(AuthenticatedMiddleware { service })
+        ok(AuthenticatedMiddleware {
+            service: Rc::new(service),
+        })
     }
 }
 
 pub struct AuthenticatedMiddleware<S> {
-    service: S,
+    service: Rc<S>,
 }
 
 impl<S, B> Service<ServiceRequest> for AuthenticatedMiddleware<S>
 where
-    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
     S::Future: 'static,
     B: 'static,
 {
@@ -47,17 +51,16 @@ where
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        let fut = self.service.call(req);
+        let srv = self.service.clone();
 
         Box::pin(async move {
-            let res = fut.await?;
+            let app_state = req
+                .app_data::<web::Data<AppState>>()
+                .ok_or_else(|| APIError::internal("Application state not found"))
+                ?;
+            let config = app_state.config.clone();
 
-            let config = res.request()
-                .app_data::<web::Data<Config>>()
-                .ok_or_else(|| APIError::internal("Application configuration not found"))
-                .map_err(|e: APIError| actix_web::Error::from(e))?;
-
-            let token = res.request()
+            let token = req
                 .headers()
                 .get("Authorization")
                 .and_then(|h| h.to_str().ok())
@@ -67,25 +70,26 @@ where
                 match decode_jwt(token, &config) {
                     Ok(claims) => {
                         let user_id = claims.sub.clone();
-                        let user_role = claims.role.parse::<RoleEnum>().unwrap_or_else(|_| RoleEnum::Guest);
+                        let user_role = claims
+                            .role
+                            .parse::<RoleEnum>()
+                            .unwrap_or_else(|_| RoleEnum::Guest);
                         info!(
                             "ACTION: JWT decoded successfully | user_id: {} | role: {:?}",
                             user_id, user_role
                         );
-                        res.request().extensions_mut().insert(UserId(user_id));
-                        res.request().extensions_mut().insert(UserRole(user_role));
-                        Ok(res)
+                        req.extensions_mut().insert(UserId(user_id));
+                        req.extensions_mut().insert(UserRole(user_role));
+                        srv.call(req).await
                     }
                     Err(e) => {
                         warn!("ACTION: JWT decoding failed | reason: {:?}", e);
-                        Err(actix_web::error::ErrorUnauthorized("Invalid token"))
+                        Err(APIError::unauthorized("Invalid token").into())
                     }
                 }
             } else {
                 warn!("ACTION: Missing or invalid Authorization header");
-                Err(actix_web::error::ErrorUnauthorized(
-                    "Missing or invalid token",
-                ))
+                Err(APIError::unauthorized("Missing or invalid token").into())
             }
         })
     }

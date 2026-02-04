@@ -1,15 +1,19 @@
-use diesel::{Queryable, Insertable, AsChangeset};
+use diesel::{Queryable, Insertable, AsChangeset, Selectable};
 use serde::{Serialize, Deserialize};
 use schemars::JsonSchema;
 use apistos::ApiComponent;
+use chrono::NaiveDateTime;
 
 
-#[derive(Debug, Clone, Queryable, Serialize, Deserialize, JsonSchema, ApiComponent)]
+#[derive(Debug, Clone, Queryable, Selectable, Serialize, Deserialize, JsonSchema, ApiComponent)]
+#[diesel(table_name = crate::schema::grading_schemes)]
 pub struct GradingScheme {
     pub id: String,
     pub name: String,
     pub grade_level: String,
     pub description: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Insertable, Serialize, Deserialize, JsonSchema, ApiComponent)]

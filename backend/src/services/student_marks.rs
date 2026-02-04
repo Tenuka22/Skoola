@@ -14,19 +14,7 @@ use uuid::Uuid;
 use chrono::Utc;
 use crate::schema::{student_marks, student_class_assignments, students, exam_subjects};
 
-// Helper function to map Diesel NotFound errors to specific APIErrors
-fn map_diesel_not_found_to_api_error(e: diesel::result::Error, msg: &str, is_bad_request: bool) -> APIError {
-    match e {
-        diesel::result::Error::NotFound => {
-            if is_bad_request {
-                APIError::bad_request(msg)
-            } else {
-                APIError::not_found(msg)
-            }
-        },
-        _ => APIError::from(e), // Use the generic From<DieselError> for other errors
-    }
-}
+
 
 // Service to create a new StudentMark
 pub async fn create_student_mark(
@@ -40,8 +28,7 @@ pub async fn create_student_mark(
     let exam_subject: ExamSubject = exam_subjects::table
         .filter(exam_subjects::exam_id.eq(&new_student_mark_request.exam_id))
         .filter(exam_subjects::subject_id.eq(&new_student_mark_request.subject_id))
-        .first(&mut conn)
-        .map_err(|e| map_diesel_not_found_to_api_error(e, &format!("ExamSubject with Exam ID {} and Subject ID {} not found", new_student_mark_request.exam_id, new_student_mark_request.subject_id), true))?;
+        .first(&mut conn)?;
 
     // Validate marks_obtained
     if new_student_mark_request.marks_obtained < 0 || new_student_mark_request.marks_obtained > exam_subject.max_marks {
@@ -67,7 +54,7 @@ pub async fn create_student_mark(
     diesel::insert_into(student_marks::table)
         .values(&new_student_mark)
         .execute(&mut conn)
-        .map_err(APIError::from)?;
+?;
 
     Ok(StudentMarkResponse::from(new_student_mark))
 }
@@ -81,8 +68,7 @@ pub async fn get_student_mark_by_id(
 
     let student_mark: StudentMark = student_marks::table
         .filter(student_marks::id.eq(&student_mark_id))
-        .first(&mut conn)
-        .map_err(|e| map_diesel_not_found_to_api_error(e, &format!("Student Mark with ID {} not found", student_mark_id), false))?;
+        .first(&mut conn)?;
 
     Ok(StudentMarkResponse::from(student_mark))
 }
@@ -96,7 +82,7 @@ pub async fn get_all_student_marks(
     let student_marks_list: Vec<StudentMark> = student_marks::table
         .order(student_marks::entered_at.desc())
         .load::<StudentMark>(&mut conn)
-        .map_err(APIError::from)?;
+?;
 
     let responses: Vec<StudentMarkResponse> = student_marks_list
         .into_iter()
@@ -117,7 +103,7 @@ pub async fn get_student_marks_by_student_id(
         .filter(student_marks::student_id.eq(&student_id))
         .order(student_marks::entered_at.desc())
         .load::<StudentMark>(&mut conn)
-        .map_err(APIError::from)?;
+?;
 
     let responses: Vec<StudentMarkResponse> = student_marks_list
         .into_iter()
@@ -139,16 +125,14 @@ pub async fn update_student_mark(
     // Fetch the existing StudentMark to get exam_id and subject_id
     let existing_student_mark: StudentMark = student_marks::table
         .filter(student_marks::id.eq(&student_mark_id))
-        .first(&mut conn)
-        .map_err(|e| map_diesel_not_found_to_api_error(e, &format!("Student Mark with ID {} not found", student_mark_id), false))?;
+        .first(&mut conn)?;
 
     if let Some(marks_obtained) = update_request.marks_obtained {
         // Fetch the ExamSubject to get max_marks for validation
         let exam_subject: ExamSubject = exam_subjects::table
             .filter(exam_subjects::exam_id.eq(&existing_student_mark.exam_id))
             .filter(exam_subjects::subject_id.eq(&existing_student_mark.subject_id))
-            .first(&mut conn)
-            .map_err(|e| map_diesel_not_found_to_api_error(e, &format!("ExamSubject for Exam ID {} and Subject ID {} not found", existing_student_mark.exam_id, existing_student_mark.subject_id), true))?;
+            .first(&mut conn)?;
 
         // Validate marks_obtained
         if marks_obtained < 0 || marks_obtained > exam_subject.max_marks {
@@ -165,7 +149,7 @@ pub async fn update_student_mark(
             student_marks::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)
-        .map_err(APIError::from)?;
+?;
 
     if updated_count == 0 {
         return Err(APIError::not_found(&format!("Student Mark with ID {} not found", student_mark_id)));
@@ -173,8 +157,7 @@ pub async fn update_student_mark(
 
     let updated_student_mark: StudentMark = student_marks::table
         .filter(student_marks::id.eq(&student_mark_id))
-        .first(&mut conn)
-        .map_err(|e| map_diesel_not_found_to_api_error(e, &format!("Student Mark with ID {} not found", student_mark_id), false))?;
+        .first(&mut conn)?;
 
     Ok(StudentMarkResponse::from(updated_student_mark))
 }
@@ -189,7 +172,7 @@ pub async fn delete_student_mark(
     let deleted_count = diesel::delete(student_marks::table)
         .filter(student_marks::id.eq(&student_mark_id))
         .execute(&mut conn)
-        .map_err(APIError::from)?;
+?;
 
     if deleted_count == 0 {
         return Err(APIError::not_found(&format!("Student Mark with ID {} not found", student_mark_id)));
@@ -213,8 +196,7 @@ pub async fn bulk_create_student_marks(
             let exam_subject: ExamSubject = exam_subjects::table
                 .filter(exam_subjects::exam_id.eq(&req.exam_id))
                 .filter(exam_subjects::subject_id.eq(&req.subject_id))
-                .first(conn)
-                .map_err(|e| map_diesel_not_found_to_api_error(e, &format!("ExamSubject with Exam ID {} and Subject ID {} not found", req.exam_id, req.subject_id), true))?;
+                .first(conn)?;
 
             // Validate marks_obtained
             if req.marks_obtained < 0 || req.marks_obtained > exam_subject.max_marks {
@@ -242,13 +224,11 @@ pub async fn bulk_create_student_marks(
             diesel::insert_into(student_marks::table)
                 .values(&new_student_mark)
                 .execute(conn)
-                .map_err(APIError::from)?;
+        ?;
 
             created_marks.push(StudentMarkResponse::from(new_student_mark));
         }
         Ok(())
-    }).map_err(|e: APIError| { // The transaction now returns APIError directly
-        e // Return the APIError directly
     })?;
 
 
@@ -273,7 +253,7 @@ pub async fn get_student_marks_by_exam_and_class(
         .select(student_marks::all_columns)
         .order(student_marks::student_id.asc())
         .load::<StudentMark>(&mut conn)
-        .map_err(APIError::from)?;
+?;
 
     let responses: Vec<StudentMarkResponse> = student_marks_list
         .into_iter()

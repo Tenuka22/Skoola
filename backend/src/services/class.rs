@@ -46,10 +46,7 @@ pub async fn get_class_by_id(
     let class: Class = classes::table
         .filter(classes::id.eq(&class_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Class with ID {} not found", class_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(ClassResponse::from(class))
 }
@@ -91,10 +88,7 @@ pub async fn update_class(
     let updated_class: Class = classes::table
         .filter(classes::id.eq(&class_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!("Class with ID {} not found", class_id)),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(ClassResponse::from(updated_class))
 }

@@ -1,0 +1,148 @@
+﻿cargo :     Checking backend v0.1.0 
+(D:\Projects\Skoola\backend)
+At line:1 char:1
++ cargo check > cargo_check_output_v4.txt 2>&1; 
+Get-Content cargo_check ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (    C 
+   hecking ba...Skoola\backend):String) [], Remot  
+  eException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+error[E0425]: cannot find type `MessageResponse` 
+in this scope
+   --> src\handlers\fees.rs:242:23
+    |
+242 | ) -> Result<web::Json<MessageResponse>, 
+APIError> {
+    |                       ^^^^^^^^^^^^^^^ not 
+found in this scope
+    |
+help: consider importing this struct
+    |
+  1 + use crate::models::MessageResponse;
+    |
+
+error[E0422]: cannot find struct, variant or union 
+type `MessageResponse` in this scope
+   --> src\handlers\fees.rs:245:18
+    |
+245 |     Ok(web::Json(MessageResponse { message: 
+format!("Successfully assigned fees to {} 
+students", count) }))
+    |                  ^^^^^^^^^^^^^^^ not found 
+in this scope
+    |
+help: consider importing this struct
+    |
+  1 + use crate::models::MessageResponse;
+    |
+
+error: derive helper attribute is used before it 
+is introduced
+   --> src\database\tables.rs:380:3
+    |
+380 | #[diesel(table_name = staff_attendance)]
+    |   ^^^^^^
+...
+383 | #[derive(Debug, Serialize, Deserialize, 
+JsonSchema, ApiComponent, Queryable, Selectable, 
+Insertable, Clone, Associations)]
+    |                                              
+                     --------- the attribute is 
+introduced here
+    |
+    = warning: this was previously accepted by the 
+compiler but is being phased out; it will become a 
+hard error in a future release!
+    = note: for more information, see issue #79202 
+<https://github.com/rust-lang/rust/issues/79202>
+    = note: `#[deny(legacy_derive_helpers)]` (part 
+of `#[deny(future_incompatible)]`) on by default
+
+warning: unused import: `error`
+  --> src\main.rs:19:15
+   |
+19 | use tracing::{error, info};
+   |               ^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of 
+`#[warn(unused)]`) on by default
+
+error: derive helper attribute is used before it 
+is introduced
+   --> src\database\tables.rs:381:3
+    |
+381 | #[diesel(belongs_to(Staff))]
+    |   ^^^^^^
+382 | #[diesel(check_for_backend(diesel::sqlite::Sq
+lite))]
+383 | #[derive(Debug, Serialize, Deserialize, 
+JsonSchema, ApiComponent, Queryable, Selectable, 
+Insertable, Clone, Associations)]
+    |                                              
+                     --------- the attribute is 
+introduced here
+    |
+    = warning: this was previously accepted by the 
+compiler but is being phased out; it will become a 
+hard error in a future release!
+    = note: for more information, see issue #79202 
+<https://github.com/rust-lang/rust/issues/79202>
+
+error: derive helper attribute is used before it 
+is introduced
+   --> src\database\tables.rs:382:3
+    |
+382 | #[diesel(check_for_backend(diesel::sqlite::Sq
+lite))]
+    |   ^^^^^^
+383 | #[derive(Debug, Serialize, Deserialize, 
+JsonSchema, ApiComponent, Queryable, Selectable, 
+Insertable, Clone, Associations)]
+    |                                              
+                     --------- the attribute is 
+introduced here
+    |
+    = warning: this was previously accepted by the 
+compiler but is being phased out; it will become a 
+hard error in a future release!
+    = note: for more information, see issue #79202 
+<https://github.com/rust-lang/rust/issues/79202>
+
+warning: unused import: `serde_json`
+ --> src\handlers\staff_leaves.rs:7:5
+  |
+7 | use serde_json;
+  |     ^^^^^^^^^^
+
+warning: unused import: `serde_json`
+ --> src\handlers\student_class_assignment.rs:4:5
+  |
+4 | use serde_json;
+  |     ^^^^^^^^^^
+
+warning: unused import: `serde_json`
+ --> src\handlers\teacher_assignments.rs:7:5
+  |
+7 | use serde_json;
+  |     ^^^^^^^^^^
+
+warning: unused import: `Serialize`
+  --> src\handlers\fees.rs:17:26
+   |
+17 | use serde::{Deserialize, Serialize};
+   |                          ^^^^^^^^^
+
+warning: unused import: `diesel::sql_types::Float`
+ --> src\models\grading_criterion.rs:5:5
+  |
+5 | use diesel::sql_types::Float; // Added
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `warn`
+ --> src\services\auth.rs:8:21
+  |
+8 | use tracing::{info, warn};
+  |                     ^^^^
+

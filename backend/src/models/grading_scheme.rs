@@ -1,12 +1,13 @@
-use diesel::{Queryable, Insertable};
+use diesel::prelude::*;
+use diesel::Selectable; // Added
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use chrono::NaiveDateTime;
 
-#[derive(Queryable, Insertable, Serialize, Deserialize, Clone)]
+#[derive(Queryable, Insertable, Serialize, Deserialize, Clone, Selectable)]
 #[diesel(table_name = crate::schema::grading_schemes)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct GradingScheme {
-    pub id: Uuid,
+    pub id: String,
     pub name: String,
     pub grade_level: String,
     pub description: Option<String>,
@@ -30,7 +31,7 @@ pub struct UpdateGradingSchemeRequest {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct GradingSchemeResponse {
-    pub id: Uuid,
+    pub id: String,
     pub name: String,
     pub grade_level: String,
     pub description: Option<String>,

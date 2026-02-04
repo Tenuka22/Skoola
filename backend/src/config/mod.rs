@@ -1,5 +1,8 @@
 use crate::errors::APIError;
 use std::env;
+use crate::database::connection::DbPool;
+use crate::services::email::EmailService;
+
 
 #[derive(Debug, Clone)]
 pub struct Config {
@@ -34,7 +37,7 @@ impl Config {
         let port = env::var("PORT")
             .unwrap_or_else(|_| "8080".to_string())
             .parse()
-            .map_err(|_| APIError::bad_request("PORT must be a valid number"))?;
+            ?;
 
         let allowed_origin =
             env::var("ALLOWED_ORIGIN").unwrap_or_else(|_| "http://localhost:3000".to_string());
@@ -51,7 +54,7 @@ impl Config {
         let jwt_expiration = env::var("JWT_EXPIRATION")
             .unwrap_or_else(|_| "7".to_string())
             .parse()
-            .map_err(|_| APIError::bad_request("JWT_EXPIRATION must be a valid number"))?;
+            ?;
 
         let google_client_id = env::var("GOOGLE_CLIENT_ID").unwrap_or_default();
         let google_client_secret = env::var("GOOGLE_CLIENT_SECRET").unwrap_or_default();
@@ -65,7 +68,7 @@ impl Config {
         let smtp_port = env::var("SMTP_PORT")
             .unwrap_or_else(|_| "587".to_string())
             .parse()
-            .map_err(|_| APIError::bad_request("SMTP_PORT must be a valid number"))?;
+            ?;
         let smtp_username = env::var("SMTP_USERNAME").ok();
         let smtp_password = env::var("SMTP_PASSWORD").ok();
         let smtp_sender_email = env::var("SMTP_SENDER_EMAIL").ok();
@@ -113,4 +116,11 @@ impl Config {
     pub fn openapi_url(&self) -> String {
         format!("{}/openapi.json", self.server_url())
     }
+}
+
+#[derive(Clone)]
+pub struct AppState {
+    pub config: Config,
+    pub db_pool: DbPool,
+    pub email_service: EmailService,
 }

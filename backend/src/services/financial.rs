@@ -1,17 +1,26 @@
-use crate::database::tables::{BudgetCategory, Budget, IncomeTransaction, ExpenseTransaction, PettyCashTransaction, SalaryComponent, StaffSalary, SalaryPayment};
+use crate::database::tables::{
+    Budget, BudgetCategory, ExpenseTransaction, IncomeTransaction, PettyCashTransaction,
+    SalaryComponent, SalaryPayment, StaffSalary,
+};
 use crate::errors::APIError;
 use crate::models::financial::*;
-use crate::schema::{budget_categories, budgets, income_transactions, expense_transactions, petty_cash_transactions, salary_components, staff_salaries, salary_payments};
+use crate::schema::{
+    budget_categories, budgets, expense_transactions, income_transactions, petty_cash_transactions,
+    salary_components, salary_payments, staff_salaries,
+};
 
-use diesel::prelude::*;
+use chrono::{NaiveDateTime, Utc};
 use diesel::SqliteConnection;
+use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::{Utc, NaiveDateTime};
 
 pub struct FinancialService;
 
 impl FinancialService {
-    pub fn create_budget_category(conn: &mut SqliteConnection, req: CreateBudgetCategoryRequest) -> Result<BudgetCategory, APIError> {
+    pub fn create_budget_category(
+        conn: &mut SqliteConnection,
+        req: CreateBudgetCategoryRequest,
+    ) -> Result<BudgetCategory, APIError> {
         let new_cat = BudgetCategory {
             id: Uuid::new_v4().to_string(),
             name: req.name,
@@ -19,11 +28,16 @@ impl FinancialService {
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
         };
-        diesel::insert_into(budget_categories::table).values(&new_cat).execute(conn).map_err(|e| APIError::internal(&e.to_string()))?;
+        diesel::insert_into(budget_categories::table)
+            .values(&new_cat)
+            .execute(conn)?;
         Ok(new_cat)
     }
 
-    pub fn set_budget(conn: &mut SqliteConnection, req: SetBudgetRequest) -> Result<Budget, APIError> {
+    pub fn set_budget(
+        conn: &mut SqliteConnection,
+        req: SetBudgetRequest,
+    ) -> Result<Budget, APIError> {
         let new_budget = Budget {
             id: Uuid::new_v4().to_string(),
             academic_year_id: req.academic_year_id,
@@ -33,11 +47,16 @@ impl FinancialService {
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
         };
-        diesel::insert_into(budgets::table).values(&new_budget).execute(conn).map_err(|e| APIError::internal(&e.to_string()))?;
+        diesel::insert_into(budgets::table)
+            .values(&new_budget)
+            .execute(conn)?;
         Ok(new_budget)
     }
 
-    pub fn record_income(conn: &mut SqliteConnection, req: RecordIncomeRequest) -> Result<IncomeTransaction, APIError> {
+    pub fn record_income(
+        conn: &mut SqliteConnection,
+        req: RecordIncomeRequest,
+    ) -> Result<IncomeTransaction, APIError> {
         let new_trans = IncomeTransaction {
             id: Uuid::new_v4().to_string(),
             source_id: req.source_id,
@@ -49,28 +68,31 @@ impl FinancialService {
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
         };
-        diesel::insert_into(income_transactions::table).values(&new_trans).execute(conn).map_err(|e| APIError::internal(&e.to_string()))?;
+        diesel::insert_into(income_transactions::table)
+            .values(&new_trans)
+            .execute(conn)?;
         Ok(new_trans)
     }
 
-    pub fn record_expense(conn: &mut SqliteConnection, req: RecordExpenseRequest) -> Result<ExpenseTransaction, APIError> {
+    pub fn record_expense(
+        conn: &mut SqliteConnection,
+        req: RecordExpenseRequest,
+    ) -> Result<ExpenseTransaction, APIError> {
         // Budget Validation
         let budget: Option<Budget> = budgets::table
             .filter(budgets::category_id.eq(&req.category_id))
             .first(conn)
-            .optional()
-            .map_err(|e| APIError::internal(&e.to_string()))?;
+            .optional()?;
 
         if let Some(b) = budget {
             if b.spent_amount + req.amount > b.allocated_amount {
                 return Err(APIError::bad_request("Budget exceeded for this category"));
             }
-            
+
             // Update spent amount in budget
             diesel::update(budgets::table.filter(budgets::id.eq(&b.id)))
                 .set(budgets::spent_amount.eq(budgets::spent_amount + req.amount))
-                .execute(conn)
-                .map_err(|e| APIError::internal(&e.to_string()))?;
+                .execute(conn)?;
         }
 
         let new_trans = ExpenseTransaction {
@@ -86,16 +108,23 @@ impl FinancialService {
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
         };
-        diesel::insert_into(expense_transactions::table).values(&new_trans).execute(conn).map_err(|e| APIError::internal(&e.to_string()))?;
+        diesel::insert_into(expense_transactions::table)
+            .values(&new_trans)
+            .execute(conn)?;
         Ok(new_trans)
     }
 
-    pub fn reconcile_petty_cash(conn: &mut SqliteConnection, req: ReconcilePettyCashRequest) -> Result<PettyCashTransaction, APIError> {
+    pub fn reconcile_petty_cash(
+        conn: &mut SqliteConnection,
+        req: ReconcilePettyCashRequest,
+    ) -> Result<PettyCashTransaction, APIError> {
         let current_balance = Self::get_petty_cash_balance(conn)?;
         let difference = req.physical_balance - current_balance;
-        
+
         if difference == 0.0 {
-            return Err(APIError::bad_request("Physical balance matches system balance. No reconciliation needed."));
+            return Err(APIError::bad_request(
+                "Physical balance matches system balance. No reconciliation needed.",
+            ));
         }
 
         let trans_type = if difference > 0.0 {
@@ -109,7 +138,15 @@ impl FinancialService {
             amount: difference.abs(),
             transaction_type: trans_type,
             date: Utc::now().naive_utc(),
-            description: Some(format!("Reconciliation adjustment: {}. {}", req.remarks.unwrap_or_default(), if difference > 0.0 { "Surplus found" } else { "Deficit found" })),
+            description: Some(format!(
+                "Reconciliation adjustment: {}. {}",
+                req.remarks.unwrap_or_default(),
+                if difference > 0.0 {
+                    "Surplus found"
+                } else {
+                    "Deficit found"
+                }
+            )),
             handled_by: req.handled_by,
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
@@ -117,38 +154,45 @@ impl FinancialService {
 
         diesel::insert_into(petty_cash_transactions::table)
             .values(&reconciliation_trans)
-            .execute(conn)
-            .map_err(|e| APIError::internal(&e.to_string()))?;
+            .execute(conn)?;
 
         Ok(reconciliation_trans)
     }
 
-    pub fn get_budget_comparison(conn: &mut SqliteConnection, year_id: &str) -> Result<Vec<BudgetComparisonResponse>, APIError> {
+    pub fn get_budget_comparison(
+        conn: &mut SqliteConnection,
+        year_id: &str,
+    ) -> Result<Vec<BudgetComparisonResponse>, APIError> {
         let items = budgets::table
             .inner_join(budget_categories::table)
             .filter(budgets::academic_year_id.eq(year_id))
-            .load::<(Budget, BudgetCategory)>(conn)
-            .map_err(|e| APIError::internal(&e.to_string()))?;
-            
-        Ok(items.into_iter().map(|(b, c)| {
-            let variance = b.allocated_amount - b.spent_amount;
-            let variance_percentage = if b.allocated_amount > 0.0 {
-                (variance / b.allocated_amount) * 100.0
-            } else {
-                0.0
-            };
-            
-            BudgetComparisonResponse {
-                category_name: c.name,
-                allocated: b.allocated_amount,
-                actual_spent: b.spent_amount,
-                variance,
-                variance_percentage,
-            }
-        }).collect())
+            .load::<(Budget, BudgetCategory)>(conn)?;
+
+        Ok(items
+            .into_iter()
+            .map(|(b, c)| {
+                let variance = b.allocated_amount - b.spent_amount;
+                let variance_percentage = if b.allocated_amount > 0.0 {
+                    (variance / b.allocated_amount) * 100.0
+                } else {
+                    0.0
+                };
+
+                BudgetComparisonResponse {
+                    category_name: c.name,
+                    allocated: b.allocated_amount,
+                    actual_spent: b.spent_amount,
+                    variance,
+                    variance_percentage,
+                }
+            })
+            .collect())
     }
 
-    pub fn record_petty_cash(conn: &mut SqliteConnection, req: RecordPettyCashRequest) -> Result<PettyCashTransaction, APIError> {
+    pub fn record_petty_cash(
+        conn: &mut SqliteConnection,
+        req: RecordPettyCashRequest,
+    ) -> Result<PettyCashTransaction, APIError> {
         let new_trans = PettyCashTransaction {
             id: Uuid::new_v4().to_string(),
             amount: req.amount,
@@ -159,11 +203,16 @@ impl FinancialService {
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
         };
-        diesel::insert_into(petty_cash_transactions::table).values(&new_trans).execute(conn).map_err(|e| APIError::internal(&e.to_string()))?;
+        diesel::insert_into(petty_cash_transactions::table)
+            .values(&new_trans)
+            .execute(conn)?;
         Ok(new_trans)
     }
 
-    pub fn create_salary_component(conn: &mut SqliteConnection, req: CreateSalaryComponentRequest) -> Result<SalaryComponent, APIError> {
+    pub fn create_salary_component(
+        conn: &mut SqliteConnection,
+        req: CreateSalaryComponentRequest,
+    ) -> Result<SalaryComponent, APIError> {
         let new_comp = SalaryComponent {
             id: Uuid::new_v4().to_string(),
             name: req.name,
@@ -172,11 +221,16 @@ impl FinancialService {
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
         };
-        diesel::insert_into(salary_components::table).values(&new_comp).execute(conn).map_err(|e| APIError::internal(&e.to_string()))?;
+        diesel::insert_into(salary_components::table)
+            .values(&new_comp)
+            .execute(conn)?;
         Ok(new_comp)
     }
 
-    pub fn set_staff_salary(conn: &mut SqliteConnection, req: SetStaffSalaryRequest) -> Result<StaffSalary, APIError> {
+    pub fn set_staff_salary(
+        conn: &mut SqliteConnection,
+        req: SetStaffSalaryRequest,
+    ) -> Result<StaffSalary, APIError> {
         let new_salary = StaffSalary {
             staff_id: req.staff_id,
             component_id: req.component_id,
@@ -185,70 +239,90 @@ impl FinancialService {
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
         };
-        diesel::replace_into(staff_salaries::table).values(&new_salary).execute(conn).map_err(|e| APIError::internal(&e.to_string()))?;
+        diesel::replace_into(staff_salaries::table)
+            .values(&new_salary)
+            .execute(conn)?;
         Ok(new_salary)
     }
 
-    pub fn update_budget_allocation(conn: &mut SqliteConnection, id: &str, req: UpdateBudgetRequest) -> Result<Budget, APIError> {
+    pub fn update_budget_allocation(
+        conn: &mut SqliteConnection,
+        id: &str,
+        req: UpdateBudgetRequest,
+    ) -> Result<Budget, APIError> {
         diesel::update(budgets::table.find(id))
             .set((
                 budgets::allocated_amount.eq(req.allocated_amount),
                 budgets::updated_at.eq(Utc::now().naive_utc()),
             ))
-            .execute(conn)
-            .map_err(|e| APIError::internal(&e.to_string()))?;
-        
-        budgets::table.find(id).first(conn).map_err(|e| APIError::internal(&e.to_string()))
+            .execute(conn)?;
+
+        Ok(budgets::table.find(id)
+            .select(Budget::as_select())
+            .first(conn)?)
     }
 
-    pub fn get_budget_summary(conn: &mut SqliteConnection, year_id: &str) -> Result<Vec<BudgetSummaryResponse>, APIError> {
+    pub fn get_budget_summary(
+        conn: &mut SqliteConnection,
+        year_id: &str,
+    ) -> Result<Vec<BudgetSummaryResponse>, APIError> {
         let items = budgets::table
             .inner_join(budget_categories::table)
             .filter(budgets::academic_year_id.eq(year_id))
-            .load::<(Budget, BudgetCategory)>(conn)
-            .map_err(|e| APIError::internal(&e.to_string()))?;
-            
-        Ok(items.into_iter().map(|(b, c)| BudgetSummaryResponse {
-            category_name: c.name,
-            allocated: b.allocated_amount,
-            spent: b.spent_amount,
-            remaining: b.allocated_amount - b.spent_amount,
-        }).collect())
+            .load::<(Budget, BudgetCategory)>(conn)?;
+
+        Ok(items
+            .into_iter()
+            .map(|(b, c)| BudgetSummaryResponse {
+                category_name: c.name,
+                allocated: b.allocated_amount,
+                spent: b.spent_amount,
+                remaining: b.allocated_amount - b.spent_amount,
+            })
+            .collect())
     }
 
-    pub fn get_income_by_source(conn: &mut SqliteConnection, source_id: &str) -> Result<Vec<IncomeTransaction>, APIError> {
-        income_transactions::table
+    pub fn get_income_by_source(
+        conn: &mut SqliteConnection,
+        source_id: &str,
+    ) -> Result<Vec<IncomeTransaction>, APIError> {
+        Ok(income_transactions::table
             .filter(income_transactions::source_id.eq(source_id))
-            .load::<IncomeTransaction>(conn)
-            .map_err(|e| APIError::internal(&e.to_string()))
+            .load::<IncomeTransaction>(conn)?)
     }
 
-    pub fn get_expenses_by_category(conn: &mut SqliteConnection, cat_id: &str) -> Result<Vec<ExpenseTransaction>, APIError> {
-        expense_transactions::table
+    pub fn get_expenses_by_category(
+        conn: &mut SqliteConnection,
+        cat_id: &str,
+    ) -> Result<Vec<ExpenseTransaction>, APIError> {
+        Ok(expense_transactions::table
             .filter(expense_transactions::category_id.eq(cat_id))
-            .load::<ExpenseTransaction>(conn)
-            .map_err(|e| APIError::internal(&e.to_string()))
+            .load::<ExpenseTransaction>(conn)?)
     }
 
-    pub fn get_income_by_date_range(conn: &mut SqliteConnection, start: NaiveDateTime, end: NaiveDateTime) -> Result<Vec<IncomeTransaction>, APIError> {
-        income_transactions::table
+    pub fn get_income_by_date_range(
+        conn: &mut SqliteConnection,
+        start: NaiveDateTime,
+        end: NaiveDateTime,
+    ) -> Result<Vec<IncomeTransaction>, APIError> {
+        Ok(income_transactions::table
             .filter(income_transactions::date.between(start, end))
-            .load::<IncomeTransaction>(conn)
-            .map_err(|e| APIError::internal(&e.to_string()))
+            .load::<IncomeTransaction>(conn)?)
     }
 
-    pub fn get_expenses_by_date_range(conn: &mut SqliteConnection, start: NaiveDateTime, end: NaiveDateTime) -> Result<Vec<ExpenseTransaction>, APIError> {
-        expense_transactions::table
+    pub fn get_expenses_by_date_range(
+        conn: &mut SqliteConnection,
+        start: NaiveDateTime,
+        end: NaiveDateTime,
+    ) -> Result<Vec<ExpenseTransaction>, APIError> {
+        Ok(expense_transactions::table
             .filter(expense_transactions::date.between(start, end))
-            .load::<ExpenseTransaction>(conn)
-            .map_err(|e| APIError::internal(&e.to_string()))
+            .load::<ExpenseTransaction>(conn)?)
     }
 
     pub fn get_petty_cash_balance(conn: &mut SqliteConnection) -> Result<f32, APIError> {
-        let transactions = petty_cash_transactions::table
-            .load::<PettyCashTransaction>(conn)
-            .map_err(|e| APIError::internal(&e.to_string()))?;
-            
+        let transactions = petty_cash_transactions::table.load::<PettyCashTransaction>(conn)?;
+
         let mut balance = 0.0;
         for t in transactions {
             match t.transaction_type {
@@ -259,7 +333,10 @@ impl FinancialService {
         Ok(balance)
     }
 
-    pub fn record_salary_payment(conn: &mut SqliteConnection, req: RecordSalaryPaymentRequest) -> Result<SalaryPayment, APIError> {
+    pub fn record_salary_payment(
+        conn: &mut SqliteConnection,
+        req: RecordSalaryPaymentRequest,
+    ) -> Result<SalaryPayment, APIError> {
         let new_payment = SalaryPayment {
             id: Uuid::new_v4().to_string(),
             staff_id: req.staff_id,
@@ -274,7 +351,9 @@ impl FinancialService {
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
         };
-        diesel::insert_into(salary_payments::table).values(&new_payment).execute(conn).map_err(|e| APIError::internal(&e.to_string()))?;
+        diesel::insert_into(salary_payments::table)
+            .values(&new_payment)
+            .execute(conn)?;
         Ok(new_payment)
     }
 }

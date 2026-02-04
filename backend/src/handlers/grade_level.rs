@@ -1,10 +1,13 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
+use actix_web::web::Json;
+// use serde_json; // Removed unused import
 
 use crate::{
     AppState,
     errors::APIError,
-    models::grade_level::{CreateGradeLevelRequest, UpdateGradeLevelRequest},
+    models::grade_level::{CreateGradeLevelRequest, UpdateGradeLevelRequest, GradeLevelResponse},
+    models::MessageResponse,
     services::grade_level,
 };
 
@@ -16,9 +19,9 @@ use crate::{
 pub async fn create_grade_level(
     data: web::Data<AppState>,
     body: web::Json<CreateGradeLevelRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<GradeLevelResponse>, APIError> {
     let new_grade_level = grade_level::create_grade_level(data.clone(), body.into_inner()).await?;
-    Ok(HttpResponse::Created().json(new_grade_level))
+    Ok(Json(new_grade_level))
 }
 
 #[api_operation(
@@ -29,10 +32,10 @@ pub async fn create_grade_level(
 pub async fn get_grade_level_by_id(
     data: web::Data<AppState>,
     path: web::Path<String>, // grade_level_id
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<GradeLevelResponse>, APIError> {
     let grade_level_id = path.into_inner();
     let grade_level = grade_level::get_grade_level_by_id(data.clone(), grade_level_id).await?;
-    Ok(HttpResponse::Ok().json(grade_level))
+    Ok(Json(grade_level))
 }
 
 #[api_operation(
@@ -42,9 +45,9 @@ pub async fn get_grade_level_by_id(
 )]
 pub async fn get_all_grade_levels(
     data: web::Data<AppState>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<GradeLevelResponse>>, APIError> {
     let grade_levels = grade_level::get_all_grade_levels(data.clone()).await?;
-    Ok(HttpResponse::Ok().json(grade_levels))
+    Ok(Json(grade_levels))
 }
 
 #[api_operation(
@@ -56,10 +59,10 @@ pub async fn update_grade_level(
     data: web::Data<AppState>,
     path: web::Path<String>, // grade_level_id
     body: web::Json<UpdateGradeLevelRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<GradeLevelResponse>, APIError> {
     let grade_level_id = path.into_inner();
     let updated_grade_level = grade_level::update_grade_level(data.clone(), grade_level_id, body.into_inner()).await?;
-    Ok(HttpResponse::Ok().json(updated_grade_level))
+    Ok(Json(updated_grade_level))
 }
 
 #[api_operation(
@@ -70,8 +73,8 @@ pub async fn update_grade_level(
 pub async fn delete_grade_level(
     data: web::Data<AppState>,
     path: web::Path<String>, // grade_level_id
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let grade_level_id = path.into_inner();
     grade_level::delete_grade_level(data.clone(), grade_level_id).await?;
-    Ok(HttpResponse::NoContent().finish())
+    Ok(Json(MessageResponse { message: "Grade level deleted successfully".to_string() }))
 }

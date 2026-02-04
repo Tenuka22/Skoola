@@ -1,4 +1,4 @@
-use actix_web::{HttpRequest, HttpResponse, web};
+use actix_web::{HttpRequest, web};
 use apistos::api_operation;
 use schemars::JsonSchema;
 use uuid::Uuid;
@@ -13,6 +13,8 @@ use crate::{AppState, database::tables::{Role, RoleEnum, User, UserRole}, errors
 };
 
 use apistos::ApiComponent;
+use actix_web::web::Json; // Added Json here
+use crate::models::auth::TokenResponse; // Added TokenResponse here
 
 #[derive(serde::Deserialize, ApiComponent, JsonSchema)]
 pub struct OAuthQuery {
@@ -29,15 +31,11 @@ pub async fn google_callback(
     data: web::Data<AppState>,
     query: web::Query<OAuthQuery>,
     req: HttpRequest,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<TokenResponse>, APIError> {
     let ip_address = req.connection_info().realip_remote_addr().map(|s| s.to_string());
     let user_agent = req.headers().get("User-Agent").and_then(|v| v.to_str().ok()).map(|s| s.to_string());
 
-    let user_info = get_google_user_info(&query.code, &data.config).await
-        .map_err(|e| {
-            warn!("ACTION: Google OAuth failed | reason: {:?} | ip_address: {:?} | user_agent: {:?}", e, ip_address, user_agent);
-            APIError::internal("Failed to get Google user info")
-        })?;
+    let user_info = get_google_user_info(&query.code, &data.config).await?;
 
     let mut conn = data.db_pool.get()?;
 
@@ -123,10 +121,10 @@ pub async fn google_callback(
         "ACTION: Google OAuth successful | user_id: {} | email: {} | ip_address: {:?} | user_agent: {:?}",
         user.id, user.email, ip_address, user_agent
     );
-    Ok(HttpResponse::Ok().json(serde_json::json!({
-        "token": token,
-        "refresh_token": refresh_token,
-    })))
+    Ok(Json(TokenResponse {
+        token,
+        refresh_token,
+    }))
 }
 
 #[api_operation(
@@ -139,15 +137,11 @@ pub async fn github_callback(
     data: web::Data<AppState>,
     query: web::Query<OAuthQuery>,
     req: HttpRequest,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<TokenResponse>, APIError> {
     let ip_address = req.connection_info().realip_remote_addr().map(|s| s.to_string());
     let user_agent = req.headers().get("User-Agent").and_then(|v| v.to_str().ok()).map(|s| s.to_string());
 
-    let user_info = get_github_user_info(&query.code, &data.config).await
-        .map_err(|e| {
-            warn!("ACTION: GitHub OAuth failed | reason: {:?} | ip_address: {:?} | user_agent: {:?}", e, ip_address, user_agent);
-            APIError::internal("Failed to get GitHub user info")
-        })?;
+    let user_info = get_github_user_info(&query.code, &data.config).await?;
 
     let email = user_info
         .email
@@ -242,8 +236,8 @@ pub async fn github_callback(
         "ACTION: GitHub OAuth successful | user_id: {} | email: {} | ip_address: {:?} | user_agent: {:?}",
         user.id, user.email, ip_address, user_agent
     );
-    Ok(HttpResponse::Ok().json(serde_json::json!({
-        "token": token,
-        "refresh_token": refresh_token,
-    })))
+    Ok(Json(TokenResponse {
+        token,
+        refresh_token,
+    }))
 }

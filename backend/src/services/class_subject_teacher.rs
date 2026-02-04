@@ -77,13 +77,7 @@ pub async fn update_subject_teacher_assignment(
         .filter(class_subject_teachers::subject_id.eq(&subject_id))
         .filter(class_subject_teachers::academic_year_id.eq(&academic_year_id))
         .first(&mut conn)
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => APIError::not_found(&format!(
-                "Assignment for Class ID {}, Subject ID {}, Academic Year ID {} not found",
-                class_id, subject_id, academic_year_id
-            )),
-            _ => APIError::internal(&e.to_string()),
-        })?;
+        ?;
 
     Ok(ClassSubjectTeacherResponse::from(updated_assignment))
 }

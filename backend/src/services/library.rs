@@ -11,14 +11,12 @@ use crate::schema::{library_books, library_categories, library_issues, library_s
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 
 // ============= Category Services =============
-
 pub fn get_all_categories(pool: &DbPool) -> Result<Vec<LibraryCategory>, APIError> {
     let mut conn = pool.get()?;
 
-    library_categories::table
+    Ok(library_categories::table
         .select(LibraryCategory::as_select())
-        .load(&mut conn)
-        .map_err(|_| APIError::internal("Failed to fetch categories"))
+        .load(&mut conn)?)
 }
 
 pub fn create_category(pool: &DbPool, req: CreateLibraryCategoryRequest) -> Result<LibraryCategory, APIError> {
@@ -33,10 +31,10 @@ pub fn create_category(pool: &DbPool, req: CreateLibraryCategoryRequest) -> Resu
         .values(&new_category)
         .execute(&mut conn)?;
 
-    library_categories::table
+    Ok(library_categories::table
         .order(library_categories::id.desc())
-        .first(&mut conn)
-        .map_err(|_| APIError::internal("Failed to fetch created category"))
+        .select(LibraryCategory::as_select())
+        .first(&mut conn)?)
 }
 
 // ============= Book Services =============
@@ -75,7 +73,7 @@ pub fn get_book_by_id(pool: &DbPool, book_id: i32) -> Result<LibraryBookResponse
         .filter(library_books::id.eq(book_id))
         .select((LibraryBook::as_select(), LibraryCategory::as_select()))
         .first::<(LibraryBook, LibraryCategory)>(&mut conn)
-        .map_err(|_| APIError::not_found("Book not found"))?;
+        ?;
 
     Ok(LibraryBookResponse {
         id: book.id,
@@ -159,8 +157,9 @@ pub fn create_book(pool: &DbPool, req: CreateLibraryBookRequest) -> Result<Libra
     // Verify category exists
     library_categories::table
         .find(req.category_id)
-        .first::<LibraryCategory>(&mut conn)
-        .map_err(|_| APIError::bad_request("Invalid category ID"))?;
+        .select(LibraryCategory::as_select())
+        .first(&mut conn)
+        ?;
 
     let new_book = NewLibraryBook {
         isbn: req.isbn,
@@ -180,6 +179,7 @@ pub fn create_book(pool: &DbPool, req: CreateLibraryBookRequest) -> Result<Libra
 
     let book: LibraryBook = library_books::table
         .order(library_books::id.desc())
+        .select(LibraryBook::as_select())
         .first(&mut conn)?;
 
     get_book_by_id(pool, book.id)
@@ -191,15 +191,17 @@ pub fn update_book(pool: &DbPool, book_id: i32, req: UpdateLibraryBookRequest) -
     // Verify book exists
     library_books::table
         .find(book_id)
-        .first::<LibraryBook>(&mut conn)
-        .map_err(|_| APIError::not_found("Book not found"))?;
+        .select(LibraryBook::as_select())
+        .first(&mut conn)
+        ?;
 
     // Verify category if provided
     if let Some(cat_id) = req.category_id {
         library_categories::table
             .find(cat_id)
-            .first::<LibraryCategory>(&mut conn)
-            .map_err(|_| APIError::bad_request("Invalid category ID"))?;
+            .select(LibraryCategory::as_select())
+            .first(&mut conn)
+            ?;
     }
 
     let changeset = UpdateLibraryBook {
@@ -254,8 +256,9 @@ pub fn issue_book(pool: &DbPool, req: IssueBookRequest, issued_by_id: String) ->
     // Get book and check availability
     let book = library_books::table
         .find(req.book_id)
-        .first::<LibraryBook>(&mut conn)
-        .map_err(|_| APIError::not_found("Book not found"))?;
+        .select(LibraryBook::as_select())
+        .first(&mut conn)
+        ?;
 
     if book.available_quantity <= 0 {
         return Err(APIError::bad_request("Book is not available"));
@@ -263,7 +266,8 @@ pub fn issue_book(pool: &DbPool, req: IssueBookRequest, issued_by_id: String) ->
 
     // Get library settings
     let settings = library_settings::table
-        .first::<LibrarySettings>(&mut conn)?;
+        .select(LibrarySettings::as_select())
+        .first(&mut conn)?;
 
     // Check borrowing limits
     if let Some(student_id) = &req.student_id {
@@ -322,6 +326,7 @@ pub fn issue_book(pool: &DbPool, req: IssueBookRequest, issued_by_id: String) ->
 
     let issue: LibraryIssue = library_issues::table
         .order(library_issues::id.desc())
+        .select(LibraryIssue::as_select())
         .first(&mut conn)?;
 
     get_issue_by_id(pool, issue.id)
@@ -333,8 +338,9 @@ pub fn return_book(pool: &DbPool, issue_id: i32, req: ReturnBookRequest) -> Resu
     // Get issue record
     let issue = library_issues::table
         .find(issue_id)
-        .first::<LibraryIssue>(&mut conn)
-        .map_err(|_| APIError::not_found("Issue record not found"))?;
+        .select(LibraryIssue::as_select())
+        .first(&mut conn)
+        ?;
 
     if issue.return_date.is_some() {
         return Err(APIError::bad_request("Book has already been returned"));
@@ -347,7 +353,8 @@ pub fn return_book(pool: &DbPool, issue_id: i32, req: ReturnBookRequest) -> Resu
     // Calculate fine if overdue
     if return_date > issue.due_date {
         let settings = library_settings::table
-            .first::<LibrarySettings>(&mut conn)?;
+            .select(LibrarySettings::as_select())
+            .first(&mut conn)?;
 
         let overdue_days = (return_date - issue.due_date).num_days();
         fine_amount = overdue_days as f32 * settings.fine_per_day;
@@ -368,7 +375,8 @@ pub fn return_book(pool: &DbPool, issue_id: i32, req: ReturnBookRequest) -> Resu
     // Update available quantity
     let book = library_books::table
         .find(issue.book_id)
-        .first::<LibraryBook>(&mut conn)?;
+        .select(LibraryBook::as_select())
+        .first(&mut conn)?;
 
     diesel::update(library_books::table.find(issue.book_id))
         .set(library_books::available_quantity.eq(book.available_quantity + 1))
@@ -382,27 +390,32 @@ pub fn get_issue_by_id(pool: &DbPool, issue_id: i32) -> Result<LibraryIssueRespo
 
     let issue = library_issues::table
         .find(issue_id)
-        .first::<LibraryIssue>(&mut conn)
-        .map_err(|_| APIError::not_found("Issue record not found"))?;
+        .select(LibraryIssue::as_select())
+        .first(&mut conn)
+        ?;
 
     let book = library_books::table
         .find(issue.book_id)
-        .first::<LibraryBook>(&mut conn)?;
+        .select(LibraryBook::as_select())
+        .first(&mut conn)?;
 
     let issued_by_staff = staff::table
         .find(&issue.issued_by)
-        .first::<Staff>(&mut conn)?;
+        .select(Staff::as_select())
+        .first(&mut conn)?;
 
     let (student_name, staff_name) = if let Some(sid) = &issue.student_id {
         let student = students::table
             .find(sid)
-            .first::<Student>(&mut conn)
+            .select(Student::as_select())
+            .first(&mut conn)
             .ok();
         (student.map(|s| s.name_english), None)
     } else if let Some(stid) = &issue.staff_id {
         let staff_member = staff::table
             .find(stid)
-            .first::<Staff>(&mut conn)
+            .select(Staff::as_select())
+            .first(&mut conn)
             .ok();
         (None, staff_member.map(|s| s.name))
     } else {
@@ -435,9 +448,10 @@ pub fn get_issued_books_by_student(pool: &DbPool, student_id: String) -> Result<
     let issues = library_issues::table
         .filter(library_issues::student_id.eq(&student_id))
         .order(library_issues::issue_date.desc())
-        .load::<LibraryIssue>(&mut conn)?;
+        .select(LibraryIssue::as_select())
+        .load(&mut conn)?;
 
-    issues.into_iter().map(|issue| get_issue_by_id(pool, issue.id)).collect()
+    issues.into_iter().map(|issue| get_issue_by_id(pool, issue.id)).collect::<Result<Vec<_>, _>>()
 }
 
 pub fn get_issued_books_by_staff(pool: &DbPool, staff_id: String) -> Result<Vec<LibraryIssueResponse>, APIError> {
@@ -448,7 +462,7 @@ pub fn get_issued_books_by_staff(pool: &DbPool, staff_id: String) -> Result<Vec<
         .order(library_issues::issue_date.desc())
         .load::<LibraryIssue>(&mut conn)?;
 
-    issues.into_iter().map(|issue| get_issue_by_id(pool, issue.id)).collect()
+    issues.into_iter().map(|issue| get_issue_by_id(pool, issue.id)).collect::<Result<Vec<_>, _>>()
 }
 
 pub fn get_overdue_books(pool: &DbPool) -> Result<Vec<LibraryIssueResponse>, APIError> {
@@ -462,7 +476,7 @@ pub fn get_overdue_books(pool: &DbPool) -> Result<Vec<LibraryIssueResponse>, API
         .order(library_issues::due_date.asc())
         .load::<LibraryIssue>(&mut conn)?;
 
-    issues.into_iter().map(|issue| get_issue_by_id(pool, issue.id)).collect()
+    issues.into_iter().map(|issue| get_issue_by_id(pool, issue.id)).collect::<Result<Vec<_>, _>>()
 }
 
 pub fn pay_fine(pool: &DbPool, issue_id: i32, _req: PayFineRequest) -> Result<LibraryIssueResponse, APIError> {
@@ -471,7 +485,7 @@ pub fn pay_fine(pool: &DbPool, issue_id: i32, _req: PayFineRequest) -> Result<Li
     let issue = library_issues::table
         .find(issue_id)
         .first::<LibraryIssue>(&mut conn)
-        .map_err(|_| APIError::not_found("Issue record not found"))?;
+        ?;
 
     if issue.fine_amount.unwrap_or(0.0) == 0.0 {
         return Err(APIError::bad_request("No fine to pay"));
@@ -510,9 +524,9 @@ pub fn waive_fine(pool: &DbPool, issue_id: i32) -> Result<LibraryIssueResponse, 
 pub fn get_library_settings(pool: &DbPool) -> Result<LibrarySettings, APIError> {
     let mut conn = pool.get()?;
 
-    library_settings::table
-        .first(&mut conn)
-        .map_err(|_| APIError::internal("Failed to fetch library settings"))
+    Ok(library_settings::table
+        .select(LibrarySettings::as_select())
+        .first(&mut conn)?)
 }
 
 pub fn update_library_settings(pool: &DbPool, req: UpdateLibrarySettingsRequest) -> Result<LibrarySettings, APIError> {
@@ -583,5 +597,6 @@ pub fn get_fine_history(pool: &DbPool) -> Result<Vec<LibraryIssueResponse>, APIE
         .order(library_issues::return_date.desc())
         .load::<LibraryIssue>(&mut conn)?;
 
-    issues.into_iter().map(|issue| get_issue_by_id(pool, issue.id)).collect()
+    issues.into_iter().map(|issue| get_issue_by_id(pool, issue.id)).collect::<Result<Vec<_>, _>>()
+
 }

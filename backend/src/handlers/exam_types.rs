@@ -1,10 +1,12 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
+use actix_web::web::Json;
 
 use crate::{
     AppState,
     errors::APIError,
-    models::exam_types::{CreateExamTypeRequest, UpdateExamTypeRequest},
+    models::exam_types::{CreateExamTypeRequest, UpdateExamTypeRequest, ExamTypeResponse},
+    models::MessageResponse,
     services::exam_types,
 };
 
@@ -16,9 +18,9 @@ use crate::{
 pub async fn create_exam_type(
     data: web::Data<AppState>,
     body: web::Json<CreateExamTypeRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<ExamTypeResponse>, APIError> {
     let new_exam_type = exam_types::create_exam_type(data.clone(), body.into_inner()).await?;
-    Ok(HttpResponse::Created().json(new_exam_type))
+    Ok(Json(new_exam_type))
 }
 
 #[api_operation(
@@ -29,10 +31,10 @@ pub async fn create_exam_type(
 pub async fn get_exam_type_by_id(
     data: web::Data<AppState>,
     path: web::Path<String>, // exam_type_id
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<ExamTypeResponse>, APIError> {
     let exam_type_id = path.into_inner();
     let exam_type = exam_types::get_exam_type_by_id(data.clone(), exam_type_id).await?;
-    Ok(HttpResponse::Ok().json(exam_type))
+    Ok(Json(exam_type))
 }
 
 #[api_operation(
@@ -42,9 +44,9 @@ pub async fn get_exam_type_by_id(
 )]
 pub async fn get_all_exam_types(
     data: web::Data<AppState>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<ExamTypeResponse>>, APIError> {
     let exam_types = exam_types::get_all_exam_types(data.clone()).await?;
-    Ok(HttpResponse::Ok().json(exam_types))
+    Ok(Json(exam_types))
 }
 
 #[api_operation(
@@ -56,10 +58,10 @@ pub async fn update_exam_type(
     data: web::Data<AppState>,
     path: web::Path<String>, // exam_type_id
     body: web::Json<UpdateExamTypeRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<ExamTypeResponse>, APIError> {
     let exam_type_id = path.into_inner();
     let updated_exam_type = exam_types::update_exam_type(data.clone(), exam_type_id, body.into_inner()).await?;
-    Ok(HttpResponse::Ok().json(updated_exam_type))
+    Ok(Json(updated_exam_type))
 }
 
 #[api_operation(
@@ -70,8 +72,8 @@ pub async fn update_exam_type(
 pub async fn delete_exam_type(
     data: web::Data<AppState>,
     path: web::Path<String>, // exam_type_id
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let exam_type_id = path.into_inner();
     exam_types::delete_exam_type(data.clone(), exam_type_id).await?;
-    Ok(HttpResponse::NoContent().finish())
+    Ok(Json(MessageResponse { message: "Exam type deleted successfully".to_string() }))
 }

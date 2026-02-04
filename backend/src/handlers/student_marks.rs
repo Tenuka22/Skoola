@@ -1,9 +1,12 @@
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use apistos::api_operation;
+use actix_web::web::Json;
+
 use crate::{
     AppState,
     errors::APIError,
-    models::student_marks::{CreateStudentMarkRequest, UpdateStudentMarkRequest, BulkCreateStudentMarkRequest},
+    models::student_marks::{CreateStudentMarkRequest, UpdateStudentMarkRequest, BulkCreateStudentMarkRequest, StudentMarkResponse},
+    models::MessageResponse,
     services::student_marks,
     services::auth::Claims, // Corrected import
 };
@@ -17,10 +20,10 @@ pub async fn create_student_mark(
     data: web::Data<AppState>,
     body: web::Json<CreateStudentMarkRequest>,
     claims: web::ReqData<Claims>, // Added this
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<StudentMarkResponse>, APIError> {
     let current_user_id = claims.sub.clone(); // Get user_id from claims
     let new_student_mark = student_marks::create_student_mark(data.clone(), body.into_inner(), current_user_id).await?;
-    Ok(HttpResponse::Created().json(new_student_mark))
+    Ok(Json(new_student_mark))
 }
 
 #[api_operation(
@@ -31,10 +34,10 @@ pub async fn create_student_mark(
 pub async fn get_student_mark_by_id(
     data: web::Data<AppState>,
     path: web::Path<String>, // student_mark_id
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<StudentMarkResponse>, APIError> {
     let student_mark_id = path.into_inner();
     let student_mark = student_marks::get_student_mark_by_id(data.clone(), student_mark_id).await?;
-    Ok(HttpResponse::Ok().json(student_mark))
+    Ok(Json(student_mark))
 }
 
 #[api_operation(
@@ -44,9 +47,9 @@ pub async fn get_student_mark_by_id(
 )]
 pub async fn get_all_student_marks(
     data: web::Data<AppState>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<StudentMarkResponse>>, APIError> {
     let student_marks = student_marks::get_all_student_marks(data.clone()).await?;
-    Ok(HttpResponse::Ok().json(student_marks))
+    Ok(Json(student_marks))
 }
 
 #[api_operation(
@@ -57,10 +60,10 @@ pub async fn get_all_student_marks(
 pub async fn get_student_marks_by_student_id(
     data: web::Data<AppState>,
     path: web::Path<String>, // student_id
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<StudentMarkResponse>>, APIError> {
     let student_id = path.into_inner();
     let student_marks = student_marks::get_student_marks_by_student_id(data.clone(), student_id).await?;
-    Ok(HttpResponse::Ok().json(student_marks))
+    Ok(Json(student_marks))
 }
 
 #[api_operation(
@@ -71,10 +74,10 @@ pub async fn get_student_marks_by_student_id(
 pub async fn get_student_marks_by_exam_and_class(
     data: web::Data<AppState>,
     path: web::Path<(String, String)>, // (exam_id, class_id)
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<StudentMarkResponse>>, APIError> {
     let (exam_id, class_id) = path.into_inner();
     let student_marks = student_marks::get_student_marks_by_exam_and_class(data.clone(), exam_id, class_id).await?;
-    Ok(HttpResponse::Ok().json(student_marks))
+    Ok(Json(student_marks))
 }
 
 #[api_operation(
@@ -87,11 +90,11 @@ pub async fn update_student_mark(
     path: web::Path<String>, // student_mark_id
     body: web::Json<UpdateStudentMarkRequest>,
     claims: web::ReqData<Claims>, // Added this
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<StudentMarkResponse>, APIError> {
     let student_mark_id = path.into_inner();
     let current_user_id = claims.sub.clone(); // Get user_id from claims
     let updated_student_mark = student_marks::update_student_mark(data.clone(), student_mark_id, body.into_inner(), current_user_id).await?;
-    Ok(HttpResponse::Ok().json(updated_student_mark))
+    Ok(Json(updated_student_mark))
 }
 
 #[api_operation(
@@ -102,10 +105,10 @@ pub async fn update_student_mark(
 pub async fn delete_student_mark(
     data: web::Data<AppState>,
     path: web::Path<String>, // student_mark_id
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let student_mark_id = path.into_inner();
     student_marks::delete_student_mark(data.clone(), student_mark_id).await?;
-    Ok(HttpResponse::NoContent().finish())
+    Ok(Json(MessageResponse { message: "Student mark deleted successfully".to_string() }))
 }
 
 #[api_operation(
@@ -117,8 +120,8 @@ pub async fn bulk_create_student_marks(
     data: web::Data<AppState>,
     body: web::Json<BulkCreateStudentMarkRequest>,
     claims: web::ReqData<Claims>, // Added this
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<Vec<StudentMarkResponse>>, APIError> {
     let current_user_id = claims.sub.clone(); // Get user_id from claims
     let new_student_marks = student_marks::bulk_create_student_marks(data.clone(), body.into_inner(), current_user_id).await?;
-    Ok(HttpResponse::Created().json(new_student_marks))
+    Ok(Json(new_student_marks))
 }

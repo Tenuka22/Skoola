@@ -1,4 +1,4 @@
-// @generated automatically by Diesel CLI.
+﻿// @generated automatically by Diesel CLI.
 
 diesel::table! {
     academic_years (id) {
@@ -328,6 +328,8 @@ diesel::table! {
         grade -> Text,
         grade_point -> Nullable<Float>,
         description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -337,6 +339,8 @@ diesel::table! {
         name -> Text,
         grade_level -> Text,
         description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -1095,7 +1099,6 @@ diesel::joinable!(library_books -> library_categories (category_id));
 diesel::joinable!(library_issues -> library_books (book_id));
 diesel::joinable!(library_issues -> students (student_id));
 diesel::joinable!(maintenance_requests -> inventory_items (item_id));
-diesel::joinable!(maintenance_requests -> staff (reported_by));
 diesel::joinable!(ol_exams -> students (student_id));
 diesel::joinable!(petty_cash_transactions -> staff (handled_by));
 diesel::joinable!(report_card_marks -> report_cards (report_card_id));
@@ -1130,6 +1133,7 @@ diesel::joinable!(staff_subjects -> subjects (subject_id));
 diesel::joinable!(stream_subjects -> streams (stream_id));
 diesel::joinable!(stream_subjects -> subjects (subject_id));
 diesel::joinable!(student_achievements -> students (student_id));
+diesel::joinable!(student_class_assignments -> students (student_id));
 diesel::joinable!(student_emergency_contacts -> students (student_id));
 diesel::joinable!(student_fees -> fee_structures (fee_structure_id));
 diesel::joinable!(student_fees -> students (student_id));
@@ -1137,9 +1141,6 @@ diesel::joinable!(student_guardians -> students (student_id));
 diesel::joinable!(student_marks -> students (student_id));
 diesel::joinable!(student_medical_info -> students (student_id));
 diesel::joinable!(student_previous_schools -> students (student_id));
-diesel::joinable!(student_class_assignments -> academic_years (academic_year_id));
-diesel::joinable!(student_class_assignments -> classes (class_id));
-diesel::joinable!(student_class_assignments -> students (student_id));
 diesel::joinable!(student_zscores -> students (student_id));
 diesel::joinable!(teacher_class_assignments -> academic_years (academic_year_id));
 diesel::joinable!(teacher_class_assignments -> classes (class_id));

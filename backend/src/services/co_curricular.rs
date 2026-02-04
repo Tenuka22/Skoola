@@ -321,7 +321,7 @@ pub async fn add_cultural_event_participant(
 pub async fn get_student_co_curricular_summary(
     pool: web::Data<AppState>,
     student_id: String,
-) -> Result<serde_json::Value, APIError> {
+) -> Result<StudentCoCurricularSummary, APIError> {
     let mut conn = pool.db_pool.get()?;
 
     let sports_participated = sport_team_members::table
@@ -336,9 +336,9 @@ pub async fn get_student_co_curricular_summary(
         .filter(student_achievements::student_id.eq(&student_id))
         .load::<StudentAchievement>(&mut conn)?;
 
-    Ok(serde_json::json!({
-        "sports": sports_participated,
-        "clubs": clubs_joined,
-        "achievements": achievements
-    }))
+    Ok(StudentCoCurricularSummary {
+        sports: sports_participated,
+        clubs: clubs_joined,
+        achievements: achievements
+    })
 }
