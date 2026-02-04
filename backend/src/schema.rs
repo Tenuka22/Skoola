@@ -56,6 +56,89 @@ diesel::table! {
 }
 
 diesel::table! {
+    club_activities (id) {
+        id -> Text,
+        club_id -> Text,
+        activity_name -> Text,
+        activity_date -> Timestamp,
+        description -> Nullable<Text>,
+        participants_count -> Integer,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    club_members (club_id, student_id) {
+        club_id -> Text,
+        student_id -> Text,
+        role -> Text,
+        joined_date -> Date,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    clubs (id) {
+        id -> Text,
+        club_name -> Text,
+        description -> Nullable<Text>,
+        teacher_in_charge_id -> Text,
+        meeting_schedule -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    competition_participants (competition_id, student_id) {
+        competition_id -> Text,
+        student_id -> Text,
+        position -> Nullable<Text>,
+        award -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    competitions (id) {
+        id -> Text,
+        competition_name -> Text,
+        competition_type -> Text,
+        date -> Timestamp,
+        organizer -> Text,
+        level -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    cultural_event_participants (event_id, student_id) {
+        event_id -> Text,
+        student_id -> Text,
+        performance_type -> Text,
+        role -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    cultural_events (id) {
+        id -> Text,
+        event_name -> Text,
+        event_date -> Timestamp,
+        venue -> Text,
+        description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     exam_subjects (exam_id, subject_id) {
         exam_id -> Text,
         subject_id -> Text,
@@ -331,6 +414,65 @@ diesel::table! {
 }
 
 diesel::table! {
+    sport_event_participants (event_id, student_id) {
+        event_id -> Text,
+        student_id -> Text,
+        team_id -> Nullable<Text>,
+        position -> Nullable<Text>,
+        points -> Nullable<Integer>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    sport_events (id) {
+        id -> Text,
+        sport_id -> Text,
+        event_name -> Text,
+        event_date -> Timestamp,
+        venue -> Text,
+        organizer -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    sport_team_members (team_id, student_id) {
+        team_id -> Text,
+        student_id -> Text,
+        position -> Nullable<Text>,
+        joined_date -> Date,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    sport_teams (id) {
+        id -> Text,
+        sport_id -> Text,
+        team_name -> Text,
+        grade_level -> Text,
+        coach_id -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    sports (id) {
+        id -> Text,
+        sport_name -> Text,
+        description -> Nullable<Text>,
+        category -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     staff (id) {
         id -> Text,
         employee_id -> Text,
@@ -441,6 +583,19 @@ diesel::table! {
         id -> Text,
         name -> Text,
         description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    student_achievements (id) {
+        id -> Text,
+        student_id -> Text,
+        achievement_type -> Text,
+        description -> Text,
+        date -> Date,
+        certificate_url -> Nullable<Text>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -697,6 +852,14 @@ diesel::joinable!(class_subject_teachers -> subjects (subject_id));
 diesel::joinable!(classes -> academic_years (academic_year_id));
 diesel::joinable!(classes -> grade_levels (grade_id));
 diesel::joinable!(classes -> staff (class_teacher_id));
+diesel::joinable!(club_activities -> clubs (club_id));
+diesel::joinable!(club_members -> clubs (club_id));
+diesel::joinable!(club_members -> students (student_id));
+diesel::joinable!(clubs -> staff (teacher_in_charge_id));
+diesel::joinable!(competition_participants -> competitions (competition_id));
+diesel::joinable!(competition_participants -> students (student_id));
+diesel::joinable!(cultural_event_participants -> cultural_events (event_id));
+diesel::joinable!(cultural_event_participants -> students (student_id));
 diesel::joinable!(exam_subjects -> exams (exam_id));
 diesel::joinable!(exam_subjects -> subjects (subject_id));
 diesel::joinable!(exams -> academic_years (academic_year_id));
@@ -714,9 +877,7 @@ diesel::joinable!(grade_subjects -> subjects (subject_id));
 diesel::joinable!(grading_criteria -> grading_schemes (scheme_id));
 diesel::joinable!(library_books -> library_categories (category_id));
 diesel::joinable!(library_issues -> library_books (book_id));
-diesel::joinable!(library_issues -> staff (staff_id));
 diesel::joinable!(library_issues -> students (student_id));
-
 diesel::joinable!(ol_exams -> students (student_id));
 diesel::joinable!(report_card_marks -> report_cards (report_card_id));
 diesel::joinable!(report_card_marks -> subjects (subject_id));
@@ -728,6 +889,14 @@ diesel::joinable!(role_permissions -> permissions (permission_id));
 diesel::joinable!(role_permissions -> roles (role_id));
 diesel::joinable!(scholarship_exams -> students (student_id));
 diesel::joinable!(sessions -> users (user_id));
+diesel::joinable!(sport_event_participants -> sport_events (event_id));
+diesel::joinable!(sport_event_participants -> sport_teams (team_id));
+diesel::joinable!(sport_event_participants -> students (student_id));
+diesel::joinable!(sport_events -> sports (sport_id));
+diesel::joinable!(sport_team_members -> sport_teams (team_id));
+diesel::joinable!(sport_team_members -> students (student_id));
+diesel::joinable!(sport_teams -> sports (sport_id));
+diesel::joinable!(sport_teams -> staff (coach_id));
 diesel::joinable!(staff_attendance -> staff (staff_id));
 diesel::joinable!(staff_employment_history -> staff (staff_id));
 diesel::joinable!(staff_leaves -> staff (staff_id));
@@ -738,6 +907,7 @@ diesel::joinable!(staff_subjects -> staff (staff_id));
 diesel::joinable!(staff_subjects -> subjects (subject_id));
 diesel::joinable!(stream_subjects -> streams (stream_id));
 diesel::joinable!(stream_subjects -> subjects (subject_id));
+diesel::joinable!(student_achievements -> students (student_id));
 diesel::joinable!(student_emergency_contacts -> students (student_id));
 diesel::joinable!(student_fees -> fee_structures (fee_structure_id));
 diesel::joinable!(student_fees -> students (student_id));
@@ -745,6 +915,10 @@ diesel::joinable!(student_guardians -> students (student_id));
 diesel::joinable!(student_marks -> students (student_id));
 diesel::joinable!(student_medical_info -> students (student_id));
 diesel::joinable!(student_previous_schools -> students (student_id));
+diesel::joinable!(student_class_assignments -> academic_years (academic_year_id));
+diesel::joinable!(student_class_assignments -> classes (class_id));
+diesel::joinable!(student_class_assignments -> grade_levels (grade_id));
+diesel::joinable!(student_class_assignments -> students (student_id));
 diesel::joinable!(student_zscores -> students (student_id));
 diesel::joinable!(teacher_class_assignments -> academic_years (academic_year_id));
 diesel::joinable!(teacher_class_assignments -> classes (class_id));
@@ -765,6 +939,13 @@ diesel::allow_tables_to_appear_in_same_query!(
     al_exams,
     class_subject_teachers,
     classes,
+    club_activities,
+    club_members,
+    clubs,
+    competition_participants,
+    competitions,
+    cultural_event_participants,
+    cultural_events,
     exam_subjects,
     exam_types,
     exams,
@@ -788,6 +969,11 @@ diesel::allow_tables_to_appear_in_same_query!(
     roles,
     scholarship_exams,
     sessions,
+    sport_event_participants,
+    sport_events,
+    sport_team_members,
+    sport_teams,
+    sports,
     staff,
     staff_attendance,
     staff_departments,
@@ -798,6 +984,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     staff_subjects,
     stream_subjects,
     streams,
+    student_achievements,
     student_attendance,
     student_class_assignments,
     student_emergency_contacts,

@@ -163,11 +163,11 @@ pub struct Staff {
     pub address: String,
     pub phone: String,
     pub email: String,
-    pub photo_url: Option<String>,
-    pub employment_status: crate::database::enums::EmploymentStatus,
-    pub staff_type: crate::database::enums::StaffType,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub employment_status: crate::database::enums::EmploymentStatus,
+    pub staff_type: crate::database::enums::StaffType,
+    pub photo_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]

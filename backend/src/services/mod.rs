@@ -23,3 +23,4 @@ pub mod grading_criteria;
 pub mod terms;
 pub mod fees;
 pub mod library;
+pub mod co_curricular;

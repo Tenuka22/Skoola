@@ -471,51 +471,51 @@ Add your notes to help you future self. Only simple things and where which files
 ## 9. CO-CURRICULAR ACTIVITIES MODULE
 
 ### 9.1 Sports Management
-- [ ] Create sports table migration (id, sport_name, description, category)
-- [ ] Create sport_teams table migration (id, sport_id, team_name, grade_level, coach_id)
-- [ ] Create sport_team_members table migration (team_id, student_id, position, joined_date)
-- [ ] Create sport_events table migration (id, sport_id, event_name, event_date, venue, organizer)
-- [ ] Create sport_event_participants table migration (event_id, student_id, team_id, position, points)
-- [ ] Create endpoint to create sports
-- [ ] Create endpoint to create teams
-- [ ] Create endpoint to add students to teams
-- [ ] Create endpoint to create sport events
-- [ ] Create endpoint to record event results
-- [ ] Create endpoint to view team roster
-- [ ] Create endpoint to view student sport participation history
+- [✅] Create sports table migration (id, sport_name, description, category)
+- [✅] Create sport_teams table migration (id, sport_id, team_name, grade_level, coach_id)
+- [✅] Create sport_team_members table migration (team_id, student_id, position, joined_date)
+- [✅] Create sport_events table migration (id, sport_id, event_name, event_date, venue, organizer)
+- [✅] Create sport_event_participants table migration (event_id, student_id, team_id, position, points)
+- [✅] Create endpoint to create sports
+- [✅] Create endpoint to create teams
+- [✅] Create endpoint to add students to teams
+- [✅] Create endpoint to create sport events
+- [✅] Create endpoint to record event results
+- [✅] Create endpoint to view team roster
+- [✅] Create endpoint to view student sport participation history
 
 ### 9.2 Clubs & Societies Management
-- [ ] Create clubs table migration (id, club_name, description, teacher_in_charge_id, meeting_schedule)
-- [ ] Create club_members table migration (club_id, student_id, role, joined_date)
-- [ ] Create club_activities table migration (id, club_id, activity_name, activity_date, description, participants)
-- [ ] Create endpoint to create clubs
-- [ ] Create endpoint to add students to clubs
-- [ ] Create endpoint to assign roles in clubs (President, Secretary, etc.)
-- [ ] Create endpoint to create club activities
-- [ ] Create endpoint to record activity participation
-- [ ] Create endpoint to view club membership
-- [ ] Create endpoint to view student club participation
+- [✅] Create clubs table migration (id, club_name, description, teacher_in_charge_id, meeting_schedule)
+- [✅] Create club_members table migration (club_id, student_id, role, joined_date)
+- [✅] Create club_activities table migration (id, club_id, activity_name, activity_date, description, participants)
+- [✅] Create endpoint to create clubs
+- [✅] Create endpoint to add students to clubs
+- [✅] Create endpoint to assign roles in clubs (President, Secretary, etc.)
+- [✅] Create endpoint to create club activities
+- [✅] Create endpoint to record activity participation
+- [✅] Create endpoint to view club membership
+- [✅] Create endpoint to view student club participation
 
 ### 9.3 Competitions & Achievements
-- [ ] Create competitions table migration (id, competition_name, type, date, organizer, level)
-- [ ] Create enum for competition level (School, District, Provincial, National, International)
-- [ ] Create competition_participants table migration (competition_id, student_id, position, award)
-- [ ] Create student_achievements table migration (student_id, achievement_type, description, date, certificate_url)
-- [ ] Create endpoint to create competition
-- [ ] Create endpoint to add participants to competition
-- [ ] Create endpoint to record competition results
-- [ ] Create endpoint to add student achievement
-- [ ] Create endpoint to view student achievement history
-- [ ] Create endpoint to view school achievements summary
+- [✅] Create competitions table migration (id, competition_name, type, date, organizer, level)
+- [✅] Create enum for competition level (School, District, Provincial, National, International)
+- [✅] Create competition_participants table migration (competition_id, student_id, position, award)
+- [✅] Create student_achievements table migration (student_id, achievement_type, description, date, certificate_url)
+- [✅] Create endpoint to create competition
+- [✅] Create endpoint to add participants to competition
+- [✅] Create endpoint to record competition results
+- [✅] Create endpoint to add student achievement
+- [✅] Create endpoint to view student achievement history
+- [✅] Create endpoint to view school achievements summary
 
 ### 9.4 Cultural Activities
-- [ ] Create cultural_events table migration (id, event_name, event_date, venue, description)
-- [ ] Create cultural_event_participants table migration (event_id, student_id, performance_type, role)
-- [ ] Create endpoint to create cultural events
-- [ ] Create endpoint to add participants to events
-- [ ] Create endpoint to record participation
-- [ ] Create endpoint to view event details
-- [ ] Create endpoint to view student cultural participation
+- [✅] Create cultural_events table migration (id, event_name, event_date, venue, description)
+- [✅] Create cultural_event_participants table migration (event_id, student_id, performance_type, role)
+- [✅] Create endpoint to create cultural events
+- [✅] Create endpoint to add participants to events
+- [✅] Create endpoint to record participation
+- [✅] Create endpoint to view event details
+- [✅] Create endpoint to view student cultural participation
 
 ---
 

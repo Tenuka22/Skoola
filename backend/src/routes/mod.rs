@@ -544,6 +544,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.configure(special_exams::config);
     cfg.configure(report_cards::config);
     cfg.configure(fees::config);
+    cfg.configure(crate::handlers::co_curricular::config);
 
     // Library Management Routes
     cfg.service(
