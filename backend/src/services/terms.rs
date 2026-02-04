@@ -5,10 +5,7 @@ use uuid::Uuid;
 use crate::{
     AppState, // Changed from database::connection::DbPool
     errors::APIError,
-    models::{
-        academic_year::AcademicYear,
-        terms::{CreateTermRequest, Term, TermResponse},
-    },
+    models::terms::{CreateTermRequest, Term, TermResponse},
     schema::{academic_years, terms},
 };
 

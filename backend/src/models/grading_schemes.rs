@@ -3,7 +3,6 @@ use serde::{Serialize, Deserialize};
 use schemars::JsonSchema;
 use apistos::ApiComponent;
 
-use crate::schema::grading_schemes;
 
 #[derive(Debug, Clone, Queryable, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct GradingScheme {

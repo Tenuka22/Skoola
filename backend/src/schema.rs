@@ -13,6 +13,23 @@ diesel::table! {
 }
 
 diesel::table! {
+    al_exams (id) {
+        id -> Text,
+        student_id -> Text,
+        exam_year -> Integer,
+        index_number -> Nullable<Text>,
+        stream_id -> Nullable<Text>,
+        z_score -> Nullable<Double>,
+        district_rank -> Nullable<Integer>,
+        island_rank -> Nullable<Integer>,
+        general_test_marks -> Nullable<Integer>,
+        results_summary -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     class_subject_teachers (class_id, subject_id, teacher_id, academic_year_id) {
         class_id -> Text,
         subject_id -> Text,
@@ -128,9 +145,48 @@ diesel::table! {
 }
 
 diesel::table! {
+    ol_exams (id) {
+        id -> Text,
+        student_id -> Text,
+        exam_year -> Integer,
+        index_number -> Nullable<Text>,
+        medium -> Nullable<Text>,
+        results_summary -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     permissions (id) {
         id -> Text,
         name -> Text,
+    }
+}
+
+diesel::table! {
+    report_card_marks (id) {
+        id -> Text,
+        report_card_id -> Text,
+        subject_id -> Text,
+        marks_obtained -> Nullable<Integer>,
+        grade -> Nullable<Text>,
+        remarks -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
+    report_cards (id) {
+        id -> Text,
+        student_id -> Text,
+        academic_year_id -> Text,
+        term_id -> Text,
+        class_id -> Text,
+        generated_at -> Timestamp,
+        generated_by -> Text,
+        final_grade -> Nullable<Text>,
+        rank -> Nullable<Integer>,
+        remarks -> Nullable<Text>,
     }
 }
 
@@ -146,6 +202,20 @@ diesel::table! {
         id -> Text,
         name -> Text,
         parent_id -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
+    scholarship_exams (id) {
+        id -> Text,
+        student_id -> Text,
+        exam_year -> Integer,
+        index_number -> Nullable<Text>,
+        marks -> Nullable<Integer>,
+        district_rank -> Nullable<Integer>,
+        island_rank -> Nullable<Integer>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -375,6 +445,15 @@ diesel::table! {
 }
 
 diesel::table! {
+    student_zscores (student_id, exam_id, subject_id) {
+        student_id -> Text,
+        exam_id -> Text,
+        subject_id -> Text,
+        zscore -> Double,
+    }
+}
+
+diesel::table! {
     students (id) {
         id -> Text,
         admission_number -> Text,
@@ -487,7 +566,18 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(student_class_assignments -> students (student_id));
+diesel::table! {
+    zscore_calculations (exam_id, subject_id) {
+        exam_id -> Text,
+        subject_id -> Text,
+        mean -> Double,
+        std_deviation -> Double,
+        calculated_at -> Timestamp,
+    }
+}
+
+diesel::joinable!(al_exams -> streams (stream_id));
+diesel::joinable!(al_exams -> students (student_id));
 diesel::joinable!(class_subject_teachers -> academic_years (academic_year_id));
 diesel::joinable!(class_subject_teachers -> classes (class_id));
 diesel::joinable!(class_subject_teachers -> staff (teacher_id));
@@ -505,8 +595,16 @@ diesel::joinable!(grade_streams -> streams (stream_id));
 diesel::joinable!(grade_subjects -> grade_levels (grade_id));
 diesel::joinable!(grade_subjects -> subjects (subject_id));
 diesel::joinable!(grading_criteria -> grading_schemes (scheme_id));
+diesel::joinable!(ol_exams -> students (student_id));
+diesel::joinable!(report_card_marks -> report_cards (report_card_id));
+diesel::joinable!(report_card_marks -> subjects (subject_id));
+diesel::joinable!(report_cards -> academic_years (academic_year_id));
+diesel::joinable!(report_cards -> classes (class_id));
+diesel::joinable!(report_cards -> students (student_id));
+diesel::joinable!(report_cards -> terms (term_id));
 diesel::joinable!(role_permissions -> permissions (permission_id));
 diesel::joinable!(role_permissions -> roles (role_id));
+diesel::joinable!(scholarship_exams -> students (student_id));
 diesel::joinable!(sessions -> users (user_id));
 diesel::joinable!(staff_attendance -> staff (staff_id));
 diesel::joinable!(staff_employment_history -> staff (staff_id));
@@ -518,11 +616,18 @@ diesel::joinable!(staff_subjects -> staff (staff_id));
 diesel::joinable!(staff_subjects -> subjects (subject_id));
 diesel::joinable!(stream_subjects -> streams (stream_id));
 diesel::joinable!(stream_subjects -> subjects (subject_id));
+diesel::joinable!(student_attendance -> classes (class_id));
+diesel::joinable!(student_attendance -> students (student_id));
+diesel::joinable!(student_class_assignments -> academic_years (academic_year_id));
+diesel::joinable!(student_class_assignments -> classes (class_id));
+diesel::joinable!(student_class_assignments -> grade_levels (grade_id));
+diesel::joinable!(student_class_assignments -> students (student_id));
 diesel::joinable!(student_emergency_contacts -> students (student_id));
 diesel::joinable!(student_guardians -> students (student_id));
 diesel::joinable!(student_marks -> students (student_id));
 diesel::joinable!(student_medical_info -> students (student_id));
 diesel::joinable!(student_previous_schools -> students (student_id));
+diesel::joinable!(student_zscores -> students (student_id));
 diesel::joinable!(teacher_class_assignments -> academic_years (academic_year_id));
 diesel::joinable!(teacher_class_assignments -> classes (class_id));
 diesel::joinable!(teacher_class_assignments -> staff (teacher_id));
@@ -539,6 +644,7 @@ diesel::joinable!(user_roles -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     academic_years,
+    al_exams,
     class_subject_teachers,
     classes,
     exam_subjects,
@@ -549,9 +655,13 @@ diesel::allow_tables_to_appear_in_same_query!(
     grade_subjects,
     grading_criteria,
     grading_schemes,
+    ol_exams,
     permissions,
+    report_card_marks,
+    report_cards,
     role_permissions,
     roles,
+    scholarship_exams,
     sessions,
     staff,
     staff_attendance,
@@ -570,6 +680,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     student_marks,
     student_medical_info,
     student_previous_schools,
+    student_zscores,
     students,
     subjects,
     teacher_class_assignments,
@@ -578,4 +689,5 @@ diesel::allow_tables_to_appear_in_same_query!(
     timetable,
     user_roles,
     users,
+    zscore_calculations,
 );

@@ -20,3 +20,4 @@ pub mod exam_subjects;
 pub mod student_marks;
 pub mod grading_schemes;
 pub mod grading_criteria;
+pub mod terms;

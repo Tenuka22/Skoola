@@ -163,7 +163,7 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create endpoint to assign classes to teachers
 - [✅] Create endpoint to assign subjects to teachers
 - [✅] Create endpoint to view teacher workload
-- [⏸️] Create endpoint to view teacher timetable
+- [✅] Create endpoint to view teacher timetable
 - [✅] Implement workload calculation logic
 
 ### 3.6 Staff Attendance Management
@@ -257,7 +257,7 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create endpoint to create academic year
 - [✅] Create endpoint to update academic year
 - [✅] Create endpoint to activate/deactivate academic year
-- [ ] Create endpoint to create terms
+- [✅] Create endpoint to create terms
 - [✅] Create endpoint to view current academic year
 - [✅] Create endpoint to view all academic years
 - [✅] Implement validation to ensure only one active academic year
@@ -288,12 +288,12 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create grade_subjects junction table migration
 - [✅] Create stream_subjects junction table migration (for A/L subjects)
 - [✅] Create endpoint to create subject
-- [ ] Create endpoint to update subject
-- [ ] Create endpoint to delete subject
-- [ ] Create endpoint to view subjects by grade
-- [ ] Create endpoint to view subjects by stream
-- [ ] Create endpoint to assign subjects to grades
-- [ ] Create endpoint to assign subjects to streams
+- [✅] Create endpoint to update subject
+- [✅] Create endpoint to delete subject
+- [✅] Create endpoint to view subjects by grade
+- [✅] Create endpoint to view subjects by stream
+- [✅] Create endpoint to assign subjects to grades
+- [✅] Create endpoint to assign subjects to streams
 
 ### 5.5 Class-Subject-Teacher Assignment
 - [✅] Create class_subject_teachers table migration (class_id, subject_id, teacher_id, academic_year_id)
@@ -346,39 +346,39 @@ Add your notes to help you future self. Only simple things and where which files
 - [✅] Create endpoint to create grading scheme
 - [✅] Create endpoint to create grading criteria
 - [✅] Create endpoint to assign grading scheme to grade level
-- [ ] Implement automatic grade calculation based on marks
+- [✅] Implement automatic grade calculation based on marks
 - [✅] Create endpoint to view grading scheme
-- [ ] Support percentage-based and marks-based grading
+- [✅] Support percentage-based and marks-based grading
 
 ### 6.4 Z-Score Calculation (for A/L)
-- [ ] Create zscore_calculations table migration (exam_id, subject_id, mean, std_deviation, calculated_at)
-- [ ] Create student_zscores table migration (student_id, exam_subject_id, zscore)
-- [ ] Implement z-score calculation algorithm
-- [ ] Create endpoint to calculate z-scores for an exam
-- [ ] Create endpoint to view z-scores by student
-- [ ] Create endpoint to view z-score distribution by subject
-- [ ] Implement z-score ranking logic
+- [✅] Create zscore_calculations table migration (exam_id, subject_id, mean, std_deviation, calculated_at)
+- [✅] Create student_zscores table migration (student_id, exam_subject_id, zscore)
+- [✅] Implement z-score calculation algorithm
+- [✅] Create endpoint to calculate z-scores for an exam
+- [✅] Create endpoint to view z-scores by student
+- [✅] Create endpoint to view z-score distribution by subject
+- [✅] Implement z-score ranking logic
 
 ### 6.5 Special Exams Tracking
-- [ ] Create scholarship_exams table migration (for Grade 5)
-- [ ] Create ol_exams table migration (for Grades 10-11)
-- [ ] Create al_exams table migration (for Grades 12-13 with stream)
-- [ ] Create endpoint to register students for scholarship exam
-- [ ] Create endpoint to register students for O/L exam
-- [ ] Create endpoint to register students for A/L exam
-- [ ] Create endpoint to enter results for special exams
-- [ ] Create endpoint to track exam registration status
+- [✅] Create scholarship_exams table migration (for Grade 5)
+- [✅] Create ol_exams table migration (for Grades 10-11)
+- [✅] Create al_exams table migration (for Grades 12-13 with stream)
+- [✅] Create endpoint to register students for scholarship exam
+- [✅] Create endpoint to register students for O/L exam
+- [✅] Create endpoint to register students for A/L exam
+- [✅] Create endpoint to enter results for special exams
+- [✅] Create endpoint to track exam registration status
 
 ### 6.6 Report Cards & Progress Reports
-- [ ] Create report_cards table migration (student_id, academic_year_id, term_id, generated_at, generated_by)
-- [ ] Create report_card_marks table migration (linked to student marks)
-- [ ] Create endpoint to generate individual report card
-- [ ] Create endpoint to generate bulk report cards for a class
-- [ ] Create endpoint to view student progress over terms
-- [ ] Implement GPA/average calculation logic
-- [ ] Create endpoint to calculate class rank
-- [ ] Create endpoint to calculate subject-wise rank
-- [ ] Add support for teacher comments in report cards
+- [✅] Create report_cards table migration (student_id, academic_year_id, term_id, generated_at, generated_by)
+- [✅] Create report_card_marks table migration (linked to student marks)
+- [✅] Create endpoint to generate individual report card
+- [✅] Create endpoint to generate bulk report cards for a class
+- [✅] Create endpoint to view student progress over terms
+- [✅] Implement GPA/average calculation logic
+- [✅] Create endpoint to calculate class rank
+- [✅] Create endpoint to calculate subject-wise rank
+- [✅] Add support for teacher comments in report cards
 
 ---
 

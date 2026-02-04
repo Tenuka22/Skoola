@@ -3,7 +3,7 @@ use apistos::api_operation; // Added
 use crate::{
     AppState, // Changed from database::connection::DbPool
     errors::APIError,
-    models::terms::{CreateTermRequest, TermResponse}, // Added TermResponse
+    models::terms::CreateTermRequest,
     services::terms,
 };
 

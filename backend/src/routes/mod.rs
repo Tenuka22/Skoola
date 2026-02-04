@@ -14,8 +14,10 @@ use crate::{
         profile::{
             change_email, change_password, get_profile, link_github, link_google, update_profile,
         },
+        report_cards,
         role_permissions::{assign_permission_to_role, unassign_permission_from_role},
         roles::{create_role, delete_role, get_role, get_roles, update_role},
+        special_exams,
         staff::{
             create_staff, delete_staff, get_all_staff, get_staff_by_id, update_staff,
             upload_staff_photo,
@@ -31,9 +33,9 @@ use crate::{
         teacher_assignments::{
             assign_class_to_teacher, assign_subject_to_teacher, get_teacher_workload,
         },
-        terms, // Add this line
-        timetable,
+        terms, timetable,
         verification::{resend_verification_email, verify_email},
+        zscore,
     },
     utils::{jwt::Authenticated, roles::RoleVerification},
 };
@@ -347,10 +349,22 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(subject::get_all_subjects))
             .route("/{id}", web::put().to(subject::update_subject))
             .route("/{id}", web::delete().to(subject::delete_subject))
-            .route("/grade/{grade_id}", web::get().to(subject::get_subjects_by_grade_handler))
-            .route("/stream/{stream_id}", web::get().to(subject::get_subjects_by_stream_handler))
-            .route("/assign-to-grade", web::post().to(subject::assign_subject_to_grade_handler))
-            .route("/assign-to-stream", web::post().to(subject::assign_subject_to_stream_handler)),
+            .route(
+                "/grade/{grade_id}",
+                web::get().to(subject::get_subjects_by_grade_handler),
+            )
+            .route(
+                "/stream/{stream_id}",
+                web::get().to(subject::get_subjects_by_stream_handler),
+            )
+            .route(
+                "/assign-to-grade",
+                web::post().to(subject::assign_subject_to_grade_handler),
+            )
+            .route(
+                "/assign-to-stream",
+                web::post().to(subject::assign_subject_to_stream_handler),
+            ),
     )
     .service(
         web::scope("/class-subject-teachers")
@@ -525,6 +539,11 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 apistos::web::get().to(grading_criteria::get_grading_criteria_by_scheme_id_handler),
             ),
     );
+
+    cfg.configure(zscore::config);
+    cfg.configure(special_exams::config);
+    cfg.configure(report_cards::config);
+
     cfg.route("/", apistos::web::get().to(hello));
     cfg.route("/error", apistos::web::get().to(hello_error));
 }

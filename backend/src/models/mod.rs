@@ -10,7 +10,9 @@ pub mod grading_criteria;
 pub mod grading_schemes;
 pub mod permissions;
 pub mod profile;
+pub mod report_cards;
 pub mod roles;
+pub mod special_exams;
 pub mod staff;
 pub mod staff_attendance;
 pub mod staff_leaves;
@@ -25,5 +27,6 @@ pub mod student_medical_info;
 pub mod student_previous_school;
 pub mod subject;
 pub mod teacher_assignments;
+pub mod terms;
 pub mod timetable;
-pub mod terms; // Add this line
+pub mod zscore;
