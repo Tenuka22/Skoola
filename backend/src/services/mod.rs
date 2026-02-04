@@ -22,3 +22,4 @@ pub mod grading_schemes;
 pub mod grading_criteria;
 pub mod terms;
 pub mod fees;
+pub mod library;

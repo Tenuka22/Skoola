@@ -185,6 +185,65 @@ diesel::table! {
 }
 
 diesel::table! {
+    library_books (id) {
+        id -> Integer,
+        isbn -> Nullable<Text>,
+        title -> Text,
+        author -> Text,
+        publisher -> Nullable<Text>,
+        category_id -> Integer,
+        quantity -> Integer,
+        available_quantity -> Integer,
+        rack_number -> Nullable<Text>,
+        added_date -> Date,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    library_categories (id) {
+        id -> Integer,
+        category_name -> Text,
+        description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    library_issues (id) {
+        id -> Integer,
+        book_id -> Integer,
+        student_id -> Nullable<Text>,
+        staff_id -> Nullable<Text>,
+        issue_date -> Date,
+        due_date -> Date,
+        return_date -> Nullable<Date>,
+        issued_by -> Text,
+        fine_amount -> Nullable<Float>,
+        fine_paid -> Bool,
+        status -> Text,
+        remarks -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    library_settings (id) {
+        id -> Integer,
+        max_books_per_student -> Integer,
+        max_books_per_staff -> Integer,
+        issue_duration_days_student -> Integer,
+        issue_duration_days_staff -> Integer,
+        fine_per_day -> Float,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     ol_exams (id) {
         id -> Text,
         student_id -> Text,
@@ -653,6 +712,11 @@ diesel::joinable!(grade_streams -> streams (stream_id));
 diesel::joinable!(grade_subjects -> grade_levels (grade_id));
 diesel::joinable!(grade_subjects -> subjects (subject_id));
 diesel::joinable!(grading_criteria -> grading_schemes (scheme_id));
+diesel::joinable!(library_books -> library_categories (category_id));
+diesel::joinable!(library_issues -> library_books (book_id));
+diesel::joinable!(library_issues -> staff (staff_id));
+diesel::joinable!(library_issues -> students (student_id));
+
 diesel::joinable!(ol_exams -> students (student_id));
 diesel::joinable!(report_card_marks -> report_cards (report_card_id));
 diesel::joinable!(report_card_marks -> subjects (subject_id));
@@ -681,10 +745,6 @@ diesel::joinable!(student_guardians -> students (student_id));
 diesel::joinable!(student_marks -> students (student_id));
 diesel::joinable!(student_medical_info -> students (student_id));
 diesel::joinable!(student_previous_schools -> students (student_id));
-diesel::joinable!(student_class_assignments -> academic_years (academic_year_id));
-diesel::joinable!(student_class_assignments -> classes (class_id));
-diesel::joinable!(student_class_assignments -> grade_levels (grade_id));
-diesel::joinable!(student_class_assignments -> students (student_id));
 diesel::joinable!(student_zscores -> students (student_id));
 diesel::joinable!(teacher_class_assignments -> academic_years (academic_year_id));
 diesel::joinable!(teacher_class_assignments -> classes (class_id));
@@ -716,6 +776,10 @@ diesel::allow_tables_to_appear_in_same_query!(
     grade_subjects,
     grading_criteria,
     grading_schemes,
+    library_books,
+    library_categories,
+    library_issues,
+    library_settings,
     ol_exams,
     permissions,
     report_card_marks,
