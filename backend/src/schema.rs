@@ -95,6 +95,46 @@ diesel::table! {
 }
 
 diesel::table! {
+    fee_categories (id) {
+        id -> Text,
+        name -> Text,
+        description -> Nullable<Text>,
+        is_mandatory -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    fee_payments (id) {
+        id -> Text,
+        student_fee_id -> Text,
+        amount_paid -> Float,
+        payment_date -> Timestamp,
+        payment_method -> Text,
+        receipt_number -> Text,
+        collected_by -> Text,
+        remarks -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    fee_structures (id) {
+        id -> Text,
+        grade_id -> Text,
+        academic_year_id -> Text,
+        category_id -> Text,
+        amount -> Float,
+        due_date -> Date,
+        frequency -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     grade_levels (id) {
         id -> Text,
         grade_number -> Integer,
@@ -388,6 +428,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    student_fees (id) {
+        id -> Text,
+        student_id -> Text,
+        fee_structure_id -> Text,
+        amount -> Float,
+        is_exempted -> Bool,
+        exemption_reason -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     student_guardians (id) {
         id -> Text,
         student_id -> Text,
@@ -590,6 +643,11 @@ diesel::joinable!(exam_subjects -> subjects (subject_id));
 diesel::joinable!(exams -> academic_years (academic_year_id));
 diesel::joinable!(exams -> exam_types (exam_type_id));
 diesel::joinable!(exams -> terms (term_id));
+diesel::joinable!(fee_payments -> staff (collected_by));
+diesel::joinable!(fee_payments -> student_fees (student_fee_id));
+diesel::joinable!(fee_structures -> academic_years (academic_year_id));
+diesel::joinable!(fee_structures -> fee_categories (category_id));
+diesel::joinable!(fee_structures -> grade_levels (grade_id));
 diesel::joinable!(grade_streams -> grade_levels (grade_id));
 diesel::joinable!(grade_streams -> streams (stream_id));
 diesel::joinable!(grade_subjects -> grade_levels (grade_id));
@@ -616,17 +674,17 @@ diesel::joinable!(staff_subjects -> staff (staff_id));
 diesel::joinable!(staff_subjects -> subjects (subject_id));
 diesel::joinable!(stream_subjects -> streams (stream_id));
 diesel::joinable!(stream_subjects -> subjects (subject_id));
-diesel::joinable!(student_attendance -> classes (class_id));
-diesel::joinable!(student_attendance -> students (student_id));
-diesel::joinable!(student_class_assignments -> academic_years (academic_year_id));
-diesel::joinable!(student_class_assignments -> classes (class_id));
-diesel::joinable!(student_class_assignments -> grade_levels (grade_id));
-diesel::joinable!(student_class_assignments -> students (student_id));
 diesel::joinable!(student_emergency_contacts -> students (student_id));
+diesel::joinable!(student_fees -> fee_structures (fee_structure_id));
+diesel::joinable!(student_fees -> students (student_id));
 diesel::joinable!(student_guardians -> students (student_id));
 diesel::joinable!(student_marks -> students (student_id));
 diesel::joinable!(student_medical_info -> students (student_id));
 diesel::joinable!(student_previous_schools -> students (student_id));
+diesel::joinable!(student_class_assignments -> academic_years (academic_year_id));
+diesel::joinable!(student_class_assignments -> classes (class_id));
+diesel::joinable!(student_class_assignments -> grade_levels (grade_id));
+diesel::joinable!(student_class_assignments -> students (student_id));
 diesel::joinable!(student_zscores -> students (student_id));
 diesel::joinable!(teacher_class_assignments -> academic_years (academic_year_id));
 diesel::joinable!(teacher_class_assignments -> classes (class_id));
@@ -650,6 +708,9 @@ diesel::allow_tables_to_appear_in_same_query!(
     exam_subjects,
     exam_types,
     exams,
+    fee_categories,
+    fee_payments,
+    fee_structures,
     grade_levels,
     grade_streams,
     grade_subjects,
@@ -676,6 +737,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     student_attendance,
     student_class_assignments,
     student_emergency_contacts,
+    student_fees,
     student_guardians,
     student_marks,
     student_medical_info,

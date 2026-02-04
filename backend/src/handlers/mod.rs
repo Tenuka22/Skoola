@@ -31,3 +31,4 @@ pub mod terms;
 pub mod timetable;
 pub mod verification;
 pub mod zscore;
+pub mod fees;

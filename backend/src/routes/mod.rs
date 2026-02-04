@@ -3,7 +3,7 @@ use crate::{
     handlers::{
         academic_year,
         auth::{login, logout, refresh, register, request_password_reset, reset_password},
-        class, class_subject_teacher, exam_subjects, exam_types, exams, grade_level,
+        class, class_subject_teacher, exam_subjects, exam_types, exams, fees, grade_level,
         grading_criteria, grading_schemes,
         hello::{hello, hello_error},
         oauth::{github_callback, google_callback},
@@ -543,6 +543,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.configure(zscore::config);
     cfg.configure(special_exams::config);
     cfg.configure(report_cards::config);
+    cfg.configure(fees::config);
 
     cfg.route("/", apistos::web::get().to(hello));
     cfg.route("/error", apistos::web::get().to(hello_error));

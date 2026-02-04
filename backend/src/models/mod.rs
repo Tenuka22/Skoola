@@ -30,3 +30,4 @@ pub mod teacher_assignments;
 pub mod terms;
 pub mod timetable;
 pub mod zscore;
+pub mod fees;

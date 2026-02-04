@@ -1,5 +1,5 @@
-use crate::database::enums::{Gender, Religion, Ethnicity};
-use crate::schema::{permissions, role_permissions, roles, sessions, staff, staff_attendance, staff_departments, staff_employment_history, staff_leaves, staff_qualifications, staff_roles, staff_subjects, teacher_class_assignments, teacher_subject_assignments, user_roles, users, students, student_guardians, student_medical_info, student_emergency_contacts, student_previous_schools};
+use crate::database::enums::{Gender, Religion, Ethnicity, FeeFrequency, PaymentMethod};
+use crate::schema::{permissions, role_permissions, roles, sessions, staff, staff_attendance, staff_departments, staff_employment_history, staff_leaves, staff_qualifications, staff_roles, staff_subjects, teacher_class_assignments, teacher_subject_assignments, user_roles, users, students, student_guardians, student_medical_info, student_emergency_contacts, student_previous_schools, fee_categories, fee_structures, student_fees, fee_payments};
 use diesel::deserialize::FromSql;
 use diesel::expression::AsExpression;
 use diesel::prelude::*;
@@ -331,6 +331,8 @@ pub struct Student {
     pub ethnicity: Option<Ethnicity>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub status: String,
+    pub photo_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
@@ -405,4 +407,66 @@ pub struct Session {
     pub ip_address: Option<String>,
     pub created_at: NaiveDateTime,
     pub expires_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = fee_categories)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct FeeCategory {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub is_mandatory: bool,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = fee_structures)]
+#[diesel(belongs_to(FeeCategory, foreign_key = category_id))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct FeeStructure {
+    pub id: String,
+    pub grade_id: String,
+    pub academic_year_id: String,
+    pub category_id: String,
+    pub amount: f32,
+    pub due_date: NaiveDate,
+    pub frequency: FeeFrequency,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = student_fees)]
+#[diesel(belongs_to(Student))]
+#[diesel(belongs_to(FeeStructure))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct StudentFee {
+    pub id: String,
+    pub student_id: String,
+    pub fee_structure_id: String,
+    pub amount: f32,
+    pub is_exempted: bool,
+    pub exemption_reason: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = fee_payments)]
+#[diesel(belongs_to(StudentFee))]
+#[diesel(belongs_to(Staff, foreign_key = collected_by))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct FeePayment {
+    pub id: String,
+    pub student_fee_id: String,
+    pub amount_paid: f32,
+    pub payment_date: NaiveDateTime,
+    pub payment_method: PaymentMethod,
+    pub receipt_number: String,
+    pub collected_by: String,
+    pub remarks: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }

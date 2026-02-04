@@ -27,7 +27,7 @@ mod utils;
 mod schema;
 
 #[derive(Clone)] // Add Clone derive
-struct AppState {
+pub struct AppState {
     config: Config,
     db_pool: DbPool,
     email_service: EmailService, // Add this line

@@ -566,3 +566,115 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for Medium {
         }
     }
 }
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum FeeFrequency {
+    Monthly,
+    Quarterly,
+    Annually,
+    OneTime,
+}
+
+impl Display for FeeFrequency {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            FeeFrequency::Monthly => write!(f, "Monthly"),
+            FeeFrequency::Quarterly => write!(f, "Quarterly"),
+            FeeFrequency::Annually => write!(f, "Annually"),
+            FeeFrequency::OneTime => write!(f, "OneTime"),
+        }
+    }
+}
+
+impl std::str::FromStr for FeeFrequency {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Monthly" => Ok(FeeFrequency::Monthly),
+            "Quarterly" => Ok(FeeFrequency::Quarterly),
+            "Annually" => Ok(FeeFrequency::Annually),
+            "OneTime" => Ok(FeeFrequency::OneTime),
+            _ => Err("Invalid FeeFrequency"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for FeeFrequency {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for FeeFrequency {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Monthly" => Ok(FeeFrequency::Monthly),
+            "Quarterly" => Ok(FeeFrequency::Quarterly),
+            "Annually" => Ok(FeeFrequency::Annually),
+            "OneTime" => Ok(FeeFrequency::OneTime),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum PaymentMethod {
+    Cash,
+    BankTransfer,
+    Cheque,
+    Online,
+}
+
+impl Display for PaymentMethod {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            PaymentMethod::Cash => write!(f, "Cash"),
+            PaymentMethod::BankTransfer => write!(f, "BankTransfer"),
+            PaymentMethod::Cheque => write!(f, "Cheque"),
+            PaymentMethod::Online => write!(f, "Online"),
+        }
+    }
+}
+
+impl std::str::FromStr for PaymentMethod {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Cash" => Ok(PaymentMethod::Cash),
+            "BankTransfer" => Ok(PaymentMethod::BankTransfer),
+            "Cheque" => Ok(PaymentMethod::Cheque),
+            "Online" => Ok(PaymentMethod::Online),
+            _ => Err("Invalid PaymentMethod"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for PaymentMethod {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for PaymentMethod {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Cash" => Ok(PaymentMethod::Cash),
+            "BankTransfer" => Ok(PaymentMethod::BankTransfer),
+            "Cheque" => Ok(PaymentMethod::Cheque),
+            "Online" => Ok(PaymentMethod::Online),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
