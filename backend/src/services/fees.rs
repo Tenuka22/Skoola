@@ -170,7 +170,15 @@ impl FeeService {
         conn: &mut SqliteConnection,
         req: RecordFeePaymentRequest,
     ) -> Result<FeePayment, APIError> {
-        let receipt_number = format!("RCP-{}", Uuid::new_v4().to_string().split('-').next().unwrap().to_uppercase());
+        let receipt_number = format!(
+            "RCP-{}",
+            Uuid::new_v4()
+                .to_string()
+                .split('-')
+                .next()
+                .unwrap_or_default()
+                .to_uppercase()
+        );
         
         let new_payment = FeePayment {
             id: Uuid::new_v4().to_string(),

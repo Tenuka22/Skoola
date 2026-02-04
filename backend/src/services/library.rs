@@ -473,7 +473,7 @@ pub fn pay_fine(pool: &DbPool, issue_id: i32, _req: PayFineRequest) -> Result<Li
         .first::<LibraryIssue>(&mut conn)
         .map_err(|_| APIError::not_found("Issue record not found"))?;
 
-    if issue.fine_amount.is_none() || issue.fine_amount.unwrap() == 0.0 {
+    if issue.fine_amount.unwrap_or(0.0) == 0.0 {
         return Err(APIError::bad_request("No fine to pay"));
     }
 

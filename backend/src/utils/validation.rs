@@ -13,8 +13,10 @@ pub fn is_valid_phone(phone: &str) -> bool {
 pub fn is_valid_email(email: &str) -> bool {
     // Basic regex for email validation.
     // A more robust implementation might use a dedicated email validation crate.
-    let email_regex = regex::Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap();
-    email_regex.is_match(email)
+    match regex::Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$") {
+        Ok(re) => re.is_match(email),
+        Err(_) => false,
+    }
 }
 
 pub fn is_valid_admission_number(admission_number: &str) -> bool {
