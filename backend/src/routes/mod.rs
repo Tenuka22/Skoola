@@ -17,6 +17,7 @@ use crate::{
         report_cards,
         role_permissions::{assign_permission_to_role, unassign_permission_from_role},
         roles::{create_role, delete_role, get_role, get_roles, update_role},
+        seed::seed_database,
         special_exams,
         staff::{
             create_staff, delete_staff, get_all_staff, get_staff_by_id, update_staff,
@@ -34,7 +35,7 @@ use crate::{
             assign_class_to_teacher, assign_subject_to_teacher, get_teacher_workload,
         },
         terms, timetable,
-        verification::{verify_email},
+        verification::verify_email,
         zscore,
     },
     utils::{jwt::Authenticated, roles::RoleVerification},
@@ -52,8 +53,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/password/reset/{token}", web::post().to(reset_password))
             .route("/google/callback", web::get().to(google_callback))
             .route("/github/callback", web::get().to(github_callback))
-            .route("/verify-email/{token}", web::get().to(verify_email))
-
+            .route("/verify-email/{token}", web::get().to(verify_email)),
     )
     .service(
         web::scope("/profile")
@@ -543,6 +543,16 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.configure(fees::config);
     cfg.configure(crate::handlers::co_curricular::config);
 
+    // Development Routes
+    cfg.service(
+        web::scope("/dev")
+            // .wrap(RoleVerification {
+            //     required_role: RoleEnum::FullAdmin,
+            // })
+            // .wrap(Authenticated)
+            .route("/seed", web::post().to(seed_database)),
+    );
+
     // Library Management Routes
     cfg.service(
         apistos::web::scope("/library")
@@ -551,32 +561,95 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             })
             .wrap(Authenticated)
             // Category routes
-            .route("/categories", apistos::web::get().to(crate::handlers::library::get_all_categories))
-            .route("/categories", apistos::web::post().to(crate::handlers::library::create_category))
+            .route(
+                "/categories",
+                apistos::web::get().to(crate::handlers::library::get_all_categories),
+            )
+            .route(
+                "/categories",
+                apistos::web::post().to(crate::handlers::library::create_category),
+            )
             // Book routes
-            .route("/books", apistos::web::get().to(crate::handlers::library::get_all_books))
-            .route("/books/search", apistos::web::get().to(crate::handlers::library::search_books))
-            .route("/books/{book_id}", apistos::web::get().to(crate::handlers::library::get_book_by_id))
-            .route("/books", apistos::web::post().to(crate::handlers::library::create_book))
-            .route("/books/{book_id}", apistos::web::put().to(crate::handlers::library::update_book))
-            .route("/books/{book_id}", apistos::web::delete().to(crate::handlers::library::delete_book))
-            .route("/books/category/{category_id}", apistos::web::get().to(crate::handlers::library::get_books_by_category))
+            .route(
+                "/books",
+                apistos::web::get().to(crate::handlers::library::get_all_books),
+            )
+            .route(
+                "/books/search",
+                apistos::web::get().to(crate::handlers::library::search_books),
+            )
+            .route(
+                "/books/{book_id}",
+                apistos::web::get().to(crate::handlers::library::get_book_by_id),
+            )
+            .route(
+                "/books",
+                apistos::web::post().to(crate::handlers::library::create_book),
+            )
+            .route(
+                "/books/{book_id}",
+                apistos::web::put().to(crate::handlers::library::update_book),
+            )
+            .route(
+                "/books/{book_id}",
+                apistos::web::delete().to(crate::handlers::library::delete_book),
+            )
+            .route(
+                "/books/category/{category_id}",
+                apistos::web::get().to(crate::handlers::library::get_books_by_category),
+            )
             // Issue/Return routes
-            .route("/issues", apistos::web::post().to(crate::handlers::library::issue_book))
-            .route("/issues/{issue_id}", apistos::web::get().to(crate::handlers::library::get_issue_by_id))
-            .route("/issues/{issue_id}/return", apistos::web::post().to(crate::handlers::library::return_book))
-            .route("/issues/student/{student_id}", apistos::web::get().to(crate::handlers::library::get_issued_books_by_student))
-            .route("/issues/staff/{staff_id}", apistos::web::get().to(crate::handlers::library::get_issued_books_by_staff))
-            .route("/issues/overdue", apistos::web::get().to(crate::handlers::library::get_overdue_books))
+            .route(
+                "/issues",
+                apistos::web::post().to(crate::handlers::library::issue_book),
+            )
+            .route(
+                "/issues/{issue_id}",
+                apistos::web::get().to(crate::handlers::library::get_issue_by_id),
+            )
+            .route(
+                "/issues/{issue_id}/return",
+                apistos::web::post().to(crate::handlers::library::return_book),
+            )
+            .route(
+                "/issues/student/{student_id}",
+                apistos::web::get().to(crate::handlers::library::get_issued_books_by_student),
+            )
+            .route(
+                "/issues/staff/{staff_id}",
+                apistos::web::get().to(crate::handlers::library::get_issued_books_by_staff),
+            )
+            .route(
+                "/issues/overdue",
+                apistos::web::get().to(crate::handlers::library::get_overdue_books),
+            )
             // Fine routes
-            .route("/fines/{issue_id}/pay", apistos::web::post().to(crate::handlers::library::pay_fine))
-            .route("/fines/{issue_id}/waive", apistos::web::post().to(crate::handlers::library::waive_fine))
-            .route("/fines/history", apistos::web::get().to(crate::handlers::library::get_fine_history))
+            .route(
+                "/fines/{issue_id}/pay",
+                apistos::web::post().to(crate::handlers::library::pay_fine),
+            )
+            .route(
+                "/fines/{issue_id}/waive",
+                apistos::web::post().to(crate::handlers::library::waive_fine),
+            )
+            .route(
+                "/fines/history",
+                apistos::web::get().to(crate::handlers::library::get_fine_history),
+            )
             // Settings routes
-            .route("/settings", apistos::web::get().to(crate::handlers::library::get_library_settings))
-            .route("/settings", apistos::web::put().to(crate::handlers::library::update_library_settings))
+            .route(
+                "/settings",
+                apistos::web::get().to(crate::handlers::library::get_library_settings),
+            )
+            .route(
+                "/settings",
+                apistos::web::put().to(crate::handlers::library::update_library_settings),
+            )
             // Statistics routes
-            .route("/stats", apistos::web::get().to(crate::handlers::library::get_library_stats))
+            .route(
+                "/stats",
+                apistos::web::get().to(crate::handlers::library::get_library_stats),
+            ),
     );
 
     cfg.configure(crate::handlers::property::config);

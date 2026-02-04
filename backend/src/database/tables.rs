@@ -130,6 +130,26 @@ pub struct User {
     pub updated_at: NaiveDateTime,
 }
 
+#[derive(Debug, Insertable)]
+#[diesel(table_name = users)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct NewUser {
+    pub id: String,
+    pub email: String,
+    pub password_hash: String,
+    pub google_id: Option<String>,
+    pub github_id: Option<String>,
+    pub is_verified: bool,
+    pub verification_token: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub verification_sent_at: Option<NaiveDateTime>,
+    pub password_reset_token: Option<String>,
+    pub password_reset_sent_at: Option<NaiveDateTime>,
+    pub failed_login_attempts: i32,
+    pub lockout_until: Option<NaiveDateTime>,
+}
+
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
 #[diesel(table_name = roles)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -138,6 +158,15 @@ pub struct Role {
     pub name: String,
     pub parent_id: Option<String>,
 }
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = user_roles)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct NewUserRole {
+    pub user_id: String,
+    pub role_id: String,
+}
+
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
 #[diesel(table_name = permissions)]

@@ -29,6 +29,7 @@ pub struct Config {
     pub email_verification_base_url: String,
     pub password_reset_base_url: String,
     pub send_emails: bool,
+    pub test_user_password: Option<String>,
 }
 
 impl Config {
@@ -102,6 +103,7 @@ impl Config {
             password_reset_base_url,
             send_emails: smtp_host.as_deref().is_some_and(|s| !s.is_empty())
                 && smtp_sender_email.as_deref().is_some_and(|s| !s.is_empty()),
+            test_user_password: env::var("TEST_USER_PASSWORD").ok(),
         })
     }
 
