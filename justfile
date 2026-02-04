@@ -1,4 +1,5 @@
-set shell := ["powershell.exe", "-Command"]
+set shell := ["bash", "-cu"]
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
 db_user := "root"
 db_pass := "secret"
