@@ -716,6 +716,30 @@ export const BulkMarkStudentAttendanceRequestSchema = {
     }
 } as const;
 
+export const BulkUpdateRequestSchema = {
+    title: 'BulkUpdateRequest',
+    type: 'object',
+    required: [
+        'user_ids'
+    ],
+    properties: {
+        is_locked: {
+            type: 'boolean',
+            nullable: true
+        },
+        is_verified: {
+            type: 'boolean',
+            nullable: true
+        },
+        user_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
 export const CalculateZScoreRequestSchema = {
     title: 'CalculateZScoreRequest',
     type: 'object',
@@ -6365,6 +6389,25 @@ export const UpdateTimetableRequestSchema = {
         },
         teacher_id: {
             type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const UpdateUserRequestSchema = {
+    title: 'UpdateUserRequest',
+    type: 'object',
+    properties: {
+        email: {
+            type: 'string',
+            nullable: true
+        },
+        is_locked: {
+            type: 'boolean',
+            nullable: true
+        },
+        is_verified: {
+            type: 'boolean',
             nullable: true
         }
     }

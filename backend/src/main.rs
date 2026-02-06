@@ -86,7 +86,7 @@ async fn main() -> Result<(), APIError> {
     HttpServer::new(move || {
         let cors = Cors::default()
             .allowed_origin(&allowed_origin)
-            .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+            .allowed_methods(vec!["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
             .allowed_headers(vec!["Authorization", "Content-Type", "Accept"])
             .supports_credentials()
             .max_age(3600);

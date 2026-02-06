@@ -95,7 +95,9 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(crate::handlers::users::get_all_users))
             .route("/stats", web::get().to(crate::handlers::users::get_user_stats))
             .route("/bulk", web::delete().to(crate::handlers::users::bulk_delete_users))
-            .route("/{user_id}", web::delete().to(crate::handlers::users::delete_user)),
+            .route("/bulk", web::patch().to(crate::handlers::users::bulk_update_users))
+            .route("/{user_id}", web::delete().to(crate::handlers::users::delete_user))
+            .route("/{user_id}", web::patch().to(crate::handlers::users::update_user)),
     )
     .service(
         web::scope("/permissions")

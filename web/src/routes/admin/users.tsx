@@ -43,18 +43,20 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 import { 
-  getUsers, 
-  getUserStats, 
-  deleteUser, 
-  bulkDeleteUsers, 
-  updateUser, 
-  bulkUpdateUsers 
-} from '@/features/users/api'
-import type { PaginatedUserResponse, UserStatsResponse } from '@/features/users/types'
+  getUsers06Bdcf95Aafda840B1D04322636De293Options,
+  getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaOptions,
+  patchUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
+  deleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
+  deleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
+  patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
+} from '@/lib/api/@tanstack/react-query.gen'
+import type { PaginatedUserResponse, UserStatsResponse } from '@/lib/api/types.gen'
+import { authClient } from '@/lib/clients'
 import { UserAnalytics } from '@/features/users/components/user-analytics'
 import { getUserColumns } from '@/features/users/components/user-table-columns'
 import { UserComparisonOverlay } from '@/features/users/components/user-comparison-overlay'
 import { UserModals } from '@/features/users/components/user-modals'
+import { type BulkUpdateValues } from '@/features/users/schemas'
 
 export const Route = createFileRoute('/admin/users')({
   component: Users,
@@ -72,6 +74,8 @@ function Users() {
   const [selectedUsers, setSelectedUsers] = React.useState<Set<string>>(new Set())
   const [userToDelete, setUserToDelete] = React.useState<string | null>(null)
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = React.useState(false)
+  const [isBulkEditOpen, setIsBulkEditOpen] = React.useState(false)
+  const [userToEdit, setUserToEdit] = React.useState<User | null>(null)
 
   const limit = 10
   const queryClient = useQueryClient()
@@ -88,60 +92,64 @@ function Users() {
   const sortBy = sorting[0]?.id
   const sortOrder = sorting[0]?.desc ? 'desc' : 'asc'
 
-  const { data: usersData, refetch: refetchUsers } = useQuery<PaginatedUserResponse>({
-    queryKey: ['users', page, limit, debouncedSearch, statusFilter, authFilter, sortBy, sortOrder],
-    queryFn: () => getUsers({
-      page,
-      limit,
-      search: debouncedSearch,
-      is_verified: statusFilter === 'all' ? undefined : statusFilter === 'verified',
-      auth_method: authFilter === 'all' ? undefined : authFilter,
-      sort_by: sortBy,
-      sort_order: sortOrder as any,
+  const { data: usersData, refetch: refetchUsers } = useQuery({
+    ...getUsers06Bdcf95Aafda840B1D04322636De293Options({
+      client: authClient,
+      query: {
+        page,
+        limit,
+        search: debouncedSearch,
+        is_verified: statusFilter === 'all' ? undefined : statusFilter === 'verified',
+        auth_method: authFilter === 'all' ? undefined : authFilter,
+        sort_by: sortBy,
+        sort_order: sortOrder as any,
+      },
     }),
     placeholderData: keepPreviousData,
   })
 
-  const { data: stats, refetch: refetchStats } = useQuery<UserStatsResponse>({
-    queryKey: ['users-stats'],
-    queryFn: getUserStats,
-  })
+  const { data: stats, refetch: refetchStats } = useQuery(
+    getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaOptions({
+      client: authClient
+    })
+  )
 
   const deleteMutation = useMutation({
-    mutationFn: deleteUser,
+    ...deleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation({ client: authClient }),
     onSuccess: () => {
       toast.success('User deleted')
-      queryClient.invalidateQueries({ queryKey: ['users'] })
-      queryClient.invalidateQueries({ queryKey: ['users-stats'] })
+      queryClient.invalidateQueries({ queryKey: [{ _id: 'getUsers06Bdcf95Aafda840B1D04322636De293' }] })
+      queryClient.invalidateQueries({ queryKey: [{ _id: 'getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9Fba' }] })
       setUserToDelete(null)
     },
   })
 
   const bulkDeleteMutation = useMutation({
-    mutationFn: bulkDeleteUsers,
+    ...deleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation({ client: authClient }),
     onSuccess: () => {
       toast.success('Users deleted')
-      queryClient.invalidateQueries({ queryKey: ['users'] })
-      queryClient.invalidateQueries({ queryKey: ['users-stats'] })
+      queryClient.invalidateQueries({ queryKey: [{ _id: 'getUsers06Bdcf95Aafda840B1D04322636De293' }] })
+      queryClient.invalidateQueries({ queryKey: [{ _id: 'getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9Fba' }] })
       setSelectedUsers(new Set())
       setIsBulkDeleteOpen(false)
     },
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => updateUser(id, data),
+    ...patchUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation({ client: authClient }),
     onSuccess: () => {
       toast.success('User updated')
-      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: [{ _id: 'getUsers06Bdcf95Aafda840B1D04322636De293' }] })
     },
   })
 
   const bulkUpdateMutation = useMutation({
-    mutationFn: (data: { is_verified?: boolean }) => bulkUpdateUsers(Array.from(selectedUsers), data),
+    ...patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation({ client: authClient }),
     onSuccess: () => {
       toast.success('Batch update complete')
-      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: [{ _id: 'getUsers06Bdcf95Aafda840B1D04322636De293' }] })
       setSelectedUsers(new Set())
+      setIsBulkEditOpen(false)
     },
   })
 
@@ -149,14 +157,15 @@ function Users() {
     selectedUsers,
     setSelectedUsers,
     setUserToDelete,
-    onToggleVerify: (user) => updateMutation.mutate({ id: user.id, data: { is_verified: !user.is_verified } }),
-    onToggleLock: (user) => updateMutation.mutate({ id: user.id, data: { is_locked: true } }), 
+    onToggleVerify: (user) => updateMutation.mutate({ path: { user_id: user.id }, body: { is_verified: !user.is_verified } }),
+    onToggleLock: (user) => updateMutation.mutate({ path: { user_id: user.id }, body: { is_locked: true } }), 
+    onEditUser: (user) => setUserToEdit(user),
     users: usersData?.data,
   }), [selectedUsers, usersData?.data])
 
   return (
     <div className="space-y-6 p-6">
-      <UserAnalytics stats={stats} />
+      <UserAnalytics stats={stats as any} />
 
       {/* Main Content Area */}
       <Card className="border-none shadow-xl overflow-hidden">
@@ -262,19 +271,28 @@ function Users() {
       <UserComparisonOverlay 
         selectedUsers={selectedUsers}
         onClear={() => setSelectedUsers(new Set())}
-        onBulkVerify={(v) => bulkUpdateMutation.mutate({ is_verified: v })}
+        onBulkVerify={(v) => bulkUpdateMutation.mutate({ body: { user_ids: Array.from(selectedUsers), is_verified: v } })}
         onBulkDelete={() => setIsBulkDeleteOpen(true)}
-        users={usersData?.data}
+        onBulkEdit={() => setIsBulkEditOpen(true)}
+        users={usersData?.data as any}
       />
 
       <UserModals 
         userToDelete={userToDelete}
         setUserToDelete={setUserToDelete}
-        onDeleteConfirm={(id) => deleteMutation.mutate(id)}
+        onDeleteConfirm={(id) => deleteMutation.mutate({ path: { user_id: id } })}
         isBulkDeleteOpen={isBulkDeleteOpen}
         setIsBulkDeleteOpen={setIsBulkDeleteOpen}
-        onBulkDeleteConfirm={() => bulkDeleteMutation.mutate(Array.from(selectedUsers))}
+        onBulkDeleteConfirm={() => bulkDeleteMutation.mutate({ body: { user_ids: Array.from(selectedUsers) } })}
+        isBulkEditOpen={isBulkEditOpen}
+        setIsBulkEditOpen={setIsBulkEditOpen}
+        onBulkEditConfirm={(data) => bulkUpdateMutation.mutate({ body: { user_ids: Array.from(selectedUsers), ...data } })}
         selectedCount={selectedUsers.size}
+        isBulkUpdating={bulkUpdateMutation.isPending}
+        userToEdit={userToEdit}
+        setUserToEdit={setUserToEdit}
+        onEditConfirm={(data) => userToEdit && updateMutation.mutate({ path: { user_id: userToEdit.id }, body: data })}
+        isUpdating={updateMutation.isPending}
       />
     </div>
   )

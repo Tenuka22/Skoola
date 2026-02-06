@@ -21,7 +21,7 @@ export type AcademicYearResponse = {
  * AddClubMemberRequest
  */
 export type AddClubMemberRequest = {
-    joined_date: Date;
+    joined_date: string;
     role: string;
     student_id: string;
 };
@@ -48,7 +48,7 @@ export type AddCulturalEventParticipantRequest = {
  * AddSportTeamMemberRequest
  */
 export type AddSportTeamMemberRequest = {
-    joined_date: Date;
+    joined_date: string;
     position?: string | null;
     student_id: string;
 };
@@ -70,10 +70,10 @@ export type AllocationType = 'Student' | 'Teacher' | 'Department' | 'Class';
  * ApplyLeaveRequest
  */
 export type ApplyLeaveRequest = {
-    from_date: Date;
+    from_date: string;
     leave_type: string;
     reason: string;
-    to_date: Date;
+    to_date: string;
 };
 
 /**
@@ -169,9 +169,9 @@ export type AssignSubjectToTeacherRequest = {
 export type AttendanceStatus = 'Present' | 'Absent' | 'Late' | 'Excused' | 'HalfDay';
 
 export type AuthMethodStats = {
-    github: bigint;
-    google: bigint;
-    password_only: bigint;
+    github: number;
+    google: number;
+    password_only: number;
 };
 
 /**
@@ -262,7 +262,7 @@ export type BulkMarkStaffAttendanceItem = {
  */
 export type BulkMarkStaffAttendanceRequest = {
     attendance_records: Array<BulkMarkStaffAttendanceItem>;
-    date: Date;
+    date: string;
 };
 
 /**
@@ -270,6 +270,15 @@ export type BulkMarkStaffAttendanceRequest = {
  */
 export type BulkMarkStudentAttendanceRequest = {
     attendance_records: Array<MarkStudentAttendanceRequest>;
+};
+
+/**
+ * BulkUpdateRequest
+ */
+export type BulkUpdateRequest = {
+    is_locked?: boolean | null;
+    is_verified?: boolean | null;
+    user_ids: Array<string>;
 };
 
 /**
@@ -353,7 +362,7 @@ export type ClubActivity = {
 export type ClubMember = {
     club_id: string;
     created_at: string;
-    joined_date: Date;
+    joined_date: string;
     role: string;
     student_id: string;
     updated_at: string;
@@ -494,7 +503,7 @@ export type CreateExamRequest = {
  * CreateExamSubjectRequest
  */
 export type CreateExamSubjectRequest = {
-    date: Date;
+    date: string;
     duration: number;
     exam_id: string;
     max_marks: number;
@@ -528,7 +537,7 @@ export type CreateFeeStructureRequest = {
     academic_year_id: string;
     amount: number;
     category_id: string;
-    due_date: Date;
+    due_date: string;
     frequency: FeeFrequency;
     grade_id: string;
 };
@@ -644,7 +653,7 @@ export type CreateSportTeamRequest = {
  */
 export type CreateStaffRequest = {
     address: string;
-    dob: Date;
+    dob: string;
     email: string;
     employee_id: string;
     employment_status: EmploymentStatus;
@@ -661,7 +670,7 @@ export type CreateStaffRequest = {
 export type CreateStudentAchievementRequest = {
     achievement_type: string;
     certificate_url?: string | null;
-    date: Date;
+    date: string;
     description: string;
     student_id: string;
 };
@@ -669,10 +678,10 @@ export type CreateStudentAchievementRequest = {
 export type CreateStudentClassAssignmentRequest = {
     academic_year_id: string;
     class_id: string;
-    from_date: Date;
+    from_date: string;
     grade_id: string;
     student_id: string;
-    to_date?: Date | null;
+    to_date?: string | null;
 };
 
 /**
@@ -702,7 +711,7 @@ export type CreateStudentMarkRequest = {
 export type CreateStudentRequest = {
     address: string;
     admission_number: string;
-    dob: Date;
+    dob: string;
     email?: string | null;
     ethnicity?: Ethnicity | null;
     gender: Gender;
@@ -732,9 +741,9 @@ export type CreateSubjectRequest = {
  */
 export type CreateTermRequest = {
     academic_year_id: string;
-    end_date: Date;
+    end_date: string;
     name: string;
-    start_date: Date;
+    start_date: string;
     term_number: number;
 };
 
@@ -791,7 +800,7 @@ export type CulturalEventParticipant = {
 };
 
 export type DomainStat = {
-    count: bigint;
+    count: number;
     domain: string;
 };
 
@@ -830,7 +839,7 @@ export type ExamResponse = {
  */
 export type ExamSubjectResponse = {
     created_at: string;
-    date: Date;
+    date: string;
     duration: number;
     exam_id: string;
     max_marks: number;
@@ -965,7 +974,7 @@ export type FeeStructureResponse = {
     amount: number;
     category_id: string;
     created_at: string;
-    due_date: Date;
+    due_date: string;
     frequency: FeeFrequency;
     grade_id: string;
     id: string;
@@ -1081,7 +1090,7 @@ export type IssueUniformRequest = {
 export type LeaveBalanceResponse = {
     leave_type: string;
     staff_id: string;
-    total_days_taken: bigint;
+    total_days_taken: number;
 };
 
 export type LeaveStatus = 'Pending' | 'Approved' | 'Rejected';
@@ -1090,7 +1099,7 @@ export type LeaveStatus = 'Pending' | 'Approved' | 'Rejected';
  * LibraryBookResponse
  */
 export type LibraryBookResponse = {
-    added_date: Date;
+    added_date: string;
     author: string;
     available_quantity: number;
     category_id: number;
@@ -1120,15 +1129,15 @@ export type LibraryCategory = {
 export type LibraryIssueResponse = {
     book_id: number;
     book_title: string;
-    due_date: Date;
+    due_date: string;
     fine_amount?: number | null;
     fine_paid: boolean;
     id: number;
-    issue_date: Date;
+    issue_date: string;
     issued_by: string;
     issued_by_name: string;
     remarks?: string | null;
-    return_date?: Date | null;
+    return_date?: string | null;
     staff_id?: string | null;
     staff_name?: string | null;
     status: string;
@@ -1154,11 +1163,11 @@ export type LibrarySettings = {
  * LibraryStatsResponse
  */
 export type LibraryStatsResponse = {
-    total_available: bigint;
-    total_books: bigint;
-    total_categories: bigint;
-    total_issued: bigint;
-    total_overdue: bigint;
+    total_available: number;
+    total_books: number;
+    total_categories: number;
+    total_issued: number;
+    total_overdue: number;
 };
 
 /**
@@ -1191,7 +1200,7 @@ export type MaintenanceStatus = 'Pending' | 'InProgress' | 'Completed' | 'Cancel
  * MarkStaffAttendanceRequest
  */
 export type MarkStaffAttendanceRequest = {
-    date: Date;
+    date: string;
     remarks?: string | null;
     status: AttendanceStatus;
     time_in?: string | null;
@@ -1203,7 +1212,7 @@ export type MarkStaffAttendanceRequest = {
  */
 export type MarkStudentAttendanceRequest = {
     class_id: string;
-    date: Date;
+    date: string;
     marked_by: string;
     remarks?: string | null;
     status: AttendanceStatus;
@@ -1225,9 +1234,9 @@ export type MessageResponse = {
 export type MonthlyAttendancePercentageResponse = {
     attendance_percentage: number;
     month: number;
-    present_days: bigint;
+    present_days: number;
     staff_id: string;
-    total_working_days: bigint;
+    total_working_days: number;
     year: number;
 };
 
@@ -1258,10 +1267,10 @@ export type NewGradingScheme = {
  * PaginatedStudentResponse
  */
 export type PaginatedStudentResponse = {
-    limit: bigint;
-    offset: bigint;
+    limit: number;
+    offset: number;
     students: Array<StudentResponse>;
-    total_students: bigint;
+    total_students: number;
 };
 
 /**
@@ -1269,10 +1278,10 @@ export type PaginatedStudentResponse = {
  */
 export type PaginatedUserResponse = {
     data: Array<UserResponse>;
-    limit: bigint;
-    page: bigint;
-    total: bigint;
-    total_pages: bigint;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
 };
 
 /**
@@ -1326,7 +1335,7 @@ export type PettyCashTransactionResponse = {
 export type PromoteStudentRequest = {
     current_academic_year_id: string;
     new_academic_year_id: string;
-    new_assignment_from_date: Date;
+    new_assignment_from_date: string;
     new_class_id: string;
     new_grade_id: string;
     student_id: string;
@@ -1490,7 +1499,7 @@ export type SalaryPaymentResponse = {
  */
 export type SendAbsenceNotificationRequest = {
     class_id: string;
-    date: Date;
+    date: string;
 };
 
 /**
@@ -1515,7 +1524,7 @@ export type SetBudgetRequest = {
 export type SetStaffSalaryRequest = {
     amount: number;
     component_id: string;
-    effective_from: Date;
+    effective_from: string;
     staff_id: string;
 };
 
@@ -1573,7 +1582,7 @@ export type SportTeam = {
 
 export type SportTeamMember = {
     created_at: string;
-    joined_date: Date;
+    joined_date: string;
     position?: string | null;
     student_id: string;
     team_id: string;
@@ -1585,7 +1594,7 @@ export type SportTeamMember = {
  */
 export type StaffAttendanceResponse = {
     created_at: string;
-    date: Date;
+    date: string;
     id: string;
     remarks?: string | null;
     staff_id: string;
@@ -1600,13 +1609,13 @@ export type StaffAttendanceResponse = {
  */
 export type StaffLeaveResponse = {
     created_at: string;
-    from_date: Date;
+    from_date: string;
     id: string;
     leave_type: string;
     reason: string;
     staff_id: string;
     status: LeaveStatus;
-    to_date: Date;
+    to_date: string;
     updated_at: string;
 };
 
@@ -1616,7 +1625,7 @@ export type StaffLeaveResponse = {
 export type StaffResponse = {
     address: string;
     created_at: string;
-    dob: Date;
+    dob: string;
     email: string;
     employee_id: string;
     employment_status: EmploymentStatus;
@@ -1637,7 +1646,7 @@ export type StaffSalaryResponse = {
     amount: number;
     component_id: string;
     created_at: string;
-    effective_from: Date;
+    effective_from: string;
     staff_id: string;
     updated_at: string;
 };
@@ -1648,7 +1657,7 @@ export type StudentAchievement = {
     achievement_type: string;
     certificate_url?: string | null;
     created_at: string;
-    date: Date;
+    date: string;
     description: string;
     id: string;
     student_id: string;
@@ -1659,13 +1668,13 @@ export type StudentAchievement = {
  * StudentAttendanceReportResponse
  */
 export type StudentAttendanceReportResponse = {
-    days_absent: bigint;
-    days_late: bigint;
-    days_present: bigint;
+    days_absent: number;
+    days_late: number;
+    days_present: number;
     percentage: number;
     student_id: string;
     student_name: string;
-    total_days: bigint;
+    total_days: number;
 };
 
 /**
@@ -1674,7 +1683,7 @@ export type StudentAttendanceReportResponse = {
 export type StudentAttendanceResponse = {
     class_id: string;
     created_at: string;
-    date: Date;
+    date: string;
     id: string;
     marked_by: string;
     remarks?: string | null;
@@ -1697,11 +1706,11 @@ export type StudentClassAssignmentResponse = {
     academic_year_id: string;
     class_id: string;
     created_at: string;
-    from_date: Date;
+    from_date: string;
     grade_id: string;
     id: string;
     student_id: string;
-    to_date?: Date | null;
+    to_date?: string | null;
     updated_at: string;
 };
 
@@ -1767,7 +1776,7 @@ export type StudentResponse = {
     address: string;
     admission_number: string;
     created_at: string;
-    dob: Date;
+    dob: string;
     email?: string | null;
     ethnicity?: Ethnicity | null;
     gender: Gender;
@@ -1824,8 +1833,8 @@ export type TeacherSubjectAssignmentResponse = {
  */
 export type TeacherWorkloadResponse = {
     teacher_id: string;
-    total_classes_assigned: bigint;
-    total_subjects_assigned: bigint;
+    total_classes_assigned: number;
+    total_subjects_assigned: number;
 };
 
 /**
@@ -1834,10 +1843,10 @@ export type TeacherWorkloadResponse = {
 export type TermResponse = {
     academic_year_id: string;
     created_at: string;
-    end_date: Date;
+    end_date: string;
     id: string;
     name: string;
-    start_date: Date;
+    start_date: string;
     term_number: number;
     updated_at: string;
 };
@@ -1871,7 +1880,7 @@ export type TokenResponse = {
 export type TransactionType = 'Received' | 'Spent';
 
 export type TrendPoint = {
-    count: bigint;
+    count: number;
     date: string;
 };
 
@@ -1958,7 +1967,7 @@ export type UpdateExamRequest = {
  * UpdateExamSubjectRequest
  */
 export type UpdateExamSubjectRequest = {
-    date?: Date | null;
+    date?: string | null;
     duration?: number | null;
     max_marks?: number | null;
     pass_marks?: number | null;
@@ -1988,7 +1997,7 @@ export type UpdateFeeCategoryRequest = {
  */
 export type UpdateFeeStructureRequest = {
     amount?: number | null;
-    due_date?: Date | null;
+    due_date?: string | null;
     frequency?: FeeFrequency | null;
 };
 
@@ -2104,7 +2113,7 @@ export type UpdateStaffAttendanceRequest = {
  */
 export type UpdateStaffRequest = {
     address?: string | null;
-    dob?: Date | null;
+    dob?: string | null;
     email?: string | null;
     gender?: string | null;
     name?: string | null;
@@ -2123,7 +2132,7 @@ export type UpdateStockRequest = {
  * UpdateStudentAttendanceRequest
  */
 export type UpdateStudentAttendanceRequest = {
-    date?: Date | null;
+    date?: string | null;
     marked_by?: string | null;
     remarks?: string | null;
     status?: AttendanceStatus | null;
@@ -2154,7 +2163,7 @@ export type UpdateStudentMarkRequest = {
  */
 export type UpdateStudentRequest = {
     address?: string | null;
-    dob?: Date | null;
+    dob?: string | null;
     email?: string | null;
     ethnicity?: Ethnicity | null;
     gender?: Gender | null;
@@ -2195,6 +2204,15 @@ export type UpdateTimetableRequest = {
 };
 
 /**
+ * UpdateUserRequest
+ */
+export type UpdateUserRequest = {
+    email?: string | null;
+    is_locked?: boolean | null;
+    is_verified?: boolean | null;
+};
+
+/**
  * UserId
  */
 export type UserId = string;
@@ -2212,12 +2230,12 @@ export type UserResponse = {
  */
 export type UserStatsResponse = {
     auth_methods: AuthMethodStats;
-    locked_users: bigint;
-    pending_users: bigint;
+    locked_users: number;
+    pending_users: number;
     registration_trend: Array<TrendPoint>;
     top_domains: Array<DomainStat>;
-    total_users: bigint;
-    verified_users: bigint;
+    total_users: number;
+    verified_users: number;
 };
 
 export type PostAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Data = {
@@ -4127,8 +4145,8 @@ export type GetUsers06Bdcf95Aafda840B1D04322636De293Data = {
         created_after?: string | null;
         created_before?: string | null;
         is_verified?: boolean | null;
-        limit?: bigint | null;
-        page?: bigint | null;
+        limit?: number | null;
+        page?: number | null;
         search?: string | null;
         sort_by?: string | null;
         sort_order?: string | null;
@@ -4381,6 +4399,90 @@ export type DeleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Responses = {
 
 export type DeleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Response = DeleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Responses[keyof DeleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Responses];
 
+export type PatchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Data = {
+    body: BulkUpdateRequest;
+    path?: never;
+    query?: never;
+    url: '/users/bulk';
+};
+
+export type PatchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Responses = {
+    200: MessageResponse;
+};
+
+export type PatchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Response = PatchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Responses[keyof PatchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Responses];
+
 export type DeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaData = {
     body?: never;
     path: {
@@ -4469,6 +4571,95 @@ export type DeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponses = {
 };
 
 export type DeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponse = DeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponses[keyof DeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponses];
+
+export type PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaData = {
+    body: UpdateUserRequest;
+    path: {
+        /**
+         * String
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/users/{user_id}';
+};
+
+export type PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponses = {
+    200: MessageResponse;
+};
+
+export type PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponse = PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponses[keyof PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponses];
 
 export type GetPermissions9C8839E73223Cb930255A2882A4B0Db4Data = {
     body?: never;
@@ -6237,7 +6428,7 @@ export type GetStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Data = {
     body?: never;
     path?: never;
     query: {
-        date: Date;
+        date: string;
     };
     url: '/staff/attendance/date';
 };
@@ -6328,8 +6519,8 @@ export type GetStaffF1Fbe56Dc8A3080E09Ca2Fdbceebd71aData = {
         staff_id: string;
     };
     query?: {
-        end_date?: Date | null;
-        start_date?: Date | null;
+        end_date?: string | null;
+        start_date?: string | null;
     };
     url: '/staff/{staff_id}/attendance/member';
 };
@@ -6779,8 +6970,8 @@ export type GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data = {
     body?: never;
     path?: never;
     query?: {
-        limit?: bigint | null;
-        offset?: bigint | null;
+        limit?: number | null;
+        offset?: number | null;
     };
     url: '/students';
 };
@@ -7218,9 +7409,9 @@ export type GetStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030aData = {
     path?: never;
     query?: {
         admission_number?: string | null;
-        limit?: bigint | null;
+        limit?: number | null;
         name?: string | null;
-        offset?: bigint | null;
+        offset?: number | null;
     };
     url: '/students/search';
 };
@@ -7308,8 +7499,8 @@ export type GetStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6Data = {
     query?: {
         class_id?: string | null;
         grade_id?: string | null;
-        limit?: bigint | null;
-        offset?: bigint | null;
+        limit?: number | null;
+        offset?: number | null;
         status?: StudentStatus | null;
     };
     url: '/students/filter';
@@ -8629,7 +8820,7 @@ export type GetStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dData = {
     body?: never;
     path: {
         class_id: string;
-        date: Date;
+        date: string;
     };
     query?: never;
     url: '/student-attendance/class/{class_id}/date/{date}';
@@ -8718,8 +8909,8 @@ export type GetStudentAttendanceStudentCbbbd2605B69C552A30F213Bbed65251Data = {
         student_id: string;
     };
     query?: {
-        from_date?: Date | null;
-        to_date?: Date | null;
+        from_date?: string | null;
+        to_date?: string | null;
     };
     url: '/student-attendance/student/{student_id}';
 };
@@ -8810,8 +9001,8 @@ export type GetStudentAttendanceStudentF7Ef3Dbb1F865A0Dcf802Dbe04103922Data = {
         student_id: string;
     };
     query: {
-        from_date: Date;
-        to_date: Date;
+        from_date: string;
+        to_date: string;
     };
     url: '/student-attendance/student/{student_id}/percentage';
 };
@@ -8901,8 +9092,8 @@ export type GetStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dData = {
     path?: never;
     query: {
         class_id: string;
-        from_date: Date;
-        to_date: Date;
+        from_date: string;
+        to_date: string;
     };
     url: '/student-attendance/report';
 };
@@ -8989,9 +9180,9 @@ export type GetStudentAttendanceLowAttendanceCc245019A776B2781C79E8Fba9D3CfceDat
     path?: never;
     query: {
         class_id: string;
-        from_date: Date;
+        from_date: string;
         threshold_percentage: number;
-        to_date: Date;
+        to_date: string;
     };
     url: '/student-attendance/low-attendance';
 };

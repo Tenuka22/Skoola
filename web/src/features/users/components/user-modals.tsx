@@ -10,6 +10,10 @@ import {
 } from '@/components/ui/alert-dialog'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Delete02Icon, UserGroupIcon } from '@hugeicons/core-free-icons'
+import { UserBulkEditDialog } from './user-bulk-edit-dialog'
+import { UserEditDialog } from './user-edit-dialog'
+import { BulkUpdateValues, UpdateUserValues } from '../schemas'
+import type { User } from '../types'
 
 interface UserModalsProps {
   userToDelete: string | null
@@ -18,7 +22,15 @@ interface UserModalsProps {
   isBulkDeleteOpen: boolean
   setIsBulkDeleteOpen: (open: boolean) => void
   onBulkDeleteConfirm: () => void
+  isBulkEditOpen: boolean
+  setIsBulkEditOpen: (open: boolean) => void
+  onBulkEditConfirm: (data: BulkUpdateValues) => void
   selectedCount: number
+  isBulkUpdating?: boolean
+  userToEdit: User | null
+  setUserToEdit: (user: User | null) => void
+  onEditConfirm: (data: UpdateUserValues) => void
+  isUpdating?: boolean
 }
 
 export function UserModals({
@@ -28,7 +40,15 @@ export function UserModals({
   isBulkDeleteOpen,
   setIsBulkDeleteOpen,
   onBulkDeleteConfirm,
+  isBulkEditOpen,
+  setIsBulkEditOpen,
+  onBulkEditConfirm,
   selectedCount,
+  isBulkUpdating,
+  userToEdit,
+  setUserToEdit,
+  onEditConfirm,
+  isUpdating,
 }: UserModalsProps) {
   return (
     <>
@@ -77,6 +97,22 @@ export function UserModals({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <UserBulkEditDialog
+        open={isBulkEditOpen}
+        onOpenChange={setIsBulkEditOpen}
+        onConfirm={onBulkEditConfirm}
+        selectedCount={selectedCount}
+        isSubmitting={isBulkUpdating}
+      />
+
+      <UserEditDialog
+        user={userToEdit}
+        open={!!userToEdit}
+        onOpenChange={(open) => !open && setUserToEdit(null)}
+        onConfirm={onEditConfirm}
+        isSubmitting={isUpdating}
+      />
     </>
   )
 }

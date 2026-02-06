@@ -8,7 +8,7 @@ use tracing::warn;
 
 use crate::{
     database::tables::RoleEnum,
-    utils::jwt::{UserId, UserRole},
+    utils::jwt::{UserId, UserRoles},
     errors::APIError,
 };
 
@@ -58,18 +58,18 @@ where
         let required_role = self.required_role.clone();
 
         async move {
-            let user_role = req.extensions().get::<UserRole>().cloned().ok_or_else(|| {
-                warn!("ACTION: Role verification failed | reason: UserRole not found in extensions");
+            let user_roles = req.extensions().get::<UserRoles>().cloned().ok_or_else(|| {
+                warn!("ACTION: Role verification failed | reason: UserRoles not found in extensions");
                 APIError::unauthorized("Unauthorized")
             })?;
 
-            if user_role.0 == required_role {
+            if user_roles.0.contains(&required_role) {
                 srv.call(req).await
             } else {
                 let user_id = req.extensions().get::<UserId>().map(|u| u.0.clone()).unwrap_or_else(|| "unknown".to_string());
                 warn!(
-                    "ACTION: User role verification failed | user_id: {} | user_role: {} | required_role: {}",
-                    user_id, user_role.0, required_role
+                    "ACTION: User role verification failed | user_id: {} | user_roles: {:?} | required_role: {}",
+                    user_id, user_roles.0, required_role
                 );
                 Err(actix_web::Error::from(APIError::forbidden(
                     &format!(

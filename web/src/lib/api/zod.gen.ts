@@ -284,6 +284,21 @@ export const zBulkMarkStaffAttendanceRequest = z.object({
 });
 
 /**
+ * BulkUpdateRequest
+ */
+export const zBulkUpdateRequest = z.object({
+    is_locked: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    is_verified: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    user_ids: z.array(z.string())
+});
+
+/**
  * CalculateZScoreRequest
  */
 export const zCalculateZScoreRequest = z.object({
@@ -3020,6 +3035,24 @@ export const zUpdateTimetableRequest = z.object({
 });
 
 /**
+ * UpdateUserRequest
+ */
+export const zUpdateUserRequest = z.object({
+    email: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    is_locked: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    is_verified: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ]))
+});
+
+/**
  * UserId
  */
 export const zUserId = z.string();
@@ -3317,6 +3350,14 @@ export const zDeleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Data = z.object({
 
 export const zDeleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Response = zMessageResponse;
 
+export const zPatchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Data = z.object({
+    body: zBulkUpdateRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zPatchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Response = zMessageResponse;
+
 export const zDeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaData = z.object({
     body: z.optional(z.never()),
     path: z.object({
@@ -3326,6 +3367,16 @@ export const zDeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaData = z.object({
 });
 
 export const zDeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponse = zMessageResponse;
+
+export const zPatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaData = z.object({
+    body: zUpdateUserRequest,
+    path: z.object({
+        user_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zPatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponse = zMessageResponse;
 
 export const zGetPermissions9C8839E73223Cb930255A2882A4B0Db4Data = z.object({
     body: z.optional(z.never()),

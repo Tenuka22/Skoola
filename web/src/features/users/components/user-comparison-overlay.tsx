@@ -3,7 +3,8 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { 
   ChartBarLineIcon, 
   Tick01Icon,
-  Delete02Icon 
+  Delete02Icon,
+  PencilEdit01Icon
 } from '@hugeicons/core-free-icons'
 import type { User } from '../types'
 
@@ -12,6 +13,7 @@ interface UserComparisonOverlayProps {
   onClear: () => void
   onBulkVerify: (verify: boolean) => void
   onBulkDelete: () => void
+  onBulkEdit: () => void
   users?: User[]
 }
 
@@ -20,6 +22,7 @@ export function UserComparisonOverlay({
   onClear,
   onBulkVerify,
   onBulkDelete,
+  onBulkEdit,
   users,
 }: UserComparisonOverlayProps) {
   if (selectedUsers.size <= 1) return null
@@ -61,6 +64,16 @@ export function UserComparisonOverlay({
       </div>
 
       <div className="flex items-center gap-2 border-l border-border/50 pl-8">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-10 rounded-xl gap-2 font-bold px-4 hover:bg-primary/10"
+          onClick={onBulkEdit}
+        >
+          <HugeiconsIcon icon={PencilEdit01Icon} className="size-4 text-primary" />
+          Bulk Edit
+        </Button>
+
         <Button
           variant="outline"
           size="sm"

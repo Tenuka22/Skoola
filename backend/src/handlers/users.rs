@@ -47,12 +47,16 @@ pub struct BulkDeleteRequest {
 pub struct BulkUpdateRequest {
     pub user_ids: Vec<String>,
     pub is_verified: Option<bool>,
+    pub is_locked: Option<bool>,
+    pub roles: Option<Vec<String>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
 pub struct UpdateUserRequest {
+    pub email: Option<String>,
     pub is_verified: Option<bool>,
     pub is_locked: Option<bool>,
+    pub roles: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -287,22 +291,50 @@ pub async fn update_user(
     body: web::Json<UpdateUserRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let mut target = diesel::update(users::table.find(user_id.into_inner())).into_boxed();
+    let id = user_id.into_inner();
 
-    if let Some(v) = body.is_verified {
-        target = target.set(users::is_verified.eq(v));
-    }
+    conn.transaction::<_, APIError, _>(|conn| {
+        if let Some(e) = &body.email {
+            diesel::update(users::table.find(&id))
+                .set(users::email.eq(e))
+                .execute(conn)?;
+        }
 
-    if let Some(locked) = body.is_locked {
-        let lockout = if locked {
-            Some(Utc::now().naive_utc() + Duration::days(365)) // Lock for a year
-        } else {
-            None
-        };
-        target = target.set(users::lockout_until.eq(lockout));
-    }
+        if let Some(v) = body.is_verified {
+            diesel::update(users::table.find(&id))
+                .set(users::is_verified.eq(v))
+                .execute(conn)?;
+        }
 
-    target.execute(&mut conn)?;
+        if let Some(locked) = body.is_locked {
+            let lockout = if locked {
+                Some(Utc::now().naive_utc() + Duration::days(365)) // Lock for a year
+            } else {
+                None
+            };
+            diesel::update(users::table.find(&id))
+                .set(users::lockout_until.eq(lockout))
+                .execute(conn)?;
+        }
+
+        if let Some(role_names) = &body.roles {
+            diesel::delete(user_roles::table.filter(user_roles::user_id.eq(&id)))
+                .execute(conn)?;
+            
+            for role_name in role_names {
+                let role_id: String = roles::table
+                    .filter(roles::name.eq(role_name))
+                    .select(roles::id)
+                    .first(conn)?;
+                
+                diesel::insert_into(user_roles::table)
+                    .values((user_roles::user_id.eq(&id), user_roles::role_id.eq(role_id)))
+                    .execute(conn)?;
+            }
+        }
+        Ok(())
+    })?;
+
     Ok(Json(MessageResponse { message: "User updated successfully".to_string() }))
 }
 
@@ -316,10 +348,44 @@ pub async fn bulk_update_users(
     body: web::Json<BulkUpdateRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    if let Some(v) = body.is_verified {
-        diesel::update(users::table.filter(users::id.eq_any(&body.user_ids)))
-            .set(users::is_verified.eq(v))
-            .execute(&mut conn)?;
-    }
+    
+    conn.transaction::<_, APIError, _>(|conn| {
+        if let Some(v) = body.is_verified {
+            diesel::update(users::table.filter(users::id.eq_any(&body.user_ids)))
+                .set(users::is_verified.eq(v))
+                .execute(conn)?;
+        }
+
+        if let Some(locked) = body.is_locked {
+            let lockout = if locked {
+                Some(Utc::now().naive_utc() + Duration::days(365)) // Lock for a year
+            } else {
+                None
+            };
+            diesel::update(users::table.filter(users::id.eq_any(&body.user_ids)))
+                .set(users::lockout_until.eq(lockout))
+                .execute(conn)?;
+        }
+
+        if let Some(role_names) = &body.roles {
+            let role_ids: Vec<String> = roles::table
+                .filter(roles::name.eq_any(role_names))
+                .select(roles::id)
+                .load(conn)?;
+
+            for user_id in &body.user_ids {
+                diesel::delete(user_roles::table.filter(user_roles::user_id.eq(user_id)))
+                    .execute(conn)?;
+                
+                for r_id in &role_ids {
+                    diesel::insert_into(user_roles::table)
+                        .values((user_roles::user_id.eq(user_id), user_roles::role_id.eq(r_id)))
+                        .execute(conn)?;
+                }
+            }
+        }
+        Ok(())
+    })?;
+
     Ok(Json(MessageResponse { message: "Users updated successfully".to_string() }))
 }

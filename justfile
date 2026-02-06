@@ -18,3 +18,6 @@ dev-web:
 
 gen-api:
     cd web; bun run api
+
+db-ui:
+    cd web; bun run drizzle-kit studio

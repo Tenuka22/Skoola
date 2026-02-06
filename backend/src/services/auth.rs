@@ -17,7 +17,7 @@ use crate::{
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
     pub sub: String,
-    pub role: String,
+    pub roles: Vec<String>,
     pub exp: i64,
 }
 
@@ -31,12 +31,18 @@ pub fn verify_password(password: &str, hash: &str) -> Result<bool, APIError> {
 
 pub fn create_token_pair(user: &User, config: &Config, db_pool: &DbPool) -> Result<(String, String, i64), APIError> {
     let mut conn = db_pool.get()?;
-    let user_role = user_roles::table
+    let user_roles = user_roles::table
         .inner_join(roles::table)
         .filter(user_roles::user_id.eq(&user.id))
         .select(roles::name)
-        .first::<String>(&mut conn)
-        .unwrap_or_else(|_| "Guest".to_string());
+        .load::<String>(&mut conn)
+        .unwrap_or_default();
+
+    let roles = if user_roles.is_empty() {
+        vec!["Guest".to_string()]
+    } else {
+        user_roles
+    };
 
     let expiration = Utc::now()
         .checked_add_signed(Duration::days(config.jwt_expiration as i64))
@@ -45,7 +51,7 @@ pub fn create_token_pair(user: &User, config: &Config, db_pool: &DbPool) -> Resu
 
     let claims = Claims {
         sub: user.id.to_string(),
-        role: user_role,
+        roles,
         exp: expiration,
     };
 

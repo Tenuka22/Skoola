@@ -8,6 +8,7 @@ import {
   Sorting05Icon,
   SquareLock02Icon,
   Menu01Icon,
+  PencilEdit01Icon,
 } from '@hugeicons/core-free-icons'
 import { format } from 'date-fns'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -26,6 +27,7 @@ interface GetColumnsProps {
   setUserToDelete: (id: string) => void
   onToggleVerify: (user: User) => void
   onToggleLock: (user: User) => void
+  onEditUser: (user: User) => void
   users?: User[]
 }
 
@@ -35,6 +37,7 @@ export function getUserColumns({
   setUserToDelete,
   onToggleVerify,
   onToggleLock,
+  onEditUser,
   users,
 }: GetColumnsProps): ColumnDef<User>[] {
   return [
@@ -131,6 +134,13 @@ export function getUserColumns({
                 </Button>
               } />
               <DropdownMenuContent align="end" className="w-48 rounded-xl p-2">
+                <DropdownMenuItem 
+                  className="gap-2 rounded-lg py-2"
+                  onClick={() => onEditUser(user)}
+                >
+                  <HugeiconsIcon icon={PencilEdit01Icon} className="size-4 text-muted-foreground" />
+                  <span>Edit User</span>
+                </DropdownMenuItem>
                 <DropdownMenuItem 
                   className="gap-2 rounded-lg py-2"
                   onClick={() => onToggleVerify(user)}

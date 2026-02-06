@@ -70,16 +70,17 @@ where
                 match decode_jwt(token, &config) {
                     Ok(claims) => {
                         let user_id = claims.sub.clone();
-                        let user_role = claims
-                            .role
-                            .parse::<RoleEnum>()
-                            .unwrap_or_else(|_| RoleEnum::Guest);
+                        let user_roles: Vec<RoleEnum> = claims
+                            .roles
+                            .iter()
+                            .map(|r| r.parse::<RoleEnum>().unwrap_or(RoleEnum::Guest))
+                            .collect();
                         info!(
-                            "ACTION: JWT decoded successfully | user_id: {} | role: {:?}",
-                            user_id, user_role
+                            "ACTION: JWT decoded successfully | user_id: {} | roles: {:?}",
+                            user_id, user_roles
                         );
                         req.extensions_mut().insert(UserId(user_id));
-                        req.extensions_mut().insert(UserRole(user_role));
+                        req.extensions_mut().insert(UserRoles(user_roles));
                         srv.call(req).await
                     }
                     Err(e) => {
@@ -121,9 +122,9 @@ impl FromRequest for UserId {
 }
 
 #[derive(Debug, Clone, ApiComponent, JsonSchema)]
-pub struct UserRole(pub RoleEnum);
+pub struct UserRoles(pub Vec<RoleEnum>);
 
-impl FromRequest for UserRole {
+impl FromRequest for UserRoles {
     type Error = Error;
     type Future = Ready<Result<Self, Self::Error>>;
 
@@ -132,13 +133,13 @@ impl FromRequest for UserRole {
         _payload: &mut actix_web::dev::Payload,
     ) -> Self::Future {
         let extensions = req.extensions();
-        match extensions.get::<UserRole>() {
-            Some(user_role) => ok(user_role.clone()),
+        match extensions.get::<UserRoles>() {
+            Some(user_roles) => ok(user_roles.clone()),
             None => {
                 warn!(
-                    "ACTION: Failed to extract UserRole from request extensions, defaulting to Guest."
+                    "ACTION: Failed to extract UserRoles from request extensions, defaulting to Guest."
                 );
-                ok(UserRole(RoleEnum::Guest))
+                ok(UserRoles(vec![RoleEnum::Guest]))
             }
         }
     }

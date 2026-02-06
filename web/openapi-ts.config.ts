@@ -8,7 +8,6 @@ export default defineConfig({
     '@tanstack/react-query',
     '@hey-api/typescript',
     '@hey-api/sdk',
-    '@hey-api/transformers',
     {
       name: '@hey-api/schemas',
       type: 'json',
