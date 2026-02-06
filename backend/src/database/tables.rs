@@ -27,7 +27,7 @@ use std::fmt::{Display, Formatter};
 use diesel::FromSqlRow;
 use diesel::backend::Backend;
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq, Eq)]
 #[diesel(sql_type = Text)]
 pub enum RoleEnum {
     Admin,

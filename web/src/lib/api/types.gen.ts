@@ -229,6 +229,13 @@ export type BulkAssignStudentClassRequest = {
     assignments: Array<CreateStudentClassAssignmentRequest>;
 };
 
+/**
+ * BulkCreateStudentMarkRequest
+ */
+export type BulkCreateStudentMarkRequest = {
+    marks: Array<CreateStudentMarkRequest>;
+};
+
 export type BulkMarkStaffAttendanceItem = {
     remarks?: string | null;
     staff_id: string;
@@ -665,6 +672,15 @@ export type CreateStudentGuardianRequest = {
     phone: string;
     relationship: string;
     student_id: string;
+};
+
+export type CreateStudentMarkRequest = {
+    exam_id: string;
+    is_absent?: boolean | null;
+    marks_obtained: number;
+    remarks?: string | null;
+    student_id: string;
+    subject_id: string;
 };
 
 /**
@@ -1699,6 +1715,23 @@ export type StudentGuardianResponse = {
 };
 
 /**
+ * StudentMarkResponse
+ */
+export type StudentMarkResponse = {
+    entered_at: string;
+    entered_by: string;
+    exam_id: string;
+    id: string;
+    is_absent: boolean;
+    marks_obtained: number;
+    remarks?: string | null;
+    student_id: string;
+    subject_id: string;
+    updated_at: string;
+    updated_by?: string | null;
+};
+
+/**
  * StudentResponse
  */
 export type StudentResponse = {
@@ -2071,6 +2104,15 @@ export type UpdateStudentGuardianRequest = {
     name?: string | null;
     phone?: string | null;
     relationship?: string | null;
+};
+
+/**
+ * UpdateStudentMarkRequest
+ */
+export type UpdateStudentMarkRequest = {
+    is_absent?: boolean | null;
+    marks_obtained?: number | null;
+    remarks?: string | null;
 };
 
 /**
@@ -2905,7 +2947,7 @@ export type GetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eResponses = {
 export type GetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eResponse = GetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eResponses[keyof GetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eResponses];
 
 export type GetProfileC838C8E7Da73Bfc08645A117E4Df91F3Data = {
-    body: UserId;
+    body?: never;
     path?: never;
     query?: never;
     url: '/profile';
@@ -8719,6 +8761,707 @@ export type PostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28
 };
 
 export type PostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28486cResponse = PostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28486cResponses[keyof PostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28486cResponses];
+
+export type GetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/student-marks';
+};
+
+export type GetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponses = {
+    200: Array<StudentMarkResponse>;
+};
+
+export type GetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponse = GetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponses[keyof GetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponses];
+
+export type PostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfData = {
+    body: UserId;
+    path?: never;
+    query?: never;
+    url: '/student-marks';
+};
+
+export type PostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponses = {
+    200: StudentMarkResponse;
+};
+
+export type PostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponse = PostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponses[keyof PostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponses];
+
+export type DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/student-marks/{id}';
+};
+
+export type DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses = {
+    200: MessageResponse;
+};
+
+export type DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Response = DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses[keyof DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses];
+
+export type GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/student-marks/{id}';
+};
+
+export type GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses = {
+    200: StudentMarkResponse;
+};
+
+export type GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Response = GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses[keyof GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses];
+
+export type PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = {
+    body: UserId;
+    path: {
+        /**
+         * String
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/student-marks/{id}';
+};
+
+export type PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses = {
+    200: StudentMarkResponse;
+};
+
+export type PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Response = PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses[keyof PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses];
+
+export type GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaData = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        student_id: string;
+    };
+    query?: never;
+    url: '/student-marks/student/{student_id}';
+};
+
+export type GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaResponses = {
+    200: Array<StudentMarkResponse>;
+};
+
+export type GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaResponse = GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaResponses[keyof GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaResponses];
+
+export type GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Data = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        exam_id: string;
+        /**
+         * String
+         */
+        class_id: string;
+    };
+    query?: never;
+    url: '/student-marks/exam/{exam_id}/class/{class_id}';
+};
+
+export type GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Responses = {
+    200: Array<StudentMarkResponse>;
+};
+
+export type GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Response = GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Responses[keyof GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Responses];
+
+export type PostStudentMarksBulk93Bc791320C6081B960044154A039A2fData = {
+    body: UserId;
+    path?: never;
+    query?: never;
+    url: '/student-marks/bulk';
+};
+
+export type PostStudentMarksBulk93Bc791320C6081B960044154A039A2fErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PostStudentMarksBulk93Bc791320C6081B960044154A039A2fResponses = {
+    200: Array<StudentMarkResponse>;
+};
+
+export type PostStudentMarksBulk93Bc791320C6081B960044154A039A2fResponse = PostStudentMarksBulk93Bc791320C6081B960044154A039A2fResponses[keyof PostStudentMarksBulk93Bc791320C6081B960044154A039A2fResponses];
 
 export type GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceData = {
     body?: never;

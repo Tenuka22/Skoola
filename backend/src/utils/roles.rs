@@ -1,18 +1,15 @@
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
-    web, Error, FromRequest
+    Error, HttpMessage,
 };
 use futures_util::future::{ok, FutureExt, LocalBoxFuture};
 use std::rc::Rc;
 use tracing::warn;
-use diesel::prelude::*;
 
 use crate::{
-    database::{tables::{RoleEnum}},
-    schema::{roles, user_roles},
-    utils::jwt::UserId,
-    config::AppState, // Import AppState
-    errors::APIError, // Import APIError
+    database::tables::RoleEnum,
+    utils::jwt::{UserId, UserRole},
+    errors::APIError,
 };
 
 pub struct RoleVerification {
@@ -56,40 +53,23 @@ where
 
     forward_ready!(service);
 
-    fn call(&self, mut req: ServiceRequest) -> Self::Future {
+    fn call(&self, req: ServiceRequest) -> Self::Future {
         let srv = self.service.clone();
         let required_role = self.required_role.clone();
 
         async move {
-            let app_state = req.app_data::<web::Data<AppState>>().ok_or_else(|| {
-                warn!("Failed to get AppState from app data");
-                APIError::internal("Failed to get AppState")
+            let user_role = req.extensions().get::<UserRole>().cloned().ok_or_else(|| {
+                warn!("ACTION: Role verification failed | reason: UserRole not found in extensions");
+                APIError::unauthorized("Unauthorized")
             })?;
-            let db_pool = app_state.db_pool.clone();
 
-            let (http_req, payload) = req.parts_mut();
-            let user_id = UserId::from_request(http_req, payload).await?;
-            
-            let mut conn = db_pool.get().map_err(APIError::from)?;
-
-            let user_id_clone = user_id.0.clone();
-            let user_roles = web::block(move || {
-                user_roles::table
-                    .inner_join(roles::table)
-                    .filter(user_roles::user_id.eq(user_id_clone))
-                    .select(roles::name)
-                    .load::<String>(&mut conn)
-            })
-            .await
-            .map_err(APIError::from)?
-            .map_err(APIError::from)?;
-
-            if user_roles.contains(&required_role.to_string()) {
+            if user_role.0 == required_role {
                 srv.call(req).await
             } else {
+                let user_id = req.extensions().get::<UserId>().map(|u| u.0.clone()).unwrap_or_else(|| "unknown".to_string());
                 warn!(
-                    "ACTION: User role verification failed | user_id: {} | required_role: {}",
-                    user_id.0, required_role
+                    "ACTION: User role verification failed | user_id: {} | user_role: {} | required_role: {}",
+                    user_id, user_role.0, required_role
                 );
                 Err(actix_web::Error::from(APIError::forbidden(
                     &format!(

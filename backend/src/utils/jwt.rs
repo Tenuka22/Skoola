@@ -3,7 +3,7 @@ use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
     web,
 };
-use futures_util::future::{Ready, ok};
+use futures_util::future::{Ready, ok, err};
 use std::future::Future;
 use std::pin::Pin;
 use std::rc::Rc;
@@ -114,7 +114,7 @@ impl FromRequest for UserId {
             Some(user_id) => ok(user_id.clone()),
             None => {
                 warn!("ACTION: Failed to extract UserId from request extensions.");
-                ok(UserId("".to_string()))
+                err(APIError::unauthorized("Unauthorized").into())
             }
         }
     }

@@ -704,6 +704,28 @@ export const zCreateStudentGuardianRequest = z.object({
     student_id: z.string()
 });
 
+export const zCreateStudentMarkRequest = z.object({
+    exam_id: z.string(),
+    is_absent: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    marks_obtained: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    remarks: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    student_id: z.string(),
+    subject_id: z.string()
+});
+
+/**
+ * BulkCreateStudentMarkRequest
+ */
+export const zBulkCreateStudentMarkRequest = z.object({
+    marks: z.array(zCreateStudentMarkRequest)
+});
+
 /**
  * CreateSubjectRequest
  */
@@ -2057,6 +2079,29 @@ export const zStudentGuardianResponse = z.object({
     updated_at: z.string()
 });
 
+/**
+ * StudentMarkResponse
+ */
+export const zStudentMarkResponse = z.object({
+    entered_at: z.string(),
+    entered_by: z.string(),
+    exam_id: z.string(),
+    id: z.string(),
+    is_absent: z.boolean(),
+    marks_obtained: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    remarks: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    student_id: z.string(),
+    subject_id: z.string(),
+    updated_at: z.string(),
+    updated_by: z.optional(z.union([
+        z.string(),
+        z.null()
+    ]))
+});
+
 export const zStudentStatus = z.enum([
     'Active',
     'Transferred',
@@ -2808,6 +2853,24 @@ export const zUpdateStudentGuardianRequest = z.object({
 });
 
 /**
+ * UpdateStudentMarkRequest
+ */
+export const zUpdateStudentMarkRequest = z.object({
+    is_absent: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    marks_obtained: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    remarks: z.optional(z.union([
+        z.string(),
+        z.null()
+    ]))
+});
+
+/**
  * UpdateStudentRequest
  */
 export const zUpdateStudentRequest = z.object({
@@ -3030,7 +3093,7 @@ export const zGetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eData = z.object(
 export const zGetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eResponse = zMessageResponse;
 
 export const zGetProfileC838C8E7Da73Bfc08645A117E4Df91F3Data = z.object({
-    body: zUserId,
+    body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
@@ -3744,6 +3807,81 @@ export const zPostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd
 });
 
 export const zPostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28486cResponse = zMessageResponse;
+
+export const zGetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zGetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponse = z.array(zStudentMarkResponse);
+
+export const zPostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfData = z.object({
+    body: zUserId,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zPostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponse = zStudentMarkResponse;
+
+export const zDeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zDeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Response = zMessageResponse;
+
+export const zGetStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zGetStudentMarks2Fd93F5A28De4E67508299C8813898A0Response = zStudentMarkResponse;
+
+export const zPutStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = z.object({
+    body: zUserId,
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zPutStudentMarks2Fd93F5A28De4E67508299C8813898A0Response = zStudentMarkResponse;
+
+export const zGetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        student_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zGetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaResponse = z.array(zStudentMarkResponse);
+
+export const zGetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Data = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        exam_id: z.string(),
+        class_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zGetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Response = z.array(zStudentMarkResponse);
+
+export const zPostStudentMarksBulk93Bc791320C6081B960044154A039A2fData = z.object({
+    body: zUserId,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zPostStudentMarksBulk93Bc791320C6081B960044154A039A2fResponse = z.array(zStudentMarkResponse);
 
 export const zGetAcademicYearsFccd08769F5A31A4E619B146B8C92DceData = z.object({
     body: z.optional(z.never()),

@@ -36,7 +36,7 @@ where
 }
 
 #[derive(Debug, Display, Error, Serialize, JsonSchema, ApiErrorComponent, Clone)]
-#[display(fmt = "API Error: {name} ({status_code})")]
+#[display(fmt = "API Error: {name} ({status_code}): {message}")]
 #[openapi_error(
     status(code = 400, description = "Bad Request"),
     status(code = 401, description = "Unauthorized"),

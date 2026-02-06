@@ -30,6 +30,7 @@ pub mod student;
 pub mod student_attendance;
 pub mod student_class_assignment;
 pub mod student_guardian;
+pub mod student_marks;
 pub mod subject;
 pub mod teacher_assignments;
 pub mod terms;

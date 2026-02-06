@@ -594,6 +594,22 @@ export const BulkAssignStudentClassRequestSchema = {
     }
 } as const;
 
+export const BulkCreateStudentMarkRequestSchema = {
+    title: 'BulkCreateStudentMarkRequest',
+    type: 'object',
+    required: [
+        'marks'
+    ],
+    properties: {
+        marks: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/CreateStudentMarkRequest'
+            }
+        }
+    }
+} as const;
+
 export const BulkMarkStaffAttendanceItemSchema = {
     type: 'object',
     required: [
@@ -1800,6 +1816,39 @@ export const CreateStudentGuardianRequestSchema = {
             type: 'string'
         },
         student_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const CreateStudentMarkRequestSchema = {
+    type: 'object',
+    required: [
+        'exam_id',
+        'marks_obtained',
+        'student_id',
+        'subject_id'
+    ],
+    properties: {
+        exam_id: {
+            type: 'string'
+        },
+        is_absent: {
+            type: 'boolean',
+            nullable: true
+        },
+        marks_obtained: {
+            type: 'integer',
+            format: 'int32'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        student_id: {
+            type: 'string'
+        },
+        subject_id: {
             type: 'string'
         }
     }
@@ -4945,6 +4994,62 @@ export const StudentGuardianResponseSchema = {
     }
 } as const;
 
+export const StudentMarkResponseSchema = {
+    title: 'StudentMarkResponse',
+    type: 'object',
+    required: [
+        'entered_at',
+        'entered_by',
+        'exam_id',
+        'id',
+        'is_absent',
+        'marks_obtained',
+        'student_id',
+        'subject_id',
+        'updated_at'
+    ],
+    properties: {
+        entered_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        entered_by: {
+            type: 'string'
+        },
+        exam_id: {
+            type: 'string'
+        },
+        id: {
+            type: 'string'
+        },
+        is_absent: {
+            type: 'boolean'
+        },
+        marks_obtained: {
+            type: 'integer',
+            format: 'int32'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        student_id: {
+            type: 'string'
+        },
+        subject_id: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        updated_by: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
 export const StudentResponseSchema = {
     title: 'StudentResponse',
     type: 'object',
@@ -5981,6 +6086,26 @@ export const UpdateStudentGuardianRequestSchema = {
             nullable: true
         },
         relationship: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const UpdateStudentMarkRequestSchema = {
+    title: 'UpdateStudentMarkRequest',
+    type: 'object',
+    properties: {
+        is_absent: {
+            type: 'boolean',
+            nullable: true
+        },
+        marks_obtained: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        remarks: {
             type: 'string',
             nullable: true
         }

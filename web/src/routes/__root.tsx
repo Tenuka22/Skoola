@@ -5,6 +5,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import appCss from '../styles.css?url'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { QueryProvider } from '@/components/providers/query-provider'
+import { NotFound } from '@/components/root/not-found'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -28,6 +29,7 @@ export const Route = createRootRoute({
     ],
   }),
 
+  notFoundComponent: NotFound,
   shellComponent: RootDocument,
 })
 

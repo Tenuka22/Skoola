@@ -30,7 +30,8 @@ use crate::{
         },
         staff_leaves::{apply_for_leave, approve_reject_leave, view_leave_balance},
         staff_roles::{assign_role_to_staff, get_staff_roles, remove_role_from_staff},
-        student, student_attendance, student_class_assignment, student_guardian, subject,
+        student, student_attendance, student_class_assignment, student_guardian, student_marks,
+        subject,
         teacher_assignments::{
             assign_class_to_teacher, assign_subject_to_teacher, get_teacher_workload,
         },
@@ -279,6 +280,27 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 "/notifications/absent",
                 web::post().to(student_attendance::send_absence_notifications),
             ),
+    )
+    .service(
+        web::scope("/student-marks")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::Teacher,
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(student_marks::create_student_mark))
+            .route("/{id}", web::get().to(student_marks::get_student_mark_by_id))
+            .route("", web::get().to(student_marks::get_all_student_marks))
+            .route(
+                "/student/{student_id}",
+                web::get().to(student_marks::get_student_marks_by_student_id),
+            )
+            .route(
+                "/exam/{exam_id}/class/{class_id}",
+                web::get().to(student_marks::get_student_marks_by_exam_and_class),
+            )
+            .route("/{id}", web::put().to(student_marks::update_student_mark))
+            .route("/{id}", web::delete().to(student_marks::delete_student_mark))
+            .route("/bulk", web::post().to(student_marks::bulk_create_student_marks)),
     )
     .service(
         web::scope("/academic-years")

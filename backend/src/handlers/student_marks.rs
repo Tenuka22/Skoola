@@ -8,7 +8,7 @@ use crate::{
     models::student_marks::{CreateStudentMarkRequest, UpdateStudentMarkRequest, BulkCreateStudentMarkRequest, StudentMarkResponse},
     models::MessageResponse,
     services::student_marks,
-    services::auth::Claims, // Corrected import
+    utils::jwt::UserId,
 };
 
 #[api_operation(
@@ -19,10 +19,9 @@ use crate::{
 pub async fn create_student_mark(
     data: web::Data<AppState>,
     body: web::Json<CreateStudentMarkRequest>,
-    claims: web::ReqData<Claims>, // Added this
+    user_id: UserId,
 ) -> Result<Json<StudentMarkResponse>, APIError> {
-    let current_user_id = claims.sub.clone(); // Get user_id from claims
-    let new_student_mark = student_marks::create_student_mark(data.clone(), body.into_inner(), current_user_id).await?;
+    let new_student_mark = student_marks::create_student_mark(data.clone(), body.into_inner(), user_id.0).await?;
     Ok(Json(new_student_mark))
 }
 
@@ -89,11 +88,10 @@ pub async fn update_student_mark(
     data: web::Data<AppState>,
     path: web::Path<String>, // student_mark_id
     body: web::Json<UpdateStudentMarkRequest>,
-    claims: web::ReqData<Claims>, // Added this
+    user_id: UserId,
 ) -> Result<Json<StudentMarkResponse>, APIError> {
     let student_mark_id = path.into_inner();
-    let current_user_id = claims.sub.clone(); // Get user_id from claims
-    let updated_student_mark = student_marks::update_student_mark(data.clone(), student_mark_id, body.into_inner(), current_user_id).await?;
+    let updated_student_mark = student_marks::update_student_mark(data.clone(), student_mark_id, body.into_inner(), user_id.0).await?;
     Ok(Json(updated_student_mark))
 }
 
@@ -119,9 +117,8 @@ pub async fn delete_student_mark(
 pub async fn bulk_create_student_marks(
     data: web::Data<AppState>,
     body: web::Json<BulkCreateStudentMarkRequest>,
-    claims: web::ReqData<Claims>, // Added this
+    user_id: UserId,
 ) -> Result<Json<Vec<StudentMarkResponse>>, APIError> {
-    let current_user_id = claims.sub.clone(); // Get user_id from claims
-    let new_student_marks = student_marks::bulk_create_student_marks(data.clone(), body.into_inner(), current_user_id).await?;
+    let new_student_marks = student_marks::bulk_create_student_marks(data.clone(), body.into_inner(), user_id.0).await?;
     Ok(Json(new_student_marks))
 }
