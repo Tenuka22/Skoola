@@ -1,6 +1,6 @@
-import { UserTheme } from '@/lib/theme'
 import { useTheme } from '../providers/theme-provider'
 import { Button } from '../ui/button'
+import type { UserTheme } from '@/lib/theme'
 
 const themeConfig: Record<UserTheme, { icon: string; label: string }> = {
   light: { icon: '☀️', label: 'Light' },
@@ -12,7 +12,7 @@ export const ThemeToggle = () => {
   const { userTheme, setTheme } = useTheme()
 
   const getNextTheme = () => {
-    const themes = Object.keys(themeConfig) as UserTheme[]
+    const themes = Object.keys(themeConfig) as Array<UserTheme>
     const currentIndex = themes.indexOf(userTheme)
     const nextIndex = (currentIndex + 1) % themes.length
     return themes[nextIndex]

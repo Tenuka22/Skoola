@@ -1,42 +1,55 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+import React from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
 
-interface TimetableEditorProps {
-  // TODO: Define props for timetable data (periods, days, classes, subjects, teachers)
-}
+type TimetableEditorProps = object
+// TODO: Define props for timetable data (periods, days, classes, subjects, teachers)
 
-export const TimetableEditor = ({ /* props */ }: TimetableEditorProps) => {
+export const TimetableEditor = (_props: TimetableEditorProps) => {
   // Placeholder data for a simple timetable grid
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-  const periods = ['Period 1 (9:00-10:00)', 'Period 2 (10:00-11:00)', 'Period 3 (11:00-12:00)'];
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+  const periods = [
+    'Period 1 (9:00-10:00)',
+    'Period 2 (10:00-11:00)',
+    'Period 3 (11:00-12:00)',
+  ]
 
   // Example timetable data (Day -> Period -> Content)
-  const [timetable, setTimetable] = React.useState<Record<string, Record<string, string>>>(
-    {
-      'Monday': {
-        'Period 1 (9:00-10:00)': 'Math - Gr 1A - Mr. Smith',
-        'Period 2 (10:00-11:00)': 'Science - Gr 1A - Ms. Jane',
-      },
-      'Tuesday': {
-        'Period 1 (9:00-10:00)': 'History - Gr 1A - Mr. Smith',
-      },
-    }
-  );
+  const [timetable, setTimetable] = React.useState<
+    Record<string, Record<string, string>>
+  >({
+    Monday: {
+      'Period 1 (9:00-10:00)': 'Math - Gr 1A - Mr. Smith',
+      'Period 2 (10:00-11:00)': 'Science - Gr 1A - Ms. Jane',
+    },
+    Tuesday: {
+      'Period 1 (9:00-10:00)': 'History - Gr 1A - Mr. Smith',
+    },
+  })
 
   const handleCellClick = (day: string, period: string) => {
-    const newContent = prompt(`Enter content for ${day}, ${period}:`, timetable[day]?.[period] || '');
+    const newContent = prompt(
+      `Enter content for ${day}, ${period}:`,
+      (timetable[day] && timetable[day][period]) || '',
+    )
     if (newContent !== null) {
-      setTimetable(prev => ({
+      setTimetable((prev) => ({
         ...prev,
         [day]: {
           ...prev[day],
           [period]: newContent,
         },
-      }));
+      }))
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -51,22 +64,24 @@ export const TimetableEditor = ({ /* props */ }: TimetableEditorProps) => {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[150px]">Time/Day</TableHead>
-                {days.map(day => (
-                  <TableHead key={day} className="text-center">{day}</TableHead>
+                {days.map((day) => (
+                  <TableHead key={day} className="text-center">
+                    {day}
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {periods.map(period => (
+              {periods.map((period) => (
                 <TableRow key={period}>
                   <TableCell className="font-medium">{period}</TableCell>
-                  {days.map(day => (
+                  {days.map((day) => (
                     <TableCell
                       key={day}
                       className="text-center border cursor-pointer hover:bg-muted"
                       onClick={() => handleCellClick(day, period)}
                     >
-                      {timetable[day]?.[period] || ''}
+                      {(timetable[day] && timetable[day][period]) || ''}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -77,5 +92,5 @@ export const TimetableEditor = ({ /* props */ }: TimetableEditorProps) => {
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}

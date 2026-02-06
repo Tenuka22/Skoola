@@ -18,10 +18,10 @@ export function getSystemTheme(): AppTheme {
 }
 
 export function setupPreferredListener(
-  handleThemeChange: (userTheme: UserTheme) => void,
+  onThemeChange: (userTheme: UserTheme) => void,
 ) {
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-  const handler = () => handleThemeChange('system')
+  const handler = () => onThemeChange('system')
   mediaQuery.addEventListener('change', handler)
   return () => mediaQuery.removeEventListener('change', handler)
 }
@@ -52,7 +52,7 @@ export const themeScript: string = (function () {
       } else {
         document.documentElement.classList.add(validTheme)
       }
-    } catch (e) {
+    } catch {
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
         .matches
         ? 'dark'

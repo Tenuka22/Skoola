@@ -1,42 +1,71 @@
-
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { getFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Options } from '@/lib/api/@tanstack/react-query.gen';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
+import { useQuery } from '@tanstack/react-query'
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
+import type { ChartConfig } from '@/components/ui/chart'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { getFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Options } from '@/lib/api/@tanstack/react-query.gen'
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart'
 
 interface BudgetTrackingProps {
-  year_id?: string;
+  year_id?: string
 }
 
 const chartConfig = {
   allocated: {
-    label: "Allocated",
-    color: "hsl(var(--chart-1))",
+    label: 'Allocated',
+    color: 'hsl(var(--chart-1))',
   },
   actual_spent: {
-    label: "Actual Spent",
-    color: "hsl(var(--chart-2))",
+    label: 'Actual Spent',
+    color: 'hsl(var(--chart-2))',
   },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
-export const BudgetTracking = ({ year_id = "current" }: BudgetTrackingProps) => {
-  const { data: budgetComparison, isLoading, error } = useQuery({
+export const BudgetTracking = ({
+  year_id = 'current',
+}: BudgetTrackingProps) => {
+  const {
+    data: budgetComparison,
+    isLoading,
+    error,
+  } = useQuery({
     ...getFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Options({
-      path: { year_id }
-    })
-  });
+      path: { year_id },
+    }),
+  })
 
   if (isLoading) {
-    return <div className="p-4">Loading budget data...</div>;
+    return <div className="p-4">Loading budget data...</div>
   }
 
   if (error) {
-    return <div className="p-4 text-red-500">Error loading budget data: {error.message}</div>;
+    return (
+      <div className="p-4 text-red-500">
+        Error loading budget data: {error.message}
+      </div>
+    )
   }
 
-  const data = budgetComparison || [];
+  const data = budgetComparison || []
 
   return (
     <div className="space-y-6">
@@ -46,11 +75,16 @@ export const BudgetTracking = ({ year_id = "current" }: BudgetTrackingProps) => 
         <Card>
           <CardHeader>
             <CardTitle>Budget Overview</CardTitle>
-            <CardDescription>Allocated vs Actual Spent per Category</CardDescription>
+            <CardDescription>
+              Allocated vs Actual Spent per Category
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {data.length > 0 ? (
-              <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
+              <ChartContainer
+                config={chartConfig}
+                className="min-h-[300px] w-full"
+              >
                 <BarChart accessibilityLayer data={data}>
                   <CartesianGrid vertical={false} />
                   <XAxis
@@ -63,8 +97,16 @@ export const BudgetTracking = ({ year_id = "current" }: BudgetTrackingProps) => 
                   <YAxis />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <ChartLegend content={<ChartLegendContent />} />
-                  <Bar dataKey="allocated" fill="var(--color-allocated)" radius={4} />
-                  <Bar dataKey="actual_spent" fill="var(--color-actual_spent)" radius={4} />
+                  <Bar
+                    dataKey="allocated"
+                    fill="var(--color-allocated)"
+                    radius={4}
+                  />
+                  <Bar
+                    dataKey="actual_spent"
+                    fill="var(--color-actual_spent)"
+                    radius={4}
+                  />
                 </BarChart>
               </ChartContainer>
             ) : (
@@ -93,10 +135,18 @@ export const BudgetTracking = ({ year_id = "current" }: BudgetTrackingProps) => 
               <TableBody>
                 {data.map((item, index) => (
                   <TableRow key={index}>
-                    <TableCell className="font-medium">{item.category_name}</TableCell>
-                    <TableCell className="text-right">{item.allocated.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">{item.actual_spent.toFixed(2)}</TableCell>
-                    <TableCell className={`text-right ${item.variance < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                    <TableCell className="font-medium">
+                      {item.category_name}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {item.allocated.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {item.actual_spent.toFixed(2)}
+                    </TableCell>
+                    <TableCell
+                      className={`text-right ${item.variance < 0 ? 'text-red-500' : 'text-green-500'}`}
+                    >
                       {item.variance.toFixed(2)}
                     </TableCell>
                   </TableRow>
@@ -107,5 +157,5 @@ export const BudgetTracking = ({ year_id = "current" }: BudgetTrackingProps) => 
         </Card>
       </div>
     </div>
-  );
-};
+  )
+}

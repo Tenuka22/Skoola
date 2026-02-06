@@ -1,9 +1,14 @@
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 interface StaffProfileProps {
-  staffId: string;
+  staffId: string
   // TODO: Define props for staff data
 }
 
@@ -11,19 +16,21 @@ export const StaffProfile = ({ staffId }: StaffProfileProps) => {
   // Placeholder staff data
   const staff = {
     id: staffId,
-    name: "John Doe",
-    email: "john.doe@example.com",
-    role: "Teacher",
-    department: "Science",
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    role: 'Teacher',
+    department: 'Science',
     // ... other profile details
-  };
+  }
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Staff Profile: {staff.name}</CardTitle>
-          <CardDescription>Details for {staff.name} ({staff.role})</CardDescription>
+          <CardDescription>
+            Details for {staff.name} ({staff.role})
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {/* Basic overview info */}
@@ -41,7 +48,9 @@ export const StaffProfile = ({ staffId }: StaffProfileProps) => {
         </TabsList>
         <TabsContent value="overview">
           <Card>
-            <CardHeader><CardTitle>Overview Details</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Overview Details</CardTitle>
+            </CardHeader>
             <CardContent>
               <p>Full overview of staff member.</p>
               {/* More detailed overview content */}
@@ -50,7 +59,9 @@ export const StaffProfile = ({ staffId }: StaffProfileProps) => {
         </TabsContent>
         <TabsContent value="classes">
           <Card>
-            <CardHeader><CardTitle>Classes Assigned</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Classes Assigned</CardTitle>
+            </CardHeader>
             <CardContent>
               <p>List of classes and subjects taught.</p>
               {/* Classes content */}
@@ -59,7 +70,9 @@ export const StaffProfile = ({ staffId }: StaffProfileProps) => {
         </TabsContent>
         <TabsContent value="attendance">
           <Card>
-            <CardHeader><CardTitle>Attendance Records</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Attendance Records</CardTitle>
+            </CardHeader>
             <CardContent>
               <p>Staff attendance history.</p>
               {/* Attendance content */}
@@ -68,7 +81,9 @@ export const StaffProfile = ({ staffId }: StaffProfileProps) => {
         </TabsContent>
         <TabsContent value="payroll">
           <Card>
-            <CardHeader><CardTitle>Payroll Information</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Payroll Information</CardTitle>
+            </CardHeader>
             <CardContent>
               <p>Payroll details and history.</p>
               {/* Payroll content */}
@@ -77,5 +92,5 @@ export const StaffProfile = ({ staffId }: StaffProfileProps) => {
         </TabsContent>
       </Tabs>
     </div>
-  );
-};
+  )
+}

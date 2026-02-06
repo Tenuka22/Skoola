@@ -1,10 +1,10 @@
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
-  useReactTable,
   getPaginationRowModel,
-} from "@tanstack/react-table";
+  useReactTable,
+} from '@tanstack/react-table'
+import type { ColumnDef } from '@tanstack/react-table'
 
 import {
   Table,
@@ -13,21 +13,20 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+  columns: Array<ColumnDef<TData, TValue>>
+  data: Array<TData>
   // Add pagination props
-  pageIndex: number;
-  pageSize: number;
-  pageCount: number;
-  canNextPage: boolean;
-  canPreviousPage: boolean;
-  fetchNextPage: () => void;
-  fetchPreviousPage: () => void;
+  pageIndex: number
+  pageSize: number
+  pageCount: number
+  canNextPage: boolean
+  canPreviousPage: boolean
+  fetchNextPage: () => void
+  fetchPreviousPage: () => void
 }
 
 export function DataTable<TData, TValue>({
@@ -54,7 +53,7 @@ export function DataTable<TData, TValue>({
       },
     },
     pageCount,
-  });
+  })
 
   return (
     <div>
@@ -70,31 +69,37 @@ export function DataTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row: any) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
                   {row.getVisibleCells().map((cell: any) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
                   No results.
                 </TableCell>
               </TableRow>
@@ -121,5 +126,5 @@ export function DataTable<TData, TValue>({
         </Button>
       </div>
     </div>
-  );
+  )
 }

@@ -1,39 +1,41 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import * as Icons from '@hugeicons/react';
+import { useState } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { BookOpen01Icon, Book02Icon } from '@hugeicons/core-free-icons'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 
-interface CirculationScannerProps {
-  // TODO: Define props for issue/return functions
-}
+type CirculationScannerProps = object
+// TODO: Define props for issue/return functions
 
-export const CirculationScanner = ({ /* props */ }: CirculationScannerProps) => {
-  const [bookIdentifier, setBookIdentifier] = useState('');
-  const [userIdentifier, setUserIdentifier] = useState('');
-  const [feedback, setFeedback] = useState('');
+export const CirculationScanner = (_props: CirculationScannerProps) => {
+  const [bookIdentifier, setBookIdentifier] = useState('')
+  const [userIdentifier, setUserIdentifier] = useState('')
+  const [feedback, setFeedback] = useState('')
 
   const handleIssueBook = () => {
     if (bookIdentifier && userIdentifier) {
-      setFeedback(`Attempting to ISSUE book '${bookIdentifier}' to user '${userIdentifier}'.`);
+      setFeedback(
+        `Attempting to ISSUE book '${bookIdentifier}' to user '${userIdentifier}'.`,
+      )
       // TODO: Implement actual issue logic via API
-      setBookIdentifier('');
-      setUserIdentifier('');
+      setBookIdentifier('')
+      setUserIdentifier('')
     } else {
-      setFeedback('Please enter both Book and User Identifiers to issue.');
+      setFeedback('Please enter both Book and User Identifiers to issue.')
     }
-  };
+  }
 
   const handleReturnBook = () => {
     if (bookIdentifier) {
-      setFeedback(`Attempting to RETURN book '${bookIdentifier}'.`);
+      setFeedback(`Attempting to RETURN book '${bookIdentifier}'.`)
       // TODO: Implement actual return logic via API
-      setBookIdentifier('');
+      setBookIdentifier('')
     } else {
-      setFeedback('Please enter a Book Identifier to return.');
+      setFeedback('Please enter a Book Identifier to return.')
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -65,16 +67,24 @@ export const CirculationScanner = ({ /* props */ }: CirculationScannerProps) => 
 
           <div className="flex gap-4 justify-between">
             <Button onClick={handleIssueBook} className="flex-grow">
-              <Icons.BookOpen className="h-5 w-5 mr-2" />Issue Book
+              <HugeiconsIcon icon={BookOpen01Icon} className="h-5 w-5 mr-2" />
+              Issue Book
             </Button>
-            <Button onClick={handleReturnBook} className="flex-grow" variant="secondary">
-              <Icons.BookX className="h-5 w-5 mr-2" />Return Book
+            <Button
+              onClick={handleReturnBook}
+              className="flex-grow"
+              variant="secondary"
+            >
+              <HugeiconsIcon icon={Book02Icon} className="h-5 w-5 mr-2" />
+              Return Book
             </Button>
           </div>
 
-          {feedback && <p className="text-sm text-muted-foreground mt-4">{feedback}</p>}
+          {feedback && (
+            <p className="text-sm text-muted-foreground mt-4">{feedback}</p>
+          )}
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}

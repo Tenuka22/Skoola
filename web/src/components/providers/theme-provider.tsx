@@ -1,15 +1,15 @@
+import { ScriptOnce } from '@tanstack/react-router'
+import { createContext, use, useEffect, useState } from 'react'
+import type { AppTheme, UserTheme } from '@/lib/theme'
+import type { ReactNode } from 'react'
 import {
-  AppTheme,
   getStoredUserTheme,
   getSystemTheme,
   handleThemeChange,
   setStoredTheme,
   setupPreferredListener,
   themeScript,
-  UserTheme,
 } from '@/lib/theme'
-import { ScriptOnce } from '@tanstack/react-router'
-import { createContext, ReactNode, use, useEffect, useState } from 'react'
 
 type ThemeContextProps = {
   userTheme: UserTheme

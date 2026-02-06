@@ -1,5 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { GuestGuard } from '@/features/auth/components/guest-guard';
+import { createFileRoute } from '@tanstack/react-router'
+import { GuestGuard } from '@/features/auth/components/guest-guard'
 
 export const Route = createFileRoute('/(auth)/register')({
   component: () => {
@@ -10,6 +10,6 @@ export const Route = createFileRoute('/(auth)/register')({
           {/* Register form will go here */}
         </div>
       </GuestGuard>
-    );
+    )
   },
-});
+})
