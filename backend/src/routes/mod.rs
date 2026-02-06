@@ -87,6 +87,17 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             ),
     )
     .service(
+        web::scope("/users")
+            .wrap(RoleVerification {
+                required_role: RoleEnum::FullAdmin,
+            })
+            .wrap(Authenticated)
+            .route("", web::get().to(crate::handlers::users::get_all_users))
+            .route("/stats", web::get().to(crate::handlers::users::get_user_stats))
+            .route("/bulk", web::delete().to(crate::handlers::users::bulk_delete_users))
+            .route("/{user_id}", web::delete().to(crate::handlers::users::delete_user)),
+    )
+    .service(
         web::scope("/permissions")
             .wrap(RoleVerification {
                 required_role: RoleEnum::FullAdmin,

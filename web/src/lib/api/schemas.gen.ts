@@ -424,6 +424,29 @@ export const AttendanceStatusSchema = {
     ]
 } as const;
 
+export const AuthMethodStatsSchema = {
+    type: 'object',
+    required: [
+        'github',
+        'google',
+        'password_only'
+    ],
+    properties: {
+        github: {
+            type: 'integer',
+            format: 'int64'
+        },
+        google: {
+            type: 'integer',
+            format: 'int64'
+        },
+        password_only: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
 export const BudgetCategoryResponseSchema = {
     title: 'BudgetCategoryResponse',
     type: 'object',
@@ -605,6 +628,22 @@ export const BulkCreateStudentMarkRequestSchema = {
             type: 'array',
             items: {
                 $ref: '#/components/schemas/CreateStudentMarkRequest'
+            }
+        }
+    }
+} as const;
+
+export const BulkDeleteRequestSchema = {
+    title: 'BulkDeleteRequest',
+    type: 'object',
+    required: [
+        'user_ids'
+    ],
+    properties: {
+        user_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
             }
         }
     }
@@ -2151,6 +2190,23 @@ export const CulturalEventParticipantSchema = {
     }
 } as const;
 
+export const DomainStatSchema = {
+    type: 'object',
+    required: [
+        'count',
+        'domain'
+    ],
+    properties: {
+        count: {
+            type: 'integer',
+            format: 'int64'
+        },
+        domain: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const EducationLevelSchema = {
     type: 'string',
     enum: [
@@ -3610,6 +3666,42 @@ export const PaginatedStudentResponseSchema = {
             }
         },
         total_students: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedUserResponseSchema = {
+    title: 'PaginatedUserResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/UserResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
             type: 'integer',
             format: 'int64'
         }
@@ -5397,6 +5489,23 @@ export const TransactionTypeSchema = {
     ]
 } as const;
 
+export const TrendPointSchema = {
+    type: 'object',
+    required: [
+        'count',
+        'date'
+    ],
+    properties: {
+        count: {
+            type: 'integer',
+            format: 'int64'
+        },
+        date: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const UniformIssueResponseSchema = {
     title: 'UniformIssueResponse',
     type: 'object',
@@ -6267,7 +6376,6 @@ export const UserIdSchema = {
 } as const;
 
 export const UserResponseSchema = {
-    title: 'UserResponse',
     type: 'object',
     required: [
         'created_at',
@@ -6293,6 +6401,53 @@ export const UserResponseSchema = {
         updated_at: {
             type: 'string',
             format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const UserStatsResponseSchema = {
+    title: 'UserStatsResponse',
+    type: 'object',
+    required: [
+        'auth_methods',
+        'locked_users',
+        'pending_users',
+        'registration_trend',
+        'top_domains',
+        'total_users',
+        'verified_users'
+    ],
+    properties: {
+        auth_methods: {
+            $ref: '#/components/schemas/AuthMethodStats'
+        },
+        locked_users: {
+            type: 'integer',
+            format: 'int64'
+        },
+        pending_users: {
+            type: 'integer',
+            format: 'int64'
+        },
+        registration_trend: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/TrendPoint'
+            }
+        },
+        top_domains: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/DomainStat'
+            }
+        },
+        total_users: {
+            type: 'integer',
+            format: 'int64'
+        },
+        verified_users: {
+            type: 'integer',
+            format: 'int64'
         }
     }
 } as const;

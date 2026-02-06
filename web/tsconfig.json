@@ -21,6 +21,8 @@
     "allowJs": true,
     "verbatimModuleSyntax": false,
     "noEmit": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
 
     /* Linting */
     "skipLibCheck": true,

@@ -2,9 +2,10 @@ import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, SortingState, OnChangeFn } from '@tanstack/react-table'
 
 import {
   Table,
@@ -19,7 +20,6 @@ import { Button } from '@/components/ui/button'
 interface DataTableProps<TData, TValue> {
   columns: Array<ColumnDef<TData, TValue>>
   data: Array<TData>
-  // Add pagination props
   pageIndex: number
   pageSize: number
   pageCount: number
@@ -27,6 +27,8 @@ interface DataTableProps<TData, TValue> {
   canPreviousPage: boolean
   fetchNextPage: () => void
   fetchPreviousPage: () => void
+  sorting?: SortingState
+  onSortingChange?: OnChangeFn<SortingState>
 }
 
 export function DataTable<TData, TValue>({
@@ -39,19 +41,25 @@ export function DataTable<TData, TValue>({
   canPreviousPage,
   fetchNextPage,
   fetchPreviousPage,
+  sorting,
+  onSortingChange,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    manualPagination: true, // We will handle pagination ourselves
+    getSortedRowModel: getSortedRowModel(),
+    manualPagination: true,
+    manualSorting: true,
     state: {
       pagination: {
         pageIndex,
         pageSize,
       },
+      sorting,
     },
+    onSortingChange,
     pageCount,
   })
 
@@ -107,7 +115,10 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2 py-4 px-4">
+        <div className="flex-1 text-sm text-muted-foreground">
+          Page {pageIndex + 1} of {pageCount}
+        </div>
         <Button
           variant="outline"
           size="sm"

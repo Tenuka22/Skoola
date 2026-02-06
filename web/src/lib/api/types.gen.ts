@@ -168,6 +168,12 @@ export type AssignSubjectToTeacherRequest = {
 
 export type AttendanceStatus = 'Present' | 'Absent' | 'Late' | 'Excused' | 'HalfDay';
 
+export type AuthMethodStats = {
+    github: bigint;
+    google: bigint;
+    password_only: bigint;
+};
+
 /**
  * BudgetCategoryResponse
  */
@@ -234,6 +240,13 @@ export type BulkAssignStudentClassRequest = {
  */
 export type BulkCreateStudentMarkRequest = {
     marks: Array<CreateStudentMarkRequest>;
+};
+
+/**
+ * BulkDeleteRequest
+ */
+export type BulkDeleteRequest = {
+    user_ids: Array<string>;
 };
 
 export type BulkMarkStaffAttendanceItem = {
@@ -777,6 +790,11 @@ export type CulturalEventParticipant = {
     updated_at: string;
 };
 
+export type DomainStat = {
+    count: bigint;
+    domain: string;
+};
+
 export type EducationLevel = 'Primary' | 'JuniorSecondary' | 'SeniorSecondary' | 'Collegiate';
 
 export type EmploymentStatus = 'Permanent' | 'Contract' | 'Temporary';
@@ -1244,6 +1262,17 @@ export type PaginatedStudentResponse = {
     offset: bigint;
     students: Array<StudentResponse>;
     total_students: bigint;
+};
+
+/**
+ * PaginatedUserResponse
+ */
+export type PaginatedUserResponse = {
+    data: Array<UserResponse>;
+    limit: bigint;
+    page: bigint;
+    total: bigint;
+    total_pages: bigint;
 };
 
 /**
@@ -1841,6 +1870,11 @@ export type TokenResponse = {
 
 export type TransactionType = 'Received' | 'Spent';
 
+export type TrendPoint = {
+    count: bigint;
+    date: string;
+};
+
 /**
  * UniformIssueResponse
  */
@@ -2165,15 +2199,25 @@ export type UpdateTimetableRequest = {
  */
 export type UserId = string;
 
-/**
- * UserResponse
- */
 export type UserResponse = {
     created_at: string;
     email: string;
     id: string;
     is_verified: boolean;
     updated_at: string;
+};
+
+/**
+ * UserStatsResponse
+ */
+export type UserStatsResponse = {
+    auth_methods: AuthMethodStats;
+    locked_users: bigint;
+    pending_users: bigint;
+    registration_trend: Array<TrendPoint>;
+    top_domains: Array<DomainStat>;
+    total_users: bigint;
+    verified_users: bigint;
 };
 
 export type PostAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Data = {
@@ -4074,6 +4118,357 @@ export type PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Responses = {
 };
 
 export type PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Response = PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Responses[keyof PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Responses];
+
+export type GetUsers06Bdcf95Aafda840B1D04322636De293Data = {
+    body?: never;
+    path?: never;
+    query?: {
+        auth_method?: string | null;
+        created_after?: string | null;
+        created_before?: string | null;
+        is_verified?: boolean | null;
+        limit?: bigint | null;
+        page?: bigint | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
+    url: '/users';
+};
+
+export type GetUsers06Bdcf95Aafda840B1D04322636De293Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetUsers06Bdcf95Aafda840B1D04322636De293Responses = {
+    200: PaginatedUserResponse;
+};
+
+export type GetUsers06Bdcf95Aafda840B1D04322636De293Response = GetUsers06Bdcf95Aafda840B1D04322636De293Responses[keyof GetUsers06Bdcf95Aafda840B1D04322636De293Responses];
+
+export type GetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/users/stats';
+};
+
+export type GetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaResponses = {
+    200: UserStatsResponse;
+};
+
+export type GetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaResponse = GetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaResponses[keyof GetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaResponses];
+
+export type DeleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Data = {
+    body: BulkDeleteRequest;
+    path?: never;
+    query?: never;
+    url: '/users/bulk';
+};
+
+export type DeleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Responses = {
+    200: MessageResponse;
+};
+
+export type DeleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Response = DeleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Responses[keyof DeleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Responses];
+
+export type DeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaData = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/users/{user_id}';
+};
+
+export type DeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponses = {
+    200: MessageResponse;
+};
+
+export type DeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponse = DeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponses[keyof DeleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponses];
 
 export type GetPermissions9C8839E73223Cb930255A2882A4B0Db4Data = {
     body?: never;
