@@ -60,7 +60,6 @@ export function SignUpForm() {
           headers: {
             Authorization: `Bearer ${tempToken}`,
           },
-          body: 'Guest',
         })
 
         if (profileResponse.data) {
