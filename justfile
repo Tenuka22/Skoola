@@ -15,3 +15,6 @@ check-backend:
 
 dev-web:
     cd web; bun run dev
+
+gen-api:
+    cd web; bun run api
