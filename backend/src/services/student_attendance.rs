@@ -190,7 +190,7 @@ pub async fn generate_attendance_report(
     // For now, let's assume `students` table has class_id or we join with `student_class_assignments`.
     // Since `student_class_assignments` has `class_id`, we can join.
     let students_in_class: Vec<Student> = students::table
-        .inner_join(crate::schema::student_class_assignments::table)
+        .inner_join(crate::schema::student_class_assignments::table.on(students::id.eq(crate::schema::student_class_assignments::student_id)))
         .filter(crate::schema::student_class_assignments::class_id.eq(&report_request.class_id))
         .filter(crate::schema::student_class_assignments::from_date.le(report_request.to_date))
         .filter(crate::schema::student_class_assignments::to_date.is_null().or(crate::schema::student_class_assignments::to_date.ge(report_request.from_date)))
@@ -255,7 +255,7 @@ pub async fn get_students_with_low_attendance(
     }
 
     let students_in_class: Vec<Student> = students::table
-        .inner_join(crate::schema::student_class_assignments::table)
+        .inner_join(crate::schema::student_class_assignments::table.on(students::id.eq(crate::schema::student_class_assignments::student_id)))
         .filter(crate::schema::student_class_assignments::class_id.eq(&low_attendance_query.class_id))
         .filter(crate::schema::student_class_assignments::from_date.le(low_attendance_query.to_date))
         .filter(crate::schema::student_class_assignments::to_date.is_null().or(crate::schema::student_class_assignments::to_date.ge(low_attendance_query.from_date)))

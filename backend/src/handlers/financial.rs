@@ -1,6 +1,7 @@
 use crate::AppState;
 use crate::errors::APIError;
 use crate::models::financial::*;
+use crate::models::MessageResponse;
 use crate::services::financial::FinancialService;
 use actix_web::web::{Data, Json, Path, Query};
 use apistos::{api_operation, web, ApiComponent};
@@ -8,12 +9,83 @@ use chrono::NaiveDateTime;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+// New Query, Paginated Response, and Bulk Request/Update structs for Budget Categories
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct BudgetCategoryQuery {
+    pub search: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct PaginatedBudgetCategoryResponse {
+    pub data: Vec<BudgetCategoryResponse>,
+    pub total: i64,
+    pub page: i64,
+    pub limit: i64,
+    pub total_pages: i64,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkDeleteBudgetCategoriesRequest {
+    pub category_ids: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkUpdateBudgetCategoriesRequest {
+    pub category_ids: Vec<String>,
+    pub name: Option<String>,
+    pub description: Option<String>,
+}
+
 #[api_operation(summary = "Create budget category", tag = "financial")]
 pub async fn create_budget_category(data: Data<AppState>, req: Json<CreateBudgetCategoryRequest>) -> Result<Json<BudgetCategoryResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let cat = FinancialService::create_budget_category(&mut conn, req.into_inner())?;
     Ok(Json(BudgetCategoryResponse::from(cat)))
 }
+
+#[api_operation(summary = "Get all budget categories", tag = "financial")]
+pub async fn get_all_budget_categories(
+    data: Data<AppState>,
+    query: Query<BudgetCategoryQuery>,
+) -> Result<Json<PaginatedBudgetCategoryResponse>, APIError> {
+    let mut conn = data.db_pool.get()?;
+    let inner_query = query.into_inner();
+    let (categories, total_categories, total_pages) =
+        FinancialService::get_all_budget_categories(&mut conn, inner_query.clone()).await?;
+    Ok(Json(PaginatedBudgetCategoryResponse {
+        data: categories.into_iter().map(BudgetCategoryResponse::from).collect(),
+        total: total_categories,
+        page: inner_query.page.unwrap_or(1),
+        limit: inner_query.limit.unwrap_or(10),
+        total_pages,
+    }))
+}
+
+#[api_operation(summary = "Bulk delete budget categories", tag = "financial")]
+pub async fn bulk_delete_budget_categories(
+    data: Data<AppState>,
+    body: Json<BulkDeleteBudgetCategoriesRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    let mut conn = data.db_pool.get()?;
+    FinancialService::bulk_delete_budget_categories(&mut conn, body.into_inner().category_ids).await?;
+    Ok(Json(MessageResponse { message: "Budget categories deleted successfully".to_string() }))
+}
+
+#[api_operation(summary = "Bulk update budget categories", tag = "financial")]
+pub async fn bulk_update_budget_categories(
+    data: Data<AppState>,
+    body: Json<BulkUpdateBudgetCategoriesRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    let mut conn = data.db_pool.get()?;
+    FinancialService::bulk_update_budget_categories(&mut conn, body.into_inner()).await?;
+    Ok(Json(MessageResponse { message: "Budget categories updated successfully".to_string() }))
+}
+
+
 
 #[api_operation(summary = "Set budget", tag = "financial")]
 pub async fn set_budget(data: Data<AppState>, req: Json<SetBudgetRequest>) -> Result<Json<BudgetResponse>, APIError> {
@@ -61,6 +133,9 @@ pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/financial")
             .route("/budget-categories", web::post().to(create_budget_category))
+            .route("/budget-categories", web::get().to(get_all_budget_categories))
+            .route("/budget-categories/bulk", web::delete().to(bulk_delete_budget_categories))
+            .route("/budget-categories/bulk", web::patch().to(bulk_update_budget_categories))
             .route("/budgets", web::post().to(set_budget))
             .route("/budgets/{id}", web::patch().to(update_budget))
             .route("/budgets/summary/{year_id}", web::get().to(get_budget_summary))

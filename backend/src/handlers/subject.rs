@@ -1,6 +1,8 @@
 use actix_web::web;
-use apistos::api_operation;
+use apistos::{api_operation, ApiComponent};
 use actix_web::web::Json;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState,
@@ -9,6 +11,42 @@ use crate::{
     models::MessageResponse,
     services::subject,
 };
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct SubjectQuery {
+    pub search: Option<String>,
+    pub is_core: Option<bool>,
+    pub grade_id: Option<String>,
+    pub stream_id: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct PaginatedSubjectResponse {
+    pub data: Vec<SubjectResponse>,
+    pub total: i64,
+    pub page: i64,
+    pub limit: i64,
+    pub total_pages: i64,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkDeleteSubjectsRequest {
+    pub subject_ids: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkUpdateSubjectsRequest {
+    pub subject_ids: Vec<String>,
+    pub subject_name_en: Option<String>,
+    pub subject_name_si: Option<String>,
+    pub subject_name_ta: Option<String>,
+    pub subject_code: Option<String>,
+    pub is_core: Option<bool>,
+}
 
 #[api_operation(
     summary = "Create Subject",
@@ -39,14 +77,49 @@ pub async fn get_subject_by_id(
 
 #[api_operation(
     summary = "Get All Subjects",
-    description = "Retrieves a list of all subjects.",
+    description = "Retrieves a paginated list of all subjects with search and filtering options.",
     tag = "subjects"
 )]
 pub async fn get_all_subjects(
     data: web::Data<AppState>,
-) -> Result<Json<Vec<SubjectResponse>>, APIError> {
-    let subjects = subject::get_all_subjects(data.clone()).await?;
-    Ok(Json(subjects))
+    query: web::Query<SubjectQuery>,
+) -> Result<Json<PaginatedSubjectResponse>, APIError> {
+    let inner_query = query.into_inner();
+    let (subjects, total_subjects, total_pages) =
+        subject::get_all_subjects(data.clone(), inner_query.clone()).await?;
+    Ok(Json(PaginatedSubjectResponse {
+        data: subjects,
+        total: total_subjects,
+        page: inner_query.page.unwrap_or(1),
+        limit: inner_query.limit.unwrap_or(10),
+        total_pages,
+    }))
+}
+
+#[api_operation(
+    summary = "Bulk Delete Subjects",
+    description = "Deletes multiple subjects by their IDs.",
+    tag = "subjects"
+)]
+pub async fn bulk_delete_subjects(
+    data: web::Data<AppState>,
+    body: web::Json<BulkDeleteSubjectsRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    subject::bulk_delete_subjects(data.clone(), body.into_inner().subject_ids).await?;
+    Ok(Json(MessageResponse { message: "Subjects deleted successfully".to_string() }))
+}
+
+#[api_operation(
+    summary = "Bulk Update Subjects",
+    description = "Updates multiple subjects' information.",
+    tag = "subjects"
+)]
+pub async fn bulk_update_subjects(
+    data: web::Data<AppState>,
+    body: web::Json<BulkUpdateSubjectsRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    subject::bulk_update_subjects(data.clone(), body.into_inner()).await?;
+    Ok(Json(MessageResponse { message: "Subjects updated successfully".to_string() }))
 }
 
 #[api_operation(

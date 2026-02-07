@@ -1,9 +1,10 @@
 use actix_web::web;
-use apistos::api_operation;
+use apistos::{api_operation, ApiComponent};
 use diesel::prelude::*;
 use uuid::Uuid;
 use actix_web::web::Json;
-// use serde_json; // Removed unused import
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState,
@@ -14,17 +15,80 @@ use crate::{
     schema::permissions,
 };
 
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct PermissionQuery {
+    pub search: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct PaginatedPermissionResponse {
+    pub data: Vec<Permission>,
+    pub total: i64,
+    pub page: i64,
+    pub limit: i64,
+    pub total_pages: i64,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkDeletePermissionsRequest {
+    pub permission_ids: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkUpdatePermissionsRequest {
+    pub permission_ids: Vec<String>,
+    pub name: Option<String>,
+}
+
 #[api_operation(
     summary = "Get all permissions",
-    description = "Returns a list of all permissions.",
+    description = "Returns a paginated list of all permissions.",
     tag = "permissions"
 )]
 pub async fn get_permissions(
     data: web::Data<AppState>,
-) -> Result<Json<Vec<Permission>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let permissions_list = permissions::table.select(Permission::as_select()).load(&mut conn)?;
-    Ok(Json(permissions_list))
+    query: web::Query<PermissionQuery>,
+) -> Result<Json<PaginatedPermissionResponse>, APIError> {
+    let inner_query = query.into_inner();
+    let (permissions_list, total_permissions, total_pages) =
+        crate::services::permissions::get_permissions_paginated(data.clone(), inner_query.clone()).await?;
+    Ok(Json(PaginatedPermissionResponse {
+        data: permissions_list,
+        total: total_permissions,
+        page: inner_query.page.unwrap_or(1),
+        limit: inner_query.limit.unwrap_or(10),
+        total_pages,
+    }))
+}
+
+#[api_operation(
+    summary = "Bulk delete permissions",
+    description = "Deletes multiple permissions by their IDs.",
+    tag = "permissions"
+)]
+pub async fn bulk_delete_permissions(
+    data: web::Data<AppState>,
+    body: web::Json<BulkDeletePermissionsRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    crate::services::permissions::bulk_delete_permissions(data.clone(), body.into_inner().permission_ids).await?;
+    Ok(Json(MessageResponse { message: "Permissions deleted successfully".to_string() }))
+}
+
+#[api_operation(
+    summary = "Bulk update permissions",
+    description = "Updates multiple permissions' information.",
+    tag = "permissions"
+)]
+pub async fn bulk_update_permissions(
+    data: web::Data<AppState>,
+    body: web::Json<BulkUpdatePermissionsRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    crate::services::permissions::bulk_update_permissions(data.clone(), body.into_inner()).await?;
+    Ok(Json(MessageResponse { message: "Permissions updated successfully".to_string() }))
 }
 
 #[api_operation(

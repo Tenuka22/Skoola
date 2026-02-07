@@ -1,13 +1,15 @@
 use diesel::prelude::*;
+use diesel::{QueryDsl, RunQueryDsl};
 use crate::{
     errors::APIError,
     AppState,
     models::exams::{Exam, ExamResponse, CreateExamRequest, UpdateExamRequest},
 };
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use uuid::Uuid;
 use chrono::Utc;
 use crate::schema::exams;
+use crate::handlers::exams::{ExamQuery, BulkUpdateExamsRequest};
 
 // Service to create a new Exam
 pub async fn create_exam(
@@ -52,14 +54,59 @@ pub async fn get_exam_by_id(
     Ok(ExamResponse::from(exam))
 }
 
-// Service to get all Exams
+// Service to get all Exams with pagination, search, and sorting
 pub async fn get_all_exams(
     pool: web::Data<AppState>,
-) -> Result<Vec<ExamResponse>, APIError> {
+    query: ExamQuery,
+) -> Result<(Vec<ExamResponse>, i64, i64), APIError> {
     let mut conn = pool.db_pool.get()?;
+    let mut data_query = exams::table.into_boxed();
+    let mut count_query = exams::table.into_boxed();
 
-    let exams_list: Vec<Exam> = exams::table
-        .order(exams::start_date.desc())
+    if let Some(search_term) = &query.search {
+        let pattern = format!("%{}%", search_term);
+        data_query = data_query.filter(exams::name.like(pattern.clone()));
+        count_query = count_query.filter(exams::name.like(pattern));
+    }
+
+    if let Some(term_id) = &query.term_id {
+        data_query = data_query.filter(exams::term_id.eq(term_id));
+        count_query = count_query.filter(exams::term_id.eq(term_id));
+    }
+
+    if let Some(academic_year_id) = &query.academic_year_id {
+        data_query = data_query.filter(exams::academic_year_id.eq(academic_year_id));
+        count_query = count_query.filter(exams::academic_year_id.eq(academic_year_id));
+    }
+
+    if let Some(exam_type_id) = &query.exam_type_id {
+        data_query = data_query.filter(exams::exam_type_id.eq(exam_type_id));
+        count_query = count_query.filter(exams::exam_type_id.eq(exam_type_id));
+    }
+
+    let sort_by = query.sort_by.as_deref().unwrap_or("start_date");
+    let sort_order = query.sort_order.as_deref().unwrap_or("desc");
+
+    data_query = match (sort_by, sort_order) {
+        ("name", "asc") => data_query.order(exams::name.asc()),
+        ("name", "desc") => data_query.order(exams::name.desc()),
+        ("start_date", "asc") => data_query.order(exams::start_date.asc()),
+        ("start_date", "desc") => data_query.order(exams::start_date.desc()),
+        ("end_date", "asc") => data_query.order(exams::end_date.asc()),
+        ("end_date", "desc") => data_query.order(exams::end_date.desc()),
+        _ => data_query.order(exams::start_date.desc()),
+    };
+
+    let page = query.page.unwrap_or(1);
+    let limit = query.limit.unwrap_or(10);
+    let offset = (page - 1) * limit;
+
+    let total_exams = count_query.count().get_result(&mut conn)?;
+    let total_pages = (total_exams as f64 / limit as f64).ceil() as i64;
+
+    let exams_list: Vec<Exam> = data_query
+        .limit(limit)
+        .offset(offset)
         .load::<Exam>(&mut conn)?;
 
     let responses: Vec<ExamResponse> = exams_list
@@ -67,7 +114,7 @@ pub async fn get_all_exams(
         .map(ExamResponse::from)
         .collect();
 
-    Ok(responses)
+    Ok((responses, total_exams, total_pages))
 }
 
 // Service to get Exams by Term ID
@@ -120,7 +167,7 @@ pub async fn update_exam(
 pub async fn delete_exam(
     pool: web::Data<AppState>,
     exam_id: String,
-) -> Result<HttpResponse, APIError> {
+) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
 
     let deleted_count = diesel::delete(exams::table)
@@ -131,5 +178,40 @@ pub async fn delete_exam(
         return Err(APIError::not_found(&format!("Exam with ID {} not found", exam_id)));
     }
 
-    Ok(HttpResponse::NoContent().finish())
+    Ok(())
+}
+
+pub async fn bulk_delete_exams(
+    pool: web::Data<AppState>,
+    exam_ids: Vec<String>,
+) -> Result<(), APIError> {
+    let mut conn = pool.db_pool.get()?;
+    diesel::delete(exams::table.filter(exams::id.eq_any(exam_ids)))
+        .execute(&mut conn)?;
+    Ok(())
+}
+
+pub async fn bulk_update_exams(
+    pool: web::Data<AppState>,
+    body: BulkUpdateExamsRequest,
+) -> Result<(), APIError> {
+    let mut conn = pool.db_pool.get()?;
+
+    conn.transaction::<_, APIError, _>(|conn| {
+        let target = exams::table.filter(exams::id.eq_any(&body.exam_ids));
+        
+        diesel::update(target)
+            .set((
+                body.name.map(|n| exams::name.eq(n)),
+                body.academic_year_id.map(|ay_id| exams::academic_year_id.eq(ay_id)),
+                body.term_id.map(|t_id| exams::term_id.eq(t_id)),
+                body.exam_type_id.map(|et_id| exams::exam_type_id.eq(et_id)),
+                body.start_date.map(|sd| exams::start_date.eq(sd)),
+                body.end_date.map(|ed| exams::end_date.eq(ed)),
+                exams::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(conn)?;
+        
+        Ok(())
+    })
 }

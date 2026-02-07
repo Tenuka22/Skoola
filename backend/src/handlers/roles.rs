@@ -1,8 +1,10 @@
 use actix_web::web;
-use apistos::api_operation;
+use apistos::{api_operation, ApiComponent};
 use diesel::prelude::*;
 use uuid::Uuid;
 use actix_web::web::Json;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState,
@@ -13,17 +15,82 @@ use crate::{
     schema::roles,
 };
 
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct RoleQuery {
+    pub search: Option<String>,
+    pub parent_id: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct PaginatedRoleResponse {
+    pub data: Vec<Role>,
+    pub total: i64,
+    pub page: i64,
+    pub limit: i64,
+    pub total_pages: i64,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkDeleteRolesRequest {
+    pub role_ids: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkUpdateRolesRequest {
+    pub role_ids: Vec<String>,
+    pub name: Option<String>,
+    pub parent_id: Option<String>,
+}
+
 #[api_operation(
     summary = "Get all roles",
-    description = "Returns a list of all roles.",
+    description = "Returns a paginated list of all roles.",
     tag = "roles"
 )]
 pub async fn get_roles(
     data: web::Data<AppState>,
-) -> Result<Json<Vec<Role>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let roles_list = roles::table.select(Role::as_select()).load(&mut conn)?;
-    Ok(Json(roles_list))
+    query: web::Query<RoleQuery>,
+) -> Result<Json<PaginatedRoleResponse>, APIError> {
+    let inner_query = query.into_inner();
+    let (roles_list, total_roles, total_pages) =
+        crate::services::roles::get_roles_paginated(data.clone(), inner_query.clone()).await?;
+    Ok(Json(PaginatedRoleResponse {
+        data: roles_list,
+        total: total_roles,
+        page: inner_query.page.unwrap_or(1),
+        limit: inner_query.limit.unwrap_or(10),
+        total_pages,
+    }))
+}
+
+#[api_operation(
+    summary = "Bulk delete roles",
+    description = "Deletes multiple roles by their IDs.",
+    tag = "roles"
+)]
+pub async fn bulk_delete_roles(
+    data: web::Data<AppState>,
+    body: web::Json<BulkDeleteRolesRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    crate::services::roles::bulk_delete_roles(data.clone(), body.into_inner().role_ids).await?;
+    Ok(Json(MessageResponse { message: "Roles deleted successfully".to_string() }))
+}
+
+#[api_operation(
+    summary = "Bulk update roles",
+    description = "Updates multiple roles' information.",
+    tag = "roles"
+)]
+pub async fn bulk_update_roles(
+    data: web::Data<AppState>,
+    body: web::Json<BulkUpdateRolesRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    crate::services::roles::bulk_update_roles(data.clone(), body.into_inner()).await?;
+    Ok(Json(MessageResponse { message: "Roles updated successfully".to_string() }))
 }
 
 #[api_operation(

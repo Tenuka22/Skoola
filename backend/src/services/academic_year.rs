@@ -1,13 +1,16 @@
 use diesel::prelude::*;
+use diesel::{QueryDsl, RunQueryDsl};
 use crate::{
     errors::APIError,
     AppState,
     models::academic_year::{AcademicYear, AcademicYearResponse, CreateAcademicYearRequest, UpdateAcademicYearRequest},
 };
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use uuid::Uuid;
 use chrono::Utc;
 use crate::schema::academic_years;
+use crate::handlers::academic_year::{AcademicYearQuery, BulkUpdateAcademicYearsRequest};
+
 
 pub async fn create_academic_year(
     pool: web::Data<AppState>,
@@ -57,19 +60,51 @@ pub async fn get_academic_year_by_id(
 
 pub async fn get_all_academic_years(
     pool: web::Data<AppState>,
-) -> Result<Vec<AcademicYearResponse>, APIError> {
+    query: AcademicYearQuery,
+) -> Result<(Vec<AcademicYear>, i64, i64), APIError> {
     let mut conn = pool.db_pool.get()?;
+    let mut data_query = academic_years::table.into_boxed();
+    let mut count_query = academic_years::table.into_boxed();
 
-    let academic_years_list: Vec<AcademicYear> = academic_years::table
-        .order(academic_years::year_start.desc())
+    if let Some(search_term) = &query.search {
+        let pattern = format!("%{}%", search_term);
+        data_query = data_query.filter(academic_years::name.like(pattern.clone()));
+        count_query = count_query.filter(academic_years::name.like(pattern));
+    }
+
+    if let Some(current) = query.current {
+        data_query = data_query.filter(academic_years::current.eq(current));
+        count_query = count_query.filter(academic_years::current.eq(current));
+    }
+
+    let sort_by = query.sort_by.as_deref().unwrap_or("year_start");
+    let sort_order = query.sort_order.as_deref().unwrap_or("desc");
+
+    data_query = match (sort_by, sort_order) {
+        ("name", "asc") => data_query.order(academic_years::name.asc()),
+        ("name", "desc") => data_query.order(academic_years::name.desc()),
+        ("year_start", "asc") => data_query.order(academic_years::year_start.asc()),
+        ("year_start", "desc") => data_query.order(academic_years::year_start.desc()),
+        ("year_end", "asc") => data_query.order(academic_years::year_end.asc()),
+        ("year_end", "desc") => data_query.order(academic_years::year_end.desc()),
+        ("current", "asc") => data_query.order(academic_years::current.asc()),
+        ("current", "desc") => data_query.order(academic_years::current.desc()),
+        _ => data_query.order(academic_years::year_start.desc()),
+    };
+
+    let page = query.page.unwrap_or(1);
+    let limit = query.limit.unwrap_or(10);
+    let offset = (page - 1) * limit;
+
+    let total_academic_years = count_query.count().get_result(&mut conn)?;
+    let total_pages = (total_academic_years as f64 / limit as f64).ceil() as i64;
+
+    let academic_years_list: Vec<AcademicYear> = data_query
+        .limit(limit)
+        .offset(offset)
         .load::<AcademicYear>(&mut conn)?;
 
-    let responses: Vec<AcademicYearResponse> = academic_years_list
-        .into_iter()
-        .map(AcademicYearResponse::from)
-        .collect();
-
-    Ok(responses)
+    Ok((academic_years_list, total_academic_years, total_pages))
 }
 
 pub async fn update_academic_year(
@@ -107,7 +142,7 @@ pub async fn update_academic_year(
 pub async fn delete_academic_year(
     pool: web::Data<AppState>,
     academic_year_id: String,
-) -> Result<HttpResponse, APIError> {
+) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
 
     let deleted_count = diesel::delete(academic_years::table)
@@ -118,7 +153,48 @@ pub async fn delete_academic_year(
         return Err(APIError::not_found(&format!("Academic Year with ID {} not found", academic_year_id)));
     }
 
-    Ok(HttpResponse::NoContent().finish())
+    Ok(())
+}
+
+pub async fn bulk_delete_academic_years(
+    pool: web::Data<AppState>,
+    academic_year_ids: Vec<String>,
+) -> Result<(), APIError> {
+    let mut conn = pool.db_pool.get()?;
+    diesel::delete(academic_years::table.filter(academic_years::id.eq_any(academic_year_ids)))
+        .execute(&mut conn)?;
+    Ok(())
+}
+
+pub async fn bulk_update_academic_years(
+    pool: web::Data<AppState>,
+    body: BulkUpdateAcademicYearsRequest,
+) -> Result<(), APIError> {
+    let mut conn = pool.db_pool.get()?;
+
+    conn.transaction::<_, APIError, _>(|conn| {
+        if let Some(true) = body.current {
+            // If any of the updated items are set to current, unset all others first
+            diesel::update(academic_years::table)
+                .filter(academic_years::id.ne_all(&body.academic_year_ids))
+                .set(academic_years::current.eq(false))
+                .execute(conn)?;
+        }
+
+        let target = academic_years::table.filter(academic_years::id.eq_any(&body.academic_year_ids));
+        
+        diesel::update(target)
+            .set((
+                body.name.map(|n| academic_years::name.eq(n)),
+                body.year_start.map(|ys| academic_years::year_start.eq(ys)),
+                body.year_end.map(|ye| academic_years::year_end.eq(ye)),
+                body.current.map(|c| academic_years::current.eq(c)),
+                academic_years::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(conn)?;
+        
+        Ok(())
+    })
 }
 
 pub async fn set_current_academic_year(

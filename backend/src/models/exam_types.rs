@@ -12,7 +12,7 @@ pub struct ExamType {
     pub id: String, // Changed to String
     pub name: String,
     pub description: Option<String>,
-    pub weightage: i32, // Changed to i32
+    pub weightage: f32, // Changed to f32
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -22,7 +22,7 @@ pub struct ExamType {
 pub struct CreateExamTypeRequest {
     pub name: String,
     pub description: Option<String>,
-    pub weightage: Option<i32>, // Changed to Option<i32>
+    pub weightage: Option<f32>, // Changed to Option<f32>
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
@@ -30,7 +30,7 @@ pub struct CreateExamTypeRequest {
 pub struct UpdateExamTypeRequest {
     pub name: Option<String>,
     pub description: Option<String>,
-    pub weightage: Option<i32>, // Changed to Option<i32>
+    pub weightage: Option<f32>, // Changed to Option<f32>
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
@@ -38,7 +38,7 @@ pub struct ExamTypeResponse {
     pub id: String, // Changed to String
     pub name: String,
     pub description: Option<String>,
-    pub weightage: i32, // Changed to i32
+    pub weightage: f32, // Changed to f32
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }

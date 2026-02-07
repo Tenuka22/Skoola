@@ -4,6 +4,8 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use chrono::{NaiveDate, NaiveDateTime};
 use apistos::ApiComponent;
+use diesel::Insertable;
+use diesel::AsChangeset;
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct CreateFeeCategoryRequest {
@@ -241,4 +243,66 @@ pub struct FeeReceiptResponse {
 pub struct ExportReportResponse {
     pub csv_data: String,
     pub filename: String,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = crate::schema::fee_structures)]
+pub struct NewFeeStructure {
+    pub id: String,
+    pub grade_id: String,
+    pub academic_year_id: String,
+    pub category_id: String,
+    pub amount: f32,
+    pub due_date: NaiveDate,
+    pub frequency: FeeFrequency,
+}
+
+#[derive(Debug, AsChangeset)]
+#[diesel(table_name = crate::schema::fee_structures)]
+pub struct UpdateFeeStructure {
+    pub grade_id: Option<String>,
+    pub academic_year_id: Option<String>,
+    pub category_id: Option<String>,
+    pub amount: Option<f32>,
+    pub due_date: Option<NaiveDate>,
+    pub frequency: Option<FeeFrequency>,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = crate::schema::student_fees)]
+pub struct NewStudentFee {
+    pub id: String,
+    pub student_id: String,
+    pub fee_structure_id: String,
+    pub amount: f32,
+    pub is_exempted: bool,
+    pub exemption_reason: Option<String>,
+}
+
+#[derive(Debug, AsChangeset)]
+#[diesel(table_name = crate::schema::student_fees)]
+pub struct UpdateStudentFee {
+    pub is_exempted: Option<bool>,
+    pub exemption_reason: Option<String>,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = crate::schema::fee_payments)]
+pub struct NewFeePayment {
+    pub id: String,
+    pub student_fee_id: String,
+    pub amount_paid: f32,
+    pub payment_date: NaiveDateTime,
+    pub payment_method: PaymentMethod,
+    pub receipt_number: String,
+    pub collected_by: String,
+    pub remarks: Option<String>,
+}
+
+#[derive(Debug, AsChangeset)]
+#[diesel(table_name = crate::schema::fee_categories)]
+pub struct UpdateFeeCategoryChangeset {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub is_mandatory: Option<bool>,
 }

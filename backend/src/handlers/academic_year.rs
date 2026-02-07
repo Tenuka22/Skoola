@@ -1,6 +1,8 @@
 use actix_web::web;
-use apistos::api_operation;
+use apistos::{api_operation, ApiComponent};
 use actix_web::web::Json;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState,
@@ -9,6 +11,39 @@ use crate::{
     models::MessageResponse,
     services::academic_year,
 };
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct AcademicYearQuery {
+    pub search: Option<String>,
+    pub current: Option<bool>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct PaginatedAcademicYearResponse {
+    pub data: Vec<AcademicYearResponse>,
+    pub total: i64,
+    pub page: i64,
+    pub limit: i64,
+    pub total_pages: i64,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkDeleteAcademicYearsRequest {
+    pub academic_year_ids: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkUpdateAcademicYearsRequest {
+    pub academic_year_ids: Vec<String>,
+    pub name: Option<String>,
+    pub year_start: Option<i32>,
+    pub year_end: Option<i32>,
+    pub current: Option<bool>,
+}
 
 #[api_operation(
     summary = "Create Academic Year",
@@ -41,12 +76,49 @@ pub async fn get_academic_year_by_id(
 
 #[api_operation(
     summary = "Get All Academic Years",
-    description = "Retrieves a list of all academic years.",
+    description = "Retrieves a list of all academic years with pagination, search, and sorting.",
     tag = "academic_years"
 )]
-pub async fn get_all_academic_years(data: web::Data<AppState>) -> Result<Json<Vec<AcademicYearResponse>>, APIError> {
-    let academic_years = academic_year::get_all_academic_years(data.clone()).await?;
-    Ok(Json(academic_years.into_iter().map(AcademicYearResponse::from).collect()))
+pub async fn get_all_academic_years(
+    data: web::Data<AppState>,
+    query: web::Query<AcademicYearQuery>,
+) -> Result<Json<PaginatedAcademicYearResponse>, APIError> {
+    let inner_query = query.into_inner();
+    let (academic_years, total_academic_years, total_pages) =
+        academic_year::get_all_academic_years(data.clone(), inner_query.clone()).await?; // Pass clone of inner_query
+    Ok(Json(PaginatedAcademicYearResponse {
+        data: academic_years.into_iter().map(AcademicYearResponse::from).collect(),
+        total: total_academic_years,
+        page: inner_query.page.unwrap_or(1),
+        limit: inner_query.limit.unwrap_or(10),
+        total_pages,
+    }))
+}
+
+#[api_operation(
+    summary = "Bulk Delete Academic Years",
+    description = "Deletes multiple academic years by their IDs.",
+    tag = "academic_years"
+)]
+pub async fn bulk_delete_academic_years(
+    data: web::Data<AppState>,
+    body: web::Json<BulkDeleteAcademicYearsRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    academic_year::bulk_delete_academic_years(data.clone(), body.into_inner().academic_year_ids).await?;
+    Ok(Json(MessageResponse { message: "Academic years deleted successfully".to_string() }))
+}
+
+#[api_operation(
+    summary = "Bulk Update Academic Years",
+    description = "Updates multiple academic years' information.",
+    tag = "academic_years"
+)]
+pub async fn bulk_update_academic_years(
+    data: web::Data<AppState>,
+    body: web::Json<BulkUpdateAcademicYearsRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    academic_year::bulk_update_academic_years(data.clone(), body.into_inner()).await?;
+    Ok(Json(MessageResponse { message: "Academic years updated successfully".to_string() }))
 }
 
 #[api_operation(

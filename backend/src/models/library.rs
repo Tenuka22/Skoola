@@ -18,7 +18,7 @@ pub struct LibraryCategory {
     pub updated_at: chrono::NaiveDateTime,
 }
 
-#[derive(Debug, Clone, Queryable, Selectable, Serialize, Deserialize, JsonSchema, ApiComponent)]
+#[derive(Debug, Clone, Queryable, Selectable, Serialize, Deserialize, JsonSchema, ApiComponent, AsChangeset)]
 #[diesel(table_name = library_books)]
 pub struct LibraryBook {
     pub id: i32,

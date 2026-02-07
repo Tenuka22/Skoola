@@ -1,22 +1,55 @@
 use chrono::Local;
 use diesel::prelude::*;
+use diesel::{QueryDsl, RunQueryDsl};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
 
 use crate::database::tables::{Staff, Student};
+use crate::models::library::LibraryCategory;
 use crate::errors::APIError;
 use crate::models::library::*;
 use crate::schema::{library_books, library_categories, library_issues, library_settings, staff, students};
+use crate::handlers::library::{LibraryCategoryQuery, BulkUpdateLibraryCategoriesRequest, LibraryBookQuery, BulkUpdateLibraryBooksRequest};
 
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 
 // ============= Category Services =============
-pub fn get_all_categories(pool: &DbPool) -> Result<Vec<LibraryCategory>, APIError> {
+pub async fn get_all_categories_paginated(
+    pool: &DbPool,
+    query: LibraryCategoryQuery,
+) -> Result<(Vec<LibraryCategory>, i64, i64), APIError> {
     let mut conn = pool.get()?;
+    let mut data_query = library_categories::table.into_boxed();
+    let mut count_query = library_categories::table.into_boxed();
 
-    Ok(library_categories::table
-        .select(LibraryCategory::as_select())
-        .load(&mut conn)?)
+    if let Some(search_term) = &query.search {
+        let pattern = format!("%{}%", search_term);
+        data_query = data_query.filter(library_categories::category_name.like(pattern.clone()).or(library_categories::description.like(pattern.clone())));
+        count_query = count_query.filter(library_categories::category_name.like(pattern.clone()).or(library_categories::description.like(pattern.clone())));
+    }
+
+    let sort_by = query.sort_by.as_deref().unwrap_or("category_name");
+    let sort_order = query.sort_order.as_deref().unwrap_or("asc");
+
+    data_query = match (sort_by, sort_order) {
+        ("category_name", "asc") => data_query.order(library_categories::category_name.asc()),
+        ("category_name", "desc") => data_query.order(library_categories::category_name.desc()),
+        _ => data_query.order(library_categories::category_name.asc()),
+    };
+
+    let page = query.page.unwrap_or(1);
+    let limit = query.limit.unwrap_or(10);
+    let offset = (page - 1) * limit;
+
+    let total_categories = count_query.count().get_result(&mut conn)?;
+    let total_pages = (total_categories as f64 / limit as f64).ceil() as i64;
+
+    let categories_list: Vec<LibraryCategory> = data_query
+        .limit(limit)
+        .offset(offset)
+        .load::<LibraryCategory>(&mut conn)?;
+
+    Ok((categories_list, total_categories, total_pages))
 }
 
 pub fn create_category(pool: &DbPool, req: CreateLibraryCategoryRequest) -> Result<LibraryCategory, APIError> {
@@ -37,17 +70,97 @@ pub fn create_category(pool: &DbPool, req: CreateLibraryCategoryRequest) -> Resu
         .first(&mut conn)?)
 }
 
-// ============= Book Services =============
+pub async fn bulk_delete_library_categories(
+    pool: &DbPool,
+    category_ids: Vec<i32>,
+) -> Result<(), APIError> {
+    let mut conn = pool.get()?;
+    diesel::delete(library_categories::table.filter(library_categories::id.eq_any(category_ids)))
+        .execute(&mut conn)?;
+    Ok(())
+}
 
-pub fn get_all_books(pool: &DbPool) -> Result<Vec<LibraryBookResponse>, APIError> {
+pub async fn bulk_update_library_categories(
+    pool: &DbPool,
+    body: BulkUpdateLibraryCategoriesRequest,
+) -> Result<(), APIError> {
     let mut conn = pool.get()?;
 
-    let results = library_books::table
+    conn.transaction::<_, APIError, _>(|conn| {
+        let target = library_categories::table.filter(library_categories::id.eq_any(&body.category_ids));
+        
+        diesel::update(target)
+            .set((
+                body.category_name.map(|cn| library_categories::category_name.eq(cn)),
+                body.description.map(|d| library_categories::description.eq(d)),
+            ))
+            .execute(conn)?;
+        
+        Ok(())
+    })
+}
+
+
+// ============= Book Services =============
+
+pub async fn get_all_books_paginated(
+    pool: &DbPool,
+    query: LibraryBookQuery,
+) -> Result<(Vec<LibraryBookResponse>, i64, i64), APIError> {
+    let mut conn = pool.get()?;
+    let mut data_query = library_books::table
         .inner_join(library_categories::table)
+        .into_boxed();
+    let mut count_query = library_books::table
+        .inner_join(library_categories::table)
+        .into_boxed();
+
+    if let Some(search_term) = &query.search {
+        let pattern = format!("%{}%", search_term);
+        data_query = data_query.filter(
+            library_books::title
+                .like(pattern.clone())
+                .or(library_books::author.like(pattern.clone()))
+                .or(library_books::isbn.like(pattern.clone()))
+        );
+        count_query = count_query.filter(
+            library_books::title
+                .like(pattern.clone())
+                .or(library_books::author.like(pattern.clone()))
+                .or(library_books::isbn.like(pattern.clone()))
+        );
+    }
+
+    if let Some(category_id) = query.category_id {
+        data_query = data_query.filter(library_books::category_id.eq(category_id));
+        count_query = count_query.filter(library_books::category_id.eq(category_id));
+    }
+
+    let sort_by = query.sort_by.as_deref().unwrap_or("title");
+    let sort_order = query.sort_order.as_deref().unwrap_or("asc");
+
+    data_query = match (sort_by, sort_order) {
+        ("title", "asc") => data_query.order(library_books::title.asc()),
+        ("title", "desc") => data_query.order(library_books::title.desc()),
+        ("author", "asc") => data_query.order(library_books::author.asc()),
+        ("author", "desc") => data_query.order(library_books::author.desc()),
+        _ => data_query.order(library_books::title.asc()),
+    };
+
+    let page = query.page.unwrap_or(1);
+    let limit = query.limit.unwrap_or(10);
+    let offset = (page - 1) * limit;
+
+    let total_books = count_query.count().get_result(&mut conn)?;
+    let total_pages = (total_books as f64 / limit as f64).ceil() as i64;
+
+    let results = data_query
         .select((LibraryBook::as_select(), LibraryCategory::as_select()))
+        .limit(limit)
+        .offset(offset)
         .load::<(LibraryBook, LibraryCategory)>(&mut conn)?;
 
-    Ok(results
+    Ok((results
         .into_iter()
         .map(|(book, category)| LibraryBookResponse {
             id: book.id,
@@ -62,8 +175,9 @@ pub fn get_all_books(pool: &DbPool) -> Result<Vec<LibraryBookResponse>, APIError
             rack_number: book.rack_number,
             added_date: book.added_date,
         })
-        .collect())
+        .collect(), total_books, total_pages))
 }
+
 
 pub fn get_book_by_id(pool: &DbPool, book_id: i32) -> Result<LibraryBookResponse, APIError> {
     let mut conn = pool.get()?;
@@ -243,6 +357,43 @@ pub fn delete_book(pool: &DbPool, book_id: i32) -> Result<(), APIError> {
     Ok(())
 }
 
+pub async fn bulk_delete_library_books(
+    pool: &DbPool,
+    book_ids: Vec<i32>,
+) -> Result<(), APIError> {
+    let mut conn = pool.get()?;
+    diesel::delete(library_books::table.filter(library_books::id.eq_any(book_ids)))
+        .execute(&mut conn)?;
+    Ok(())
+}
+
+pub async fn bulk_update_library_books(
+    pool: &DbPool,
+    body: BulkUpdateLibraryBooksRequest,
+) -> Result<(), APIError> {
+    let mut conn = pool.get()?;
+
+    conn.transaction::<_, APIError, _>(|conn| {
+        let target = library_books::table.filter(library_books::id.eq_any(&body.book_ids));
+        
+        diesel::update(target)
+            .set((
+                body.isbn.map(|isbn| library_books::isbn.eq(isbn)),
+                body.title.map(|title| library_books::title.eq(title)),
+                body.author.map(|author| library_books::author.eq(author)),
+                body.publisher.map(|publisher| library_books::publisher.eq(publisher)),
+                body.category_id.map(|category_id| library_books::category_id.eq(category_id)),
+                body.quantity.map(|quantity| library_books::quantity.eq(quantity)),
+                body.available_quantity.map(|available_quantity| library_books::available_quantity.eq(available_quantity)),
+                body.rack_number.map(|rack_number| library_books::rack_number.eq(rack_number)),
+                library_books::updated_at.eq(Local::now().naive_local()),
+            ))
+            .execute(conn)?;
+        
+        Ok(())
+    })
+}
+
 // ============= Issue/Return Services =============
 
 pub fn issue_book(pool: &DbPool, req: IssueBookRequest, issued_by_id: String) -> Result<LibraryIssueResponse, APIError> {
@@ -254,7 +405,7 @@ pub fn issue_book(pool: &DbPool, req: IssueBookRequest, issued_by_id: String) ->
     }
 
     // Get book and check availability
-    let book = library_books::table
+    let mut book = library_books::table
         .find(req.book_id)
         .select(LibraryBook::as_select())
         .first(&mut conn)
@@ -320,8 +471,10 @@ pub fn issue_book(pool: &DbPool, req: IssueBookRequest, issued_by_id: String) ->
         .execute(&mut conn)?;
 
     // Update available quantity
-    diesel::update(library_books::table.find(req.book_id))
-        .set(library_books::available_quantity.eq(book.available_quantity - 1))
+    book.available_quantity -= 1;
+    book.updated_at = Local::now().naive_local(); // Update timestamp
+    diesel::update(library_books::table.find(book.id))
+        .set(&book) // Update using the modified book struct
         .execute(&mut conn)?;
 
     let issue: LibraryIssue = library_issues::table
@@ -373,13 +526,15 @@ pub fn return_book(pool: &DbPool, issue_id: i32, req: ReturnBookRequest) -> Resu
         .execute(&mut conn)?;
 
     // Update available quantity
-    let book = library_books::table
+    let mut book = library_books::table
         .find(issue.book_id)
         .select(LibraryBook::as_select())
         .first(&mut conn)?;
 
-    diesel::update(library_books::table.find(issue.book_id))
-        .set(library_books::available_quantity.eq(book.available_quantity + 1))
+    book.available_quantity += 1;
+    book.updated_at = Local::now().naive_local(); // Update timestamp
+    diesel::update(library_books::table.find(book.id))
+        .set(&book) // Update using the modified book struct
         .execute(&mut conn)?;
 
     get_issue_by_id(pool, issue_id)

@@ -1,4 +1,4 @@
-﻿// @generated automatically by Diesel CLI.
+// @generated automatically by Diesel CLI.
 
 diesel::table! {
     academic_years (id) {
@@ -204,7 +204,7 @@ diesel::table! {
         id -> Text,
         name -> Text,
         description -> Nullable<Text>,
-        weightage -> Integer,
+        weightage -> Float,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -1133,7 +1133,6 @@ diesel::joinable!(staff_subjects -> subjects (subject_id));
 diesel::joinable!(stream_subjects -> streams (stream_id));
 diesel::joinable!(stream_subjects -> subjects (subject_id));
 diesel::joinable!(student_achievements -> students (student_id));
-diesel::joinable!(student_class_assignments -> students (student_id));
 diesel::joinable!(student_emergency_contacts -> students (student_id));
 diesel::joinable!(student_fees -> fee_structures (fee_structure_id));
 diesel::joinable!(student_fees -> students (student_id));

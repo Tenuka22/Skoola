@@ -16,7 +16,7 @@ use crate::{
         },
         report_cards,
         role_permissions::{assign_permission_to_role, unassign_permission_from_role},
-        roles::{create_role, delete_role, get_role, get_roles, update_role},
+        roles::{bulk_delete_roles, bulk_update_roles, create_role, delete_role, get_role, get_roles, update_role},
         seed::seed_database,
         special_exams,
         staff::{
@@ -84,7 +84,9 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/{role_id}/permissions/{permission_id}",
                 web::delete().to(unassign_permission_from_role),
-            ),
+            )
+            .route("/bulk", web::delete().to(bulk_delete_roles))
+            .route("/bulk", web::patch().to(bulk_update_roles)),
     )
     .service(
         web::scope("/users")
@@ -335,7 +337,9 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/{id}/set-current",
                 web::put().to(academic_year::set_current_academic_year),
-            ),
+            )
+            .route("/bulk", web::delete().to(academic_year::bulk_delete_academic_years))
+            .route("/bulk", web::patch().to(academic_year::bulk_update_academic_years)),
     )
     .service(
         web::scope("/terms")
@@ -355,7 +359,9 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{id}", web::get().to(grade_level::get_grade_level_by_id))
             .route("", web::get().to(grade_level::get_all_grade_levels))
             .route("/{id}", web::put().to(grade_level::update_grade_level))
-            .route("/{id}", web::delete().to(grade_level::delete_grade_level)),
+            .route("/{id}", web::delete().to(grade_level::delete_grade_level))
+            .route("/bulk", web::delete().to(grade_level::bulk_delete_grade_levels))
+            .route("/bulk", web::patch().to(grade_level::bulk_update_grade_levels)),
     )
     .service(
         web::scope("/classes")
@@ -368,7 +374,9 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(class::get_all_classes))
             .route("/{id}", web::put().to(class::update_class))
             .route("/{id}", web::delete().to(class::delete_class))
-            .route("/grade/{id}", web::get().to(class::get_classes_by_grade)),
+            .route("/grade/{id}", web::get().to(class::get_classes_by_grade))
+            .route("/bulk", web::delete().to(class::bulk_delete_classes))
+            .route("/bulk", web::patch().to(class::bulk_update_classes)),
     )
     .service(
         web::scope("/subjects")
@@ -396,7 +404,9 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/assign-to-stream",
                 web::post().to(subject::assign_subject_to_stream_handler),
-            ),
+            )
+            .route("/bulk", web::delete().to(subject::bulk_delete_subjects))
+            .route("/bulk", web::patch().to(subject::bulk_update_subjects)),
     )
     .service(
         web::scope("/class-subject-teachers")
@@ -454,7 +464,9 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{id}", web::get().to(exam_types::get_exam_type_by_id))
             .route("", web::get().to(exam_types::get_all_exam_types))
             .route("/{id}", web::put().to(exam_types::update_exam_type))
-            .route("/{id}", web::delete().to(exam_types::delete_exam_type)),
+            .route("/{id}", web::delete().to(exam_types::delete_exam_type))
+            .route("/bulk", web::delete().to(exam_types::bulk_delete_exam_types))
+            .route("/bulk", web::patch().to(exam_types::bulk_update_exam_types)),
     )
     .service(
         web::scope("/exams")
@@ -468,9 +480,11 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/term/{term_id}",
                 web::get().to(exams::get_exams_by_term_id),
-            ) // New route
+            )
             .route("/{id}", web::put().to(exams::update_exam))
-            .route("/{id}", web::delete().to(exams::delete_exam)),
+            .route("/{id}", web::delete().to(exams::delete_exam))
+            .route("/bulk", web::delete().to(exams::bulk_delete_exams))
+            .route("/bulk", web::patch().to(exams::bulk_update_exams)),
     )
     .service(
         web::scope("/exam-subjects")
@@ -604,10 +618,26 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 "/categories",
                 apistos::web::post().to(crate::handlers::library::create_category),
             )
+            .route(
+                "/categories/bulk",
+                apistos::web::delete().to(crate::handlers::library::bulk_delete_library_categories),
+            )
+            .route(
+                "/categories/bulk",
+                apistos::web::patch().to(crate::handlers::library::bulk_update_library_categories),
+            )
             // Book routes
             .route(
                 "/books",
                 apistos::web::get().to(crate::handlers::library::get_all_books),
+            )
+            .route(
+                "/books/bulk",
+                apistos::web::delete().to(crate::handlers::library::bulk_delete_library_books),
+            )
+            .route(
+                "/books/bulk",
+                apistos::web::patch().to(crate::handlers::library::bulk_update_library_books),
             )
             .route(
                 "/books/search",

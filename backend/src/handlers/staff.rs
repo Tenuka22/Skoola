@@ -1,5 +1,5 @@
 use actix_web::web;
-use apistos::api_operation;
+use apistos::{api_operation, ApiComponent};
 use diesel::prelude::*;
 use uuid::Uuid;
 use chrono::Utc;
@@ -8,6 +8,8 @@ use futures_util::stream::{StreamExt, TryStreamExt};
 use std::io::Write;
 use std::fs::create_dir_all;
 use actix_web::web::Json;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState,
@@ -18,6 +20,27 @@ use crate::{
     schema::staff,
     utils::validation::{is_valid_email, is_valid_nic, is_valid_phone},
 };
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkDeleteStaffRequest {
+    pub staff_ids: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkUpdateStaffRequest {
+    pub staff_ids: Vec<String>,
+    pub name: Option<String>,
+    pub employee_id: Option<String>,
+    pub nic: Option<String>,
+    pub dob: Option<chrono::NaiveDate>,
+    pub gender: Option<String>,
+    pub address: Option<String>,
+    pub phone: Option<String>,
+    pub email: Option<String>,
+    pub photo_url: Option<String>,
+    pub employment_status: Option<crate::database::enums::EmploymentStatus>,
+    pub staff_type: Option<crate::database::enums::StaffType>,
+}
 
 #[api_operation(
     summary = "Upload a staff photo",
@@ -275,4 +298,30 @@ pub async fn delete_staff(
     diesel::delete(staff::table.find(staff_id.into_inner()))
         .execute(&mut conn)?;
     Ok(Json(MessageResponse { message: "Staff member deleted successfully".to_string() }))
+}
+
+#[api_operation(
+    summary = "Bulk delete staff members",
+    description = "Deletes multiple staff members by their IDs.",
+    tag = "staff"
+)]
+pub async fn bulk_delete_staff(
+    data: web::Data<AppState>,
+    body: web::Json<BulkDeleteStaffRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    crate::services::staff::bulk_delete_staff(data.clone(), body.into_inner().staff_ids).await?;
+    Ok(Json(MessageResponse { message: "Staff members deleted successfully".to_string() }))
+}
+
+#[api_operation(
+    summary = "Bulk update staff members",
+    description = "Updates multiple staff members' information.",
+    tag = "staff"
+)]
+pub async fn bulk_update_staff(
+    data: web::Data<AppState>,
+    body: web::Json<BulkUpdateStaffRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    crate::services::staff::bulk_update_staff(data.clone(), body.into_inner()).await?;
+    Ok(Json(MessageResponse { message: "Staff members updated successfully".to_string() }))
 }

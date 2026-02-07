@@ -1,13 +1,15 @@
 use diesel::prelude::*;
+use diesel::{QueryDsl, RunQueryDsl};
 use crate::{
     errors::APIError,
     AppState,
     models::subject::{Subject, SubjectResponse, CreateSubjectRequest, UpdateSubjectRequest, AssignSubjectToGradeRequest, AssignSubjectToStreamRequest},
 };
-use actix_web::{web, HttpResponse};
+use actix_web::web;
 use uuid::Uuid;
 use chrono::Utc;
 use crate::schema::{subjects, grade_subjects, grade_levels, stream_subjects, streams};
+use crate::handlers::subject::{SubjectQuery, BulkUpdateSubjectsRequest};
 
 // Struct to represent a row in the grade_subjects junction table for insertion
 #[derive(Debug, Insertable)]
@@ -66,11 +68,60 @@ pub async fn get_subject_by_id(
 
 pub async fn get_all_subjects(
     pool: web::Data<AppState>,
-) -> Result<Vec<SubjectResponse>, APIError> {
+    query: SubjectQuery,
+) -> Result<(Vec<SubjectResponse>, i64, i64), APIError> {
     let mut conn = pool.db_pool.get()?;
+    let mut data_query = subjects::table.into_boxed();
+    let mut count_query = subjects::table.into_boxed();
 
-    let subjects_list: Vec<Subject> = subjects::table
-        .order(subjects::subject_name_en.asc())
+    if let Some(search_term) = &query.search {
+        let pattern = format!("%{}%", search_term);
+        data_query = data_query.filter(
+            subjects::subject_name_en.like(pattern.clone())
+                .or(subjects::subject_name_si.like(pattern.clone()))
+                .or(subjects::subject_name_ta.like(pattern.clone()))
+                .or(subjects::subject_code.like(pattern.clone()))
+        );
+        count_query = count_query.filter(
+            subjects::subject_name_en.like(pattern.clone())
+                .or(subjects::subject_name_si.like(pattern.clone()))
+                .or(subjects::subject_name_ta.like(pattern.clone()))
+                .or(subjects::subject_code.like(pattern.clone()))
+        );
+    }
+
+    if let Some(is_core) = query.is_core {
+        data_query = data_query.filter(subjects::is_core.eq(is_core));
+        count_query = count_query.filter(subjects::is_core.eq(is_core));
+    }
+
+    // Filtering by grade_id or stream_id would require joining, which gets complex for a generic get_all.
+    // For now, let's keep it simple and filter only on subject fields.
+    // If complex filtering on relations is needed, it might be better handled in separate endpoints.
+
+    let sort_by = query.sort_by.as_deref().unwrap_or("subject_name_en");
+    let sort_order = query.sort_order.as_deref().unwrap_or("asc");
+
+    data_query = match (sort_by, sort_order) {
+        ("subject_name_en", "asc") => data_query.order(subjects::subject_name_en.asc()),
+        ("subject_name_en", "desc") => data_query.order(subjects::subject_name_en.desc()),
+        ("subject_code", "asc") => data_query.order(subjects::subject_code.asc()),
+        ("subject_code", "desc") => data_query.order(subjects::subject_code.desc()),
+        ("is_core", "asc") => data_query.order(subjects::is_core.asc()),
+        ("is_core", "desc") => data_query.order(subjects::is_core.desc()),
+        _ => data_query.order(subjects::subject_name_en.asc()),
+    };
+
+    let page = query.page.unwrap_or(1);
+    let limit = query.limit.unwrap_or(10);
+    let offset = (page - 1) * limit;
+
+    let total_subjects = count_query.count().get_result(&mut conn)?;
+    let total_pages = (total_subjects as f64 / limit as f64).ceil() as i64;
+
+    let subjects_list: Vec<Subject> = data_query
+        .limit(limit)
+        .offset(offset)
         .load::<Subject>(&mut conn)?;
 
     let responses: Vec<SubjectResponse> = subjects_list
@@ -78,7 +129,7 @@ pub async fn get_all_subjects(
         .map(SubjectResponse::from)
         .collect();
 
-    Ok(responses)
+    Ok((responses, total_subjects, total_pages))
 }
 
 pub async fn update_subject(
@@ -108,7 +159,7 @@ pub async fn update_subject(
 pub async fn delete_subject(
     pool: web::Data<AppState>,
     subject_id: String,
-) -> Result<HttpResponse, APIError> {
+) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
 
     let deleted_count = diesel::delete(subjects::table)
@@ -119,7 +170,41 @@ pub async fn delete_subject(
         return Err(APIError::not_found(&format!("Subject with ID {} not found", subject_id)));
     }
 
-    Ok(HttpResponse::NoContent().finish())
+    Ok(())
+}
+
+pub async fn bulk_delete_subjects(
+    pool: web::Data<AppState>,
+    subject_ids: Vec<String>,
+) -> Result<(), APIError> {
+    let mut conn = pool.db_pool.get()?;
+    diesel::delete(subjects::table.filter(subjects::id.eq_any(subject_ids)))
+        .execute(&mut conn)?;
+    Ok(())
+}
+
+pub async fn bulk_update_subjects(
+    pool: web::Data<AppState>,
+    body: BulkUpdateSubjectsRequest,
+) -> Result<(), APIError> {
+    let mut conn = pool.db_pool.get()?;
+
+    conn.transaction::<_, APIError, _>(|conn| {
+        let target = subjects::table.filter(subjects::id.eq_any(&body.subject_ids));
+        
+        diesel::update(target)
+            .set((
+                body.subject_name_en.map(|sn_en| subjects::subject_name_en.eq(sn_en)),
+                body.subject_name_si.map(|sn_si| subjects::subject_name_si.eq(sn_si)),
+                body.subject_name_ta.map(|sn_ta| subjects::subject_name_ta.eq(sn_ta)),
+                body.subject_code.map(|sc| subjects::subject_code.eq(sc)),
+                body.is_core.map(|ic| subjects::is_core.eq(ic)),
+                subjects::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(conn)?;
+        
+        Ok(())
+    })
 }
 
 pub async fn get_subjects_by_grade(
@@ -171,14 +256,14 @@ pub async fn get_subjects_by_stream(
 pub async fn assign_subject_to_grade(
     pool: web::Data<AppState>,
     assign_req: AssignSubjectToGradeRequest,
-) -> Result<HttpResponse, APIError> {
+) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
 
     // Check if grade exists
     let grade_exists: bool = grade_levels::table
         .filter(grade_levels::id.eq(&assign_req.grade_id))
-        .select(diesel::dsl::count(grade_levels::id)) // Changed to count
-        .get_result::<i64>(&mut conn) // Changed to i64
+        .select(diesel::dsl::count(grade_levels::id))
+        .get_result::<i64>(&mut conn)
 ? > 0;
 
     if !grade_exists {
@@ -188,8 +273,8 @@ pub async fn assign_subject_to_grade(
     // Check if subject exists
     let subject_exists: bool = subjects::table
         .filter(subjects::id.eq(&assign_req.subject_id))
-        .select(diesel::dsl::count(subjects::id)) // Changed to count
-        .get_result::<i64>(&mut conn) // Changed to i64
+        .select(diesel::dsl::count(subjects::id))
+        .get_result::<i64>(&mut conn)
 ? > 0;
 
     if !subject_exists {
@@ -200,8 +285,8 @@ pub async fn assign_subject_to_grade(
     let assignment_exists: bool = grade_subjects::table
         .filter(grade_subjects::grade_id.eq(&assign_req.grade_id))
         .filter(grade_subjects::subject_id.eq(&assign_req.subject_id))
-        .select(diesel::dsl::count(grade_subjects::grade_id)) // Changed to count
-        .get_result::<i64>(&mut conn) // Changed to i64
+        .select(diesel::dsl::count(grade_subjects::grade_id))
+        .get_result::<i64>(&mut conn)
 ? > 0;
 
     if assignment_exists {
@@ -218,20 +303,20 @@ pub async fn assign_subject_to_grade(
         .execute(&mut conn)
 ?;
 
-    Ok(HttpResponse::Created().finish())
+    Ok(())
 }
 
 pub async fn assign_subject_to_stream(
     pool: web::Data<AppState>,
     assign_req: AssignSubjectToStreamRequest,
-) -> Result<HttpResponse, APIError> {
+) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
 
     // Check if stream exists
     let stream_exists: bool = streams::table
         .filter(streams::id.eq(&assign_req.stream_id))
-        .select(diesel::dsl::count(streams::id)) // Changed to count
-        .get_result::<i64>(&mut conn) // Changed to i64
+        .select(diesel::dsl::count(streams::id))
+        .get_result::<i64>(&mut conn)
 ? > 0;
 
     if !stream_exists {
@@ -241,8 +326,8 @@ pub async fn assign_subject_to_stream(
     // Check if subject exists
     let subject_exists: bool = subjects::table
         .filter(subjects::id.eq(&assign_req.subject_id))
-        .select(diesel::dsl::count(subjects::id)) // Changed to count
-        .get_result::<i64>(&mut conn) // Changed to i64
+        .select(diesel::dsl::count(subjects::id))
+        .get_result::<i64>(&mut conn)
 ? > 0;
 
     if !subject_exists {
@@ -253,8 +338,8 @@ pub async fn assign_subject_to_stream(
     let assignment_exists: bool = stream_subjects::table
         .filter(stream_subjects::stream_id.eq(&assign_req.stream_id))
         .filter(stream_subjects::subject_id.eq(&assign_req.subject_id))
-        .select(diesel::dsl::count(stream_subjects::stream_id)) // Changed to count
-        .get_result::<i64>(&mut conn) // Changed to i64
+        .select(diesel::dsl::count(stream_subjects::stream_id))
+        .get_result::<i64>(&mut conn)
 ? > 0;
 
     if assignment_exists {
@@ -271,5 +356,5 @@ pub async fn assign_subject_to_stream(
         .execute(&mut conn)
 ?;
 
-    Ok(HttpResponse::Created().finish())
+    Ok(())
 }

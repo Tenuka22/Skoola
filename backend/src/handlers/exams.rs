@@ -1,6 +1,9 @@
 use actix_web::web;
-use apistos::api_operation;
+use apistos::{api_operation, ApiComponent};
 use actix_web::web::Json;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
+use chrono::NaiveDateTime;
 
 use crate::{
     AppState,
@@ -9,6 +12,43 @@ use crate::{
     models::MessageResponse,
     services::exams,
 };
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct ExamQuery {
+    pub search: Option<String>,
+    pub term_id: Option<String>,
+    pub academic_year_id: Option<String>,
+    pub exam_type_id: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct PaginatedExamResponse {
+    pub data: Vec<ExamResponse>,
+    pub total: i64,
+    pub page: i64,
+    pub limit: i64,
+    pub total_pages: i64,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkDeleteExamsRequest {
+    pub exam_ids: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BulkUpdateExamsRequest {
+    pub exam_ids: Vec<String>,
+    pub name: Option<String>,
+    pub academic_year_id: Option<String>,
+    pub term_id: Option<String>,
+    pub exam_type_id: Option<String>,
+    pub start_date: Option<NaiveDateTime>,
+    pub end_date: Option<NaiveDateTime>,
+}
 
 #[api_operation(
     summary = "Create Exam",
@@ -39,14 +79,49 @@ pub async fn get_exam_by_id(
 
 #[api_operation(
     summary = "Get All Exams",
-    description = "Retrieves a list of all exams.",
+    description = "Retrieves a paginated list of all exams with search and filtering options.",
     tag = "exams"
 )]
 pub async fn get_all_exams(
     data: web::Data<AppState>,
-) -> Result<Json<Vec<ExamResponse>>, APIError> {
-    let exams = exams::get_all_exams(data.clone()).await?;
-    Ok(Json(exams))
+    query: web::Query<ExamQuery>,
+) -> Result<Json<PaginatedExamResponse>, APIError> {
+    let inner_query = query.into_inner();
+    let (exams, total_exams, total_pages) =
+        exams::get_all_exams(data.clone(), inner_query.clone()).await?;
+    Ok(Json(PaginatedExamResponse {
+        data: exams,
+        total: total_exams,
+        page: inner_query.page.unwrap_or(1),
+        limit: inner_query.limit.unwrap_or(10),
+        total_pages,
+    }))
+}
+
+#[api_operation(
+    summary = "Bulk Delete Exams",
+    description = "Deletes multiple exams by their IDs.",
+    tag = "exams"
+)]
+pub async fn bulk_delete_exams(
+    data: web::Data<AppState>,
+    body: web::Json<BulkDeleteExamsRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    exams::bulk_delete_exams(data.clone(), body.into_inner().exam_ids).await?;
+    Ok(Json(MessageResponse { message: "Exams deleted successfully".to_string() }))
+}
+
+#[api_operation(
+    summary = "Bulk Update Exams",
+    description = "Updates multiple exams' information.",
+    tag = "exams"
+)]
+pub async fn bulk_update_exams(
+    data: web::Data<AppState>,
+    body: web::Json<BulkUpdateExamsRequest>,
+) -> Result<Json<MessageResponse>, APIError> {
+    exams::bulk_update_exams(data.clone(), body.into_inner()).await?;
+    Ok(Json(MessageResponse { message: "Exams updated successfully".to_string() }))
 }
 
 #[api_operation(

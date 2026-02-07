@@ -12,7 +12,9 @@ use crate::schema::{
 use chrono::{NaiveDateTime, Utc};
 use diesel::SqliteConnection;
 use diesel::prelude::*;
+use diesel::{QueryDsl, RunQueryDsl};
 use uuid::Uuid;
+use crate::handlers::financial::{BudgetCategoryQuery, BulkUpdateBudgetCategoriesRequest};
 
 pub struct FinancialService;
 
@@ -32,6 +34,71 @@ impl FinancialService {
             .values(&new_cat)
             .execute(conn)?;
         Ok(new_cat)
+    }
+
+    pub async fn get_all_budget_categories(
+        conn: &mut SqliteConnection,
+        query: BudgetCategoryQuery,
+    ) -> Result<(Vec<BudgetCategory>, i64, i64), APIError> {
+        let mut data_query = budget_categories::table.into_boxed();
+        let mut count_query = budget_categories::table.into_boxed();
+
+        if let Some(search_term) = &query.search {
+            let pattern = format!("%{}%", search_term);
+            data_query = data_query.filter(budget_categories::name.like(pattern.clone()).or(budget_categories::description.like(pattern.clone())));
+            count_query = count_query.filter(budget_categories::name.like(pattern.clone()).or(budget_categories::description.like(pattern.clone())));
+        }
+
+        let sort_by = query.sort_by.as_deref().unwrap_or("name");
+        let sort_order = query.sort_order.as_deref().unwrap_or("asc");
+
+        data_query = match (sort_by, sort_order) {
+            ("name", "asc") => data_query.order(budget_categories::name.asc()),
+            ("name", "desc") => data_query.order(budget_categories::name.desc()),
+            _ => data_query.order(budget_categories::name.asc()),
+        };
+
+        let page = query.page.unwrap_or(1);
+        let limit = query.limit.unwrap_or(10);
+        let offset = (page - 1) * limit;
+
+        let total_categories = count_query.count().get_result(conn)?;
+        let total_pages = (total_categories as f64 / limit as f64).ceil() as i64;
+
+        let categories_list: Vec<BudgetCategory> = data_query
+            .limit(limit)
+            .offset(offset)
+            .load::<BudgetCategory>(conn)?;
+
+        Ok((categories_list, total_categories, total_pages))
+    }
+
+    pub async fn bulk_delete_budget_categories(
+        conn: &mut SqliteConnection,
+        category_ids: Vec<String>,
+    ) -> Result<(), APIError> {
+        diesel::delete(budget_categories::table.filter(budget_categories::id.eq_any(category_ids)))
+            .execute(conn)?;
+        Ok(())
+    }
+
+    pub async fn bulk_update_budget_categories(
+        conn: &mut SqliteConnection,
+        body: BulkUpdateBudgetCategoriesRequest,
+    ) -> Result<(), APIError> {
+        conn.transaction::<_, APIError, _>(|conn| {
+            let target = budget_categories::table.filter(budget_categories::id.eq_any(&body.category_ids));
+            
+            diesel::update(target)
+                .set((
+                    body.name.map(|n| budget_categories::name.eq(n)),
+                    body.description.map(|d| budget_categories::description.eq(d)),
+                    budget_categories::updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+            
+            Ok(())
+        })
     }
 
     pub fn set_budget(
