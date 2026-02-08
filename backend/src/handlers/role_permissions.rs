@@ -11,11 +11,6 @@ use crate::{
     schema::role_permissions,
 };
 
-#[derive(serde::Deserialize)]
-pub struct PermissionAssignmentRequest {
-    pub permission_id: String,
-}
-
 #[api_operation(
     summary = "Assign a permission to a role",
     description = "Assigns a permission to a role by their IDs.",
@@ -26,7 +21,8 @@ pub async fn assign_permission_to_role(
     path: web::Path<(String, String)>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let (role_id, permission_id) = path.into_inner();
+    let (role_id, permission_id_str) = path.into_inner();
+    let permission_id = permission_id_str.parse::<i32>()?;
 
     let new_assignment = RolePermission {
         role_id,
@@ -50,7 +46,8 @@ pub async fn unassign_permission_from_role(
     path: web::Path<(String, String)>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let (role_id, permission_id) = path.into_inner();
+    let (role_id, permission_id_str) = path.into_inner();
+    let permission_id = permission_id_str.parse::<i32>()?;
 
     diesel::delete(
         role_permissions::table

@@ -4,21 +4,6 @@ CREATE TABLE roles (
     name VARCHAR NOT NULL UNIQUE
 );
 
--- Create permissions table
-CREATE TABLE permissions (
-    id VARCHAR NOT NULL PRIMARY KEY,
-    name VARCHAR NOT NULL UNIQUE
-);
-
--- Create role_permissions junction table
-CREATE TABLE role_permissions (
-    role_id VARCHAR NOT NULL,
-    permission_id VARCHAR NOT NULL,
-    PRIMARY KEY (role_id, permission_id),
-    FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE CASCADE,
-    FOREIGN KEY (permission_id) REFERENCES permissions (id) ON DELETE CASCADE
-);
-
 -- Create user_roles junction table
 CREATE TABLE user_roles (
     user_id VARCHAR NOT NULL,

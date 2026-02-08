@@ -5,13 +5,13 @@ use crate::database::enums::{
 use crate::schema::{
     asset_allocations, asset_categories, budget_categories, budgets, expense_categories,
     expense_transactions, fee_categories, fee_payments, fee_structures, income_sources,
-    income_transactions, inventory_items, maintenance_requests, permissions,
-    petty_cash_transactions, role_permissions, roles, salary_components, salary_payments, sessions,
-    staff, staff_attendance, staff_departments, staff_employment_history, staff_leaves,
-    staff_qualifications, staff_roles, staff_salaries, staff_subjects, student_emergency_contacts,
-    student_fees, student_guardians, student_medical_info, student_previous_schools, students,
-    teacher_class_assignments, teacher_subject_assignments, uniform_issues, uniform_items,
-    user_roles, users,
+    income_transactions, inventory_items, library_books, library_categories, library_issues,
+    library_settings, maintenance_requests, permissions, petty_cash_transactions, role_permissions,
+    roles, salary_components, salary_payments, sessions, staff, staff_attendance,
+    staff_departments, staff_employment_history, staff_leaves, staff_qualifications, staff_roles,
+    staff_salaries, staff_subjects, student_emergency_contacts, student_fees, student_guardians,
+    student_medical_info, student_previous_schools, students, teacher_class_assignments,
+    teacher_subject_assignments, uniform_issues, uniform_items, user_roles, users,
 };
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use diesel::deserialize::FromSql;
@@ -172,8 +172,10 @@ pub struct NewUserRole {
 #[diesel(table_name = permissions)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Permission {
-    pub id: String,
+    pub id: i32,
     pub name: String,
+    pub description: String,
+    pub safety_level: i32,
 }
 
 #[derive(
@@ -193,7 +195,7 @@ pub struct Permission {
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct RolePermission {
     pub role_id: String,
-    pub permission_id: String,
+    pub permission_id: i32,
 }
 
 #[derive(
@@ -214,6 +216,26 @@ pub struct RolePermission {
 pub struct UserRole {
     pub user_id: String,
     pub role_id: String,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = staff)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct NewStaff {
+    pub id: String,
+    pub employee_id: String,
+    pub name: String,
+    pub nic: String,
+    pub dob: NaiveDate,
+    pub gender: Gender,
+    pub address: String,
+    pub phone: String,
+    pub email: String,
+    pub employment_status: crate::database::enums::EmploymentStatus,
+    pub staff_type: crate::database::enums::StaffType,
+    pub photo_url: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
@@ -1014,6 +1036,69 @@ pub struct SalaryPayment {
     pub payment_date: NaiveDateTime,
     pub payment_method: String,
     pub remarks: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = library_categories)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct LibraryCategory {
+    pub id: i32,
+    pub category_name: String,
+    pub description: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = library_books)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct LibraryBook {
+    pub id: i32,
+    pub isbn: Option<String>,
+    pub title: String,
+    pub author: String,
+    pub publisher: Option<String>,
+    pub category_id: i32,
+    pub quantity: i32,
+    pub available_quantity: i32,
+    pub rack_number: Option<String>,
+    pub added_date: NaiveDate,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = library_issues)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct LibraryIssue {
+    pub id: i32,
+    pub book_id: i32,
+    pub student_id: Option<String>,
+    pub staff_id: Option<String>,
+    pub issue_date: NaiveDate,
+    pub due_date: NaiveDate,
+    pub return_date: Option<NaiveDate>,
+    pub issued_by: String,
+    pub fine_amount: Option<f32>,
+    pub fine_paid: bool,
+    pub status: String,
+    pub remarks: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = library_settings)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct LibrarySettings {
+    pub id: i32,
+    pub max_books_per_student: i32,
+    pub max_books_per_staff: i32,
+    pub issue_duration_days_student: i32,
+    pub issue_duration_days_staff: i32,
+    pub fine_per_day: f32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }

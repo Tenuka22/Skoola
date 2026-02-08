@@ -49,7 +49,7 @@ pub async fn get_permissions_paginated(
 
 pub async fn bulk_delete_permissions(
     pool: web::Data<AppState>,
-    permission_ids: Vec<String>,
+    permission_ids: Vec<i32>,
 ) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
     diesel::delete(permissions::table.filter(permissions::id.eq_any(permission_ids)))

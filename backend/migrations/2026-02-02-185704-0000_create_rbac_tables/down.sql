@@ -7,6 +7,4 @@ UPDATE users SET role = (SELECT r.name FROM roles r JOIN user_roles ur ON r.id =
 
 -- Drop the RBAC tables
 DROP TABLE user_roles;
-DROP TABLE role_permissions;
-DROP TABLE permissions;
 DROP TABLE roles;

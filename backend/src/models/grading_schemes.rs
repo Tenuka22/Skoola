@@ -12,8 +12,8 @@ pub struct GradingScheme {
     pub name: String,
     pub grade_level: String,
     pub description: Option<String>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: Option<NaiveDateTime>,
+    pub updated_at: Option<NaiveDateTime>,
 }
 
 #[derive(Debug, Insertable, Serialize, Deserialize, JsonSchema, ApiComponent)]

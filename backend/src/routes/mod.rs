@@ -17,7 +17,7 @@ use crate::{
         report_cards,
         role_permissions::{assign_permission_to_role, unassign_permission_from_role},
         roles::{bulk_delete_roles, bulk_update_roles, create_role, delete_role, get_role, get_roles, update_role},
-        seed::seed_database,
+        seed_runner::seed_database,
         special_exams,
         staff::{
             create_staff, delete_staff, get_all_staff, get_staff_by_id, update_staff,

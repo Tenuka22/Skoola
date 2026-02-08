@@ -52,10 +52,10 @@ CREATE TABLE library_issues (
     remarks TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (book_id) REFERENCES library_books(id) ON DELETE RESTRICT,
-    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-    FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE,
-    FOREIGN KEY (issued_by) REFERENCES staff(id) ON DELETE RESTRICT,
+    -- FOREIGN KEY (book_id) REFERENCES library_books(id) ON DELETE RESTRICT,
+    -- FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    -- FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE,
+    -- FOREIGN KEY (issued_by) REFERENCES staff(id) ON DELETE RESTRICT,
     CHECK ((student_id IS NOT NULL AND staff_id IS NULL) OR (student_id IS NULL AND staff_id IS NOT NULL))
 );
 

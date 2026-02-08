@@ -148,9 +148,9 @@ impl From<DieselError> for APIError {
             DieselError::NotFound => APIError::not_found("Resource not found."),
             DieselError::DatabaseError(_, info) => {
                 error!("Database error details: {}", info.message());
-                APIError::internal("An internal database error occurred.")
+                APIError::internal(&format!("An internal database error occurred: {}", info.message()))
             }
-            _ => APIError::internal("An internal database error occurred."),
+            _ => APIError::internal(&format!("An internal database error occurred: {}", error)),
         }
     }
 }

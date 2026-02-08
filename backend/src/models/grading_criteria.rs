@@ -14,8 +14,8 @@ pub struct GradingCriterion {
     pub grade: String,
     pub grade_point: Option<f32>,
     pub description: Option<String>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: Option<NaiveDateTime>,
+    pub updated_at: Option<NaiveDateTime>,
 }
 
 #[derive(Debug, Insertable, Serialize, Deserialize, JsonSchema, ApiComponent)]

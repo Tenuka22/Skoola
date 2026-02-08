@@ -21,6 +21,7 @@ pub mod report_cards;
 pub mod role_permissions;
 pub mod roles;
 pub mod seed;
+pub mod seed_runner;
 pub mod special_exams;
 pub mod staff;
 pub mod staff_attendance;

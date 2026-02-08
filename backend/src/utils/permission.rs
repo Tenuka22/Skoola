@@ -6,11 +6,13 @@ use actix_web::{
 };
 use diesel::prelude::*;
 use futures_util::future::LocalBoxFuture;
-use crate::AppState;
-use crate::database::tables::{Role, RolePermission, Session, StaffRole};
-use crate::errors::APIError;
-use crate::schema::roles;
 
+use crate::{
+    AppState,
+    database::tables::{Permission, Role, RolePermission, Session, StaffRole},
+    errors::APIError,
+    schema::{permissions, roles},
+};
 pub struct PermissionVerification {
     pub required_permission: String,
 }
@@ -44,7 +46,7 @@ fn get_all_permissions(
     conn: &mut SqliteConnection,
     role_id: &str,
     visited_roles: &mut HashSet<String>,
-) -> Result<HashSet<String>, diesel::result::Error> {
+) -> Result<HashSet<i32>, diesel::result::Error> {
     if !visited_roles.insert(role_id.to_string()) {
         return Ok(HashSet::new());
     }
@@ -64,6 +66,10 @@ fn get_all_permissions(
 
     Ok(all_permissions)
 }
+
+
+
+// ... (keep the rest of the file as is until the call function)
 
 impl<S, B> Service<ServiceRequest> for PermissionVerificationMiddleware<S>
 where
@@ -96,6 +102,13 @@ where
 
             if let Some(session) = session {
                 let mut conn = data.db_pool.get().map_err(APIError::from)?;
+                
+                let required_permission_id: i32 = permissions::table
+                    .filter(permissions::name.eq(&required_permission_cloned))
+                    .select(permissions::id)
+                    .first(&mut conn)
+                    .map_err(|_| APIError::not_found("Permission not found"))?;
+
                 let staff_roles = StaffRole::find_by_staff_id(&mut conn, &session.user_id)
                     .map_err(APIError::from)?;
 
@@ -107,7 +120,7 @@ where
                     user_permissions.extend(permissions);
                 }
 
-                if user_permissions.contains(&required_permission_cloned) {
+                if user_permissions.contains(&required_permission_id) {
                     return Ok(res);
                 }
             }

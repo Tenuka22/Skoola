@@ -1,4 +1,5 @@
 pub mod academic_year;
+pub mod academic_structure;
 pub mod auth;
 pub mod class_subject_teacher; // Added
 pub mod class;

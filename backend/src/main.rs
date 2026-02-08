@@ -25,6 +25,7 @@ mod config;
 mod database;
 mod errors;
 mod handlers;
+mod faker;
 mod models;
 mod routes;
 mod schema;

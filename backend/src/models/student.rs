@@ -23,10 +23,10 @@ pub struct Student {
     pub email: Option<String>,
     pub religion: Option<Religion>,
     pub ethnicity: Option<Ethnicity>,
-    pub status: StudentStatus,
-    pub photo_url: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub status: StudentStatus,
+    pub photo_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
@@ -80,10 +80,10 @@ pub struct StudentResponse {
     pub email: Option<String>,
     pub religion: Option<Religion>,
     pub ethnicity: Option<Ethnicity>,
-    pub status: StudentStatus,
-    pub photo_url: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub status: StudentStatus,
+    pub photo_url: Option<String>,
 }
 
 impl From<Student> for StudentResponse {
@@ -102,10 +102,10 @@ impl From<Student> for StudentResponse {
             email: student.email,
             religion: student.religion,
             ethnicity: student.ethnicity,
-            status: student.status,
-            photo_url: student.photo_url,
             created_at: student.created_at,
             updated_at: student.updated_at,
+            status: student.status,
+            photo_url: student.photo_url,
         }
     }
 }

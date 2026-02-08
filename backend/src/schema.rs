@@ -328,8 +328,8 @@ diesel::table! {
         grade -> Text,
         grade_point -> Nullable<Float>,
         description -> Nullable<Text>,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
     }
 }
 
@@ -339,8 +339,8 @@ diesel::table! {
         name -> Text,
         grade_level -> Text,
         description -> Nullable<Text>,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
     }
 }
 
@@ -472,8 +472,10 @@ diesel::table! {
 
 diesel::table! {
     permissions (id) {
-        id -> Text,
+        id -> Integer,
         name -> Text,
+        description -> Text,
+        safety_level -> Integer,
     }
 }
 
@@ -519,7 +521,7 @@ diesel::table! {
 diesel::table! {
     role_permissions (role_id, permission_id) {
         role_id -> Text,
-        permission_id -> Text,
+        permission_id -> Integer,
     }
 }
 
@@ -570,6 +572,15 @@ diesel::table! {
         island_rank -> Nullable<Integer>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    seeds (id) {
+        id -> Text,
+        table_name -> Text,
+        record_id -> Text,
+        created_at -> Timestamp,
     }
 }
 
@@ -1019,6 +1030,13 @@ diesel::table! {
 }
 
 diesel::table! {
+    user_permissions (user_id, permission_id) {
+        user_id -> Text,
+        permission_id -> Integer,
+    }
+}
+
+diesel::table! {
     user_roles (user_id, role_id) {
         user_id -> Text,
         role_id -> Text,
@@ -1155,6 +1173,8 @@ diesel::joinable!(timetable -> subjects (subject_id));
 diesel::joinable!(uniform_issues -> staff (issued_by));
 diesel::joinable!(uniform_issues -> students (student_id));
 diesel::joinable!(uniform_issues -> uniform_items (uniform_item_id));
+diesel::joinable!(user_permissions -> permissions (permission_id));
+diesel::joinable!(user_permissions -> users (user_id));
 diesel::joinable!(user_roles -> roles (role_id));
 diesel::joinable!(user_roles -> users (user_id));
 
@@ -1205,6 +1225,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     salary_components,
     salary_payments,
     scholarship_exams,
+    seeds,
     sessions,
     sport_event_participants,
     sport_events,
@@ -1240,6 +1261,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     timetable,
     uniform_issues,
     uniform_items,
+    user_permissions,
     user_roles,
     users,
     zscore_calculations,

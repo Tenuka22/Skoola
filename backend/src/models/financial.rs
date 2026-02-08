@@ -1,5 +1,5 @@
 use crate::database::enums::{PaymentMethod, TransactionType, ComponentType};
-use crate::database::tables::{BudgetCategory, Budget, IncomeSource, IncomeTransaction, ExpenseCategory, ExpenseTransaction, PettyCashTransaction, SalaryComponent, StaffSalary, SalaryPayment};
+pub use crate::database::tables::{BudgetCategory, Budget, IncomeSource, IncomeTransaction, ExpenseCategory, ExpenseTransaction, PettyCashTransaction, SalaryComponent, StaffSalary, SalaryPayment};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use chrono::{NaiveDate, NaiveDateTime};

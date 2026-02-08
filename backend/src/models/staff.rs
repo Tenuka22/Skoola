@@ -5,7 +5,7 @@ use chrono::{NaiveDate, NaiveDateTime};
 use diesel::prelude::AsChangeset;
 
 use crate::database::enums::{EmploymentStatus, StaffType};
-use crate::database::tables::Staff;
+pub use crate::database::tables::Staff;
 use crate::schema::staff;
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
