@@ -2,16 +2,19 @@ set shell := ["bash", "-cu"]
 set windows-shell := ["powershell", "-Command"]
 
 dev-backend:
-    cd backend; RUST_LOG=info cargo run
+    cd backend; cargo run
 
 run-backend:
-    cd backend; RUST_LOG=info cargo run --release
+    cd backend; cargo run --release
 
 dev-backend-hr:
-    cd backend; RUST_LOG=info cargo watch -x run
+    cd backend; cargo watch -x run
 
 check-backend:
     cd backend; cargo check
+
+check-web:
+    cd web; bun run tsc
 
 dev-web:
     cd web; bun run dev

@@ -7,6 +7,7 @@ use actix_cors::Cors;
 use actix_web::{
     App, HttpServer,
     web::{self, Data},
+    middleware::{self, TrailingSlash},
 };
 use apistos::{
     app::{BuildConfig, OpenApiWrapper},
@@ -18,7 +19,7 @@ use config::Config;
 use tokio::time::{Duration, interval}; // Add this line
 use tracing::info; // Removed unused error
 use tracing_actix_web::TracingLogger;
-use tracing_subscriber::{EnvFilter, FmtSubscriber}; // Import AppState
+use tracing_subscriber::FmtSubscriber; // Import AppState
 
 mod config;
 mod database;
@@ -33,9 +34,7 @@ mod utils;
 #[actix_web::main]
 async fn main() -> Result<(), APIError> {
     // Initialize tracing subscriber
-    FmtSubscriber::builder()
-        .with_env_filter(EnvFilter::from_default_env())
-        .init();
+    FmtSubscriber::builder().init();
 
     info!("╔════════════════════════════════════════╗");
     info!("║   🚀 Skoola Backend Starting Up       ║");
@@ -61,7 +60,7 @@ async fn main() -> Result<(), APIError> {
     };
 
     let bind_address = (config.host.clone(), config.port);
-    let allowed_origin = config.allowed_origin.clone();
+    let _allowed_origin = config.allowed_origin.clone();
 
     let pool = establish_connection(&config.database_url)?;
 
@@ -85,7 +84,8 @@ async fn main() -> Result<(), APIError> {
 
     HttpServer::new(move || {
         let cors = Cors::default()
-            .allowed_origin(&allowed_origin)
+            // .allowed_origin(&allowed_origin)
+            .allow_any_origin()
             .allowed_methods(vec!["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
             .allowed_headers(vec!["Authorization", "Content-Type", "Accept"])
             .supports_credentials()
@@ -108,6 +108,7 @@ async fn main() -> Result<(), APIError> {
             )
             .wrap(cors)
             .wrap(TracingLogger::default()) // Replaced Logger with TracingLogger
+            .wrap(middleware::NormalizePath::new(TrailingSlash::MergeOnly))
             .configure(routes::configure)
             .build_with(
                 "/openapi.json",

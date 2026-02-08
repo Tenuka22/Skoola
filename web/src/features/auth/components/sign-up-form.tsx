@@ -1,14 +1,11 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from '@tanstack/react-router'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { signUpSchema } from '../schemas'
-import type { SignUpFormValues } from '../schemas';
-import { getProfileC838C8E7Da73Bfc08645A117E4Df91F3 as getProfileApi, postAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9 as registerApi } from '@/lib/api/sdk.gen'
-import { publicClient } from '@/lib/clients'
-import { addSession } from '@/lib/auth/session'
+import type { SignUpFormValues } from '../schemas'
+import { getAuthStorageServer } from '@/lib/auth/session'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -18,75 +15,107 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarImage,
+} from '@/components/ui/avatar'
+import type { AuthStorage, Session } from '@/lib/auth/session'
+import { useMutation } from '@tanstack/react-query'
+import { signUpFn } from '@/lib/auth/actions'
+import { redirect } from 'nitro/h3'
 
 export function SignUpForm() {
-  const navigate = useNavigate()
-  const [error, setError] = React.useState<string | null>(null)
+  const [users, setUsers] = React.useState<AuthStorage | null>(null)
+
+  React.useEffect(() => {
+    const fetchAuthStorage = async () => {
+      try {
+        const storage = await getAuthStorageServer()
+        setUsers(storage)
+      } catch (e) {
+        console.error('Failed to fetch auth storage:', e)
+        setUsers(null)
+      }
+    }
+    fetchAuthStorage()
+  }, [])
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setError: setFormError,
   } = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
   })
 
+  const { mutate, isPending, error } = useMutation({
+    mutationFn: signUpFn,
+  })
+
   const onSubmit = async (data: SignUpFormValues) => {
-    setError(null)
     try {
-      // 1. Register
-      const response: any = await registerApi({
-        client: publicClient,
-        body: {
+      mutate({
+        data: {
+          name: data.name,
           email: data.email,
           password: data.password,
-          // 'name' might not be in the minimal register payload, checking API...
-          // If the API only takes email/pass, we might need to update profile later.
-          // But let's assume standard fields or strict adherence to API types.
-          // The schemas.gen.ts showed RegisterRequest only has email/password.
-          // So we ignore 'name' for now or handle it after login?
-          // The user asked for "auth login and sign up".
-          // I'll send email/pass.
         },
       })
 
-      // 2. Check for token (Auto-login)
-      if (response.data && response.data.token) {
-        const tempToken = response.data.token
-
-        // Fetch Profile
-        const profileResponse = await getProfileApi({
-          client: publicClient,
-          headers: {
-            Authorization: `Bearer ${tempToken}`,
-          },
-        })
-
-        if (profileResponse.data) {
-          addSession({
-            token: response.data.token,
-            refreshToken: response.data.refresh_token,
-            user: profileResponse.data,
-          })
-          await navigate({ to: '/profile' })
-          return
-        }
-      }
-
-      // If no token, redirect to login
-      await navigate({ to: '/login' })
+      redirect('/login')
     } catch (err: any) {
-      console.error(err)
-      setError(err?.message || 'Registration failed.')
+      console.error('Sign Up error in component:', err)
+      setFormError('root.serverError', {
+        type: 'server',
+        message: err.message || 'Sign up failed. Please try again.',
+      })
     }
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && (
+      {(error || errors.root?.serverError) && (
         <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            {error?.message || errors.root?.serverError?.message}
+          </AlertDescription>
         </Alert>
+      )}
+
+      {users?.sessions && (
+        <div className="flex flex-col gap-2">
+          <span className="text-muted-foreground">
+            Already Logged in with...
+          </span>
+
+          <AvatarGroup>
+            {Object.entries(users.sessions)
+              .sort(([keyA], [keyB]) => {
+                if (keyA === users.activeUserId) return -1
+                if (keyB === users.activeUserId) return 1
+                return 0
+              })
+              .map(([key, value]: [string, Session]) => (
+                <div key={key}>
+                  <Avatar>
+                    <AvatarImage src={undefined} alt={value.user.email} />
+                    <AvatarFallback
+                      className={
+                        key === users.activeUserId
+                          ? 'bg-primary text-primary-foreground rounded-full'
+                          : ''
+                      }
+                    >
+                      {String(value.user.email).substring(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              ))}
+          </AvatarGroup>
+        </div>
       )}
 
       <FieldGroup>
@@ -135,8 +164,12 @@ export function SignUpForm() {
           <FieldError errors={[errors.confirmPassword]} />
         </Field>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting && (
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting || isPending}
+        >
+          {(isSubmitting || isPending) && (
             <HugeiconsIcon
               icon={Loading03Icon}
               className="mr-2 h-4 w-4 animate-spin"

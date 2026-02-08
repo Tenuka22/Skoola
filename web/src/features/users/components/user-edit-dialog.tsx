@@ -144,7 +144,7 @@ export function UserEditDialog({
                   )}
                 </div>
                 <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-                  {availableRoles?.map((role) => (
+                  {availableRoles?.data.map((role) => (
                     <div 
                       key={role.id}
                       onClick={() => toggleRole(role.name)}

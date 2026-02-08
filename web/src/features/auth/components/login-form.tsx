@@ -1,21 +1,15 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from '@tanstack/react-router'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  Loading03Icon,
   CodeIcon,
   LanguageCircleIcon,
+  Loading03Icon,
 } from '@hugeicons/core-free-icons'
 import { loginSchema } from '../schemas'
 import type { LoginFormValues } from '../schemas'
-import {
-  getProfileC838C8E7Da73Bfc08645A117E4Df91F3 as getProfileApi,
-  postAuthLogin9E9Be264D609C0E1A535693Ba4C389Aa as loginApi,
-} from '@/lib/api/sdk.gen'
-import { publicClient } from '@/lib/clients'
-import { addSession } from '@/lib/auth/session'
+import { getAuthStorageServer } from '@/lib/auth/session'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -27,66 +21,94 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { env } from '@/lib/env'
 import { cn } from '@/lib/utils'
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarImage,
+} from '@/components/ui/avatar'
+import type { AuthStorage } from '@/lib/auth/session'
+import { useMutation } from '@tanstack/react-query'
+import { loginFn } from '@/lib/auth/actions'
+import { redirect } from 'nitro/h3'
 
 export function LoginForm() {
-  const navigate = useNavigate()
-  const [error, setError] = React.useState<string | null>(null)
+  const [users, setUsers] = React.useState<AuthStorage | null>(null)
+  React.useEffect(() => {
+    const fetchAuthStorage = async () => {
+      try {
+        const storage = await getAuthStorageServer()
+        setUsers(storage)
+      } catch (e) {
+        console.error('Failed to fetch auth storage:', e)
+        setUsers(null)
+      }
+    }
+    fetchAuthStorage()
+  }, [])
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setError: setFormError,
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   })
 
+  const loginMutation = useMutation({
+    mutationFn: loginFn,
+  })
+
   const onSubmit = async (data: LoginFormValues) => {
-    setError(null)
     try {
-      // 1. Login to get token
-      const response = await loginApi({
-        client: publicClient,
-        body: data,
+      await loginMutation.mutateAsync({ data })
+
+      redirect('/profile')
+    } catch (err: unknown) {
+      console.error('Login error in component:', err)
+      setFormError('root.serverError', {
+        type: 'server',
+        message:
+          (err instanceof Error && err.message) ||
+          'Login failed. Please try again.',
       })
-
-      if (response.data && response.data.token) {
-        const tempToken = response.data.token
-
-
-        const profileResponse = await getProfileApi({
-          client: publicClient, // Use public client but override headers
-          headers: {
-            Authorization: `Bearer ${tempToken}`,
-          },
-        })
-
-        if (profileResponse.data) {
-          // 3. Store Session
-          addSession({
-            token: response.data.token,
-            refreshToken: response.data.refresh_token,
-            user:
-              profileResponse.data,
-          })
-
-          // 4. Redirect
-          await navigate({ to: '/profile' })
-        } else {
-          setError('Failed to fetch user profile.')
-        }
-      }
-    } catch (err: any) {
-      console.error(err)
-      setError(err?.message || 'Invalid email or password.')
     }
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+      {users?.sessions && (
+        <div className="flex flex-col gap-2">
+          <span className="text-muted-foreground">
+            Already Logged in with...
+          </span>
+
+          <AvatarGroup>
+            {Object.entries(users.sessions)
+              .sort(([keyA], [keyB]) => {
+                if (keyA === users.activeUserId) return -1
+                if (keyB === users.activeUserId) return 1
+                return 0
+              })
+              .map(([key, value]) => (
+                <div key={key}>
+                  <Avatar>
+                    <AvatarImage src={undefined} alt={value.user.email} />
+                    <AvatarFallback
+                      className={
+                        key === users.activeUserId
+                          ? 'bg-primary text-primary-foreground rounded-full'
+                          : ''
+                      }
+                    >
+                      {String(value.user.email).substring(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              ))}
+          </AvatarGroup>
+        </div>
       )}
 
       <FieldGroup>
@@ -113,8 +135,21 @@ export function LoginForm() {
           <FieldError errors={[errors.password]} />
         </Field>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting && (
+        {(loginMutation.error || errors.root?.serverError) && (
+          <Alert variant="destructive">
+            <AlertDescription>
+              {loginMutation.error?.message ||
+                errors.root?.serverError?.message}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting || loginMutation.isPending}
+        >
+          {(isSubmitting || loginMutation.isPending) && (
             <HugeiconsIcon
               icon={Loading03Icon}
               className="mr-2 h-4 w-4 animate-spin"
@@ -128,9 +163,7 @@ export function LoginForm() {
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
+            <span className="px-2 text-muted-foreground">Or continue with</span>
           </div>
         </div>
 

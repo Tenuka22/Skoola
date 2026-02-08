@@ -448,7 +448,6 @@ export const AuthMethodStatsSchema = {
 } as const;
 
 export const BudgetCategoryResponseSchema = {
-    title: 'BudgetCategoryResponse',
     type: 'object',
     required: [
         'created_at',
@@ -633,6 +632,168 @@ export const BulkCreateStudentMarkRequestSchema = {
     }
 } as const;
 
+export const BulkDeleteAcademicYearsRequestSchema = {
+    title: 'BulkDeleteAcademicYearsRequest',
+    type: 'object',
+    required: [
+        'academic_year_ids'
+    ],
+    properties: {
+        academic_year_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkDeleteBudgetCategoriesRequestSchema = {
+    title: 'BulkDeleteBudgetCategoriesRequest',
+    type: 'object',
+    required: [
+        'category_ids'
+    ],
+    properties: {
+        category_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkDeleteClassesRequestSchema = {
+    title: 'BulkDeleteClassesRequest',
+    type: 'object',
+    required: [
+        'class_ids'
+    ],
+    properties: {
+        class_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkDeleteExamTypesRequestSchema = {
+    title: 'BulkDeleteExamTypesRequest',
+    type: 'object',
+    required: [
+        'exam_type_ids'
+    ],
+    properties: {
+        exam_type_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkDeleteExamsRequestSchema = {
+    title: 'BulkDeleteExamsRequest',
+    type: 'object',
+    required: [
+        'exam_ids'
+    ],
+    properties: {
+        exam_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkDeleteFeeCategoriesRequestSchema = {
+    title: 'BulkDeleteFeeCategoriesRequest',
+    type: 'object',
+    required: [
+        'category_ids'
+    ],
+    properties: {
+        category_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkDeleteFeeStructuresRequestSchema = {
+    title: 'BulkDeleteFeeStructuresRequest',
+    type: 'object',
+    required: [
+        'structure_ids'
+    ],
+    properties: {
+        structure_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkDeleteGradeLevelsRequestSchema = {
+    title: 'BulkDeleteGradeLevelsRequest',
+    type: 'object',
+    required: [
+        'grade_level_ids'
+    ],
+    properties: {
+        grade_level_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkDeleteLibraryBooksRequestSchema = {
+    title: 'BulkDeleteLibraryBooksRequest',
+    type: 'object',
+    required: [
+        'book_ids'
+    ],
+    properties: {
+        book_ids: {
+            type: 'array',
+            items: {
+                type: 'integer',
+                format: 'int32'
+            }
+        }
+    }
+} as const;
+
+export const BulkDeleteLibraryCategoriesRequestSchema = {
+    title: 'BulkDeleteLibraryCategoriesRequest',
+    type: 'object',
+    required: [
+        'category_ids'
+    ],
+    properties: {
+        category_ids: {
+            type: 'array',
+            items: {
+                type: 'integer',
+                format: 'int32'
+            }
+        }
+    }
+} as const;
+
 export const BulkDeleteRequestSchema = {
     title: 'BulkDeleteRequest',
     type: 'object',
@@ -641,6 +802,38 @@ export const BulkDeleteRequestSchema = {
     ],
     properties: {
         user_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkDeleteRolesRequestSchema = {
+    title: 'BulkDeleteRolesRequest',
+    type: 'object',
+    required: [
+        'role_ids'
+    ],
+    properties: {
+        role_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkDeleteSubjectsRequestSchema = {
+    title: 'BulkDeleteSubjectsRequest',
+    type: 'object',
+    required: [
+        'subject_ids'
+    ],
+    properties: {
+        subject_ids: {
             type: 'array',
             items: {
                 type: 'string'
@@ -716,6 +909,356 @@ export const BulkMarkStudentAttendanceRequestSchema = {
     }
 } as const;
 
+export const BulkUpdateAcademicYearsRequestSchema = {
+    title: 'BulkUpdateAcademicYearsRequest',
+    type: 'object',
+    required: [
+        'academic_year_ids'
+    ],
+    properties: {
+        academic_year_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        current: {
+            type: 'boolean',
+            nullable: true
+        },
+        name: {
+            type: 'string',
+            nullable: true
+        },
+        year_end: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        year_start: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        }
+    }
+} as const;
+
+export const BulkUpdateBudgetCategoriesRequestSchema = {
+    title: 'BulkUpdateBudgetCategoriesRequest',
+    type: 'object',
+    required: [
+        'category_ids'
+    ],
+    properties: {
+        category_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        name: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const BulkUpdateClassesRequestSchema = {
+    title: 'BulkUpdateClassesRequest',
+    type: 'object',
+    required: [
+        'class_ids'
+    ],
+    properties: {
+        academic_year_id: {
+            type: 'string',
+            nullable: true
+        },
+        class_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        class_teacher_id: {
+            type: 'string',
+            nullable: true
+        },
+        grade_id: {
+            type: 'string',
+            nullable: true
+        },
+        max_capacity: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        medium: {
+            type: 'string',
+            nullable: true
+        },
+        room_number: {
+            type: 'string',
+            nullable: true
+        },
+        section_name: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const BulkUpdateExamTypesRequestSchema = {
+    title: 'BulkUpdateExamTypesRequest',
+    type: 'object',
+    required: [
+        'exam_type_ids'
+    ],
+    properties: {
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        exam_type_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        name: {
+            type: 'string',
+            nullable: true
+        },
+        weightage: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        }
+    }
+} as const;
+
+export const BulkUpdateExamsRequestSchema = {
+    title: 'BulkUpdateExamsRequest',
+    type: 'object',
+    required: [
+        'exam_ids'
+    ],
+    properties: {
+        academic_year_id: {
+            type: 'string',
+            nullable: true
+        },
+        end_date: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        exam_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        exam_type_id: {
+            type: 'string',
+            nullable: true
+        },
+        name: {
+            type: 'string',
+            nullable: true
+        },
+        start_date: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        term_id: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const BulkUpdateFeeCategoriesRequestSchema = {
+    title: 'BulkUpdateFeeCategoriesRequest',
+    type: 'object',
+    required: [
+        'category_ids'
+    ],
+    properties: {
+        category_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        is_mandatory: {
+            type: 'boolean',
+            nullable: true
+        },
+        name: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const BulkUpdateFeeStructuresRequestSchema = {
+    title: 'BulkUpdateFeeStructuresRequest',
+    type: 'object',
+    required: [
+        'structure_ids'
+    ],
+    properties: {
+        academic_year_id: {
+            type: 'string',
+            nullable: true
+        },
+        amount: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        category_id: {
+            type: 'string',
+            nullable: true
+        },
+        due_date: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+        },
+        frequency: {
+            type: 'string',
+            nullable: true
+        },
+        grade_id: {
+            type: 'string',
+            nullable: true
+        },
+        structure_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkUpdateGradeLevelsRequestSchema = {
+    title: 'BulkUpdateGradeLevelsRequest',
+    type: 'object',
+    required: [
+        'grade_level_ids'
+    ],
+    properties: {
+        education_level: {
+            type: 'string',
+            nullable: true
+        },
+        grade_level_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        grade_name: {
+            type: 'string',
+            nullable: true
+        },
+        grade_number: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        }
+    }
+} as const;
+
+export const BulkUpdateLibraryBooksRequestSchema = {
+    title: 'BulkUpdateLibraryBooksRequest',
+    type: 'object',
+    required: [
+        'book_ids'
+    ],
+    properties: {
+        author: {
+            type: 'string',
+            nullable: true
+        },
+        available_quantity: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        book_ids: {
+            type: 'array',
+            items: {
+                type: 'integer',
+                format: 'int32'
+            }
+        },
+        category_id: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        isbn: {
+            type: 'string',
+            nullable: true
+        },
+        publisher: {
+            type: 'string',
+            nullable: true
+        },
+        quantity: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        rack_number: {
+            type: 'string',
+            nullable: true
+        },
+        title: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const BulkUpdateLibraryCategoriesRequestSchema = {
+    title: 'BulkUpdateLibraryCategoriesRequest',
+    type: 'object',
+    required: [
+        'category_ids'
+    ],
+    properties: {
+        category_ids: {
+            type: 'array',
+            items: {
+                type: 'integer',
+                format: 'int32'
+            }
+        },
+        category_name: {
+            type: 'string',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
 export const BulkUpdateRequestSchema = {
     title: 'BulkUpdateRequest',
     type: 'object',
@@ -731,11 +1274,78 @@ export const BulkUpdateRequestSchema = {
             type: 'boolean',
             nullable: true
         },
+        roles: {
+            type: 'array',
+            items: {
+                type: 'string'
+            },
+            nullable: true
+        },
         user_ids: {
             type: 'array',
             items: {
                 type: 'string'
             }
+        }
+    }
+} as const;
+
+export const BulkUpdateRolesRequestSchema = {
+    title: 'BulkUpdateRolesRequest',
+    type: 'object',
+    required: [
+        'role_ids'
+    ],
+    properties: {
+        name: {
+            type: 'string',
+            nullable: true
+        },
+        parent_id: {
+            type: 'string',
+            nullable: true
+        },
+        role_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkUpdateSubjectsRequestSchema = {
+    title: 'BulkUpdateSubjectsRequest',
+    type: 'object',
+    required: [
+        'subject_ids'
+    ],
+    properties: {
+        is_core: {
+            type: 'boolean',
+            nullable: true
+        },
+        subject_code: {
+            type: 'string',
+            nullable: true
+        },
+        subject_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        subject_name_en: {
+            type: 'string',
+            nullable: true
+        },
+        subject_name_si: {
+            type: 'string',
+            nullable: true
+        },
+        subject_name_ta: {
+            type: 'string',
+            nullable: true
         }
     }
 } as const;
@@ -1408,8 +2018,8 @@ export const CreateExamTypeRequestSchema = {
             type: 'string'
         },
         weightage: {
-            type: 'integer',
-            format: 'int32',
+            type: 'number',
+            format: 'float',
             nullable: true
         }
     }
@@ -2416,8 +3026,8 @@ export const ExamTypeResponseSchema = {
             format: 'partial-date-time'
         },
         weightage: {
-            type: 'integer',
-            format: 'int32'
+            type: 'number',
+            format: 'float'
         }
     }
 } as const;
@@ -3665,6 +4275,438 @@ export const NewGradingSchemeSchema = {
     }
 } as const;
 
+export const PaginatedAcademicYearResponseSchema = {
+    title: 'PaginatedAcademicYearResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/AcademicYearResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedBudgetCategoryResponseSchema = {
+    title: 'PaginatedBudgetCategoryResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/BudgetCategoryResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedClassResponseSchema = {
+    title: 'PaginatedClassResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/ClassResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedExamResponseSchema = {
+    title: 'PaginatedExamResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/ExamResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedExamTypeResponseSchema = {
+    title: 'PaginatedExamTypeResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/ExamTypeResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedFeeCategoryResponseSchema = {
+    title: 'PaginatedFeeCategoryResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/FeeCategoryResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedFeeStructureResponseSchema = {
+    title: 'PaginatedFeeStructureResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/FeeStructureResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedGradeLevelResponseSchema = {
+    title: 'PaginatedGradeLevelResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/GradeLevelResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedLibraryBookResponseSchema = {
+    title: 'PaginatedLibraryBookResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/LibraryBookResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedLibraryCategoryResponseSchema = {
+    title: 'PaginatedLibraryCategoryResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/LibraryCategory'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedPermissionResponseSchema = {
+    title: 'PaginatedPermissionResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/Permission'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedRoleResponseSchema = {
+    title: 'PaginatedRoleResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/Role'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
 export const PaginatedStudentResponseSchema = {
     title: 'PaginatedStudentResponse',
     type: 'object',
@@ -3690,6 +4732,42 @@ export const PaginatedStudentResponseSchema = {
             }
         },
         total_students: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedSubjectResponseSchema = {
+    title: 'PaginatedSubjectResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/SubjectResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
             type: 'integer',
             format: 'int64'
         }
@@ -4204,6 +5282,22 @@ export const RoleSchema = {
             nullable: true
         }
     }
+} as const;
+
+export const RoleEnumSchema = {
+    type: 'string',
+    enum: [
+        'Admin',
+        'Teacher',
+        'Student',
+        'Guest',
+        'Parent',
+        'FullAdmin',
+        'Principal',
+        'VicePrincipal',
+        'Accountant',
+        'Librarian'
+    ]
 } as const;
 
 export const SalaryComponentResponseSchema = {
@@ -5797,8 +6891,8 @@ export const UpdateExamTypeRequestSchema = {
             nullable: true
         },
         weightage: {
-            type: 'integer',
-            format: 'int32',
+            type: 'number',
+            format: 'float',
             nullable: true
         }
     }
@@ -6409,6 +7503,13 @@ export const UpdateUserRequestSchema = {
         is_verified: {
             type: 'boolean',
             nullable: true
+        },
+        roles: {
+            type: 'array',
+            items: {
+                type: 'string'
+            },
+            nullable: true
         }
     }
 } as const;
@@ -6416,6 +7517,44 @@ export const UpdateUserRequestSchema = {
 export const UserIdSchema = {
     title: 'UserId',
     type: 'string'
+} as const;
+
+export const UserProfileResponseSchema = {
+    title: 'UserProfileResponse',
+    type: 'object',
+    required: [
+        'created_at',
+        'email',
+        'id',
+        'is_verified',
+        'roles',
+        'updated_at'
+    ],
+    properties: {
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        email: {
+            type: 'string'
+        },
+        id: {
+            type: 'string'
+        },
+        is_verified: {
+            type: 'boolean'
+        },
+        roles: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/RoleEnum'
+            }
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
 } as const;
 
 export const UserResponseSchema = {

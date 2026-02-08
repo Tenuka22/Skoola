@@ -41,8 +41,15 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import type { UserResponse } from '@/lib/api/types.gen' // Import UserResponse type
+import { authClient } from '@/lib/clients' // Import authClient
+import { getUserColumns } from '../../features/users/components/user-table-columns' // Import getUserColumns
+import { UserAnalytics } from '../../features/users/components/user-analytics' // Import UserAnalytics
+import { UserComparisonOverlay } from '../../features/users/components/user-comparison-overlay' // Import UserComparisonOverlay
+import { UserModals } from '../../features/users/components/user-modals' // Import UserModals
+import type { BulkUpdateValues, UpdateUserValues } from '../../features/users/schemas' // Import BulkUpdateValues and UpdateUserValues
 
-import { 
+import {
   getUsers06Bdcf95Aafda840B1D04322636De293Options,
   getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaOptions,
   patchUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
@@ -50,14 +57,6 @@ import {
   deleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
   patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
 } from '@/lib/api/@tanstack/react-query.gen'
-import type { PaginatedUserResponse, UserStatsResponse } from '@/lib/api/types.gen'
-import { authClient } from '@/lib/clients'
-import { UserAnalytics } from '@/features/users/components/user-analytics'
-import { getUserColumns } from '@/features/users/components/user-table-columns'
-import { UserComparisonOverlay } from '@/features/users/components/user-comparison-overlay'
-import { UserModals } from '@/features/users/components/user-modals'
-import { type BulkUpdateValues } from '@/features/users/schemas'
-
 export const Route = createFileRoute('/admin/users')({
   component: Users,
 })
@@ -75,7 +74,7 @@ function Users() {
   const [userToDelete, setUserToDelete] = React.useState<string | null>(null)
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = React.useState(false)
   const [isBulkEditOpen, setIsBulkEditOpen] = React.useState(false)
-  const [userToEdit, setUserToEdit] = React.useState<User | null>(null)
+  const [userToEdit, setUserToEdit] = React.useState<UserResponse | null>(null)
 
   const limit = 10
   const queryClient = useQueryClient()
@@ -157,9 +156,9 @@ function Users() {
     selectedUsers,
     setSelectedUsers,
     setUserToDelete,
-    onToggleVerify: (user) => updateMutation.mutate({ path: { user_id: user.id }, body: { is_verified: !user.is_verified } }),
-    onToggleLock: (user) => updateMutation.mutate({ path: { user_id: user.id }, body: { is_locked: true } }), 
-    onEditUser: (user) => setUserToEdit(user),
+    onToggleVerify: (user: UserResponse) => updateMutation.mutate({ path: { user_id: user.id }, body: { is_verified: !user.is_verified } }),
+    onToggleLock: (user: UserResponse) => updateMutation.mutate({ path: { user_id: user.id }, body: { is_locked: true } }), 
+    onEditUser: (user: UserResponse) => setUserToEdit(user),
     users: usersData?.data,
   }), [selectedUsers, usersData?.data])
 
@@ -271,7 +270,7 @@ function Users() {
       <UserComparisonOverlay 
         selectedUsers={selectedUsers}
         onClear={() => setSelectedUsers(new Set())}
-        onBulkVerify={(v) => bulkUpdateMutation.mutate({ body: { user_ids: Array.from(selectedUsers), is_verified: v } })}
+        onBulkVerify={(v: boolean) => bulkUpdateMutation.mutate({ body: { user_ids: Array.from(selectedUsers), is_verified: v } })}
         onBulkDelete={() => setIsBulkDeleteOpen(true)}
         onBulkEdit={() => setIsBulkEditOpen(true)}
         users={usersData?.data as any}
@@ -280,18 +279,18 @@ function Users() {
       <UserModals 
         userToDelete={userToDelete}
         setUserToDelete={setUserToDelete}
-        onDeleteConfirm={(id) => deleteMutation.mutate({ path: { user_id: id } })}
+        onDeleteConfirm={(id: string) => deleteMutation.mutate({ path: { user_id: id } })}
         isBulkDeleteOpen={isBulkDeleteOpen}
         setIsBulkDeleteOpen={setIsBulkDeleteOpen}
         onBulkDeleteConfirm={() => bulkDeleteMutation.mutate({ body: { user_ids: Array.from(selectedUsers) } })}
         isBulkEditOpen={isBulkEditOpen}
         setIsBulkEditOpen={setIsBulkEditOpen}
-        onBulkEditConfirm={(data) => bulkUpdateMutation.mutate({ body: { user_ids: Array.from(selectedUsers), ...data } })}
+        onBulkEditConfirm={(data: BulkUpdateValues) => bulkUpdateMutation.mutate({ body: { user_ids: Array.from(selectedUsers), ...data } })}
         selectedCount={selectedUsers.size}
         isBulkUpdating={bulkUpdateMutation.isPending}
         userToEdit={userToEdit}
         setUserToEdit={setUserToEdit}
-        onEditConfirm={(data) => userToEdit && updateMutation.mutate({ path: { user_id: userToEdit.id }, body: data })}
+        onEditConfirm={(data: UpdateUserValues) => userToEdit && updateMutation.mutate({ path: { user_id: userToEdit.id }, body: data })}
         isUpdating={updateMutation.isPending}
       />
     </div>

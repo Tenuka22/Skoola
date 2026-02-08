@@ -174,9 +174,6 @@ export type AuthMethodStats = {
     password_only: number;
 };
 
-/**
- * BudgetCategoryResponse
- */
 export type BudgetCategoryResponse = {
     created_at: string;
     description?: string | null;
@@ -243,10 +240,94 @@ export type BulkCreateStudentMarkRequest = {
 };
 
 /**
+ * BulkDeleteAcademicYearsRequest
+ */
+export type BulkDeleteAcademicYearsRequest = {
+    academic_year_ids: Array<string>;
+};
+
+/**
+ * BulkDeleteBudgetCategoriesRequest
+ */
+export type BulkDeleteBudgetCategoriesRequest = {
+    category_ids: Array<string>;
+};
+
+/**
+ * BulkDeleteClassesRequest
+ */
+export type BulkDeleteClassesRequest = {
+    class_ids: Array<string>;
+};
+
+/**
+ * BulkDeleteExamTypesRequest
+ */
+export type BulkDeleteExamTypesRequest = {
+    exam_type_ids: Array<string>;
+};
+
+/**
+ * BulkDeleteExamsRequest
+ */
+export type BulkDeleteExamsRequest = {
+    exam_ids: Array<string>;
+};
+
+/**
+ * BulkDeleteFeeCategoriesRequest
+ */
+export type BulkDeleteFeeCategoriesRequest = {
+    category_ids: Array<string>;
+};
+
+/**
+ * BulkDeleteFeeStructuresRequest
+ */
+export type BulkDeleteFeeStructuresRequest = {
+    structure_ids: Array<string>;
+};
+
+/**
+ * BulkDeleteGradeLevelsRequest
+ */
+export type BulkDeleteGradeLevelsRequest = {
+    grade_level_ids: Array<string>;
+};
+
+/**
+ * BulkDeleteLibraryBooksRequest
+ */
+export type BulkDeleteLibraryBooksRequest = {
+    book_ids: Array<number>;
+};
+
+/**
+ * BulkDeleteLibraryCategoriesRequest
+ */
+export type BulkDeleteLibraryCategoriesRequest = {
+    category_ids: Array<number>;
+};
+
+/**
  * BulkDeleteRequest
  */
 export type BulkDeleteRequest = {
     user_ids: Array<string>;
+};
+
+/**
+ * BulkDeleteRolesRequest
+ */
+export type BulkDeleteRolesRequest = {
+    role_ids: Array<string>;
+};
+
+/**
+ * BulkDeleteSubjectsRequest
+ */
+export type BulkDeleteSubjectsRequest = {
+    subject_ids: Array<string>;
 };
 
 export type BulkMarkStaffAttendanceItem = {
@@ -273,12 +354,148 @@ export type BulkMarkStudentAttendanceRequest = {
 };
 
 /**
+ * BulkUpdateAcademicYearsRequest
+ */
+export type BulkUpdateAcademicYearsRequest = {
+    academic_year_ids: Array<string>;
+    current?: boolean | null;
+    name?: string | null;
+    year_end?: number | null;
+    year_start?: number | null;
+};
+
+/**
+ * BulkUpdateBudgetCategoriesRequest
+ */
+export type BulkUpdateBudgetCategoriesRequest = {
+    category_ids: Array<string>;
+    description?: string | null;
+    name?: string | null;
+};
+
+/**
+ * BulkUpdateClassesRequest
+ */
+export type BulkUpdateClassesRequest = {
+    academic_year_id?: string | null;
+    class_ids: Array<string>;
+    class_teacher_id?: string | null;
+    grade_id?: string | null;
+    max_capacity?: number | null;
+    medium?: string | null;
+    room_number?: string | null;
+    section_name?: string | null;
+};
+
+/**
+ * BulkUpdateExamTypesRequest
+ */
+export type BulkUpdateExamTypesRequest = {
+    description?: string | null;
+    exam_type_ids: Array<string>;
+    name?: string | null;
+    weightage?: number | null;
+};
+
+/**
+ * BulkUpdateExamsRequest
+ */
+export type BulkUpdateExamsRequest = {
+    academic_year_id?: string | null;
+    end_date?: string | null;
+    exam_ids: Array<string>;
+    exam_type_id?: string | null;
+    name?: string | null;
+    start_date?: string | null;
+    term_id?: string | null;
+};
+
+/**
+ * BulkUpdateFeeCategoriesRequest
+ */
+export type BulkUpdateFeeCategoriesRequest = {
+    category_ids: Array<string>;
+    description?: string | null;
+    is_mandatory?: boolean | null;
+    name?: string | null;
+};
+
+/**
+ * BulkUpdateFeeStructuresRequest
+ */
+export type BulkUpdateFeeStructuresRequest = {
+    academic_year_id?: string | null;
+    amount?: number | null;
+    category_id?: string | null;
+    due_date?: string | null;
+    frequency?: string | null;
+    grade_id?: string | null;
+    structure_ids: Array<string>;
+};
+
+/**
+ * BulkUpdateGradeLevelsRequest
+ */
+export type BulkUpdateGradeLevelsRequest = {
+    education_level?: string | null;
+    grade_level_ids: Array<string>;
+    grade_name?: string | null;
+    grade_number?: number | null;
+};
+
+/**
+ * BulkUpdateLibraryBooksRequest
+ */
+export type BulkUpdateLibraryBooksRequest = {
+    author?: string | null;
+    available_quantity?: number | null;
+    book_ids: Array<number>;
+    category_id?: number | null;
+    isbn?: string | null;
+    publisher?: string | null;
+    quantity?: number | null;
+    rack_number?: string | null;
+    title?: string | null;
+};
+
+/**
+ * BulkUpdateLibraryCategoriesRequest
+ */
+export type BulkUpdateLibraryCategoriesRequest = {
+    category_ids: Array<number>;
+    category_name?: string | null;
+    description?: string | null;
+};
+
+/**
  * BulkUpdateRequest
  */
 export type BulkUpdateRequest = {
     is_locked?: boolean | null;
     is_verified?: boolean | null;
+    roles?: Array<string> | null;
     user_ids: Array<string>;
+};
+
+/**
+ * BulkUpdateRolesRequest
+ */
+export type BulkUpdateRolesRequest = {
+    name?: string | null;
+    parent_id?: string | null;
+    role_ids: Array<string>;
+};
+
+/**
+ * BulkUpdateSubjectsRequest
+ */
+export type BulkUpdateSubjectsRequest = {
+    is_core?: boolean | null;
+    subject_code?: string | null;
+    subject_ids: Array<string>;
+    subject_name_en?: string | null;
+    subject_name_si?: string | null;
+    subject_name_ta?: string | null;
 };
 
 /**
@@ -1264,6 +1481,138 @@ export type NewGradingScheme = {
 };
 
 /**
+ * PaginatedAcademicYearResponse
+ */
+export type PaginatedAcademicYearResponse = {
+    data: Array<AcademicYearResponse>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedBudgetCategoryResponse
+ */
+export type PaginatedBudgetCategoryResponse = {
+    data: Array<BudgetCategoryResponse>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedClassResponse
+ */
+export type PaginatedClassResponse = {
+    data: Array<ClassResponse>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedExamResponse
+ */
+export type PaginatedExamResponse = {
+    data: Array<ExamResponse>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedExamTypeResponse
+ */
+export type PaginatedExamTypeResponse = {
+    data: Array<ExamTypeResponse>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedFeeCategoryResponse
+ */
+export type PaginatedFeeCategoryResponse = {
+    data: Array<FeeCategoryResponse>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedFeeStructureResponse
+ */
+export type PaginatedFeeStructureResponse = {
+    data: Array<FeeStructureResponse>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedGradeLevelResponse
+ */
+export type PaginatedGradeLevelResponse = {
+    data: Array<GradeLevelResponse>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedLibraryBookResponse
+ */
+export type PaginatedLibraryBookResponse = {
+    data: Array<LibraryBookResponse>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedLibraryCategoryResponse
+ */
+export type PaginatedLibraryCategoryResponse = {
+    data: Array<LibraryCategory>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedPermissionResponse
+ */
+export type PaginatedPermissionResponse = {
+    data: Array<Permission>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedRoleResponse
+ */
+export type PaginatedRoleResponse = {
+    data: Array<Role>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
  * PaginatedStudentResponse
  */
 export type PaginatedStudentResponse = {
@@ -1271,6 +1620,17 @@ export type PaginatedStudentResponse = {
     offset: number;
     students: Array<StudentResponse>;
     total_students: number;
+};
+
+/**
+ * PaginatedSubjectResponse
+ */
+export type PaginatedSubjectResponse = {
+    data: Array<SubjectResponse>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
 };
 
 /**
@@ -1463,6 +1823,8 @@ export type Role = {
     name: string;
     parent_id?: string | null;
 };
+
+export type RoleEnum = 'Admin' | 'Teacher' | 'Student' | 'Guest' | 'Parent' | 'FullAdmin' | 'Principal' | 'VicePrincipal' | 'Accountant' | 'Librarian';
 
 /**
  * SalaryComponentResponse
@@ -2210,12 +2572,25 @@ export type UpdateUserRequest = {
     email?: string | null;
     is_locked?: boolean | null;
     is_verified?: boolean | null;
+    roles?: Array<string> | null;
 };
 
 /**
  * UserId
  */
 export type UserId = string;
+
+/**
+ * UserProfileResponse
+ */
+export type UserProfileResponse = {
+    created_at: string;
+    email: string;
+    id: string;
+    is_verified: boolean;
+    roles: Array<RoleEnum>;
+    updated_at: string;
+};
 
 export type UserResponse = {
     created_at: string;
@@ -3087,7 +3462,7 @@ export type GetProfileC838C8E7Da73Bfc08645A117E4Df91F3Errors = {
 };
 
 export type GetProfileC838C8E7Da73Bfc08645A117E4Df91F3Responses = {
-    200: UserResponse;
+    200: UserProfileResponse;
 };
 
 export type GetProfileC838C8E7Da73Bfc08645A117E4Df91F3Response = GetProfileC838C8E7Da73Bfc08645A117E4Df91F3Responses[keyof GetProfileC838C8E7Da73Bfc08645A117E4Df91F3Responses];
@@ -3519,7 +3894,14 @@ export type GetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Response = GetPr
 export type GetRolesA5D957C8571Bc100Ebafa070B5E5293fData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        limit?: number | null;
+        page?: number | null;
+        parent_id?: string | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
     url: '/roles';
 };
 
@@ -3595,7 +3977,7 @@ export type GetRolesA5D957C8571Bc100Ebafa070B5E5293fErrors = {
 };
 
 export type GetRolesA5D957C8571Bc100Ebafa070B5E5293fResponses = {
-    200: Array<Role>;
+    200: PaginatedRoleResponse;
 };
 
 export type GetRolesA5D957C8571Bc100Ebafa070B5E5293fResponse = GetRolesA5D957C8571Bc100Ebafa070B5E5293fResponses[keyof GetRolesA5D957C8571Bc100Ebafa070B5E5293fResponses];
@@ -4137,6 +4519,174 @@ export type PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Responses = {
 
 export type PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Response = PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Responses[keyof PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Responses];
 
+export type DeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Data = {
+    body: BulkDeleteRolesRequest;
+    path?: never;
+    query?: never;
+    url: '/roles/bulk';
+};
+
+export type DeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Responses = {
+    200: MessageResponse;
+};
+
+export type DeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Response = DeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Responses[keyof DeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Responses];
+
+export type PatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Data = {
+    body: BulkUpdateRolesRequest;
+    path?: never;
+    query?: never;
+    url: '/roles/bulk';
+};
+
+export type PatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Responses = {
+    200: MessageResponse;
+};
+
+export type PatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Response = PatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Responses[keyof PatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Responses];
+
 export type GetUsers06Bdcf95Aafda840B1D04322636De293Data = {
     body?: never;
     path?: never;
@@ -4664,7 +5214,13 @@ export type PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponse = PatchUsers5D3C9
 export type GetPermissions9C8839E73223Cb930255A2882A4B0Db4Data = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
     url: '/permissions';
 };
 
@@ -4740,7 +5296,7 @@ export type GetPermissions9C8839E73223Cb930255A2882A4B0Db4Errors = {
 };
 
 export type GetPermissions9C8839E73223Cb930255A2882A4B0Db4Responses = {
-    200: Array<Permission>;
+    200: PaginatedPermissionResponse;
 };
 
 export type GetPermissions9C8839E73223Cb930255A2882A4B0Db4Response = GetPermissions9C8839E73223Cb930255A2882A4B0Db4Responses[keyof GetPermissions9C8839E73223Cb930255A2882A4B0Db4Responses];
@@ -10052,7 +10608,14 @@ export type PostStudentMarksBulk93Bc791320C6081B960044154A039A2fResponse = PostS
 export type GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        current?: boolean | null;
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
     url: '/academic-years';
 };
 
@@ -10128,7 +10691,7 @@ export type GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceErrors = {
 };
 
 export type GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponses = {
-    200: Array<AcademicYearResponse>;
+    200: PaginatedAcademicYearResponse;
 };
 
 export type GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponse = GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponses[keyof GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponses];
@@ -10573,6 +11136,174 @@ export type PutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dResponses = {
 
 export type PutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dResponse = PutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dResponses[keyof PutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dResponses];
 
+export type DeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfData = {
+    body: BulkDeleteAcademicYearsRequest;
+    path?: never;
+    query?: never;
+    url: '/academic-years/bulk';
+};
+
+export type DeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponses = {
+    200: MessageResponse;
+};
+
+export type DeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponse = DeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponses[keyof DeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponses];
+
+export type PatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfData = {
+    body: BulkUpdateAcademicYearsRequest;
+    path?: never;
+    query?: never;
+    url: '/academic-years/bulk';
+};
+
+export type PatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponses = {
+    200: MessageResponse;
+};
+
+export type PatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponse = PatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponses[keyof PatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponses];
+
 export type PostTerms8B2745Aa317D6F207Aed05Ee27289127Data = {
     body: CreateTermRequest;
     path?: never;
@@ -10660,7 +11391,14 @@ export type PostTerms8B2745Aa317D6F207Aed05Ee27289127Response = PostTerms8B2745A
 export type GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        education_level?: string | null;
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
     url: '/grade-levels';
 };
 
@@ -10736,7 +11474,7 @@ export type GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaErrors = {
 };
 
 export type GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponses = {
-    200: Array<GradeLevelResponse>;
+    200: PaginatedGradeLevelResponse;
 };
 
 export type GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponse = GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponses[keyof GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponses];
@@ -11092,10 +11830,186 @@ export type PutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Responses = {
 
 export type PutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Response = PutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Responses[keyof PutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Responses];
 
+export type DeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aData = {
+    body: BulkDeleteGradeLevelsRequest;
+    path?: never;
+    query?: never;
+    url: '/grade-levels/bulk';
+};
+
+export type DeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponses = {
+    200: MessageResponse;
+};
+
+export type DeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponse = DeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponses[keyof DeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponses];
+
+export type PatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aData = {
+    body: BulkUpdateGradeLevelsRequest;
+    path?: never;
+    query?: never;
+    url: '/grade-levels/bulk';
+};
+
+export type PatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponses = {
+    200: MessageResponse;
+};
+
+export type PatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponse = PatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponses[keyof PatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponses];
+
 export type GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        academic_year_id?: string | null;
+        grade_id?: string | null;
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
     url: '/classes';
 };
 
@@ -11171,7 +12085,7 @@ export type GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbErrors = {
 };
 
 export type GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponses = {
-    200: Array<ClassResponse>;
+    200: PaginatedClassResponse;
 };
 
 export type GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponse = GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponses[keyof GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponses];
@@ -11616,10 +12530,187 @@ export type GetClassesGrade695C16540Bee6079F14687Cf9Cd6644bResponses = {
 
 export type GetClassesGrade695C16540Bee6079F14687Cf9Cd6644bResponse = GetClassesGrade695C16540Bee6079F14687Cf9Cd6644bResponses[keyof GetClassesGrade695C16540Bee6079F14687Cf9Cd6644bResponses];
 
+export type DeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Data = {
+    body: BulkDeleteClassesRequest;
+    path?: never;
+    query?: never;
+    url: '/classes/bulk';
+};
+
+export type DeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Responses = {
+    200: MessageResponse;
+};
+
+export type DeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Response = DeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Responses[keyof DeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Responses];
+
+export type PatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Data = {
+    body: BulkUpdateClassesRequest;
+    path?: never;
+    query?: never;
+    url: '/classes/bulk';
+};
+
+export type PatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Responses = {
+    200: MessageResponse;
+};
+
+export type PatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Response = PatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Responses[keyof PatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Responses];
+
 export type GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Data = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        grade_id?: string | null;
+        is_core?: boolean | null;
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+        stream_id?: string | null;
+    };
     url: '/subjects';
 };
 
@@ -11695,7 +12786,7 @@ export type GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Errors = {
 };
 
 export type GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Responses = {
-    200: Array<SubjectResponse>;
+    200: PaginatedSubjectResponse;
 };
 
 export type GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Response = GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Responses[keyof GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Responses];
@@ -12396,6 +13487,174 @@ export type PostSubjectsAssignToStream06856089Edf81Ade0699Fd53Db5Aeab6Responses 
 };
 
 export type PostSubjectsAssignToStream06856089Edf81Ade0699Fd53Db5Aeab6Response = PostSubjectsAssignToStream06856089Edf81Ade0699Fd53Db5Aeab6Responses[keyof PostSubjectsAssignToStream06856089Edf81Ade0699Fd53Db5Aeab6Responses];
+
+export type DeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Data = {
+    body: BulkDeleteSubjectsRequest;
+    path?: never;
+    query?: never;
+    url: '/subjects/bulk';
+};
+
+export type DeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Responses = {
+    200: MessageResponse;
+};
+
+export type DeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Response = DeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Responses[keyof DeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Responses];
+
+export type PatchSubjectsBulk068Fdccc032E210B35F3B27601895347Data = {
+    body: BulkUpdateSubjectsRequest;
+    path?: never;
+    query?: never;
+    url: '/subjects/bulk';
+};
+
+export type PatchSubjectsBulk068Fdccc032E210B35F3B27601895347Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchSubjectsBulk068Fdccc032E210B35F3B27601895347Responses = {
+    200: MessageResponse;
+};
+
+export type PatchSubjectsBulk068Fdccc032E210B35F3B27601895347Response = PatchSubjectsBulk068Fdccc032E210B35F3B27601895347Responses[keyof PatchSubjectsBulk068Fdccc032E210B35F3B27601895347Responses];
 
 export type PostClassSubjectTeachers3A4Eb377F8Fa0158A544625F9Ebe2F73Data = {
     body: CreateClassSubjectTeacherRequest;
@@ -13409,7 +14668,13 @@ export type GetTimetablesTeacherDf5669087F5F2852Aa8B2007Eb13E808Response = GetTi
 export type GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
     url: '/exam-types';
 };
 
@@ -13485,7 +14750,7 @@ export type GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bErrors = {
 };
 
 export type GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponses = {
-    200: Array<ExamTypeResponse>;
+    200: PaginatedExamTypeResponse;
 };
 
 export type GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponse = GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponses[keyof GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponses];
@@ -13841,10 +15106,187 @@ export type PutExamTypes9126Da3723A75916Edd30E224C192A8fResponses = {
 
 export type PutExamTypes9126Da3723A75916Edd30E224C192A8fResponse = PutExamTypes9126Da3723A75916Edd30E224C192A8fResponses[keyof PutExamTypes9126Da3723A75916Edd30E224C192A8fResponses];
 
+export type DeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdData = {
+    body: BulkDeleteExamTypesRequest;
+    path?: never;
+    query?: never;
+    url: '/exam-types/bulk';
+};
+
+export type DeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdResponses = {
+    200: MessageResponse;
+};
+
+export type DeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdResponse = DeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdResponses[keyof DeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdResponses];
+
+export type PatchExamTypesBulk11Ebec7E83Add123E833C872820803CdData = {
+    body: BulkUpdateExamTypesRequest;
+    path?: never;
+    query?: never;
+    url: '/exam-types/bulk';
+};
+
+export type PatchExamTypesBulk11Ebec7E83Add123E833C872820803CdErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchExamTypesBulk11Ebec7E83Add123E833C872820803CdResponses = {
+    200: MessageResponse;
+};
+
+export type PatchExamTypesBulk11Ebec7E83Add123E833C872820803CdResponse = PatchExamTypesBulk11Ebec7E83Add123E833C872820803CdResponses[keyof PatchExamTypesBulk11Ebec7E83Add123E833C872820803CdResponses];
+
 export type GetExams2D53A11E6361124D0D26Bdae3906F4B5Data = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        academic_year_id?: string | null;
+        exam_type_id?: string | null;
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+        term_id?: string | null;
+    };
     url: '/exams';
 };
 
@@ -13920,7 +15362,7 @@ export type GetExams2D53A11E6361124D0D26Bdae3906F4B5Errors = {
 };
 
 export type GetExams2D53A11E6361124D0D26Bdae3906F4B5Responses = {
-    200: Array<ExamResponse>;
+    200: PaginatedExamResponse;
 };
 
 export type GetExams2D53A11E6361124D0D26Bdae3906F4B5Response = GetExams2D53A11E6361124D0D26Bdae3906F4B5Responses[keyof GetExams2D53A11E6361124D0D26Bdae3906F4B5Responses];
@@ -14364,6 +15806,174 @@ export type GetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bResponses = {
 };
 
 export type GetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bResponse = GetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bResponses[keyof GetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bResponses];
+
+export type DeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcData = {
+    body: BulkDeleteExamsRequest;
+    path?: never;
+    query?: never;
+    url: '/exams/bulk';
+};
+
+export type DeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponses = {
+    200: MessageResponse;
+};
+
+export type DeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponse = DeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponses[keyof DeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponses];
+
+export type PatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcData = {
+    body: BulkUpdateExamsRequest;
+    path?: never;
+    query?: never;
+    url: '/exams/bulk';
+};
+
+export type PatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponses = {
+    200: MessageResponse;
+};
+
+export type PatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponse = PatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponses[keyof PatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponses];
 
 export type GetExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Data = {
     body?: never;
@@ -16311,7 +17921,14 @@ export type PostReportCardsCb11F2Df03874Fd70F003Be0Cf56C617Response = PostReport
 export type GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Data = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        is_mandatory?: boolean | null;
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
     url: '/fees/categories';
 };
 
@@ -16387,7 +18004,7 @@ export type GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Errors = {
 };
 
 export type GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Responses = {
-    200: Array<FeeCategoryResponse>;
+    200: PaginatedFeeCategoryResponse;
 };
 
 export type GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Response = GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Responses[keyof GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Responses];
@@ -16565,6 +18182,268 @@ export type PutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Responses = {
 
 export type PutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Response = PutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Responses[keyof PutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Responses];
 
+export type DeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Data = {
+    body: BulkDeleteFeeCategoriesRequest;
+    path?: never;
+    query?: never;
+    url: '/fees/categories/bulk';
+};
+
+export type DeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Responses = {
+    200: MessageResponse;
+};
+
+export type DeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Response = DeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Responses[keyof DeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Responses];
+
+export type PatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Data = {
+    body: BulkUpdateFeeCategoriesRequest;
+    path?: never;
+    query?: never;
+    url: '/fees/categories/bulk';
+};
+
+export type PatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Responses = {
+    200: MessageResponse;
+};
+
+export type PatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Response = PatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Responses[keyof PatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Responses];
+
+export type GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfData = {
+    body?: never;
+    path?: never;
+    query?: {
+        academic_year_id?: string | null;
+        category_id?: string | null;
+        grade_id?: string | null;
+        is_mandatory?: boolean | null;
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
+    url: '/fees/structures';
+};
+
+export type GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponses = {
+    200: PaginatedFeeStructureResponse;
+};
+
+export type GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponse = GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponses[keyof GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponses];
+
 export type PostFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfData = {
     body: CreateFeeStructureRequest;
     path?: never;
@@ -16738,6 +18617,174 @@ export type PutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dResponses = {
 
 export type PutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dResponse = PutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dResponses[keyof PutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dResponses];
 
+export type DeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Data = {
+    body: BulkDeleteFeeStructuresRequest;
+    path?: never;
+    query?: never;
+    url: '/fees/structures/bulk';
+};
+
+export type DeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Responses = {
+    200: MessageResponse;
+};
+
+export type DeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Response = DeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Responses[keyof DeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Responses];
+
+export type PatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Data = {
+    body: BulkUpdateFeeStructuresRequest;
+    path?: never;
+    query?: never;
+    url: '/fees/structures/bulk';
+};
+
+export type PatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Responses = {
+    200: MessageResponse;
+};
+
+export type PatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Response = PatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Responses[keyof PatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Responses];
+
 export type GetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeData = {
     body?: never;
     path: {
@@ -16826,95 +18873,6 @@ export type GetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeResponses = {
 };
 
 export type GetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeResponse = GetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeResponses[keyof GetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeResponses];
-
-export type GetFeesStructuresYearDd867Eea59F440Fcda7827B9Ef71029dData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        year_id: string;
-    };
-    query?: never;
-    url: '/fees/structures/year/{year_id}';
-};
-
-export type GetFeesStructuresYearDd867Eea59F440Fcda7827B9Ef71029dErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetFeesStructuresYearDd867Eea59F440Fcda7827B9Ef71029dResponses = {
-    200: Array<FeeStructureResponse>;
-};
-
-export type GetFeesStructuresYearDd867Eea59F440Fcda7827B9Ef71029dResponse = GetFeesStructuresYearDd867Eea59F440Fcda7827B9Ef71029dResponses[keyof GetFeesStructuresYearDd867Eea59F440Fcda7827B9Ef71029dResponses];
 
 export type PostFeesAssignmentsBc032Dc6E75D287C09C64Ce88Db67898Data = {
     body: AssignFeeToStudentRequest;
@@ -19668,7 +21626,13 @@ export type PostDevSeed8973A690139C9B2C1E737C938A7Dcf49Responses = {
 export type GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Data = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
     url: '/library/categories';
 };
 
@@ -19744,7 +21708,7 @@ export type GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Errors = {
 };
 
 export type GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Responses = {
-    200: Array<LibraryCategory>;
+    200: PaginatedLibraryCategoryResponse;
 };
 
 export type GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Response = GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Responses[keyof GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Responses];
@@ -19833,10 +21797,185 @@ export type PostLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Responses = {
 
 export type PostLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Response = PostLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Responses[keyof PostLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Responses];
 
+export type DeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Data = {
+    body: BulkDeleteLibraryCategoriesRequest;
+    path?: never;
+    query?: never;
+    url: '/library/categories/bulk';
+};
+
+export type DeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Responses = {
+    200: MessageResponse;
+};
+
+export type DeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Response = DeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Responses[keyof DeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Responses];
+
+export type PatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Data = {
+    body: BulkUpdateLibraryCategoriesRequest;
+    path?: never;
+    query?: never;
+    url: '/library/categories/bulk';
+};
+
+export type PatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Responses = {
+    200: MessageResponse;
+};
+
+export type PatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Response = PatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Responses[keyof PatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Responses];
+
 export type GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        category_id?: number | null;
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
     url: '/library/books';
 };
 
@@ -19912,7 +22051,7 @@ export type GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbErrors = {
 };
 
 export type GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponses = {
-    200: Array<LibraryBookResponse>;
+    200: PaginatedLibraryBookResponse;
 };
 
 export type GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponse = GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponses[keyof GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponses];
@@ -20000,6 +22139,174 @@ export type PostLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponses = {
 };
 
 export type PostLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponse = PostLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponses[keyof PostLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponses];
+
+export type DeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Data = {
+    body: BulkDeleteLibraryBooksRequest;
+    path?: never;
+    query?: never;
+    url: '/library/books/bulk';
+};
+
+export type DeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Responses = {
+    200: MessageResponse;
+};
+
+export type DeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Response = DeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Responses[keyof DeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Responses];
+
+export type PatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Data = {
+    body: BulkUpdateLibraryBooksRequest;
+    path?: never;
+    query?: never;
+    url: '/library/books/bulk';
+};
+
+export type PatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Responses = {
+    200: MessageResponse;
+};
+
+export type PatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Response = PatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Responses[keyof PatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Responses];
 
 export type GetLibraryBooksSearch10595D409Fabb30860Ac34Da57666587Data = {
     body?: never;
@@ -23122,6 +25429,96 @@ export type PatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aResponses = 
 
 export type PatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aResponse = PatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aResponses[keyof PatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aResponses];
 
+export type GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Data = {
+    body?: never;
+    path?: never;
+    query?: {
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
+    url: '/financial/budget-categories';
+};
+
+export type GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Responses = {
+    200: PaginatedBudgetCategoryResponse;
+};
+
+export type GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Response = GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Responses[keyof GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Responses];
+
 export type PostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Data = {
     body: CreateBudgetCategoryRequest;
     path?: never;
@@ -23205,6 +25602,174 @@ export type PostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Respons
 };
 
 export type PostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Response = PostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Responses[keyof PostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Responses];
+
+export type DeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Data = {
+    body: BulkDeleteBudgetCategoriesRequest;
+    path?: never;
+    query?: never;
+    url: '/financial/budget-categories/bulk';
+};
+
+export type DeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Responses = {
+    200: MessageResponse;
+};
+
+export type DeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Response = DeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Responses[keyof DeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Responses];
+
+export type PatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Data = {
+    body: BulkUpdateBudgetCategoriesRequest;
+    path?: never;
+    query?: never;
+    url: '/financial/budget-categories/bulk';
+};
+
+export type PatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Responses = {
+    200: MessageResponse;
+};
+
+export type PatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Response = PatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Responses[keyof PatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Responses];
 
 export type PostFinancialBudgetsBb1C79Ca05321C91C0Bab4F8C8D15109Data = {
     body: SetBudgetRequest;

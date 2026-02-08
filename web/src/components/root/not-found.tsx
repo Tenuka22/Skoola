@@ -15,13 +15,12 @@ export function NotFound() {
         <EmptyHeader>
           <EmptyTitle>Page Not Found</EmptyTitle>
           <EmptyDescription>
-            The page you are looking for does not exist or you may need to log in.
+            The page you are looking for does not exist or you may need to log
+            in.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button render={
-            <Link to="/login">Go to Login</Link>
-          } className="w-full" />
+          <Button render={<Link to="/">Go to Home</Link>} className="w-full" />
         </EmptyContent>
       </Empty>
     </div>

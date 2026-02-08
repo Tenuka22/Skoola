@@ -1,33 +1,29 @@
 import { createClient } from './api/client/index'
-import { getActiveSession } from '@/lib/auth/session'
 import { env } from '@/lib/env'
+import { getActiveSessionServer } from './auth/session'
 
-// Base configuration
 const baseConfig = {
   baseUrl: env.VITE_API_URL,
 }
 
-// 1. Public Client (No Auth)
 export const publicClient = createClient(baseConfig)
 
-// 2. Auth Client (Client-Side Interceptor)
 export const authClient = createClient(baseConfig)
 
-authClient.interceptors.request.use((request) => {
-  // Only runs on client-side mostly, or if document is defined
-  const session = getActiveSession()
+authClient.interceptors.request.use(async (request) => {
+  const session = await getActiveSessionServer()
   if (session?.token) {
     request.headers.set('Authorization', `Bearer ${session.token}`)
   }
   return request
 })
 
-// 3. Server-Side Client Creator
-// Pass the cookie string from the request headers
-export const createServerClient = (cookieString: string) => {
+export const createServerClient = async () => {
   const client = createClient(baseConfig)
 
-  const session = getActiveSession(cookieString)
+  // Await the session here, as the interceptor is set up synchronously
+  const session = await getActiveSessionServer()
+
   if (session?.token) {
     client.interceptors.request.use((request) => {
       request.headers.set('Authorization', `Bearer ${session.token}`)
@@ -36,4 +32,13 @@ export const createServerClient = (cookieString: string) => {
   }
 
   return client
+}
+
+export const isServer = typeof window === 'undefined'
+
+export const getUniversalClient = () => {
+  if (isServer) {
+    return createServerClient()
+  }
+  return authClient
 }

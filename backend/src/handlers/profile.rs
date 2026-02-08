@@ -1,16 +1,17 @@
-use crate::models::auth::UserResponse;
+use crate::models::auth::{UserResponse, UserProfileResponse};
 use crate::schema::users::dsl::*;
 use crate::{
     AppState,
-    database::tables::User,
+    database::tables::{User},
     errors::APIError,
     handlers::oauth::OAuthQuery,
     models::profile::{ChangeEmailRequest, ChangePasswordRequest, UpdateProfileRequest},
-    schema::users,
+    schema::{users},
     services::{
         auth::{hash_password, verify_password},
         oauth::{get_github_user_info, get_google_user_info},
         session::SessionService,
+        user_service
     },
     utils::jwt::UserId,
 };
@@ -28,7 +29,7 @@ use actix_web::HttpMessage;
 pub async fn get_profile(
     data: web::Data<AppState>,
     req: actix_web::HttpRequest,
-) -> Result<Json<UserResponse>, APIError> {
+) -> Result<Json<UserProfileResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     
     let user_id = req.extensions()
@@ -48,8 +49,11 @@ pub async fn get_profile(
             warn!("ACTION: User profile fetch failed | reason: user not found | user_id: {}", user_id.0);
             APIError::not_found("User not found")
         })?;
+
+    let user_profile_response = user_service::user_to_user_profile_response(user, &mut conn)?;
+
     info!("ACTION: User profile fetched | user_id: {}", user_id.0);
-    Ok(Json(UserResponse::from(user)))
+    Ok(Json(user_profile_response))
 }
 
 #[api_operation(

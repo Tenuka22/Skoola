@@ -48,20 +48,20 @@ export async function bulkDeleteUsers(userIds: string[]) {
 }
 
 export async function updateUser(userId: string, data: UpdateUserRequest) {
-  const { data } = await patchUsers5D3C91131F7D9Efc5999C92Dbfac75Da({
+  const { data: response_data } = await patchUsers5D3C91131F7D9Efc5999C92Dbfac75Da({
     client: authClient,
     path: { user_id: userId },
     body: data,
     throwOnError: true,
   })
-  return data
+  return response_data
 }
 
 export async function bulkUpdateUsers(userIds: string[], data: { is_verified?: boolean }) {
-  const { data } = await patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8({
+  const { data: response_data } = await patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8({
     client: authClient,
     body: { user_ids: userIds, ...data },
     throwOnError: true,
   })
-  return data
+  return response_data
 }

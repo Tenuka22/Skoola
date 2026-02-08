@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon, PencilEdit01Icon, UserBadgeCheckIcon } from '@hugeicons/core-free-icons'
+import { Loading03Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
 import { bulkUpdateSchema, type BulkUpdateValues } from '../schemas'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/dialog'
 import {
   Field,
-  FieldError,
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field'
@@ -44,12 +43,11 @@ export function UserBulkEditDialog({
   const { data: availableRoles } = useQuery(getRolesOptions({ client: authClient }))
 
   const {
-    register,
     handleSubmit,
     setValue,
     watch,
     reset,
-    formState: { errors },
+    formState: { },
   } = useForm<BulkUpdateValues>({
     resolver: zodResolver(bulkUpdateSchema),
     defaultValues: {
@@ -132,7 +130,7 @@ export function UserBulkEditDialog({
                 )}
               </div>
               <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-                {availableRoles?.map((role) => (
+                {availableRoles?.data.map((role) => (
                   <div 
                     key={role.id}
                     onClick={() => toggleRole(role.name)}

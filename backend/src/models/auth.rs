@@ -3,7 +3,7 @@ use chrono::NaiveDateTime;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use crate::database::tables::User;
+use crate::database::tables::{User, RoleEnum};
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct RegisterRequest {
@@ -36,6 +36,16 @@ impl From<User> for UserResponse {
             updated_at: user.updated_at,
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct UserProfileResponse {
+    pub id: String,
+    pub email: String,
+    pub is_verified: bool,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub roles: Vec<RoleEnum>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]

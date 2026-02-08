@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/card'
 import {
   ChartContainer,
-  ChartTooltip,
   ChartTooltipContent,
   ChartConfig,
 } from '@/components/ui/chart'
@@ -17,10 +16,7 @@ import {
   AreaChart,
   CartesianGrid,
   XAxis,
-  Pie,
-  PieChart,
   Tooltip,
-  ResponsiveContainer,
 } from 'recharts'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { UserGroupIcon, SecurityCheckIcon, UserBlock01Icon, ZapIcon } from '@hugeicons/core-free-icons'

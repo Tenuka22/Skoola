@@ -29,3 +29,4 @@ pub mod financial;
 pub mod permissions;
 pub mod roles;
 pub mod staff;
+pub mod user_service;
