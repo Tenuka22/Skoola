@@ -95,17 +95,22 @@ export function getUserColumns({
           <HugeiconsIcon icon={Sorting05Icon} className="ml-2 size-4" />
         </Button>
       ),
-      cell: ({ row }) => (row.getValue('is_verified') ? (
-        <div className="flex items-center gap-2 text-green-600">
-          <HugeiconsIcon icon={Tick01Icon} className="size-3" />
-          <span className="text-[11px] font-bold uppercase tracking-wider">Verified</span>
-        </div>
-      ) : (
-        <div className="flex items-center gap-2 text-amber-600">
-          <HugeiconsIcon icon={Cancel01Icon} className="size-3" />
-          <span className="text-[11px] font-bold uppercase tracking-wider">Pending</span>
-        </div>
-      )),
+      cell: ({ row }) =>
+        row.getValue('is_verified') ? (
+          <div className="flex items-center gap-2 text-green-600">
+            <HugeiconsIcon icon={Tick01Icon} className="size-3" />
+            <span className="text-[11px] font-bold uppercase tracking-wider">
+              Verified
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 text-amber-600">
+            <HugeiconsIcon icon={Cancel01Icon} className="size-3" />
+            <span className="text-[11px] font-bold uppercase tracking-wider">
+              Pending
+            </span>
+          </div>
+        ),
     },
     {
       accessorKey: 'created_at',
@@ -119,7 +124,8 @@ export function getUserColumns({
           <HugeiconsIcon icon={Sorting05Icon} className="ml-2 size-4" />
         </Button>
       ),
-      cell: ({ row }) => format(new Date(row.getValue('created_at')), 'MMM d, yyyy HH:mm'),
+      cell: ({ row }) =>
+        format(new Date(row.getValue('created_at')), 'MMM d, yyyy HH:mm'),
     },
     {
       id: 'actions',
@@ -128,38 +134,51 @@ export function getUserColumns({
         return (
           <div className="text-right">
             <DropdownMenu>
-              <DropdownMenuTrigger render={
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <HugeiconsIcon icon={Menu01Icon} className="size-4" />
-                </Button>
-              } />
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <HugeiconsIcon icon={Menu01Icon} className="size-4" />
+                  </Button>
+                }
+              />
               <DropdownMenuContent align="end" className="w-48 rounded-xl p-2">
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   className="gap-2 rounded-lg py-2"
                   onClick={() => onEditUser(user)}
                 >
-                  <HugeiconsIcon icon={PencilEdit01Icon} className="size-4 text-muted-foreground" />
+                  <HugeiconsIcon
+                    icon={PencilEdit01Icon}
+                    className="size-4 text-muted-foreground"
+                  />
                   <span>Edit User</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   className="gap-2 rounded-lg py-2"
                   onClick={() => onToggleVerify(user)}
                 >
-                  <HugeiconsIcon icon={Tick01Icon} className="size-4 text-primary" />
-                  <span>{user.is_verified ? 'Mark Unverified' : 'Mark Verified'}</span>
+                  <HugeiconsIcon
+                    icon={Tick01Icon}
+                    className="size-4 text-primary"
+                  />
+                  <span>
+                    {user.is_verified ? 'Mark Unverified' : 'Mark Verified'}
+                  </span>
                 </DropdownMenuItem>
-                
-                <DropdownMenuItem 
+
+                <DropdownMenuItem
                   className="gap-2 rounded-lg py-2"
                   onClick={() => onToggleLock(user)}
                 >
-                  <HugeiconsIcon icon={SquareLock02Icon} className="size-4 text-amber-500" />
+                  <HugeiconsIcon
+                    icon={SquareLock02Icon}
+                    className="size-4 text-amber-500"
+                  />
                   <span>Toggle Lock Status</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
-                
-                <DropdownMenuItem 
+
+                <DropdownMenuItem
                   className="gap-2 rounded-lg py-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
                   onClick={() => setUserToDelete(user.id)}
                 >

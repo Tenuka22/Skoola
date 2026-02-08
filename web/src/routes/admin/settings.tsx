@@ -12,7 +12,9 @@ function Settings() {
         <CardTitle>Settings</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-muted-foreground">System settings will be implemented here.</p>
+        <p className="text-muted-foreground">
+          System settings will be implemented here.
+        </p>
       </CardContent>
     </Card>
   )

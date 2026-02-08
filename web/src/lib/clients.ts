@@ -12,8 +12,8 @@ export const authClient = createClient(baseConfig)
 
 authClient.interceptors.request.use(async (request) => {
   const session = await getActiveSessionServer()
-  if (session?.token) {
-    request.headers.set('Authorization', `Bearer ${session.token}`)
+  if (session?.tokens) {
+    request.headers.set('Authorization', `Bearer ${session.tokens.token}`)
   }
   return request
 })
@@ -21,12 +21,11 @@ authClient.interceptors.request.use(async (request) => {
 export const createServerClient = async () => {
   const client = createClient(baseConfig)
 
-  // Await the session here, as the interceptor is set up synchronously
   const session = await getActiveSessionServer()
 
   if (session?.token) {
     client.interceptors.request.use((request) => {
-      request.headers.set('Authorization', `Bearer ${session.token}`)
+      request.headers.set('Authorization', `Bearer ${session.tokens.token}`)
       return request
     })
   }

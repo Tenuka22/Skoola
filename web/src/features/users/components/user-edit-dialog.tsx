@@ -43,7 +43,9 @@ export function UserEditDialog({
   onConfirm,
   isSubmitting,
 }: UserEditDialogProps) {
-  const { data: availableRoles } = useQuery(getRolesOptions({ client: authClient }))
+  const { data: availableRoles } = useQuery(
+    getRolesOptions({ client: authClient }),
+  )
 
   const {
     register,
@@ -78,7 +80,10 @@ export function UserEditDialog({
   const toggleRole = (roleName: string) => {
     const current = selectedRoles
     if (current.includes(roleName)) {
-      setValue('roles', current.filter(r => r !== roleName))
+      setValue(
+        'roles',
+        current.filter((r) => r !== roleName),
+      )
     } else {
       setValue('roles', [...current, roleName])
     }
@@ -91,16 +96,21 @@ export function UserEditDialog({
           <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-3xl bg-primary/10 text-primary">
             <HugeiconsIcon icon={PencilEdit01Icon} className="size-10" />
           </div>
-          <DialogTitle className="text-center text-3xl font-black tracking-tight">Edit User Account</DialogTitle>
+          <DialogTitle className="text-center text-3xl font-black tracking-tight">
+            Edit User Account
+          </DialogTitle>
           <DialogDescription className="text-center text-base font-medium leading-relaxed opacity-70">
-            Modify identity parameters for {user?.email}. Changes are applied immediately.
+            Modify identity parameters for {user?.email}. Changes are applied
+            immediately.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-8">
           <FieldGroup className="space-y-6">
             <Field>
-              <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">Email Address</FieldLabel>
+              <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+                Email Address
+              </FieldLabel>
               <Input
                 {...register('email')}
                 className="h-14 rounded-2xl border-none bg-muted/30 px-6 font-bold focus-visible:ring-2 focus-visible:ring-primary"
@@ -110,52 +120,73 @@ export function UserEditDialog({
 
             <div className="grid grid-cols-2 gap-6">
               <FieldGroup className="space-y-4">
-                <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">Status Controls</FieldLabel>
+                <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+                  Status Controls
+                </FieldLabel>
                 <Field className="flex items-center justify-between rounded-2xl bg-muted/30 p-4 transition-colors hover:bg-muted/50">
                   <div className="space-y-0.5">
-                    <FieldLabel className="text-sm font-bold">Verification</FieldLabel>
-                    <p className="text-[10px] font-medium opacity-50">Identity verified</p>
+                    <FieldLabel className="text-sm font-bold">
+                      Verification
+                    </FieldLabel>
+                    <p className="text-[10px] font-medium opacity-50">
+                      Identity verified
+                    </p>
                   </div>
                   <Switch
                     checked={isVerified}
-                    onCheckedChange={(checked) => setValue('is_verified', checked)}
+                    onCheckedChange={(checked) =>
+                      setValue('is_verified', checked)
+                    }
                   />
                 </Field>
 
                 <Field className="flex items-center justify-between rounded-2xl bg-muted/30 p-4 transition-colors hover:bg-muted/50">
                   <div className="space-y-0.5">
-                    <FieldLabel className="text-sm font-bold">Lockout</FieldLabel>
-                    <p className="text-[10px] font-medium opacity-50">Restrict access</p>
+                    <FieldLabel className="text-sm font-bold">
+                      Lockout
+                    </FieldLabel>
+                    <p className="text-[10px] font-medium opacity-50">
+                      Restrict access
+                    </p>
                   </div>
                   <Switch
                     checked={isLocked}
-                    onCheckedChange={(checked) => setValue('is_locked', checked)}
+                    onCheckedChange={(checked) =>
+                      setValue('is_locked', checked)
+                    }
                   />
                 </Field>
               </FieldGroup>
 
               <FieldGroup className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">Access Roles</FieldLabel>
+                  <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+                    Access Roles
+                  </FieldLabel>
                   {selectedRoles.length > 0 && (
-                    <Badge variant="secondary" className="rounded-md px-1.5 py-0 text-[9px] font-black uppercase tracking-tighter">
+                    <Badge
+                      variant="secondary"
+                      className="rounded-md px-1.5 py-0 text-[9px] font-black uppercase tracking-tighter"
+                    >
                       {selectedRoles.length} Selected
                     </Badge>
                   )}
                 </div>
                 <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
                   {availableRoles?.data.map((role) => (
-                    <div 
+                    <div
                       key={role.id}
                       onClick={() => toggleRole(role.name)}
                       className="flex cursor-pointer items-center gap-3 rounded-xl border border-transparent bg-muted/20 p-3 transition-all hover:bg-muted/40 hover:ring-1 hover:ring-primary/20"
                     >
-                      <Checkbox 
+                      <Checkbox
                         checked={selectedRoles.includes(role.name)}
                         onCheckedChange={() => toggleRole(role.name)}
                         className="rounded-md"
                       />
-                      <span className="text-xs font-bold tracking-tight">{role.name}</span>
+                      <span className="text-xs font-bold tracking-tight">
+                        {role.name}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -178,7 +209,10 @@ export function UserEditDialog({
               className="h-14 min-w-[240px] rounded-2xl font-black uppercase tracking-widest shadow-2xl shadow-primary/20"
             >
               {isSubmitting && (
-                <HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" />
+                <HugeiconsIcon
+                  icon={Loading03Icon}
+                  className="mr-2 h-4 w-4 animate-spin"
+                />
               )}
               Save Identity Changes
             </Button>

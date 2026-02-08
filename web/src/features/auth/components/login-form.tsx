@@ -30,7 +30,7 @@ import {
 import type { AuthStorage } from '@/lib/auth/session'
 import { useMutation } from '@tanstack/react-query'
 import { loginFn } from '@/lib/auth/actions'
-import { redirect } from 'nitro/h3'
+import { useNavigate } from '@tanstack/react-router'
 
 export function LoginForm() {
   const [users, setUsers] = React.useState<AuthStorage | null>(null)
@@ -60,11 +60,20 @@ export function LoginForm() {
     mutationFn: loginFn,
   })
 
+  const navigate = useNavigate()
+
   const onSubmit = async (data: LoginFormValues) => {
     try {
       await loginMutation.mutateAsync({ data })
 
-      redirect('/profile')
+      if (loginMutation.data?.success) {
+        navigate({ from: '/profile' })
+      } else if (loginMutation.data?.error) {
+        setFormError('root.serverError', {
+          type: 'server',
+          message: loginMutation.data.error,
+        })
+      }
     } catch (err: unknown) {
       console.error('Login error in component:', err)
       setFormError('root.serverError', {

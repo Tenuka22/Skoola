@@ -12,6 +12,7 @@
 ## Feature Components
 
 ### Auth Feature
+
 - `web/src/features/auth/components/auth-layout.tsx`
   - Purpose: A wrapper component (Card/Centered) for login/signup pages.
 - `web/src/features/auth/components/login-form.tsx`
@@ -20,6 +21,7 @@
   - Purpose: Registration form.
 
 ### Users Management Feature
+
 - `web/src/features/users/types.ts`
   - Purpose: Shared types for user entities and API responses.
 - `web/src/features/users/api.ts`

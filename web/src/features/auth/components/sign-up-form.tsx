@@ -24,7 +24,7 @@ import {
 import type { AuthStorage, Session } from '@/lib/auth/session'
 import { useMutation } from '@tanstack/react-query'
 import { signUpFn } from '@/lib/auth/actions'
-import { redirect } from 'nitro/h3'
+import { useNavigate } from '@tanstack/react-router'
 
 export function SignUpForm() {
   const [users, setUsers] = React.useState<AuthStorage | null>(null)
@@ -51,13 +51,15 @@ export function SignUpForm() {
     resolver: zodResolver(signUpSchema),
   })
 
-  const { mutate, isPending, error } = useMutation({
+  const signUpMutation = useMutation({
     mutationFn: signUpFn,
   })
 
+  const navigate = useNavigate()
+
   const onSubmit = async (data: SignUpFormValues) => {
     try {
-      mutate({
+      await signUpMutation.mutateAsync({
         data: {
           name: data.name,
           email: data.email,
@@ -65,22 +67,31 @@ export function SignUpForm() {
         },
       })
 
-      redirect('/login')
-    } catch (err: any) {
+      if (signUpMutation.data?.success) {
+        navigate({ to: '/login' })
+      } else if (signUpMutation.data?.error) {
+        setFormError('root.serverError', {
+          type: 'server',
+          message: signUpMutation.data.error,
+        })
+      }
+    } catch (err: unknown) {
       console.error('Sign Up error in component:', err)
       setFormError('root.serverError', {
         type: 'server',
-        message: err.message || 'Sign up failed. Please try again.',
+        message:
+          (err instanceof Error && err.message) ||
+          'Sign up failed. Please try again.',
       })
     }
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {(error || errors.root?.serverError) && (
+      {(signUpMutation.error || errors.root?.serverError) && (
         <Alert variant="destructive">
           <AlertDescription>
-            {error?.message || errors.root?.serverError?.message}
+            {signUpMutation.error?.message || errors.root?.serverError?.message}
           </AlertDescription>
         </Alert>
       )}
@@ -167,9 +178,9 @@ export function SignUpForm() {
         <Button
           type="submit"
           className="w-full"
-          disabled={isSubmitting || isPending}
+          disabled={isSubmitting || signUpMutation.isPending}
         >
-          {(isSubmitting || isPending) && (
+          {(isSubmitting || signUpMutation.isPending) && (
             <HugeiconsIcon
               icon={Loading03Icon}
               className="mr-2 h-4 w-4 animate-spin"

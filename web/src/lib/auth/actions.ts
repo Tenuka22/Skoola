@@ -54,7 +54,7 @@ export const loginFn = createServerFn({ method: 'POST' })
 
         if (userProfileResponse.data) {
           const newSession = SessionSchema.parse({
-            token: loginResponse.data,
+            tokens: loginResponse.data,
             user: {
               id: userProfileResponse.data.id,
               email: userProfileResponse.data.email,
@@ -65,18 +65,24 @@ export const loginFn = createServerFn({ method: 'POST' })
             },
           })
           await addSessionServer({ data: newSession })
+          return { success: true }
         } else {
-          throw new Error('Failed to retrieve user profile after login.')
+          return {
+            success: false,
+            error: 'Failed to retrieve user profile after login.',
+          }
         }
       } else {
-        throw new Error('Login failed: No token received')
+        return { success: false, error: 'Login failed: No token received' }
       }
     } catch (error: unknown) {
       console.error('Login error:', error)
-      throw new Error(
-        (error instanceof Error && error.message) ||
+      return {
+        success: false,
+        error:
+          (error instanceof Error && error.message) ||
           'Login failed, please check your credentials.',
-      )
+      }
     }
   })
 
@@ -95,26 +101,29 @@ export const signUpFn = createServerFn({ method: 'POST' })
       })
       console.log('Sign Up API response:', signUpResponse)
       if (signUpResponse.data) {
+        return { success: true }
       } else {
-        throw new Error('Sign up failed: No data received')
+        return { success: false, error: 'Sign up failed: No data received' }
       }
     } catch (error: unknown) {
       console.error('Sign up error:', error)
-      throw new Error(
-        (error instanceof Error && error.message) ||
+      return {
+        success: false,
+        error:
+          (error instanceof Error && error.message) ||
           'Sign up failed, please try again.',
-      )
+      }
     }
   })
 
 export const logoutFn = createServerFn({ method: 'POST' }).handler(async () => {
   try {
     const session = await getActiveSessionServer()
-    if (session?.token?.refresh_token) {
+    if (session?.tokens?.refresh_token) {
       await logoutApi({
         client: authClient,
         body: {
-          refresh_token: session.token.refresh_token,
+          refresh_token: session.tokens.refresh_token,
         },
       })
     }
