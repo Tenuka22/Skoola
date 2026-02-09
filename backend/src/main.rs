@@ -1,8 +1,9 @@
-use crate::config::AppState;
-use crate::database::connection::establish_connection; // Updated import
-use crate::errors::APIError;
-use crate::services::cleanup::remove_unverified_users; // Add this line
-use crate::services::email::EmailService; // Add this line
+use backend::config::{AppState, Config};
+use backend::database::connection::establish_connection;
+use backend::errors::APIError;
+use backend::services::cleanup::remove_unverified_users;
+use backend::services::email::EmailService;
+use backend::routes;
 use actix_cors::Cors;
 use actix_web::{
     App, HttpServer,
@@ -15,22 +16,10 @@ use apistos::{
 };
 use apistos_models::info::Info;
 use apistos_scalar::ScalarConfig;
-use config::Config;
-use tokio::time::{Duration, interval}; // Add this line
-use tracing::info; // Removed unused error
+use tokio::time::{Duration, interval};
+use tracing::info;
 use tracing_actix_web::TracingLogger;
-use tracing_subscriber::FmtSubscriber; // Import AppState
-
-mod config;
-mod database;
-mod errors;
-mod handlers;
-mod faker;
-mod models;
-mod routes;
-mod schema;
-mod services;
-mod utils;
+use tracing_subscriber::FmtSubscriber;
 
 #[actix_web::main]
 async fn main() -> Result<(), APIError> {

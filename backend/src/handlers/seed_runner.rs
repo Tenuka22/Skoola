@@ -1,12 +1,10 @@
-use crate::config::{AppState, Config};
+use crate::config::Config;
 use crate::errors::APIError;
 use crate::handlers::seed::{
     academic_structure, co_curricular, exams_and_grading, financial, inventory_and_assets, library,
     students as students_seeder, users_and_staff,
 };
 use crate::schema::seeds;
-use actix_web::{HttpResponse, web};
-use apistos::api_operation;
 use chrono::{NaiveDateTime, Utc};
 use diesel::SqliteConnection;
 use diesel::prelude::*;
@@ -17,52 +15,28 @@ use uuid::Uuid;
 
 #[derive(Queryable, Insertable, Serialize, Deserialize, Clone)]
 #[diesel(table_name = seeds)]
-struct Seed {
-    id: String,
-    table_name: String,
-    record_id: String,
-    created_at: NaiveDateTime,
+pub struct Seed {
+    pub id: String,
+    pub table_name: String,
+    pub record_id: String,
+    pub created_at: NaiveDateTime,
 }
 
 #[derive(Insertable)]
 #[diesel(table_name = seeds)]
-struct NewSeed {
-    id: String,
-    table_name: String,
-    record_id: String,
-    created_at: NaiveDateTime,
+pub struct NewSeed {
+    pub id: String,
+    pub table_name: String,
+    pub record_id: String,
+    pub created_at: NaiveDateTime,
 }
 
-#[api_operation]
-pub async fn seed_database(data: web::Data<AppState>) -> Result<HttpResponse, APIError> {
-    let mut conn = data
-        .db_pool
-        .get()?; // Changed from .expect to ?
-    let app_config = data.config.clone();
-
-    web::block(move || seed_data(&mut conn, &app_config))
-        .await??; // Changed from .map_err(...)?? to ??
-
-    Ok(HttpResponse::Ok().json("Database seeded successfully."))
-}
-
-#[api_operation]
-pub async fn unseed_database(data: web::Data<AppState>) -> Result<HttpResponse, APIError> {
-    let mut conn = data
-        .db_pool
-        .get()?; // Changed from .expect to ?
-
-    web::block(move || unseed_data(&mut conn))
-        .await??; // Changed from .map_err(...)?? to ??
-
-    Ok(HttpResponse::Ok().json("Seeded data removed successfully."))
-}
-
-fn seed_data(
+pub fn seed_data(
     conn: &mut PooledConnection<ConnectionManager<SqliteConnection>>,
     app_config: &Config,
 ) -> Result<(), APIError> {
-    conn.transaction::<_, APIError, _>(|conn| {
+    diesel::sql_query("PRAGMA foreign_keys = OFF;").execute(conn)?;
+    let result = conn.transaction::<_, APIError, _>(|conn| {
         // First, remove all previously seeded data
         unseed_data(conn)?;
 
@@ -349,8 +323,9 @@ fn seed_data(
         track_seeded_ids(conn, "student_achievements", seeded_student_achievement_ids)?;*/
 
         Ok(())
-    })?;
-    Ok(())
+    });
+    diesel::sql_query("PRAGMA foreign_keys = ON;").execute(conn)?;
+    result
 }
 
 pub fn track_seeded_ids(
@@ -374,7 +349,7 @@ pub fn track_seeded_ids(
     Ok(())
 }
 
-fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
+pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
     diesel::sql_query("PRAGMA foreign_keys = OFF;").execute(conn)?;
 
     use crate::schema::{
@@ -412,6 +387,12 @@ fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
         "Accountant",
     ];
     diesel::delete(roles::table.filter(roles::name.eq_any(hardcoded_role_names)))
+        .execute(conn)?;
+
+    // Explicitly delete test users and staff users by email pattern
+    diesel::delete(users::table.filter(users::email.like("%.test@main.co")))
+        .execute(conn)?;
+    diesel::delete(users::table.filter(users::email.like("staff%@example.com")))
         .execute(conn)?;
 
     // Explicitly delete tables with hardcoded integer primary keys to prevent

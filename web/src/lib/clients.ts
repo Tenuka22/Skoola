@@ -23,7 +23,7 @@ export const createServerClient = async () => {
 
   const session = await getActiveSessionServer()
 
-  if (session?.token) {
+  if (session?.tokens) {
     client.interceptors.request.use((request) => {
       request.headers.set('Authorization', `Bearer ${session.tokens.token}`)
       return request

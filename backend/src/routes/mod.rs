@@ -17,7 +17,6 @@ use crate::{
         report_cards,
         role_permissions::{assign_permission_to_role, unassign_permission_from_role},
         roles::{bulk_delete_roles, bulk_update_roles, create_role, delete_role, get_role, get_roles, update_role},
-        seed_runner::seed_database,
         special_exams,
         staff::{
             create_staff, delete_staff, get_all_staff, get_staff_by_id, update_staff,
@@ -591,16 +590,6 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.configure(report_cards::config);
     cfg.configure(fees::config);
     cfg.configure(crate::handlers::co_curricular::config);
-
-    // Development Routes
-    cfg.service(
-        web::scope("/dev")
-            // .wrap(RoleVerification {
-            //     required_role: RoleEnum::FullAdmin,
-            // })
-            // .wrap(Authenticated)
-            .route("/seed", web::post().to(seed_database)),
-    );
 
     // Library Management Routes
     cfg.service(

@@ -99,7 +99,7 @@ pub fn seed_all(
     // 2. Seed Users & Staff
     let mut users_to_insert = Vec::new();
     let mut staff_to_insert = Vec::new();
-    let hashed_pw = hash_password("password123", &app_config.pepper_key)?; // Default password for general staff
+    let hashed_pw = hash_password("password123")?; // Default password for general staff
 
     for i in 1..=20 {
         let user_id = Uuid::new_v4().to_string();
@@ -159,7 +159,7 @@ pub fn seed_all(
 
     // 3. Create test users for each role using test_user_password
     if let Some(test_user_password) = &app_config.test_user_password {
-        let hashed_test_pw = hash_password(test_user_password, &app_config.pepper_key)?;
+        let hashed_test_pw = hash_password(test_user_password)?;
 
         let mut test_users_to_insert = Vec::new();
         let mut test_user_roles_to_insert = Vec::new();

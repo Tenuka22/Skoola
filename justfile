@@ -2,10 +2,10 @@ set shell := ["bash", "-cu"]
 set windows-shell := ["powershell", "-Command"]
 
 dev-backend:
-    cd backend; cargo run
+    cd backend; cargo run --bin backend
 
 run-backend:
-    cd backend; cargo run --release
+    cd backend; cargo run --bin backend --release
 
 dev-backend-hr:
     cd backend; cargo watch -x run
@@ -24,3 +24,6 @@ gen-api:
 
 db-ui:
     cd web; bun run drizzle-kit studio
+
+db-seed:
+    cd backend; cargo run --bin seed

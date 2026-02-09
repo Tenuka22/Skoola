@@ -1,5 +1,4 @@
 use crate::errors::APIError;
-use bcrypt::DEFAULT_COST;
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
@@ -14,19 +13,13 @@ use crate::{
     services::session::SessionService,
 };
 
+pub use crate::utils::security::{hash_password, verify_password};
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
     pub sub: String,
     pub roles: Vec<String>,
     pub exp: i64,
-}
-
-pub fn hash_password(password: &str) -> Result<String, APIError> {
-    Ok(bcrypt::hash(password, DEFAULT_COST).map_err(|e| APIError::from(e))?)
-}
-
-pub fn verify_password(password: &str, hash: &str) -> Result<bool, APIError> {
-    Ok(bcrypt::verify(password, hash).map_err(|e| APIError::from(e))?)
 }
 
 pub fn create_token_pair(user: &User, config: &Config, db_pool: &DbPool) -> Result<(String, String, i64), APIError> {
