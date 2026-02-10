@@ -133,3 +133,8 @@ export const logoutFn = createServerFn({ method: 'POST' }).handler(async () => {
     await clearAuthServer()
   }
 })
+
+export const reloginNeeded = createServerFn({ method: 'GET' }).handler(async () => {
+  await clearAuthServer()
+  return { redirect: '/login' }
+})

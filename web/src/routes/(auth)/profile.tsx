@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import * as React from 'react' // Import React
+import * as React from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { UserIcon, Loading03Icon } from '@hugeicons/core-free-icons' // Added Loading03Icon
+import { UserIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 import {
   getActiveSessionServer,
   getAuthStorageServer,
@@ -26,10 +26,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import type { Session, AuthStorage } from '@/lib/auth/session' // Import types
-import { useMutation } from '@tanstack/react-query' // Add useMutation import
-import { useServerFn } from '@tanstack/react-start' // New import
-import { logoutFn } from '@/lib/auth/actions' // New import
+import type { Session, AuthStorage } from '@/lib/auth/session'
+import { useMutation } from '@tanstack/react-query'
+import { useServerFn } from '@tanstack/react-start'
+import { logoutFn } from '@/lib/auth/actions'
 import {
   Empty,
   EmptyContent,
@@ -37,18 +37,41 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@/components/ui/empty'
+import {
+  getUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92C as getUserPermissionsApi,
+} from '@/lib/api/sdk.gen' // Import the API function
+import { authClient } from '@/lib/clients' // Import authClient
+import { Badge } from '@/components/ui/badge' // Assuming a Badge component exists for displaying permissions
 
 export const Route = createFileRoute('/(auth)/profile')({
   component: ProfilePage,
 })
+
+interface UserPermission {
+  id: number // Corrected type to number
+  name: string
+  // Add other properties if available in the API response for permissions
+}
+
+// Type predicate to validate if an item is a UserPermission
+function isUserPermission(item: any): item is UserPermission {
+  return (
+    typeof item === 'object' &&
+    item !== null &&
+    'id' in item &&
+    typeof item.id === 'number' && // Check for number type
+    'name' in item &&
+    typeof item.name === 'string'
+  );
+}
 
 function ProfilePage() {
   const navigate = useNavigate()
   const [session, setSession] = React.useState<Session | null>(null)
   const [storage, setStorage] = React.useState<AuthStorage | null>(null)
   const [otherSessions, setOtherSessions] = React.useState<Array<Session>>([])
+  const [permissions, setPermissions] = React.useState<UserPermission[]>([]) // State for permissions
 
-  // New: Use useServerFn for logout
   const logoutServerFn = useServerFn(logoutFn)
   const { mutate, isPending } = useMutation({
     mutationFn: logoutServerFn,
@@ -61,14 +84,32 @@ function ProfilePage() {
         setSession(activeSession)
         const authStorage = await getAuthStorageServer()
         setStorage(authStorage)
+
         if (authStorage && activeSession) {
           const others = Object.values(authStorage.sessions).filter(
             (s) => s.user.id !== activeSession.user.id,
           )
           setOtherSessions(others)
+
+          // Fetch permissions if user is logged in
+          if (activeSession.user?.id) {
+            const userPermissionsResponse = await getUserPermissionsApi({
+              path: { user_id: activeSession.user.id }, // Correctly pass user_id as a path parameter
+              client: authClient,
+            })
+            // userPermissionsResponse.data is directly the array of permissions
+            if (userPermissionsResponse.data && Array.isArray(userPermissionsResponse.data)) {
+              // Use the type predicate to filter and narrow the type
+              const validatedPermissions = userPermissionsResponse.data.filter(isUserPermission);
+              setPermissions(validatedPermissions);
+            } else {
+              setPermissions([]);
+            }
+          }
         }
       } catch (e) {
-        console.error('Failed to fetch session data:', e)
+        console.error('Failed to fetch session or permissions data:', e)
+        setPermissions([]);
       }
     }
     fetchData()
@@ -77,17 +118,14 @@ function ProfilePage() {
   const handleLogout = async () => {
     try {
       await mutate(undefined)
-      // Redirection is handled by logoutFn
     } catch (e) {
       console.error('Logout failed in component', e)
-      // Optionally display an error message to the user
     }
   }
 
   const handleSwitchUser = async (userId: string) => {
-    // Made async
-    await switchUserServer({ data: userId }) // Await the server function
-    window.location.reload() // Reload to apply new session to global client/state
+    await switchUserServer({ data: userId })
+    window.location.reload()
   }
 
   if (!session || !storage)
@@ -108,7 +146,7 @@ function ProfilePage() {
           </EmptyContent>
         </Empty>
       </div>
-    ) // Render nothing until data is loaded
+    )
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-4">
@@ -121,14 +159,36 @@ function ProfilePage() {
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <CardTitle>{'User'}</CardTitle>
+            <CardTitle>{'User Profile'}</CardTitle>
             <CardDescription>{session.user.email}</CardDescription>
           </div>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div className="text-sm text-muted-foreground">
-            ID: {session.user.id}
+            <strong>ID:</strong> {session.user.id}
           </div>
+          {session.user.roles && session.user.roles.length > 0 && (
+            <div className="text-sm text-muted-foreground">
+              <strong>Roles:</strong>{' '}
+              {session.user.roles.map((role, index) => (
+                <Badge key={index} variant="secondary" className="mr-1">
+                  {role}
+                </Badge>
+              ))}
+            </div>
+          )}
+          {permissions.length > 0 && (
+            <div className="text-sm text-muted-foreground">
+              <strong>Permissions:</strong>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {permissions.map((permission) => (
+                  <Badge key={permission.id} variant="outline">
+                    {permission.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
           {otherSessions.length > 0 && (
@@ -179,7 +239,7 @@ function ProfilePage() {
             variant="destructive"
             className="w-full justify-start gap-2"
             onClick={handleLogout}
-            disabled={isPending} // Disable button during logout
+            disabled={isPending}
           >
             {isPending && (
               <HugeiconsIcon
