@@ -1,0 +1,1 @@
+ALTER TABLE permissions ADD COLUMN is_admin_only BOOLEAN NOT NULL DEFAULT FALSE;

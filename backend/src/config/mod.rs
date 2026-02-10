@@ -1,4 +1,6 @@
+use crate::database::connection::DbPool;
 use crate::errors::APIError;
+use crate::services::email::EmailService;
 use std::env;
 
 #[derive(Debug, Clone)]
@@ -24,6 +26,8 @@ pub struct Config {
     pub smtp_password: Option<String>,
     pub smtp_sender_email: Option<String>,
     pub email_verification_base_url: String,
+    pub password_reset_base_url: String,
+    pub test_user_password: Option<String>,
     pub send_emails: bool,
 }
 
@@ -32,8 +36,7 @@ impl Config {
         let host = env::var("HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
         let port = env::var("PORT")
             .unwrap_or_else(|_| "8080".to_string())
-            .parse()
-            .map_err(|_| APIError::bad_request("PORT must be a valid number"))?;
+            .parse()?;
 
         let allowed_origin =
             env::var("ALLOWED_ORIGIN").unwrap_or_else(|_| "http://localhost:3000".to_string());
@@ -49,8 +52,7 @@ impl Config {
         let jwt_secret = env::var("JWT_SECRET").unwrap_or_else(|_| "your-secret-key".to_string());
         let jwt_expiration = env::var("JWT_EXPIRATION")
             .unwrap_or_else(|_| "7".to_string())
-            .parse()
-            .map_err(|_| APIError::bad_request("JWT_EXPIRATION must be a valid number"))?;
+            .parse()?;
 
         let google_client_id = env::var("GOOGLE_CLIENT_ID").unwrap_or_default();
         let google_client_secret = env::var("GOOGLE_CLIENT_SECRET").unwrap_or_default();
@@ -63,13 +65,15 @@ impl Config {
         let smtp_host = env::var("SMTP_HOST").ok();
         let smtp_port = env::var("SMTP_PORT")
             .unwrap_or_else(|_| "587".to_string())
-            .parse()
-            .map_err(|_| APIError::bad_request("SMTP_PORT must be a valid number"))?;
+            .parse()?;
         let smtp_username = env::var("SMTP_USERNAME").ok();
         let smtp_password = env::var("SMTP_PASSWORD").ok();
         let smtp_sender_email = env::var("SMTP_SENDER_EMAIL").ok();
         let email_verification_base_url = env::var("EMAIL_VERIFICATION_BASE_URL")
             .unwrap_or_else(|_| "http://localhost:8080/auth/verify-email".to_string());
+        let password_reset_base_url = env::var("PASSWORD_RESET_BASE_URL")
+            .unwrap_or_else(|_| "http://localhost:8080/auth/reset-password".to_string());
+        let test_user_password = env::var("TEST_USER_PASSWORD").ok();
 
         Ok(Config {
             host,
@@ -93,6 +97,8 @@ impl Config {
             smtp_password,
             smtp_sender_email: smtp_sender_email.clone(),
             email_verification_base_url,
+            password_reset_base_url,
+            test_user_password,
             send_emails: smtp_host.as_deref().is_some_and(|s| !s.is_empty())
                 && smtp_sender_email.as_deref().is_some_and(|s| !s.is_empty()),
         })
@@ -109,4 +115,11 @@ impl Config {
     pub fn openapi_url(&self) -> String {
         format!("{}/openapi.json", self.server_url())
     }
+}
+
+#[derive(Clone)]
+pub struct AppState {
+    pub config: Config,
+    pub db_pool: DbPool,
+    pub email_service: EmailService,
 }

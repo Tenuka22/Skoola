@@ -1,37 +1,30 @@
 use crate::errors::APIError;
-use bcrypt::DEFAULT_COST;
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use rand::RngCore;
 use serde::{Deserialize, Serialize};
-use tracing::{info, warn};
+use tracing::info;
 
 use crate::{
     config::Config,
     database::{connection::DbPool, tables::User},
-    schema::users,
+    schema::{users},
     services::session::SessionService,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+pub use crate::utils::security::{hash_password, verify_password};
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
     pub sub: String,
-    pub role: String,
+    pub roles: Vec<String>,
     pub exp: i64,
 }
 
-pub fn hash_password(password: &str) -> Result<String, APIError> {
-    bcrypt::hash(password, DEFAULT_COST)
-        .map_err(|e| APIError::internal(format!("Failed to hash password: {}", e).as_str()))
-}
+pub fn create_token_pair(user: &User, config: &Config, _db_pool: &DbPool) -> Result<(String, String, i64), APIError> {
+    let roles = vec![user.role.to_string()];
 
-pub fn verify_password(password: &str, hash: &str) -> Result<bool, APIError> {
-    bcrypt::verify(password, hash)
-        .map_err(|e| APIError::internal(format!("Failed to verify password hash: {}", e).as_str()))
-}
-
-pub fn create_token_pair(user: &User, config: &Config) -> Result<(String, String, i64), APIError> {
     let expiration = Utc::now()
         .checked_add_signed(Duration::days(config.jwt_expiration as i64))
         .ok_or_else(|| APIError::internal("Failed to calculate JWT expiration timestamp"))?
@@ -39,7 +32,7 @@ pub fn create_token_pair(user: &User, config: &Config) -> Result<(String, String
 
     let claims = Claims {
         sub: user.id.to_string(),
-        role: user.role.to_string(),
+        roles,
         exp: expiration,
     };
 
@@ -49,7 +42,7 @@ pub fn create_token_pair(user: &User, config: &Config) -> Result<(String, String
         &claims,
         &EncodingKey::from_secret(config.jwt_secret.as_ref()),
     )
-    .map_err(|e| APIError::internal(format!("Failed to encode access token: {}", e).as_str()))?;
+    ?;
 
     let refresh_token = generate_refresh_token();
     info!(
@@ -99,19 +92,15 @@ pub async fn refresh_jwt(
     let user_result: Option<User> = users::table
         .find(&session.user_id)
         .select(User::as_select())
-        .first(&mut session_service.db_pool.get().map_err(|e| {
-            APIError::internal(format!("Failed to get DB connection from pool: {}", e).as_str())
-        })?)
+        .first(&mut session_service.db_pool.get()?)
         .optional()
-        .map_err(|e| {
-            APIError::internal(format!("Failed to query user for session: {}", e).as_str())
-        })?;
+        ?;
 
     let user = user_result.ok_or_else(|| APIError::internal("User not found for session"))?;
     info!("User {} found for session refresh.", user.id);
 
     let (access_token, new_refresh_token, _access_token_expiration) =
-        create_token_pair(&user, config)?;
+        create_token_pair(&user, config, db_pool)?;
     let hashed_new_refresh_token = hash_password(&new_refresh_token)?;
 
     let expires_at = Utc::now()
@@ -137,20 +126,11 @@ pub async fn refresh_jwt(
 }
 
 pub fn decode_jwt(token: &str, config: &Config) -> Result<Claims, APIError> {
-    decode::<Claims>(
+    Ok(decode::<Claims>(
         token,
         &DecodingKey::from_secret(config.jwt_secret.as_ref()),
         &Validation::new(jsonwebtoken::Algorithm::HS512),
     )
-    .map(|data| data.claims)
-    .map_err(|e| match e.kind() {
-        jsonwebtoken::errors::ErrorKind::ExpiredSignature => {
-            warn!("JWT expired.");
-            APIError::unauthorized("Token has expired")
-        }
-        _ => {
-            warn!("Invalid JWT: {:?}", e);
-            APIError::unauthorized("Invalid token")
-        }
-    })
+    .map_err(|e| APIError::from(e))?
+    .claims)
 }

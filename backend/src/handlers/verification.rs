@@ -1,10 +1,16 @@
-use actix_web::{web, HttpResponse};
+use actix_web::{web};
 use apistos::api_operation;
 use diesel::prelude::*;
 use tracing::{info, warn};
+use actix_web::web::Json;
 
 use crate::{AppState, errors::APIError, schema::users};
 use crate::database::tables::User;
+use crate::models::auth::ResendVerificationEmailRequest;
+use chrono::{Duration, Utc};
+use rand::distributions::{Alphanumeric, DistString};
+use crate::services::email::EmailService;
+use crate::models::MessageResponse;
 
 #[api_operation(
     summary = "Verify user email",
@@ -14,7 +20,7 @@ use crate::database::tables::User;
 pub async fn verify_email(
     data: web::Data<AppState>,
     token: web::Path<String>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let verification_token = token.into_inner();
 
@@ -25,14 +31,11 @@ pub async fn verify_email(
         .optional()?;
 
     match user_result {
-        Some(mut user) => {
+        Some(user) => {
             if user.is_verified {
                 warn!("ACTION: Email verification failed | reason: email already verified | user_id: {}", user.id);
                 return Err(APIError::bad_request("Email already verified"));
             }
-
-            user.is_verified = true;
-            user.verification_token = None; // Invalidate the token after use
 
             diesel::update(users::table.filter(users::id.eq(&user.id)))
                 .set((
@@ -42,7 +45,7 @@ pub async fn verify_email(
                 .execute(&mut conn)?;
 
             info!("ACTION: User email verified successfully | user_id: {}", user.id);
-            Ok(HttpResponse::Ok().body("Email verified successfully! You can now log in."))
+            Ok(Json(MessageResponse { message: "Email verified successfully! You can now log in.".to_string() }))
         }
         None => {
             warn!("ACTION: Email verification failed | reason: invalid or expired token");
@@ -51,10 +54,7 @@ pub async fn verify_email(
     }
 }
 
-use crate::models::auth::ResendVerificationEmailRequest;
-use chrono::{Duration, Utc};
-use rand::distributions::{Alphanumeric, DistString};
-use crate::services::email::EmailService;
+
 
 #[api_operation(
     summary = "Resend verification email",
@@ -64,21 +64,17 @@ use crate::services::email::EmailService;
 pub async fn resend_verification_email(
     data: web::Data<AppState>,
     body: web::Json<ResendVerificationEmailRequest>,
-) -> Result<HttpResponse, APIError> {
+) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let email_service = EmailService::new(data.config.clone());
 
     let mut user: User = users::table
         .filter(users::email.eq(&body.email))
         .select(User::as_select())
-        .first(&mut conn)
-        .map_err(|_| {
-            warn!("ACTION: Resend verification failed | reason: user not found | email: {}", body.email);
-            APIError::not_found("User not found")
-        })?;
+        .first(&mut conn)?;
 
     if user.is_verified {
-        return Ok(HttpResponse::Ok().body("Email already verified."));
+        return Ok(Json(MessageResponse { message: "Email already verified.".to_string() }));
     }
 
     if let Some(sent_at) = user.verification_sent_at {
@@ -114,5 +110,5 @@ pub async fn resend_verification_email(
         info!("ACTION: Verification email sending was skipped, but a new token was generated. | user_id: {} | email: {}", user.id, user.email);
     }
     
-    Ok(HttpResponse::Ok().body("Verification email sent! Please check your inbox."))
+    Ok(Json(MessageResponse { message: "Verification email sent! Please check your inbox.".to_string() }))
 }

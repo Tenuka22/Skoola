@@ -1,13 +1,29 @@
-set shell := ["powershell.exe", "-Command"]
-
-db_user := "root"
-db_pass := "secret"
+set shell := ["bash", "-cu"]
+set windows-shell := ["powershell", "-Command"]
 
 dev-backend:
-    cd backend; $env:RUST_LOG='info';cargo run
+    cd backend; cargo run --bin backend
+
+run-backend:
+    cd backend; cargo run --bin backend --release
+
+dev-backend-hr:
+    cd backend; cargo watch -x run
 
 check-backend:
     cd backend; cargo check
 
+check-web:
+    cd web; bun run tsc
+
 dev-web:
     cd web; bun run dev
+
+gen-api:
+    cd web; bun run api
+
+db-ui:
+    cd web; bun run drizzle-kit studio
+
+db-seed:
+    cd backend; cargo run --bin seed

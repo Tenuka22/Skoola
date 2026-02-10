@@ -1,42 +1,30 @@
+use backend::config::{AppState, Config};
+use backend::database::connection::establish_connection;
+use backend::errors::APIError;
+use backend::services::cleanup::remove_unverified_users;
+use backend::services::email::EmailService;
+use backend::routes;
 use actix_cors::Cors;
-use actix_web::{App, HttpServer, web::Data};
+use actix_web::{
+    App, HttpServer,
+    web::{self, Data},
+    middleware::{self, TrailingSlash},
+};
 use apistos::{
     app::{BuildConfig, OpenApiWrapper},
     spec::Spec,
 };
 use apistos_models::info::Info;
 use apistos_scalar::ScalarConfig;
-use config::Config;
-use tracing::{error, info};
-use tracing_subscriber::{EnvFilter, FmtSubscriber};
+use tokio::time::{Duration, interval};
+use tracing::info;
 use tracing_actix_web::TracingLogger;
-use tokio::time::{interval, Duration}; // Add this line
-use crate::database::connection::{DbPool, establish_connection}; // Updated import
-use crate::errors::APIError;
-use crate::services::cleanup::remove_unverified_users; // Add this line
-
-mod config;
-mod database;
-mod errors;
-mod handlers;
-mod models;
-mod routes;
-mod services;
-mod utils;
-mod schema;
-
-#[derive(Clone)] // Add Clone derive
-struct AppState {
-    config: Config,
-    db_pool: DbPool,
-}
+use tracing_subscriber::FmtSubscriber;
 
 #[actix_web::main]
 async fn main() -> Result<(), APIError> {
     // Initialize tracing subscriber
-    FmtSubscriber::builder()
-        .with_env_filter(EnvFilter::from_default_env())
-        .init();
+    FmtSubscriber::builder().init();
 
     info!("╔════════════════════════════════════════╗");
     info!("║   🚀 Skoola Backend Starting Up       ║");
@@ -62,14 +50,16 @@ async fn main() -> Result<(), APIError> {
     };
 
     let bind_address = (config.host.clone(), config.port);
-    let allowed_origin = config.allowed_origin.clone();
+    let _allowed_origin = config.allowed_origin.clone();
 
-    let pool = establish_connection(&config.database_url)
-        .map_err(|e| APIError::internal(format!("Failed to establish database connection pool: {}", e).as_str()))?;
+    let pool = establish_connection(&config.database_url)?;
+
+    let email_service = EmailService::new(config.clone()); // Initialize EmailService
 
     let app_data = Data::new(AppState {
         config: config.clone(),
         db_pool: pool.clone(),
+        email_service: email_service.clone(), // Pass EmailService to AppState
     });
 
     // Spawn background task for removing unverified users
@@ -84,8 +74,9 @@ async fn main() -> Result<(), APIError> {
 
     HttpServer::new(move || {
         let cors = Cors::default()
-            .allowed_origin(&allowed_origin)
-            .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+            // .allowed_origin(&allowed_origin)
+            .allow_any_origin()
+            .allowed_methods(vec!["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
             .allowed_headers(vec!["Authorization", "Content-Type", "Accept"])
             .supports_credentials()
             .max_age(3600);
@@ -93,19 +84,28 @@ async fn main() -> Result<(), APIError> {
         App::new()
             .document(spec.clone())
             .app_data(app_data.clone()) // Use the cloned app_data here
+            .app_data(
+                web::JsonConfig::default()
+                    .error_handler(|err, _req| APIError::bad_request(&err.to_string()).into()),
+            )
+            .app_data(
+                web::QueryConfig::default()
+                    .error_handler(|err, _req| APIError::bad_request(&err.to_string()).into()),
+            )
+            .app_data(
+                web::PathConfig::default()
+                    .error_handler(|err, _req| APIError::bad_request(&err.to_string()).into()),
+            )
             .wrap(cors)
             .wrap(TracingLogger::default()) // Replaced Logger with TracingLogger
+            .wrap(middleware::NormalizePath::new(TrailingSlash::MergeOnly))
             .configure(routes::configure)
             .build_with(
                 "/openapi.json",
                 BuildConfig::default().with(ScalarConfig::new(&"/docs")),
             )
     })
-    .bind(bind_address)
-    .map_err(|e| {
-        error!("❌ Failed to bind - {}", e);
-        APIError::internal(format!("Failed to bind server: {}", e).as_str())
-    })?
+    .bind(bind_address)?
     .run()
     .await?;
 
