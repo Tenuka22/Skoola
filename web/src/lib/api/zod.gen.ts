@@ -150,13 +150,6 @@ export const zAssignFeeToStudentRequest = z.object({
 });
 
 /**
- * AssignRoleToStaffRequest
- */
-export const zAssignRoleToStaffRequest = z.object({
-    role_id: z.string()
-});
-
-/**
  * AssignSubjectToGradeRequest
  */
 export const zAssignSubjectToGradeRequest = z.object({
@@ -323,13 +316,6 @@ export const zBulkDeleteLibraryCategoriesRequest = z.object({
  */
 export const zBulkDeleteRequest = z.object({
     user_ids: z.array(z.string())
-});
-
-/**
- * BulkDeleteRolesRequest
- */
-export const zBulkDeleteRolesRequest = z.object({
-    role_ids: z.array(z.string())
 });
 
 /**
@@ -608,40 +594,6 @@ export const zBulkUpdateLibraryCategoriesRequest = z.object({
         z.string(),
         z.null()
     ]))
-});
-
-/**
- * BulkUpdateRequest
- */
-export const zBulkUpdateRequest = z.object({
-    is_locked: z.optional(z.union([
-        z.boolean(),
-        z.null()
-    ])),
-    is_verified: z.optional(z.union([
-        z.boolean(),
-        z.null()
-    ])),
-    roles: z.optional(z.union([
-        z.array(z.string()),
-        z.null()
-    ])),
-    user_ids: z.array(z.string())
-});
-
-/**
- * BulkUpdateRolesRequest
- */
-export const zBulkUpdateRolesRequest = z.object({
-    name: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    parent_id: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    role_ids: z.array(z.string())
 });
 
 /**
@@ -995,14 +947,11 @@ export const zCreateMaintenanceRequest = z.object({
 });
 
 /**
- * CreateRoleRequest
+ * CreatePermissionSetRequest
  */
-export const zCreateRoleRequest = z.object({
-    name: z.string(),
-    parent_id: z.optional(z.union([
-        z.string(),
-        z.null()
-    ]))
+export const zCreatePermissionSetRequest = z.object({
+    description: z.string(),
+    name: z.string()
 });
 
 /**
@@ -2052,6 +2001,97 @@ export const zFeeReceiptResponse = z.object({
     student_name: z.string()
 });
 
+export const zPermissionEnum = z.enum([
+    'UserCreate',
+    'UserRead',
+    'UserUpdate',
+    'UserDelete',
+    'UserManage',
+    'UserManageRoles',
+    'UserManagePermissions',
+    'RoleCreate',
+    'RoleRead',
+    'RoleUpdate',
+    'RoleDelete',
+    'RoleManage',
+    'RoleAssignPermissions',
+    'PermissionCreate',
+    'PermissionRead',
+    'PermissionUpdate',
+    'PermissionDelete',
+    'PermissionManage',
+    'PermissionSetManage',
+    'StaffCreate',
+    'StaffRead',
+    'StaffUpdate',
+    'StaffDelete',
+    'StaffManage',
+    'StaffManageAttendance',
+    'StaffManageLeaves',
+    'StudentCreate',
+    'StudentRead',
+    'StudentUpdate',
+    'StudentDelete',
+    'StudentManage',
+    'StudentManageGuardians',
+    'StudentManageEnrollment',
+    'StudentManageAttendance',
+    'StudentManageMarks',
+    'AcademicYearManage',
+    'TermManage',
+    'GradeLevelManage',
+    'ClassManage',
+    'SubjectManage',
+    'ClassSubjectTeacherManage',
+    'TimetableManage',
+    'ExamTypeManage',
+    'ExamManage',
+    'ExamSubjectManage',
+    'GradingSchemeManage',
+    'GradingCriterionManage',
+    'LibraryManage',
+    'UserUpdateMedium',
+    'UserDeleteSevere'
+]);
+
+export const zPermissionSeverity = z.enum([
+    'Low',
+    'Medium',
+    'High',
+    'Severe'
+]);
+
+/**
+ * CreatePermissionRequest
+ */
+export const zCreatePermissionRequest = z.object({
+    description: z.string(),
+    name: zPermissionEnum,
+    safety_level: zPermissionSeverity
+});
+
+/**
+ * Permission
+ */
+export const zPermission = z.object({
+    description: z.string(),
+    id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    is_admin_only: z.boolean(),
+    name: zPermissionEnum,
+    safety_level: zPermissionSeverity
+});
+
+/**
+ * PaginatedPermissionResponse
+ */
+export const zPaginatedPermissionResponse = z.object({
+    data: z.array(zPermission),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+});
+
 /**
  * PromoteStudentRequest
  */
@@ -2224,29 +2264,6 @@ export const zReturnBookRequest = z.object({
     ]))
 });
 
-/**
- * Role
- */
-export const zRole = z.object({
-    id: z.string(),
-    name: z.string(),
-    parent_id: z.optional(z.union([
-        z.string(),
-        z.null()
-    ]))
-});
-
-/**
- * PaginatedRoleResponse
- */
-export const zPaginatedRoleResponse = z.object({
-    data: z.array(zRole),
-    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
-    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
-    total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
-    total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
-});
-
 export const zRoleEnum = z.enum([
     'Admin',
     'Teacher',
@@ -2259,6 +2276,25 @@ export const zRoleEnum = z.enum([
     'Accountant',
     'Librarian'
 ]);
+
+/**
+ * BulkUpdateRequest
+ */
+export const zBulkUpdateRequest = z.object({
+    is_locked: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    is_verified: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    role: z.optional(z.union([
+        zRoleEnum,
+        z.null()
+    ])),
+    user_ids: z.array(z.string())
+});
 
 /**
  * SalaryComponentResponse
@@ -3267,21 +3303,42 @@ export const zUpdateMaintenanceStatusRequest = z.object({
 });
 
 /**
- * UpdateProfileRequest
+ * UpdatePermissionRequest
  */
-export const zUpdateProfileRequest = z.object({
-    email: z.optional(z.union([
+export const zUpdatePermissionRequest = z.object({
+    description: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    name: z.optional(z.union([
+        zPermissionEnum,
+        z.null()
+    ])),
+    safety_level: z.optional(z.union([
+        zPermissionSeverity,
+        z.null()
+    ]))
+});
+
+/**
+ * UpdatePermissionSetRequest
+ */
+export const zUpdatePermissionSetRequest = z.object({
+    description: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    name: z.optional(z.union([
         z.string(),
         z.null()
     ]))
 });
 
 /**
- * UpdateRoleRequest
+ * UpdateProfileRequest
  */
-export const zUpdateRoleRequest = z.object({
-    name: z.string(),
-    parent_id: z.optional(z.union([
+export const zUpdateProfileRequest = z.object({
+    email: z.optional(z.union([
         z.string(),
         z.null()
     ]))
@@ -3558,8 +3615,8 @@ export const zUpdateUserRequest = z.object({
         z.boolean(),
         z.null()
     ])),
-    roles: z.optional(z.union([
-        z.array(z.string()),
+    role: z.optional(z.union([
+        zRoleEnum,
         z.null()
     ]))
 });
@@ -3745,115 +3802,6 @@ export const zGetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Data = z.objec
 
 export const zGetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Response = zUserResponse;
 
-export const zGetRolesA5D957C8571Bc100Ebafa070B5E5293fData = z.object({
-    body: z.optional(z.never()),
-    path: z.optional(z.never()),
-    query: z.optional(z.object({
-        limit: z.optional(z.union([
-            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
-            z.null()
-        ])),
-        page: z.optional(z.union([
-            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
-            z.null()
-        ])),
-        parent_id: z.optional(z.union([
-            z.string(),
-            z.null()
-        ])),
-        search: z.optional(z.union([
-            z.string(),
-            z.null()
-        ])),
-        sort_by: z.optional(z.union([
-            z.string(),
-            z.null()
-        ])),
-        sort_order: z.optional(z.union([
-            z.string(),
-            z.null()
-        ]))
-    }))
-});
-
-export const zGetRolesA5D957C8571Bc100Ebafa070B5E5293fResponse = zPaginatedRoleResponse;
-
-export const zPostRolesA5D957C8571Bc100Ebafa070B5E5293fData = z.object({
-    body: zCreateRoleRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zPostRolesA5D957C8571Bc100Ebafa070B5E5293fResponse = zRole;
-
-export const zDeleteRoles8C327845Ebefcde1F485C3E706Ee403fData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        role_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zDeleteRoles8C327845Ebefcde1F485C3E706Ee403fResponse = zMessageResponse;
-
-export const zGetRoles8C327845Ebefcde1F485C3E706Ee403fData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        role_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zGetRoles8C327845Ebefcde1F485C3E706Ee403fResponse = zRole;
-
-export const zPutRoles8C327845Ebefcde1F485C3E706Ee403fData = z.object({
-    body: zUpdateRoleRequest,
-    path: z.object({
-        role_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zPutRoles8C327845Ebefcde1F485C3E706Ee403fResponse = zRole;
-
-export const zDeleteRolesB75Ac3A90Fbd260B1372807A51862Ad6Data = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        role_id: z.string(),
-        permission_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zDeleteRolesB75Ac3A90Fbd260B1372807A51862Ad6Response = zMessageResponse;
-
-export const zPostRolesB75Ac3A90Fbd260B1372807A51862Ad6Data = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        role_id: z.string(),
-        permission_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zPostRolesB75Ac3A90Fbd260B1372807A51862Ad6Response = zMessageResponse;
-
-export const zDeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Data = z.object({
-    body: zBulkDeleteRolesRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zDeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Response = zMessageResponse;
-
-export const zPatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Data = z.object({
-    body: zBulkUpdateRolesRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zPatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Response = zMessageResponse;
-
 export const zGetUsers06Bdcf95Aafda840B1D04322636De293Data = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
@@ -3943,6 +3891,38 @@ export const zPatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaData = z.object({
 
 export const zPatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponse = zMessageResponse;
 
+export const zGetUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        user_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zGetUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cResponse = z.array(zPermission);
+
+export const zDeleteUsers069Bc83C67Aeddbeed75C9632Ba56B82Data = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        user_id: z.string(),
+        permission_id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.optional(z.never())
+});
+
+export const zDeleteUsers069Bc83C67Aeddbeed75C9632Ba56B82Response = zMessageResponse;
+
+export const zPostUsers069Bc83C67Aeddbeed75C9632Ba56B82Data = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        user_id: z.string(),
+        permission_id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.optional(z.never())
+});
+
+export const zPostUsers069Bc83C67Aeddbeed75C9632Ba56B82Response = zMessageResponse;
+
 export const zGetPermissions9C8839E73223Cb930255A2882A4B0Db4Data = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
@@ -3970,11 +3950,15 @@ export const zGetPermissions9C8839E73223Cb930255A2882A4B0Db4Data = z.object({
     }))
 });
 
+export const zGetPermissions9C8839E73223Cb930255A2882A4B0Db4Response = zPaginatedPermissionResponse;
+
 export const zPostPermissions9C8839E73223Cb930255A2882A4B0Db4Data = z.object({
-    body: z.optional(z.never()),
+    body: zCreatePermissionRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
+
+export const zPostPermissions9C8839E73223Cb930255A2882A4B0Db4Response = zPermission;
 
 export const zDeletePermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eData = z.object({
     body: z.optional(z.never()),
@@ -3984,6 +3968,8 @@ export const zDeletePermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eData = z.object({
     query: z.optional(z.never())
 });
 
+export const zDeletePermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponse = zMessageResponse;
+
 export const zGetPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eData = z.object({
     body: z.optional(z.never()),
     path: z.object({
@@ -3992,10 +3978,68 @@ export const zGetPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eData = z.object({
     query: z.optional(z.never())
 });
 
+export const zGetPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponse = zPermission;
+
 export const zPutPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eData = z.object({
-    body: z.optional(z.never()),
+    body: zUpdatePermissionRequest,
     path: z.object({
         permission_id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.optional(z.never())
+});
+
+export const zPutPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponse = zPermission;
+
+export const zGetPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44Data = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zPostPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44Data = z.object({
+    body: zCreatePermissionSetRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zDeletePermissionSets9F945C97A8E86681C452E5Cc961Ebc33Data = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        permission_set_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zGetPermissionSets9F945C97A8E86681C452E5Cc961Ebc33Data = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        permission_set_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zPutPermissionSets9F945C97A8E86681C452E5Cc961Ebc33Data = z.object({
+    body: zUpdatePermissionSetRequest,
+    path: z.object({
+        permission_set_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zDeletePermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Data = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        permission_set_id: z.string(),
+        permission_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zPostPermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Data = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        permission_set_id: z.string(),
+        permission_id: z.string()
     }),
     query: z.optional(z.never())
 });
@@ -4068,37 +4112,6 @@ export const zPostStaffE424D8D8De9D3Afdcc732A2A39439017Data = z.object({
 });
 
 export const zPostStaffE424D8D8De9D3Afdcc732A2A39439017Response = zStaffResponse;
-
-export const zGetStaffF03984Fe1588A6Deae249087B22C8B64Data = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        staff_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zGetStaffF03984Fe1588A6Deae249087B22C8B64Response = z.array(zRole);
-
-export const zPostStaffF03984Fe1588A6Deae249087B22C8B64Data = z.object({
-    body: zAssignRoleToStaffRequest,
-    path: z.object({
-        staff_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zPostStaffF03984Fe1588A6Deae249087B22C8B64Response = zMessageResponse;
-
-export const zDeleteStaff69593B384Ad228D0E4D7Ed86E9F7D937Data = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        staff_id: z.string(),
-        role_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zDeleteStaff69593B384Ad228D0E4D7Ed86E9F7D937Response = zMessageResponse;
 
 export const zPostStaff545C1F6Bb0D08A4E1Bf2707083425A0fData = z.object({
     body: zAssignClassToTeacherRequest,
@@ -4228,6 +4241,32 @@ export const zGetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Data = z.object({
 });
 
 export const zGetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Response = z.array(zLeaveBalanceResponse);
+
+export const zGetStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2Data = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        staff_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zDeleteStaff524Cd96166B0B1868B53A942A4154443Data = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        staff_id: z.string(),
+        set_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zPostStaff524Cd96166B0B1868B53A942A4154443Data = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        staff_id: z.string(),
+        set_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
 
 export const zGetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data = z.object({
     body: z.optional(z.never()),

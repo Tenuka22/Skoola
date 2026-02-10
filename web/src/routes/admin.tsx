@@ -6,6 +6,7 @@ import {
   UserGroupIcon,
   Settings01Icon,
   UserIcon,
+  Shield01Icon,
 } from '@hugeicons/core-free-icons'
 
 import {
@@ -13,7 +14,7 @@ import {
   getAuthStorageServer,
   switchUserServer,
 } from '@/lib/auth/session'
-import type { Session, AuthStorage } from '@/lib/auth/session'
+import type { Session } from '@/lib/auth/session'
 import {
   SidebarProvider,
   Sidebar,
@@ -55,16 +56,13 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@/components/ui/empty'
-import { useLocation, useNavigate } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/admin')({
   component: AdminLayout,
 })
 
 function AdminLayout() {
-  const navigate = useNavigate()
   const [session, setSession] = React.useState<Session | null>(null)
-  const [storage, setStorage] = React.useState<AuthStorage | null>(null)
   const [otherSessions, setOtherSessions] = React.useState<Array<Session>>([])
   const [isLoading, setIsLoading] = React.useState(true)
 
@@ -74,7 +72,6 @@ function AdminLayout() {
         const activeSession = await getActiveSessionServer()
         setSession(activeSession)
         const authStorage = await getAuthStorageServer()
-        setStorage(authStorage)
         if (authStorage && activeSession) {
           const others = Object.values(authStorage.sessions).filter(
             (s) => s.user.id !== activeSession.user.id,
@@ -193,6 +190,15 @@ function AdminLayout() {
                 >
                   <HugeiconsIcon icon={UserGroupIcon} />
                   <span>Users</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Permissions"
+                  render={<Link to="/admin/permissions" />}
+                >
+                  <HugeiconsIcon icon={Shield01Icon} />
+                  <span>Permissions</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>

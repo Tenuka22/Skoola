@@ -9,6 +9,7 @@ import {
   SquareLock02Icon,
   Menu01Icon,
   PencilEdit01Icon,
+  Shield01Icon,
 } from '@hugeicons/core-free-icons'
 import { format } from 'date-fns'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -28,6 +29,7 @@ interface GetColumnsProps {
   onToggleVerify: (user: User) => void
   onToggleLock: (user: User) => void
   onEditUser: (user: User) => void
+  onManagePermissions: (user: User) => void
   users?: User[]
 }
 
@@ -38,6 +40,7 @@ export function getUserColumns({
   onToggleVerify,
   onToggleLock,
   onEditUser,
+  onManagePermissions,
   users,
 }: GetColumnsProps): ColumnDef<User>[] {
   return [
@@ -174,6 +177,17 @@ export function getUserColumns({
                     className="size-4 text-amber-500"
                   />
                   <span>Toggle Lock Status</span>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  className="gap-2 rounded-lg py-2"
+                  onClick={() => onManagePermissions(user)}
+                >
+                  <HugeiconsIcon
+                    icon={Shield01Icon}
+                    className="size-4 text-primary"
+                  />
+                  <span>Manage Permissions</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />

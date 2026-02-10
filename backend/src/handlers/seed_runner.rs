@@ -1,8 +1,7 @@
 use crate::config::Config;
 use crate::errors::APIError;
 use crate::handlers::seed::{
-    academic_structure, co_curricular, exams_and_grading, financial, inventory_and_assets, library,
-    students as students_seeder, users_and_staff,
+    academic_structure, users_and_staff, students, exams_and_grading, financial, inventory_and_assets, library, co_curricular
 };
 use crate::schema::seeds;
 use chrono::{NaiveDateTime, Utc};
@@ -43,13 +42,13 @@ pub fn seed_data(
         // 1. Users and Staff
         let (
             seeded_user_ids,
-            seeded_role_ids,
+            _seeded_role_ids,
             seeded_permission_ids,
             seeded_staff_ids,
             seeded_qualification_ids,
             seeded_employment_history_ids,
             seeded_department_ids,
-            seeded_staff_role_ids,
+            _seeded_staff_role_ids,
             seeded_staff_subject_ids,
             seeded_teacher_class_assignment_ids,
             seeded_teacher_subject_assignment_ids,
@@ -57,10 +56,12 @@ pub fn seed_data(
             seeded_leave_ids,
             seeded_session_ids,
             seeded_user_permission_ids,
+            seeded_permission_set_ids,
+            _seeded_role_set_ids,
+            _seeded_user_set_ids,
         ) = users_and_staff::seed_all(conn, app_config)?;
 
         track_seeded_ids(conn, "users", seeded_user_ids)?;
-        track_seeded_ids(conn, "roles", seeded_role_ids)?;
         track_seeded_ids(
             conn,
             "permissions",
@@ -77,7 +78,6 @@ pub fn seed_data(
             seeded_employment_history_ids,
         )?;
         track_seeded_ids(conn, "staff_departments", seeded_department_ids)?;
-        track_seeded_ids(conn, "staff_roles", seeded_staff_role_ids)?;
         track_seeded_ids(conn, "staff_subjects", seeded_staff_subject_ids)?;
         track_seeded_ids(
             conn,
@@ -93,6 +93,7 @@ pub fn seed_data(
         track_seeded_ids(conn, "staff_leaves", seeded_leave_ids)?;
         track_seeded_ids(conn, "sessions", seeded_session_ids)?;
         track_seeded_ids(conn, "user_permissions", seeded_user_permission_ids)?;
+        track_seeded_ids(conn, "permission_sets", seeded_permission_set_ids)?;
 
         // 2. Academic Structure
         let (
@@ -124,7 +125,7 @@ pub fn seed_data(
         track_seeded_ids(conn, "timetable", seeded_timetable_ids)?;
 
         // 3. Students
-        /*let (
+        let (
             seeded_student_ids,
             seeded_guardian_ids,
             seeded_medical_info_ids,
@@ -132,7 +133,7 @@ pub fn seed_data(
             seeded_previous_school_ids,
             seeded_class_assignment_ids,
             seeded_student_attendance_ids,
-        ) = students_seeder::seed_all(
+        ) = students::seed_all(
             conn,
             app_config,
             &seeded_academic_year_ids,
@@ -320,7 +321,7 @@ pub fn seed_data(
             "cultural_event_participants",
             seeded_cultural_event_participant_ids,
         )?;
-        track_seeded_ids(conn, "student_achievements", seeded_student_achievement_ids)?;*/
+        track_seeded_ids(conn, "student_achievements", seeded_student_achievement_ids)?;
 
         Ok(())
     });
@@ -360,34 +361,19 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
         fee_payments, fee_structures, grade_levels, grade_streams, grade_subjects,
         grading_criteria, grading_schemes, income_sources, income_transactions, inventory_items,
         library_books, library_categories, library_issues, library_settings, maintenance_requests,
-        ol_exams, permissions, petty_cash_transactions, report_card_marks, report_cards,
-        role_permissions, roles, salary_components, salary_payments, scholarship_exams, sessions,
-        sport_event_participants, sport_events, sport_team_members, sport_teams, sports, staff,
-        staff_attendance, staff_departments, staff_employment_history, staff_leaves,
-        staff_qualifications, staff_roles, staff_salaries, staff_subjects, stream_subjects,
-        streams, student_achievements, student_attendance, student_class_assignments,
-        student_emergency_contacts, student_fees, student_guardians, student_marks,
-        student_medical_info, student_previous_schools, student_zscores, students, subjects,
-        teacher_class_assignments, teacher_subject_assignments, terms, timetable, uniform_issues,
-        uniform_items, user_permissions, user_roles, users, zscore_calculations,
+        ol_exams, permission_set_permissions, permission_sets, permissions,
+        petty_cash_transactions, report_card_marks, report_cards,
+        salary_components, salary_payments,
+        scholarship_exams, sessions, sport_event_participants, sport_events, sport_team_members,
+        sport_teams, sports, staff, staff_attendance, staff_departments, staff_employment_history,
+        staff_leaves, staff_qualifications, staff_salaries, staff_subjects,
+        stream_subjects, streams, student_achievements, student_attendance,
+        student_class_assignments, student_emergency_contacts, student_fees, student_guardians,
+        student_marks, student_medical_info, student_previous_schools, student_zscores, students,
+        subjects, teacher_class_assignments, teacher_subject_assignments, terms, timetable,
+        uniform_issues, uniform_items, user_permission_sets, user_permissions, user_set_users,
+        user_sets, users, zscore_calculations,
     };
-
-    // Explicitly delete hardcoded roles to prevent unique constraint violations
-    // This acts as a safeguard if previous unseeding or tracking was incomplete.
-    let hardcoded_role_names = vec![
-        "Admin",
-        "Teacher",
-        "Student",
-        "Parent",
-        "Librarian",
-        "Guest",
-        "FullAdmin",
-        "Principal",
-        "VicePrincipal",
-        "Accountant",
-    ];
-    diesel::delete(roles::table.filter(roles::name.eq_any(hardcoded_role_names)))
-        .execute(conn)?;
 
     // Explicitly delete test users and staff users by email pattern
     diesel::delete(users::table.filter(users::email.like("%.test@main.co")))
@@ -395,8 +381,6 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
     diesel::delete(users::table.filter(users::email.like("staff%@example.com")))
         .execute(conn)?;
 
-    // Explicitly delete tables with hardcoded integer primary keys to prevent
-    // unique constraint violations if previous seeding or tracking was incomplete.
     // Explicitly delete tables with hardcoded integer primary keys to prevent
     // unique constraint violations if previous seeding or tracking was incomplete.
     // Order matters due to foreign key constraints: issues -> books -> categories
@@ -408,6 +392,11 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
         .execute(conn)?;
     diesel::delete(library_settings::table)
         .execute(conn)?;
+    diesel::delete(permission_set_permissions::table).execute(conn)?;
+    diesel::delete(user_permission_sets::table).execute(conn)?;
+    diesel::delete(user_set_users::table).execute(conn)?;
+    diesel::delete(permission_sets::table).execute(conn)?;
+    diesel::delete(user_sets::table).execute(conn)?;
     diesel::delete(permissions::table)
         .execute(conn)?;
 
@@ -453,7 +442,6 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
         "staff_employment_history",
         "staff_leaves",
         "staff_qualifications",
-        "staff_roles",
         "staff_salaries",
         "staff_subjects",
         "teacher_class_assignments",
@@ -470,9 +458,9 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
         "club_activities",
         "report_cards",
         "zscore_calculations",
+        "user_permission_sets",
+        "user_set_users",
         "user_permissions",
-        "role_permissions",
-        "user_roles",
         "sessions",
         "library_issues",
         "students",
@@ -501,8 +489,10 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
         "library_categories",
         "library_books",
         "library_settings",
+        "permission_set_permissions",
+        "permission_sets",
+        "user_sets",
         "permissions",
-        "roles",
         "users",
         "staff_departments",
         "seeds",
@@ -681,13 +671,6 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
                     diesel::delete(report_cards::table.filter(report_cards::id.eq_any(ids)))
                         .execute(conn)?
                 }
-                "role_permissions" => diesel::delete(
-                    role_permissions::table.filter(role_permissions::role_id.eq_any(ids)),
-                )
-                .execute(conn)?,
-                "roles" => {
-                    diesel::delete(roles::table.filter(roles::id.eq_any(ids))).execute(conn)?
-                }
                 "salary_components" => diesel::delete(
                     salary_components::table.filter(salary_components::id.eq_any(ids)),
                 )
@@ -746,10 +729,6 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
                     staff_qualifications::table.filter(staff_qualifications::id.eq_any(ids)),
                 )
                 .execute(conn)?,
-                "staff_roles" => {
-                    diesel::delete(staff_roles::table.filter(staff_roles::staff_id.eq_any(ids)))
-                        .execute(conn)?
-                }
                 "staff_salaries" => diesel::delete(
                     staff_salaries::table.filter(staff_salaries::staff_id.eq_any(ids)),
                 )
@@ -839,8 +818,20 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
                     user_permissions::table.filter(user_permissions::user_id.eq_any(ids)),
                 )
                 .execute(conn)?,
-                "user_roles" => {
-                    diesel::delete(user_roles::table.filter(user_roles::user_id.eq_any(ids)))
+                "user_permission_sets" => diesel::delete(
+                    user_permission_sets::table.filter(user_permission_sets::user_id.eq_any(ids)),
+                )
+                .execute(conn)?,
+                "user_set_users" => diesel::delete(
+                    user_set_users::table.filter(user_set_users::user_id.eq_any(ids)),
+                )
+                .execute(conn)?,
+                "permission_sets" => diesel::delete(
+                    permission_sets::table.filter(permission_sets::id.eq_any(ids)),
+                )
+                .execute(conn)?,
+                "user_sets" => {
+                    diesel::delete(user_sets::table.filter(user_sets::id.eq_any(ids)))
                         .execute(conn)?
                 }
                 "users" => {

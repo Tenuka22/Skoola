@@ -1,13 +1,19 @@
+use crate::handlers::permissions::{PermissionQuery, BulkUpdatePermissionsRequest};
+use crate::{AppState, database::tables::Permission, errors::APIError, schema::permissions};
+use crate::database::enums::{PermissionSeverity, PermissionEnum};
+use actix_web::web;
 use diesel::prelude::*;
 use diesel::{QueryDsl, RunQueryDsl};
-use crate::{
-    errors::APIError,
-    AppState,
-    database::tables::Permission,
-    schema::permissions,
-};
-use actix_web::web;
-use crate::handlers::permissions::{PermissionQuery, BulkUpdatePermissionsRequest};
+use diesel::AsChangeset; // Keep AsChangeset for the new struct below
+use serde::{Deserialize, Serialize}; // Add for the new struct
+
+#[derive(Debug, AsChangeset, Deserialize, Serialize)]
+#[diesel(table_name = permissions)]
+pub struct BulkUpdateChangeset {
+    pub name: Option<PermissionEnum>,
+    pub description: Option<String>,
+    pub safety_level: Option<PermissionSeverity>,
+}
 
 pub async fn get_permissions_paginated(
     pool: web::Data<AppState>,
@@ -19,8 +25,8 @@ pub async fn get_permissions_paginated(
 
     if let Some(search_term) = &query.search {
         let pattern = format!("%{}%", search_term);
-        data_query = data_query.filter(permissions::name.like(pattern.clone()));
-        count_query = count_query.filter(permissions::name.like(pattern));
+        data_query = data_query.filter(permissions::name.like(pattern.clone()).or(permissions::description.like(pattern.clone())));
+        count_query = count_query.filter(permissions::name.like(pattern.clone()).or(permissions::description.like(pattern)));
     }
 
     let sort_by = query.sort_by.as_deref().unwrap_or("name");
@@ -65,13 +71,17 @@ pub async fn bulk_update_permissions(
 
     conn.transaction::<_, APIError, _>(|conn| {
         let target = permissions::table.filter(permissions::id.eq_any(&body.permission_ids));
-        
+
+        let changeset = BulkUpdateChangeset {
+            name: body.name,
+            description: body.description,
+            safety_level: body.safety_level,
+        };
+
         diesel::update(target)
-            .set((
-                body.name.map(|n| permissions::name.eq(n)),
-            ))
+            .set(&changeset)
             .execute(conn)?;
-        
+
         Ok(())
     })
 }

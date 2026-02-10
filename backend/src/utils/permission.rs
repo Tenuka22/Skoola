@@ -9,7 +9,7 @@ use futures_util::future::LocalBoxFuture;
 
 use crate::{
     AppState,
-    database::tables::{Permission, Role, RolePermission, Session, StaffRole},
+    database::tables::{Role, RolePermission, Session, StaffRole},
     errors::APIError,
     schema::{permissions, roles},
 };

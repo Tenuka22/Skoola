@@ -47,6 +47,8 @@ import { getUserColumns } from '../../features/users/components/user-table-colum
 import { UserAnalytics } from '../../features/users/components/user-analytics' // Import UserAnalytics
 import { UserComparisonOverlay } from '../../features/users/components/user-comparison-overlay' // Import UserComparisonOverlay
 import { UserModals } from '../../features/users/components/user-modals' // Import UserModals
+import { UserPermissionsDialog } from '../../features/permissions/components/user-permissions-dialog' // Import UserPermissionsDialog
+import { UserBulkPermissionsDialog } from '../../features/permissions/components/user-bulk-permissions-dialog' // Import UserBulkPermissionsDialog
 import type {
   BulkUpdateValues,
   UpdateUserValues,
@@ -79,7 +81,9 @@ function Users() {
   const [userToDelete, setUserToDelete] = React.useState<string | null>(null)
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = React.useState(false)
   const [isBulkEditOpen, setIsBulkEditOpen] = React.useState(false)
+  const [isBulkPermissionsOpen, setIsBulkPermissionsOpen] = React.useState(false)
   const [userToEdit, setUserToEdit] = React.useState<UserResponse | null>(null)
+  const [userToManagePermissions, setUserToManagePermissions] = React.useState<UserResponse | null>(null)
 
   const limit = 10
   const queryClient = useQueryClient()
@@ -195,6 +199,7 @@ function Users() {
             body: { is_locked: true },
           }),
         onEditUser: (user: UserResponse) => setUserToEdit(user),
+        onManagePermissions: (user: UserResponse) => setUserToManagePermissions(user),
         users: usersData?.data,
       }),
     [selectedUsers, usersData?.data],
@@ -340,6 +345,7 @@ function Users() {
         }
         onBulkDelete={() => setIsBulkDeleteOpen(true)}
         onBulkEdit={() => setIsBulkEditOpen(true)}
+        onBulkManagePermissions={() => setIsBulkPermissionsOpen(true)}
         users={usersData?.data as any}
       />
 
@@ -375,6 +381,18 @@ function Users() {
           })
         }
         isUpdating={updateMutation.isPending}
+      />
+
+      <UserPermissionsDialog
+        user={userToManagePermissions}
+        open={!!userToManagePermissions}
+        onOpenChange={(open) => !open && setUserToManagePermissions(null)}
+      />
+
+      <UserBulkPermissionsDialog
+        userIds={Array.from(selectedUsers)}
+        open={isBulkPermissionsOpen}
+        onOpenChange={setIsBulkPermissionsOpen}
       />
     </div>
   )

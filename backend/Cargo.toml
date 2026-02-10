@@ -33,6 +33,7 @@ schemars = { package = "apistos-schemars", version = "0.8", features = ["chrono"
 apistos = { version = "0.6.0", features = ["multipart","scalar"] }
 apistos-models = "0.6.0"
 apistos-scalar = "0.6.0"
+utoipa = { version = "4.2.3", features = ["uuid", "chrono"] }
 uuid = { version = "1.20.0", features = ["v4", "serde"] }
 thiserror = "1.0"
 r2d2 = "0.8"

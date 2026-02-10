@@ -7,6 +7,89 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result};
 use diesel::backend::Backend;
 
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq, Eq)]
+#[diesel(sql_type = Text)]
+pub enum RoleEnum {
+    Admin,
+    Teacher,
+    Student,
+    Guest,
+    Parent,
+    FullAdmin,
+    Principal,
+    VicePrincipal,
+    Accountant,
+    Librarian,
+}
+
+impl Display for RoleEnum {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            RoleEnum::Admin => write!(f, "Admin"),
+            RoleEnum::Teacher => write!(f, "Teacher"),
+            RoleEnum::Student => write!(f, "Student"),
+            RoleEnum::Guest => write!(f, "Guest"),
+            RoleEnum::Parent => write!(f, "Parent"),
+            RoleEnum::FullAdmin => write!(f, "FullAdmin"),
+            RoleEnum::Principal => write!(f, "Principal"),
+            RoleEnum::VicePrincipal => write!(f, "VicePrincipal"),
+            RoleEnum::Accountant => write!(f, "Accountant"),
+            RoleEnum::Librarian => write!(f, "Librarian"),
+        }
+    }
+}
+
+impl std::str::FromStr for RoleEnum {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Admin" => Ok(RoleEnum::Admin),
+            "Teacher" => Ok(RoleEnum::Teacher),
+            "Student" => Ok(RoleEnum::Student),
+            "Guest" => Ok(RoleEnum::Guest),
+            "Parent" => Ok(RoleEnum::Parent),
+            "FullAdmin" => Ok(RoleEnum::FullAdmin),
+            "Principal" => Ok(RoleEnum::Principal),
+            "VicePrincipal" => Ok(RoleEnum::VicePrincipal),
+            "Accountant" => Ok(RoleEnum::Accountant),
+            "Librarian" => Ok(RoleEnum::Librarian),
+            _ => Err("Invalid Role"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for RoleEnum {
+    fn to_sql<'b>(
+        &'b self,
+        out: &mut Output<'b, '_, diesel::sqlite::Sqlite>,
+    ) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for RoleEnum {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Admin" => Ok(RoleEnum::Admin),
+            "Teacher" => Ok(RoleEnum::Teacher),
+            "Student" => Ok(RoleEnum::Student),
+            "Guest" => Ok(RoleEnum::Guest),
+            "Parent" => Ok(RoleEnum::Parent),
+            "FullAdmin" => Ok(RoleEnum::FullAdmin),
+            "Principal" => Ok(RoleEnum::Principal),
+            "VicePrincipal" => Ok(RoleEnum::VicePrincipal),
+            "Accountant" => Ok(RoleEnum::Accountant),
+            "Librarian" => Ok(RoleEnum::Librarian),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
 #[diesel(sql_type = Text)]
 pub enum EmploymentStatus {
@@ -882,6 +965,347 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for ComponentType {
         match s.as_str() {
             "Allowance" => Ok(ComponentType::Allowance),
             "Deduction" => Ok(ComponentType::Deduction),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq, Eq)]
+#[diesel(sql_type = Text)]
+pub enum PermissionSeverity {
+    Low,
+    Medium,
+    High,
+    Severe,
+}
+
+impl Display for PermissionSeverity {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PermissionSeverity::Low => write!(f, "Low"),
+            PermissionSeverity::Medium => write!(f, "Medium"),
+            PermissionSeverity::High => write!(f, "High"),
+            PermissionSeverity::Severe => write!(f, "Severe"),
+        }
+    }
+}
+
+impl std::str::FromStr for PermissionSeverity {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Low" => Ok(PermissionSeverity::Low),
+            "Medium" => Ok(PermissionSeverity::Medium),
+            "High" => Ok(PermissionSeverity::High),
+            "Severe" => Ok(PermissionSeverity::Severe),
+            _ => Err("Invalid PermissionSeverity"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for PermissionSeverity {
+    fn to_sql<'b>(
+        &'b self,
+        out: &mut Output<'b, '_, diesel::sqlite::Sqlite>,
+    ) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for PermissionSeverity {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Low" => Ok(PermissionSeverity::Low),
+            "Medium" => Ok(PermissionSeverity::Medium),
+            "High" => Ok(PermissionSeverity::High),
+            "Severe" => Ok(PermissionSeverity::Severe),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq, Eq)]
+#[diesel(sql_type = Text)]
+pub enum PermissionEnum {
+    // User Permissions
+    UserCreate,
+    UserRead,
+    UserUpdate,
+    UserDelete,
+    UserManage,
+    UserManageRoles,
+    UserManagePermissions,
+    
+    // Role Permissions
+    RoleCreate,
+    RoleRead,
+    RoleUpdate,
+    RoleDelete,
+    RoleManage,
+    RoleAssignPermissions,
+
+    // Permission Management
+    PermissionCreate,
+    PermissionRead,
+    PermissionUpdate,
+    PermissionDelete,
+    PermissionManage,
+
+    // Permission Set Management
+    PermissionSetManage,
+
+    // Staff Permissions
+    StaffCreate,
+    StaffRead,
+    StaffUpdate,
+    StaffDelete,
+    StaffManage,
+    StaffManageAttendance,
+    StaffManageLeaves,
+
+    // Student Permissions
+    StudentCreate,
+    StudentRead,
+    StudentUpdate,
+    StudentDelete,
+    StudentManage,
+    StudentManageGuardians,
+    StudentManageEnrollment,
+    StudentManageAttendance,
+    StudentManageMarks,
+
+    // Academic Year Permissions
+    AcademicYearManage,
+    
+    // Term Permissions
+    TermManage,
+
+    // Grade Level Permissions
+    GradeLevelManage,
+
+    // Class Permissions
+    ClassManage,
+
+    // Subject Permissions
+    SubjectManage,
+
+    // Class Subject Teacher Permissions
+    ClassSubjectTeacherManage,
+
+    // Timetable Permissions
+    TimetableManage,
+
+    // Exam Type Permissions
+    ExamTypeManage,
+
+    // Exam Permissions
+    ExamManage,
+
+    // Exam Subject Permissions
+    ExamSubjectManage,
+
+    // Grading Scheme Permissions
+    GradingSchemeManage,
+
+    // Grading Criterion Permissions
+    GradingCriterionManage,
+
+    // Library Permissions
+    LibraryManage,
+
+    // Other/Severity Examples (matching what was there)
+    UserUpdateMedium,
+    UserDeleteSevere,
+}
+
+impl Display for PermissionEnum {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PermissionEnum::UserCreate => write!(f, "UserCreate"),
+            PermissionEnum::UserRead => write!(f, "UserRead"),
+            PermissionEnum::UserUpdate => write!(f, "UserUpdate"),
+            PermissionEnum::UserDelete => write!(f, "UserDelete"),
+            PermissionEnum::UserManage => write!(f, "UserManage"),
+            PermissionEnum::UserManageRoles => write!(f, "UserManageRoles"),
+            PermissionEnum::UserManagePermissions => write!(f, "UserManagePermissions"),
+            PermissionEnum::RoleCreate => write!(f, "RoleCreate"),
+            PermissionEnum::RoleRead => write!(f, "RoleRead"),
+            PermissionEnum::RoleUpdate => write!(f, "RoleUpdate"),
+            PermissionEnum::RoleDelete => write!(f, "RoleDelete"),
+            PermissionEnum::RoleManage => write!(f, "RoleManage"),
+            PermissionEnum::RoleAssignPermissions => write!(f, "RoleAssignPermissions"),
+            PermissionEnum::PermissionCreate => write!(f, "PermissionCreate"),
+            PermissionEnum::PermissionRead => write!(f, "PermissionRead"),
+            PermissionEnum::PermissionUpdate => write!(f, "PermissionUpdate"),
+            PermissionEnum::PermissionDelete => write!(f, "PermissionDelete"),
+            PermissionEnum::PermissionManage => write!(f, "PermissionManage"),
+            PermissionEnum::PermissionSetManage => write!(f, "PermissionSetManage"),
+            PermissionEnum::StaffCreate => write!(f, "StaffCreate"),
+            PermissionEnum::StaffRead => write!(f, "StaffRead"),
+            PermissionEnum::StaffUpdate => write!(f, "StaffUpdate"),
+            PermissionEnum::StaffDelete => write!(f, "StaffDelete"),
+            PermissionEnum::StaffManage => write!(f, "StaffManage"),
+            PermissionEnum::StaffManageAttendance => write!(f, "StaffManageAttendance"),
+            PermissionEnum::StaffManageLeaves => write!(f, "StaffManageLeaves"),
+            PermissionEnum::StudentCreate => write!(f, "StudentCreate"),
+            PermissionEnum::StudentRead => write!(f, "StudentRead"),
+            PermissionEnum::StudentUpdate => write!(f, "StudentUpdate"),
+            PermissionEnum::StudentDelete => write!(f, "StudentDelete"),
+            PermissionEnum::StudentManage => write!(f, "StudentManage"),
+            PermissionEnum::StudentManageGuardians => write!(f, "StudentManageGuardians"),
+            PermissionEnum::StudentManageEnrollment => write!(f, "StudentManageEnrollment"),
+            PermissionEnum::StudentManageAttendance => write!(f, "StudentManageAttendance"),
+            PermissionEnum::StudentManageMarks => write!(f, "StudentManageMarks"),
+            PermissionEnum::AcademicYearManage => write!(f, "AcademicYearManage"),
+            PermissionEnum::TermManage => write!(f, "TermManage"),
+            PermissionEnum::GradeLevelManage => write!(f, "GradeLevelManage"),
+            PermissionEnum::ClassManage => write!(f, "ClassManage"),
+            PermissionEnum::SubjectManage => write!(f, "SubjectManage"),
+            PermissionEnum::ClassSubjectTeacherManage => write!(f, "ClassSubjectTeacherManage"),
+            PermissionEnum::TimetableManage => write!(f, "TimetableManage"),
+            PermissionEnum::ExamTypeManage => write!(f, "ExamTypeManage"),
+            PermissionEnum::ExamManage => write!(f, "ExamManage"),
+            PermissionEnum::ExamSubjectManage => write!(f, "ExamSubjectManage"),
+            PermissionEnum::GradingSchemeManage => write!(f, "GradingSchemeManage"),
+            PermissionEnum::GradingCriterionManage => write!(f, "GradingCriterionManage"),
+            PermissionEnum::LibraryManage => write!(f, "LibraryManage"),
+            PermissionEnum::UserUpdateMedium => write!(f, "UserUpdateMedium"),
+            PermissionEnum::UserDeleteSevere => write!(f, "UserDeleteSevere"),
+        }
+    }
+}
+
+impl std::str::FromStr for PermissionEnum {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "UserCreate" => Ok(PermissionEnum::UserCreate),
+            "UserRead" => Ok(PermissionEnum::UserRead),
+            "UserUpdate" => Ok(PermissionEnum::UserUpdate),
+            "UserDelete" => Ok(PermissionEnum::UserDelete),
+            "UserManage" => Ok(PermissionEnum::UserManage),
+            "UserManageRoles" => Ok(PermissionEnum::UserManageRoles),
+            "UserManagePermissions" => Ok(PermissionEnum::UserManagePermissions),
+            "RoleCreate" => Ok(PermissionEnum::RoleCreate),
+            "RoleRead" => Ok(PermissionEnum::RoleRead),
+            "RoleUpdate" => Ok(PermissionEnum::RoleUpdate),
+            "RoleDelete" => Ok(PermissionEnum::RoleDelete),
+            "RoleManage" => Ok(PermissionEnum::RoleManage),
+            "RoleAssignPermissions" => Ok(PermissionEnum::RoleAssignPermissions),
+            "PermissionCreate" => Ok(PermissionEnum::PermissionCreate),
+            "PermissionRead" => Ok(PermissionEnum::PermissionRead),
+            "PermissionUpdate" => Ok(PermissionEnum::PermissionUpdate),
+            "PermissionDelete" => Ok(PermissionEnum::PermissionDelete),
+            "PermissionManage" => Ok(PermissionEnum::PermissionManage),
+            "PermissionSetManage" => Ok(PermissionEnum::PermissionSetManage),
+            "StaffCreate" => Ok(PermissionEnum::StaffCreate),
+            "StaffRead" => Ok(PermissionEnum::StaffRead),
+            "StaffUpdate" => Ok(PermissionEnum::StaffUpdate),
+            "StaffDelete" => Ok(PermissionEnum::StaffDelete),
+            "StaffManage" => Ok(PermissionEnum::StaffManage),
+            "StaffManageAttendance" => Ok(PermissionEnum::StaffManageAttendance),
+            "StaffManageLeaves" => Ok(PermissionEnum::StaffManageLeaves),
+            "StudentCreate" => Ok(PermissionEnum::StudentCreate),
+            "StudentRead" => Ok(PermissionEnum::StudentRead),
+            "StudentUpdate" => Ok(PermissionEnum::StudentUpdate),
+            "StudentDelete" => Ok(PermissionEnum::StudentDelete),
+            "StudentManage" => Ok(PermissionEnum::StudentManage),
+            "StudentManageGuardians" => Ok(PermissionEnum::StudentManageGuardians),
+            "StudentManageEnrollment" => Ok(PermissionEnum::StudentManageEnrollment),
+            "StudentManageAttendance" => Ok(PermissionEnum::StudentManageAttendance),
+            "StudentManageMarks" => Ok(PermissionEnum::StudentManageMarks),
+            "AcademicYearManage" => Ok(PermissionEnum::AcademicYearManage),
+            "TermManage" => Ok(PermissionEnum::TermManage),
+            "GradeLevelManage" => Ok(PermissionEnum::GradeLevelManage),
+            "ClassManage" => Ok(PermissionEnum::ClassManage),
+            "SubjectManage" => Ok(PermissionEnum::SubjectManage),
+            "ClassSubjectTeacherManage" => Ok(PermissionEnum::ClassSubjectTeacherManage),
+            "TimetableManage" => Ok(PermissionEnum::TimetableManage),
+            "ExamTypeManage" => Ok(PermissionEnum::ExamTypeManage),
+            "ExamManage" => Ok(PermissionEnum::ExamManage),
+            "ExamSubjectManage" => Ok(PermissionEnum::ExamSubjectManage),
+            "GradingSchemeManage" => Ok(PermissionEnum::GradingSchemeManage),
+            "GradingCriterionManage" => Ok(PermissionEnum::GradingCriterionManage),
+            "LibraryManage" => Ok(PermissionEnum::LibraryManage),
+            "UserUpdateMedium" => Ok(PermissionEnum::UserUpdateMedium),
+            "UserDeleteSevere" => Ok(PermissionEnum::UserDeleteSevere),
+            _ => Err("Invalid Permission"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for PermissionEnum {
+    fn to_sql<'b>(
+        &'b self,
+        out: &mut Output<'b, '_, diesel::sqlite::Sqlite>,
+    ) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for PermissionEnum {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "UserCreate" => Ok(PermissionEnum::UserCreate),
+            "UserRead" => Ok(PermissionEnum::UserRead),
+            "UserUpdate" => Ok(PermissionEnum::UserUpdate),
+            "UserDelete" => Ok(PermissionEnum::UserDelete),
+            "UserManage" => Ok(PermissionEnum::UserManage),
+            "UserManageRoles" => Ok(PermissionEnum::UserManageRoles),
+            "UserManagePermissions" => Ok(PermissionEnum::UserManagePermissions),
+            "RoleCreate" => Ok(PermissionEnum::RoleCreate),
+            "RoleRead" => Ok(PermissionEnum::RoleRead),
+            "RoleUpdate" => Ok(PermissionEnum::RoleUpdate),
+            "RoleDelete" => Ok(PermissionEnum::RoleDelete),
+            "RoleManage" => Ok(PermissionEnum::RoleManage),
+            "RoleAssignPermissions" => Ok(PermissionEnum::RoleAssignPermissions),
+            "PermissionCreate" => Ok(PermissionEnum::PermissionCreate),
+            "PermissionRead" => Ok(PermissionEnum::PermissionRead),
+            "PermissionUpdate" => Ok(PermissionEnum::PermissionUpdate),
+            "PermissionDelete" => Ok(PermissionEnum::PermissionDelete),
+            "PermissionManage" => Ok(PermissionEnum::PermissionManage),
+            "PermissionSetManage" => Ok(PermissionEnum::PermissionSetManage),
+            "StaffCreate" => Ok(PermissionEnum::StaffCreate),
+            "StaffRead" => Ok(PermissionEnum::StaffRead),
+            "StaffUpdate" => Ok(PermissionEnum::StaffUpdate),
+            "StaffDelete" => Ok(PermissionEnum::StaffDelete),
+            "StaffManage" => Ok(PermissionEnum::StaffManage),
+            "StaffManageAttendance" => Ok(PermissionEnum::StaffManageAttendance),
+            "StaffManageLeaves" => Ok(PermissionEnum::StaffManageLeaves),
+            "StudentCreate" => Ok(PermissionEnum::StudentCreate),
+            "StudentRead" => Ok(PermissionEnum::StudentRead),
+            "StudentUpdate" => Ok(PermissionEnum::StudentUpdate),
+            "StudentDelete" => Ok(PermissionEnum::StudentDelete),
+            "StudentManage" => Ok(PermissionEnum::StudentManage),
+            "StudentManageGuardians" => Ok(PermissionEnum::StudentManageGuardians),
+            "StudentManageEnrollment" => Ok(PermissionEnum::StudentManageEnrollment),
+            "StudentManageAttendance" => Ok(PermissionEnum::StudentManageAttendance),
+            "StudentManageMarks" => Ok(PermissionEnum::StudentManageMarks),
+            "AcademicYearManage" => Ok(PermissionEnum::AcademicYearManage),
+            "TermManage" => Ok(PermissionEnum::TermManage),
+            "GradeLevelManage" => Ok(PermissionEnum::GradeLevelManage),
+            "ClassManage" => Ok(PermissionEnum::ClassManage),
+            "SubjectManage" => Ok(PermissionEnum::SubjectManage),
+            "ClassSubjectTeacherManage" => Ok(PermissionEnum::ClassSubjectTeacherManage),
+            "TimetableManage" => Ok(PermissionEnum::TimetableManage),
+            "ExamTypeManage" => Ok(PermissionEnum::ExamTypeManage),
+            "ExamManage" => Ok(PermissionEnum::ExamManage),
+            "ExamSubjectManage" => Ok(PermissionEnum::ExamSubjectManage),
+            "GradingSchemeManage" => Ok(PermissionEnum::GradingSchemeManage),
+            "GradingCriterionManage" => Ok(PermissionEnum::GradingCriterionManage),
+            "LibraryManage" => Ok(PermissionEnum::LibraryManage),
+            "UserUpdateMedium" => Ok(PermissionEnum::UserUpdateMedium),
+            "UserDeleteSevere" => Ok(PermissionEnum::UserDeleteSevere),
             _ => Err("Unrecognized enum variant".into()),
         }
     }

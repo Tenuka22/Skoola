@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
+import { RoleEnumSchema } from '@/lib/api/schemas.gen'
 import { bulkUpdateSchema, type BulkUpdateValues } from '../schemas'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,9 +17,9 @@ import {
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Switch } from '@/components/ui/switch'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useQuery } from '@tanstack/react-query'
-import { getRolesA5D957C8571Bc100Ebafa070B5E5293fOptions as getRolesOptions } from '@/lib/api/@tanstack/react-query.gen'
-import { authClient } from '@/lib/clients'
+
+
+
 import { Badge } from '@/components/ui/badge'
 
 interface UserBulkEditDialogProps {
@@ -36,9 +37,12 @@ export function UserBulkEditDialog({
   selectedCount,
   isSubmitting,
 }: UserBulkEditDialogProps) {
-  const { data: availableRoles } = useQuery(
-    getRolesOptions({ client: authClient }),
-  )
+  const availableRoles = {
+    data: RoleEnumSchema.enum.map((roleName) => ({
+      id: roleName, // Using role name as ID for consistency in UI
+      name: roleName,
+    })),
+  }
 
   const {
     handleSubmit,
@@ -134,40 +138,39 @@ export function UserBulkEditDialog({
               </Field>
             </FieldGroup>
 
-            <FieldGroup className="space-y-4">
-              <div className="flex items-center justify-between">
-                <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-                  Access Roles
-                </FieldLabel>
-                {selectedRoles.length > 0 && (
-                  <Badge
-                    variant="secondary"
-                    className="rounded-md px-1.5 py-0 text-[9px] font-black uppercase tracking-tighter"
-                  >
-                    {selectedRoles.length} Set
-                  </Badge>
-                )}
-              </div>
-              <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-                {availableRoles?.data.map((role) => (
-                  <div
-                    key={role.id}
-                    onClick={() => toggleRole(role.name)}
-                    className="flex cursor-pointer items-center gap-3 rounded-xl border border-transparent bg-muted/20 p-3 transition-all hover:bg-muted/40 hover:ring-1 hover:ring-primary/20"
-                  >
-                    <Checkbox
-                      checked={selectedRoles.includes(role.name)}
-                      onCheckedChange={() => toggleRole(role.name)}
-                      className="rounded-md"
-                    />
-                    <span className="text-xs font-bold tracking-tight">
-                      {role.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </FieldGroup>
-          </div>
+                        <FieldGroup className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+                              Access Roles
+                            </FieldLabel>
+                            {selectedRoles.length > 0 && (
+                              <Badge
+                                variant="secondary"
+                                className="rounded-md px-1.5 py-0 text-[9px] font-black uppercase tracking-tighter"
+                              >
+                                {selectedRoles.length} Set
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                            {availableRoles?.data.map((role) => (
+                              <div
+                                key={role.id}
+                                onClick={() => toggleRole(role.name)}
+                                className="flex cursor-pointer items-center gap-3 rounded-xl border border-transparent bg-muted/20 p-3 transition-colors hover:bg-muted/40 hover:ring-1 hover:ring-primary/20"
+                              >
+                                <Checkbox
+                                  checked={selectedRoles.includes(role.name)}
+                                  onCheckedChange={() => toggleRole(role.name)}
+                                  className="rounded-md"
+                                />
+                                <span className="text-xs font-bold tracking-tight">
+                                  {role.name}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </FieldGroup>          </div>
 
           <DialogFooter className="mt-10 sm:justify-center gap-3 border-t pt-8">
             <Button

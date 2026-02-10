@@ -3,7 +3,8 @@ use chrono::NaiveDateTime;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use crate::database::tables::{User, RoleEnum};
+use crate::database::tables::User;
+use crate::database::enums::RoleEnum;
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct RegisterRequest {

@@ -35,6 +35,23 @@
 - `web/src/features/users/components/user-modals.tsx`
   - Purpose: Purge and mass-wipe confirmation dialogs.
 
+### Permissions & RBAC Management Feature
+
+- `web/src/features/permissions/types.ts`
+  - Purpose: Domain types for Permissions, Roles, and junction data.
+- `web/src/features/permissions/api.ts`
+  - Purpose: Encapsulated API calls for RBAC CRUD and assignments.
+- `web/src/features/permissions/components/permission-manager.tsx`
+  - Purpose: Categorized switch-grid for enabling/disabling capabilities.
+- `web/src/features/permissions/components/role-list.tsx`
+  - Purpose: Hierarchical tree visualization of system roles.
+- `web/src/features/permissions/components/role-card.tsx`
+  - Purpose: High-level overview of a specific security role.
+- `web/src/features/permissions/components/role-permissions-dialog.tsx`
+  - Purpose: Direct capability management for a specific role.
+- `web/src/features/permissions/components/user-permissions-dialog.tsx`
+  - Purpose: Unique security overrides and role assignments for specific users.
+
 ## Routes
 
 - `web/src/routes/(auth)/login.tsx`
@@ -45,3 +62,5 @@
   - Purpose: User profile page (Authenticated).
 - `web/src/routes/admin/users.tsx`
   - Purpose: Admin user directory dashboard (Authenticated/Role-protected).
+- `web/src/routes/admin/permissions.tsx`
+  - Purpose: Central hub for Role hierarchy and global capability registry.

@@ -1,114 +1,25 @@
 use crate::database::enums::{
     AllocationType, ComponentType, Ethnicity, FeeFrequency, Gender, MaintenanceStatus,
-    PaymentMethod, Religion, TransactionType,
+    PaymentMethod, Religion, TransactionType, RoleEnum, PermissionEnum, PermissionSeverity,
 };
 use crate::schema::{
     asset_allocations, asset_categories, budget_categories, budgets, expense_categories,
     expense_transactions, fee_categories, fee_payments, fee_structures, income_sources,
     income_transactions, inventory_items, library_books, library_categories, library_issues,
-    library_settings, maintenance_requests, permissions, petty_cash_transactions, role_permissions,
-    roles, salary_components, salary_payments, sessions, staff, staff_attendance,
-    staff_departments, staff_employment_history, staff_leaves, staff_qualifications, staff_roles,
+    library_settings, maintenance_requests, permission_set_permissions, permission_sets,
+    permissions, petty_cash_transactions, role_permission_sets, role_permissions,
+    salary_components, salary_payments, sessions, staff, staff_attendance,
+    staff_departments, staff_employment_history, staff_leaves, staff_qualifications,
     staff_salaries, staff_subjects, student_emergency_contacts, student_fees, student_guardians,
     student_medical_info, student_previous_schools, students, teacher_class_assignments,
-    teacher_subject_assignments, uniform_issues, uniform_items, user_roles, users,
+    teacher_subject_assignments, uniform_issues, uniform_items, user_permission_sets,
+    user_set_users, user_sets, users,
 };
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
-use diesel::deserialize::FromSql;
-use diesel::expression::AsExpression;
 use diesel::prelude::*;
-use diesel::serialize::{IsNull, Output, ToSql};
-use diesel::sql_types::Text;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use apistos::ApiComponent;
-use std::fmt::{Display, Formatter};
-
-use diesel::FromSqlRow;
-use diesel::backend::Backend;
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq, Eq)]
-#[diesel(sql_type = Text)]
-pub enum RoleEnum {
-    Admin,
-    Teacher,
-    Student,
-    Guest,
-    Parent,
-    FullAdmin,
-    Principal,
-    VicePrincipal,
-    Accountant,
-    Librarian,
-}
-
-impl Display for RoleEnum {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            RoleEnum::Admin => write!(f, "Admin"),
-            RoleEnum::Teacher => write!(f, "Teacher"),
-            RoleEnum::Student => write!(f, "Student"),
-            RoleEnum::Guest => write!(f, "Guest"),
-            RoleEnum::Parent => write!(f, "Parent"),
-            RoleEnum::FullAdmin => write!(f, "FullAdmin"),
-            RoleEnum::Principal => write!(f, "Principal"),
-            RoleEnum::VicePrincipal => write!(f, "VicePrincipal"),
-            RoleEnum::Accountant => write!(f, "Accountant"),
-            RoleEnum::Librarian => write!(f, "Librarian"),
-        }
-    }
-}
-
-impl std::str::FromStr for RoleEnum {
-    type Err = &'static str;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        match s {
-            "Admin" => Ok(RoleEnum::Admin),
-            "Teacher" => Ok(RoleEnum::Teacher),
-            "Student" => Ok(RoleEnum::Student),
-            "Guest" => Ok(RoleEnum::Guest),
-            "Parent" => Ok(RoleEnum::Parent),
-            "FullAdmin" => Ok(RoleEnum::FullAdmin),
-            "Principal" => Ok(RoleEnum::Principal),
-            "VicePrincipal" => Ok(RoleEnum::VicePrincipal),
-            "Accountant" => Ok(RoleEnum::Accountant),
-            "Librarian" => Ok(RoleEnum::Librarian),
-            _ => Err("Invalid Role"),
-        }
-    }
-}
-
-impl ToSql<Text, diesel::sqlite::Sqlite> for RoleEnum {
-    fn to_sql<'b>(
-        &'b self,
-        out: &mut Output<'b, '_, diesel::sqlite::Sqlite>,
-    ) -> diesel::serialize::Result {
-        out.set_value(self.to_string());
-        Ok(IsNull::No)
-    }
-}
-
-impl FromSql<Text, diesel::sqlite::Sqlite> for RoleEnum {
-    fn from_sql(
-        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
-    ) -> diesel::deserialize::Result<Self> {
-        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
-        match s.as_str() {
-            "Admin" => Ok(RoleEnum::Admin),
-            "Teacher" => Ok(RoleEnum::Teacher),
-            "Student" => Ok(RoleEnum::Student),
-            "Guest" => Ok(RoleEnum::Guest),
-            "Parent" => Ok(RoleEnum::Parent),
-            "FullAdmin" => Ok(RoleEnum::FullAdmin),
-            "Principal" => Ok(RoleEnum::Principal),
-            "VicePrincipal" => Ok(RoleEnum::VicePrincipal),
-            "Accountant" => Ok(RoleEnum::Accountant),
-            "Librarian" => Ok(RoleEnum::Librarian),
-            _ => Err("Unrecognized enum variant".into()),
-        }
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
 #[diesel(table_name = users)]
@@ -121,13 +32,14 @@ pub struct User {
     pub github_id: Option<String>,
     pub is_verified: bool,
     pub verification_token: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
     pub verification_sent_at: Option<NaiveDateTime>,
     pub password_reset_token: Option<String>,
     pub password_reset_sent_at: Option<NaiveDateTime>,
     pub failed_login_attempts: i32,
     pub lockout_until: Option<NaiveDateTime>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub role: RoleEnum,
 }
 
 #[derive(Debug, Insertable)]
@@ -148,34 +60,28 @@ pub struct NewUser {
     pub password_reset_sent_at: Option<NaiveDateTime>,
     pub failed_login_attempts: i32,
     pub lockout_until: Option<NaiveDateTime>,
+    pub role: RoleEnum,
 }
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
-#[diesel(table_name = roles)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct Role {
-    pub id: String,
-    pub name: String,
-    pub parent_id: Option<String>,
-}
-
-#[derive(Debug, Insertable)]
-#[diesel(table_name = user_roles)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct NewUserRole {
-    pub user_id: String,
-    pub role_id: String,
-}
-
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
 #[diesel(table_name = permissions)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Permission {
     pub id: i32,
-    pub name: String,
+    pub name: PermissionEnum,
     pub description: String,
-    pub safety_level: i32,
+    pub safety_level: PermissionSeverity,
+    pub is_admin_only: bool,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = permissions)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct NewPermission {
+    pub name: PermissionEnum,
+    pub description: String,
+    pub safety_level: PermissionSeverity,
+    pub is_admin_only: bool,
 }
 
 #[derive(
@@ -190,7 +96,6 @@ pub struct Permission {
     Associations,
 )]
 #[diesel(table_name = role_permissions)]
-#[diesel(belongs_to(Role))]
 #[diesel(belongs_to(Permission))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct RolePermission {
@@ -198,24 +103,61 @@ pub struct RolePermission {
     pub permission_id: i32,
 }
 
-#[derive(
-    Debug,
-    Serialize,
-    Deserialize,
-    JsonSchema,
-    Queryable,
-    Selectable,
-    Insertable,
-    Clone,
-    Associations,
-)]
-#[diesel(table_name = user_roles)]
-#[diesel(belongs_to(User))]
-#[diesel(belongs_to(Role))]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = permission_sets)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct UserRole {
+pub struct PermissionSet {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = permission_set_permissions)]
+#[diesel(belongs_to(PermissionSet))]
+#[diesel(belongs_to(Permission))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct PermissionSetPermission {
+    pub permission_set_id: String,
+    pub permission_id: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = user_sets)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct UserSet {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = user_set_users)]
+#[diesel(belongs_to(UserSet))]
+#[diesel(belongs_to(User))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct UserSetUser {
+    pub user_set_id: String,
     pub user_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = user_permission_sets)]
+#[diesel(belongs_to(User))]
+#[diesel(belongs_to(PermissionSet))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct UserPermissionSet {
+    pub user_id: String,
+    pub permission_set_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[diesel(table_name = role_permission_sets)]
+#[diesel(belongs_to(PermissionSet))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct RolePermissionSet {
     pub role_id: String,
+    pub permission_set_id: String,
 }
 
 #[derive(Debug, Insertable)]
@@ -317,38 +259,6 @@ pub struct StaffDepartment {
     pub description: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-
-#[derive(
-    Debug,
-    Serialize,
-    Deserialize,
-    JsonSchema,
-    Queryable,
-    Selectable,
-    Insertable,
-    Clone,
-    Associations,
-)]
-#[diesel(table_name = staff_roles)]
-#[diesel(belongs_to(Staff))]
-#[diesel(belongs_to(Role))]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct StaffRole {
-    pub staff_id: String,
-    pub role_id: String,
-}
-
-impl StaffRole {
-    pub fn find_by_staff_id(
-        conn: &mut SqliteConnection,
-        staff_id_to_find: &str,
-    ) -> diesel::result::QueryResult<Vec<Self>> {
-        staff_roles::table
-            .filter(staff_roles::staff_id.eq(staff_id_to_find))
-            .select(StaffRole::as_select())
-            .load(conn)
-    }
 }
 
 #[derive(

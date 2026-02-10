@@ -9,7 +9,7 @@ use tracing::info;
 use crate::{
     config::Config,
     database::{connection::DbPool, tables::User},
-    schema::{roles, user_roles, users},
+    schema::{users},
     services::session::SessionService,
 };
 
@@ -22,20 +22,8 @@ pub struct Claims {
     pub exp: i64,
 }
 
-pub fn create_token_pair(user: &User, config: &Config, db_pool: &DbPool) -> Result<(String, String, i64), APIError> {
-    let mut conn = db_pool.get()?;
-    let user_roles = user_roles::table
-        .inner_join(roles::table)
-        .filter(user_roles::user_id.eq(&user.id))
-        .select(roles::name)
-        .load::<String>(&mut conn)
-        .unwrap_or_default();
-
-    let roles = if user_roles.is_empty() {
-        vec!["Guest".to_string()]
-    } else {
-        user_roles
-    };
+pub fn create_token_pair(user: &User, config: &Config, _db_pool: &DbPool) -> Result<(String, String, i64), APIError> {
+    let roles = vec![user.role.to_string()];
 
     let expiration = Utc::now()
         .checked_add_signed(Duration::days(config.jwt_expiration as i64))

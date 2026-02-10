@@ -5,6 +5,7 @@ import {
   Tick01Icon,
   Delete02Icon,
   PencilEdit01Icon,
+  Shield01Icon,
 } from '@hugeicons/core-free-icons'
 import type { User } from '../types'
 
@@ -14,6 +15,7 @@ interface UserComparisonOverlayProps {
   onBulkVerify: (verify: boolean) => void
   onBulkDelete: () => void
   onBulkEdit: () => void
+  onBulkManagePermissions: () => void
   users?: User[]
 }
 
@@ -23,6 +25,7 @@ export function UserComparisonOverlay({
   onBulkVerify,
   onBulkDelete,
   onBulkEdit,
+  onBulkManagePermissions,
   users,
 }: UserComparisonOverlayProps) {
   if (selectedUsers.size <= 1) return null
@@ -87,6 +90,16 @@ export function UserComparisonOverlay({
             className="size-4 text-primary"
           />
           Bulk Edit
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-10 rounded-xl gap-2 font-bold px-4 hover:bg-primary/10"
+          onClick={onBulkManagePermissions}
+        >
+          <HugeiconsIcon icon={Shield01Icon} className="size-4 text-primary" />
+          Permissions
         </Button>
 
         <Button

@@ -3,7 +3,7 @@ CREATE TABLE permissions (
     id INTEGER NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
-    safety_level INTEGER NOT NULL
+    safety_level TEXT NOT NULL
 );
 
 CREATE TABLE user_permissions (

@@ -136,13 +136,6 @@ export type AssignFeeToStudentRequest = {
 };
 
 /**
- * AssignRoleToStaffRequest
- */
-export type AssignRoleToStaffRequest = {
-    role_id: string;
-};
-
-/**
  * AssignSubjectToGradeRequest
  */
 export type AssignSubjectToGradeRequest = {
@@ -317,13 +310,6 @@ export type BulkDeleteRequest = {
 };
 
 /**
- * BulkDeleteRolesRequest
- */
-export type BulkDeleteRolesRequest = {
-    role_ids: Array<string>;
-};
-
-/**
  * BulkDeleteSubjectsRequest
  */
 export type BulkDeleteSubjectsRequest = {
@@ -473,17 +459,8 @@ export type BulkUpdateLibraryCategoriesRequest = {
 export type BulkUpdateRequest = {
     is_locked?: boolean | null;
     is_verified?: boolean | null;
-    roles?: Array<string> | null;
+    role?: RoleEnum | null;
     user_ids: Array<string>;
-};
-
-/**
- * BulkUpdateRolesRequest
- */
-export type BulkUpdateRolesRequest = {
-    name?: string | null;
-    parent_id?: string | null;
-    role_ids: Array<string>;
 };
 
 /**
@@ -812,11 +789,20 @@ export type CreateMaintenanceRequest = {
 };
 
 /**
- * CreateRoleRequest
+ * CreatePermissionRequest
  */
-export type CreateRoleRequest = {
+export type CreatePermissionRequest = {
+    description: string;
+    name: PermissionEnum;
+    safety_level: PermissionSeverity;
+};
+
+/**
+ * CreatePermissionSetRequest
+ */
+export type CreatePermissionSetRequest = {
+    description: string;
     name: string;
-    parent_id?: string | null;
 };
 
 /**
@@ -1584,10 +1570,10 @@ export type PaginatedLibraryCategoryResponse = {
 };
 
 /**
- * PaginatedRoleResponse
+ * PaginatedPermissionResponse
  */
-export type PaginatedRoleResponse = {
-    data: Array<Role>;
+export type PaginatedPermissionResponse = {
+    data: Array<Permission>;
     limit: number;
     page: number;
     total: number;
@@ -1648,6 +1634,21 @@ export type PayFineRequest = {
 };
 
 export type PaymentMethod = 'Cash' | 'BankTransfer' | 'Cheque' | 'Online';
+
+/**
+ * Permission
+ */
+export type Permission = {
+    description: string;
+    id: number;
+    is_admin_only: boolean;
+    name: PermissionEnum;
+    safety_level: PermissionSeverity;
+};
+
+export type PermissionEnum = 'UserCreate' | 'UserRead' | 'UserUpdate' | 'UserDelete' | 'UserManage' | 'UserManageRoles' | 'UserManagePermissions' | 'RoleCreate' | 'RoleRead' | 'RoleUpdate' | 'RoleDelete' | 'RoleManage' | 'RoleAssignPermissions' | 'PermissionCreate' | 'PermissionRead' | 'PermissionUpdate' | 'PermissionDelete' | 'PermissionManage' | 'PermissionSetManage' | 'StaffCreate' | 'StaffRead' | 'StaffUpdate' | 'StaffDelete' | 'StaffManage' | 'StaffManageAttendance' | 'StaffManageLeaves' | 'StudentCreate' | 'StudentRead' | 'StudentUpdate' | 'StudentDelete' | 'StudentManage' | 'StudentManageGuardians' | 'StudentManageEnrollment' | 'StudentManageAttendance' | 'StudentManageMarks' | 'AcademicYearManage' | 'TermManage' | 'GradeLevelManage' | 'ClassManage' | 'SubjectManage' | 'ClassSubjectTeacherManage' | 'TimetableManage' | 'ExamTypeManage' | 'ExamManage' | 'ExamSubjectManage' | 'GradingSchemeManage' | 'GradingCriterionManage' | 'LibraryManage' | 'UserUpdateMedium' | 'UserDeleteSevere';
+
+export type PermissionSeverity = 'Low' | 'Medium' | 'High' | 'Severe';
 
 /**
  * PettyCashTransactionResponse
@@ -1787,15 +1788,6 @@ export type ReturnAssetRequest = {
  */
 export type ReturnBookRequest = {
     remarks?: string | null;
-};
-
-/**
- * Role
- */
-export type Role = {
-    id: string;
-    name: string;
-    parent_id?: string | null;
 };
 
 export type RoleEnum = 'Admin' | 'Teacher' | 'Student' | 'Guest' | 'Parent' | 'FullAdmin' | 'Principal' | 'VicePrincipal' | 'Accountant' | 'Librarian';
@@ -2413,18 +2405,27 @@ export type UpdateMaintenanceStatusRequest = {
 };
 
 /**
+ * UpdatePermissionRequest
+ */
+export type UpdatePermissionRequest = {
+    description?: string | null;
+    name?: PermissionEnum | null;
+    safety_level?: PermissionSeverity | null;
+};
+
+/**
+ * UpdatePermissionSetRequest
+ */
+export type UpdatePermissionSetRequest = {
+    description?: string | null;
+    name?: string | null;
+};
+
+/**
  * UpdateProfileRequest
  */
 export type UpdateProfileRequest = {
     email?: string | null;
-};
-
-/**
- * UpdateRoleRequest
- */
-export type UpdateRoleRequest = {
-    name: string;
-    parent_id?: string | null;
 };
 
 /**
@@ -2539,7 +2540,7 @@ export type UpdateUserRequest = {
     email?: string | null;
     is_locked?: boolean | null;
     is_verified?: boolean | null;
-    roles?: Array<string> | null;
+    role?: RoleEnum | null;
 };
 
 /**
@@ -3858,802 +3859,6 @@ export type GetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Responses = {
 
 export type GetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Response = GetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Responses[keyof GetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Responses];
 
-export type GetRolesA5D957C8571Bc100Ebafa070B5E5293fData = {
-    body?: never;
-    path?: never;
-    query?: {
-        limit?: number | null;
-        page?: number | null;
-        parent_id?: string | null;
-        search?: string | null;
-        sort_by?: string | null;
-        sort_order?: string | null;
-    };
-    url: '/roles';
-};
-
-export type GetRolesA5D957C8571Bc100Ebafa070B5E5293fErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetRolesA5D957C8571Bc100Ebafa070B5E5293fResponses = {
-    200: PaginatedRoleResponse;
-};
-
-export type GetRolesA5D957C8571Bc100Ebafa070B5E5293fResponse = GetRolesA5D957C8571Bc100Ebafa070B5E5293fResponses[keyof GetRolesA5D957C8571Bc100Ebafa070B5E5293fResponses];
-
-export type PostRolesA5D957C8571Bc100Ebafa070B5E5293fData = {
-    body: CreateRoleRequest;
-    path?: never;
-    query?: never;
-    url: '/roles';
-};
-
-export type PostRolesA5D957C8571Bc100Ebafa070B5E5293fErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type PostRolesA5D957C8571Bc100Ebafa070B5E5293fResponses = {
-    200: Role;
-};
-
-export type PostRolesA5D957C8571Bc100Ebafa070B5E5293fResponse = PostRolesA5D957C8571Bc100Ebafa070B5E5293fResponses[keyof PostRolesA5D957C8571Bc100Ebafa070B5E5293fResponses];
-
-export type DeleteRoles8C327845Ebefcde1F485C3E706Ee403fData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        role_id: string;
-    };
-    query?: never;
-    url: '/roles/{role_id}';
-};
-
-export type DeleteRoles8C327845Ebefcde1F485C3E706Ee403fErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type DeleteRoles8C327845Ebefcde1F485C3E706Ee403fResponses = {
-    200: MessageResponse;
-};
-
-export type DeleteRoles8C327845Ebefcde1F485C3E706Ee403fResponse = DeleteRoles8C327845Ebefcde1F485C3E706Ee403fResponses[keyof DeleteRoles8C327845Ebefcde1F485C3E706Ee403fResponses];
-
-export type GetRoles8C327845Ebefcde1F485C3E706Ee403fData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        role_id: string;
-    };
-    query?: never;
-    url: '/roles/{role_id}';
-};
-
-export type GetRoles8C327845Ebefcde1F485C3E706Ee403fErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetRoles8C327845Ebefcde1F485C3E706Ee403fResponses = {
-    200: Role;
-};
-
-export type GetRoles8C327845Ebefcde1F485C3E706Ee403fResponse = GetRoles8C327845Ebefcde1F485C3E706Ee403fResponses[keyof GetRoles8C327845Ebefcde1F485C3E706Ee403fResponses];
-
-export type PutRoles8C327845Ebefcde1F485C3E706Ee403fData = {
-    body: UpdateRoleRequest;
-    path: {
-        /**
-         * String
-         */
-        role_id: string;
-    };
-    query?: never;
-    url: '/roles/{role_id}';
-};
-
-export type PutRoles8C327845Ebefcde1F485C3E706Ee403fErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type PutRoles8C327845Ebefcde1F485C3E706Ee403fResponses = {
-    200: Role;
-};
-
-export type PutRoles8C327845Ebefcde1F485C3E706Ee403fResponse = PutRoles8C327845Ebefcde1F485C3E706Ee403fResponses[keyof PutRoles8C327845Ebefcde1F485C3E706Ee403fResponses];
-
-export type DeleteRolesB75Ac3A90Fbd260B1372807A51862Ad6Data = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        role_id: string;
-        /**
-         * String
-         */
-        permission_id: string;
-    };
-    query?: never;
-    url: '/roles/{role_id}/permissions/{permission_id}';
-};
-
-export type DeleteRolesB75Ac3A90Fbd260B1372807A51862Ad6Errors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type DeleteRolesB75Ac3A90Fbd260B1372807A51862Ad6Responses = {
-    200: MessageResponse;
-};
-
-export type DeleteRolesB75Ac3A90Fbd260B1372807A51862Ad6Response = DeleteRolesB75Ac3A90Fbd260B1372807A51862Ad6Responses[keyof DeleteRolesB75Ac3A90Fbd260B1372807A51862Ad6Responses];
-
-export type PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Data = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        role_id: string;
-        /**
-         * String
-         */
-        permission_id: string;
-    };
-    query?: never;
-    url: '/roles/{role_id}/permissions/{permission_id}';
-};
-
-export type PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Errors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Responses = {
-    200: MessageResponse;
-};
-
-export type PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Response = PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Responses[keyof PostRolesB75Ac3A90Fbd260B1372807A51862Ad6Responses];
-
-export type DeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Data = {
-    body: BulkDeleteRolesRequest;
-    path?: never;
-    query?: never;
-    url: '/roles/bulk';
-};
-
-export type DeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Errors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type DeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Responses = {
-    200: MessageResponse;
-};
-
-export type DeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Response = DeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Responses[keyof DeleteRolesBulkB2Af99A13C73F021De14E163Ba707C36Responses];
-
-export type PatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Data = {
-    body: BulkUpdateRolesRequest;
-    path?: never;
-    query?: never;
-    url: '/roles/bulk';
-};
-
-export type PatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Errors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type PatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Responses = {
-    200: MessageResponse;
-};
-
-export type PatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Response = PatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Responses[keyof PatchRolesBulkB2Af99A13C73F021De14E163Ba707C36Responses];
-
 export type GetUsers06Bdcf95Aafda840B1D04322636De293Data = {
     body?: never;
     path?: never;
@@ -5178,6 +4383,281 @@ export type PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponses = {
 
 export type PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponse = PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponses[keyof PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaResponses];
 
+export type GetUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cData = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/users/{user_id}/permissions';
+};
+
+export type GetUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cResponses = {
+    200: Array<Permission>;
+};
+
+export type GetUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cResponse = GetUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cResponses[keyof GetUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cResponses];
+
+export type DeleteUsers069Bc83C67Aeddbeed75C9632Ba56B82Data = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        user_id: string;
+        /**
+         * int32
+         */
+        permission_id: number;
+    };
+    query?: never;
+    url: '/users/{user_id}/permissions/{permission_id}';
+};
+
+export type DeleteUsers069Bc83C67Aeddbeed75C9632Ba56B82Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteUsers069Bc83C67Aeddbeed75C9632Ba56B82Responses = {
+    200: MessageResponse;
+};
+
+export type DeleteUsers069Bc83C67Aeddbeed75C9632Ba56B82Response = DeleteUsers069Bc83C67Aeddbeed75C9632Ba56B82Responses[keyof DeleteUsers069Bc83C67Aeddbeed75C9632Ba56B82Responses];
+
+export type PostUsers069Bc83C67Aeddbeed75C9632Ba56B82Data = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        user_id: string;
+        /**
+         * int32
+         */
+        permission_id: number;
+    };
+    query?: never;
+    url: '/users/{user_id}/permissions/{permission_id}';
+};
+
+export type PostUsers069Bc83C67Aeddbeed75C9632Ba56B82Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PostUsers069Bc83C67Aeddbeed75C9632Ba56B82Responses = {
+    200: MessageResponse;
+};
+
+export type PostUsers069Bc83C67Aeddbeed75C9632Ba56B82Response = PostUsers069Bc83C67Aeddbeed75C9632Ba56B82Responses[keyof PostUsers069Bc83C67Aeddbeed75C9632Ba56B82Responses];
+
 export type GetPermissions9C8839E73223Cb930255A2882A4B0Db4Data = {
     body?: never;
     path?: never;
@@ -5263,11 +4743,13 @@ export type GetPermissions9C8839E73223Cb930255A2882A4B0Db4Errors = {
 };
 
 export type GetPermissions9C8839E73223Cb930255A2882A4B0Db4Responses = {
-    200: unknown;
+    200: PaginatedPermissionResponse;
 };
 
+export type GetPermissions9C8839E73223Cb930255A2882A4B0Db4Response = GetPermissions9C8839E73223Cb930255A2882A4B0Db4Responses[keyof GetPermissions9C8839E73223Cb930255A2882A4B0Db4Responses];
+
 export type PostPermissions9C8839E73223Cb930255A2882A4B0Db4Data = {
-    body?: never;
+    body: CreatePermissionRequest;
     path?: never;
     query?: never;
     url: '/permissions';
@@ -5345,8 +4827,10 @@ export type PostPermissions9C8839E73223Cb930255A2882A4B0Db4Errors = {
 };
 
 export type PostPermissions9C8839E73223Cb930255A2882A4B0Db4Responses = {
-    200: unknown;
+    200: Permission;
 };
+
+export type PostPermissions9C8839E73223Cb930255A2882A4B0Db4Response = PostPermissions9C8839E73223Cb930255A2882A4B0Db4Responses[keyof PostPermissions9C8839E73223Cb930255A2882A4B0Db4Responses];
 
 export type DeletePermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eData = {
     body?: never;
@@ -5432,8 +4916,10 @@ export type DeletePermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eErrors = {
 };
 
 export type DeletePermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponses = {
-    200: unknown;
+    200: MessageResponse;
 };
+
+export type DeletePermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponse = DeletePermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponses[keyof DeletePermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponses];
 
 export type GetPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eData = {
     body?: never;
@@ -5519,11 +5005,13 @@ export type GetPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eErrors = {
 };
 
 export type GetPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponses = {
-    200: unknown;
+    200: Permission;
 };
 
+export type GetPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponse = GetPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponses[keyof GetPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponses];
+
 export type PutPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eData = {
-    body?: never;
+    body: UpdatePermissionRequest;
     path: {
         /**
          * int32
@@ -5606,7 +5094,91 @@ export type PutPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eErrors = {
 };
 
 export type PutPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponses = {
-    200: unknown;
+    200: Permission;
+};
+
+export type PutPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponse = PutPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponses[keyof PutPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eResponses];
+
+export type GetPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44Data = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/permission-sets';
+};
+
+export type PostPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44Data = {
+    body: CreatePermissionSetRequest;
+    path?: never;
+    query?: never;
+    url: '/permission-sets';
+};
+
+export type DeletePermissionSets9F945C97A8E86681C452E5Cc961Ebc33Data = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        permission_set_id: string;
+    };
+    query?: never;
+    url: '/permission-sets/{permission_set_id}';
+};
+
+export type GetPermissionSets9F945C97A8E86681C452E5Cc961Ebc33Data = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        permission_set_id: string;
+    };
+    query?: never;
+    url: '/permission-sets/{permission_set_id}';
+};
+
+export type PutPermissionSets9F945C97A8E86681C452E5Cc961Ebc33Data = {
+    body: UpdatePermissionSetRequest;
+    path: {
+        /**
+         * String
+         */
+        permission_set_id: string;
+    };
+    query?: never;
+    url: '/permission-sets/{permission_set_id}';
+};
+
+export type DeletePermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Data = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        permission_set_id: string;
+        /**
+         * String
+         */
+        permission_id: string;
+    };
+    query?: never;
+    url: '/permission-sets/{permission_set_id}/permissions/{permission_id}';
+};
+
+export type PostPermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Data = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        permission_set_id: string;
+        /**
+         * String
+         */
+        permission_id: string;
+    };
+    query?: never;
+    url: '/permission-sets/{permission_set_id}/permissions/{permission_id}';
 };
 
 export type GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data = {
@@ -6136,277 +5708,6 @@ export type PostStaffE424D8D8De9D3Afdcc732A2A39439017Responses = {
 };
 
 export type PostStaffE424D8D8De9D3Afdcc732A2A39439017Response = PostStaffE424D8D8De9D3Afdcc732A2A39439017Responses[keyof PostStaffE424D8D8De9D3Afdcc732A2A39439017Responses];
-
-export type GetStaffF03984Fe1588A6Deae249087B22C8B64Data = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        staff_id: string;
-    };
-    query?: never;
-    url: '/staff/{staff_id}/roles';
-};
-
-export type GetStaffF03984Fe1588A6Deae249087B22C8B64Errors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetStaffF03984Fe1588A6Deae249087B22C8B64Responses = {
-    200: Array<Role>;
-};
-
-export type GetStaffF03984Fe1588A6Deae249087B22C8B64Response = GetStaffF03984Fe1588A6Deae249087B22C8B64Responses[keyof GetStaffF03984Fe1588A6Deae249087B22C8B64Responses];
-
-export type PostStaffF03984Fe1588A6Deae249087B22C8B64Data = {
-    body: AssignRoleToStaffRequest;
-    path: {
-        /**
-         * String
-         */
-        staff_id: string;
-    };
-    query?: never;
-    url: '/staff/{staff_id}/roles';
-};
-
-export type PostStaffF03984Fe1588A6Deae249087B22C8B64Errors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type PostStaffF03984Fe1588A6Deae249087B22C8B64Responses = {
-    200: MessageResponse;
-};
-
-export type PostStaffF03984Fe1588A6Deae249087B22C8B64Response = PostStaffF03984Fe1588A6Deae249087B22C8B64Responses[keyof PostStaffF03984Fe1588A6Deae249087B22C8B64Responses];
-
-export type DeleteStaff69593B384Ad228D0E4D7Ed86E9F7D937Data = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        staff_id: string;
-        /**
-         * String
-         */
-        role_id: string;
-    };
-    query?: never;
-    url: '/staff/{staff_id}/roles/{role_id}';
-};
-
-export type DeleteStaff69593B384Ad228D0E4D7Ed86E9F7D937Errors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type DeleteStaff69593B384Ad228D0E4D7Ed86E9F7D937Responses = {
-    200: MessageResponse;
-};
-
-export type DeleteStaff69593B384Ad228D0E4D7Ed86E9F7D937Response = DeleteStaff69593B384Ad228D0E4D7Ed86E9F7D937Responses[keyof DeleteStaff69593B384Ad228D0E4D7Ed86E9F7D937Responses];
 
 export type PostStaff545C1F6Bb0D08A4E1Bf2707083425A0fData = {
     body: AssignClassToTeacherRequest;
@@ -7478,6 +6779,50 @@ export type GetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Responses = {
 };
 
 export type GetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Response = GetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Responses[keyof GetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Responses];
+
+export type GetStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2Data = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        staff_id: string;
+    };
+    query?: never;
+    url: '/staff/{staff_id}/permission-sets';
+};
+
+export type DeleteStaff524Cd96166B0B1868B53A942A4154443Data = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        staff_id: string;
+        /**
+         * String
+         */
+        set_id: string;
+    };
+    query?: never;
+    url: '/staff/{staff_id}/permission-sets/{set_id}';
+};
+
+export type PostStaff524Cd96166B0B1868B53A942A4154443Data = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        staff_id: string;
+        /**
+         * String
+         */
+        set_id: string;
+    };
+    query?: never;
+    url: '/staff/{staff_id}/permission-sets/{set_id}';
+};
 
 export type GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data = {
     body?: never;

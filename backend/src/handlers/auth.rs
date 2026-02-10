@@ -10,14 +10,15 @@ use tracing::{info, warn};
 
 use crate::{
     AppState,
-    database::tables::{Role, RoleEnum, User, UserRole},
+    database::tables::{User},
+    database::enums::RoleEnum,
     errors::APIError,
     models::auth::{
         LoginRequest, PasswordReset, PasswordResetRequest, RefreshTokenRequest, RegisterRequest,
         TokenResponse, UserResponse,
     },
     models::MessageResponse,
-    schema::{roles, user_roles, users},
+    schema::{users},
     services::auth::{create_token_pair, hash_password, refresh_jwt, verify_password},
     services::email::EmailService,
     services::session::SessionService,
@@ -57,6 +58,7 @@ pub async fn register(
         id: Uuid::new_v4().to_string(),
         email: body.email.clone(),
         password_hash,
+        role: RoleEnum::Guest,
         google_id: None,
         github_id: None,
         is_verified: false,
@@ -72,20 +74,6 @@ pub async fn register(
 
     diesel::insert_into(users::table)
         .values(&new_user)
-        .execute(&mut conn)?;
-
-    let guest_role = roles::table
-        .filter(roles::name.eq(RoleEnum::Guest.to_string()))
-        .select(Role::as_select())
-        .first::<Role>(&mut conn)?;
-
-    let new_user_role = UserRole {
-        user_id: new_user.id.clone(),
-        role_id: guest_role.id,
-    };
-
-    diesel::insert_into(user_roles::table)
-        .values(&new_user_role)
         .execute(&mut conn)?;
 
     let email_service = EmailService::new(data.config.clone());

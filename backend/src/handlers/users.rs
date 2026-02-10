@@ -10,10 +10,11 @@ use std::collections::HashMap;
 use crate::{
     AppState,
     database::tables::{User},
+    database::enums::RoleEnum,
     errors::APIError,
     models::auth::UserResponse,
     models::MessageResponse,
-    schema::{users, user_roles, roles},
+    schema::{users},
 };
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
@@ -48,7 +49,7 @@ pub struct BulkUpdateRequest {
     pub user_ids: Vec<String>,
     pub is_verified: Option<bool>,
     pub is_locked: Option<bool>,
-    pub roles: Option<Vec<String>>,
+    pub role: Option<RoleEnum>,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
@@ -56,7 +57,7 @@ pub struct UpdateUserRequest {
     pub email: Option<String>,
     pub is_verified: Option<bool>,
     pub is_locked: Option<bool>,
-    pub roles: Option<Vec<String>>,
+    pub role: Option<RoleEnum>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -282,7 +283,7 @@ pub async fn bulk_delete_users(
 
 #[api_operation(
     summary = "Update a user",
-    description = "Updates user status (verification, lockout).",
+    description = "Updates user status (verification, lockout, role).",
     tag = "users"
 )]
 pub async fn update_user(
@@ -317,20 +318,10 @@ pub async fn update_user(
                 .execute(conn)?;
         }
 
-        if let Some(role_names) = &body.roles {
-            diesel::delete(user_roles::table.filter(user_roles::user_id.eq(&id)))
+        if let Some(role) = &body.role {
+            diesel::update(users::table.find(&id))
+                .set(users::role.eq(role.to_string()))
                 .execute(conn)?;
-            
-            for role_name in role_names {
-                let role_id: String = roles::table
-                    .filter(roles::name.eq(role_name))
-                    .select(roles::id)
-                    .first(conn)?;
-                
-                diesel::insert_into(user_roles::table)
-                    .values((user_roles::user_id.eq(&id), user_roles::role_id.eq(role_id)))
-                    .execute(conn)?;
-            }
         }
         Ok(())
     })?;
@@ -340,7 +331,7 @@ pub async fn update_user(
 
 #[api_operation(
     summary = "Bulk update users",
-    description = "Updates multiple users' verification status.",
+    description = "Updates multiple users' status.",
     tag = "users"
 )]
 pub async fn bulk_update_users(
@@ -367,22 +358,10 @@ pub async fn bulk_update_users(
                 .execute(conn)?;
         }
 
-        if let Some(role_names) = &body.roles {
-            let role_ids: Vec<String> = roles::table
-                .filter(roles::name.eq_any(role_names))
-                .select(roles::id)
-                .load(conn)?;
-
-            for user_id in &body.user_ids {
-                diesel::delete(user_roles::table.filter(user_roles::user_id.eq(user_id)))
-                    .execute(conn)?;
-                
-                for r_id in &role_ids {
-                    diesel::insert_into(user_roles::table)
-                        .values((user_roles::user_id.eq(user_id), user_roles::role_id.eq(r_id)))
-                        .execute(conn)?;
-                }
-            }
+        if let Some(role) = &body.role {
+            diesel::update(users::table.filter(users::id.eq_any(&body.user_ids)))
+                .set(users::role.eq(role.to_string()))
+                .execute(conn)?;
         }
         Ok(())
     })?;

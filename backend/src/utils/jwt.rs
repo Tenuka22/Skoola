@@ -11,7 +11,7 @@ use tracing::{info, warn};
 
 use crate::config::AppState;
 use crate::errors::APIError;
-use crate::{database::tables::RoleEnum, services::auth::decode_jwt}; // Import AppState
+use crate::{database::enums::RoleEnum, services::auth::decode_jwt}; // Import AppState
 
 pub struct Authenticated;
 

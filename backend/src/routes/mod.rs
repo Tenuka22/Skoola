@@ -1,5 +1,5 @@
 use crate::{
-    database::tables::RoleEnum,
+    database::enums::{PermissionEnum},
     handlers::{
         academic_year,
         auth::{login, logout, refresh, register, request_password_reset, reset_password},
@@ -15,8 +15,6 @@ use crate::{
             change_email, change_password, get_profile, link_github, link_google, update_profile,
         },
         report_cards,
-        role_permissions::{assign_permission_to_role, unassign_permission_from_role},
-        roles::{bulk_delete_roles, bulk_update_roles, create_role, delete_role, get_role, get_roles, update_role},
         special_exams,
         staff::{
             create_staff, delete_staff, get_all_staff, get_staff_by_id, update_staff,
@@ -28,17 +26,20 @@ use crate::{
             mark_staff_attendance_daily, update_staff_attendance,
         },
         staff_leaves::{apply_for_leave, approve_reject_leave, view_leave_balance},
-        staff_roles::{assign_role_to_staff, get_staff_roles, remove_role_from_staff},
         student, student_attendance, student_class_assignment, student_guardian, student_marks,
         subject,
         teacher_assignments::{
             assign_class_to_teacher, assign_subject_to_teacher, get_teacher_workload,
         },
         terms, timetable,
+        user_permissions::{
+            assign_permission_to_user, get_user_permissions, unassign_permission_from_user,
+        },
+        permission_sets,
         verification::verify_email,
         zscore,
     },
-    utils::{jwt::Authenticated, roles::RoleVerification},
+    utils::{jwt::Authenticated, permission_verification::PermissionVerification},
 };
 use apistos::web;
 
@@ -66,31 +67,9 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/link/github", web::get().to(link_github)),
     )
     .service(
-        web::scope("/roles")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::FullAdmin,
-            })
-            .wrap(Authenticated)
-            .route("", web::get().to(get_roles))
-            .route("", web::post().to(create_role))
-            .route("/{role_id}", web::get().to(get_role))
-            .route("/{role_id}", web::put().to(update_role))
-            .route("/{role_id}", web::delete().to(delete_role))
-            .route(
-                "/{role_id}/permissions/{permission_id}",
-                web::post().to(assign_permission_to_role),
-            )
-            .route(
-                "/{role_id}/permissions/{permission_id}",
-                web::delete().to(unassign_permission_from_role),
-            )
-            .route("/bulk", web::delete().to(bulk_delete_roles))
-            .route("/bulk", web::patch().to(bulk_update_roles)),
-    )
-    .service(
         web::scope("/users")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::FullAdmin,
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::UserManage,
             })
             .wrap(Authenticated)
             .route("", web::get().to(crate::handlers::users::get_all_users))
@@ -98,12 +77,21 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/bulk", web::delete().to(crate::handlers::users::bulk_delete_users))
             .route("/bulk", web::patch().to(crate::handlers::users::bulk_update_users))
             .route("/{user_id}", web::delete().to(crate::handlers::users::delete_user))
-            .route("/{user_id}", web::patch().to(crate::handlers::users::update_user)),
+            .route("/{user_id}", web::patch().to(crate::handlers::users::update_user))
+            .route("/{user_id}/permissions", web::get().to(get_user_permissions))
+            .route(
+                "/{user_id}/permissions/{permission_id}",
+                web::post().to(assign_permission_to_user),
+            )
+            .route(
+                "/{user_id}/permissions/{permission_id}",
+                web::delete().to(unassign_permission_from_user),
+            ),
     )
     .service(
         web::scope("/permissions")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::FullAdmin,
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::PermissionManage,
             })
             .wrap(Authenticated)
             .route("", web::get().to(get_permissions))
@@ -113,9 +101,38 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{permission_id}", web::delete().to(delete_permission)),
     )
     .service(
+        web::scope("/permission-sets")
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::PermissionSetManage,
+            })
+            .wrap(Authenticated)
+            .route("", web::get().to(permission_sets::get_all_permission_sets))
+            .route("", web::post().to(permission_sets::create_permission_set))
+            .route(
+                "/{permission_set_id}",
+                web::get().to(permission_sets::get_permission_set_by_id),
+            )
+            .route(
+                "/{permission_set_id}",
+                web::put().to(permission_sets::update_permission_set),
+            )
+            .route(
+                "/{permission_set_id}",
+                web::delete().to(permission_sets::delete_permission_set),
+            )
+            .route(
+                "/{permission_set_id}/permissions/{permission_id}",
+                web::post().to(permission_sets::assign_permission_to_permission_set),
+            )
+            .route(
+                "/{permission_set_id}/permissions/{permission_id}",
+                web::delete().to(permission_sets::unassign_permission_from_permission_set),
+            ),
+    )
+    .service(
         web::scope("/staff")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin,
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::StaffManage,
             })
             .wrap(Authenticated)
             .route("", web::get().to(get_all_staff))
@@ -124,16 +141,6 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{staff_id}", web::put().to(update_staff))
             .route("/{staff_id}", web::delete().to(delete_staff))
             .route("/{staff_id}/photo", web::post().to(upload_staff_photo))
-            .route("/{staff_id}/roles", web::post().to(assign_role_to_staff))
-            //.route(
-            //    "/{staff_id}/roles",
-            //    apistos::web::put().to(update_staff_roles),
-            //)
-            .route(
-                "/{staff_id}/roles/{role_id}",
-                web::delete().to(remove_role_from_staff),
-            )
-            .route("/{staff_id}/roles", web::get().to(get_staff_roles))
             .route(
                 "/{teacher_id}/classes",
                 web::post().to(assign_class_to_teacher),
@@ -178,12 +185,24 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/{staff_id}/leaves/balance",
                 web::get().to(view_leave_balance),
+            )
+            .route(
+                "/{staff_id}/permission-sets",
+                web::get().to(crate::handlers::permission_sets::get_staff_permission_sets),
+            )
+            .route(
+                "/{staff_id}/permission-sets/{set_id}",
+                web::post().to(crate::handlers::permission_sets::assign_permission_set_to_staff),
+            )
+            .route(
+                "/{staff_id}/permission-sets/{set_id}",
+                web::delete().to(crate::handlers::permission_sets::unassign_permission_set_from_staff),
             ),
     )
     .service(
         web::scope("/students")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin, // Assuming only Admin can create students
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::StudentManage,
             })
             .wrap(Authenticated)
             .route("", web::post().to(student::create_student))
@@ -208,8 +227,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/students/{student_id}/guardians")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin, // Assuming only Admin can manage guardians
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::StudentManageGuardians,
             })
             .wrap(Authenticated)
             .route(
@@ -231,8 +250,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/student-class-assignments")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin, // Assuming only Admin can assign classes
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::StudentManageEnrollment,
             })
             .wrap(Authenticated)
             .route(
@@ -254,8 +273,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/student-attendance")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin, // Assuming Admin or Teacher can mark attendance
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::StudentManageAttendance,
             })
             .wrap(Authenticated)
             .route(
@@ -297,8 +316,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/student-marks")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Teacher,
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::StudentManageMarks,
             })
             .wrap(Authenticated)
             .route("", web::post().to(student_marks::create_student_mark))
@@ -318,8 +337,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/academic-years")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin, // Assuming only Admin can manage academic years
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::AcademicYearManage,
             })
             .wrap(Authenticated)
             .route("", web::post().to(academic_year::create_academic_year))
@@ -342,16 +361,16 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/terms")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin, // Assuming only Admin can manage terms
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::TermManage,
             })
             .wrap(Authenticated)
             .route("", web::post().to(terms::create_term_handler)),
     )
     .service(
         web::scope("/grade-levels")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin, // Assuming only Admin can manage grade levels
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::GradeLevelManage,
             })
             .wrap(Authenticated)
             .route("", web::post().to(grade_level::create_grade_level))
@@ -364,8 +383,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/classes")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin, // Assuming only Admin can manage classes
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::ClassManage,
             })
             .wrap(Authenticated)
             .route("", web::post().to(class::create_class))
@@ -379,8 +398,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/subjects")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin, // Assuming only Admin can manage subjects
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::SubjectManage,
             })
             .wrap(Authenticated)
             .route("", web::post().to(subject::create_subject))
@@ -409,8 +428,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/class-subject-teachers")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin, // Assuming only Admin can manage assignments
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::ClassSubjectTeacherManage,
             })
             .wrap(Authenticated)
             .route(
@@ -436,8 +455,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/timetables")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin, // Assuming only Admin can manage timetables
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::TimetableManage,
             })
             .wrap(Authenticated)
             .route("", web::post().to(timetable::create_timetable_entry))
@@ -455,8 +474,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/exam-types")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin, // Assuming Admin can manage exam types
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::ExamTypeManage,
             })
             .wrap(Authenticated)
             .route("", web::post().to(exam_types::create_exam_type))
@@ -469,8 +488,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/exams")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin, // Assuming Admin can manage exams
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::ExamManage,
             })
             .wrap(Authenticated)
             .route("", web::post().to(exams::create_exam))
@@ -487,8 +506,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/exam-subjects")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin,
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::ExamSubjectManage,
             })
             .wrap(Authenticated)
             .route("", web::post().to(exam_subjects::create_exam_subject))
@@ -520,8 +539,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         apistos::web::scope("/grading-schemes")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin,
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::GradingSchemeManage,
             })
             .wrap(Authenticated)
             .route(
@@ -552,8 +571,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         apistos::web::scope("/grading-criteria")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin,
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::GradingCriterionManage,
             })
             .wrap(Authenticated)
             .route(
@@ -575,8 +594,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         apistos::web::scope("/grading-schemes/{scheme_id}/criteria")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin,
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::GradingSchemeManage,
             })
             .wrap(Authenticated)
             .route(
@@ -594,8 +613,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     // Library Management Routes
     cfg.service(
         apistos::web::scope("/library")
-            .wrap(RoleVerification {
-                required_role: RoleEnum::Admin,
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::LibraryManage,
             })
             .wrap(Authenticated)
             // Category routes
@@ -703,7 +722,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/stats",
                 apistos::web::get().to(crate::handlers::library::get_library_stats),
-            ),
+            )
     );
 
     cfg.configure(crate::handlers::property::config);

@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminPermissionsRouteImport } from './routes/admin/permissions'
 import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as authProfileRouteImport } from './routes/(auth)/profile'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
@@ -43,6 +44,11 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPermissionsRoute = AdminPermissionsRouteImport.update({
+  id: '/permissions',
+  path: '/permissions',
+  getParentRoute: () => AdminRoute,
+} as any)
 const authSignUpRoute = authSignUpRouteImport.update({
   id: '/(auth)/sign-up',
   path: '/sign-up',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
   '/profile': typeof authProfileRoute
   '/sign-up': typeof authSignUpRoute
+  '/admin/permissions': typeof AdminPermissionsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/profile': typeof authProfileRoute
   '/sign-up': typeof authSignUpRoute
+  '/admin/permissions': typeof AdminPermissionsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin': typeof AdminIndexRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/profile': typeof authProfileRoute
   '/(auth)/sign-up': typeof authSignUpRoute
+  '/admin/permissions': typeof AdminPermissionsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/sign-up'
+    | '/admin/permissions'
     | '/admin/settings'
     | '/admin/users'
     | '/admin/'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/sign-up'
+    | '/admin/permissions'
     | '/admin/settings'
     | '/admin/users'
     | '/admin'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/(auth)/login'
     | '/(auth)/profile'
     | '/(auth)/sign-up'
+    | '/admin/permissions'
     | '/admin/settings'
     | '/admin/users'
     | '/admin/'
@@ -166,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/permissions': {
+      id: '/admin/permissions'
+      path: '/permissions'
+      fullPath: '/admin/permissions'
+      preLoaderRoute: typeof AdminPermissionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/(auth)/sign-up': {
       id: '/(auth)/sign-up'
       path: '/sign-up'
@@ -191,12 +210,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminPermissionsRoute: typeof AdminPermissionsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminPermissionsRoute: AdminPermissionsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
