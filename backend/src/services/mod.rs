@@ -29,3 +29,5 @@ pub mod financial;
 pub mod permissions;
 pub mod staff;
 pub mod user_service;
+pub mod permission_sets_service;
+pub mod user_permissions;

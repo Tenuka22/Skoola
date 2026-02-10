@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Shield01Icon, Loading03Icon, UserGroupIcon, Add01Icon, Delete02Icon, SparklesIcon } from '@hugeicons/core-free-icons'
 import { PermissionManager } from './permission-manager'
-import { fetchPermissions /*, assignPermissionSetToUser, unassignPermissionSetFromUser */ } from '../api'
+import { fetchPermissions, assignPermissionToUser, unassignPermissionFromUser } from '../api'
 import { toast } from 'sonner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
@@ -42,15 +42,15 @@ export function UserBulkPermissionsDialog({
   const handleApply = async () => {
     setIsProcessing(true)
     try {
-      // Add permissions - commented out due to lack of direct API support for user permission sets
-      // for (const userId of userIds) {
-      //   for (const permId of selectedAddIds) {
-      //     await assignPermissionSetToUser(userId, permId.toString())
-      //   }
-      //   for (const permId of selectedRemoveIds) {
-      //     await unassignPermissionSetFromUser(userId, permId.toString())
-      //   }
-      // }
+      // Add permissions
+      for (const userId of userIds) {
+        for (const permId of selectedAddIds) {
+          await assignPermissionToUser(userId, permId)
+        }
+        for (const permId of selectedRemoveIds) {
+          await unassignPermissionFromUser(userId, permId)
+        }
+      }
       toast.success(`Security mesh updated for ${userIds.length} users`)
       queryClient.invalidateQueries({ queryKey: ['user-permissions'] })
       onOpenChange(false)

@@ -121,6 +121,10 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 web::delete().to(permission_sets::delete_permission_set),
             )
             .route(
+                "/{permission_set_id}/permissions",
+                web::get().to(permission_sets::get_permissions_by_permission_set),
+            )
+            .route(
                 "/{permission_set_id}/permissions/{permission_id}",
                 web::post().to(permission_sets::assign_permission_to_permission_set),
             )

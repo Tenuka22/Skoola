@@ -1029,7 +1029,7 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for PermissionSeverity {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq, Eq, Hash)]
 #[diesel(sql_type = Text)]
 pub enum PermissionEnum {
     // User Permissions

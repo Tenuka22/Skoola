@@ -71,8 +71,8 @@ export function RoleList() {
           <div key={permissionSet.id} className="space-y-6">
             <RoleCard
               permissionSet={permissionSet}
-              userCount={Math.floor(Math.random() * 10) + 1} // Placeholder
-              permissionCount={Math.floor(Math.random() * 5) + 5} // Placeholder
+              userCount={0}
+              permissionCount={0}
               onManage={handleManage}
               onDelete={() => deleteMutation.mutate(permissionSet.id)}
             />

@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useQuery /*, useMutation, useQueryClient */ } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Dialog,
   DialogContent,
@@ -9,11 +9,11 @@ import {
 import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { UserIcon, Loading03Icon, Shield01Icon } from '@hugeicons/core-free-icons'
-// import { PermissionManager } from './permission-manager' // Commented out as PermissionManager is not used in the current state
-import { fetchPermissionSets, getStaffPermissionSets /*, fetchUserPermissions, assignPermissionToUser, unassignPermissionFromUser, assignPermissionSetToUser, unassignPermissionSetFromUser */ } from '../api'
+import { PermissionManager } from './permission-manager'
+import { fetchPermissionSets, getStaffPermissionSets, fetchUserPermissions, assignPermissionToUser, unassignPermissionFromUser, fetchPermissions } from '../api'
 // import type { PermissionSet } from '../types' // Commented out as PermissionSet is not used in the current state
 // import { PermissionSet } from '@/lib/api/types.gen' // This import is no longer needed as PermissionSet is from ../types
-// import { toast } from 'sonner' // Commented out as toast is not used in the current state
+import { toast } from 'sonner'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 // import { Badge } from '@/components/ui/badge' // Commented out as Badge is not used in the current state
 // import { cn } from '@/lib/utils' // Commented out as cn is not used in the current state
@@ -31,13 +31,13 @@ export function UserPermissionsDialog({
   open,
   onOpenChange,
 }: UserPermissionsDialogProps) {
-  // const queryClient = useQueryClient() // Commented out as queryClient is not used in the current state
+  const queryClient = useQueryClient()
   
-  // const { data: allPermissions } = useQuery({
-  //   queryKey: ['permissions'],
-  //   queryFn: fetchPermissions,
-  //   enabled: open,
-  // })
+  const { data: allPermissions } = useQuery({
+    queryKey: ['permissions'],
+    queryFn: fetchPermissions,
+    enabled: open,
+  })
 
   const { data: allPermissionSets } = useQuery({
     queryKey: ['permission-sets'],
@@ -51,47 +51,47 @@ export function UserPermissionsDialog({
     enabled: !!user && open,
   })
 
-  // Direct permissions are currently not supported via a dedicated API endpoint
-  // const { data: directPermissions, isLoading: isLoadingDirect } = useQuery({
-  //   queryKey: ['user-permissions', user?.id],
-  //   queryFn: () => user ? fetchUserPermissions(user.id) : [],
-  //   enabled: !!user && open,
-  // })
+  // Direct permissions are currently supported via a dedicated API endpoint
+  const { data: directPermissions, isLoading: isLoadingDirect } = useQuery({
+    queryKey: ['user-permissions', user?.id],
+    queryFn: () => user ? fetchUserPermissions(user.id) : [],
+    enabled: !!user && open,
+  })
 
-  // const directIds = React.useMemo(
-  //   () => directPermissions?.map((p) => p.id) || [],
-  //   [directPermissions],
-  // )
+  const directIds = React.useMemo(
+    () => directPermissions?.map((p) => p.id) || [],
+    [directPermissions],
+  )
 
   const userPermissionSetIds = React.useMemo(
     () => userPermissionSets?.map((ps) => ps.id) || [],
     [userPermissionSets],
   )
 
-  // Mutation for direct permissions - commented out due to lack of direct API support
-  // const mutation = useMutation({
-  //   mutationFn: async ({
-  //     permissionId,
-  //     isEnabled,
-  //   }: {
-  //     permissionId: number
-  //     isEnabled: boolean
-  //   }) => {
-  //     if (!user) return
-  //     if (isEnabled) {
-  //       return assignPermissionToUser(user.id, permissionId)
-  //     } else {
-  //       return unassignPermissionFromUser(user.id, permissionId)
-  //     }
-  //   },
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({ queryKey: ['user-direct-permissions', user?.id] })
-  //     toast.success('User permissions updated')
-  //   },
-  //   onError: () => {
-  //     toast.error('Failed to update user permissions')
-  //   },
-  // })
+  // Mutation for direct permissions
+  const mutation = useMutation({
+    mutationFn: async ({
+      permissionId,
+      isEnabled,
+    }: {
+      permissionId: number
+      isEnabled: boolean
+    }) => {
+      if (!user) return
+      if (isEnabled) {
+        return assignPermissionToUser(user.id, permissionId)
+      } else {
+        return unassignPermissionFromUser(user.id, permissionId)
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-permissions', user?.id] })
+      toast.success('User permissions updated')
+    },
+    onError: () => {
+      toast.error('Failed to update user permissions')
+    },
+  })
 
   // Mutation for role-based permission sets - commented out due to lack of direct API support for user permission sets
   // const roleMutation = useMutation({
@@ -175,13 +175,18 @@ export function UserPermissionsDialog({
               </AccordionContent>
             </AccordionItem>
 
-            {/* Direct Overrides section - commented out due to lack of direct API support for user permissions */}
+            {/* Direct Overrides section */}
             <AccordionItem value="current" className="border-none">
               <AccordionTrigger className="hover:no-underline py-3 px-4 rounded-xl bg-muted/50 font-black text-[10px] uppercase tracking-widest">
-                Active Overrides (0)
+                Active Overrides ({directPermissions?.length || 0})
               </AccordionTrigger>
               <AccordionContent className="pt-4 px-1 space-y-2 max-h-[40vh] overflow-y-auto custom-scrollbar">
-                <p className="text-[10px] italic opacity-50 text-center py-8">Direct overrides functionality temporarily disabled</p>
+                {directPermissions?.map((permission) => (
+                  <div key={permission.id} className="flex items-center justify-between p-3 rounded-xl bg-background/50 ring-1 ring-border">
+                    <span className="text-[10px] font-bold">{permission.name}</span>
+                    <div className="size-1.5 rounded-full bg-orange-500 animate-pulse" />
+                  </div>
+                ))}
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -210,16 +215,18 @@ export function UserPermissionsDialog({
           </div>
 
           <div className="flex-1">
-            {/* Permission Manager - direct permission toggling temporarily disabled */}
-            <div className="flex flex-col items-center justify-center py-24 gap-4">
-              <HugeiconsIcon icon={Loading03Icon} className="size-10 animate-spin text-primary" />
-              <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Direct permission management temporarily disabled</p>
-            </div>
-            {/* <PermissionManager
-              permissions={allPermissions || []}
-              assignedPermissionIds={directIds}
-              onToggle={(id, enabled) => mutation.mutate({ permissionId: id, isEnabled: enabled })}
-            /> */}
+            {isLoadingDirect ? (
+              <div className="flex flex-col items-center justify-center py-24 gap-4">
+                <HugeiconsIcon icon={Loading03Icon} className="size-10 animate-spin text-primary" />
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Loading permission matrix...</p>
+              </div>
+            ) : (
+              <PermissionManager
+                permissions={allPermissions || []}
+                assignedPermissionIds={directIds}
+                onToggle={(id, enabled) => mutation.mutate({ permissionId: id, isEnabled: enabled })}
+              />
+            )}
           </div>
 
           <div className="mt-10 flex justify-end gap-3 border-t pt-8">

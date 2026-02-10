@@ -11,7 +11,7 @@ use tracing::{info, warn};
 
 use crate::config::AppState;
 use crate::errors::APIError;
-use crate::{database::enums::RoleEnum, services::auth::decode_jwt}; // Import AppState
+use crate::{database::enums::{PermissionEnum, RoleEnum}, services::auth::decode_jwt, services::user_permissions::get_all_user_permissions};
 
 pub struct Authenticated;
 
@@ -52,12 +52,10 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let srv = self.service.clone();
+        let app_state = req.app_data::<web::Data<AppState>>().cloned();
 
         Box::pin(async move {
-            let app_state = req
-                .app_data::<web::Data<AppState>>()
-                .ok_or_else(|| APIError::internal("Application state not found"))
-                ?;
+            let app_state = app_state.ok_or_else(|| APIError::internal("Application state not found"))?;
             let config = app_state.config.clone();
 
             let token = req
@@ -75,12 +73,17 @@ where
                             .iter()
                             .map(|r| r.parse::<RoleEnum>().unwrap_or(RoleEnum::Guest))
                             .collect();
+                        
+                        // Fetch all permissions for the user
+                        let user_permissions = get_all_user_permissions(app_state.clone(), &user_id).await?;
+
                         info!(
-                            "ACTION: JWT decoded successfully | user_id: {} | roles: {:?}",
-                            user_id, user_roles
+                            "ACTION: JWT decoded successfully | user_id: {} | roles: {:?} | permissions: {:?}",
+                            user_id, user_roles, user_permissions
                         );
                         req.extensions_mut().insert(UserId(user_id));
                         req.extensions_mut().insert(UserRoles(user_roles));
+                        req.extensions_mut().insert(UserPermissions(user_permissions));
                         srv.call(req).await
                     }
                     Err(e) => {
@@ -140,6 +143,28 @@ impl FromRequest for UserRoles {
                     "ACTION: Failed to extract UserRoles from request extensions, defaulting to Guest."
                 );
                 ok(UserRoles(vec![RoleEnum::Guest]))
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, ApiComponent, JsonSchema)]
+pub struct UserPermissions(pub Vec<PermissionEnum>);
+
+impl FromRequest for UserPermissions {
+    type Error = Error;
+    type Future = Ready<Result<Self, Self::Error>>;
+
+    fn from_request(
+        req: &actix_web::HttpRequest,
+        _payload: &mut actix_web::dev::Payload,
+    ) -> Self::Future {
+        let extensions = req.extensions();
+        match extensions.get::<UserPermissions>() {
+            Some(user_permissions) => ok(user_permissions.clone()),
+            None => {
+                warn!("ACTION: Failed to extract UserPermissions from request extensions.");
+                err(APIError::internal("Failed to retrieve user permissions").into())
             }
         }
     }

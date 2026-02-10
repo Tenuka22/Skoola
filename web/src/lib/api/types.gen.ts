@@ -5149,6 +5149,93 @@ export type PutPermissionSets9F945C97A8E86681C452E5Cc961Ebc33Data = {
     url: '/permission-sets/{permission_set_id}';
 };
 
+export type GetPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0Data = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        permission_set_id: string;
+    };
+    query?: never;
+    url: '/permission-sets/{permission_set_id}/permissions';
+};
+
+export type GetPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0Responses = {
+    200: unknown;
+};
+
 export type DeletePermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Data = {
     body?: never;
     path: {
@@ -5157,12 +5244,87 @@ export type DeletePermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Data = {
          */
         permission_set_id: string;
         /**
-         * String
+         * int32
          */
-        permission_id: string;
+        permission_id: number;
     };
     query?: never;
     url: '/permission-sets/{permission_set_id}/permissions/{permission_id}';
+};
+
+export type DeletePermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeletePermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Responses = {
+    200: unknown;
 };
 
 export type PostPermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Data = {
@@ -5173,12 +5335,87 @@ export type PostPermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Data = {
          */
         permission_set_id: string;
         /**
-         * String
+         * int32
          */
-        permission_id: string;
+        permission_id: number;
     };
     query?: never;
     url: '/permission-sets/{permission_set_id}/permissions/{permission_id}';
+};
+
+export type PostPermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Errors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type PostPermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Responses = {
+    200: unknown;
 };
 
 export type GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data = {

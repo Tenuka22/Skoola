@@ -122,6 +122,14 @@ pub struct PermissionSetPermission {
     pub permission_id: i32,
 }
 
+#[derive(Debug, Insertable)]
+#[diesel(table_name = permission_set_permissions)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct NewPermissionSetPermission {
+    pub permission_set_id: String,
+    pub permission_id: i32,
+}
+
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
 #[diesel(table_name = user_sets)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]

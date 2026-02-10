@@ -4026,11 +4026,19 @@ export const zPutPermissionSets9F945C97A8E86681C452E5Cc961Ebc33Data = z.object({
     query: z.optional(z.never())
 });
 
+export const zGetPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0Data = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        permission_set_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
 export const zDeletePermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Data = z.object({
     body: z.optional(z.never()),
     path: z.object({
         permission_set_id: z.string(),
-        permission_id: z.string()
+        permission_id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
     }),
     query: z.optional(z.never())
 });
@@ -4039,7 +4047,7 @@ export const zPostPermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Data = z.object(
     body: z.optional(z.never()),
     path: z.object({
         permission_set_id: z.string(),
-        permission_id: z.string()
+        permission_id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
     }),
     query: z.optional(z.never())
 });

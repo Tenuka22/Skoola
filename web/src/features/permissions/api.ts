@@ -14,6 +14,9 @@ import {
   postStaff524Cd96166B0B1868B53A942A4154443 as assignPermissionSetToStaffApi,
   deleteStaff524Cd96166B0B1868B53A942A4154443 as unassignPermissionSetFromStaffApi,
   getStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2 as getStaffPermissionSetsApi,
+  getUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92C as getUsersPermissionsApi,
+  postUsers069Bc83C67Aeddbeed75C9632Ba56B82 as assignPermissionToUserApi,
+  deleteUsers069Bc83C67Aeddbeed75C9632Ba56B82 as unassignPermissionFromUserApi,
 } from '@/lib/api/sdk.gen'
 import type { PermissionSet } from './types'
 import type { Permission } from '@/lib/api/types.gen'
@@ -82,14 +85,14 @@ export const deletePermissionSet = async (setId: string) => {
 export const assignPermissionToPermissionSet = async (setId: string, permissionId: number) => {
   return assignPermissionToPermissionSetApi({
     client: authClient,
-    path: { permission_set_id: setId, permission_id: permissionId.toString() },
+    path: { permission_set_id: setId, permission_id: permissionId },
   })
 }
 
 export const unassignPermissionFromPermissionSet = async (setId: string, permissionId: number) => {
   return unassignPermissionFromPermissionSetApi({
     client: authClient,
-    path: { permission_set_id: setId, permission_id: permissionId.toString() },
+    path: { permission_set_id: setId, permission_id: permissionId },
   })
 }
 
@@ -145,3 +148,25 @@ export const getUserPermissionSets = async (userId: string) => {
   return response.data as PermissionSet[]
 }
 */
+
+export const fetchUserPermissions = async (userId: string) => {
+  const response = await getUsersPermissionsApi({
+    client: authClient,
+    path: { user_id: userId },
+  })
+  return (response.data as any)?.data as Permission[]
+}
+
+export const assignPermissionToUser = async (userId: string, permissionId: number) => {
+  return assignPermissionToUserApi({
+    client: authClient,
+    path: { user_id: userId, permission_id: permissionId },
+  })
+}
+
+export const unassignPermissionFromUser = async (userId: string, permissionId: number) => {
+  return unassignPermissionFromUserApi({
+    client: authClient,
+    path: { user_id: userId, permission_id: permissionId },
+  })
+}
