@@ -2538,6 +2538,17 @@ export const zStaffResponse = z.object({
     updated_at: z.string()
 });
 
+/**
+ * PaginatedStaffResponse
+ */
+export const zPaginatedStaffResponse = z.object({
+    data: z.array(zStaffResponse),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+});
+
 export const zStudentAchievement = z.object({
     achievement_type: z.string(),
     certificate_url: z.optional(z.union([
@@ -4056,11 +4067,35 @@ export const zGetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
+        created_after: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        created_before: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
         employment_status: z.optional(z.union([
             zEmploymentStatus,
             z.null()
         ])),
+        limit: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        page: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
         search: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        sort_by: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        sort_order: z.optional(z.union([
             z.string(),
             z.null()
         ])),
@@ -4071,7 +4106,7 @@ export const zGetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data = z.object({
     }))
 });
 
-export const zGetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Response = z.array(zStaffResponse);
+export const zGetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Response = zPaginatedStaffResponse;
 
 export const zPostStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data = z.object({
     body: zCreateStaffRequest,

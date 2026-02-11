@@ -1581,6 +1581,17 @@ export type PaginatedPermissionResponse = {
 };
 
 /**
+ * PaginatedStaffResponse
+ */
+export type PaginatedStaffResponse = {
+    data: Array<StaffResponse>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
  * PaginatedStudentResponse
  */
 export type PaginatedStudentResponse = {
@@ -5422,8 +5433,14 @@ export type GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data = {
     body?: never;
     path?: never;
     query?: {
+        created_after?: string | null;
+        created_before?: string | null;
         employment_status?: EmploymentStatus | null;
+        limit?: number | null;
+        page?: number | null;
         search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
         staff_type?: StaffType | null;
     };
     url: '/staff';
@@ -5501,7 +5518,7 @@ export type GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Errors = {
 };
 
 export type GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Responses = {
-    200: Array<StaffResponse>;
+    200: PaginatedStaffResponse;
 };
 
 export type GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Response = GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Responses[keyof GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Responses];

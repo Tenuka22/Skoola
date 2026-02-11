@@ -13,6 +13,12 @@ pub struct StaffQuery {
     pub search: Option<String>,
     pub employment_status: Option<EmploymentStatus>,
     pub staff_type: Option<StaffType>,
+    pub created_after: Option<String>,
+    pub created_before: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -91,4 +97,13 @@ impl From<Staff> for StaffResponse {
             updated_at: staff.updated_at,
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct PaginatedStaffResponse {
+    pub total: i64,
+    pub page: i64,
+    pub limit: i64,
+    pub total_pages: i64,
+    pub data: Vec<StaffResponse>,
 }

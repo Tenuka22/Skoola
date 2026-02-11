@@ -2,7 +2,7 @@ use actix_web::web;
 use apistos::{api_operation, ApiComponent};
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::Utc;
+use chrono::{Utc, NaiveDateTime}; // Added NaiveDateTime
 use actix_multipart::Multipart;
 use futures_util::stream::{StreamExt, TryStreamExt};
 use std::io::Write;
@@ -15,7 +15,7 @@ use crate::{
     AppState,
     database::tables::{Staff},
     errors::APIError,
-    models::staff::{CreateStaffRequest, StaffChangeset, UpdateStaffRequest, StaffResponse, StaffQuery},
+    models::staff::{CreateStaffRequest, StaffChangeset, UpdateStaffRequest, StaffResponse, StaffQuery, PaginatedStaffResponse},
     models::MessageResponse,
     schema::staff,
     utils::validation::{is_valid_email, is_valid_nic, is_valid_phone},
@@ -107,30 +107,91 @@ pub async fn upload_staff_photo(
 pub async fn get_all_staff(
     data: web::Data<AppState>,
     query: web::Query<StaffQuery>,
-) -> Result<Json<Vec<StaffResponse>>, APIError> {
+) -> Result<Json<PaginatedStaffResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let mut staff_query = staff::table.into_boxed();
+    let mut data_query = staff::table.into_boxed();
+    let mut count_query = staff::table.into_boxed();
 
-    if let Some(search) = &query.search {
-        staff_query = staff_query.filter(
-            staff::name.like(format!("%{}%", search))
-                .or(staff::employee_id.like(format!("%{}%", search)))
+    if let Some(search_term) = &query.search {
+        let pattern = format!("%{}%", search_term);
+        data_query = data_query.filter(
+            staff::name.like(pattern.clone())
+                .or(staff::employee_id.like(pattern.clone()))
+                .or(staff::nic.like(pattern.clone()))
+                .or(staff::email.like(pattern.clone()))
+                .or(staff::phone.like(pattern.clone()))
+                .or(staff::address.like(pattern.clone()))
+        );
+        count_query = count_query.filter(
+            staff::name.like(pattern.clone())
+                .or(staff::employee_id.like(pattern.clone()))
+                .or(staff::nic.like(pattern.clone()))
+                .or(staff::email.like(pattern.clone()))
+                .or(staff::phone.like(pattern.clone()))
+                .or(staff::address.like(pattern.clone()))
         );
     }
 
     if let Some(employment_status) = &query.employment_status {
-        staff_query = staff_query.filter(staff::employment_status.eq(employment_status.clone()));
+        data_query = data_query.filter(staff::employment_status.eq(employment_status.clone()));
+        count_query = count_query.filter(staff::employment_status.eq(employment_status.clone()));
     }
 
     if let Some(staff_type) = &query.staff_type {
-        staff_query = staff_query.filter(staff::staff_type.eq(staff_type.clone()));
+        data_query = data_query.filter(staff::staff_type.eq(staff_type.clone()));
+        count_query = count_query.filter(staff::staff_type.eq(staff_type.clone()));
     }
 
-    let staff_list = staff_query
+    if let Some(after_str) = &query.created_after {
+        if let Ok(after) = NaiveDateTime::parse_from_str(&format!("{} 00:00:00", after_str), "%Y-%m-%d %H:%M:%S") {
+            data_query = data_query.filter(staff::created_at.ge(after));
+            count_query = count_query.filter(staff::created_at.ge(after));
+        }
+    }
+    if let Some(before_str) = &query.created_before {
+        if let Ok(before) = NaiveDateTime::parse_from_str(&format!("{} 23:59:59", before_str), "%Y-%m-%d %H:%M:%S") {
+            data_query = data_query.filter(staff::created_at.le(before));
+            count_query = count_query.filter(staff::created_at.le(before));
+        }
+    }
+
+    let total_staff_count = count_query
+        .count()
+        .get_result::<i64>(&mut conn)?;
+
+    let page = query.page.unwrap_or(1);
+    let limit = query.limit.unwrap_or(10);
+    let offset = (page - 1) * limit;
+
+    let sort_col = query.sort_by.as_deref().unwrap_or("created_at");
+    let sort_order = query.sort_order.as_deref().unwrap_or("desc");
+
+    data_query = match (sort_col, sort_order) {
+        ("name", "asc") => data_query.order(staff::name.asc()),
+        ("name", "desc") => data_query.order(staff::name.desc()),
+        ("employee_id", "asc") => data_query.order(staff::employee_id.asc()),
+        ("employee_id", "desc") => data_query.order(staff::employee_id.desc()),
+        ("email", "asc") => data_query.order(staff::email.asc()),
+        ("email", "desc") => data_query.order(staff::email.desc()),
+        ("created_at", "asc") => data_query.order(staff::created_at.asc()),
+        _ => data_query.order(staff::created_at.desc()),
+    };
+
+    let staff_list = data_query
+        .limit(limit)
+        .offset(offset)
         .select(Staff::as_select())
         .load::<Staff>(&mut conn)?;
 
-    Ok(Json(staff_list.into_iter().map(StaffResponse::from).collect::<Vec<_>>()))
+    let total_pages = (total_staff_count as f64 / limit as f64).ceil() as i64;
+
+    Ok(Json(PaginatedStaffResponse {
+        total: total_staff_count,
+        page,
+        limit,
+        total_pages,
+        data: staff_list.into_iter().map(StaffResponse::from).collect(),
+    }))
 }
 
 #[api_operation(

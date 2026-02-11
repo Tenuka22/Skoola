@@ -823,6 +823,35 @@ export const getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Options = (options?: Option
     queryKey: getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857QueryKey(options)
 });
 
+export const getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857InfiniteQueryKey = (options?: Options<GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data>): QueryKey<Options<GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data>> => createQueryKey('getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857', options, true);
+
+/**
+ * Get all staff members
+ *
+ * Returns a list of all staff members with pagination, search, and filtering.
+ */
+export const getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857InfiniteOptions = (options?: Options<GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data>) => infiniteQueryOptions<GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Response, DefaultError, InfiniteData<GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Response>, QueryKey<Options<GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data>>, number | null | Pick<QueryKey<Options<GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+// @ts-ignore
+{
+    queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<QueryKey<Options<GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+            query: {
+                page: pageParam
+            }
+        };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857({
+            ...options,
+            ...params,
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857InfiniteQueryKey(options)
+});
+
 /**
  * Create a new staff member
  *

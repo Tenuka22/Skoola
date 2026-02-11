@@ -4627,6 +4627,42 @@ export const PaginatedPermissionResponseSchema = {
     }
 } as const;
 
+export const PaginatedStaffResponseSchema = {
+    title: 'PaginatedStaffResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/StaffResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
 export const PaginatedStudentResponseSchema = {
     title: 'PaginatedStudentResponse',
     type: 'object',
