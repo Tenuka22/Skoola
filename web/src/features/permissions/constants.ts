@@ -1,19 +1,19 @@
-import type { PermissionEnum, PermissionSeverity } from '@/lib/api/types.gen'
+import {
+  PermissionEnumSchema,
+  PermissionSeveritySchema,
+} from '@/lib/api/schemas.gen'
+import type { RoleEnum } from '@/lib/api/types.gen'
 
-export const PERMISSION_NAMES: Array<PermissionEnum> = [
-  'UserCreate', 'UserRead', 'UserUpdate', 'UserDelete', 'UserManage',
-  'UserManageRoles', 'UserManagePermissions', 'RoleCreate', 'RoleRead',
-  'RoleUpdate', 'RoleDelete', 'RoleManage', 'RoleAssignPermissions',
-  'PermissionCreate', 'PermissionRead', 'PermissionUpdate', 'PermissionDelete',
-  'PermissionManage', 'PermissionSetManage', 'StaffCreate', 'StaffRead',
-  'StaffUpdate', 'StaffDelete', 'StaffManage', 'StaffManageAttendance',
-  'StaffManageLeaves', 'StudentCreate', 'StudentRead', 'StudentUpdate',
-  'StudentDelete', 'StudentManage', 'StudentManageGuardians',
-  'StudentManageEnrollment', 'StudentManageAttendance', 'StudentManageMarks',
-  'AcademicYearManage', 'TermManage', 'GradeLevelManage', 'ClassManage',
-  'SubjectManage', 'ClassSubjectTeacherManage', 'TimetableManage',
-  'ExamTypeManage', 'ExamManage', 'ExamSubjectManage', 'GradingSchemeManage',
-  'GradingCriterionManage', 'LibraryManage', 'UserUpdateMedium', 'UserDeleteSevere'
-]
+export const AdminRoutesAllowedRoles = [
+  'Admin',
+  'FullAdmin',
+  'Principal',
+  'VicePrincipal',
+  'Accountant',
+] satisfies RoleEnum[] as RoleEnum[]
 
-export const PERMISSION_SEVERITIES: Array<PermissionSeverity> = ['Low', 'Medium', 'High', 'Severe']
+export const PERMISSION_NAMES = PermissionEnumSchema.enum
+export const PERMISSION_SEVERITIES = PermissionSeveritySchema.enum
+
+export const AUTH_COOKIE_NAME = 'skoola_auth'
+export const AUTH_COOKIE_TTL = 30 * 24 * 60 * 60

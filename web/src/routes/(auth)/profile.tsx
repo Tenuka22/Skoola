@@ -1,15 +1,12 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import * as React from 'react'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon, UserIcon } from '@hugeicons/core-free-icons'
+import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { useMutation } from '@tanstack/react-query'
-import { useServerFn } from '@tanstack/react-start'
-import type { AuthStorage, Session } from '@/lib/auth/session'
 import {
   getActiveSessionServer,
   getAuthStorageServer,
-  switchUserServer,
 } from '@/lib/auth/session'
+import { AccountSwitcher } from '@/features/auth/components/account-switcher'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -20,15 +17,6 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { logoutFn } from '@/lib/auth/actions'
 import {
   Empty,
@@ -37,98 +25,75 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@/components/ui/empty'
-import {
-  getUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92C as getUserPermissionsApi,
-} from '@/lib/api/sdk.gen' // Import the API function
-import { authClient } from '@/lib/clients' // Import authClient
-import { Badge } from '@/components/ui/badge' // Assuming a Badge component exists for displaying permissions
+import { getUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92C as getUserPermissionsApi } from '@/lib/api/sdk.gen'
+import { authClient } from '@/lib/clients'
+import { Badge } from '@/components/ui/badge'
 
 export const Route = createFileRoute('/(auth)/profile')({
   component: ProfilePage,
-})
+  loader: async () => {
+    try {
+      const activeSession = await getActiveSessionServer()
+      const authStorage = await getAuthStorageServer()
 
-interface UserPermission {
-  id: number // Corrected type to number
-  name: string
-  // Add other properties if available in the API response for permissions
-}
-
-// Type predicate to validate if an item is a UserPermission
-function isUserPermission(item: any): item is UserPermission {
-  return (
-    typeof item === 'object' &&
-    item !== null &&
-    'id' in item &&
-    typeof item.id === 'number' && // Check for number type
-    'name' in item &&
-    typeof item.name === 'string'
-  );
-}
-
-function ProfilePage() {
-  const navigate = useNavigate()
-  const [session, setSession] = React.useState<Session | null>(null)
-  const [storage, setStorage] = React.useState<AuthStorage | null>(null)
-  const [otherSessions, setOtherSessions] = React.useState<Array<Session>>([])
-  const [permissions, setPermissions] = React.useState<Array<UserPermission>>([]) // State for permissions
-
-  const logoutServerFn = useServerFn(logoutFn)
-  const { mutate, isPending } = useMutation({
-    mutationFn: logoutServerFn,
-  })
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const activeSession = await getActiveSessionServer()
-        setSession(activeSession)
-        const authStorage = await getAuthStorageServer()
-        setStorage(authStorage)
-
-        if (authStorage && activeSession) {
-          const others = Object.values(authStorage.sessions).filter(
-            (s) => s.user.id !== activeSession.user.id,
+      const otherSessions = authStorage
+        ? Object.values(authStorage.sessions).filter(
+            (s) => s.user.id !== activeSession?.user.id,
           )
-          setOtherSessions(others)
+        : []
 
-          // Fetch permissions if user is logged in
-          if (activeSession.user?.id) {
-            const userPermissionsResponse = await getUserPermissionsApi({
-              path: { user_id: activeSession.user.id }, // Correctly pass user_id as a path parameter
-              client: authClient,
-            })
-            // userPermissionsResponse.data is directly the array of permissions
-            if (userPermissionsResponse.data && Array.isArray(userPermissionsResponse.data)) {
-              // Use the type predicate to filter and narrow the type
-              const validatedPermissions = userPermissionsResponse.data.filter(isUserPermission);
-              setPermissions(validatedPermissions);
-            } else {
-              setPermissions([]);
-            }
+      if (activeSession?.user.id) {
+        try {
+          const userPermissionsRes = await getUserPermissionsApi({
+            path: { user_id: activeSession?.user.id },
+            client: authClient,
+          })
+          return {
+            activeSession,
+            otherSessions,
+            authStorage,
+            userPermissions: userPermissionsRes.data,
+          }
+        } catch (e) {
+          console.error('Failed to load user permissions:', e)
+
+          return {
+            activeSession,
+            otherSessions,
+            authStorage,
+            userPermissions: [],
           }
         }
-      } catch (e) {
-        console.error('Failed to fetch session or permissions data:', e)
-        setPermissions([]);
+      }
+      return { activeSession, otherSessions, authStorage, userPermissions: [] }
+    } catch (e) {
+      console.error('Failed to load admin route data:', e)
+      return {
+        activeSession: null,
+        authStorage: null,
+        otherSessions: [],
+        userPermissions: [],
       }
     }
-    fetchData()
-  }, [])
+  },
+})
 
-  const handleLogout = async () => {
-    try {
-      await mutate(undefined)
-    } catch (e) {
-      console.error('Logout failed in component', e)
-    }
-  }
+function ProfilePage() {
+  const data = Route.useLoaderData()
 
-  const handleSwitchUser = async (userId: string) => {
-    await switchUserServer({ data: userId })
-    window.location.reload()
-  }
+  const activeSession = data.activeSession ?? null
+  const otherSessions = data.otherSessions ?? []
+  const authStorage = data.authStorage ?? []
+  const permissions = data.userPermissions ?? []
 
-  if (!session || !storage)
+  const { mutateAsync: handleLogoutUser, isPending } = useMutation({
+    mutationFn: async () => {
+      await logoutFn()
+      window.location.reload()
+    },
+  })
+
+  if (!activeSession || !authStorage)
     return (
       <div className="flex min-h-screen w-full items-center justify-center p-4 bg-muted/40">
         <Empty className="max-w-sm bg-background border-border">
@@ -153,24 +118,24 @@ function ProfilePage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="flex flex-row items-center gap-4">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={undefined} alt={session.user.email} />
+            <AvatarImage src={undefined} alt={activeSession.user.email} />
             <AvatarFallback>
-              {session.user.email?.substring(0, 2) || 'US'}
+              {activeSession.user.email.substring(0, 2) || 'US'}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
             <CardTitle>{'User Profile'}</CardTitle>
-            <CardDescription>{session.user.email}</CardDescription>
+            <CardDescription>{activeSession.user.email}</CardDescription>
           </div>
         </CardHeader>
-        <CardContent className="grid gap-4">
+        <CardContent className="grid gap-2">
           <div className="text-sm text-muted-foreground">
-            <strong>ID:</strong> {session.user.id}
+            <strong>ID:</strong> {activeSession.user.id}
           </div>
-          {session.user.roles && session.user.roles.length > 0 && (
+          {activeSession.user.roles && activeSession.user.roles.length > 0 && (
             <div className="text-sm text-muted-foreground">
               <strong>Roles:</strong>{' '}
-              {session.user.roles.map((role, index) => (
+              {activeSession?.user.roles.map((role, index) => (
                 <Badge key={index} variant="secondary" className="mr-1">
                   {role}
                 </Badge>
@@ -191,54 +156,16 @@ function ProfilePage() {
           )}
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
-          {otherSessions.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start gap-2"
-                  >
-                    <HugeiconsIcon icon={UserIcon} className="h-4 w-4" />
-                    Switch Account
-                  </Button>
-                }
-              />
-
-              <DropdownMenuContent
-                align="end"
-                className="w-[var(--radix-dropdown-menu-trigger-width)]"
-              >
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Accounts</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {otherSessions.map((s) => (
-                    <DropdownMenuItem
-                      key={s.user.id}
-                      onClick={() => handleSwitchUser(s.user.id)}
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-xs text-muted-foreground">
-                          {s.user.email}
-                        </span>
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem onClick={() => navigate({ to: '/login' })}>
-                    Add another account
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+          <AccountSwitcher
+            otherSessions={otherSessions}
+            className="w-full justify-start gap-2"
+            buttonVariant="outline"
+          />
 
           <Button
             variant="destructive"
             className="w-full justify-start gap-2"
-            onClick={handleLogout}
+            onClick={async () => await handleLogoutUser()}
             disabled={isPending}
           >
             {isPending && (

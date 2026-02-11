@@ -1,17 +1,15 @@
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
-import * as React from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Calendar01Icon,
   Calendar02Icon,
   Home01Icon,
+  Book01Icon,
   Settings01Icon,
   Shield01Icon,
   UserGroupIcon,
   UserIcon,
 } from '@hugeicons/core-free-icons'
-
-import type { Session } from '@/lib/auth/session'
 import {
   getActiveSessionServer,
   getAuthStorageServer,
@@ -20,7 +18,6 @@ import {
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
   SidebarHeader,
@@ -33,14 +30,6 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -58,51 +47,50 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@/components/ui/empty'
+import { useMutation } from '@tanstack/react-query'
+import { AdminRoutesAllowedRoles } from '@/features/permissions/constants'
+import { AccountSwitcher } from '@/features/auth/components/account-switcher'
 
 export const Route = createFileRoute('/admin')({
   component: AdminLayout,
+  loader: async () => {
+    try {
+      const activeSession = await getActiveSessionServer()
+      const authStorage = await getAuthStorageServer()
+
+      const otherSessions = authStorage
+        ? Object.values(authStorage.sessions).filter(
+            (s) => s.user.id !== activeSession?.user.id,
+          )
+        : []
+
+      return { activeSession, otherSessions }
+    } catch (e) {
+      console.error('Failed to load admin route data:', e)
+      return { activeSession: null, otherSessions: [] }
+    }
+  },
 })
 
 function AdminLayout() {
-  const [session, setSession] = React.useState<Session | null>(null)
-  const [otherSessions, setOtherSessions] = React.useState<Array<Session>>([])
-  const [isLoading, setIsLoading] = React.useState(true)
+  const data = Route.useLoaderData()
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const activeSession = await getActiveSessionServer()
-        setSession(activeSession)
-        const authStorage = await getAuthStorageServer()
-        if (authStorage && activeSession) {
-          const others = Object.values(authStorage.sessions).filter(
-            (s) => s.user.id !== activeSession.user.id,
-          )
-          setOtherSessions(others)
-        }
-      } catch (e) {
-        console.error('Failed to fetch session data:', e)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchData()
-  }, [])
+  const activeSession = data.activeSession ?? null
+  const otherSessions = data.otherSessions ?? []
 
-  const handleSwitchUser = async (userId: string) => {
-    await switchUserServer({ data: userId })
-    window.location.reload()
-  }
+  const { mutateAsync: handleSwitchUser, isPending } = useMutation({
+    mutationFn: async (userId: string) => {
+      await switchUserServer({ data: userId })
+      window.location.reload()
+    },
+  })
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen w-full items-center justify-center p-4">
-        Loading...
-      </div>
+  if (
+    !activeSession ||
+    !activeSession.user.roles.some((role) =>
+      AdminRoutesAllowedRoles.includes(role),
     )
-  }
-
-  if (!session || !session.user.roles.includes('FullAdmin')) {
+  ) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-muted/40 p-4">
         <Empty className="max-w-sm border-border bg-background">
@@ -116,43 +104,11 @@ function AdminLayout() {
             <Button
               render={<Link to="/login">Login with another account</Link>}
             />
-            {otherSessions.length > 0 && (
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start gap-2"
-                    >
-                      <HugeiconsIcon icon={UserIcon} className="h-4 w-4" />
-                      Switch Account
-                    </Button>
-                  }
-                />
-
-                <DropdownMenuContent
-                  align="end"
-                  className="w-[var(--radix-dropdown-menu-trigger-width)]"
-                >
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel>Accounts</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {otherSessions.map((s) => (
-                      <DropdownMenuItem
-                        key={s.user.id}
-                        onClick={() => handleSwitchUser(s.user.id)}
-                      >
-                        <div className="flex flex-col">
-                          <span className="text-xs text-muted-foreground">
-                            {s.user.email}
-                          </span>
-                        </div>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            <AccountSwitcher
+              otherSessions={otherSessions}
+              className="w-full justify-start gap-2"
+              buttonVariant="outline"
+            />
           </EmptyContent>
         </Empty>
       </div>
@@ -161,14 +117,14 @@ function AdminLayout() {
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
-        <SidebarHeader>
-          <div className="flex items-center gap-4 px-2">
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <span className="text-lg font-bold">S</span>
+        <SidebarHeader className="group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 flex justify-center items-start h-16">
+          <div className="flex items-center gap-4 ">
+            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+              <HugeiconsIcon icon={Book01Icon} />
             </div>
-            <div className="flex flex-col gap-0.5 leading-none">
-              <span className="font-semibold">Skoola</span>
-              <span className="text-xs text-muted-foreground">v1.0.0</span>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">Skoola</span>{' '}
+              <span className="truncate text-xs">Your edu platform.</span>
             </div>
           </div>
         </SidebarHeader>
@@ -177,40 +133,36 @@ function AdminLayout() {
             <SidebarGroupLabel>Platform</SidebarGroupLabel>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  tooltip="Dashboard"
-                  render={<Link to="/admin" />}
-                >
-                  <HugeiconsIcon icon={Home01Icon} />
-                  <span>Dashboard</span>
-                </SidebarMenuButton>
+                <Link to="/admin">
+                  <SidebarMenuButton tooltip="Dashboard">
+                    <HugeiconsIcon icon={Home01Icon} />
+                    <span>Dashboard</span>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  tooltip="Users"
-                  render={<Link to="/admin/users" />}
-                >
-                  <HugeiconsIcon icon={UserGroupIcon} />
-                  <span>Users</span>
-                </SidebarMenuButton>
+                <Link to="/admin/users">
+                  <SidebarMenuButton tooltip="Users">
+                    <HugeiconsIcon icon={UserGroupIcon} />
+                    <span>Users</span>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  tooltip="Permissions"
-                  render={<Link to="/admin/permissions" />}
-                >
-                  <HugeiconsIcon icon={Shield01Icon} />
-                  <span>Permissions</span>
-                </SidebarMenuButton>
+                <Link to="/admin/permissions">
+                  <SidebarMenuButton tooltip="Permissions">
+                    <HugeiconsIcon icon={Shield01Icon} />
+                    <span>Permissions</span>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  tooltip="Settings"
-                  render={<Link to="/admin/settings" />}
-                >
-                  <HugeiconsIcon icon={Settings01Icon} />
-                  <span>Settings</span>
-                </SidebarMenuButton>
+                <Link to="/admin/settings">
+                  <SidebarMenuButton tooltip="Settings">
+                    <HugeiconsIcon icon={Settings01Icon} />
+                    <span>Settings</span>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroup>
@@ -218,47 +170,31 @@ function AdminLayout() {
             <SidebarGroupLabel>Attendance</SidebarGroupLabel>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  tooltip="Staff Attendance"
-                  render={<Link to="/admin/attendance/staff" />}
-                >
-                  <HugeiconsIcon icon={Calendar01Icon} />
-                  <span>Staff</span>
-                </SidebarMenuButton>
+                <Link to="/admin/attendance/staff">
+                  <SidebarMenuButton tooltip="Staff Attendance">
+                    <HugeiconsIcon icon={Calendar01Icon} />
+                    <span>Staff</span>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  tooltip="Student Attendance"
-                  render={<Link to="/admin/attendance/students" />}
-                >
-                  <HugeiconsIcon icon={Calendar02Icon} />
-                  <span>Students</span>
-                </SidebarMenuButton>
+                <Link to="/admin/attendance/students">
+                  <SidebarMenuButton tooltip="Student Attendance">
+                    <HugeiconsIcon icon={Calendar02Icon} />
+                    <span>Students</span>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter>{/* User menu placeholder */}</SidebarFooter>
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-4 px-4">
+        <header className="flex p-2 h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+          <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink render={<Link to="/admin" />}>
-                    Admin
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+            <Separator orientation="vertical" className="mr-2" />
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

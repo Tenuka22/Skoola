@@ -1,14 +1,12 @@
-import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon } from '@hugeicons/core-free-icons'
+import { AlertCircle } from '@hugeicons/core-free-icons'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { signUpSchema } from '../schemas'
 import type { SignUpFormValues } from '../schemas'
-import type { AuthStorage, Session } from '@/lib/auth/session'
-import { getAuthStorageServer } from '@/lib/auth/session'
+import type { AuthStorage } from '@/lib/auth/session'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -18,30 +16,23 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarGroup,
-  AvatarImage,
-} from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { signUpFn } from '@/lib/auth/actions'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { Spinner } from '@/components/ui/spinner'
+import { cn } from '@/lib/utils'
+import { ActiveSessions } from './active-sessions'
 
-export function SignUpForm() {
-  const [users, setUsers] = React.useState<AuthStorage | null>(null)
-
-  React.useEffect(() => {
-    const fetchAuthStorage = async () => {
-      try {
-        const storage = await getAuthStorageServer()
-        setUsers(storage)
-      } catch (e) {
-        console.error('Failed to fetch auth storage:', e)
-        setUsers(null)
-      }
-    }
-    fetchAuthStorage()
-  }, [])
-
+export function SignUpForm({
+  authStorage,
+}: {
+  authStorage: AuthStorage | null
+}) {
   const {
     register,
     handleSubmit,
@@ -59,7 +50,7 @@ export function SignUpForm() {
 
   const onSubmit = async (data: SignUpFormValues) => {
     try {
-      await signUpMutation.mutateAsync({
+      const result = await signUpMutation.mutateAsync({
         data: {
           name: data.name,
           email: data.email,
@@ -67,12 +58,15 @@ export function SignUpForm() {
         },
       })
 
-      if (signUpMutation.data?.success) {
+      if (result?.success) {
         navigate({ to: '/login' })
-      } else if (signUpMutation.data?.error) {
+        return
+      }
+
+      if (result?.error) {
         setFormError('root.serverError', {
           type: 'server',
-          message: signUpMutation.data.error,
+          message: result.error,
         })
       }
     } catch (err: unknown) {
@@ -80,55 +74,16 @@ export function SignUpForm() {
       setFormError('root.serverError', {
         type: 'server',
         message:
-          (err instanceof Error && err.message) ||
-          'Sign up failed. Please try again.',
+          err instanceof Error
+            ? err.message
+            : 'Sign Up failed due to an unknown error.',
       })
     }
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {(signUpMutation.error || errors.root?.serverError) && (
-        <Alert variant="destructive">
-          <AlertDescription>
-            {signUpMutation.error?.message || errors.root?.serverError?.message}
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {users?.sessions && (
-        <div className="flex flex-col gap-2">
-          <span className="text-muted-foreground">
-            Already Logged in with...
-          </span>
-
-          <AvatarGroup>
-            {Object.entries(users.sessions)
-              .sort(([keyA], [keyB]) => {
-                if (keyA === users.activeUserId) return -1
-                if (keyB === users.activeUserId) return 1
-                return 0
-              })
-              .map(([key, value]: [string, Session]) => (
-                <div key={key}>
-                  <Avatar>
-                    <AvatarImage src={undefined} alt={value.user.email} />
-                    <AvatarFallback
-                      className={
-                        key === users.activeUserId
-                          ? 'bg-primary text-primary-foreground rounded-full'
-                          : ''
-                      }
-                    >
-                      {String(value.user.email).substring(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-              ))}
-          </AvatarGroup>
-        </div>
-      )}
-
+      <ActiveSessions authStorage={authStorage} />
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="name">Full Name</FieldLabel>
@@ -175,17 +130,22 @@ export function SignUpForm() {
           <FieldError errors={[errors.confirmPassword]} />
         </Field>
 
+        {(signUpMutation.error || errors.root?.serverError) && (
+          <Alert variant="destructive">
+            <HugeiconsIcon icon={AlertCircle} className="h-4 w-4" />
+            <AlertDescription>
+              {signUpMutation.error?.message ||
+                errors.root?.serverError?.message}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Button
           type="submit"
-          className="w-full"
+          className="w-full gap-2"
           disabled={isSubmitting || signUpMutation.isPending}
         >
-          {(isSubmitting || signUpMutation.isPending) && (
-            <HugeiconsIcon
-              icon={Loading03Icon}
-              className="mr-2 h-4 w-4 animate-spin"
-            />
-          )}
+          {(isSubmitting || signUpMutation.isPending) && <Spinner />}
           Sign Up
         </Button>
       </FieldGroup>

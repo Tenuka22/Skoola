@@ -2,9 +2,10 @@ import { z } from 'zod'
 import { createServerFn } from '@tanstack/react-start'
 import { getCookie, setCookie } from '@tanstack/react-start/server'
 import { zTokenResponse, zUserProfileResponse } from '../api/zod.gen'
-
-const AUTH_COOKIE_NAME = 'skoola_auth'
-const THIRTY_DAYS_IN_SECONDS = 30 * 24 * 60 * 60
+import {
+  AUTH_COOKIE_NAME,
+  AUTH_COOKIE_TTL,
+} from '@/features/permissions/constants'
 
 export const SessionSchema = z.object({
   tokens: zTokenResponse,
@@ -22,7 +23,7 @@ export type AuthStorage = z.infer<typeof AuthStorageSchema>
 
 async function getAuthStorageFromCookie(): Promise<AuthStorage | null> {
   try {
-    const cookieValue = await getCookie(AUTH_COOKIE_NAME)
+    const cookieValue = getCookie(AUTH_COOKIE_NAME)
     if (!cookieValue) {
       return null
     }
@@ -74,8 +75,8 @@ export const setAuthStorageServer = createServerFn({ method: 'POST' })
   .handler(async ({ data }: { data: AuthStorage }) => {
     try {
       const value = encodeURIComponent(JSON.stringify(data))
-      await setCookie(AUTH_COOKIE_NAME, value, {
-        maxAge: THIRTY_DAYS_IN_SECONDS,
+      setCookie(AUTH_COOKIE_NAME, value, {
+        maxAge: AUTH_COOKIE_TTL,
         path: '/',
         sameSite: 'lax',
         httpOnly: false,
@@ -96,13 +97,13 @@ export const addSessionServer = createServerFn({ method: 'POST' })
       sessions: {},
     }
 
-    session_data.expiresAt = Date.now() + THIRTY_DAYS_IN_SECONDS * 1000
+    session_data.expiresAt = Date.now() + AUTH_COOKIE_TTL * 1000
     storage.sessions[session_data.user.id] = session_data
     storage.activeUserId = session_data.user.id
 
     const value = encodeURIComponent(JSON.stringify(storage))
-    await setCookie(AUTH_COOKIE_NAME, value, {
-      maxAge: THIRTY_DAYS_IN_SECONDS,
+    setCookie(AUTH_COOKIE_NAME, value, {
+      maxAge: AUTH_COOKIE_TTL,
       path: '/',
       sameSite: 'lax',
       httpOnly: false,
@@ -128,8 +129,8 @@ export const removeSessionServer = createServerFn({ method: 'POST' })
       }
 
       const value = encodeURIComponent(JSON.stringify(storage))
-      await setCookie(AUTH_COOKIE_NAME, value, {
-        maxAge: THIRTY_DAYS_IN_SECONDS,
+      setCookie(AUTH_COOKIE_NAME, value, {
+        maxAge: AUTH_COOKIE_TTL,
         path: '/',
         sameSite: 'lax',
         httpOnly: false,
@@ -150,8 +151,8 @@ export const switchUserServer = createServerFn({ method: 'POST' })
       storage.activeUserId = userId_data
 
       const value = encodeURIComponent(JSON.stringify(storage))
-      await setCookie(AUTH_COOKIE_NAME, value, {
-        maxAge: THIRTY_DAYS_IN_SECONDS,
+      setCookie(AUTH_COOKIE_NAME, value, {
+        maxAge: AUTH_COOKIE_TTL,
         path: '/',
         sameSite: 'lax',
         httpOnly: false,
@@ -164,39 +165,10 @@ export const switchUserServer = createServerFn({ method: 'POST' })
 
 export const clearAuthServer = createServerFn({ method: 'POST' }).handler(
   async () => {
-    await setCookie(AUTH_COOKIE_NAME, '', {
+    setCookie(AUTH_COOKIE_NAME, '', {
       maxAge: -1,
       path: '/',
     })
     return { success: true }
-  },
-)
-
-export const requireAuth = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    const storage = await getAuthStorageFromCookie()
-    if (!storage || !storage.activeUserId) {
-      throw new Error('Unauthorized')
-    }
-
-    const session = storage.sessions[storage.activeUserId]
-    if (!session) {
-      throw new Error('Unauthorized')
-    }
-
-    if (session.expiresAt && session.expiresAt < Date.now()) {
-      throw new Error('Unauthorized')
-    }
-
-    return session
-  },
-)
-
-export const getAllSessionsServer = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    const storage = await getAuthStorageFromCookie()
-    if (!storage) return []
-
-    return Object.values(storage.sessions)
   },
 )
