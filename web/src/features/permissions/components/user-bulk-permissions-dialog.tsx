@@ -2,6 +2,12 @@
 
 import * as React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Add01Icon, Delete02Icon, Loading03Icon, Shield01Icon, SparklesIcon, UserGroupIcon } from '@hugeicons/core-free-icons'
+import { toast } from 'sonner'
+import { fetchPermissions, unassignPermissionFromUser } from '../api'
+import { PermissionManager } from './permission-manager'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -9,16 +15,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Shield01Icon, Loading03Icon, UserGroupIcon, Add01Icon, Delete02Icon, SparklesIcon } from '@hugeicons/core-free-icons'
-import { PermissionManager } from './permission-manager'
-import { fetchPermissions, assignPermissionToUser, unassignPermissionFromUser } from '../api'
-import { toast } from 'sonner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface UserBulkPermissionsDialogProps {
-  userIds: string[]
+  userIds: Array<string>
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -29,8 +29,8 @@ export function UserBulkPermissionsDialog({
   onOpenChange,
 }: UserBulkPermissionsDialogProps) {
   const queryClient = useQueryClient()
-  const [selectedAddIds, setSelectedAddIds] = React.useState<number[]>([])
-  const [selectedRemoveIds, setSelectedRemoveIds] = React.useState<number[]>([])
+  const [selectedAddIds, setSelectedAddIds] = React.useState<Array<number>>([])
+  const [selectedRemoveIds, setSelectedRemoveIds] = React.useState<Array<number>>([])
   const [isProcessing, setIsProcessing] = React.useState(false)
 
   const { data: allPermissions, isLoading: isLoadingAll } = useQuery({
@@ -44,9 +44,6 @@ export function UserBulkPermissionsDialog({
     try {
       // Add permissions
       for (const userId of userIds) {
-        for (const permId of selectedAddIds) {
-          await assignPermissionToUser(userId, permId)
-        }
         for (const permId of selectedRemoveIds) {
           await unassignPermissionFromUser(userId, permId)
         }

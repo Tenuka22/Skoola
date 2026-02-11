@@ -1,6 +1,6 @@
 import type {
-  UserResponse,
   PaginatedUserResponse,
+  UserResponse,
   UserStatsResponse,
 } from '@/lib/api/types.gen'
 

@@ -1,12 +1,12 @@
 'use client'
 
 
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Delete02Icon, Settings02Icon, UserIcon } from '@hugeicons/core-free-icons'
+import type { PermissionSet } from '../types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { UserIcon, Settings02Icon, Delete02Icon } from '@hugeicons/core-free-icons'
-import type { PermissionSet } from '../types'
 
 interface RoleCardProps {
   permissionSet: PermissionSet

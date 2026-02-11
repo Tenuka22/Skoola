@@ -2,40 +2,40 @@
 
 import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { 
-  getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Options,
+  ArrowLeft01Icon, 
+  ArrowRight01Icon, 
+  Download02Icon,
+  FilterIcon,
+  PlusSignIcon,
+  RefreshIcon,
+  Search01Icon,
+  Upload02Icon
+} from '@hugeicons/core-free-icons'
+import { toast } from 'sonner'
+import type { EmploymentStatus, StaffResponse, StaffType } from '@/lib/api/types.gen'
+import { 
   deleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Mutation,
+  getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Options,
   postStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Mutation,
   putStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Mutation
 } from '@/lib/api/@tanstack/react-query.gen'
 import { StaffCard } from '@/features/staff/components/staff-card'
 import { StaffModals } from '@/features/staff/components/staff-modals'
 import { Button } from '@/components/ui/button'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { 
-  PlusSignIcon, 
-  Upload02Icon, 
-  Download02Icon,
-  Search01Icon,
-  FilterIcon,
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  RefreshIcon
-} from '@hugeicons/core-free-icons'
 import { Input } from '@/components/ui/input'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { authClient } from '@/lib/clients'
-import { toast } from 'sonner'
-import type { StaffType, EmploymentStatus, StaffResponse } from '@/lib/api/types.gen'
 
 export const Route = createFileRoute('/admin/staff')({
   component: StaffPage,

@@ -1,12 +1,10 @@
 'use client'
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Delete02Icon, PencilEdit01Icon, UserAdd01Icon } from '@hugeicons/core-free-icons'
+import { StaffForm } from './staff-form'
+import type { StaffResponse } from '@/lib/api/types.gen'
+import type { CreateStaffValues } from '../schemas'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,11 +15,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon, UserAdd01Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
-import { StaffForm } from './staff-form'
-import type { StaffResponse } from '@/lib/api/types.gen'
-import type { CreateStaffValues } from '../schemas'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 interface StaffModalsProps {
   staffToDelete: StaffResponse | null

@@ -1,33 +1,35 @@
-import { createFileRoute, Outlet, Link } from '@tanstack/react-router'
+import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
+  Calendar01Icon,
+  Calendar02Icon,
   Home01Icon,
-  UserGroupIcon,
   Settings01Icon,
-  UserIcon,
   Shield01Icon,
+  UserGroupIcon,
+  UserIcon,
 } from '@hugeicons/core-free-icons'
 
+import type { Session } from '@/lib/auth/session'
 import {
   getActiveSessionServer,
   getAuthStorageServer,
   switchUserServer,
 } from '@/lib/auth/session'
-import type { Session } from '@/lib/auth/session'
 import {
-  SidebarProvider,
   Sidebar,
   SidebarContent,
-  SidebarHeader,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarFooter,
-  SidebarRail,
+  SidebarHeader,
   SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
@@ -208,6 +210,29 @@ function AdminLayout() {
                 >
                   <HugeiconsIcon icon={Settings01Icon} />
                   <span>Settings</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel>Attendance</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Staff Attendance"
+                  render={<Link to="/admin/attendance/staff" />}
+                >
+                  <HugeiconsIcon icon={Calendar01Icon} />
+                  <span>Staff</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Student Attendance"
+                  render={<Link to="/admin/attendance/students" />}
+                >
+                  <HugeiconsIcon icon={Calendar02Icon} />
+                  <span>Students</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

@@ -1,9 +1,9 @@
-import { ColumnDef } from '@tanstack/react-table'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Edit04Icon, Delete02Icon } from '@hugeicons/core-free-icons'
+import { Delete02Icon, Edit04Icon } from '@hugeicons/core-free-icons'
+import type { ColumnDef } from '@tanstack/react-table'
 import type { Permission, PermissionSeverity } from '@/lib/api/types.gen'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 interface GetPermissionColumnsProps {
   onEdit: (permission: Permission) => void
@@ -28,7 +28,7 @@ const getSeverityColor = (severity: PermissionSeverity) => {
 export const getPermissionColumns = ({
   onEdit,
   onDelete,
-}: GetPermissionColumnsProps): ColumnDef<Permission>[] => [
+}: GetPermissionColumnsProps): Array<ColumnDef<Permission>> => [
   {
     accessorKey: 'name',
     header: 'Name',

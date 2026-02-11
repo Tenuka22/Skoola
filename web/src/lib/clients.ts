@@ -1,17 +1,18 @@
 import {
-  createClient,
-  type ClientOptions,
-  type RequestOptions,
+  
+  
+  createClient
 } from './api/client/index'
-import { env } from '@/lib/env'
 import {
+  SessionSchema,
   addSessionServer,
   clearAuthServer,
   getActiveSessionServer,
-  SessionSchema,
 } from './auth/session'
 import { postAuthRefresh6Aadba1Bf11B4320428155Ff0462660D as postAuthRefreshApi } from './api/sdk.gen'
 import { reloginNeeded } from './auth/actions'
+import type {ClientOptions, RequestOptions} from './api/client/index';
+import { env } from '@/lib/env'
 
 const HTTP_METHODS = [
   'GET',

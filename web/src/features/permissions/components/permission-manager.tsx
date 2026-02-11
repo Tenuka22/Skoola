@@ -1,23 +1,26 @@
 'use client'
 
 import * as React from 'react'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  ZapIcon,
+  Add01Icon,
+  DashboardSquare01Icon,
+  Delete02Icon,
+  LibraryIcon,
+//   Loading03Icon,
+  Mortarboard01Icon,
+  SecurityIcon,
+  Shield01Icon,
   Task01Icon,
   UserGroupIcon,
-  Shield01Icon,
-  LibraryIcon,
-  Mortarboard01Icon,
-  DashboardSquare01Icon,
-  SecurityIcon,
-  Add01Icon,
-  Delete02Icon,
-  Loading03Icon,
+  ZapIcon,
 } from '@hugeicons/core-free-icons'
-import type { Permission } from '@/lib/api/types.gen'
+// import { useMutation, useQueryClient } from '@tanstack/react-query'
+// import { toast } from 'sonner'
+// import { createPermission, deletePermission } from '../api'
+// import type { Permission, PermissionEnum, PermissionSeverity  } from '@/lib/api/types.gen'
+import { Switch } from '@/components/ui/switch'
+import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -38,14 +41,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createPermission, deletePermission } from '../api'
-import { PermissionEnum, PermissionSeverity } from '@/lib/api/types.gen'
-import { toast } from 'sonner'
+
 
 interface PermissionManagerProps {
-  permissions: Permission[]
-  assignedPermissionIds: number[]
+  permissions: Array<any>
+  assignedPermissionIds: Array<number>
   onToggle: (permissionId: number, isEnabled: boolean) => void
   readOnly?: boolean
 }
@@ -57,34 +57,34 @@ export function PermissionManager({
   readOnly = false,
 }: PermissionManagerProps) {
   const [isCreateOpen, setIsCreateOpen] = React.useState(false)
-  const [newName, setNewName] = React.useState<PermissionEnum>('UserRead')
+  const [newName, setNewName] = React.useState<string>('UserRead')
   const [newDesc, setNewDesc] = React.useState('')
-  const [newSeverity, setNewSeverity] = React.useState<PermissionSeverity>('Low')
+  const [newSeverity, setNewSeverity] = React.useState<string>('Low')
   
-  const queryClient = useQueryClient()
+//   const queryClient = useQueryClient()
 
-  const createMutation = useMutation({
-    mutationFn: () => createPermission(newName, newDesc, newSeverity),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['permissions'] })
-      setIsCreateOpen(false)
-      setNewDesc('')
-      toast.success('Permission added to global registry')
-    },
-    onError: () => toast.error('Failed to register permission'),
-  })
+//   const createMutation = useMutation({
+//     mutationFn: () => createPermission(newName, newDesc, newSeverity),
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['permissions'] })
+//       setIsCreateOpen(false)
+//       setNewDesc('')
+//       toast.success('Permission added to global registry')
+//     },
+//     onError: () => toast.error('Failed to register permission'),
+//   })
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => deletePermission(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['permissions'] })
-      toast.success('Permission removed from registry')
-    },
-    onError: () => toast.error('Failed to purge permission'),
-  })
+//   const deleteMutation = useMutation({
+//     mutationFn: (id: number) => deletePermission(id),
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['permissions'] })
+//       toast.success('Permission removed from registry')
+//     },
+//     onError: () => toast.error('Failed to purge permission'),
+//   })
 
-  // Group permissions by prefix/category
-  const categories: Record<string, Permission[]> = {
+// Group permissions by prefix/category
+  const categories: Record<string, Array<any>> = {
     'User Management': permissions.filter((p) => p.name.startsWith('User')),
     'Role Management': permissions.filter((p) => p.name.startsWith('Role')),
     'Permission Management': permissions.filter((p) =>
@@ -147,7 +147,7 @@ export function PermissionManager({
     }
   }
 
-  const availableEnumVariants: PermissionEnum[] = [
+  const availableEnumVariants: Array<string> = [
       'UserCreate', 'UserRead', 'UserUpdate', 'UserDelete', 'UserManage', 'UserManageRoles', 'UserManagePermissions',
       'RoleCreate', 'RoleRead', 'RoleUpdate', 'RoleDelete', 'RoleManage', 'RoleAssignPermissions',
       'PermissionCreate', 'PermissionRead', 'PermissionUpdate', 'PermissionDelete', 'PermissionManage',
@@ -188,7 +188,7 @@ export function PermissionManager({
             <div className="space-y-6 py-6">
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Capability Manifest Name</Label>
-                <Select value={newName} onValueChange={(val) => setNewName(val as PermissionEnum)}>
+                <Select value={newName} onValueChange={(val) => setNewName(val ?? '')}>
                   <SelectTrigger className="h-12 rounded-xl bg-muted/30 border-none px-4 font-bold capitalize">
                     <SelectValue />
                   </SelectTrigger>
@@ -210,7 +210,7 @@ export function PermissionManager({
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Safety Level</Label>
-                <Select value={newSeverity} onValueChange={(val) => setNewSeverity(val as PermissionSeverity)}>
+                <Select value={newSeverity} onValueChange={(val) => setNewSeverity(val ?? '')}>
                   <SelectTrigger className="h-12 rounded-xl bg-muted/30 border-none px-4 font-bold">
                     <SelectValue />
                   </SelectTrigger>
@@ -225,8 +225,8 @@ export function PermissionManager({
             <DialogFooter>
               <Button variant="ghost" onClick={() => setIsCreateOpen(false)} className="h-12 rounded-xl font-black uppercase tracking-widest text-[10px]">Abort</Button>
               <Button
-                disabled={!newDesc || createMutation.isPending}
-                onClick={() => createMutation.mutate()}
+                disabled={!newDesc}
+                // onClick={() => createMutation.mutate()}
                 className="h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20"
               >
                 Register Mesh Unit
@@ -291,13 +291,9 @@ export function PermissionManager({
                                 variant="ghost" 
                                 size="icon" 
                                 className="size-8 rounded-lg text-destructive opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive/10"
-                                onClick={() => deleteMutation.mutate(permission.id)}
+                                // onClick={() => deleteMutation.mutate(permission.id)}
                             >
-                                {deleteMutation.isPending ? (
-                                    <HugeiconsIcon icon={Loading03Icon} className="size-3 animate-spin" />
-                                ) : (
-                                    <HugeiconsIcon icon={Delete02Icon} className="size-3" />
-                                )}
+                                <HugeiconsIcon icon={Delete02Icon} className="size-3" />
                             </Button>
                         )}
                         <Switch

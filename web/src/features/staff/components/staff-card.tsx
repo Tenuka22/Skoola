@@ -1,22 +1,22 @@
-import { StaffResponse } from '@/lib/api/types.gen';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent } from '@/components/ui/card';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { 
-  MailIcon, 
   AiPhoneIcon, 
-  MoreHorizontalIcon, 
-  PencilEdit01Icon, 
-  Delete02Icon,
-  Calendar03Icon,
-  HierarchyIcon
+  Calendar03Icon, 
+  Delete02Icon, 
+  HierarchyIcon, 
+  MailIcon,
+  MoreHorizontalIcon,
+  PencilEdit01Icon
 } from '@hugeicons/core-free-icons';
+import type { StaffResponse } from '@/lib/api/types.gen';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 

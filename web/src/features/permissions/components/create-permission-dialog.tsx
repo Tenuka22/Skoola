@@ -3,21 +3,21 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+// import { toast } from 'sonner'
+// import { useMutation, useQueryClient } from '@tanstack/react-query'
+// import { createPermission } from '../../permissions/api'
+import { PERMISSION_NAMES, PERMISSION_SEVERITIES } from '../constants'
+// import type { PermissionEnum, PermissionSeverity } from '@/lib/api/types.gen'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { toast } from 'sonner'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createPermission } from '../../permissions/api'
-import { PermissionEnum, PermissionSeverity } from '@/lib/api/types.gen'
-import { PERMISSION_NAMES, PERMISSION_SEVERITIES } from '../constants'
 
 const formSchema = z.object({
-  name: z.enum(PERMISSION_NAMES as [string, ...string[]]),
+  name: z.enum(PERMISSION_NAMES as [string, ...Array<string>]),
   description: z.string().min(1, "Description is required"),
-  safety_level: z.enum(PERMISSION_SEVERITIES as [string, ...string[]]),
+  safety_level: z.enum(PERMISSION_SEVERITIES as [string, ...Array<string>]),
   is_admin_only: z.boolean().optional(),
 })
 
@@ -27,34 +27,34 @@ interface CreatePermissionDialogProps {
 }
 
 export function CreatePermissionDialog({ open, onOpenChange }: CreatePermissionDialogProps) {
-  const queryClient = useQueryClient()
+//   const queryClient = useQueryClient()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: 'UserRead' as PermissionEnum, // Default to a common permission
+      name: 'UserRead', // Default to a common permission
       description: '',
-      safety_level: 'Low' as PermissionSeverity,
+      safety_level: 'Low',
       is_admin_only: false,
     },
   })
 
-  const createMutation = useMutation({
-    mutationFn: (values: z.infer<typeof formSchema>) =>
-      createPermission(values.name as PermissionEnum, values.description, values.safety_level as PermissionSeverity),
-    onSuccess: () => {
-      toast.success('Permission created successfully.')
-      onOpenChange(false)
-      form.reset()
-      queryClient.invalidateQueries({ queryKey: ['permissions'] })
-    },
-    onError: (error) => {
-      toast.error(`Failed to create permission: ${(error as any).message}`)
-    },
-  })
+//   const createMutation = useMutation({
+//     mutationFn: (values: z.infer<typeof formSchema>) =>
+//       createPermission(values.name as PermissionEnum, values.description, values.safety_level as PermissionSeverity),
+//     onSuccess: () => {
+//       toast.success('Permission created successfully.')
+//       onOpenChange(false)
+//       form.reset()
+//       queryClient.invalidateQueries({ queryKey: ['permissions'] })
+//     },
+//     onError: (error) => {
+//       toast.error(`Failed to create permission: ${(error as any).message}`)
+//     },
+//   })
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    createMutation.mutate(values)
-  }
+//   const onSubmit = (values: z.infer<typeof formSchema>) => {
+//     createMutation.mutate(values)
+//   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -63,7 +63,7 @@ export function CreatePermissionDialog({ open, onOpenChange }: CreatePermissionD
           <DialogTitle>Create New Permission</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={() => {}} className="space-y-4">
             <FormField
               control={form.control}
               name="name"

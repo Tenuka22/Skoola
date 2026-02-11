@@ -1,7 +1,10 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { UserIcon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { Loading03Icon, UserIcon } from '@hugeicons/core-free-icons'
+import { useMutation } from '@tanstack/react-query'
+import { useServerFn } from '@tanstack/react-start'
+import type { AuthStorage, Session } from '@/lib/auth/session'
 import {
   getActiveSessionServer,
   getAuthStorageServer,
@@ -26,9 +29,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import type { Session, AuthStorage } from '@/lib/auth/session'
-import { useMutation } from '@tanstack/react-query'
-import { useServerFn } from '@tanstack/react-start'
 import { logoutFn } from '@/lib/auth/actions'
 import {
   Empty,
@@ -70,7 +70,7 @@ function ProfilePage() {
   const [session, setSession] = React.useState<Session | null>(null)
   const [storage, setStorage] = React.useState<AuthStorage | null>(null)
   const [otherSessions, setOtherSessions] = React.useState<Array<Session>>([])
-  const [permissions, setPermissions] = React.useState<UserPermission[]>([]) // State for permissions
+  const [permissions, setPermissions] = React.useState<Array<UserPermission>>([]) // State for permissions
 
   const logoutServerFn = useServerFn(logoutFn)
   const { mutate, isPending } = useMutation({

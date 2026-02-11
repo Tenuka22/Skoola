@@ -3,8 +3,10 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
+import {  updateUserSchema } from '../schemas'
+import type {UpdateUserValues} from '../schemas';
+import type { User } from '../types'
 import { RoleEnumSchema } from '@/lib/api/schemas.gen'
-import { updateUserSchema, type UpdateUserValues } from '../schemas'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -27,7 +29,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 
 
 import { Badge } from '@/components/ui/badge'
-import type { User } from '../types'
 
 interface UserEditDialogProps {
   user: User | null

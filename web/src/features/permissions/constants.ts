@@ -1,6 +1,6 @@
-import { PermissionEnum, PermissionSeverity } from '@/lib/api/types.gen'
+import type { PermissionEnum, PermissionSeverity } from '@/lib/api/types.gen'
 
-export const PERMISSION_NAMES: PermissionEnum[] = [
+export const PERMISSION_NAMES: Array<PermissionEnum> = [
   'UserCreate', 'UserRead', 'UserUpdate', 'UserDelete', 'UserManage',
   'UserManageRoles', 'UserManagePermissions', 'RoleCreate', 'RoleRead',
   'RoleUpdate', 'RoleDelete', 'RoleManage', 'RoleAssignPermissions',
@@ -16,4 +16,4 @@ export const PERMISSION_NAMES: PermissionEnum[] = [
   'GradingCriterionManage', 'LibraryManage', 'UserUpdateMedium', 'UserDeleteSevere'
 ]
 
-export const PERMISSION_SEVERITIES: PermissionSeverity[] = ['Low', 'Medium', 'High', 'Severe']
+export const PERMISSION_SEVERITIES: Array<PermissionSeverity> = ['Low', 'Medium', 'High', 'Severe']

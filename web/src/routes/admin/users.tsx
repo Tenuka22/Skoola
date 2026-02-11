@@ -8,26 +8,34 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  RefreshIcon,
-  Search01Icon,
   FilterIcon,
   FingerPrintIcon,
+  RefreshIcon,
+  Search01Icon,
   ViewIcon,
 } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
-import { DataTable } from '@/components/ui/data-table'
+import { getUserColumns } from '../../features/users/components/user-table-columns' // Import getUserColumns
+import { UserAnalytics } from '../../features/users/components/user-analytics' // Import UserAnalytics
+import { UserComparisonOverlay } from '../../features/users/components/user-comparison-overlay' // Import UserComparisonOverlay
+import { UserModals } from '../../features/users/components/user-modals' // Import UserModals
+import { UserPermissionsDialog } from '../../features/permissions/components/user-permissions-dialog' // Import UserPermissionsDialog
+import { UserBulkPermissionsDialog } from '../../features/permissions/components/user-bulk-permissions-dialog' // Import UserBulkPermissionsDialog
+import type { UserResponse } from '@/lib/api/types.gen' // Import UserResponse type
 import type { SortingState } from '@tanstack/react-table'
-import { Input } from '@/components/ui/input'
+import type {
+  BulkUpdateValues,
+  UpdateUserValues,
+} from '../../features/users/schemas' // Import BulkUpdateValues and UpdateUserValues
+import { authClient } from '@/lib/clients' // Import authClient
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Select,
   SelectContent,
@@ -35,33 +43,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { DataTable } from '@/components/ui/data-table'
+import { Button } from '@/components/ui/button'
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import type { UserResponse } from '@/lib/api/types.gen' // Import UserResponse type
-import { authClient } from '@/lib/clients' // Import authClient
-import { getUserColumns } from '../../features/users/components/user-table-columns' // Import getUserColumns
-import { UserAnalytics } from '../../features/users/components/user-analytics' // Import UserAnalytics
-import { UserComparisonOverlay } from '../../features/users/components/user-comparison-overlay' // Import UserComparisonOverlay
-import { UserModals } from '../../features/users/components/user-modals' // Import UserModals
-import { UserPermissionsDialog } from '../../features/permissions/components/user-permissions-dialog' // Import UserPermissionsDialog
-import { UserBulkPermissionsDialog } from '../../features/permissions/components/user-bulk-permissions-dialog' // Import UserBulkPermissionsDialog
-import type {
-  BulkUpdateValues,
-  UpdateUserValues,
-} from '../../features/users/schemas' // Import BulkUpdateValues and UpdateUserValues
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 import {
+  deleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
+  deleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
   getUsers06Bdcf95Aafda840B1D04322636De293Options,
   getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaOptions,
   patchUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
-  deleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
-  deleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
   patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
 } from '@/lib/api/@tanstack/react-query.gen'
+
 export const Route = createFileRoute('/admin/users')({
   component: Users,
 })
@@ -202,7 +203,7 @@ function Users() {
         onManagePermissions: (user: UserResponse) => setUserToManagePermissions(user),
         users: usersData?.data,
       }),
-    [selectedUsers, usersData?.data],
+    [selectedUsers, usersData?.data, updateMutation],
   )
 
   return (

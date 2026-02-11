@@ -1,13 +1,13 @@
-import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   ChartBarLineIcon,
-  Tick01Icon,
   Delete02Icon,
   PencilEdit01Icon,
   Shield01Icon,
+  Tick01Icon,
 } from '@hugeicons/core-free-icons'
 import type { User } from '../types'
+import { Button } from '@/components/ui/button'
 
 interface UserComparisonOverlayProps {
   selectedUsers: Set<string>
@@ -16,7 +16,7 @@ interface UserComparisonOverlayProps {
   onBulkDelete: () => void
   onBulkEdit: () => void
   onBulkManagePermissions: () => void
-  users?: User[]
+  users?: Array<User>
 }
 
 export function UserComparisonOverlay({

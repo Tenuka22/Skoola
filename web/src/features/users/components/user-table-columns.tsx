@@ -1,25 +1,25 @@
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  Delete02Icon,
-  Tick01Icon,
   Cancel01Icon,
-  Sorting05Icon,
-  SquareLock02Icon,
+  Delete02Icon,
   Menu01Icon,
   PencilEdit01Icon,
   Shield01Icon,
+  Sorting05Icon,
+  SquareLock02Icon,
+  Tick01Icon,
 } from '@hugeicons/core-free-icons'
 import { format } from 'date-fns'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { User } from '../types'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
 interface GetColumnsProps {
@@ -30,7 +30,7 @@ interface GetColumnsProps {
   onToggleLock: (user: User) => void
   onEditUser: (user: User) => void
   onManagePermissions: (user: User) => void
-  users?: User[]
+  users?: Array<User>
 }
 
 export function getUserColumns({
@@ -42,7 +42,7 @@ export function getUserColumns({
   onEditUser,
   onManagePermissions,
   users,
-}: GetColumnsProps): ColumnDef<User>[] {
+}: GetColumnsProps): Array<ColumnDef<User>> {
   return [
     {
       id: 'select',

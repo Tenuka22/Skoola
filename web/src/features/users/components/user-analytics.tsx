@@ -1,25 +1,26 @@
 import * as React from 'react'
+import { Area, AreaChart, CartesianGrid, Tooltip, XAxis } from 'recharts'
+import { HugeiconsIcon } from '@hugeicons/react'
+import {
+  SecurityCheckIcon,
+  UserBlock01Icon,
+  UserGroupIcon,
+  ZapIcon,
+} from '@hugeicons/core-free-icons'
+import type {
+  ChartConfig} from '@/components/ui/chart';
+import type { UserStatsResponse } from '../types'
+import {
+  ChartContainer,
+  ChartTooltipContent
+} from '@/components/ui/chart'
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from '@/components/ui/card'
-import {
-  ChartContainer,
-  ChartTooltipContent,
-  ChartConfig,
-} from '@/components/ui/chart'
-import { Area, AreaChart, CartesianGrid, XAxis, Tooltip } from 'recharts'
-import { HugeiconsIcon } from '@hugeicons/react'
-import {
-  UserGroupIcon,
-  SecurityCheckIcon,
-  UserBlock01Icon,
-  ZapIcon,
-} from '@hugeicons/core-free-icons'
-import type { UserStatsResponse } from '../types'
 
 interface UserAnalyticsProps {
   stats?: UserStatsResponse

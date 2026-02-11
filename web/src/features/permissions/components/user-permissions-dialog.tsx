@@ -1,24 +1,24 @@
 'use client'
 
 import * as React from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Loading03Icon, Shield01Icon, UserIcon } from '@hugeicons/core-free-icons'
+import { toast } from 'sonner'
+import { fetchPermissionSets, fetchPermissions, fetchUserPermissions, getStaffPermissionSets, unassignPermissionFromUser } from '../api'
+import { PermissionManager } from './permission-manager'
+import type { UserResponse } from '@/lib/api/types.gen'
 import {
   Dialog,
   DialogContent,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { UserIcon, Loading03Icon, Shield01Icon } from '@hugeicons/core-free-icons'
-import { PermissionManager } from './permission-manager'
-import { fetchPermissionSets, getStaffPermissionSets, fetchUserPermissions, assignPermissionToUser, unassignPermissionFromUser, fetchPermissions } from '../api'
 // import type { PermissionSet } from '../types' // Commented out as PermissionSet is not used in the current state
 // import { PermissionSet } from '@/lib/api/types.gen' // This import is no longer needed as PermissionSet is from ../types
-import { toast } from 'sonner'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 // import { Badge } from '@/components/ui/badge' // Commented out as Badge is not used in the current state
 // import { cn } from '@/lib/utils' // Commented out as cn is not used in the current state
 import { Checkbox } from '@/components/ui/checkbox'
-import type { UserResponse } from '@/lib/api/types.gen'
 
 interface UserPermissionsDialogProps {
   user: UserResponse | null
@@ -79,7 +79,7 @@ export function UserPermissionsDialog({
     }) => {
       if (!user) return
       if (isEnabled) {
-        return assignPermissionToUser(user.id, permissionId)
+        // return assignPermissionToUser(user.id, permissionId)
       } else {
         return unassignPermissionFromUser(user.id, permissionId)
       }

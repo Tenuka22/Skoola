@@ -19,6 +19,8 @@ import { Route as AdminPermissionsRouteImport } from './routes/admin/permissions
 import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as authProfileRouteImport } from './routes/(auth)/profile'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as AdminAttendanceStudentsRouteImport } from './routes/admin/attendance/students'
+import { Route as AdminAttendanceStaffRouteImport } from './routes/admin/attendance/staff'
 
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
@@ -70,6 +72,16 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAttendanceStudentsRoute = AdminAttendanceStudentsRouteImport.update({
+  id: '/attendance/students',
+  path: '/attendance/students',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAttendanceStaffRoute = AdminAttendanceStaffRouteImport.update({
+  id: '/attendance/staff',
+  path: '/attendance/staff',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +94,8 @@ export interface FileRoutesByFullPath {
   '/admin/staff': typeof AdminStaffRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/attendance/staff': typeof AdminAttendanceStaffRoute
+  '/admin/attendance/students': typeof AdminAttendanceStudentsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -93,6 +107,8 @@ export interface FileRoutesByTo {
   '/admin/staff': typeof AdminStaffRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin': typeof AdminIndexRoute
+  '/admin/attendance/staff': typeof AdminAttendanceStaffRoute
+  '/admin/attendance/students': typeof AdminAttendanceStudentsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -106,6 +122,8 @@ export interface FileRoutesById {
   '/admin/staff': typeof AdminStaffRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/attendance/staff': typeof AdminAttendanceStaffRoute
+  '/admin/attendance/students': typeof AdminAttendanceStudentsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,6 +138,8 @@ export interface FileRouteTypes {
     | '/admin/staff'
     | '/admin/users'
     | '/admin/'
+    | '/admin/attendance/staff'
+    | '/admin/attendance/students'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -131,6 +151,8 @@ export interface FileRouteTypes {
     | '/admin/staff'
     | '/admin/users'
     | '/admin'
+    | '/admin/attendance/staff'
+    | '/admin/attendance/students'
   id:
     | '__root__'
     | '/'
@@ -143,6 +165,8 @@ export interface FileRouteTypes {
     | '/admin/staff'
     | '/admin/users'
     | '/admin/'
+    | '/admin/attendance/staff'
+    | '/admin/attendance/students'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -225,6 +249,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/attendance/students': {
+      id: '/admin/attendance/students'
+      path: '/attendance/students'
+      fullPath: '/admin/attendance/students'
+      preLoaderRoute: typeof AdminAttendanceStudentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/attendance/staff': {
+      id: '/admin/attendance/staff'
+      path: '/attendance/staff'
+      fullPath: '/admin/attendance/staff'
+      preLoaderRoute: typeof AdminAttendanceStaffRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
@@ -234,6 +272,8 @@ interface AdminRouteChildren {
   AdminStaffRoute: typeof AdminStaffRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminAttendanceStaffRoute: typeof AdminAttendanceStaffRoute
+  AdminAttendanceStudentsRoute: typeof AdminAttendanceStudentsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -242,6 +282,8 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminStaffRoute: AdminStaffRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminAttendanceStaffRoute: AdminAttendanceStaffRoute,
+  AdminAttendanceStudentsRoute: AdminAttendanceStudentsRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

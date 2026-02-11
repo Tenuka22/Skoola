@@ -1,5 +1,6 @@
+import { HugeiconsIcon  } from '@hugeicons/react'
+import type {HugeiconsIconProps} from '@hugeicons/react'; // Import HugeiconsIconProps
 import { cn } from '@/lib/utils'
-import { HugeiconsIcon, type HugeiconsIconProps } from '@hugeicons/react' // Import HugeiconsIconProps
 
 interface SpinnerProps extends HugeiconsIconProps {
   className?: string;

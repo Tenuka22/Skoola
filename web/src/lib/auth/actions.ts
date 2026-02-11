@@ -1,20 +1,20 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import {
-  postAuthLogin9E9Be264D609C0E1A535693Ba4C389Aa as loginApi,
-  postAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9 as signUpApi,
-  postAuthLogout5D5C18E2301F7F66A8222C30Cd9230A0 as logoutApi,
   getProfileC838C8E7Da73Bfc08645A117E4Df91F3 as getProfileApi,
+  postAuthLogin9E9Be264D609C0E1A535693Ba4C389Aa as loginApi,
+  postAuthLogout5D5C18E2301F7F66A8222C30Cd9230A0 as logoutApi,
+  postAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9 as signUpApi,
 } from '../api/sdk.gen'
 import { authClient, publicClient } from '../clients'
+import { createClient } from '../api/client/index'
+import { env } from '../env'
 import {
+  SessionSchema,
   addSessionServer,
   clearAuthServer,
   getActiveSessionServer,
-  SessionSchema,
 } from './session'
-import { createClient } from '../api/client/index'
-import { env } from '../env'
 
 const loginSchema = z.object({
   email: z.email('Invalid email address'),

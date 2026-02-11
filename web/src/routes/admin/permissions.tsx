@@ -3,17 +3,17 @@
 import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { RefreshIcon, Shield01Icon, UserGroupIcon } from '@hugeicons/core-free-icons'
+import { PermissionsTable } from '../../features/permissions/components/permissions-table'
+import { PermissionSetsList } from '../../features/permissions/components/permission-sets-list'
+import type { PermissionSet } from '../../features/permissions/types'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Shield01Icon, UserGroupIcon, RefreshIcon } from '@hugeicons/core-free-icons'
 import { authClient } from '@/lib/clients'
-import { getPermissions9C8839E73223Cb930255A2882A4B0Db4Options as getPermissionsOptions } from '@/lib/api/@tanstack/react-query.gen'
-import { getPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44Options as getPermissionSetsOptions } from '@/lib/api/@tanstack/react-query.gen'
-import type { PermissionSet } from '../../features/permissions/types'
-import { PermissionsTable } from '../../features/permissions/components/permissions-table'
-import { PermissionSetsList } from '../../features/permissions/components/permission-sets-list'
+import { getPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44Options as getPermissionSetsOptions, getPermissions9C8839E73223Cb930255A2882A4B0Db4Options as getPermissionsOptions  } from '@/lib/api/@tanstack/react-query.gen'
+
 
 export const Route = createFileRoute('/admin/permissions')({
   component: PermissionsPage,
@@ -49,7 +49,7 @@ function PermissionsPage() {
     }),
     placeholderData: (previousData) => previousData,
     // Assuming getPermissionSets returns an array of PermissionSet directly, adjust if it's paginated.
-    select: (data) => data as PermissionSet[],
+    select: (data) => data as Array<PermissionSet>,
   })
 
   return (

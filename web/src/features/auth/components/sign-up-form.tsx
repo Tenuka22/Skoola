@@ -3,8 +3,11 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
+import { useMutation } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import { signUpSchema } from '../schemas'
 import type { SignUpFormValues } from '../schemas'
+import type { AuthStorage, Session } from '@/lib/auth/session'
 import { getAuthStorageServer } from '@/lib/auth/session'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,10 +24,7 @@ import {
   AvatarGroup,
   AvatarImage,
 } from '@/components/ui/avatar'
-import type { AuthStorage, Session } from '@/lib/auth/session'
-import { useMutation } from '@tanstack/react-query'
 import { signUpFn } from '@/lib/auth/actions'
-import { useNavigate } from '@tanstack/react-router'
 
 export function SignUpForm() {
   const [users, setUsers] = React.useState<AuthStorage | null>(null)

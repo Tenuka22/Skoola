@@ -1,23 +1,23 @@
 'use client'
 
 import * as React from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import type { Permission } from '@/lib/api/types.gen'
-import type { PermissionSet } from '../types'
-import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { PlusSignIcon, Edit04Icon, Delete02Icon, UserGroupIcon } from '@hugeicons/core-free-icons'
+import { Delete02Icon, Edit04Icon, PlusSignIcon, UserGroupIcon } from '@hugeicons/core-free-icons'
+// import { useMutation, useQueryClient } from '@tanstack/react-query'
+// import { toast } from 'sonner'
+// import { deletePermissionSet } from '../../permissions/api'
 import { CreatePermissionSetDialog } from './create-permission-set-dialog'
 import { EditPermissionSetDialog } from './edit-permission-set-dialog'
 import { ManagePermissionSetPermissionsDialog } from './manage-permission-set-permissions-dialog'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { deletePermissionSet } from '../../permissions/api'
-import { toast } from 'sonner'
+import type { PermissionSet } from '../types'
+import type { Permission } from '@/lib/api/types.gen'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface PermissionSetsListProps {
-  permissionSets: PermissionSet[]
+  permissionSets: Array<PermissionSet>
   isLoading: boolean
-  allPermissions: Permission[]
+  allPermissions: Array<Permission>
 }
 
 export function PermissionSetsList({
@@ -25,21 +25,21 @@ export function PermissionSetsList({
   isLoading,
   allPermissions,
 }: PermissionSetsListProps) {
-  const queryClient = useQueryClient()
+//   const queryClient = useQueryClient()
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false)
   const [editPermissionSet, setEditPermissionSet] = React.useState<PermissionSet | null>(null)
   const [managePermissionsForSet, setManagePermissionsForSet] = React.useState<PermissionSet | null>(null)
 
-  const deleteMutation = useMutation({
-    mutationFn: deletePermissionSet,
-    onSuccess: () => {
-      toast.success('Permission set deleted successfully.')
-      queryClient.invalidateQueries({ queryKey: ['permissionSets'] })
-    },
-    onError: (error) => {
-      toast.error(`Failed to delete permission set: ${(error as any).message}`)
-    },
-  })
+//   const deleteMutation = useMutation({
+//     mutationFn: deletePermissionSet,
+//     onSuccess: () => {
+//       toast.success('Permission set deleted successfully.')
+//       queryClient.invalidateQueries({ queryKey: ['permissionSets'] })
+//     },
+//     onError: (error) => {
+//       toast.error(`Failed to delete permission set: ${(error as any).message}`)
+//     },
+//   })
 
   if (isLoading) {
     return <div className="text-center p-8">Loading permission sets...</div>
@@ -73,7 +73,8 @@ export function PermissionSetsList({
                 <Button variant="outline" size="icon" onClick={() => setEditPermissionSet(set)}>
                   <HugeiconsIcon icon={Edit04Icon} className="size-4" />
                 </Button>
-                <Button variant="destructive" size="icon" onClick={() => deleteMutation.mutate(set.id)}>
+                {/* <Button variant="destructive" size="icon" onClick={() => deleteMutation.mutate(set.id)}> */}
+                <Button variant="destructive" size="icon" onClick={() => {}}>
                   <HugeiconsIcon icon={Delete02Icon} className="size-4" />
                 </Button>
               </CardContent>

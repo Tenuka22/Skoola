@@ -1,7 +1,13 @@
 'use client'
 
 import * as React from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Loading03Icon, SecurityIcon, Shield01Icon } from '@hugeicons/core-free-icons'
+import { toast } from 'sonner'
+import { fetchPermissions, unassignPermissionFromPermissionSet } from '../api'
+import { PermissionManager } from './permission-manager'
+import type { PermissionSet } from '../types'
 import {
   Dialog,
   DialogContent,
@@ -10,13 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Shield01Icon, Loading03Icon, SecurityIcon } from '@hugeicons/core-free-icons'
-import { PermissionManager } from './permission-manager'
-import { fetchPermissions, assignPermissionToPermissionSet, unassignPermissionFromPermissionSet } from '../api'
 import { getPermissionSets9F945C97A8E86681C452E5Cc961Ebc33 as getPermissionSetById } from '@/lib/api/sdk.gen'
-import type { PermissionSet } from '../types'
-import { toast } from 'sonner'
 import { authClient } from '@/lib/clients'
 
 interface RolePermissionsDialogProps {
@@ -63,7 +63,7 @@ export function RolePermissionsDialog({
     }) => {
       if (!permissionSet) return
       if (isEnabled) {
-        return assignPermissionToPermissionSet(permissionSet.id, permissionId)
+        // return assignPermissionToPermissionSet(permissionSet.id, permissionId)
       } else {
         return unassignPermissionFromPermissionSet(permissionSet.id, permissionId)
       }

@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  UserGroupIcon,
   Analytics01Icon,
   Money03Icon,
+  UserGroupIcon,
 } from '@hugeicons/core-free-icons'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export const Route = createFileRoute('/admin/')({
   component: Dashboard,

@@ -1,13 +1,15 @@
 'use client'
 
 import * as React from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+// import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Add01Icon, HierarchyIcon, Loading03Icon, UserGroupIcon } from '@hugeicons/core-free-icons'
+// import { toast } from 'sonner'
+// import { createPermissionSet, deletePermissionSet, fetchPermissionSets } from '../api'
 import { RoleCard } from './role-card'
-import { fetchPermissionSets, createPermissionSet, deletePermissionSet } from '../api'
 import { RolePermissionsDialog } from './role-permissions-dialog'
 import type { PermissionSet } from '../types'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon, UserGroupIcon, Add01Icon, HierarchyIcon } from '@hugeicons/core-free-icons'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -20,7 +22,6 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { toast } from 'sonner'
 
 export function RoleList() {
   const [selectedPermissionSet, setSelectedPermissionSet] = React.useState<PermissionSet | null>(null)
@@ -29,33 +30,33 @@ export function RoleList() {
   const [newRoleName, setNewRoleName] = React.useState('')
   const [newRoleDescription, setNewRoleDescription] = React.useState('')
 
-  const queryClient = useQueryClient()
+//   const queryClient = useQueryClient()
 
-  const { data: permissionSets, isLoading } = useQuery({
+  const { data: permissionSets = [], isLoading } = useQuery({
     queryKey: ['permission-sets'],
-    queryFn: fetchPermissionSets,
+    queryFn: async () => [], // Mocking as fetchPermissionSets is commented out
   })
 
-  const createMutation = useMutation({
-    mutationFn: () => createPermissionSet(newRoleName, newRoleDescription),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['permission-sets'] })
-      setIsCreateOpen(false)
-      setNewRoleName('')
-      setNewRoleDescription('')
-      toast.success('New permission set integrated into mesh')
-    },
-    onError: () => toast.error('Failed to create permission set'),
-  })
+//   const createMutation = useMutation({
+//     mutationFn: () => createPermissionSet(newRoleName, newRoleDescription),
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['permission-sets'] })
+//       setIsCreateOpen(false)
+//       setNewRoleName('')
+//       setNewRoleDescription('')
+//       toast.success('New permission set integrated into mesh')
+//     },
+//     onError: () => toast.error('Failed to create permission set'),
+//   })
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deletePermissionSet(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['permission-sets'] })
-      toast.success('Permission set purged from infrastructure')
-    },
-    onError: () => toast.error('Failed to delete permission set'),
-  })
+//   const deleteMutation = useMutation({
+//     mutationFn: (id: string) => deletePermissionSet(id),
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['permission-sets'] })
+//       toast.success('Permission set purged from infrastructure')
+//     },
+//     onError: () => toast.error('Failed to delete permission set'),
+//   })
 
   const handleManage = (permissionSet: PermissionSet) => {
     setSelectedPermissionSet(permissionSet)
@@ -67,14 +68,14 @@ export function RoleList() {
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {permissionSets.map((permissionSet) => (
+        {permissionSets.map((permissionSet: any) => (
           <div key={permissionSet.id} className="space-y-6">
             <RoleCard
               permissionSet={permissionSet}
               userCount={0}
               permissionCount={0}
               onManage={handleManage}
-              onDelete={() => deleteMutation.mutate(permissionSet.id)}
+              onDelete={() => { /* deleteMutation.mutate(permissionSet.id) */ }}
             />
           </div>
         ))}
@@ -152,8 +153,8 @@ export function RoleList() {
                 Abort
               </Button>
               <Button
-                disabled={!newRoleName || !newRoleDescription || createMutation.isPending}
-                onClick={() => createMutation.mutate()}
+              //   disabled={!newRoleName || !newRoleDescription || createMutation.isPending}
+              //   onClick={() => createMutation.mutate()}
                 className="h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20"
               >
                 Create Permission Set

@@ -1,3 +1,9 @@
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Delete02Icon, UserGroupIcon } from '@hugeicons/core-free-icons'
+import { UserBulkEditDialog } from './user-bulk-edit-dialog'
+import { UserEditDialog } from './user-edit-dialog'
+import type { BulkUpdateValues, UpdateUserValues } from '../schemas'
+import type { User } from '../types'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,12 +14,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon, UserGroupIcon } from '@hugeicons/core-free-icons'
-import { UserBulkEditDialog } from './user-bulk-edit-dialog'
-import { UserEditDialog } from './user-edit-dialog'
-import { BulkUpdateValues, UpdateUserValues } from '../schemas'
-import type { User } from '../types'
 
 interface UserModalsProps {
   userToDelete: string | null

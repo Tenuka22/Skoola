@@ -3,8 +3,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
+import {  bulkUpdateSchema } from '../schemas'
+import type {BulkUpdateValues} from '../schemas';
 import { RoleEnumSchema } from '@/lib/api/schemas.gen'
-import { bulkUpdateSchema, type BulkUpdateValues } from '../schemas'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -49,7 +50,6 @@ export function UserBulkEditDialog({
     setValue,
     watch,
     reset,
-    formState: {},
   } = useForm<BulkUpdateValues>({
     resolver: zodResolver(bulkUpdateSchema),
     defaultValues: {

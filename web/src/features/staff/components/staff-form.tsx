@@ -2,6 +2,10 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Loading03Icon } from '@hugeicons/core-free-icons'
+import {  createStaffSchema } from '../schemas'
+import type {CreateStaffValues} from '../schemas';
 import {
   Field,
   FieldError,
@@ -17,9 +21,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
-import { createStaffSchema, type CreateStaffValues } from '../schemas'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon } from '@hugeicons/core-free-icons'
 
 interface StaffFormProps {
   initialValues?: Partial<CreateStaffValues>

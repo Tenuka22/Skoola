@@ -9,12 +9,12 @@ export interface PermissionSet {
 }
 
 export interface PermissionSetWithPermissions extends PermissionSet {
-  permissions: Permission[]
+  permissions: Array<Permission>
 }
 
 export interface UserWithRoles extends UserResponse {
-  roles: RoleEnum[]
-  permission_sets: PermissionSet[]
-  direct_permissions: Permission[]
-  all_permissions: Permission[]
+  roles: Array<RoleEnum>
+  permission_sets: Array<PermissionSet>
+  direct_permissions: Array<Permission>
+  all_permissions: Array<Permission>
 }

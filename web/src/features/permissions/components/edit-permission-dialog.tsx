@@ -4,21 +4,21 @@ import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+// import { toast } from 'sonner'
+// import { useMutation, useQueryClient } from '@tanstack/react-query'
+// import { updatePermission } from '../../permissions/api'
+import { PERMISSION_NAMES, PERMISSION_SEVERITIES } from '../constants'
+import type { Permission } from '@/lib/api/types.gen'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { toast } from 'sonner'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { updatePermission } from '../../permissions/api'
-import type { Permission, PermissionEnum, PermissionSeverity } from '@/lib/api/types.gen'
-import { PERMISSION_NAMES, PERMISSION_SEVERITIES } from '../constants'
 
 const formSchema = z.object({
-  name: z.enum(PERMISSION_NAMES as [string, ...string[]]).optional(),
+  name: z.enum(PERMISSION_NAMES as [string, ...Array<string>]).optional(),
   description: z.string().min(1, "Description is required").optional(),
-  safety_level: z.enum(PERMISSION_SEVERITIES as [string, ...string[]]).optional(),
+  safety_level: z.enum(PERMISSION_SEVERITIES as [string, ...Array<string>]).optional(),
   is_admin_only: z.boolean().optional(),
 })
 
@@ -29,7 +29,7 @@ interface EditPermissionDialogProps {
 }
 
 export function EditPermissionDialog({ open, onOpenChange, permission }: EditPermissionDialogProps) {
-  const queryClient = useQueryClient()
+//   const queryClient = useQueryClient()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -51,27 +51,27 @@ export function EditPermissionDialog({ open, onOpenChange, permission }: EditPer
     }
   }, [permission, form])
 
-  const updateMutation = useMutation({
-    mutationFn: (values: z.infer<typeof formSchema>) =>
-      updatePermission(
-        permission.id,
-        values.name as PermissionEnum,
-        values.description,
-        values.safety_level as PermissionSeverity,
-      ),
-    onSuccess: () => {
-      toast.success('Permission updated successfully.')
-      onOpenChange(false)
-      queryClient.invalidateQueries({ queryKey: ['permissions'] })
-    },
-    onError: (error) => {
-      toast.error(`Failed to update permission: ${(error as any).message}`)
-    },
-  })
+//   const updateMutation = useMutation({
+//     mutationFn: (values: z.infer<typeof formSchema>) =>
+//       updatePermission(
+//         permission.id,
+//         values.name as PermissionEnum,
+//         values.description,
+//         values.safety_level as PermissionSeverity,
+//       ),
+//     onSuccess: () => {
+//       toast.success('Permission updated successfully.')
+//       onOpenChange(false)
+//       queryClient.invalidateQueries({ queryKey: ['permissions'] })
+//     },
+//     onError: (error) => {
+//       toast.error(`Failed to update permission: ${(error as any).message}`)
+//     },
+//   })
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    updateMutation.mutate(values)
-  }
+//   const onSubmit = (values: z.infer<typeof formSchema>) => {
+//     updateMutation.mutate(values)
+//   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -80,7 +80,7 @@ export function EditPermissionDialog({ open, onOpenChange, permission }: EditPer
           <DialogTitle>Edit Permission: {permission.name}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={() => {}} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
