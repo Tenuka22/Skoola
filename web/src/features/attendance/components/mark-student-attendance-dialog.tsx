@@ -68,7 +68,7 @@ export const MarkStudentAttendanceDialog = ({
   React.useEffect(() => {
     if (attendance) {
       form.reset({
-        status: attendance.status as any,
+        status: attendance.status,
         remarks: attendance.remarks ?? '',
       });
     }

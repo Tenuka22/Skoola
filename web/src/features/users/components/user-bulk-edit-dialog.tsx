@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import * as z from 'zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
 import {  bulkUpdateSchema } from '../schemas'
@@ -40,9 +40,9 @@ export function UserBulkEditDialog({
   isSubmitting,
 }: UserBulkEditDialogProps) {
   const availableRoles = {
-    data: Object.values(zRoleEnum.enum).map((roleName) => ({
-      id: roleName as z.infer<typeof zRoleEnum>,
-      name: roleName as z.infer<typeof zRoleEnum>,
+    data: Object.values(zRoleEnum.enum).map((roleName: z.infer<typeof zRoleEnum>) => ({
+      id: roleName,
+      name: roleName,
     })),
   }
 
@@ -76,7 +76,7 @@ export function UserBulkEditDialog({
 
 
   const toggleRole = (roleName: z.infer<typeof zRoleEnum>) => {
-    const current = selectedRoles as z.infer<typeof zRoleEnum>[]
+    const current = selectedRoles as Array<z.infer<typeof zRoleEnum>>
     if (current.includes(roleName)) {
       setValue(
         'roles',
@@ -155,7 +155,7 @@ export function UserBulkEditDialog({
                             )}
                           </div>
                           <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-                            {availableRoles?.data.map((role) => (
+                            {availableRoles?.data.map((role: { id: z.infer<typeof zRoleEnum>; name: z.infer<typeof zRoleEnum>; }) => (
                               <div
                                 key={role.id}
                                 onClick={() => toggleRole(role.name)}

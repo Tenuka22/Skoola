@@ -12,7 +12,7 @@ import {
 // import { toast } from 'sonner'
 // import { useMutation, useQueryClient } from '@tanstack/react-query'
 // import { updatePermission } from '../../permissions/api'
-import { PERMISSION_NAMES, PERMISSION_SEVERITIES } from '../constants'
+// import type { PermissionEnum, PermissionSeverity } from '@/lib/api/types.gen'
 import type { Permission } from '@/lib/api/types.gen'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -99,7 +99,7 @@ export function EditPermissionDialog({ open, onOpenChange, permission }: EditPer
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {PERMISSION_NAMES.map((permissionName) => (
+                      {Object.values(zPermissionEnum.enum).map((permissionName) => (
                         <SelectItem key={permissionName} value={permissionName}>
                           {permissionName}
                         </SelectItem>
@@ -136,7 +136,7 @@ export function EditPermissionDialog({ open, onOpenChange, permission }: EditPer
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {PERMISSION_SEVERITIES.map((level) => (
+                      {Object.values(zPermissionSeverity.enum).map((level) => (
                         <SelectItem key={level} value={level}>
                           {level}
                         </SelectItem>

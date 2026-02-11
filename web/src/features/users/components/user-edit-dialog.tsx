@@ -48,9 +48,9 @@ export function UserEditDialog({
 }: UserEditDialogProps) {
   // Using RoleEnumSchema to define available roles directly.
   const availableRoles = {
-    data: Object.values(zRoleEnum.enum).map((roleName) => ({
-      id: roleName as z.infer<typeof zRoleEnum>,
-      name: roleName as z.infer<typeof zRoleEnum>,
+    data: Object.values(zRoleEnum.enum).map((roleName: z.infer<typeof zRoleEnum>) => ({
+      id: roleName,
+      name: roleName,
     })),
   }
 
@@ -85,7 +85,7 @@ export function UserEditDialog({
   const selectedRoles = watch('roles') || []
 
   const toggleRole = (roleName: z.infer<typeof zRoleEnum>) => {
-    const current = selectedRoles as z.infer<typeof zRoleEnum>[]
+    const current = selectedRoles as Array<z.infer<typeof zRoleEnum>>
     if (current.includes(roleName)) {
       setValue(
         'roles',
@@ -180,23 +180,22 @@ export function UserEditDialog({
                                 )}
                               </div>
                               <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-                                {availableRoles?.data.map((role) => (
-                                  <div
-                                    key={role.id}
-                                    onClick={() => toggleRole(role.name)}
-                                    className="flex cursor-pointer items-center gap-3 rounded-xl border border-transparent bg-muted/20 p-3 transition-all hover:bg-muted/40 hover:ring-1 hover:ring-primary/20"
-                                  >
-                                    <Checkbox
-                                      checked={selectedRoles.includes(role.name)}
-                                      onCheckedChange={() => toggleRole(role.name)}
-                                      className="rounded-md"
-                                    />
-                                    <span className="text-xs font-bold tracking-tight">
-                                      {role.name}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
+                                                                                            {availableRoles?.data.map((role: { id: z.infer<typeof zRoleEnum>; name: z.infer<typeof zRoleEnum>; }) => (
+                                                                                              <div
+                                                                                                key={role.id}
+                                                                                                onClick={() => toggleRole(role.name)}
+                                                                                                className="flex cursor-pointer items-center gap-3 rounded-xl border border-transparent bg-muted/20 p-3 transition-all hover:bg-muted/40 hover:ring-1 hover:ring-primary/20"
+                                                                                              >
+                                                                                                <Checkbox
+                                                                                                  checked={selectedRoles.includes(role.name)}
+                                                                                                  onCheckedChange={() => toggleRole(role.name)}
+                                                                                                  className="rounded-md"
+                                                                                                />
+                                                                                                <span className="text-xs font-bold tracking-tight">
+                                                                                                  {role.name}
+                                                                                                </span>
+                                                                                              </div>
+                                                                                            ))}                              </div>
                             </FieldGroup>            </div>
           </FieldGroup>
 

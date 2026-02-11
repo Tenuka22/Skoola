@@ -1,4 +1,10 @@
 import { z } from 'zod';
+import type {
+  StudentStatus,
+  Gender,
+  Ethnicity,
+  Religion,
+} from '@/lib/api/types.gen';
 import {
   zStudentStatus,
   zGender,
@@ -9,16 +15,16 @@ import {
 } from '@/lib/api/zod.gen';
 
 export const studentStatusSchema = zStudentStatus;
-export type StudentStatus = z.infer<typeof studentStatusSchema>;
+export { StudentStatus };
 
 export const genderSchema = zGender;
-export type Gender = z.infer<typeof genderSchema>;
+export { Gender };
 
 export const ethnicitySchema = zEthnicity;
-export type Ethnicity = z.infer<typeof ethnicitySchema>;
+export { Ethnicity };
 
 export const religionSchema = zReligion;
-export type Religion = z.infer<typeof religionSchema>;
+export { Religion };
 
 export const createStudentSchema = zCreateStudentRequest.extend({
   admission_number: z.string().min(1, 'Admission number is required'),

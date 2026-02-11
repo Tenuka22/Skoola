@@ -1,4 +1,8 @@
 import { z } from 'zod'
+import type {
+  StaffType,
+  EmploymentStatus,
+} from '@/lib/api/types.gen'
 import {
   zStaffType,
   zEmploymentStatus,
@@ -7,7 +11,10 @@ import {
 } from '@/lib/api/zod.gen'
 
 export const staffTypeSchema = zStaffType
+export { StaffType }
+
 export const employmentStatusSchema = zEmploymentStatus
+export { EmploymentStatus }
 
 export const createStaffSchema = zCreateStaffRequest.extend({
   employee_id: z.string().min(1, 'Employee ID is required'),

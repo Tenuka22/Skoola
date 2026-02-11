@@ -69,7 +69,7 @@ export const MarkStaffAttendanceDialog = ({
   React.useEffect(() => {
     if (attendance) {
       form.reset({
-        status: attendance.status as any,
+        status: attendance.status,
         time_in: attendance.time_in ?? '',
         time_out: attendance.time_out ?? '',
         remarks: attendance.remarks ?? '',
