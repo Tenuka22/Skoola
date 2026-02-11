@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMarkStudentAttendanceBulk, useUpdateStudentAttendance } from '../api';
 import type { StudentAttendanceWithMember } from '../types';
-import type { AttendanceStatus } from '@/lib/api/types.gen';
+import { zAttendanceStatus } from '@/lib/api/zod.gen';
 import {
   Dialog,
   DialogContent,
@@ -32,7 +32,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
 
 const attendanceSchema = z.object({
-  status: z.enum(['Present', 'Absent', 'Late', 'Excused', 'HalfDay']),
+  status: zAttendanceStatus,
   remarks: z.string().optional().nullable(),
 });
 
@@ -94,7 +94,7 @@ export const MarkStudentAttendanceDialog = ({
               student_id: attendance.student_id,
               class_id: classId,
               date,
-              status: values.status as AttendanceStatus,
+              status: values.status,
               remarks: values.remarks,
               marked_by: user.id,
             },

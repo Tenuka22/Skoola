@@ -10,6 +10,11 @@
   - Use the `render` prop for composition (e.g., `render={<Link to="..." />}`).
   - Example: `<SidebarMenuButton render={<Link to="/admin" />} >Home</SidebarMenuButton>`
 
+## Zod Schema Usage
+- **Extension**: Always extend auto-generated schemas from `web/src/lib/api/zod.gen.ts` when creating form schemas or validation logic.
+- **Custom Messages**: Add custom, user-friendly error messages using `.min()`, `.max()`, `.email()`, etc., on extended schemas.
+- **Enums**: Utilize generated Zod enums (e.g., `zAttendanceStatus`, `zPermissionEnum`) directly for consistency.
+
 ## Layout & Spacing
 
 - **Spacing Scale**: Exclusively use `4` or multiples of `4`.

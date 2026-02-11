@@ -1,55 +1,47 @@
 import { z } from 'zod';
+import {
+  zStudentStatus,
+  zGender,
+  zEthnicity,
+  zReligion,
+  zCreateStudentRequest,
+  zUpdateStudentRequest,
+} from '@/lib/api/zod.gen';
 
-export const studentStatusSchema = z.enum([
-  'Active',
-  'Suspended',
-  'Graduated',
-  'Transferred',
-  'Withdrawn',
-]);
+export const studentStatusSchema = zStudentStatus;
 export type StudentStatus = z.infer<typeof studentStatusSchema>;
 
-export const genderSchema = z.enum(['Male', 'Female', 'Other']);
+export const genderSchema = zGender;
 export type Gender = z.infer<typeof genderSchema>;
 
-export const ethnicitySchema = z.enum([
-  'Sinhala',
-  'Tamil',
-  'Muslim',
-  'Burger',
-  'Malay',
-  'Other',
-]);
+export const ethnicitySchema = zEthnicity;
 export type Ethnicity = z.infer<typeof ethnicitySchema>;
 
-export const religionSchema = z.enum([
-  'Buddhism',
-  'Hinduism',
-  'Islam',
-  'Christianity',
-  'Other',
-]);
+export const religionSchema = zReligion;
 export type Religion = z.infer<typeof religionSchema>;
 
-export const createStudentSchema = z.object({
+export const createStudentSchema = zCreateStudentRequest.extend({
   admission_number: z.string().min(1, 'Admission number is required'),
   name_english: z.string().min(1, 'English name is required'),
-  name_sinhala: z.string().optional().nullable(),
-  name_tamil: z.string().optional().nullable(),
-  email: z.string().email('Invalid email address').optional().nullable(),
   phone: z.string().min(1, 'Phone number is required'),
   nic_or_birth_certificate: z.string().min(1, 'NIC or Birth Certificate is required'),
   dob: z.string().min(1, 'Date of birth is required'),
-  gender: genderSchema,
   address: z.string().min(1, 'Address is required'),
-  ethnicity: ethnicitySchema.optional().nullable(),
-  religion: religionSchema.optional().nullable(),
+  email: z.string().email('Invalid email address').optional().nullable(),
   photo_url: z.string().url('Invalid URL').optional().nullable(),
-  status: studentStatusSchema.optional().nullable(),
-})
+});
 
-export type CreateStudentValues = z.infer<typeof createStudentSchema>
+export type CreateStudentValues = z.infer<typeof createStudentSchema>;
 
-export const updateStudentSchema = createStudentSchema.partial()
+export const updateStudentSchema = zUpdateStudentRequest.extend({
+  admission_number: z.string().min(1, 'Admission number is required').optional(),
+  name_english: z.string().min(1, 'English name is required').optional(),
+  phone: z.string().min(1, 'Phone number is required').optional(),
+  nic_or_birth_certificate: z.string().min(1, 'NIC or Birth Certificate is required').optional(),
+  dob: z.string().min(1, 'Date of birth is required').optional(),
+  address: z.string().min(1, 'Address is required').optional(),
+  email: z.string().email('Invalid email address').optional().nullable(),
+  photo_url: z.string().url('Invalid URL').optional().nullable(),
+});
 
-export type UpdateStudentValues = z.infer<typeof updateStudentSchema>
+export type UpdateStudentValues = z.infer<typeof updateStudentSchema>;

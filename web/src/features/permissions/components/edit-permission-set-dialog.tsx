@@ -4,6 +4,7 @@ import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { zUpdatePermissionSetRequest } from '@/lib/api/zod.gen'
 // import { toast } from 'sonner'
 // import { useMutation, useQueryClient } from '@tanstack/react-query'
 // import { updatePermissionSet } from '../../permissions/api'
@@ -14,9 +15,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required").optional(),
-  description: z.string().min(1, "Description is required").optional(),
+const formSchema = zUpdatePermissionSetRequest.extend({
+  name: z.string().min(1, 'Name is required').optional(),
+  description: z.string().min(1, 'Description is required').optional(),
 })
 
 interface EditPermissionSetDialogProps {

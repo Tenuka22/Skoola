@@ -8,6 +8,8 @@
   - Purpose: Utilities for managing auth cookies (reading/writing sessions). Handles multi-auth storage.
 - `web/src/lib/auth/types.ts`
   - Purpose: TypeScript definitions for Session, User, etc.
+- `web/src/lib/api/zod.gen.ts`
+  - Purpose: Auto-generated Zod schemas from the backend API, used as base for client-side validation.
 
 ## Feature Components
 

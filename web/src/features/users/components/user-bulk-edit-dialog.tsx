@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
 import {  bulkUpdateSchema } from '../schemas'
 import type {BulkUpdateValues} from '../schemas';
-import { RoleEnumSchema } from '@/lib/api/schemas.gen'
+import { zRoleEnum } from '@/lib/api/zod.gen'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -39,9 +40,9 @@ export function UserBulkEditDialog({
   isSubmitting,
 }: UserBulkEditDialogProps) {
   const availableRoles = {
-    data: RoleEnumSchema.enum.map((roleName) => ({
-      id: roleName, // Using role name as ID for consistency in UI
-      name: roleName,
+    data: Object.values(zRoleEnum.enum).map((roleName) => ({
+      id: roleName as z.infer<typeof zRoleEnum>,
+      name: roleName as z.infer<typeof zRoleEnum>,
     })),
   }
 
@@ -73,8 +74,9 @@ export function UserBulkEditDialog({
   const isLocked = watch('is_locked')
   const selectedRoles = watch('roles') || []
 
-  const toggleRole = (roleName: string) => {
-    const current = selectedRoles
+
+  const toggleRole = (roleName: z.infer<typeof zRoleEnum>) => {
+    const current = selectedRoles as z.infer<typeof zRoleEnum>[]
     if (current.includes(roleName)) {
       setValue(
         'roles',

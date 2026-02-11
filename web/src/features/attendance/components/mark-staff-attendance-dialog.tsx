@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMarkStaffAttendanceBulk, useUpdateStaffAttendance } from '../api';
 import type { StaffAttendanceWithMember } from '../types';
-import type { AttendanceStatus } from '@/lib/api/types.gen';
+import { zAttendanceStatus } from '@/lib/api/zod.gen';
 import {
   Dialog,
   DialogContent,
@@ -32,7 +32,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
 const attendanceSchema = z.object({
-  status: z.enum(['Present', 'Absent', 'Late', 'Excused', 'HalfDay']),
+  status: zAttendanceStatus,
   time_in: z.string().optional().nullable(),
   time_out: z.string().optional().nullable(),
   remarks: z.string().optional().nullable(),
@@ -96,7 +96,7 @@ export const MarkStaffAttendanceDialog = ({
           attendance_records: [
             {
               staff_id: attendance.staff_id,
-              status: values.status as AttendanceStatus,
+              status: values.status,
               time_in: values.time_in,
               time_out: values.time_out,
               remarks: values.remarks,

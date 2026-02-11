@@ -1,12 +1,13 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
 import {  updateUserSchema } from '../schemas'
 import type {UpdateUserValues} from '../schemas';
 import type { User } from '../types'
-import { RoleEnumSchema } from '@/lib/api/schemas.gen'
+import { zRoleEnum } from '@/lib/api/zod.gen'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -47,9 +48,9 @@ export function UserEditDialog({
 }: UserEditDialogProps) {
   // Using RoleEnumSchema to define available roles directly.
   const availableRoles = {
-    data: RoleEnumSchema.enum.map((roleName) => ({
-      id: roleName, // Using role name as ID for consistency in UI
-      name: roleName,
+    data: Object.values(zRoleEnum.enum).map((roleName) => ({
+      id: roleName as z.infer<typeof zRoleEnum>,
+      name: roleName as z.infer<typeof zRoleEnum>,
     })),
   }
 
@@ -68,8 +69,8 @@ export function UserEditDialog({
     if (open && user) {
       reset({
         email: user.email,
-        is_verified: user.is_verified,
-        is_locked: false, // We don't have current lock status in UserResponse easily, assume false for toggle
+        is_verified: user.is_verified ?? false,
+        is_locked: undefined, // Not directly available in UserResponse, defaults to undefined for form control
         roles: [], // We'd need to fetch current roles for a perfect pre-fill, but let's assume empty for now or fetch them
       })
     }
@@ -83,8 +84,8 @@ export function UserEditDialog({
   const isLocked = watch('is_locked')
   const selectedRoles = watch('roles') || []
 
-  const toggleRole = (roleName: string) => {
-    const current = selectedRoles
+  const toggleRole = (roleName: z.infer<typeof zRoleEnum>) => {
+    const current = selectedRoles as z.infer<typeof zRoleEnum>[]
     if (current.includes(roleName)) {
       setValue(
         'roles',
@@ -139,7 +140,7 @@ export function UserEditDialog({
                     </p>
                   </div>
                   <Switch
-                    checked={isVerified}
+                    checked={isVerified ?? false}
                     onCheckedChange={(checked) =>
                       setValue('is_verified', checked)
                     }
@@ -156,7 +157,7 @@ export function UserEditDialog({
                     </p>
                   </div>
                   <Switch
-                    checked={isLocked}
+                    checked={isLocked ?? false}
                     onCheckedChange={(checked) =>
                       setValue('is_locked', checked)
                     }

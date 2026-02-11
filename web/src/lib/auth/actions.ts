@@ -6,6 +6,7 @@ import {
   postAuthLogout5D5C18E2301F7F66A8222C30Cd9230A0 as logoutApi,
   postAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9 as signUpApi,
 } from '../api/sdk.gen'
+import { zLoginRequest, zRegisterRequest } from '../api/zod.gen'
 import { authClient, publicClient } from '../clients'
 import { createClient } from '../api/client/index'
 import { env } from '../env'
@@ -16,14 +17,14 @@ import {
   getActiveSessionServer,
 } from './session'
 
-const loginSchema = z.object({
-  email: z.email('Invalid email address'),
+const loginSchema = zLoginRequest.extend({
+  email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 })
 
-const signUpSchema = z.object({
+const signUpSchema = zRegisterRequest.extend({
   name: z.string().min(1, 'Name is required'),
-  email: z.email('Invalid email address'),
+  email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 })
 

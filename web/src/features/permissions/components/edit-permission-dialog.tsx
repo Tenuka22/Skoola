@@ -4,6 +4,11 @@ import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import {
+  zUpdatePermissionRequest,
+  zPermissionEnum,
+  zPermissionSeverity,
+} from '@/lib/api/zod.gen'
 // import { toast } from 'sonner'
 // import { useMutation, useQueryClient } from '@tanstack/react-query'
 // import { updatePermission } from '../../permissions/api'
@@ -15,10 +20,10 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
-const formSchema = z.object({
-  name: z.enum(PERMISSION_NAMES as [string, ...Array<string>]).optional(),
-  description: z.string().min(1, "Description is required").optional(),
-  safety_level: z.enum(PERMISSION_SEVERITIES as [string, ...Array<string>]).optional(),
+const formSchema = zUpdatePermissionRequest.extend({
+  name: zPermissionEnum.optional(),
+  description: z.string().min(1, 'Description is required').optional(),
+  safety_level: zPermissionSeverity.optional(),
   is_admin_only: z.boolean().optional(),
 })
 
