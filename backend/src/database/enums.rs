@@ -313,6 +313,7 @@ pub enum StudentStatus {
     Transferred,
     Graduated,
     Withdrawn,
+    Suspended,
 }
 
 impl Display for StudentStatus {
@@ -322,6 +323,7 @@ impl Display for StudentStatus {
             StudentStatus::Transferred => write!(f, "Transferred"),
             StudentStatus::Graduated => write!(f, "Graduated"),
             StudentStatus::Withdrawn => write!(f, "Withdrawn"),
+            StudentStatus::Suspended => write!(f, "Suspended"),
         }
     }
 }
@@ -335,6 +337,7 @@ impl std::str::FromStr for StudentStatus {
             "Transferred" => Ok(StudentStatus::Transferred),
             "Graduated" => Ok(StudentStatus::Graduated),
             "Withdrawn" => Ok(StudentStatus::Withdrawn),
+            "Suspended" => Ok(StudentStatus::Suspended),
             _ => Err("Invalid StudentStatus"),
         }
     }
@@ -357,6 +360,7 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for StudentStatus {
             "Transferred" => Ok(StudentStatus::Transferred),
             "Graduated" => Ok(StudentStatus::Graduated),
             "Withdrawn" => Ok(StudentStatus::Withdrawn),
+            "Suspended" => Ok(StudentStatus::Suspended),
             _ => Err("Unrecognized enum variant".into()),
         }
     }

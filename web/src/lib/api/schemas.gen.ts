@@ -6368,7 +6368,8 @@ export const StudentStatusSchema = {
         'Active',
         'Transferred',
         'Graduated',
-        'Withdrawn'
+        'Withdrawn',
+        'Suspended'
     ]
 } as const;
 

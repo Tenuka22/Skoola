@@ -2690,7 +2690,8 @@ export const zStudentStatus = z.enum([
     'Active',
     'Transferred',
     'Graduated',
-    'Withdrawn'
+    'Withdrawn',
+    'Suspended'
 ]);
 
 /**

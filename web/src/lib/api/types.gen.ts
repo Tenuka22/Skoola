@@ -2131,7 +2131,7 @@ export type StudentResponse = {
     updated_at: string;
 };
 
-export type StudentStatus = 'Active' | 'Transferred' | 'Graduated' | 'Withdrawn';
+export type StudentStatus = 'Active' | 'Transferred' | 'Graduated' | 'Withdrawn' | 'Suspended';
 
 /**
  * SubjectResponse
