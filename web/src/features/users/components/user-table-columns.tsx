@@ -1,26 +1,12 @@
 import { HugeiconsIcon } from '@hugeicons/react'
-import {
-  Cancel01Icon,
-  Delete02Icon,
-  Menu01Icon,
-  PencilEdit01Icon,
-  Shield01Icon,
-  Sorting05Icon,
-  SquareLock02Icon,
-  Tick01Icon,
-} from '@hugeicons/core-free-icons'
+import { Delete02Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
 import { format } from 'date-fns'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { User } from '../types'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 
 interface GetColumnsProps {
   selectedUsers: Set<string>
@@ -37,10 +23,7 @@ export function getUserColumns({
   selectedUsers,
   setSelectedUsers,
   setUserToDelete,
-  onToggleVerify,
-  onToggleLock,
   onEditUser,
-  onManagePermissions,
   users,
 }: GetColumnsProps): Array<ColumnDef<User>> {
   return [
@@ -58,6 +41,7 @@ export function getUserColumns({
               setSelectedUsers(new Set())
             }
           }}
+          className="border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
         />
       ),
       cell: ({ row }) => (
@@ -70,137 +54,115 @@ export function getUserColumns({
             else newSelected.delete(row.original.id)
             setSelectedUsers(newSelected)
           }}
+          className="border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
         />
       ),
+      enableSorting: false,
+      enableHiding: false,
     },
     {
-      accessorKey: 'email',
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="-ml-4 h-8 data-[state=open]:bg-accent"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          <span>Email</span>
-          <HugeiconsIcon icon={Sorting05Icon} className="ml-2 size-4" />
-        </Button>
-      ),
+      accessorKey: 'full_name',
+      header: 'Full name',
+      cell: ({ row }) => {
+        const user = row.original
+        // Mock name from email since API doesn't return it yet
+        const name = user.email
+          .split('@')[0]
+          .replace(/[._]/g, ' ')
+          .replace(/\b\w/g, (l) => l.toUpperCase())
+        const initials = name.substring(0, 2).toUpperCase()
+
+        return (
+          <div className="flex items-center gap-3">
+            <Avatar className="h-9 w-9 border border-border/50">
+              <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-foreground">
+                {name}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {user.email}
+              </span>
+            </div>
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'role',
+      header: 'Role',
+      cell: ({ row }) => {
+        // Mock role since API doesn't return it yet
+        const role = (row.original as any).role || 'Member'
+        return (
+          <span className="text-sm text-foreground/80 font-medium">{role}</span>
+        )
+      },
     },
     {
       accessorKey: 'is_verified',
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="-ml-4 h-8 data-[state=open]:bg-accent"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          <span>Status</span>
-          <HugeiconsIcon icon={Sorting05Icon} className="ml-2 size-4" />
-        </Button>
-      ),
-      cell: ({ row }) =>
-        row.getValue('is_verified') ? (
-          <div className="flex items-center gap-2 text-green-600">
-            <HugeiconsIcon icon={Tick01Icon} className="size-3" />
-            <span className="text-[11px] font-bold uppercase tracking-wider">
-              Verified
+      header: 'Status',
+      cell: ({ row }) => {
+        const isActive = row.getValue('is_verified')
+        return (
+          <div className="flex items-center gap-2">
+            <span className={`relative flex h-2 w-2`}>
+              <span
+                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isActive ? 'bg-green-400' : 'bg-red-400'}`}
+              ></span>
+              <span
+                className={`relative inline-flex rounded-full h-2 w-2 ${isActive ? 'bg-green-500' : 'bg-red-500'}`}
+              ></span>
             </span>
+            <Badge
+              variant="outline"
+              className={`border-0 bg-transparent px-0 font-medium ${isActive ? 'text-green-500' : 'text-red-500'}`}
+            >
+              {isActive ? 'Active' : 'Inactive'}
+            </Badge>
           </div>
-        ) : (
-          <div className="flex items-center gap-2 text-amber-600">
-            <HugeiconsIcon icon={Cancel01Icon} className="size-3" />
-            <span className="text-[11px] font-bold uppercase tracking-wider">
-              Pending
-            </span>
-          </div>
-        ),
+        )
+      },
     },
     {
       accessorKey: 'created_at',
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="-ml-4 h-8 data-[state=open]:bg-accent"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          <span>Joined Date</span>
-          <HugeiconsIcon icon={Sorting05Icon} className="ml-2 size-4" />
-        </Button>
+      header: 'Joined date',
+      cell: ({ row }) => (
+        <span className="text-sm text-muted-foreground">
+          {format(new Date(row.getValue('created_at')), 'd MMM yyyy, h:mm a')}
+        </span>
       ),
-      cell: ({ row }) =>
-        format(new Date(row.getValue('created_at')), 'MMM d, yyyy HH:mm'),
     },
     {
       id: 'actions',
+      header: 'Actions',
       cell: ({ row }) => {
         const user = row.original
         return (
-          <div className="text-right">
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <HugeiconsIcon icon={Menu01Icon} className="size-4" />
-                  </Button>
-                }
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 text-muted-foreground hover:text-foreground"
+              onClick={() => onEditUser(user)}
+            >
+              <HugeiconsIcon
+                icon={PencilEdit01Icon}
+                className="mr-1.5 size-3.5"
               />
-              <DropdownMenuContent align="end" className="w-48 rounded-xl p-2">
-                <DropdownMenuItem
-                  className="gap-2 rounded-lg py-2"
-                  onClick={() => onEditUser(user)}
-                >
-                  <HugeiconsIcon
-                    icon={PencilEdit01Icon}
-                    className="size-4 text-muted-foreground"
-                  />
-                  <span>Edit User</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="gap-2 rounded-lg py-2"
-                  onClick={() => onToggleVerify(user)}
-                >
-                  <HugeiconsIcon
-                    icon={Tick01Icon}
-                    className="size-4 text-primary"
-                  />
-                  <span>
-                    {user.is_verified ? 'Mark Unverified' : 'Mark Verified'}
-                  </span>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  className="gap-2 rounded-lg py-2"
-                  onClick={() => onToggleLock(user)}
-                >
-                  <HugeiconsIcon
-                    icon={SquareLock02Icon}
-                    className="size-4 text-amber-500"
-                  />
-                  <span>Toggle Lock Status</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  className="gap-2 rounded-lg py-2"
-                  onClick={() => onManagePermissions(user)}
-                >
-                  <HugeiconsIcon
-                    icon={Shield01Icon}
-                    className="size-4 text-primary"
-                  />
-                  <span>Manage Permissions</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem
-                  className="gap-2 rounded-lg py-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
-                  onClick={() => setUserToDelete(user.id)}
-                >
-                  <HugeiconsIcon icon={Delete02Icon} className="size-4" />
-                  <span>Purge Account</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              Edit
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              onClick={() => setUserToDelete(user.id)}
+            >
+              <HugeiconsIcon icon={Delete02Icon} className="size-4" />
+            </Button>
           </div>
         )
       },

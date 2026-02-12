@@ -1,0 +1,164 @@
+import { format } from 'date-fns'
+import { HugeiconsIcon } from '@hugeicons/react'
+import {
+  Calendar01Icon,
+  Delete02Icon,
+  Mail01Icon,
+  MoreVerticalIcon,
+  PencilEdit01Icon,
+  Shield01Icon,
+  Tick01Icon,
+} from '@hugeicons/core-free-icons'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Skeleton } from '@/components/ui/skeleton'
+import type { UserResponse } from '@/lib/api/types.gen'
+
+interface UserBoardViewProps {
+  users: UserResponse[] | undefined
+  isLoading?: boolean
+  onEdit: (user: UserResponse) => void
+  onDelete: (id: string) => void
+  onToggleVerify: (user: UserResponse) => void
+  onManagePermissions: (user: UserResponse) => void
+}
+
+export function UserBoardView({
+  users,
+  isLoading,
+  onEdit,
+  onDelete,
+  onToggleVerify,
+  onManagePermissions,
+}: UserBoardViewProps) {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Card key={i} className="overflow-hidden border-border/60 shadow-sm">
+            <CardHeader className="flex flex-row items-center gap-4 p-4">
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <div className="space-y-2">
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-2/3" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
+  }
+
+  if (!users?.length) {
+    return (
+      <div className="flex h-64 flex-col items-center justify-center rounded-xl border border-dashed bg-muted/10">
+        <p className="text-muted-foreground">No users found</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {users.map((user) => {
+        const name = user.email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+        const initials = name.substring(0, 2).toUpperCase()
+        const role = (user as any).role || 'Member'
+
+        return (
+          <Card key={user.id} className="group overflow-hidden border-border/60 transition-all hover:shadow-md">
+            <CardHeader className="flex flex-row items-start justify-between p-4">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10 border border-border/50">
+                  <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">{initials}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="font-semibold leading-none tracking-tight">{name}</h3>
+                  <p className="text-xs text-muted-foreground mt-1">{role}</p>
+                </div>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                      <HugeiconsIcon icon={MoreVerticalIcon} className="size-4" />
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onEdit(user)}>
+                    <HugeiconsIcon icon={PencilEdit01Icon} className="mr-2 size-4 opacity-70" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onToggleVerify(user)}>
+                    <HugeiconsIcon icon={Tick01Icon} className="mr-2 size-4 opacity-70" />
+                    Verify
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onManagePermissions(user)}>
+                    <HugeiconsIcon icon={Shield01Icon} className="mr-2 size-4 opacity-70" />
+                    Permissions
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => onDelete(user.id)} className="text-destructive focus:text-destructive">
+                    <HugeiconsIcon icon={Delete02Icon} className="mr-2 size-4 opacity-70" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </CardHeader>
+            
+            <CardContent className="p-4 pt-0 space-y-3">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <HugeiconsIcon icon={Mail01Icon} className="size-3.5" />
+                <span className="truncate">{user.email}</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <HugeiconsIcon icon={Calendar01Icon} className="size-3.5" />
+                <span>Joined {format(new Date(user.created_at), 'MMM d, yyyy')}</span>
+              </div>
+            </CardContent>
+
+            <CardFooter className="p-4 pt-0 flex items-center justify-between">
+              <Badge 
+                variant="outline" 
+                className={`border-0 bg-transparent px-0 font-medium ${user.is_verified ? 'text-green-500' : 'text-amber-500'}`}
+              >
+                <span className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${user.is_verified ? 'bg-green-500' : 'bg-amber-500'}`} />
+                {user.is_verified ? 'Active' : 'Pending'}
+              </Badge>
+              
+              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(user)}>
+                  <HugeiconsIcon icon={PencilEdit01Icon} className="size-3.5 text-muted-foreground" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7 hover:text-destructive hover:bg-destructive/10" onClick={() => onDelete(user.id)}>
+                  <HugeiconsIcon icon={Delete02Icon} className="size-3.5" />
+                </Button>
+              </div>
+            </CardFooter>
+          </Card>
+        )
+      })}
+    </div>
+  )
+}

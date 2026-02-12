@@ -5,7 +5,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import type { ColumnDef, OnChangeFn, SortingState } from '@tanstack/react-table'
+import type { ColumnDef, OnChangeFn, SortingState, VisibilityState } from '@tanstack/react-table'
 
 import {
   Table,
@@ -16,6 +16,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface DataTableProps<TData, TValue> {
   columns: Array<ColumnDef<TData, TValue>>
@@ -29,6 +30,9 @@ interface DataTableProps<TData, TValue> {
   fetchPreviousPage: () => void
   sorting?: SortingState
   onSortingChange?: OnChangeFn<SortingState>
+  columnVisibility?: VisibilityState
+  onColumnVisibilityChange?: OnChangeFn<VisibilityState>
+  isLoading?: boolean
 }
 
 export function DataTable<TData, TValue>({
@@ -43,6 +47,9 @@ export function DataTable<TData, TValue>({
   fetchPreviousPage,
   sorting,
   onSortingChange,
+  columnVisibility,
+  onColumnVisibilityChange,
+  isLoading,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -58,8 +65,10 @@ export function DataTable<TData, TValue>({
         pageSize,
       },
       sorting,
+      columnVisibility,
     },
     onSortingChange,
+    onColumnVisibilityChange,
     pageCount,
   })
 
@@ -68,9 +77,9 @@ export function DataTable<TData, TValue>({
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup: any) => (
+            {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header: any) => {
+                {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
                       {header.isPlaceholder
@@ -86,13 +95,23 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row: any) => (
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index}>
+                  {columns.map((_, colIndex) => (
+                    <TableCell key={colIndex}>
+                      <Skeleton className="h-6 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
                 >
-                  {row.getVisibleCells().map((cell: any) => (
+                  {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -123,7 +142,7 @@ export function DataTable<TData, TValue>({
           variant="outline"
           size="sm"
           onClick={fetchPreviousPage}
-          disabled={!canPreviousPage}
+          disabled={!canPreviousPage || isLoading}
         >
           Previous
         </Button>
@@ -131,7 +150,7 @@ export function DataTable<TData, TValue>({
           variant="outline"
           size="sm"
           onClick={fetchNextPage}
-          disabled={!canNextPage}
+          disabled={!canNextPage || isLoading}
         >
           Next
         </Button>
