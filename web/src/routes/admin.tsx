@@ -8,12 +8,10 @@ import {
   Settings01Icon,
   Shield01Icon,
   UserGroupIcon,
-  UserIcon,
 } from '@hugeicons/core-free-icons'
 import {
   getActiveSessionServer,
   getAuthStorageServer,
-  switchUserServer,
 } from '@/lib/auth/session'
 import {
   Sidebar,
@@ -32,22 +30,12 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import {
   Empty,
   EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyTitle,
 } from '@/components/ui/empty'
-import { useMutation } from '@tanstack/react-query'
 import { AdminRoutesAllowedRoles } from '@/features/permissions/constants'
 import { AccountSwitcher } from '@/features/auth/components/account-switcher'
 
@@ -77,13 +65,6 @@ function AdminLayout() {
 
   const activeSession = data.activeSession ?? null
   const otherSessions = data.otherSessions ?? []
-
-  const { mutateAsync: handleSwitchUser, isPending } = useMutation({
-    mutationFn: async (userId: string) => {
-      await switchUserServer({ data: userId })
-      window.location.reload()
-    },
-  })
 
   if (
     !activeSession ||

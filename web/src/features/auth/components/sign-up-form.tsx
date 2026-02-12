@@ -16,16 +16,8 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { signUpFn } from '@/lib/auth/actions'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { Spinner } from '@/components/ui/spinner'
-import { cn } from '@/lib/utils'
 import { ActiveSessions } from './active-sessions'
 
 export function SignUpForm({

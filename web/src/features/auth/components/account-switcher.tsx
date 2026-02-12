@@ -1,4 +1,4 @@
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { UserIcon } from '@hugeicons/core-free-icons'
 import { useMutation } from '@tanstack/react-query'

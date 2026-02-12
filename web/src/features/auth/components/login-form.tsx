@@ -123,7 +123,7 @@ export function LoginForm({
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <Link to={`${env.VITE_API_URL}/auth/google/login`}>
+          <a href={`${env.VITE_API_URL}/auth/google/login`} target="_blank" rel="noopener noreferrer">
             <Button variant="outline" className="w-full">
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path
@@ -145,8 +145,8 @@ export function LoginForm({
               </svg>
               Google
             </Button>
-          </Link>
-          <Link to={`${env.VITE_API_URL}/auth/github/login`}>
+          </a>
+          <a href={`${env.VITE_API_URL}/auth/github/login`} target="_blank" rel="noopener noreferrer">
             <Button variant="outline" className="w-full">
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path
@@ -156,7 +156,7 @@ export function LoginForm({
               </svg>
               GitHub
             </Button>
-          </Link>
+          </a>
         </div>
       </FieldGroup>
     </form>
