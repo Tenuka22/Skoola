@@ -138,7 +138,7 @@ export function UserBoardView({
               </div>
             </CardContent>
 
-            <CardFooter className="p-4 pt-0 flex items-center justify-between">
+            <CardFooter>
               <Badge 
                 variant="outline" 
                 className={`border-0 bg-transparent px-0 font-medium ${user.is_verified ? 'text-green-500' : 'text-amber-500'}`}
@@ -146,15 +146,6 @@ export function UserBoardView({
                 <span className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${user.is_verified ? 'bg-green-500' : 'bg-amber-500'}`} />
                 {user.is_verified ? 'Active' : 'Pending'}
               </Badge>
-              
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(user)}>
-                  <HugeiconsIcon icon={PencilEdit01Icon} className="size-3.5 text-muted-foreground" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 hover:text-destructive hover:bg-destructive/10" onClick={() => onDelete(user.id)}>
-                  <HugeiconsIcon icon={Delete02Icon} className="size-3.5" />
-                </Button>
-              </div>
             </CardFooter>
           </Card>
         )

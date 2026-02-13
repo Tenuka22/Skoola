@@ -1,22 +1,13 @@
 import {
   Add01Icon,
-  ArrowRight01Icon,
   Download01Icon,
   LayoutGridIcon,
   ListViewIcon,
   Search01Icon,
-  Settings01Icon,
   TableIcon,
-  ViewOffSlashIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useUsersStore } from '../store'
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -31,8 +22,6 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
     setView,
     search,
     setSearch,
-    columnVisibility,
-    setColumnVisibility,
     setIsCreateUserOpen,
   } = useUsersStore()
 
@@ -78,50 +67,6 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
           />
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="hidden h-9 gap-2 text-muted-foreground hover:text-foreground md:flex"
-        >
-          <HugeiconsIcon icon={ViewOffSlashIcon} className="size-4" />
-          Hide
-        </Button>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger render={<Button
-            variant="outline"
-            size="sm"
-            className="hidden h-9 gap-2 text-muted-foreground hover:text-foreground md:flex"
-          >
-            <HugeiconsIcon icon={Settings01Icon} className="size-4" />
-            Customize
-            <HugeiconsIcon
-              icon={ArrowRight01Icon}
-              className="size-3 rotate-90 opacity-50"
-            />
-          </Button>
-        }>
-            </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {['email', 'is_verified', 'created_at']
-              .filter((col) => col !== 'email')
-              .map((columnId) => (
-                <DropdownMenuCheckboxItem
-                  key={columnId}
-                  className="capitalize"
-                  checked={columnVisibility[columnId] !== false}
-                  onCheckedChange={(value) =>
-                    setColumnVisibility((prev) => ({
-                      ...prev,
-                      [columnId]: !!value,
-                    }))
-                  }
-                >
-                  {columnId.replace('_', ' ')}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
 
         <Button
           variant="outline"

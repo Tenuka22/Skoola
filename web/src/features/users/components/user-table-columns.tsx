@@ -1,4 +1,6 @@
 import {
+    ArrowDown01Icon,
+    ArrowUp01Icon,
     CheckmarkCircle01Icon,
     Delete02Icon,
     LockIcon,
@@ -81,7 +83,21 @@ export function getUserColumns({
     },
     {
       accessorKey: 'email',
-      header: 'User Info',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            User Info
+            {column.getIsSorted() === 'asc' ? (
+              <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
+            ) : column.getIsSorted() === 'desc' ? (
+              <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
+            ) : null}
+          </Button>
+        )
+      },
       cell: ({ row }) => {
         const user = row.original
         const name = user.email
@@ -111,7 +127,21 @@ export function getUserColumns({
     },
     {
       accessorKey: 'is_verified',
-      header: 'Status',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Status
+            {column.getIsSorted() === 'asc' ? (
+              <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
+            ) : column.getIsSorted() === 'desc' ? (
+              <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
+            ) : null}
+          </Button>
+        )
+      },
       cell: ({ row }) => {
         const user = row.original
         const isVerified = user.is_verified
@@ -166,7 +196,21 @@ export function getUserColumns({
     },
     {
       accessorKey: 'created_at',
-      header: 'Joined date',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Joined date
+            {column.getIsSorted() === 'asc' ? (
+              <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
+            ) : column.getIsSorted() === 'desc' ? (
+              <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
+            ) : null}
+          </Button>
+        )
+      },
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {format(new Date(row.getValue('created_at')), 'd MMM yyyy, h:mm a')}

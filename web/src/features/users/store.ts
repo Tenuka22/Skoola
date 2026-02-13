@@ -11,6 +11,8 @@ interface UsersState {
   debouncedSearch: string
   statusFilter: string
   authFilter: string
+  createdAfter: string | null
+  createdBefore: string | null
   sorting: SortingState
   columnVisibility: Record<string, boolean>
   selectedUsers: Set<string>
@@ -29,6 +31,8 @@ interface UsersState {
   setDebouncedSearch: (search: string) => void
   setStatusFilter: (filter: string) => void
   setAuthFilter: (filter: string) => void
+  setCreatedAfter: (date: string | null) => void
+  setCreatedBefore: (date: string | null) => void
   setSorting: (
     sorting: SortingState | ((prev: SortingState) => SortingState),
   ) => void
@@ -58,6 +62,8 @@ export const useUsersStore = create<UsersState>((set) => ({
   debouncedSearch: '',
   statusFilter: 'all',
   authFilter: 'all',
+  createdAfter: null,
+  createdBefore: null,
   sorting: [],
   columnVisibility: {},
   selectedUsers: new Set(),
@@ -76,6 +82,8 @@ export const useUsersStore = create<UsersState>((set) => ({
   setDebouncedSearch: (debouncedSearch) => set({ debouncedSearch, page: 1 }),
   setStatusFilter: (statusFilter) => set({ statusFilter, page: 1 }),
   setAuthFilter: (authFilter) => set({ authFilter, page: 1 }),
+  setCreatedAfter: (createdAfter) => set({ createdAfter, page: 1 }),
+  setCreatedBefore: (createdBefore) => set({ createdBefore, page: 1 }),
   setSorting: (sorting) =>
     set((state) => ({
       sorting: typeof sorting === 'function' ? sorting(state.sorting) : sorting,

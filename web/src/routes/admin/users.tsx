@@ -48,6 +48,8 @@ function Users() {
     debouncedSearch,
     statusFilter,
     authFilter,
+    createdAfter,
+    createdBefore,
     sorting,
     selectedUsers,
     userToDelete,
@@ -97,6 +99,8 @@ function Users() {
         is_verified:
           statusFilter === 'all' ? undefined : statusFilter === 'verified',
         auth_method: authFilter === 'all' ? undefined : authFilter,
+        created_after: createdAfter ?? undefined,
+        created_before: createdBefore ?? undefined,
         sort_by: sortBy,
         sort_order: sortOrder as any,
       },

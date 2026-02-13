@@ -107,15 +107,6 @@ export function UserListView({
               </div>
 
               <div className="flex items-center gap-1">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex"
-                  onClick={() => onEdit(user)}
-                >
-                  <HugeiconsIcon icon={PencilEdit01Icon} className="size-4" />
-                </Button>
-                
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={
