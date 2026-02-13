@@ -11,14 +11,9 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DialogFooter } from '@/components/ui/dialog'
-import {
-    Field,
-    FieldError,
-    FieldGroup,
-    FieldLabel,
-} from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 import { zRoleEnum } from '@/lib/api/zod.gen'
 
 interface UserEditFormProps {
@@ -28,14 +23,19 @@ interface UserEditFormProps {
   isSubmitting?: boolean
 }
 
-export function UserEditForm({ user, onConfirm, onOpenChange, isSubmitting }: UserEditFormProps) {
+export function UserEditForm({
+  user,
+  onConfirm,
+  onOpenChange,
+  isSubmitting,
+}: UserEditFormProps) {
   const availableRoles = {
-    data: Object.values(zRoleEnum.enum).map((roleName: z.infer<typeof zRoleEnum>) => ({
+    data: Object.values(zRoleEnum.enum).map((roleName) => ({
       id: roleName,
       name: roleName,
     })),
   }
-
+  // TODO add user roles get and check them
   const {
     register,
     handleSubmit,
@@ -52,7 +52,6 @@ export function UserEditForm({ user, onConfirm, onOpenChange, isSubmitting }: Us
       reset({
         email: user.email,
         is_verified: user.is_verified ?? false,
-        is_locked: undefined,
         roles: [],
       })
     }
@@ -63,11 +62,10 @@ export function UserEditForm({ user, onConfirm, onOpenChange, isSubmitting }: Us
   }
 
   const isVerified = watch('is_verified')
-  const isLocked = watch('is_locked')
   const selectedRoles = watch('roles') || []
 
   const toggleRole = (roleName: z.infer<typeof zRoleEnum>) => {
-    const current = selectedRoles
+    const current = selectedRoles || []
     if (current.includes(roleName)) {
       setValue(
         'roles',
@@ -79,116 +77,71 @@ export function UserEditForm({ user, onConfirm, onOpenChange, isSubmitting }: Us
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-8">
-      <FieldGroup className="space-y-6">
-        <Field>
-          <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-            Email Address
-          </FieldLabel>
-          <Input
-            {...register('email')}
-            className="h-14 rounded-2xl border-none bg-muted/30 px-6 font-bold focus-visible:ring-2 focus-visible:ring-primary"
-          />
-          <FieldError errors={[errors.email]} />
-        </Field>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-4">
+      <div className="space-y-2">
+        <Label>Email Address</Label>
+        <Input {...register('email')} placeholder="email@example.com" />
+        {errors.email && (
+          <p className="text-sm text-destructive">{errors.email.message}</p>
+        )}
+      </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          <FieldGroup className="space-y-4">
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-              Status Controls
-            </FieldLabel>
-            <Field className="flex items-center justify-between rounded-2xl bg-muted/30 p-4 transition-colors hover:bg-muted/50">
-              <div className="space-y-0.5">
-                <FieldLabel className="text-sm font-bold">
-                  Verification
-                </FieldLabel>
-                <p className="text-[10px] font-medium opacity-50">
-                  Identity verified
-                </p>
-              </div>
-              <Switch
-                checked={isVerified ?? false}
-                onCheckedChange={(checked) =>
-                  setValue('is_verified', checked)
-                }
-              />
-            </Field>
-
-            <Field className="flex items-center justify-between rounded-2xl bg-muted/30 p-4 transition-colors hover:bg-muted/50">
-              <div className="space-y-0.5">
-                <FieldLabel className="text-sm font-bold">
-                  Lockout
-                </FieldLabel>
-                <p className="text-[10px] font-medium opacity-50">
-                  Restrict access
-                </p>
-              </div>
-              <Switch
-                checked={isLocked ?? false}
-                onCheckedChange={(checked) =>
-                  setValue('is_locked', checked)
-                }
-              />
-            </Field>
-          </FieldGroup>
-
-          <FieldGroup className="space-y-4">
-            <div className="flex items-center justify-between">
-              <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-                Access Roles
-              </FieldLabel>
-              {selectedRoles.length > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="rounded-md px-1.5 py-0 text-[9px] font-black uppercase tracking-tighter"
-                >
-                  {selectedRoles.length} Selected
-                </Badge>
-              )}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-4">
+          <Label>Status Controls</Label>
+          <div className="flex items-center justify-between py-2">
+            <div className="space-y-0.5">
+              <Label className="text-sm">Verification</Label>
+              <p className="text-xs text-muted-foreground">Identity verified</p>
             </div>
-            <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-              {availableRoles?.data.map((role: { id: z.infer<typeof zRoleEnum>; name: z.infer<typeof zRoleEnum>; }) => (
-                <div
-                  key={role.id}
-                  onClick={() => toggleRole(role.name)}
-                  className="flex cursor-pointer items-center gap-3 rounded-xl border border-transparent bg-muted/20 p-3 transition-all hover:bg-muted/40 hover:ring-1 hover:ring-primary/20"
-                >
-                  <Checkbox
-                    checked={selectedRoles.includes(role.name)}
-                    onCheckedChange={() => toggleRole(role.name)}
-                    className="rounded-md"
-                  />
-                  <span className="text-xs font-bold tracking-tight">
-                    {role.name}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </FieldGroup>
+            <Switch
+              checked={isVerified ?? false}
+              onCheckedChange={(checked) => setValue('is_verified', checked)}
+            />
+          </div>
         </div>
-      </FieldGroup>
 
-      <DialogFooter className="mt-10 sm:justify-center gap-3 border-t pt-8">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label>Access Roles</Label>
+            {selectedRoles.length > 0 && (
+              <Badge variant="secondary">{selectedRoles.length} Selected</Badge>
+            )}
+          </div>
+          <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto border rounded-md p-2">
+            {availableRoles?.data.map((role) => (
+              <div
+                key={role.id}
+                onClick={() => toggleRole(role.name)}
+                className="flex cursor-pointer items-center gap-2 rounded-sm p-2 hover:bg-muted"
+              >
+                <Checkbox
+                  checked={selectedRoles.includes(role.name)}
+                  onCheckedChange={() => toggleRole(role.name)}
+                />
+                <span className="text-sm font-medium">{role.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <DialogFooter>
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           onClick={() => onOpenChange(false)}
-          className="h-14 min-w-[120px] rounded-2xl font-black uppercase tracking-widest"
         >
           Cancel
         </Button>
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="h-14 min-w-[240px] rounded-2xl font-black uppercase tracking-widest shadow-2xl shadow-primary/20"
-        >
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting && (
             <HugeiconsIcon
               icon={Loading03Icon}
               className="mr-2 h-4 w-4 animate-spin"
             />
           )}
-          Save Identity Changes
+          Save Changes
         </Button>
       </DialogFooter>
     </form>

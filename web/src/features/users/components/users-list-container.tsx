@@ -11,6 +11,10 @@ interface UsersListContainerProps {
   limit: number
   columns: Array<ColumnDef<UserResponse>>
   updateMutation: any
+  rowSelection: Record<string, boolean>
+  setRowSelection: (
+    selection: Record<string, boolean> | ((prev: Record<string, boolean>) => Record<string, boolean>),
+  ) => void
 }
 
 export function UsersListContainer({
@@ -18,6 +22,8 @@ export function UsersListContainer({
   limit,
   columns,
   updateMutation,
+  rowSelection,
+  setRowSelection,
 }: UsersListContainerProps) {
   const {
     page,
@@ -51,6 +57,8 @@ export function UsersListContainer({
               onSortingChange={setSorting}
               columnVisibility={columnVisibility}
               onColumnVisibilityChange={setColumnVisibility}
+              rowSelection={rowSelection}
+              onRowSelectionChange={setRowSelection}
               isLoading={usersQuery.isFetching}
             />
           </div>

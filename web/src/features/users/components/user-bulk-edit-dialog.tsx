@@ -1,5 +1,3 @@
-import { HugeiconsIcon } from '@hugeicons/react'
-import { PencilEdit01Icon } from '@hugeicons/core-free-icons'
 import type { BulkUpdateValues } from '../schemas'
 import {
   Dialog,
@@ -27,15 +25,10 @@ export function UserBulkEditDialog({
 }: UserBulkEditDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl rounded-[2.5rem] border-none p-10 shadow-2xl backdrop-blur-3xl ring-1 ring-white/20">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-3xl bg-primary/10 text-primary">
-            <HugeiconsIcon icon={PencilEdit01Icon} className="size-10" />
-          </div>
-          <DialogTitle className="text-center text-3xl font-black tracking-tight">
-            Bulk Edit Users
-          </DialogTitle>
-          <DialogDescription className="text-center text-base font-medium leading-relaxed opacity-70">
+          <DialogTitle>Bulk Edit Users</DialogTitle>
+          <DialogDescription>
             Updating {selectedCount} selected user identities. Fields left
             unchanged will remain as they are.
           </DialogDescription>

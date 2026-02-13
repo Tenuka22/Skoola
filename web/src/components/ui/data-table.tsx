@@ -32,6 +32,8 @@ interface DataTableProps<TData, TValue> {
   onSortingChange?: OnChangeFn<SortingState>
   columnVisibility?: VisibilityState
   onColumnVisibilityChange?: OnChangeFn<VisibilityState>
+  rowSelection?: Record<string, boolean>
+  onRowSelectionChange?: OnChangeFn<Record<string, boolean>>
   isLoading?: boolean
 }
 
@@ -49,6 +51,8 @@ export function DataTable<TData, TValue>({
   onSortingChange,
   columnVisibility,
   onColumnVisibilityChange,
+  rowSelection,
+  onRowSelectionChange,
   isLoading,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
@@ -59,6 +63,7 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
     manualSorting: true,
+    getRowId: (row: any) => row.id,
     state: {
       pagination: {
         pageIndex,
@@ -66,9 +71,11 @@ export function DataTable<TData, TValue>({
       },
       sorting,
       columnVisibility,
+      rowSelection,
     },
     onSortingChange,
     onColumnVisibilityChange,
+    onRowSelectionChange,
     pageCount,
   })
 

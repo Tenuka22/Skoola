@@ -1,36 +1,42 @@
 import {
-    ArrowDown01Icon,
-    ArrowUp01Icon,
-    CheckmarkCircle01Icon,
-    Delete02Icon,
-    LockIcon,
-    Menu01Icon,
-    PencilEdit01Icon,
-    UserCheckIcon
+  ArrowDown01Icon,
+  ArrowUp01Icon,
+  Copy01Icon,
+  Delete02Icon,
+  LockIcon,
+  Menu01Icon,
+  PencilEdit01Icon,
+  UserCheckIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { toast } from 'sonner'
 import { format } from 'date-fns'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { User } from '../types'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { cn } from '@/lib/utils'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu'
 
 interface GetColumnsProps {
   users?: Array<User>
   onToggleVerify: (user: User) => void
-  selectedUsers: Set<string>
-  setSelectedUsers: (
-    users: Set<string> | ((prev: Set<string>) => Set<string>),
-  ) => void
   onToggleLock: (user: User) => void
   setUserToDelete: (id: string | null) => void
   setUserToEdit: (user: User | null) => void
@@ -38,14 +44,11 @@ interface GetColumnsProps {
 }
 
 export function getUserColumns({
-  users,
   onToggleVerify,
-  selectedUsers,
-  setSelectedUsers,
   setUserToDelete,
   setUserToEdit,
   setUserToManagePermissions,
-  onToggleLock
+  onToggleLock,
 }: GetColumnsProps): Array<ColumnDef<User>> {
   return [
     {
@@ -53,33 +56,23 @@ export function getUserColumns({
       header: ({ table }) => (
         <Checkbox
           checked={table.getIsAllPageRowsSelected()}
+          indeterminate={
+            !table.getIsAllPageRowsSelected() && table.getIsSomeRowsSelected()
+          }
           onCheckedChange={(value) => {
             table.toggleAllPageRowsSelected(!!value)
-            if (value) {
-              const allIds = users?.map((u) => u.id) || []
-              setSelectedUsers(new Set(allIds))
-            } else {
-              setSelectedUsers(new Set())
-            }
           }}
-          className="border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
         />
       ),
       cell: ({ row }) => (
         <Checkbox
-          checked={selectedUsers.has(row.original.id)}
-          onCheckedChange={(value) => {
-            row.toggleSelected(!!value)
-            const newSelected = new Set(selectedUsers)
-            if (value) newSelected.add(row.original.id)
-            else newSelected.delete(row.original.id)
-            setSelectedUsers(newSelected)
-          }}
-          className="border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
         />
       ),
       enableSorting: false,
       enableHiding: false,
+      size: 16,
     },
     {
       accessorKey: 'email',
@@ -109,6 +102,9 @@ export function getUserColumns({
         return (
           <div className="flex items-center gap-3">
             <Avatar className="h-9 w-9 border border-border/50">
+              <AvatarImage
+                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+              />
               <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
                 {initials}
               </AvatarFallback>
@@ -146,46 +142,29 @@ export function getUserColumns({
         const user = row.original
         const isVerified = user.is_verified
         const lockoutUntil = user.lockout_until
-        const isLocked =
-          lockoutUntil && new Date(lockoutUntil) > new Date()
+        const isLocked = lockoutUntil && new Date(lockoutUntil) > new Date()
 
         return (
           <div className="flex items-center gap-2">
-            <span className={`relative flex h-2 w-2`}>
-              <span
-                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                  isLocked
-                    ? 'bg-amber-400'
-                    : isVerified
-                      ? 'bg-green-400'
-                      : 'bg-red-400'
-                }`}
-              ></span>
-              <span
-                className={`relative inline-flex rounded-full h-2 w-2 ${
-                  isLocked
-                    ? 'bg-amber-500'
-                    : isVerified
-                      ? 'bg-green-500'
-                      : 'bg-red-500'
-                }`}
-              ></span>
-            </span>
+            <span
+              className={cn('inline-flex rounded-full h-2 w-2', {
+                'bg-amber-500': isLocked,
+                'bg-green-500': !isLocked && isVerified,
+                'bg-red-500': !isLocked && !isVerified,
+              })}
+            />
             <div className="flex flex-col">
-              <Badge
-                variant="outline"
-                className={`border-0 bg-transparent px-0 font-medium ${
-                  isLocked
-                    ? 'text-amber-500'
-                    : isVerified
-                      ? 'text-green-500'
-                      : 'text-red-500'
-                }`}
+              <span
+                className={cn('text-xs font-medium', {
+                  'text-amber-500': isLocked,
+                  'text-green-500': !isLocked && isVerified,
+                  'text-red-500': !isLocked && !isVerified,
+                })}
               >
                 {isLocked ? 'Locked' : isVerified ? 'Active' : 'Inactive'}
-              </Badge>
+              </span>
               {isLocked && lockoutUntil && (
-                <span className="text-[10px] text-muted-foreground -mt-1 whitespace-nowrap">
+                <span className="text-[10px] text-muted-foreground whitespace-nowrap">
                   Until {format(new Date(lockoutUntil), 'd MMM')}
                 </span>
               )}
@@ -218,6 +197,29 @@ export function getUserColumns({
       ),
     },
     {
+      accessorKey: 'updated_at',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Last Updated
+            {column.getIsSorted() === 'asc' ? (
+              <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
+            ) : column.getIsSorted() === 'desc' ? (
+              <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
+            ) : null}
+          </Button>
+        )
+      },
+      cell: ({ row }) => (
+        <span className="text-sm text-muted-foreground">
+          {format(new Date(row.getValue('updated_at')), 'd MMM yyyy, h:mm a')}
+        </span>
+      ),
+    },
+    {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => {
@@ -237,7 +239,30 @@ export function getUserColumns({
                 </Button>
               }
             />
-            <DropdownMenuContent align="end" className="w-[160px]">
+
+            <DropdownMenuContent align="end" className="min-w-40">
+              <DropdownMenuItem
+                onClick={() => {
+                  navigator.clipboard.writeText(user.id)
+                  toast.success('User ID copied to clipboard')
+                }}
+              >
+                <HugeiconsIcon icon={Copy01Icon} className="mr-2 h-4 w-4" />
+                Copy ID
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={() => {
+                  navigator.clipboard.writeText(user.email)
+                  toast.success('User email copied to clipboard')
+                }}
+              >
+                <HugeiconsIcon icon={Copy01Icon} className="mr-2 h-4 w-4" />
+                Copy Email
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
               <DropdownMenuItem onClick={() => setUserToEdit(user)}>
                 <HugeiconsIcon
                   icon={PencilEdit01Icon}
@@ -245,24 +270,81 @@ export function getUserColumns({
                 />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onToggleVerify(user)}>
-                <HugeiconsIcon
-                  icon={CheckmarkCircle01Icon}
-                  className="mr-2 h-4 w-4"
-                />
-                {user.is_verified ? 'Unverify' : 'Verify'}
-              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <HugeiconsIcon
+                    icon={UserCheckIcon}
+                    className="mr-2 h-4 w-4"
+                  />
+                  Verify Status
+                </DropdownMenuSubTrigger>
+
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuRadioGroup
+                      value={user.is_verified ? 'verified' : 'unverified'}
+                      onValueChange={(value) => {
+                        if (value === 'verified') {
+                          onToggleLock(user)
+                        } else {
+                          onToggleLock(user)
+                        }
+                      }}
+                    >
+                      <DropdownMenuRadioItem value="verified">
+                        Verified
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="unverified">
+                        Unverified
+                      </DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <HugeiconsIcon icon={LockIcon} className="mr-2 h-4 w-4" />
+                  Lock Status
+                </DropdownMenuSubTrigger>
+
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuRadioGroup
+                      value={isLocked ? 'locked' : 'unlocked'}
+                      onValueChange={(value) => {
+                        if (value === 'locked') {
+                          onToggleLock(user)
+                        } else {
+                          onToggleLock(user)
+                        }
+                      }}
+                    >
+                      <DropdownMenuRadioItem value="locked">
+                        Lock
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="unlocked">
+                        Unlock
+                      </DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+
+              <DropdownMenuSeparator />
+
               <DropdownMenuItem
                 onClick={() => setUserToManagePermissions(user)}
               >
                 <HugeiconsIcon icon={UserCheckIcon} className="mr-2 h-4 w-4" />
                 Permissions
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onToggleLock(user)}>
-                <HugeiconsIcon icon={LockIcon} className="mr-2 h-4 w-4" />
-                {isLocked ? 'Unlock' : 'Lock'}
-              </DropdownMenuItem>
+
               <DropdownMenuSeparator />
+
               <DropdownMenuItem
                 onClick={() => setUserToDelete(user.id)}
                 className="text-destructive focus:text-destructive"

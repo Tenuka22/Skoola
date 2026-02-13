@@ -85,7 +85,7 @@ export function UserBoardView({
         const role = (user as any).role || 'Member'
 
         return (
-          <Card key={user.id} className="group overflow-hidden border-border/60 transition-all hover:shadow-md">
+          <Card key={user.id} className="overflow-hidden border-border/60 shadow-none">
             <CardHeader className="flex flex-row items-start justify-between p-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 border border-border/50">
@@ -100,7 +100,7 @@ export function UserBoardView({
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
-                    <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2 text-muted-foreground">
                       <HugeiconsIcon icon={MoreVerticalIcon} className="size-4" />
                     </Button>
                   }

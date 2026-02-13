@@ -15,7 +15,6 @@ interface UsersState {
   createdBefore: string | null
   sorting: SortingState
   columnVisibility: Record<string, boolean>
-  selectedUsers: Set<string>
   view: ViewMode
   userToDelete: string | null
   isBulkDeleteOpen: boolean
@@ -41,9 +40,6 @@ interface UsersState {
       | Record<string, boolean>
       | ((prev: Record<string, boolean>) => Record<string, boolean>),
   ) => void
-  setSelectedUsers: (
-    users: Set<string> | ((prev: Set<string>) => Set<string>),
-  ) => void
   setView: (view: ViewMode) => void
   setUserToDelete: (id: string | null) => void
   setIsBulkDeleteOpen: (open: boolean) => void
@@ -53,7 +49,6 @@ interface UsersState {
   setUserToEdit: (user: UserResponse | null) => void
   setUserToLock: (user: UserResponse | null) => void
   setUserToManagePermissions: (user: UserResponse | null) => void
-  resetSelection: () => void
 }
 
 export const useUsersStore = create<UsersState>((set) => ({
@@ -66,7 +61,6 @@ export const useUsersStore = create<UsersState>((set) => ({
   createdBefore: null,
   sorting: [],
   columnVisibility: {},
-  selectedUsers: new Set(),
   view: 'table',
   userToDelete: null,
   isBulkDeleteOpen: false,
@@ -87,6 +81,7 @@ export const useUsersStore = create<UsersState>((set) => ({
   setSorting: (sorting) =>
     set((state) => ({
       sorting: typeof sorting === 'function' ? sorting(state.sorting) : sorting,
+      page: 1,
     })),
   setColumnVisibility: (visibility) =>
     set((state) => ({
@@ -95,13 +90,7 @@ export const useUsersStore = create<UsersState>((set) => ({
           ? visibility(state.columnVisibility)
           : visibility,
     })),
-  setSelectedUsers: (selectedUsers) =>
-    set((state) => ({
-      selectedUsers:
-        typeof selectedUsers === 'function'
-          ? selectedUsers(state.selectedUsers)
-          : selectedUsers,
-    })),
+
   setView: (view) => set({ view }),
   setUserToDelete: (userToDelete) => set({ userToDelete }),
   setIsBulkDeleteOpen: (isBulkDeleteOpen) => set({ isBulkDeleteOpen }),
@@ -113,5 +102,4 @@ export const useUsersStore = create<UsersState>((set) => ({
   setUserToLock: (userToLock) => set({ userToLock }),
   setUserToManagePermissions: (userToManagePermissions) =>
     set({ userToManagePermissions }),
-  resetSelection: () => set({ selectedUsers: new Set() }),
 }))

@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/providers/theme-provider'
 import { QueryProvider } from '@/components/providers/query-provider'
 import { NotFound } from '@/components/root/not-found'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { Toaster } from '@/components/ui/sonner'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -43,6 +44,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <QueryProvider>
           <ThemeProvider>
+            <Toaster />
             <TooltipProvider>{children}</TooltipProvider>
           </ThemeProvider>
         </QueryProvider>

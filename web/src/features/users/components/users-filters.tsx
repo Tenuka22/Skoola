@@ -37,10 +37,10 @@ export function UsersFilters() {
         value={statusFilter}
         onValueChange={(value) => setStatusFilter(value || 'all')}
       >
-        <SelectTrigger className="h-8 w-[140px]">
+        <SelectTrigger className="w-fit min-w-32">
           <div className="flex items-center gap-2">
             <HugeiconsIcon icon={FilterIcon} className="size-3.5" />
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder="Status" className="capitalize" />
           </div>
         </SelectTrigger>
         <SelectContent>
@@ -54,8 +54,8 @@ export function UsersFilters() {
         value={authFilter}
         onValueChange={(value) => setAuthFilter(value || 'all')}
       >
-        <SelectTrigger className="h-8 w-[150px]">
-             <SelectValue placeholder="Auth Method" />
+        <SelectTrigger className="w-fit min-w-32">
+          <SelectValue placeholder="Auth Method" className="capitalize" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Auth Methods</SelectItem>
@@ -66,18 +66,25 @@ export function UsersFilters() {
       </Select>
 
       <Popover>
-        <PopoverTrigger render={
-          <Button
-            variant="outline"
-            className={cn(
-              'h-8 justify-start text-left font-normal',
-              !createdAfter && 'text-muted-foreground',
-            )}
-          >
-            <HugeiconsIcon icon={Calendar01Icon} className="mr-2 h-3.5 w-3.5" />
-            {createdAfter ? format(new Date(createdAfter), 'PPP') : 'Created After'}
-          </Button>
-        } />
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              className={cn(
+                'justify-start text-left font-normal',
+                !createdAfter && 'text-muted-foreground',
+              )}
+            >
+              <HugeiconsIcon
+                icon={Calendar01Icon}
+                className="mr-2 h-3.5 w-3.5"
+              />
+              {createdAfter
+                ? format(new Date(createdAfter), 'PPP')
+                : 'Created After'}
+            </Button>
+          }
+        />
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             mode="single"
@@ -91,18 +98,25 @@ export function UsersFilters() {
       </Popover>
 
       <Popover>
-        <PopoverTrigger render={
-          <Button
-            variant="outline"
-            className={cn(
-              'h-8 justify-start text-left font-normal',
-              !createdBefore && 'text-muted-foreground',
-            )}
-          >
-            <HugeiconsIcon icon={Calendar01Icon} className="mr-2 h-3.5 w-3.5" />
-            {createdBefore ? format(new Date(createdBefore), 'PPP') : 'Created Before'}
-          </Button>
-        } />
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              className={cn(
+                'justify-start text-left font-normal',
+                !createdBefore && 'text-muted-foreground',
+              )}
+            >
+              <HugeiconsIcon
+                icon={Calendar01Icon}
+                className="mr-2 h-3.5 w-3.5"
+              />
+              {createdBefore
+                ? format(new Date(createdBefore), 'PPP')
+                : 'Created Before'}
+            </Button>
+          }
+        />
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             mode="single"
@@ -110,7 +124,6 @@ export function UsersFilters() {
             onSelect={(date) =>
               setCreatedBefore(date ? format(date, 'yyyy-MM-dd') : null)
             }
-            initialFocus
           />
         </PopoverContent>
       </Popover>
@@ -121,14 +134,12 @@ export function UsersFilters() {
         createdBefore) && (
         <Button
           variant="ghost"
-          size="sm"
           onClick={() => {
             setStatusFilter('all')
             setAuthFilter('all')
             setCreatedAfter(null)
             setCreatedBefore(null)
           }}
-          className="h-8 px-2 lg:px-3"
         >
           Reset
         </Button>

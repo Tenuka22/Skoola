@@ -71,7 +71,7 @@ export function UserListView({
         return (
           <div 
             key={user.id} 
-            className="group flex items-center justify-between rounded-xl border border-border/60 bg-background p-3 transition-all hover:border-primary/20 hover:shadow-sm"
+            className="flex items-center justify-between rounded-xl border border-border/60 bg-background p-3 shadow-none"
           >
             <div className="flex items-center gap-4">
               <Avatar className="h-10 w-10 border border-border/50">

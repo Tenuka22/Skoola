@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon, UserAdd01Icon } from '@hugeicons/core-free-icons'
+import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { signUpSchema } from '../../auth/schemas'
 import type { SignUpFormValues } from '../../auth/schemas'
 import { Button } from '@/components/ui/button'
@@ -14,11 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-} from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -56,88 +51,68 @@ export function UserCreateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md rounded-[2.5rem] border-none p-10 shadow-2xl backdrop-blur-3xl ring-1 ring-white/20">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-3xl bg-primary/10 text-primary">
-            <HugeiconsIcon icon={UserAdd01Icon} className="size-10" />
-          </div>
-          <DialogTitle className="text-center text-3xl font-black tracking-tight">
-            Create User
-          </DialogTitle>
-          <DialogDescription className="text-center text-base font-medium leading-relaxed opacity-70">
+          <DialogTitle>Create User</DialogTitle>
+          <DialogDescription>
             Add a new user to the organization.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
-          <FieldGroup className="space-y-4">
-            <Field>
-              <Label htmlFor="name" className="text-xs font-black uppercase tracking-widest opacity-50">
-                Full Name
-              </Label>
-              <Input
-                id="name"
-                {...register('name')}
-                placeholder="John Doe"
-                className="h-12 rounded-xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary mt-1"
-              />
-              <FieldError errors={[errors.name]} />
-            </Field>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name</Label>
+            <Input id="name" {...register('name')} placeholder="John Doe" />
+            {errors.name && (
+              <p className="text-sm text-destructive">{errors.name.message}</p>
+            )}
+          </div>
 
-            <Field>
-              <Label htmlFor="email" className="text-xs font-black uppercase tracking-widest opacity-50">
-                Email Address
-              </Label>
-              <Input
-                id="email"
-                {...register('email')}
-                placeholder="john@example.com"
-                className="h-12 rounded-xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary mt-1"
-              />
-              <FieldError errors={[errors.email]} />
-            </Field>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email Address</Label>
+            <Input
+              id="email"
+              {...register('email')}
+              placeholder="john@example.com"
+            />
+            {errors.email && (
+              <p className="text-sm text-destructive">{errors.email.message}</p>
+            )}
+          </div>
 
-            <Field>
-              <Label htmlFor="password" className="text-xs font-black uppercase tracking-widest opacity-50">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                {...register('password')}
-                className="h-12 rounded-xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary mt-1"
-              />
-              <FieldError errors={[errors.password]} />
-            </Field>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input id="password" type="password" {...register('password')} />
+            {errors.password && (
+              <p className="text-sm text-destructive">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
 
-            <Field>
-              <Label htmlFor="confirmPassword" className="text-xs font-black uppercase tracking-widest opacity-50">
-                Confirm Password
-              </Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                {...register('confirmPassword')}
-                className="h-12 rounded-xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary mt-1"
-              />
-              <FieldError errors={[errors.confirmPassword]} />
-            </Field>
-          </FieldGroup>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              {...register('confirmPassword')}
+            />
+            {errors.confirmPassword && (
+              <p className="text-sm text-destructive">
+                {errors.confirmPassword.message}
+              </p>
+            )}
+          </div>
 
-          <DialogFooter className="mt-8 sm:justify-center gap-3 border-t pt-6">
+          <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={() => onOpenChange(false)}
-              className="h-12 min-w-[100px] rounded-xl font-black uppercase tracking-widest"
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="h-12 min-w-[200px] rounded-xl font-black uppercase tracking-widest shadow-xl shadow-primary/20"
-            >
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && (
                 <HugeiconsIcon
                   icon={Loading03Icon}

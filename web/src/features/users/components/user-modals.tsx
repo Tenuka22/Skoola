@@ -1,6 +1,3 @@
-import { Delete02Icon, UserGroupIcon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
-
 import { UserBulkEditDialog } from './user-bulk-edit-dialog'
 import { UserEditDialog } from './user-edit-dialog'
 import { UserLockDialog } from './user-lock-dialog'
@@ -66,58 +63,34 @@ export function UserModals({
         open={!!userToDelete}
         onOpenChange={(open) => !open && setUserToDelete(null)}
       >
-        <AlertDialogContent className="rounded-[2.5rem] border-none p-10 shadow-2xl backdrop-blur-3xl ring-1 ring-white/20">
+        <AlertDialogContent>
           <AlertDialogHeader>
-            <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-3xl bg-destructive/10 text-destructive">
-              <HugeiconsIcon icon={Delete02Icon} className="size-10" />
-            </div>
-            <AlertDialogTitle className="text-center text-3xl font-black tracking-tight">
-              Confirm Purge?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-base font-medium leading-relaxed opacity-70">
-              This will permanently erase this user identity from the Skoola
-              infrastructure. All session data, preferences, and associations
-              will be lost.
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the user account and remove their data from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="mt-10 sm:justify-center gap-3">
-            <AlertDialogCancel className="h-14 min-w-[120px] rounded-2xl border-none bg-muted/50 font-black uppercase tracking-widest transition-colors hover:bg-muted">
-              Abort
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => userToDelete && onDeleteConfirm(userToDelete)}
-              className="h-14 min-w-[160px] rounded-2xl bg-destructive font-black uppercase tracking-widest text-destructive-foreground shadow-2xl shadow-destructive/20 transition-all hover:bg-destructive/90 active:scale-95"
-            >
-              Execute Purge
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => userToDelete && onDeleteConfirm(userToDelete)}>
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <AlertDialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
-        <AlertDialogContent className="max-w-md rounded-[2.5rem] border-none p-10 shadow-2xl backdrop-blur-3xl ring-1 ring-white/20">
+        <AlertDialogContent>
           <AlertDialogHeader>
-            <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-3xl bg-destructive/10 text-destructive">
-              <HugeiconsIcon icon={UserGroupIcon} className="size-10" />
-            </div>
-            <AlertDialogTitle className="text-center text-3xl font-black tracking-tight">
-              Mass Data Wipe
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-base font-medium leading-relaxed text-destructive/80">
-              FATAL ACTION: You are about to simultaneously destroy{' '}
-              {selectedCount} user accounts. This procedure is irreversible and
-              will remove all associated platform data.
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete {selectedCount} user accounts and remove their data from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="mt-10 sm:justify-center gap-3">
-            <AlertDialogCancel className="h-14 min-w-[120px] rounded-2xl border-none bg-muted/50 font-black uppercase tracking-widest">
-              Halt Action
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={onBulkDeleteConfirm}
-              className="h-14 min-w-[200px] rounded-2xl bg-destructive font-black uppercase tracking-widest text-destructive-foreground shadow-2xl shadow-destructive/30"
-            >
-              Confirm Mass Wipe
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={onBulkDeleteConfirm}>
+              Delete All
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
