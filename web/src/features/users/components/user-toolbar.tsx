@@ -1,30 +1,19 @@
 'use client'
 
-import * as React from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   PencilEdit01Icon,
   Shield01Icon,
   Tick01Icon,
   Delete02Icon,
-  MoreHorizontalIcon,
 } from '@hugeicons/core-free-icons'
 
 import type { User } from '../types'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 
 interface UserToolbarProps {
   selectedUsers: Set<string>
-  onClear: () => void
   onBulkVerify: (verify: boolean) => void
   onBulkDelete: () => void
   onBulkEdit: () => void
@@ -34,7 +23,6 @@ interface UserToolbarProps {
 
 export function UserToolbar({
   selectedUsers,
-  onClear,
   onBulkVerify,
   onBulkDelete,
   onBulkEdit,

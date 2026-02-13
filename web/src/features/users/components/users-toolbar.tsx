@@ -40,10 +40,6 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
             <HugeiconsIcon icon={LayoutGridIcon} className="size-4" />
             Board
           </TabsTrigger>
-          <TabsTrigger value="list" className="gap-2">
-            <HugeiconsIcon icon={ListViewIcon} className="size-4" />
-            List
-          </TabsTrigger>
         </TabsList>
       </Tabs>
 

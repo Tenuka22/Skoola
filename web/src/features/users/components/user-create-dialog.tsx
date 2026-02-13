@@ -1,8 +1,6 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { signUpSchema } from '../../auth/schemas'
 import type { SignUpFormValues } from '../../auth/schemas'
 import { Button } from '@/components/ui/button'
@@ -16,6 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Spinner } from '@/components/ui/spinner'
 
 interface UserCreateDialogProps {
   open: boolean
@@ -113,12 +112,7 @@ export function UserCreateDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && (
-                <HugeiconsIcon
-                  icon={Loading03Icon}
-                  className="mr-2 h-4 w-4 animate-spin"
-                />
-              )}
+              {isSubmitting && <Spinner className="mr-2 h-4 w-4" />}
               Create Account
             </Button>
           </DialogFooter>

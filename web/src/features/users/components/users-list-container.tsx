@@ -1,6 +1,5 @@
 import { useUsersStore } from '../store'
 import { UserBoardView } from './user-board-view'
-import { UserListView } from './user-list-view'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { UserResponse } from '@/lib/api'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
@@ -13,7 +12,9 @@ interface UsersListContainerProps {
   updateMutation: any
   rowSelection: Record<string, boolean>
   setRowSelection: (
-    selection: Record<string, boolean> | ((prev: Record<string, boolean>) => Record<string, boolean>),
+    selection:
+      | Record<string, boolean>
+      | ((prev: Record<string, boolean>) => Record<string, boolean>),
   ) => void
 }
 
@@ -37,6 +38,9 @@ export function UsersListContainer({
     setUserToDelete,
     setUserToManagePermissions,
   } = useUsersStore()
+
+  const isUpdating = updateMutation.isPending
+  const updatingUserId = updateMutation.variables?.path?.user_id
 
   return (
     <div className="flex-1 px-8 py-4 space-y-4">
@@ -77,22 +81,8 @@ export function UsersListContainer({
               })
             }
             onManagePermissions={(user) => setUserToManagePermissions(user)}
-          />
-        </TabsContent>
-
-        <TabsContent value="list">
-          <UserListView
-            users={usersQuery.data?.data}
-            isLoading={usersQuery.isFetching}
-            onEdit={(user) => setUserToEdit(user)}
-            onDelete={(id) => setUserToDelete(id)}
-            onToggleVerify={(user) =>
-              updateMutation.mutate({
-                path: { user_id: user.id },
-                body: { is_verified: !user.is_verified },
-              })
-            }
-            onManagePermissions={(user) => setUserToManagePermissions(user)}
+            isUpdating={isUpdating}
+            updatingUserId={updatingUserId}
           />
         </TabsContent>
       </Tabs>

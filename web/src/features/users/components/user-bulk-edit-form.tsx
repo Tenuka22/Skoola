@@ -1,6 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loading03Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { bulkUpdateSchema } from '../schemas'
@@ -13,6 +11,7 @@ import { DialogFooter } from '@/components/ui/dialog'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { zRoleEnum } from '@/lib/api/zod.gen'
+import { Spinner } from '@/components/ui/spinner'
 
 interface UserBulkEditFormProps {
   onConfirm: (data: BulkUpdateValues) => void
@@ -129,12 +128,7 @@ export function UserBulkEditForm({
             (isVerified === undefined && selectedRoles.length === 0)
           }
         >
-          {isSubmitting && (
-            <HugeiconsIcon
-              icon={Loading03Icon}
-              className="mr-2 h-4 w-4 animate-spin"
-            />
-          )}
+          {isSubmitting && <Spinner className="mr-2 h-4 w-4" />}
           Apply Batch Changes
         </Button>
       </DialogFooter>

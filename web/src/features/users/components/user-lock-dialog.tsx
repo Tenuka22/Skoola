@@ -20,6 +20,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
+import { Spinner } from '@/components/ui/spinner'
 
 interface UserLockDialogProps {
   user: User | null
@@ -92,6 +93,7 @@ export function UserLockDialog({
             onClick={() => date && onConfirm(date)}
             disabled={!date || isSubmitting}
           >
+            {isSubmitting && <Spinner className="mr-2 h-4 w-4" />}
             {isSubmitting ? 'Locking...' : 'Lock User'}
           </Button>
         </DialogFooter>
@@ -99,3 +101,4 @@ export function UserLockDialog({
     </Dialog>
   )
 }
+

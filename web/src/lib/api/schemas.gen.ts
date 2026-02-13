@@ -1242,6 +1242,7 @@ export const BulkUpdateRequestSchema = {
             nullable: true
         },
         lockout_until: {
+            default: null,
             type: 'string',
             format: 'partial-date-time',
             nullable: true
@@ -7529,6 +7530,7 @@ export const UpdateUserRequestSchema = {
             nullable: true
         },
         lockout_until: {
+            default: null,
             type: 'string',
             format: 'partial-date-time',
             nullable: true

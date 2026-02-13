@@ -5,8 +5,8 @@ import { authClient } from '@/lib/clients'
 import {
   deleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
   deleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
-  getUsers06Bdcf95Aafda840B1D04322636De293Options,
-  getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaOptions,
+  getUsers06Bdcf95Aafda840B1D04322636De293QueryKey,
+  getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaQueryKey,
   patchUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
   patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
   postAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Mutation,
@@ -27,18 +27,14 @@ export function useUserMutations() {
     queryClient.invalidateQueries({
       predicate: (query) => {
         const key = query.queryKey[0] as any
-        return (
-          key?._id ===
-          getUsers06Bdcf95Aafda840B1D04322636De293Options().queryKey[0]._id
-        )
+        return key?._id === getUsers06Bdcf95Aafda840B1D04322636De293QueryKey()
       },
     })
     queryClient.invalidateQueries({
       predicate: (query) => {
         const key = query.queryKey[0] as any
         return (
-          key?._id ===
-          getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaOptions().queryKey[0]._id
+          key?._id === getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaQueryKey()
         )
       },
     })

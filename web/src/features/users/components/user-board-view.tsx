@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { UserResponse } from '@/lib/api/types.gen'
+import { Spinner } from '@/components/ui/spinner'
 
 interface UserBoardViewProps {
   users: UserResponse[] | undefined
@@ -35,6 +36,8 @@ interface UserBoardViewProps {
   onDelete: (id: string) => void
   onToggleVerify: (user: UserResponse) => void
   onManagePermissions: (user: UserResponse) => void
+  isUpdating?: boolean
+  updatingUserId?: string | null
 }
 
 export function UserBoardView({
@@ -44,6 +47,8 @@ export function UserBoardView({
   onDelete,
   onToggleVerify,
   onManagePermissions,
+  isUpdating,
+  updatingUserId,
 }: UserBoardViewProps) {
   if (isLoading) {
     return (
@@ -83,6 +88,7 @@ export function UserBoardView({
         const name = user.email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
         const initials = name.substring(0, 2).toUpperCase()
         const role = (user as any).role || 'Member'
+        const isBeingUpdated = isUpdating && updatingUserId === user.id
 
         return (
           <Card key={user.id} className="overflow-hidden border-border/60 shadow-none">
@@ -110,8 +116,12 @@ export function UserBoardView({
                     <HugeiconsIcon icon={PencilEdit01Icon} className="mr-2 size-4 opacity-70" />
                     Edit
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onToggleVerify(user)}>
-                    <HugeiconsIcon icon={Tick01Icon} className="mr-2 size-4 opacity-70" />
+                  <DropdownMenuItem onClick={() => onToggleVerify(user)} disabled={isBeingUpdated}>
+                    {isBeingUpdated ? (
+                      <Spinner className="mr-2 size-4" />
+                    ) : (
+                      <HugeiconsIcon icon={Tick01Icon} className="mr-2 size-4 opacity-70" />
+                    )}
                     Verify
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onManagePermissions(user)}>

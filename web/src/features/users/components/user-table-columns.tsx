@@ -14,25 +14,17 @@ import { format } from 'date-fns'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { User } from '../types'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu'
+import { Spinner } from '@/components/ui/spinner'
 
 interface GetColumnsProps {
   users?: Array<User>
@@ -41,6 +33,8 @@ interface GetColumnsProps {
   setUserToDelete: (id: string | null) => void
   setUserToEdit: (user: User | null) => void
   setUserToManagePermissions: (user: User | null) => void
+  isUpdating?: boolean
+  updatingUserId?: string | null
 }
 
 export function getUserColumns({
@@ -49,6 +43,8 @@ export function getUserColumns({
   setUserToEdit,
   setUserToManagePermissions,
   onToggleLock,
+  isUpdating,
+  updatingUserId,
 }: GetColumnsProps): Array<ColumnDef<User>> {
   return [
     {
@@ -123,52 +119,85 @@ export function getUserColumns({
     },
     {
       accessorKey: 'is_verified',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Status
-            {column.getIsSorted() === 'asc' ? (
-              <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'desc' ? (
-              <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
-            ) : null}
-          </Button>
-        )
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Verification
+          {column.getIsSorted() === 'asc' ? (
+            <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
+          ) : column.getIsSorted() === 'desc' ? (
+            <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
+          ) : null}
+        </Button>
+      ),
       cell: ({ row }) => {
-        const user = row.original
-        const isVerified = user.is_verified
-        const lockoutUntil = user.lockout_until
-        const isLocked = lockoutUntil && new Date(lockoutUntil) > new Date()
+        const isVerified = row.original.is_verified
 
         return (
           <div className="flex items-center gap-2">
             <span
-              className={cn('inline-flex rounded-full h-2 w-2', {
-                'bg-amber-500': isLocked,
-                'bg-green-500': !isLocked && isVerified,
-                'bg-red-500': !isLocked && !isVerified,
+              className={cn('inline-flex h-2 w-2 rounded-full', {
+                'bg-green-500': isVerified,
+                'bg-red-500': !isVerified,
               })}
             />
-            <div className="flex flex-col">
+            <span
+              className={cn('text-xs font-medium', {
+                'text-green-600': isVerified,
+                'text-red-600': !isVerified,
+              })}
+            >
+              {isVerified ? 'Verified' : 'Unverified'}
+            </span>
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'lockout_until',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Lock Status
+          {column.getIsSorted() === 'asc' ? (
+            <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
+          ) : column.getIsSorted() === 'desc' ? (
+            <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
+          ) : null}
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const lockoutUntil = row.original.lockout_until
+        const isLocked = lockoutUntil && new Date(lockoutUntil) > new Date()
+
+        return (
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span
+                className={cn('inline-flex h-2 w-2 rounded-full', {
+                  'bg-amber-500': isLocked,
+                  'bg-muted-foreground': !isLocked,
+                })}
+              />
               <span
                 className={cn('text-xs font-medium', {
-                  'text-amber-500': isLocked,
-                  'text-green-500': !isLocked && isVerified,
-                  'text-red-500': !isLocked && !isVerified,
+                  'text-amber-600': isLocked,
+                  'text-muted-foreground': !isLocked,
                 })}
               >
-                {isLocked ? 'Locked' : isVerified ? 'Active' : 'Inactive'}
+                {isLocked ? 'Locked' : 'Unlocked'}
               </span>
-              {isLocked && lockoutUntil && (
-                <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                  Until {format(new Date(lockoutUntil), 'd MMM')}
-                </span>
-              )}
             </div>
+
+            {isLocked && lockoutUntil && (
+              <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                Until {format(new Date(lockoutUntil), 'd MMM yyyy')}
+              </span>
+            )}
           </div>
         )
       },
@@ -226,6 +255,8 @@ export function getUserColumns({
         const user = row.original
         const isLocked =
           user.lockout_until && new Date(user.lockout_until) > new Date()
+        const isBeingUpdated = isUpdating && updatingUserId === user.id
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -273,66 +304,34 @@ export function getUserColumns({
 
               <DropdownMenuSeparator />
 
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <HugeiconsIcon
-                    icon={UserCheckIcon}
-                    className="mr-2 h-4 w-4"
-                  />
-                  Verify Status
-                </DropdownMenuSubTrigger>
+              <DropdownMenuItem
+                onSelect={(e) => e.preventDefault()}
+                onClick={() => {
+                  onToggleVerify(user)
+                }}
+                disabled={isBeingUpdated}
+                closeOnClick={false}
+              >
+                {isBeingUpdated ? (
+                  <Spinner className="mr-2 h-4 w-4" />
+                ) : (
+                  <HugeiconsIcon icon={UserCheckIcon} className="mr-2 h-4 w-4" />
+                )}
+                {user.is_verified ? 'Unverify' : 'Verify'}
+              </DropdownMenuItem>
 
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuRadioGroup
-                      value={user.is_verified ? 'verified' : 'unverified'}
-                      onValueChange={(value) => {
-                        if (value === 'verified') {
-                          onToggleLock(user)
-                        } else {
-                          onToggleLock(user)
-                        }
-                      }}
-                    >
-                      <DropdownMenuRadioItem value="verified">
-                        Verified
-                      </DropdownMenuRadioItem>
-                      <DropdownMenuRadioItem value="unverified">
-                        Unverified
-                      </DropdownMenuRadioItem>
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
-
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
+              <DropdownMenuItem
+                onClick={() => onToggleLock(user)}
+                disabled={isBeingUpdated}
+                closeOnClick={false}
+              >
+                {isBeingUpdated ? (
+                  <Spinner className="mr-2 h-4 w-4" />
+                ) : (
                   <HugeiconsIcon icon={LockIcon} className="mr-2 h-4 w-4" />
-                  Lock Status
-                </DropdownMenuSubTrigger>
-
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuRadioGroup
-                      value={isLocked ? 'locked' : 'unlocked'}
-                      onValueChange={(value) => {
-                        if (value === 'locked') {
-                          onToggleLock(user)
-                        } else {
-                          onToggleLock(user)
-                        }
-                      }}
-                    >
-                      <DropdownMenuRadioItem value="locked">
-                        Lock
-                      </DropdownMenuRadioItem>
-                      <DropdownMenuRadioItem value="unlocked">
-                        Unlock
-                      </DropdownMenuRadioItem>
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
+                )}
+                {isLocked ? 'Unlock' : 'Lock'}
+              </DropdownMenuItem>
 
               <DropdownMenuSeparator />
 
@@ -359,3 +358,4 @@ export function getUserColumns({
     },
   ]
 }
+

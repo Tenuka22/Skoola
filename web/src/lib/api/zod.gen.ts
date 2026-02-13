@@ -2288,7 +2288,7 @@ export const zBulkUpdateRequest = z.object({
     lockout_until: z.optional(z.union([
         z.string(),
         z.null()
-    ])),
+    ])).default(null),
     role: z.optional(z.union([
         zRoleEnum,
         z.null()
@@ -3626,7 +3626,7 @@ export const zUpdateUserRequest = z.object({
     lockout_until: z.optional(z.union([
         z.string(),
         z.null()
-    ])),
+    ])).default(null),
     role: z.optional(z.union([
         zRoleEnum,
         z.null()

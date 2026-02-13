@@ -1,20 +1,16 @@
 use actix_web::web;
-use apistos::{api_operation, ApiComponent};
-use diesel::prelude::*;
 use actix_web::web::Json;
+use apistos::{ApiComponent, api_operation};
+use chrono::{Duration, NaiveDate, NaiveDateTime, Utc};
+use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use chrono::{Utc, Duration, NaiveDate, NaiveDateTime};
 use std::collections::HashMap;
 
 use crate::{
-    AppState,
-    database::tables::{User},
-    database::enums::RoleEnum,
-    errors::APIError,
-    models::auth::UserResponse,
-    models::MessageResponse,
-    schema::{users},
+    AppState, database::enums::RoleEnum, database::tables::User, errors::APIError,
+    models::MessageResponse, models::auth::UserResponse, schema::users,
+    utils::serde_helpers::deserialize_option_option,
 };
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
@@ -48,7 +44,8 @@ pub struct BulkDeleteRequest {
 pub struct BulkUpdateRequest {
     pub user_ids: Vec<String>,
     pub is_verified: Option<bool>,
-    pub lockout_until: Option<NaiveDateTime>,
+    #[serde(default, deserialize_with = "deserialize_option_option")]
+    pub lockout_until: Option<Option<NaiveDateTime>>,
     pub role: Option<RoleEnum>,
 }
 
@@ -56,7 +53,8 @@ pub struct BulkUpdateRequest {
 pub struct UpdateUserRequest {
     pub email: Option<String>,
     pub is_verified: Option<bool>,
-    pub lockout_until: Option<NaiveDateTime>,
+    #[serde(default, deserialize_with = "deserialize_option_option")]
+    pub lockout_until: Option<Option<NaiveDateTime>>,
     pub role: Option<RoleEnum>,
 }
 
@@ -100,13 +98,15 @@ pub async fn get_all_users(
     query: web::Query<UserQuery>,
 ) -> Result<Json<PaginatedUserResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    
+
     let mut data_query = users::table.into_boxed();
     let mut count_query = users::table.into_boxed();
 
     if let Some(search_term) = &query.search {
         let pattern = format!("%{}%", search_term);
-        let filter_expression = users::email.like(pattern.clone()).or(users::id.like(pattern));
+        let filter_expression = users::email
+            .like(pattern.clone())
+            .or(users::id.like(pattern));
         data_query = data_query.filter(filter_expression.clone());
         count_query = count_query.filter(filter_expression);
     }
@@ -121,28 +121,32 @@ pub async fn get_all_users(
             "google" => {
                 data_query = data_query.filter(users::google_id.is_not_null());
                 count_query = count_query.filter(users::google_id.is_not_null());
-            },
+            }
             "github" => {
                 data_query = data_query.filter(users::github_id.is_not_null());
                 count_query = count_query.filter(users::github_id.is_not_null());
-            },
+            }
             "password" => {
                 let filter_expression = users::google_id.is_null().and(users::github_id.is_null());
                 data_query = data_query.filter(filter_expression.clone());
                 count_query = count_query.filter(filter_expression);
-            },
+            }
             _ => {}
         }
     }
 
     if let Some(after_str) = &query.created_after {
-        if let Ok(after) = NaiveDateTime::parse_from_str(&format!("{} 00:00:00", after_str), "%Y-%m-%d %H:%M:%S") {
+        if let Ok(after) =
+            NaiveDateTime::parse_from_str(&format!("{} 00:00:00", after_str), "%Y-%m-%d %H:%M:%S")
+        {
             data_query = data_query.filter(users::created_at.ge(after));
             count_query = count_query.filter(users::created_at.ge(after));
         }
     }
     if let Some(before_str) = &query.created_before {
-        if let Ok(before) = NaiveDateTime::parse_from_str(&format!("{} 23:59:59", before_str), "%Y-%m-%d %H:%M:%S") {
+        if let Ok(before) =
+            NaiveDateTime::parse_from_str(&format!("{} 23:59:59", before_str), "%Y-%m-%d %H:%M:%S")
+        {
             data_query = data_query.filter(users::created_at.le(before));
             count_query = count_query.filter(users::created_at.le(before));
         }
@@ -209,16 +213,31 @@ pub async fn get_user_stats(
     let thirty_days_ago = now - Duration::days(30);
 
     for user in &all_users {
-        if user.is_verified { verified_users += 1; }
+        if user.is_verified {
+            verified_users += 1;
+        }
         if let Some(lockout) = user.lockout_until {
-            if lockout > now { locked_users += 1; }
+            if lockout > now {
+                locked_users += 1;
+            }
         }
 
-        if user.google_id.is_some() { google_auth += 1; }
-        if user.github_id.is_some() { github_auth += 1; }
-        if user.google_id.is_none() && user.github_id.is_none() { password_only += 1; }
+        if user.google_id.is_some() {
+            google_auth += 1;
+        }
+        if user.github_id.is_some() {
+            github_auth += 1;
+        }
+        if user.google_id.is_none() && user.github_id.is_none() {
+            password_only += 1;
+        }
 
-        let domain = user.email.split('@').last().unwrap_or("unknown").to_string();
+        let domain = user
+            .email
+            .split('@')
+            .last()
+            .unwrap_or("unknown")
+            .to_string();
         *domains.entry(domain).or_insert(0) += 1;
 
         if user.created_at >= thirty_days_ago {
@@ -226,12 +245,17 @@ pub async fn get_user_stats(
         }
     }
 
-    let mut registration_trend: Vec<TrendPoint> = trend.into_iter()
-        .map(|(date, count)| TrendPoint { date: date.to_string(), count })
+    let mut registration_trend: Vec<TrendPoint> = trend
+        .into_iter()
+        .map(|(date, count)| TrendPoint {
+            date: date.to_string(),
+            count,
+        })
         .collect();
     registration_trend.sort_by(|a, b| a.date.cmp(&b.date));
 
-    let mut top_domains: Vec<DomainStat> = domains.into_iter()
+    let mut top_domains: Vec<DomainStat> = domains
+        .into_iter()
         .map(|(domain, count)| DomainStat { domain, count })
         .collect();
     top_domains.sort_by(|a, b| b.count.cmp(&a.count));
@@ -263,7 +287,9 @@ pub async fn delete_user(
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     diesel::delete(users::table.find(user_id.into_inner())).execute(&mut conn)?;
-    Ok(Json(MessageResponse { message: "User deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "User deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -277,7 +303,9 @@ pub async fn bulk_delete_users(
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     diesel::delete(users::table.filter(users::id.eq_any(&body.user_ids))).execute(&mut conn)?;
-    Ok(Json(MessageResponse { message: "Users deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Users deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -320,7 +348,9 @@ pub async fn update_user(
         Ok(())
     })?;
 
-    Ok(Json(MessageResponse { message: "User updated successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "User updated successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -333,7 +363,7 @@ pub async fn bulk_update_users(
     body: web::Json<BulkUpdateRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    
+
     conn.transaction::<_, APIError, _>(|conn| {
         if let Some(v) = body.is_verified {
             diesel::update(users::table.filter(users::id.eq_any(&body.user_ids)))
@@ -355,5 +385,7 @@ pub async fn bulk_update_users(
         Ok(())
     })?;
 
-    Ok(Json(MessageResponse { message: "Users updated successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Users updated successfully".to_string(),
+    }))
 }
