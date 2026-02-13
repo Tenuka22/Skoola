@@ -16,7 +16,7 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 
 interface AccountSwitcherProps {
-  otherSessions: { user: { id: string; email: string } }[]
+  otherSessions: Array<{ user: { id: string; email: string } }>
   className?: string
   buttonVariant?:
     | 'default'

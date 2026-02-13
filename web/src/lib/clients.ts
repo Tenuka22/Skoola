@@ -1,8 +1,4 @@
-import {
-  
-  
-  createClient
-} from './api/client/index'
+import { createClient } from './api/client/index'
 import {
   SessionSchema,
   addSessionServer,
@@ -11,7 +7,7 @@ import {
 } from './auth/session'
 import { postAuthRefresh6Aadba1Bf11B4320428155Ff0462660D as postAuthRefreshApi } from './api/sdk.gen'
 import { reloginNeeded } from './auth/actions'
-import type {ClientOptions, RequestOptions} from './api/client/index';
+import type { ClientOptions, RequestOptions } from './api/client/index'
 import { env } from '@/lib/env'
 
 const baseConfig: ClientOptions = {
@@ -38,7 +34,12 @@ const processQueue = (
       prom.reject(error)
     } else if (newAccessToken) {
       try {
-        const result = await authClient.request(prom.options)
+        const options = prom.options
+        const result = await authClient.request({
+          ...options,
+          method: options.method ?? 'GET',
+        })
+
         prom.resolve(result.response)
       } catch (retryError) {
         prom.reject(retryError)
@@ -93,7 +94,11 @@ authClient.interceptors.response.use(
           await addSessionServer({ data: newSession })
 
           processQueue(newSession.tokens.token)
-          const result = await authClient.request(options)
+          const result = await authClient.request({
+            ...options,
+            method: options.method ?? 'GET',
+          })
+
           return result.response
         } else {
           throw new Error('Refresh token invalid or expired.')

@@ -1,6 +1,7 @@
 import { Calendar01Icon, FilterIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { format } from 'date-fns'
+import { useUsersStore } from '../store'
 import { cn } from '@/lib/utils'
 
 import { Button } from '@/components/ui/button'
@@ -17,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useUsersStore } from '../store'
 
 export function UsersFilters() {
   const {

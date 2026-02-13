@@ -6,7 +6,8 @@ export const loginSchema = zLoginRequest.extend({
   password: z.string().min(1, 'Password is required'),
 })
 
-export const signUpSchema = zRegisterRequest.extend({
+export const signUpSchema = zRegisterRequest
+  .extend({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     confirmPassword: z.string(),
   })

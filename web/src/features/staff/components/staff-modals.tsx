@@ -1,7 +1,11 @@
 'use client'
 
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon, PencilEdit01Icon, UserAdd01Icon } from '@hugeicons/core-free-icons'
+import {
+  Delete02Icon,
+  PencilEdit01Icon,
+  UserAdd01Icon,
+} from '@hugeicons/core-free-icons'
 import { StaffForm } from './staff-form'
 import type { StaffResponse } from '@/lib/api/types.gen'
 import type { CreateStaffValues } from '../schemas'
@@ -66,8 +70,9 @@ export function StaffModals({
               Remove Staff?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-base font-medium leading-relaxed opacity-70">
-              This will permanently remove <strong>{staffToDelete?.name}</strong> from the institution records. 
-              This action cannot be undone.
+              This will permanently remove{' '}
+              <strong>{staffToDelete?.name}</strong> from the institution
+              records. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-10 sm:justify-center gap-3">
@@ -93,17 +98,28 @@ export function StaffModals({
                 <HugeiconsIcon icon={UserAdd01Icon} className="size-7" />
               </div>
               <div>
-                <DialogTitle className="text-2xl font-black tracking-tight">Add New Employee</DialogTitle>
-                <DialogDescription className="font-medium">Register a new member of your staff.</DialogDescription>
+                <DialogTitle className="text-2xl font-black tracking-tight">
+                  Add New Employee
+                </DialogTitle>
+                <DialogDescription className="font-medium">
+                  Register a new member of your staff.
+                </DialogDescription>
               </div>
             </div>
           </DialogHeader>
-          <StaffForm onSubmit={onAddConfirm} isSubmitting={isAdding} submitLabel="Register Employee" />
+          <StaffForm
+            onSubmit={onAddConfirm}
+            isSubmitting={isAdding}
+            submitLabel="Register Employee"
+          />
         </DialogContent>
       </Dialog>
 
       {/* Edit Staff Dialog */}
-      <Dialog open={!!staffToEdit} onOpenChange={(open) => !open && setStaffToEdit(null)}>
+      <Dialog
+        open={!!staffToEdit}
+        onOpenChange={(open) => !open && setStaffToEdit(null)}
+      >
         <DialogContent className="max-w-2xl rounded-[2.5rem] border-none p-8 shadow-2xl backdrop-blur-3xl ring-1 ring-white/20">
           <DialogHeader className="mb-6">
             <div className="flex items-center gap-4">
@@ -111,17 +127,21 @@ export function StaffModals({
                 <HugeiconsIcon icon={PencilEdit01Icon} className="size-7" />
               </div>
               <div>
-                <DialogTitle className="text-2xl font-black tracking-tight">Edit Profile</DialogTitle>
-                <DialogDescription className="font-medium">Update institutional records for {staffToEdit?.name}.</DialogDescription>
+                <DialogTitle className="text-2xl font-black tracking-tight">
+                  Edit Profile
+                </DialogTitle>
+                <DialogDescription className="font-medium">
+                  Update institutional records for {staffToEdit?.name}.
+                </DialogDescription>
               </div>
             </div>
           </DialogHeader>
           {staffToEdit && (
-            <StaffForm 
-              initialValues={staffToEdit as any} 
-              onSubmit={onEditConfirm} 
-              isSubmitting={isEditing} 
-              submitLabel="Update Records" 
+            <StaffForm
+              initialValues={staffToEdit as any}
+              onSubmit={onEditConfirm}
+              isSubmitting={isEditing}
+              submitLabel="Update Records"
             />
           )}
         </DialogContent>

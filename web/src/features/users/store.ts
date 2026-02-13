@@ -1,5 +1,5 @@
-import type { SortingState } from '@tanstack/react-table'
 import { create } from 'zustand'
+import type { SortingState } from '@tanstack/react-table'
 
 import type { UserResponse } from '@/lib/api/types.gen'
 

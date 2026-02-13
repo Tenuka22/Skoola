@@ -3,19 +3,31 @@
 import * as React from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon, Shield01Icon, UserIcon } from '@hugeicons/core-free-icons'
+import {
+  Loading03Icon,
+  Shield01Icon,
+  UserIcon,
+} from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
-import { fetchPermissionSets, fetchPermissions, fetchUserPermissions, getStaffPermissionSets, unassignPermissionFromUser } from '../api'
+import {
+  fetchPermissionSets,
+  fetchPermissions,
+  fetchUserPermissions,
+  getStaffPermissionSets,
+  unassignPermissionFromUser,
+} from '../api'
 import { PermissionManager } from './permission-manager'
 import type { UserResponse } from '@/lib/api/types.gen'
-import {
-  Dialog,
-  DialogContent,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 // import type { PermissionSet } from '../types' // Commented out as PermissionSet is not used in the current state
 // import { PermissionSet } from '@/lib/api/types.gen' // This import is no longer needed as PermissionSet is from ../types
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 // import { Badge } from '@/components/ui/badge' // Commented out as Badge is not used in the current state
 // import { cn } from '@/lib/utils' // Commented out as cn is not used in the current state
 import { Checkbox } from '@/components/ui/checkbox'
@@ -32,7 +44,7 @@ export function UserPermissionsDialog({
   onOpenChange,
 }: UserPermissionsDialogProps) {
   const queryClient = useQueryClient()
-  
+
   const { data: allPermissions } = useQuery({
     queryKey: ['permissions'],
     queryFn: fetchPermissions,
@@ -47,14 +59,14 @@ export function UserPermissionsDialog({
 
   const { data: userPermissionSets } = useQuery({
     queryKey: ['user-permission-sets', user?.id],
-    queryFn: () => user ? getStaffPermissionSets(user.id) : [], // Assuming getStaffPermissionSets can be used for users temporarily, or proper user permission set API is added later
+    queryFn: () => (user ? getStaffPermissionSets(user.id) : []), // Assuming getStaffPermissionSets can be used for users temporarily, or proper user permission set API is added later
     enabled: !!user && open,
   })
 
   // Direct permissions are currently supported via a dedicated API endpoint
   const { data: directPermissions, isLoading: isLoadingDirect } = useQuery({
     queryKey: ['user-permissions', user?.id],
-    queryFn: () => user ? fetchUserPermissions(user.id) : [],
+    queryFn: () => (user ? fetchUserPermissions(user.id) : []),
     enabled: !!user && open,
   })
 
@@ -85,7 +97,9 @@ export function UserPermissionsDialog({
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-permissions', user?.id] })
+      queryClient.invalidateQueries({
+        queryKey: ['user-permissions', user?.id],
+      })
       toast.success('User permissions updated')
     },
     onError: () => {
@@ -142,8 +156,12 @@ export function UserPermissionsDialog({
               <HugeiconsIcon icon={UserIcon} className="size-8" />
             </div>
             <div>
-              <h2 className="text-xl font-black tracking-tight truncate max-w-full">{user?.email}</h2>
-              <p className="text-[10px] font-bold uppercase tracking-widest opacity-50">Security Configuration</p>
+              <h2 className="text-xl font-black tracking-tight truncate max-w-full">
+                {user?.email}
+              </h2>
+              <p className="text-[10px] font-bold uppercase tracking-widest opacity-50">
+                Security Configuration
+              </p>
             </div>
           </div>
 
@@ -153,19 +171,23 @@ export function UserPermissionsDialog({
                 Assigned Permission Sets ({userPermissionSets?.length || 0})
               </AccordionTrigger>
               <AccordionContent className="pt-4 px-1 space-y-2 max-h-[30vh] overflow-y-auto custom-scrollbar">
-                {allPermissionSets?.map(permissionSet => (
-                  <div 
-                    key={permissionSet.id} 
+                {allPermissionSets?.map((permissionSet) => (
+                  <div
+                    key={permissionSet.id}
                     className="flex items-center justify-between p-3 rounded-xl bg-background/50 ring-1 ring-border transition-all hover:ring-primary/30 cursor-not-allowed" // Changed cursor to not-allowed as functionality is disabled
                     // onClick={() => roleMutation.mutate({ setId: permissionSet.id, isEnabled: !userPermissionSetIds.includes(permissionSet.id) })} // Commented out click handler
                   >
                     <div className="flex items-center gap-3">
-                      <Checkbox 
-                        checked={userPermissionSetIds.includes(permissionSet.id)}
+                      <Checkbox
+                        checked={userPermissionSetIds.includes(
+                          permissionSet.id,
+                        )}
                         // onCheckedChange={(checked) => roleMutation.mutate({ setId: permissionSet.id, isEnabled: !!checked })} // Commented out change handler
                         disabled={true} // Disable checkbox as functionality is disabled
                       />
-                      <span className="text-[10px] font-bold">{permissionSet.name}</span>
+                      <span className="text-[10px] font-bold">
+                        {permissionSet.name}
+                      </span>
                     </div>
                     {userPermissionSetIds.includes(permissionSet.id) && (
                       <div className="size-1.5 rounded-full bg-primary animate-pulse" />
@@ -182,8 +204,13 @@ export function UserPermissionsDialog({
               </AccordionTrigger>
               <AccordionContent className="pt-4 px-1 space-y-2 max-h-[40vh] overflow-y-auto custom-scrollbar">
                 {directPermissions?.map((permission) => (
-                  <div key={permission.id} className="flex items-center justify-between p-3 rounded-xl bg-background/50 ring-1 ring-border">
-                    <span className="text-[10px] font-bold">{permission.name}</span>
+                  <div
+                    key={permission.id}
+                    className="flex items-center justify-between p-3 rounded-xl bg-background/50 ring-1 ring-border"
+                  >
+                    <span className="text-[10px] font-bold">
+                      {permission.name}
+                    </span>
                     <div className="size-1.5 rounded-full bg-orange-500 animate-pulse" />
                   </div>
                 ))}
@@ -194,10 +221,13 @@ export function UserPermissionsDialog({
           <div className="mt-auto p-5 rounded-2xl bg-primary/5 border border-primary/10 space-y-3">
             <div className="flex items-center gap-2 text-primary">
               <HugeiconsIcon icon={Shield01Icon} className="size-4" />
-              <span className="text-[10px] font-black uppercase tracking-wider">Infrastructure Policy</span>
+              <span className="text-[10px] font-black uppercase tracking-wider">
+                Infrastructure Policy
+              </span>
             </div>
             <p className="text-[9px] font-medium leading-relaxed opacity-70">
-              Direct overrides take precedence over role-based permissions. Use sparingly to maintain security audit trails.
+              Direct overrides take precedence over role-based permissions. Use
+              sparingly to maintain security audit trails.
             </p>
           </div>
         </div>
@@ -205,26 +235,40 @@ export function UserPermissionsDialog({
         <div className="flex-1 p-10 overflow-y-auto custom-scrollbar flex flex-col">
           <div className="mb-10 flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-2xl font-black tracking-tight uppercase">Capability Matrix</h3>
-              <p className="text-sm font-medium opacity-50">Toggle specific system capabilities for this identity. Direct permissions override assigned permission sets.</p>
+              <h3 className="text-2xl font-black tracking-tight uppercase">
+                Capability Matrix
+              </h3>
+              <p className="text-sm font-medium opacity-50">
+                Toggle specific system capabilities for this identity. Direct
+                permissions override assigned permission sets.
+              </p>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted/30 ring-1 ring-border">
               <div className="size-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest opacity-70">Real-time Sync Active</span>
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-70">
+                Real-time Sync Active
+              </span>
             </div>
           </div>
 
           <div className="flex-1">
             {isLoadingDirect ? (
               <div className="flex flex-col items-center justify-center py-24 gap-4">
-                <HugeiconsIcon icon={Loading03Icon} className="size-10 animate-spin text-primary" />
-                <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Loading permission matrix...</p>
+                <HugeiconsIcon
+                  icon={Loading03Icon}
+                  className="size-10 animate-spin text-primary"
+                />
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                  Loading permission matrix...
+                </p>
               </div>
             ) : (
               <PermissionManager
                 permissions={allPermissions || []}
                 assignedPermissionIds={directIds}
-                onToggle={(id, enabled) => mutation.mutate({ permissionId: id, isEnabled: enabled })}
+                onToggle={(id, enabled) =>
+                  mutation.mutate({ permissionId: id, isEnabled: enabled })
+                }
               />
             )}
           </div>

@@ -67,12 +67,15 @@ export function UserModals({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the user account and remove their data from our servers.
+              This action cannot be undone. This will permanently delete the
+              user account and remove their data from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => userToDelete && onDeleteConfirm(userToDelete)}>
+            <AlertDialogAction
+              onClick={() => userToDelete && onDeleteConfirm(userToDelete)}
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -84,7 +87,9 @@ export function UserModals({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete {selectedCount} user accounts and remove their data from our servers.
+              This action cannot be undone. This will permanently delete{' '}
+              {selectedCount} user accounts and remove their data from our
+              servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

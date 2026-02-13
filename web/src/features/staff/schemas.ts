@@ -1,12 +1,9 @@
 import { z } from 'zod'
-import type {
-  StaffType,
-  EmploymentStatus,
-} from '@/lib/api/types.gen'
+import type { EmploymentStatus, StaffType } from '@/lib/api/types.gen'
 import {
-  zStaffType,
-  zEmploymentStatus,
   zCreateStaffRequest,
+  zEmploymentStatus,
+  zStaffType,
   zUpdateStaffRequest,
 } from '@/lib/api/zod.gen'
 
@@ -38,6 +35,6 @@ export const updateStaffSchema = zUpdateStaffRequest.extend({
   dob: z.string().min(1, 'Date of birth is required').optional(),
   gender: z.string().min(1, 'Gender is required').optional(),
   address: z.string().min(1, 'Address is required').optional(),
-});
+})
 
 export type UpdateStaffValues = z.infer<typeof updateStaffSchema>

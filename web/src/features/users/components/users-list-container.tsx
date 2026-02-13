@@ -1,15 +1,27 @@
 import { useUsersStore } from '../store'
 import { UserBoardView } from './user-board-view'
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { UserResponse } from '@/lib/api'
+import type {
+  MessageResponse,
+  Options,
+  PaginatedUserResponse,
+  PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaData,
+  UserResponse,
+} from '@/lib/api'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { DataTable } from '@/components/ui/data-table'
 
 interface UsersListContainerProps {
-  usersQuery: any
+  usersQuery: UseQueryResult<PaginatedUserResponse, Error>
   limit: number
   columns: Array<ColumnDef<UserResponse>>
-  updateMutation: any
+  updateMutation: UseMutationResult<
+    MessageResponse,
+    Error,
+    Options<PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaData>,
+    unknown
+  >
   rowSelection: Record<string, boolean>
   setRowSelection: (
     selection:

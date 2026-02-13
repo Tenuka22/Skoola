@@ -10,7 +10,7 @@ import { getPermissionColumns } from './permission-table-columns'
 import { CreatePermissionDialog } from './create-permission-dialog'
 import { EditPermissionDialog } from './edit-permission-dialog'
 import type { Permission } from '@/lib/api/types.gen'
-import type {OnChangeFn, SortingState} from '@tanstack/react-table';
+import type { OnChangeFn, SortingState } from '@tanstack/react-table'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/data-table'
@@ -36,30 +36,34 @@ export function PermissionsTable({
   setSearch,
   setSorting,
 }: PermissionsTableProps) {
-//   const queryClient = useQueryClient()
+  //   const queryClient = useQueryClient()
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false)
   const [editPermission, setEditPermission] = React.useState<Permission | null>(
     null,
   )
 
-//   const deleteMutation = useMutation({
-//     mutationFn: deletePermission,
-//     onSuccess: () => {
-//       toast.success('Permission deleted successfully.')
-//       queryClient.invalidateQueries({ queryKey: ['permissions'] })
-//     },
-//     onError: (error) => {
-//       toast.error(`Failed to delete permission: ${(error as any).message}`)
-//     },
-//   })
+  //   const deleteMutation = useMutation({
+  //     mutationFn: deletePermission,
+  //     onSuccess: () => {
+  //       toast.success('Permission deleted successfully.')
+  //       queryClient.invalidateQueries({ queryKey: ['permissions'] })
+  //     },
+  //     onError: (error) => {
+  //       toast.error(`Failed to delete permission: ${(error as any).message}`)
+  //     },
+  //   })
 
   const columns = React.useMemo(
     () =>
       getPermissionColumns({
         onEdit: (permission) => setEditPermission(permission),
-        onDelete: (/* permissionId */) => { /* deleteMutation.mutate(permissionId) */ },
+        onDelete: (/* permissionId */) => {
+          /* deleteMutation.mutate(permissionId) */
+        },
       }),
-    [/* deleteMutation */],
+    [
+      /* deleteMutation */
+    ],
   )
 
   return (

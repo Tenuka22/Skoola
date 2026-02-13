@@ -1,3 +1,4 @@
+import { UserBulkEditForm } from './user-bulk-edit-form'
 import type { BulkUpdateValues } from '../schemas'
 import {
   Dialog,
@@ -6,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { UserBulkEditForm } from './user-bulk-edit-form'
 
 interface UserBulkEditDialogProps {
   open: boolean

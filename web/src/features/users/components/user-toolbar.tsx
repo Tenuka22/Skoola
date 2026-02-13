@@ -2,10 +2,10 @@
 
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
+  Delete02Icon,
   PencilEdit01Icon,
   Shield01Icon,
   Tick01Icon,
-  Delete02Icon,
 } from '@hugeicons/core-free-icons'
 
 import type { User } from '../types'

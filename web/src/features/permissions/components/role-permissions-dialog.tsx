@@ -3,7 +3,11 @@
 import * as React from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon, SecurityIcon, Shield01Icon } from '@hugeicons/core-free-icons'
+import {
+  Loading03Icon,
+  SecurityIcon,
+  Shield01Icon,
+} from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
 import { fetchPermissions, unassignPermissionFromPermissionSet } from '../api'
 import { PermissionManager } from './permission-manager'
@@ -31,7 +35,7 @@ export function RolePermissionsDialog({
   onOpenChange,
 }: RolePermissionsDialogProps) {
   const queryClient = useQueryClient()
-  
+
   const { data: permissions, isLoading: isLoadingAll } = useQuery({
     queryKey: ['permissions'],
     queryFn: fetchPermissions,
@@ -42,7 +46,10 @@ export function RolePermissionsDialog({
     queryKey: ['permission-set-permissions', permissionSet?.id],
     queryFn: async () => {
       if (!permissionSet) return []
-      const response = await getPermissionSetById({ client: authClient, path: { permission_set_id: permissionSet.id } })
+      const response = await getPermissionSetById({
+        client: authClient,
+        path: { permission_set_id: permissionSet.id },
+      })
       return (response.data as any)?.permissions || []
     },
     enabled: !!permissionSet && open,
@@ -65,11 +72,16 @@ export function RolePermissionsDialog({
       if (isEnabled) {
         // return assignPermissionToPermissionSet(permissionSet.id, permissionId)
       } else {
-        return unassignPermissionFromPermissionSet(permissionSet.id, permissionId)
+        return unassignPermissionFromPermissionSet(
+          permissionSet.id,
+          permissionId,
+        )
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['permission-set-permissions', permissionSet?.id] })
+      queryClient.invalidateQueries({
+        queryKey: ['permission-set-permissions', permissionSet?.id],
+      })
       toast.success('Security policy synchronized')
     },
     onError: () => {
@@ -94,7 +106,8 @@ export function RolePermissionsDialog({
               </div>
             </div>
             <DialogDescription className="text-lg font-medium leading-relaxed opacity-70">
-              Configure baseline capabilities for the <span className="text-foreground font-bold">RBAC Mesh</span>. 
+              Configure baseline capabilities for the{' '}
+              <span className="text-foreground font-bold">RBAC Mesh</span>.
               Changes propagate to all identities inheriting this role.
             </DialogDescription>
           </div>
@@ -103,14 +116,21 @@ export function RolePermissionsDialog({
         <div className="min-h-[400px]">
           {isLoadingAssigned || isLoadingAll ? (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
-              <HugeiconsIcon icon={Loading03Icon} className="size-12 animate-spin text-primary" />
-              <p className="text-xs font-black uppercase tracking-widest opacity-40 italic">Querying capability matrix...</p>
+              <HugeiconsIcon
+                icon={Loading03Icon}
+                className="size-12 animate-spin text-primary"
+              />
+              <p className="text-xs font-black uppercase tracking-widest opacity-40 italic">
+                Querying capability matrix...
+              </p>
             </div>
           ) : (
             <PermissionManager
               permissions={permissions || []}
               assignedPermissionIds={assignedIds}
-              onToggle={(id, enabled) => mutation.mutate({ permissionId: id, isEnabled: enabled })}
+              onToggle={(id, enabled) =>
+                mutation.mutate({ permissionId: id, isEnabled: enabled })
+              }
             />
           )}
         </div>

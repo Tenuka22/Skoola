@@ -1,15 +1,11 @@
-import { AuthStorage } from '@/lib/auth/session'
+import type { AuthStorage } from '@/lib/auth/session'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 
 interface ActiveSessionsProps {
@@ -17,7 +13,10 @@ interface ActiveSessionsProps {
 }
 
 export function ActiveSessions({ authStorage }: ActiveSessionsProps) {
-  if (!authStorage?.sessions || Object.keys(authStorage.sessions).length === 0) {
+  if (
+    !authStorage?.sessions ||
+    Object.keys(authStorage.sessions).length === 0
+  ) {
     return null
   }
 
@@ -39,10 +38,7 @@ export function ActiveSessions({ authStorage }: ActiveSessionsProps) {
                 <TooltipTrigger>
                   <div className="relative">
                     <Avatar className="size-9">
-                      <AvatarImage
-                        src={undefined}
-                        alt={value.user.email}
-                      />
+                      <AvatarImage src={undefined} alt={value.user.email} />
                       <AvatarFallback
                         className={cn(
                           'uppercase',
@@ -50,9 +46,7 @@ export function ActiveSessions({ authStorage }: ActiveSessionsProps) {
                             'bg-primary text-primary-foreground',
                         )}
                       >
-                        {String(value.user.email)
-                          .substring(0, 2)
-                          .toUpperCase()}
+                        {String(value.user.email).substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     {key === authStorage.activeUserId && (
@@ -63,9 +57,7 @@ export function ActiveSessions({ authStorage }: ActiveSessionsProps) {
                 <TooltipContent>
                   <p className="text-sm">{value.user.email}</p>
                   {key === authStorage.activeUserId && (
-                    <p className="text-xs text-muted-foreground">
-                      Active
-                    </p>
+                    <p className="text-xs text-muted-foreground">Active</p>
                   )}
                 </TooltipContent>
               </Tooltip>

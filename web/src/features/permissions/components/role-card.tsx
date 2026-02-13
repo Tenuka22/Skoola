@@ -1,8 +1,11 @@
 'use client'
 
-
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon, Settings02Icon, UserIcon } from '@hugeicons/core-free-icons'
+import {
+  Delete02Icon,
+  Settings02Icon,
+  UserIcon,
+} from '@hugeicons/core-free-icons'
 import type { PermissionSet } from '../types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -39,7 +42,10 @@ export function RoleCard({
               {permissionSet.name}
             </CardTitle>
             <div className="flex items-center gap-2 mt-0.5">
-              <Badge variant="secondary" className="h-4 px-1.5 text-[9px] font-black uppercase tracking-tighter">
+              <Badge
+                variant="secondary"
+                className="h-4 px-1.5 text-[9px] font-black uppercase tracking-tighter"
+              >
                 {permissionCount} Permissions
               </Badge>
             </div>
@@ -52,8 +58,8 @@ export function RoleCard({
               size="icon"
               className="h-8 w-8 rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
               onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
+                e.stopPropagation()
+                onDelete()
               }}
             >
               <HugeiconsIcon icon={Delete02Icon} className="size-4" />
@@ -86,7 +92,10 @@ export function RoleCard({
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="h-6 rounded-lg px-2 text-[10px] font-bold text-green-500 bg-green-500/5 border-green-500/20">
+            <Badge
+              variant="outline"
+              className="h-6 rounded-lg px-2 text-[10px] font-bold text-green-500 bg-green-500/5 border-green-500/20"
+            >
               Enabled
             </Badge>
           </div>

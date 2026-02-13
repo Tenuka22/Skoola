@@ -8,17 +8,6 @@ import {
 import * as React from 'react'
 import { toast } from 'sonner'
 
-import {
-  deleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
-  deleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
-  getUsers06Bdcf95Aafda840B1D04322636De293Options,
-  getUsers06Bdcf95Aafda840B1D04322636De293QueryKey,
-  getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaQueryKey,
-  patchUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
-  patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
-  postAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Mutation,
-} from '@/lib/api/@tanstack/react-query.gen'
-import { authClient } from '@/lib/clients'
 import { UserBulkPermissionsDialog } from '../../features/permissions/components/user-bulk-permissions-dialog'
 import { UserPermissionsDialog } from '../../features/permissions/components/user-permissions-dialog'
 import { UserCreateDialog } from '../../features/users/components/user-create-dialog'
@@ -31,10 +20,21 @@ import { UsersListContainer } from '../../features/users/components/users-list-c
 import { UsersToolbar } from '../../features/users/components/users-toolbar'
 import { useUsersStore } from '../../features/users/store'
 import { handleExportCSV } from '../../lib/export'
-import {
+import type {
   BulkUpdateValues,
   UpdateUserValues,
 } from '../../features/users/schemas'
+import { authClient } from '@/lib/clients'
+import {
+  deleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
+  deleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
+  getUsers06Bdcf95Aafda840B1D04322636De293Options,
+  getUsers06Bdcf95Aafda840B1D04322636De293QueryKey,
+  getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaQueryKey,
+  patchUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
+  patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
+  postAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Mutation,
+} from '@/lib/api/@tanstack/react-query.gen'
 
 export const Route = createFileRoute('/admin/users')({
   component: Users,

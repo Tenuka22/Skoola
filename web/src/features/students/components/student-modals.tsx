@@ -1,7 +1,11 @@
 'use client'
 
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon, PencilEdit01Icon, UserAdd01Icon } from '@hugeicons/core-free-icons'
+import {
+  Delete02Icon,
+  PencilEdit01Icon,
+  UserAdd01Icon,
+} from '@hugeicons/core-free-icons'
 import { StudentForm } from './student-form'
 import type { StudentResponse } from '@/features/students/types'
 import type { CreateStudentValues } from '../schemas'
@@ -66,8 +70,9 @@ export function StudentModals({
               Remove Student?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-base font-medium leading-relaxed opacity-70">
-              This will permanently remove <strong>{studentToDelete?.name_english}</strong> from the institution records. 
-              This action cannot be undone.
+              This will permanently remove{' '}
+              <strong>{studentToDelete?.name_english}</strong> from the
+              institution records. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-10 sm:justify-center gap-3">
@@ -75,7 +80,9 @@ export function StudentModals({
               Abort
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => studentToDelete && onDeleteConfirm(studentToDelete.id)}
+              onClick={() =>
+                studentToDelete && onDeleteConfirm(studentToDelete.id)
+              }
               className="h-14 min-w-[160px] rounded-2xl bg-destructive font-black uppercase tracking-widest text-destructive-foreground shadow-2xl shadow-destructive/20 transition-all hover:bg-destructive/90 active:scale-95"
             >
               Confirm Removal
@@ -93,17 +100,28 @@ export function StudentModals({
                 <HugeiconsIcon icon={UserAdd01Icon} className="size-7" />
               </div>
               <div>
-                <DialogTitle className="text-2xl font-black tracking-tight">Add New Student</DialogTitle>
-                <DialogDescription className="font-medium">Register a new student in your institution.</DialogDescription>
+                <DialogTitle className="text-2xl font-black tracking-tight">
+                  Add New Student
+                </DialogTitle>
+                <DialogDescription className="font-medium">
+                  Register a new student in your institution.
+                </DialogDescription>
               </div>
             </div>
           </DialogHeader>
-          <StudentForm onSubmit={onAddConfirm} isSubmitting={isAdding} submitLabel="Register Student" />
+          <StudentForm
+            onSubmit={onAddConfirm}
+            isSubmitting={isAdding}
+            submitLabel="Register Student"
+          />
         </DialogContent>
       </Dialog>
 
       {/* Edit Student Dialog */}
-      <Dialog open={!!studentToEdit} onOpenChange={(open) => !open && setStudentToEdit(null)}>
+      <Dialog
+        open={!!studentToEdit}
+        onOpenChange={(open) => !open && setStudentToEdit(null)}
+      >
         <DialogContent className="max-w-2xl rounded-[2.5rem] border-none p-8 shadow-2xl backdrop-blur-3xl ring-1 ring-white/20">
           <DialogHeader className="mb-6">
             <div className="flex items-center gap-4">
@@ -111,17 +129,22 @@ export function StudentModals({
                 <HugeiconsIcon icon={PencilEdit01Icon} className="size-7" />
               </div>
               <div>
-                <DialogTitle className="text-2xl font-black tracking-tight">Edit Student Profile</DialogTitle>
-                <DialogDescription className="font-medium">Update institutional records for {studentToEdit?.name_english}.</DialogDescription>
+                <DialogTitle className="text-2xl font-black tracking-tight">
+                  Edit Student Profile
+                </DialogTitle>
+                <DialogDescription className="font-medium">
+                  Update institutional records for {studentToEdit?.name_english}
+                  .
+                </DialogDescription>
               </div>
             </div>
           </DialogHeader>
           {studentToEdit && (
-            <StudentForm 
-              initialValues={studentToEdit as any} 
-              onSubmit={onEditConfirm} 
-              isSubmitting={isEditing} 
-              submitLabel="Update Records" 
+            <StudentForm
+              initialValues={studentToEdit as any}
+              onSubmit={onEditConfirm}
+              isSubmitting={isEditing}
+              submitLabel="Update Records"
             />
           )}
         </DialogContent>

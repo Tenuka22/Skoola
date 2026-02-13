@@ -1,10 +1,10 @@
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
+  Book01Icon,
   Calendar01Icon,
   Calendar02Icon,
   Home01Icon,
-  Book01Icon,
   Settings01Icon,
   Shield01Icon,
   UserGroupIcon,

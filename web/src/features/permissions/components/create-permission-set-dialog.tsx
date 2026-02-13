@@ -8,8 +8,21 @@ import { zCreatePermissionSetRequest } from '@/lib/api/zod.gen'
 // import { useMutation, useQueryClient } from '@tanstack/react-query'
 // import { createPermissionSet } from '../../permissions/api'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -23,8 +36,11 @@ interface CreatePermissionSetDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function CreatePermissionSetDialog({ open, onOpenChange }: CreatePermissionSetDialogProps) {
-//   const queryClient = useQueryClient()
+export function CreatePermissionSetDialog({
+  open,
+  onOpenChange,
+}: CreatePermissionSetDialogProps) {
+  //   const queryClient = useQueryClient()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -33,23 +49,23 @@ export function CreatePermissionSetDialog({ open, onOpenChange }: CreatePermissi
     },
   })
 
-//   const createMutation = useMutation({
-//     mutationFn: (values: z.infer<typeof formSchema>) =>
-//       createPermissionSet(values.name, values.description),
-//     onSuccess: () => {
-//       toast.success('Permission set created successfully.')
-//       onOpenChange(false)
-//       form.reset()
-//       queryClient.invalidateQueries({ queryKey: ['permissionSets'] })
-//     },
-//     onError: (error) => {
-//       toast.error(`Failed to create permission set: ${(error as any).message}`)
-//     },
-//   })
+  //   const createMutation = useMutation({
+  //     mutationFn: (values: z.infer<typeof formSchema>) =>
+  //       createPermissionSet(values.name, values.description),
+  //     onSuccess: () => {
+  //       toast.success('Permission set created successfully.')
+  //       onOpenChange(false)
+  //       form.reset()
+  //       queryClient.invalidateQueries({ queryKey: ['permissionSets'] })
+  //     },
+  //     onError: (error) => {
+  //       toast.error(`Failed to create permission set: ${(error as any).message}`)
+  //     },
+  //   })
 
-//   const onSubmit = (values: z.infer<typeof formSchema>) => {
-//     createMutation.mutate(values)
-//   }
+  //   const onSubmit = (values: z.infer<typeof formSchema>) => {
+  //     createMutation.mutate(values)
+  //   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -79,7 +95,10 @@ export function CreatePermissionSetDialog({ open, onOpenChange }: CreatePermissi
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Description of the permission set" {...field} />
+                    <Textarea
+                      placeholder="Description of the permission set"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -93,9 +112,7 @@ export function CreatePermissionSetDialog({ open, onOpenChange }: CreatePermissi
               >
                 Cancel
               </Button>
-              <Button type="submit">
-                Create
-              </Button>
+              <Button type="submit">Create</Button>
             </DialogFooter>
           </form>
         </Form>
@@ -103,4 +120,3 @@ export function CreatePermissionSetDialog({ open, onOpenChange }: CreatePermissi
     </Dialog>
   )
 }
-

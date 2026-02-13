@@ -5,6 +5,7 @@ import { AlertCircle } from '@hugeicons/core-free-icons'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { signUpSchema } from '../schemas'
+import { ActiveSessions } from './active-sessions'
 import type { SignUpFormValues } from '../schemas'
 import type { AuthStorage } from '@/lib/auth/session'
 import { Button } from '@/components/ui/button'
@@ -18,7 +19,6 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { signUpFn } from '@/lib/auth/actions'
 import { Spinner } from '@/components/ui/spinner'
-import { ActiveSessions } from './active-sessions'
 
 export function SignUpForm({
   authStorage,

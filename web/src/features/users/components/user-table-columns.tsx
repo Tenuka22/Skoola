@@ -315,7 +315,10 @@ export function getUserColumns({
                 {isBeingUpdated ? (
                   <Spinner className="mr-2 h-4 w-4" />
                 ) : (
-                  <HugeiconsIcon icon={UserCheckIcon} className="mr-2 h-4 w-4" />
+                  <HugeiconsIcon
+                    icon={UserCheckIcon}
+                    className="mr-2 h-4 w-4"
+                  />
                 )}
                 {user.is_verified ? 'Unverify' : 'Verify'}
               </DropdownMenuItem>
@@ -358,4 +361,3 @@ export function getUserColumns({
     },
   ]
 }
-

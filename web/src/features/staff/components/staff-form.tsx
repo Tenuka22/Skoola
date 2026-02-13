@@ -4,8 +4,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
-import {  createStaffSchema } from '../schemas'
-import type {CreateStaffValues} from '../schemas';
+import { createStaffSchema } from '../schemas'
+import type { CreateStaffValues } from '../schemas'
 import {
   Field,
   FieldError,
@@ -67,69 +67,86 @@ export function StaffForm({
       <FieldGroup className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">Employee ID</FieldLabel>
-            <Input 
-              {...register('employee_id')} 
-              placeholder="EMP001" 
+            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+              Employee ID
+            </FieldLabel>
+            <Input
+              {...register('employee_id')}
+              placeholder="EMP001"
               className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
             />
             <FieldError errors={[errors.employee_id]} />
           </Field>
 
           <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">Full Name</FieldLabel>
-            <Input 
-              {...register('name')} 
-              placeholder="John Doe" 
+            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+              Full Name
+            </FieldLabel>
+            <Input
+              {...register('name')}
+              placeholder="John Doe"
               className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
             />
             <FieldError errors={[errors.name]} />
           </Field>
 
           <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">Email</FieldLabel>
-            <Input 
-              {...register('email')} 
-              placeholder="john@example.com" 
-              type="email" 
+            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+              Email
+            </FieldLabel>
+            <Input
+              {...register('email')}
+              placeholder="john@example.com"
+              type="email"
               className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
             />
             <FieldError errors={[errors.email]} />
           </Field>
 
           <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">Phone Number</FieldLabel>
-            <Input 
-              {...register('phone')} 
-              placeholder="+94 77 123 4567" 
+            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+              Phone Number
+            </FieldLabel>
+            <Input
+              {...register('phone')}
+              placeholder="+94 77 123 4567"
               className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
             />
             <FieldError errors={[errors.phone]} />
           </Field>
 
           <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">NIC</FieldLabel>
-            <Input 
-              {...register('nic')} 
-              placeholder="123456789V" 
+            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+              NIC
+            </FieldLabel>
+            <Input
+              {...register('nic')}
+              placeholder="123456789V"
               className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
             />
             <FieldError errors={[errors.nic]} />
           </Field>
 
           <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">Date of Birth</FieldLabel>
-            <Input 
-              {...register('dob')} 
-              type="date" 
+            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+              Date of Birth
+            </FieldLabel>
+            <Input
+              {...register('dob')}
+              type="date"
               className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
             />
             <FieldError errors={[errors.dob]} />
           </Field>
 
           <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">Gender</FieldLabel>
-            <Select onValueChange={(val) => setValue('gender', val as any)} defaultValue={gender}>
+            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+              Gender
+            </FieldLabel>
+            <Select
+              onValueChange={(val) => setValue('gender', val as any)}
+              defaultValue={gender}
+            >
               <SelectTrigger className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus:ring-2 focus:ring-primary">
                 <SelectValue placeholder="Select gender" />
               </SelectTrigger>
@@ -143,8 +160,13 @@ export function StaffForm({
           </Field>
 
           <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">Staff Type</FieldLabel>
-            <Select onValueChange={(val: any) => setValue('staff_type', val)} defaultValue={staffType}>
+            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+              Staff Type
+            </FieldLabel>
+            <Select
+              onValueChange={(val: any) => setValue('staff_type', val)}
+              defaultValue={staffType}
+            >
               <SelectTrigger className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus:ring-2 focus:ring-primary">
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
@@ -158,8 +180,13 @@ export function StaffForm({
           </Field>
 
           <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">Employment Status</FieldLabel>
-            <Select onValueChange={(val: any) => setValue('employment_status', val)} defaultValue={employmentStatus}>
+            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+              Employment Status
+            </FieldLabel>
+            <Select
+              onValueChange={(val: any) => setValue('employment_status', val)}
+              defaultValue={employmentStatus}
+            >
               <SelectTrigger className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus:ring-2 focus:ring-primary">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
@@ -174,19 +201,28 @@ export function StaffForm({
         </div>
 
         <Field>
-          <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">Address</FieldLabel>
-          <Input 
-            {...register('address')} 
-            placeholder="123, Main Street, City" 
+          <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
+            Address
+          </FieldLabel>
+          <Input
+            {...register('address')}
+            placeholder="123, Main Street, City"
             className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
           />
           <FieldError errors={[errors.address]} />
         </Field>
       </FieldGroup>
 
-      <Button type="submit" className="w-full h-14 rounded-[1.25rem] font-black uppercase tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-[0.98]" disabled={isSubmitting}>
+      <Button
+        type="submit"
+        className="w-full h-14 rounded-[1.25rem] font-black uppercase tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-[0.98]"
+        disabled={isSubmitting}
+      >
         {isSubmitting ? (
-          <HugeiconsIcon icon={Loading03Icon} className="mr-2 h-5 w-5 animate-spin" />
+          <HugeiconsIcon
+            icon={Loading03Icon}
+            className="mr-2 h-5 w-5 animate-spin"
+          />
         ) : null}
         {submitLabel}
       </Button>

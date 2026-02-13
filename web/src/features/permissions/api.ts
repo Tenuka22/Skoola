@@ -20,7 +20,6 @@ import {
   // updatePermissionSetApi,
 } from '@/lib/api/sdk.gen'
 
-
 export const fetchPermissions = async () => {
   const response = await getPermissions({
     client: authClient,
@@ -50,7 +49,6 @@ export const fetchPermissions = async () => {
 //     path: { permission_id: permissionId },
 //   })
 // }
-
 
 export const fetchPermissionSets = async () => {
   const response = await getPermissionSetsApi({
@@ -88,7 +86,10 @@ export const fetchPermissionSets = async () => {
 //   })
 // }
 
-export const unassignPermissionFromPermissionSet = async (setId: string, permissionId: number) => {
+export const unassignPermissionFromPermissionSet = async (
+  setId: string,
+  permissionId: number,
+) => {
   return unassignPermissionFromPermissionSetApi({
     client: authClient,
     path: { permission_set_id: setId, permission_id: permissionId },
@@ -103,7 +104,10 @@ export const unassignPermissionFromPermissionSet = async (setId: string, permiss
 //   })
 // }
 
-export const unassignPermissionSetFromStaff = async (staffId: string, setId: string) => {
+export const unassignPermissionSetFromStaff = async (
+  staffId: string,
+  setId: string,
+) => {
   return unassignPermissionSetFromStaffApi({
     client: authClient,
     path: { staff_id: staffId, set_id: setId },
@@ -163,7 +167,10 @@ export const fetchUserPermissions = async (userId: string) => {
 //   })
 // }
 
-export const unassignPermissionFromUser = async (userId: string, permissionId: number) => {
+export const unassignPermissionFromUser = async (
+  userId: string,
+  permissionId: number,
+) => {
   return unassignPermissionFromUserApi({
     client: authClient,
     path: { user_id: userId, permission_id: permissionId },

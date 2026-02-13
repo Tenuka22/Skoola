@@ -1,10 +1,10 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useUsersStore } from '../store'
 import { authClient } from '@/lib/clients'
 import {
   getUsers06Bdcf95Aafda840B1D04322636De293Options,
   getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaOptions,
 } from '@/lib/api/@tanstack/react-query.gen'
-import { useUsersStore } from '../store'
 
 export function useUsers() {
   const {

@@ -4,14 +4,27 @@ import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import type { PermissionSet } from '../types'
 import { zUpdatePermissionSetRequest } from '@/lib/api/zod.gen'
 // import { toast } from 'sonner'
 // import { useMutation, useQueryClient } from '@tanstack/react-query'
 // import { updatePermissionSet } from '../../permissions/api'
-import type { PermissionSet } from '../types'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -26,8 +39,12 @@ interface EditPermissionSetDialogProps {
   permissionSet: PermissionSet
 }
 
-export function EditPermissionSetDialog({ open, onOpenChange, permissionSet }: EditPermissionSetDialogProps) {
-//   const queryClient = useQueryClient()
+export function EditPermissionSetDialog({
+  open,
+  onOpenChange,
+  permissionSet,
+}: EditPermissionSetDialogProps) {
+  //   const queryClient = useQueryClient()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,22 +62,22 @@ export function EditPermissionSetDialog({ open, onOpenChange, permissionSet }: E
     }
   }, [permissionSet, form])
 
-//   const updateMutation = useMutation({
-//     mutationFn: (values: z.infer<typeof formSchema>) =>
-//       updatePermissionSet(permissionSet.id, values.name, values.description),
-//     onSuccess: () => {
-//       toast.success('Permission set updated successfully.')
-//       onOpenChange(false)
-//       queryClient.invalidateQueries({ queryKey: ['permissionSets'] })
-//     },
-//     onError: (error) => {
-//       toast.error(`Failed to update permission set: ${(error as any).message}`)
-//     },
-//   })
+  //   const updateMutation = useMutation({
+  //     mutationFn: (values: z.infer<typeof formSchema>) =>
+  //       updatePermissionSet(permissionSet.id, values.name, values.description),
+  //     onSuccess: () => {
+  //       toast.success('Permission set updated successfully.')
+  //       onOpenChange(false)
+  //       queryClient.invalidateQueries({ queryKey: ['permissionSets'] })
+  //     },
+  //     onError: (error) => {
+  //       toast.error(`Failed to update permission set: ${(error as any).message}`)
+  //     },
+  //   })
 
-//   const onSubmit = (values: z.infer<typeof formSchema>) => {
-//     updateMutation.mutate(values)
-//   }
+  //   const onSubmit = (values: z.infer<typeof formSchema>) => {
+  //     updateMutation.mutate(values)
+  //   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -90,7 +107,10 @@ export function EditPermissionSetDialog({ open, onOpenChange, permissionSet }: E
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Description of the permission set" {...field} />
+                    <Textarea
+                      placeholder="Description of the permission set"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -104,9 +124,7 @@ export function EditPermissionSetDialog({ open, onOpenChange, permissionSet }: E
               >
                 Cancel
               </Button>
-              <Button type="submit">
-                Update
-              </Button>
+              <Button type="submit">Update</Button>
             </DialogFooter>
           </form>
         </Form>
@@ -114,4 +132,3 @@ export function EditPermissionSetDialog({ open, onOpenChange, permissionSet }: E
     </Dialog>
   )
 }
-

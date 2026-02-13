@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { addDays, format, subDays } from 'date-fns';
-import { HugeiconsIcon } from '@hugeicons/react';
+import * as React from 'react'
+import { addDays, format, subDays } from 'date-fns'
+import { HugeiconsIcon } from '@hugeicons/react'
 import {
   ArrowLeft01Icon,
   ArrowRight01Icon,
@@ -12,61 +12,59 @@ import {
   PlusSignIcon,
   RefreshIcon,
   Search01Icon,
-} from '@hugeicons/core-free-icons';
-import { useStaffAttendance, useStaffList } from '../api';
-import { staffAttendanceColumns } from './staff-attendance-columns';
-import { AttendanceSummaryCards } from './attendance-summary-cards';
-import { MarkStaffAttendanceDialog } from './mark-staff-attendance-dialog';
-import type { StaffAttendanceWithMember } from '../types';
-import { DataTable } from '@/components/ui/data-table';
+} from '@hugeicons/core-free-icons'
+import { useStaffAttendance, useStaffList } from '../api'
+import { staffAttendanceColumns } from './staff-attendance-columns'
+import { AttendanceSummaryCards } from './attendance-summary-cards'
+import { MarkStaffAttendanceDialog } from './mark-staff-attendance-dialog'
+import type { StaffAttendanceWithMember } from '../types'
+import { DataTable } from '@/components/ui/data-table'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from '@/components/ui/card';
-import { Spinner } from '@/components/ui/spinner';
+} from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Spinner } from '@/components/ui/spinner'
 
 export const StaffAttendancePage = () => {
-  const [date, setDate] = React.useState(new Date());
-  const [search, setSearch] = React.useState('');
-  const [selectedAttendance, setSelectedAttendance] = React.useState<StaffAttendanceWithMember | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const formattedDateForApi = format(date, 'yyyy-MM-dd');
-  const formattedDateForDisplay = format(date, 'EEEE, dd MMMM');
+  const [date, setDate] = React.useState(new Date())
+  const [search, setSearch] = React.useState('')
+  const [selectedAttendance, setSelectedAttendance] =
+    React.useState<StaffAttendanceWithMember | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+  const formattedDateForApi = format(date, 'yyyy-MM-dd')
+  const formattedDateForDisplay = format(date, 'EEEE, dd MMMM')
 
-  const { data: attendanceData, refetch: refetchAttendance } = useStaffAttendance(formattedDateForApi);
-  const { data: staffData, isLoading: isStaffLoading } = useStaffList();
+  const { data: attendanceData, refetch: refetchAttendance } =
+    useStaffAttendance(formattedDateForApi)
+  const { data: staffData, isLoading: isStaffLoading } = useStaffList()
 
-  const handlePrevDay = () => setDate((d) => subDays(d, 1));
-  const handleNextDay = () => setDate((d) => addDays(d, 1));
+  const handlePrevDay = () => setDate((d) => subDays(d, 1))
+  const handleNextDay = () => setDate((d) => addDays(d, 1))
 
   const handleMarkAttendance = (attendance: StaffAttendanceWithMember) => {
-    setSelectedAttendance(attendance);
-    setIsDialogOpen(true);
-  };
+    setSelectedAttendance(attendance)
+    setIsDialogOpen(true)
+  }
 
   const columns = React.useMemo(() => {
-    return staffAttendanceColumns.map(col => ({
+    return staffAttendanceColumns.map((col) => ({
       ...col,
       meta: {
         onMarkAttendance: handleMarkAttendance,
-      }
-    }));
-  }, []);
+      },
+    }))
+  }, [])
 
   const mergedData: Array<StaffAttendanceWithMember> = React.useMemo(() => {
-    if (!staffData?.data) return [];
+    if (!staffData?.data) return []
     return staffData.data.map((staff) => {
-      const attendance = attendanceData?.find((a) => a.staff_id === staff.id);
+      const attendance = attendanceData?.find((a) => a.staff_id === staff.id)
       return {
         ...(attendance ?? {
           id: `temp-${staff.id}`,
@@ -77,24 +75,24 @@ export const StaffAttendancePage = () => {
           updated_at: '',
         }),
         staff,
-      };
-    });
-  }, [staffData, attendanceData, formattedDateForApi]);
+      }
+    })
+  }, [staffData, attendanceData, formattedDateForApi])
 
   const filteredData = React.useMemo(() => {
-    return mergedData.filter((item) =>
-      item.staff?.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.staff?.employee_id.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [mergedData, search]);
-
+    return mergedData.filter(
+      (item) =>
+        item.staff?.name.toLowerCase().includes(search.toLowerCase()) ||
+        item.staff?.employee_id.toLowerCase().includes(search.toLowerCase()),
+    )
+  }, [mergedData, search])
 
   if (isStaffLoading && !staffData) {
     return (
       <div className="flex h-[400px] items-center justify-center">
         <Spinner className="size-8" />
       </div>
-    );
+    )
   }
 
   return (
@@ -103,19 +101,32 @@ export const StaffAttendancePage = () => {
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-black">Attendance</h1>
           <div className="flex items-center gap-1 rounded-xl bg-background border p-1 shadow-sm">
-            <Button variant="ghost" size="icon" className="size-8 rounded-lg" onClick={handlePrevDay}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 rounded-lg"
+              onClick={handlePrevDay}
+            >
               <HugeiconsIcon icon={ArrowLeft01Icon} className="size-4" />
             </Button>
             <span className="px-2 text-sm font-bold min-w-[140px] text-center">
               {formattedDateForDisplay}
             </span>
-            <Button variant="ghost" size="icon" className="size-8 rounded-lg" onClick={handleNextDay}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 rounded-lg"
+              onClick={handleNextDay}
+            >
               <HugeiconsIcon icon={ArrowRight01Icon} className="size-4" />
             </Button>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="rounded-xl border-2 font-bold h-10">
+          <Button
+            variant="outline"
+            className="rounded-xl border-2 font-bold h-10"
+          >
             <HugeiconsIcon icon={Download02Icon} className="mr-2 size-4" />
             Attendance Report
           </Button>
@@ -145,7 +156,10 @@ export const StaffAttendancePage = () => {
             </div>
 
             <div className="flex items-center gap-1 rounded-xl bg-background border p-1 shadow-sm">
-              <HugeiconsIcon icon={Calendar01Icon} className="ml-2 size-4 text-muted-foreground" />
+              <HugeiconsIcon
+                icon={Calendar01Icon}
+                className="ml-2 size-4 text-muted-foreground"
+              />
               <Select defaultValue="today">
                 <SelectTrigger className="h-8 border-none bg-transparent text-[11px] font-black uppercase tracking-wider focus:ring-0 w-[120px]">
                   <SelectValue placeholder="Date Range" />
@@ -158,7 +172,11 @@ export const StaffAttendancePage = () => {
               </Select>
             </div>
 
-            <Button variant="outline" size="sm" className="h-10 rounded-xl font-bold">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 rounded-xl font-bold"
+            >
               <HugeiconsIcon icon={FilterIcon} className="mr-2 size-4" />
               Advance Filter
             </Button>
@@ -194,5 +212,5 @@ export const StaffAttendancePage = () => {
         date={formattedDateForApi}
       />
     </div>
-  );
-};
+  )
+}

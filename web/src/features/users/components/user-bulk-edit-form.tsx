@@ -93,18 +93,12 @@ export function UserBulkEditForm({
             {availableRoles?.data.map((role) => (
               <div
                 key={role.id}
-                onClick={() =>
-                  toggleRole(role.name as z.infer<typeof zRoleEnum>)
-                }
+                onClick={() => toggleRole(role.name)}
                 className="flex cursor-pointer items-center gap-2 rounded-sm p-2 hover:bg-muted"
               >
                 <Checkbox
-                  checked={selectedRoles.includes(
-                    role.name as z.infer<typeof zRoleEnum>,
-                  )}
-                  onCheckedChange={() =>
-                    toggleRole(role.name as z.infer<typeof zRoleEnum>)
-                  }
+                  checked={selectedRoles.includes(role.name)}
+                  onCheckedChange={() => toggleRole(role.name)}
                 />
                 <span className="text-sm font-medium">{role.name}</span>
               </div>

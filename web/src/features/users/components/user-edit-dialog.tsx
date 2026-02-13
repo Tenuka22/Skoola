@@ -1,3 +1,4 @@
+import { UserEditForm } from './user-edit-form'
 import type { UpdateUserValues } from '../schemas'
 import type { User } from '../types'
 import {
@@ -7,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { UserEditForm } from './user-edit-form'
 
 interface UserEditDialogProps {
   user: User | null

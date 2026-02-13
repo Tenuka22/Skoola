@@ -11,6 +11,7 @@
   - Example: `<SidebarMenuButton render={<Link to="/admin" />} >Home</SidebarMenuButton>`
 
 ## Zod Schema Usage
+
 - **Extension**: Always extend auto-generated schemas from `web/src/lib/api/zod.gen.ts` when creating form schemas or validation logic.
 - **Custom Messages**: Add custom, user-friendly error messages using `.min()`, `.max()`, `.email()`, etc., on extended schemas.
 - **Enums**: Utilize generated Zod enums (e.g., `zAttendanceStatus`, `zPermissionEnum`) directly for consistency.
@@ -29,7 +30,9 @@
 ## Semantic UI Patterns
 
 ### Status & Severity Badges
+
 Use the following color mappings for consistency across the platform:
+
 - **Success/Low Risk**: `text-green-500 bg-green-500/10 border-green-500/20`
 - **Info/Medium Risk**: `text-blue-500 bg-blue-500/10 border-blue-500/20`
 - **Warning/High Risk**: `text-orange-500 bg-orange-500/10 border-orange-500/20`

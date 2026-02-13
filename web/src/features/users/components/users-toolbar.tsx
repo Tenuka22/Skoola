@@ -2,22 +2,17 @@ import {
   Add01Icon,
   Download01Icon,
   LayoutGridIcon,
-  ListViewIcon,
   Search01Icon,
   TableIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useUsersStore } from '../store'
-import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupButton,
   InputGroupInput,
-  InputGroupText,
-  InputGroupTextarea,
 } from '@/components/ui/input-group'
 
 interface UsersToolbarProps {

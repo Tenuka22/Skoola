@@ -32,9 +32,7 @@ export const getPermissionColumns = ({
   {
     accessorKey: 'name',
     header: 'Name',
-    cell: ({ row }) => (
-      <div className="font-medium">{row.original.name}</div>
-    ),
+    cell: ({ row }) => <div className="font-medium">{row.original.name}</div>,
   },
   {
     accessorKey: 'description',
@@ -44,7 +42,10 @@ export const getPermissionColumns = ({
     accessorKey: 'safety_level',
     header: 'Safety Level',
     cell: ({ row }) => (
-      <Badge className={getSeverityColor(row.original.safety_level)} variant="outline">
+      <Badge
+        className={getSeverityColor(row.original.safety_level)}
+        variant="outline"
+      >
         {row.original.safety_level}
       </Badge>
     ),
@@ -59,14 +60,21 @@ export const getPermissionColumns = ({
     header: 'Actions',
     cell: ({ row }) => (
       <div className="flex gap-2">
-        <Button variant="outline" size="icon" onClick={() => onEdit(row.original)}>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => onEdit(row.original)}
+        >
           <HugeiconsIcon icon={Edit04Icon} className="size-4" />
         </Button>
-        <Button variant="destructive" size="icon" onClick={() => onDelete(row.original.id)}>
+        <Button
+          variant="destructive"
+          size="icon"
+          onClick={() => onDelete(row.original.id)}
+        >
           <HugeiconsIcon icon={Delete02Icon} className="size-4" />
         </Button>
       </div>
     ),
   },
 ]
-

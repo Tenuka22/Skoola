@@ -1,16 +1,18 @@
 export type Column<T> = {
   header: string
-  accessor: keyof T | ((item: T) => string | number | boolean | null | undefined)
+  accessor:
+    | keyof T
+    | ((item: T) => string | number | boolean | null | undefined)
 }
 
 export const handleExportCSV = <T extends Record<string, any>>(
-  data: T[],
+  data: Array<T>,
   filename: string,
-  columns?: Column<T>[],
+  columns?: Array<Column<T>>,
 ) => {
   if (!data || (!data.length && !columns)) return
 
-  const cols: Column<T>[] =
+  const cols: Array<Column<T>> =
     columns ||
     (data.length
       ? Object.keys(data[0]).map((key) => ({
@@ -38,7 +40,7 @@ export const handleExportCSV = <T extends Record<string, any>>(
       if (typeof col.accessor === 'function') {
         return col.accessor(row)
       }
-      return row[col.accessor as keyof T]
+      return row[col.accessor]
     }),
   )
 

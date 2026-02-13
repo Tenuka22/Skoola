@@ -3,7 +3,14 @@
 import * as React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Add01Icon, Delete02Icon, Loading03Icon, Shield01Icon, SparklesIcon, UserGroupIcon } from '@hugeicons/core-free-icons'
+import {
+  Add01Icon,
+  Delete02Icon,
+  Loading03Icon,
+  Shield01Icon,
+  SparklesIcon,
+  UserGroupIcon,
+} from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
 import { fetchPermissions, unassignPermissionFromUser } from '../api'
 import { PermissionManager } from './permission-manager'
@@ -30,7 +37,9 @@ export function UserBulkPermissionsDialog({
 }: UserBulkPermissionsDialogProps) {
   const queryClient = useQueryClient()
   const [selectedAddIds, setSelectedAddIds] = React.useState<Array<number>>([])
-  const [selectedRemoveIds, setSelectedRemoveIds] = React.useState<Array<number>>([])
+  const [selectedRemoveIds, setSelectedRemoveIds] = React.useState<
+    Array<number>
+  >([])
   const [isProcessing, setIsProcessing] = React.useState(false)
 
   const { data: allPermissions, isLoading: isLoadingAll } = useQuery({
@@ -63,18 +72,18 @@ export function UserBulkPermissionsDialog({
   const toggleAdd = (id: number, enabled: boolean) => {
     if (enabled) {
       setSelectedAddIds([...selectedAddIds, id])
-      setSelectedRemoveIds(selectedRemoveIds.filter(rid => rid !== id))
+      setSelectedRemoveIds(selectedRemoveIds.filter((rid) => rid !== id))
     } else {
-      setSelectedAddIds(selectedAddIds.filter(aid => aid !== id))
+      setSelectedAddIds(selectedAddIds.filter((aid) => aid !== id))
     }
   }
 
   const toggleRemove = (id: number, enabled: boolean) => {
     if (enabled) {
       setSelectedRemoveIds([...selectedRemoveIds, id])
-      setSelectedAddIds(selectedAddIds.filter(aid => aid !== id))
+      setSelectedAddIds(selectedAddIds.filter((aid) => aid !== id))
     } else {
-      setSelectedRemoveIds(selectedRemoveIds.filter(rid => rid !== id))
+      setSelectedRemoveIds(selectedRemoveIds.filter((rid) => rid !== id))
     }
   }
 
@@ -90,19 +99,28 @@ export function UserBulkPermissionsDialog({
               Mass Mesh Propagation
             </DialogTitle>
             <DialogDescription className="text-base font-medium leading-relaxed opacity-70">
-              Synchronizing capabilities across <span className="text-primary font-black">{userIds.length} identities</span>.
-              Select overrides to apply or revoke in batch.
+              Synchronizing capabilities across{' '}
+              <span className="text-primary font-black">
+                {userIds.length} identities
+              </span>
+              . Select overrides to apply or revoke in batch.
             </DialogDescription>
           </div>
         </DialogHeader>
 
         <Tabs defaultValue="add" className="w-full">
           <TabsList className="grid w-full grid-cols-2 h-16 rounded-2xl bg-muted/30 p-1.5 mb-10 ring-1 ring-border">
-            <TabsTrigger value="add" className="rounded-xl font-black uppercase text-[11px] tracking-widest gap-2 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-xl transition-all">
+            <TabsTrigger
+              value="add"
+              className="rounded-xl font-black uppercase text-[11px] tracking-widest gap-2 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-xl transition-all"
+            >
               <HugeiconsIcon icon={Add01Icon} className="size-4" />
               Grant Capabilities ({selectedAddIds.length})
             </TabsTrigger>
-            <TabsTrigger value="remove" className="rounded-xl font-black uppercase text-[11px] tracking-widest gap-2 data-[state=active]:bg-background data-[state=active]:text-destructive data-[state=active]:shadow-xl transition-all">
+            <TabsTrigger
+              value="remove"
+              className="rounded-xl font-black uppercase text-[11px] tracking-widest gap-2 data-[state=active]:bg-background data-[state=active]:text-destructive data-[state=active]:shadow-xl transition-all"
+            >
               <HugeiconsIcon icon={Delete02Icon} className="size-4" />
               Revoke Capabilities ({selectedRemoveIds.length})
             </TabsTrigger>
@@ -111,12 +129,20 @@ export function UserBulkPermissionsDialog({
           <div className="min-h-[400px]">
             {isLoadingAll ? (
               <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <HugeiconsIcon icon={Loading03Icon} className="size-10 animate-spin text-primary" />
-                <p className="text-xs font-black uppercase tracking-widest opacity-40">Mapping permission schema...</p>
+                <HugeiconsIcon
+                  icon={Loading03Icon}
+                  className="size-10 animate-spin text-primary"
+                />
+                <p className="text-xs font-black uppercase tracking-widest opacity-40">
+                  Mapping permission schema...
+                </p>
               </div>
             ) : (
               <>
-                <TabsContent value="add" className="mt-0 focus-visible:outline-none animate-in fade-in slide-in-from-left-4 duration-300">
+                <TabsContent
+                  value="add"
+                  className="mt-0 focus-visible:outline-none animate-in fade-in slide-in-from-left-4 duration-300"
+                >
                   <PermissionManager
                     permissions={allPermissions || []}
                     assignedPermissionIds={selectedAddIds}
@@ -124,7 +150,10 @@ export function UserBulkPermissionsDialog({
                   />
                 </TabsContent>
 
-                <TabsContent value="remove" className="mt-0 focus-visible:outline-none animate-in fade-in slide-in-from-right-4 duration-300">
+                <TabsContent
+                  value="remove"
+                  className="mt-0 focus-visible:outline-none animate-in fade-in slide-in-from-right-4 duration-300"
+                >
                   <PermissionManager
                     permissions={allPermissions || []}
                     assignedPermissionIds={selectedRemoveIds}
@@ -150,12 +179,18 @@ export function UserBulkPermissionsDialog({
               Cancel
             </Button>
             <Button
-              disabled={isProcessing || (selectedAddIds.length === 0 && selectedRemoveIds.length === 0)}
+              disabled={
+                isProcessing ||
+                (selectedAddIds.length === 0 && selectedRemoveIds.length === 0)
+              }
               onClick={handleApply}
               className="h-14 px-12 rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl shadow-primary/20"
             >
               {isProcessing ? (
-                <HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" />
+                <HugeiconsIcon
+                  icon={Loading03Icon}
+                  className="mr-2 h-4 w-4 animate-spin"
+                />
               ) : (
                 <HugeiconsIcon icon={Shield01Icon} className="mr-2 size-4" />
               )}

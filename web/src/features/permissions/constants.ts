@@ -1,8 +1,8 @@
+import type { RoleEnum } from '@/lib/api/types.gen'
 import {
   PermissionEnumSchema,
   PermissionSeveritySchema,
 } from '@/lib/api/schemas.gen'
-import type { RoleEnum } from '@/lib/api/types.gen'
 
 export const AdminRoutesAllowedRoles = [
   'Admin',
@@ -10,7 +10,7 @@ export const AdminRoutesAllowedRoles = [
   'Principal',
   'VicePrincipal',
   'Accountant',
-] satisfies RoleEnum[] as RoleEnum[]
+] satisfies Array<RoleEnum> as Array<RoleEnum>
 
 export const PERMISSION_NAMES = PermissionEnumSchema.enum
 export const PERMISSION_SEVERITIES = PermissionSeveritySchema.enum

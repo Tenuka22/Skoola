@@ -9,15 +9,11 @@ import {
   Shield01Icon,
   Tick01Icon,
 } from '@hugeicons/core-free-icons'
+import type { UserResponse } from '@/lib/api/types.gen'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,11 +22,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { UserResponse } from '@/lib/api/types.gen'
 import { Spinner } from '@/components/ui/spinner'
 
 interface UserBoardViewProps {
-  users: UserResponse[] | undefined
+  users: Array<UserResponse> | undefined
   isLoading?: boolean
   onEdit: (user: UserResponse) => void
   onDelete: (id: string) => void
@@ -85,58 +80,95 @@ export function UserBoardView({
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {users.map((user) => {
-        const name = user.email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+        const name = user.email
+          .split('@')[0]
+          .replace(/[._]/g, ' ')
+          .replace(/\b\w/g, (l) => l.toUpperCase())
         const initials = name.substring(0, 2).toUpperCase()
         const role = (user as any).role || 'Member'
         const isBeingUpdated = isUpdating && updatingUserId === user.id
 
         return (
-          <Card key={user.id} className="overflow-hidden border-border/60 shadow-none">
+          <Card
+            key={user.id}
+            className="overflow-hidden border-border/60 shadow-none"
+          >
             <CardHeader className="flex flex-row items-start justify-between p-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 border border-border/50">
-                  <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">{initials}</AvatarFallback>
+                  <AvatarImage
+                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                  />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                    {initials}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-semibold leading-none tracking-tight">{name}</h3>
+                  <h3 className="font-semibold leading-none tracking-tight">
+                    {name}
+                  </h3>
                   <p className="text-xs text-muted-foreground mt-1">{role}</p>
                 </div>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
-                    <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2 text-muted-foreground">
-                      <HugeiconsIcon icon={MoreVerticalIcon} className="size-4" />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 -mr-2 text-muted-foreground"
+                    >
+                      <HugeiconsIcon
+                        icon={MoreVerticalIcon}
+                        className="size-4"
+                      />
                     </Button>
                   }
                 />
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => onEdit(user)}>
-                    <HugeiconsIcon icon={PencilEdit01Icon} className="mr-2 size-4 opacity-70" />
+                    <HugeiconsIcon
+                      icon={PencilEdit01Icon}
+                      className="mr-2 size-4 opacity-70"
+                    />
                     Edit
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onToggleVerify(user)} disabled={isBeingUpdated}>
+                  <DropdownMenuItem
+                    onClick={() => onToggleVerify(user)}
+                    disabled={isBeingUpdated}
+                  >
                     {isBeingUpdated ? (
                       <Spinner className="mr-2 size-4" />
                     ) : (
-                      <HugeiconsIcon icon={Tick01Icon} className="mr-2 size-4 opacity-70" />
+                      <HugeiconsIcon
+                        icon={Tick01Icon}
+                        className="mr-2 size-4 opacity-70"
+                      />
                     )}
                     Verify
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onManagePermissions(user)}>
-                    <HugeiconsIcon icon={Shield01Icon} className="mr-2 size-4 opacity-70" />
+                    <HugeiconsIcon
+                      icon={Shield01Icon}
+                      className="mr-2 size-4 opacity-70"
+                    />
                     Permissions
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => onDelete(user.id)} className="text-destructive focus:text-destructive">
-                    <HugeiconsIcon icon={Delete02Icon} className="mr-2 size-4 opacity-70" />
+                  <DropdownMenuItem
+                    onClick={() => onDelete(user.id)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <HugeiconsIcon
+                      icon={Delete02Icon}
+                      className="mr-2 size-4 opacity-70"
+                    />
                     Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </CardHeader>
-            
+
             <CardContent className="p-4 pt-0 space-y-3">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <HugeiconsIcon icon={Mail01Icon} className="size-3.5" />
@@ -144,16 +176,20 @@ export function UserBoardView({
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <HugeiconsIcon icon={Calendar01Icon} className="size-3.5" />
-                <span>Joined {format(new Date(user.created_at), 'MMM d, yyyy')}</span>
+                <span>
+                  Joined {format(new Date(user.created_at), 'MMM d, yyyy')}
+                </span>
               </div>
             </CardContent>
 
             <CardFooter>
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className={`border-0 bg-transparent px-0 font-medium ${user.is_verified ? 'text-green-500' : 'text-amber-500'}`}
               >
-                <span className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${user.is_verified ? 'bg-green-500' : 'bg-amber-500'}`} />
+                <span
+                  className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${user.is_verified ? 'bg-green-500' : 'bg-amber-500'}`}
+                />
                 {user.is_verified ? 'Active' : 'Pending'}
               </Badge>
             </CardFooter>

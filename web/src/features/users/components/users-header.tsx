@@ -1,5 +1,5 @@
-import { Badge } from '@/components/ui/badge'
 import { useQuery } from '@tanstack/react-query'
+import { Badge } from '@/components/ui/badge'
 import { getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaOptions } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 

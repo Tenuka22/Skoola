@@ -7,7 +7,7 @@ import {
   DashboardSquare01Icon,
   Delete02Icon,
   LibraryIcon,
-//   Loading03Icon,
+  //   Loading03Icon,
   Mortarboard01Icon,
   SecurityIcon,
   Shield01Icon,
@@ -42,7 +42,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-
 interface PermissionManagerProps {
   permissions: Array<any>
   assignedPermissionIds: Array<number>
@@ -60,30 +59,30 @@ export function PermissionManager({
   const [newName, setNewName] = React.useState<string>('UserRead')
   const [newDesc, setNewDesc] = React.useState('')
   const [newSeverity, setNewSeverity] = React.useState<string>('Low')
-  
-//   const queryClient = useQueryClient()
 
-//   const createMutation = useMutation({
-//     mutationFn: () => createPermission(newName, newDesc, newSeverity),
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({ queryKey: ['permissions'] })
-//       setIsCreateOpen(false)
-//       setNewDesc('')
-//       toast.success('Permission added to global registry')
-//     },
-//     onError: () => toast.error('Failed to register permission'),
-//   })
+  //   const queryClient = useQueryClient()
 
-//   const deleteMutation = useMutation({
-//     mutationFn: (id: number) => deletePermission(id),
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({ queryKey: ['permissions'] })
-//       toast.success('Permission removed from registry')
-//     },
-//     onError: () => toast.error('Failed to purge permission'),
-//   })
+  //   const createMutation = useMutation({
+  //     mutationFn: () => createPermission(newName, newDesc, newSeverity),
+  //     onSuccess: () => {
+  //       queryClient.invalidateQueries({ queryKey: ['permissions'] })
+  //       setIsCreateOpen(false)
+  //       setNewDesc('')
+  //       toast.success('Permission added to global registry')
+  //     },
+  //     onError: () => toast.error('Failed to register permission'),
+  //   })
 
-// Group permissions by prefix/category
+  //   const deleteMutation = useMutation({
+  //     mutationFn: (id: number) => deletePermission(id),
+  //     onSuccess: () => {
+  //       queryClient.invalidateQueries({ queryKey: ['permissions'] })
+  //       toast.success('Permission removed from registry')
+  //     },
+  //     onError: () => toast.error('Failed to purge permission'),
+  //   })
+
+  // Group permissions by prefix/category
   const categories: Record<string, Array<any>> = {
     'User Management': permissions.filter((p) => p.name.startsWith('User')),
     'Role Management': permissions.filter((p) => p.name.startsWith('Role')),
@@ -148,14 +147,55 @@ export function PermissionManager({
   }
 
   const availableEnumVariants: Array<string> = [
-      'UserCreate', 'UserRead', 'UserUpdate', 'UserDelete', 'UserManage', 'UserManageRoles', 'UserManagePermissions',
-      'RoleCreate', 'RoleRead', 'RoleUpdate', 'RoleDelete', 'RoleManage', 'RoleAssignPermissions',
-      'PermissionCreate', 'PermissionRead', 'PermissionUpdate', 'PermissionDelete', 'PermissionManage',
-      'StaffCreate', 'StaffRead', 'StaffUpdate', 'StaffDelete', 'StaffManage', 'StaffManageAttendance', 'StaffManageLeaves',
-      'StudentCreate', 'StudentRead', 'StudentUpdate', 'StudentDelete', 'StudentManage', 'StudentManageGuardians', 'StudentManageEnrollment', 'StudentManageAttendance', 'StudentManageMarks',
-      'AcademicYearManage', 'TermManage', 'GradeLevelManage', 'ClassManage', 'SubjectManage', 'ClassSubjectTeacherManage', 'TimetableManage',
-      'ExamTypeManage', 'ExamManage', 'ExamSubjectManage', 'GradingSchemeManage', 'GradingCriterionManage',
-      'LibraryManage', 'UserUpdateMedium', 'UserDeleteSevere'
+    'UserCreate',
+    'UserRead',
+    'UserUpdate',
+    'UserDelete',
+    'UserManage',
+    'UserManageRoles',
+    'UserManagePermissions',
+    'RoleCreate',
+    'RoleRead',
+    'RoleUpdate',
+    'RoleDelete',
+    'RoleManage',
+    'RoleAssignPermissions',
+    'PermissionCreate',
+    'PermissionRead',
+    'PermissionUpdate',
+    'PermissionDelete',
+    'PermissionManage',
+    'StaffCreate',
+    'StaffRead',
+    'StaffUpdate',
+    'StaffDelete',
+    'StaffManage',
+    'StaffManageAttendance',
+    'StaffManageLeaves',
+    'StudentCreate',
+    'StudentRead',
+    'StudentUpdate',
+    'StudentDelete',
+    'StudentManage',
+    'StudentManageGuardians',
+    'StudentManageEnrollment',
+    'StudentManageAttendance',
+    'StudentManageMarks',
+    'AcademicYearManage',
+    'TermManage',
+    'GradeLevelManage',
+    'ClassManage',
+    'SubjectManage',
+    'ClassSubjectTeacherManage',
+    'TimetableManage',
+    'ExamTypeManage',
+    'ExamManage',
+    'ExamSubjectManage',
+    'GradingSchemeManage',
+    'GradingCriterionManage',
+    'LibraryManage',
+    'UserUpdateMedium',
+    'UserDeleteSevere',
   ]
 
   return (
@@ -180,27 +220,39 @@ export function PermissionManager({
               <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                 <HugeiconsIcon icon={SecurityIcon} className="size-8" />
               </div>
-              <DialogTitle className="text-center text-2xl font-black uppercase tracking-tight">Register Capability</DialogTitle>
+              <DialogTitle className="text-center text-2xl font-black uppercase tracking-tight">
+                Register Capability
+              </DialogTitle>
               <DialogDescription className="text-center">
-                Add a static capability from the system manifest to the live mesh.
+                Add a static capability from the system manifest to the live
+                mesh.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-6 py-6">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Capability Manifest Name</Label>
-                <Select value={newName} onValueChange={(val) => setNewName(val ?? '')}>
+                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">
+                  Capability Manifest Name
+                </Label>
+                <Select
+                  value={newName}
+                  onValueChange={(val) => setNewName(val ?? '')}
+                >
                   <SelectTrigger className="h-12 rounded-xl bg-muted/30 border-none px-4 font-bold capitalize">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableEnumVariants.map(v => (
-                        <SelectItem key={v} value={v}>{v}</SelectItem>
+                    {availableEnumVariants.map((v) => (
+                      <SelectItem key={v} value={v}>
+                        {v}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Operational Description</Label>
+                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">
+                  Operational Description
+                </Label>
                 <Input
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
@@ -209,21 +261,34 @@ export function PermissionManager({
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Safety Level</Label>
-                <Select value={newSeverity} onValueChange={(val) => setNewSeverity(val ?? '')}>
+                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">
+                  Safety Level
+                </Label>
+                <Select
+                  value={newSeverity}
+                  onValueChange={(val) => setNewSeverity(val ?? '')}
+                >
                   <SelectTrigger className="h-12 rounded-xl bg-muted/30 border-none px-4 font-bold">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {['Low', 'Medium', 'High', 'Severe'].map(v => (
-                        <SelectItem key={v} value={v}>{v}</SelectItem>
+                    {['Low', 'Medium', 'High', 'Severe'].map((v) => (
+                      <SelectItem key={v} value={v}>
+                        {v}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="ghost" onClick={() => setIsCreateOpen(false)} className="h-12 rounded-xl font-black uppercase tracking-widest text-[10px]">Abort</Button>
+              <Button
+                variant="ghost"
+                onClick={() => setIsCreateOpen(false)}
+                className="h-12 rounded-xl font-black uppercase tracking-widest text-[10px]"
+              >
+                Abort
+              </Button>
               <Button
                 disabled={!newDesc}
                 // onClick={() => createMutation.mutate()}
@@ -243,7 +308,10 @@ export function PermissionManager({
             <div key={category} className="space-y-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2.5 rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20 shadow-inner">
-                  <HugeiconsIcon icon={getCategoryIcon(category)} className="size-5" />
+                  <HugeiconsIcon
+                    icon={getCategoryIcon(category)}
+                    className="size-5"
+                  />
                 </div>
                 <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">
                   {category}
@@ -252,7 +320,9 @@ export function PermissionManager({
 
               <div className="space-y-3">
                 {perms.map((permission) => {
-                  const isAssigned = assignedPermissionIds.includes(permission.id)
+                  const isAssigned = assignedPermissionIds.includes(
+                    permission.id,
+                  )
                   return (
                     <div
                       key={permission.id}
@@ -273,9 +343,7 @@ export function PermissionManager({
                             {permission.safety_level}
                           </Badge>
                           {permission.is_admin_only && (
-                            <Badge
-                              className="h-4 px-1.5 text-[7px] font-black uppercase bg-primary text-primary-foreground tracking-tighter"
-                            >
+                            <Badge className="h-4 px-1.5 text-[7px] font-black uppercase bg-primary text-primary-foreground tracking-tighter">
                               Admin
                             </Badge>
                           )}
@@ -284,17 +352,20 @@ export function PermissionManager({
                           {permission.description}
                         </p>
                       </div>
-                      
+
                       <div className="flex items-center gap-4">
                         {!readOnly && (
-                            <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="size-8 rounded-lg text-destructive opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive/10"
-                                // onClick={() => deleteMutation.mutate(permission.id)}
-                            >
-                                <HugeiconsIcon icon={Delete02Icon} className="size-3" />
-                            </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 rounded-lg text-destructive opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive/10"
+                            // onClick={() => deleteMutation.mutate(permission.id)}
+                          >
+                            <HugeiconsIcon
+                              icon={Delete02Icon}
+                              className="size-3"
+                            />
+                          </Button>
                         )}
                         <Switch
                           checked={isAssigned}

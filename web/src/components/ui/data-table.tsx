@@ -5,7 +5,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import type { ColumnDef, OnChangeFn, SortingState, VisibilityState } from '@tanstack/react-table'
+import type {
+  ColumnDef,
+  OnChangeFn,
+  SortingState,
+  VisibilityState,
+} from '@tanstack/react-table'
 
 import {
   Table,

@@ -1,10 +1,10 @@
 import type {
-  StudentResponse,
   CreateStudentRequest,
-  StudentStatus,
-  Gender,
   Ethnicity,
+  Gender,
   Religion,
+  StudentResponse,
+  StudentStatus,
 } from '@/lib/api/types.gen'
 
 export type {
