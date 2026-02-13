@@ -102,21 +102,35 @@ pub async fn get_all_users(
     let mut conn = data.db_pool.get()?;
     
     let mut data_query = users::table.into_boxed();
+    let mut count_query = users::table.into_boxed();
 
     if let Some(search_term) = &query.search {
         let pattern = format!("%{}%", search_term);
-        data_query = data_query.filter(users::email.like(pattern.clone()).or(users::id.like(pattern)));
+        let filter_expression = users::email.like(pattern.clone()).or(users::id.like(pattern));
+        data_query = data_query.filter(filter_expression.clone());
+        count_query = count_query.filter(filter_expression);
     }
 
     if let Some(verified) = query.is_verified {
         data_query = data_query.filter(users::is_verified.eq(verified));
+        count_query = count_query.filter(users::is_verified.eq(verified));
     }
 
     if let Some(method) = &query.auth_method {
         match method.as_str() {
-            "google" => data_query = data_query.filter(users::google_id.is_not_null()),
-            "github" => data_query = data_query.filter(users::github_id.is_not_null()),
-            "password" => data_query = data_query.filter(users::google_id.is_null().and(users::github_id.is_null())),
+            "google" => {
+                data_query = data_query.filter(users::google_id.is_not_null());
+                count_query = count_query.filter(users::google_id.is_not_null());
+            },
+            "github" => {
+                data_query = data_query.filter(users::github_id.is_not_null());
+                count_query = count_query.filter(users::github_id.is_not_null());
+            },
+            "password" => {
+                let filter_expression = users::google_id.is_null().and(users::github_id.is_null());
+                data_query = data_query.filter(filter_expression.clone());
+                count_query = count_query.filter(filter_expression);
+            },
             _ => {}
         }
     }
@@ -124,13 +138,17 @@ pub async fn get_all_users(
     if let Some(after_str) = &query.created_after {
         if let Ok(after) = NaiveDateTime::parse_from_str(&format!("{} 00:00:00", after_str), "%Y-%m-%d %H:%M:%S") {
             data_query = data_query.filter(users::created_at.ge(after));
+            count_query = count_query.filter(users::created_at.ge(after));
         }
     }
     if let Some(before_str) = &query.created_before {
         if let Ok(before) = NaiveDateTime::parse_from_str(&format!("{} 23:59:59", before_str), "%Y-%m-%d %H:%M:%S") {
             data_query = data_query.filter(users::created_at.le(before));
+            count_query = count_query.filter(users::created_at.le(before));
         }
     }
+
+    let total_users: i64 = count_query.count().get_result(&mut conn)?;
 
     let sort_col = query.sort_by.as_deref().unwrap_or("created_at");
     let sort_order = query.sort_order.as_deref().unwrap_or("desc");
@@ -147,25 +165,6 @@ pub async fn get_all_users(
     let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(10);
     let offset = (page - 1) * limit;
-
-    let mut count_query = users::table.into_boxed();
-    if let Some(search_term) = &query.search {
-        let pattern = format!("%{}%", search_term);
-        count_query = count_query.filter(users::email.like(pattern.clone()).or(users::id.like(pattern)));
-    }
-    if let Some(verified) = query.is_verified {
-        count_query = count_query.filter(users::is_verified.eq(verified));
-    }
-    if let Some(method) = &query.auth_method {
-        match method.as_str() {
-            "google" => count_query = count_query.filter(users::google_id.is_not_null()),
-            "github" => count_query = count_query.filter(users::github_id.is_not_null()),
-            "password" => count_query = count_query.filter(users::google_id.is_null().and(users::github_id.is_null())),
-            _ => {}
-        }
-    }
-
-    let total_users: i64 = count_query.count().get_result(&mut conn)?;
 
     let user_list = data_query
         .select(User::as_select())
