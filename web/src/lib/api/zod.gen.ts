@@ -2281,12 +2281,12 @@ export const zRoleEnum = z.enum([
  * BulkUpdateRequest
  */
 export const zBulkUpdateRequest = z.object({
-    is_locked: z.optional(z.union([
+    is_verified: z.optional(z.union([
         z.boolean(),
         z.null()
     ])),
-    is_verified: z.optional(z.union([
-        z.boolean(),
+    lockout_until: z.optional(z.union([
+        z.string(),
         z.null()
     ])),
     role: z.optional(z.union([
@@ -3619,12 +3619,12 @@ export const zUpdateUserRequest = z.object({
         z.string(),
         z.null()
     ])),
-    is_locked: z.optional(z.union([
+    is_verified: z.optional(z.union([
         z.boolean(),
         z.null()
     ])),
-    is_verified: z.optional(z.union([
-        z.boolean(),
+    lockout_until: z.optional(z.union([
+        z.string(),
         z.null()
     ])),
     role: z.optional(z.union([
@@ -3655,6 +3655,10 @@ export const zUserResponse = z.object({
     email: z.string(),
     id: z.string(),
     is_verified: z.boolean(),
+    lockout_until: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     updated_at: z.string()
 });
 

@@ -10,6 +10,7 @@ import {
   ViewOffSlashIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { useUsersStore } from '../store'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -17,10 +18,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { useUsersStore } from '../store'
-import type { UserResponse } from '@/lib/api/types.gen'
 
 interface UsersToolbarProps {
   handleExportCSV: () => void
@@ -39,33 +38,31 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
 
   return (
     <div className="mb-4 flex flex-col gap-4 px-8 sm:flex-row sm:items-center sm:justify-between">
-      <TabsList
-        className="h-9 w-fit rounded-lg bg-muted/50 p-1"
-        value={view}
-        onValueChange={(value: any) => setView(value)}
-      >
-        <TabsTrigger
-          value="table"
-          className="flex h-7 gap-2 rounded-md px-3 text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm"
-        >
-          <HugeiconsIcon icon={TableIcon} className="size-3.5" />
-          Table
-        </TabsTrigger>
-        <TabsTrigger
-          value="board"
-          className="flex h-7 gap-2 rounded-md px-3 text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm"
-        >
-          <HugeiconsIcon icon={LayoutGridIcon} className="size-3.5" />
-          Board
-        </TabsTrigger>
-        <TabsTrigger
-          value="list"
-          className="flex h-7 gap-2 rounded-md px-3 text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm"
-        >
-          <HugeiconsIcon icon={ListViewIcon} className="size-3.5" />
-          List
-        </TabsTrigger>
-      </TabsList>
+      <Tabs value={view} onValueChange={(value: any) => setView(value)}>
+        <TabsList className="h-9 w-fit rounded-lg bg-muted/50 p-1">
+          <TabsTrigger
+            value="table"
+            className="flex h-7 gap-2 rounded-md px-3 text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            <HugeiconsIcon icon={TableIcon} className="size-3.5" />
+            Table
+          </TabsTrigger>
+          <TabsTrigger
+            value="board"
+            className="flex h-7 gap-2 rounded-md px-3 text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            <HugeiconsIcon icon={LayoutGridIcon} className="size-3.5" />
+            Board
+          </TabsTrigger>
+          <TabsTrigger
+            value="list"
+            className="flex h-7 gap-2 rounded-md px-3 text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            <HugeiconsIcon icon={ListViewIcon} className="size-3.5" />
+            List
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:w-auto sm:pb-0">
         <div className="group relative min-w-[200px]">
@@ -91,22 +88,20 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
         </Button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="outline"
-                size="sm"
-                className="hidden h-9 gap-2 text-muted-foreground hover:text-foreground md:flex"
-              >
-                <HugeiconsIcon icon={Settings01Icon} className="size-4" />
-                Customize
-                <HugeiconsIcon
-                  icon={ArrowRight01Icon}
-                  className="size-3 rotate-90 opacity-50"
-                />
-              </Button>
-            }
-          />
+          <DropdownMenuTrigger render={<Button
+            variant="outline"
+            size="sm"
+            className="hidden h-9 gap-2 text-muted-foreground hover:text-foreground md:flex"
+          >
+            <HugeiconsIcon icon={Settings01Icon} className="size-4" />
+            Customize
+            <HugeiconsIcon
+              icon={ArrowRight01Icon}
+              className="size-3 rotate-90 opacity-50"
+            />
+          </Button>
+        }>
+            </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {['email', 'is_verified', 'created_at']
               .filter((col) => col !== 'email')

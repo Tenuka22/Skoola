@@ -21,6 +21,7 @@ interface UsersState {
   isBulkPermissionsOpen: boolean
   isCreateUserOpen: boolean
   userToEdit: UserResponse | null
+  userToLock: UserResponse | null
   userToManagePermissions: UserResponse | null
 
   setPage: (page: number) => void
@@ -46,6 +47,7 @@ interface UsersState {
   setIsBulkPermissionsOpen: (open: boolean) => void
   setIsCreateUserOpen: (open: boolean) => void
   setUserToEdit: (user: UserResponse | null) => void
+  setUserToLock: (user: UserResponse | null) => void
   setUserToManagePermissions: (user: UserResponse | null) => void
   resetSelection: () => void
 }
@@ -66,6 +68,7 @@ export const useUsersStore = create<UsersState>((set) => ({
   isBulkPermissionsOpen: false,
   isCreateUserOpen: false,
   userToEdit: null,
+  userToLock: null,
   userToManagePermissions: null,
 
   setPage: (page) => set({ page }),
@@ -99,6 +102,7 @@ export const useUsersStore = create<UsersState>((set) => ({
     set({ isBulkPermissionsOpen }),
   setIsCreateUserOpen: (isCreateUserOpen) => set({ isCreateUserOpen }),
   setUserToEdit: (userToEdit) => set({ userToEdit }),
+  setUserToLock: (userToLock) => set({ userToLock }),
   setUserToManagePermissions: (userToManagePermissions) =>
     set({ userToManagePermissions }),
   resetSelection: () => set({ selectedUsers: new Set() }),

@@ -48,7 +48,7 @@ pub struct BulkDeleteRequest {
 pub struct BulkUpdateRequest {
     pub user_ids: Vec<String>,
     pub is_verified: Option<bool>,
-    pub is_locked: Option<bool>,
+    pub lockout_until: Option<NaiveDateTime>,
     pub role: Option<RoleEnum>,
 }
 
@@ -56,7 +56,7 @@ pub struct BulkUpdateRequest {
 pub struct UpdateUserRequest {
     pub email: Option<String>,
     pub is_verified: Option<bool>,
-    pub is_locked: Option<bool>,
+    pub lockout_until: Option<NaiveDateTime>,
     pub role: Option<RoleEnum>,
 }
 
@@ -307,12 +307,7 @@ pub async fn update_user(
                 .execute(conn)?;
         }
 
-        if let Some(locked) = body.is_locked {
-            let lockout = if locked {
-                Some(Utc::now().naive_utc() + Duration::days(365)) // Lock for a year
-            } else {
-                None
-            };
+        if let Some(lockout) = body.lockout_until {
             diesel::update(users::table.find(&id))
                 .set(users::lockout_until.eq(lockout))
                 .execute(conn)?;
@@ -347,12 +342,7 @@ pub async fn bulk_update_users(
                 .execute(conn)?;
         }
 
-        if let Some(locked) = body.is_locked {
-            let lockout = if locked {
-                Some(Utc::now().naive_utc() + Duration::days(365)) // Lock for a year
-            } else {
-                None
-            };
+        if let Some(lockout) = body.lockout_until {
             diesel::update(users::table.filter(users::id.eq_any(&body.user_ids)))
                 .set(users::lockout_until.eq(lockout))
                 .execute(conn)?;

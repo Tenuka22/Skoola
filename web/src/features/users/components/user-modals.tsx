@@ -1,7 +1,9 @@
-import { HugeiconsIcon } from '@hugeicons/react'
 import { Delete02Icon, UserGroupIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
+
 import { UserBulkEditDialog } from './user-bulk-edit-dialog'
 import { UserEditDialog } from './user-edit-dialog'
+import { UserLockDialog } from './user-lock-dialog'
 import type { BulkUpdateValues, UpdateUserValues } from '../schemas'
 import type { User } from '../types'
 import {
@@ -31,6 +33,10 @@ interface UserModalsProps {
   setUserToEdit: (user: User | null) => void
   onEditConfirm: (data: UpdateUserValues) => void
   isUpdating?: boolean
+  userToLock: User | null
+  setUserToLock: (user: User | null) => void
+  onLockConfirm: (date: Date) => void
+  isLocking?: boolean
 }
 
 export function UserModals({
@@ -49,6 +55,10 @@ export function UserModals({
   setUserToEdit,
   onEditConfirm,
   isUpdating,
+  userToLock,
+  setUserToLock,
+  onLockConfirm,
+  isLocking,
 }: UserModalsProps) {
   return (
     <>
@@ -127,6 +137,14 @@ export function UserModals({
         onOpenChange={(open) => !open && setUserToEdit(null)}
         onConfirm={onEditConfirm}
         isSubmitting={isUpdating}
+      />
+
+      <UserLockDialog
+        user={userToLock}
+        open={!!userToLock}
+        onOpenChange={(open) => !open && setUserToLock(null)}
+        onConfirm={onLockConfirm}
+        isSubmitting={isLocking}
       />
     </>
   )

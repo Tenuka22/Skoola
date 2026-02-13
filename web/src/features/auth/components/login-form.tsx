@@ -3,9 +3,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircle } from '@hugeicons/core-free-icons'
 import { useMutation } from '@tanstack/react-query'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { loginSchema } from '../schemas'
+import  { ActiveSessions } from './active-sessions'
 import type { LoginFormValues } from '../schemas'
+import type { AuthStorage } from '@/lib/auth/session'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -17,9 +19,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { env } from '@/lib/env'
 import { loginFn } from '@/lib/auth/actions'
-import { AuthStorage } from '@/lib/auth/session'
 import { Spinner } from '@/components/ui/spinner'
-import { ActiveSessions } from './active-sessions'
 
 export function LoginForm({
   authStorage,
@@ -123,7 +123,11 @@ export function LoginForm({
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <a href={`${env.VITE_API_URL}/auth/google/login`} target="_blank" rel="noopener noreferrer">
+          <a
+            href={`${env.VITE_API_URL}/auth/google/login`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Button variant="outline" className="w-full">
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path
@@ -146,7 +150,11 @@ export function LoginForm({
               Google
             </Button>
           </a>
-          <a href={`${env.VITE_API_URL}/auth/github/login`} target="_blank" rel="noopener noreferrer">
+          <a
+            href={`${env.VITE_API_URL}/auth/github/login`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Button variant="outline" className="w-full">
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path
@@ -162,4 +170,3 @@ export function LoginForm({
     </form>
   )
 }
-

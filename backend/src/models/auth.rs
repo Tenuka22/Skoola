@@ -23,6 +23,7 @@ pub struct UserResponse {
     pub id: String,
     pub email: String,
     pub is_verified: bool,
+    pub lockout_until: Option<NaiveDateTime>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -35,6 +36,7 @@ impl From<User> for UserResponse {
             is_verified: user.is_verified,
             created_at: user.created_at,
             updated_at: user.updated_at,
+            lockout_until:user.lockout_until
         }
     }
 }

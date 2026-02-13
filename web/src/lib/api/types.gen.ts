@@ -457,8 +457,8 @@ export type BulkUpdateLibraryCategoriesRequest = {
  * BulkUpdateRequest
  */
 export type BulkUpdateRequest = {
-    is_locked?: boolean | null;
     is_verified?: boolean | null;
+    lockout_until?: string | null;
     role?: RoleEnum | null;
     user_ids: Array<string>;
 };
@@ -2549,8 +2549,8 @@ export type UpdateTimetableRequest = {
  */
 export type UpdateUserRequest = {
     email?: string | null;
-    is_locked?: boolean | null;
     is_verified?: boolean | null;
+    lockout_until?: string | null;
     role?: RoleEnum | null;
 };
 
@@ -2576,6 +2576,7 @@ export type UserResponse = {
     email: string;
     id: string;
     is_verified: boolean;
+    lockout_until?: string | null;
     updated_at: string;
 };
 

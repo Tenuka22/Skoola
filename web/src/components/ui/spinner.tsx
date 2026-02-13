@@ -1,19 +1,15 @@
 import { HugeiconsIcon } from '@hugeicons/react'
-import type { HugeiconsIconProps } from '@hugeicons/react' // Import HugeiconsIconProps
+import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { cn } from '@/lib/utils'
-import { Loader01Icon } from '@hugeicons/core-free-icons' // Import Loader01Icon
 
-interface SpinnerProps extends HugeiconsIconProps {
-  className?: string
-}
-
-function Spinner({ className, icon = Loader01Icon, ...props }: SpinnerProps) {
+function Spinner({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <HugeiconsIcon
+      icon={Loading03Icon}
+      strokeWidth={2 as any}
       role="status"
       aria-label="Loading"
       className={cn('size-4 animate-spin', className)}
-      icon={icon} // Use the icon prop
       {...props}
     />
   )

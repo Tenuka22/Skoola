@@ -9,7 +9,6 @@ import {
   Calendar01Icon,
   Download02Icon,
   FilterIcon,
-  Loading01Icon,
   PlusSignIcon,
   RefreshIcon,
   Search01Icon,
@@ -93,7 +92,7 @@ export const StaffAttendancePage = () => {
   if (isStaffLoading && !staffData) {
     return (
       <div className="flex h-[400px] items-center justify-center">
-        <Spinner icon={Loading01Icon} className="size-8" />
+        <Spinner className="size-8" />
       </div>
     );
   }

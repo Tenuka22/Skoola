@@ -1,39 +1,38 @@
 'use client';
 
-import * as React from 'react';
-import { addDays, format, subDays } from 'date-fns';
-import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  Book01Icon,
-  Download02Icon,
-  FilterIcon,
-  Loading01Icon,
-  RefreshIcon,
-  Search01Icon,
+    ArrowLeft01Icon,
+    ArrowRight01Icon,
+    Book01Icon,
+    Download02Icon,
+    FilterIcon,
+    RefreshIcon,
+    Search01Icon
 } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { addDays, format, subDays } from 'date-fns';
+import * as React from 'react';
 import { useClasses, useGenerateStudentAttendanceReport, useStudentAttendance, useStudentsInClass } from '../api';
-import { studentAttendanceColumns } from './student-attendance-columns';
 import { AttendanceSummaryCards } from './attendance-summary-cards';
 import { MarkStudentAttendanceDialog } from './mark-student-attendance-dialog';
+import { studentAttendanceColumns } from './student-attendance-columns';
 import type { StudentAttendanceWithMember } from '../types';
-import { DataTable } from '@/components/ui/data-table';
+import { Spinner } from '@/components/ui/spinner';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/ui/data-table';
 import {
-  Card,
-  CardContent,
-  CardHeader,
+    Card,
+    CardContent,
+    CardHeader,
 } from '@/components/ui/card';
-import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
 export const StudentAttendancePage = () => {
   const [date, setDate] = React.useState(new Date());
@@ -42,7 +41,7 @@ export const StudentAttendancePage = () => {
   const [selectedAttendance, setSelectedAttendance] = React.useState<StudentAttendanceWithMember | null>(null);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [shouldFetchReport, setShouldFetchReport] = React.useState(false);
-  
+
   const formattedDateForApi = format(date, 'yyyy-MM-dd');
   const formattedDateForDisplay = format(date, 'EEEE, dd MMMM');
 
@@ -52,7 +51,7 @@ export const StudentAttendancePage = () => {
   const { data: reportData, isLoading: isReportLoading } = useGenerateStudentAttendanceReport(
     selectedClassId,
     formattedDateForApi,
-    formattedDateForApi, // For now, use the same date for from and to
+    formattedDateForApi,
     shouldFetchReport,
   );
 
@@ -137,7 +136,7 @@ export const StudentAttendancePage = () => {
   if (isClassesLoading) {
     return (
       <div className="flex h-[400px] items-center justify-center">
-        <Spinner icon={Loading01Icon} className="size-8" />
+        <Spinner className="size-8" />
       </div>
     );
   }
@@ -167,7 +166,7 @@ export const StudentAttendancePage = () => {
             disabled={isReportLoading || !selectedClassId}
           >
             {isReportLoading ? (
-              <Spinner icon={Loading01Icon} className="mr-2 size-4" />
+              <Spinner className="mr-2 size-4" />
             ) : (
               <HugeiconsIcon icon={Download02Icon} className="mr-2 size-4" />
             )}
@@ -211,7 +210,7 @@ export const StudentAttendancePage = () => {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            
+
             <Button variant="outline" size="sm" className="h-10 rounded-xl font-bold">
               <HugeiconsIcon icon={FilterIcon} className="mr-2 size-4" />
               Advance Filter
@@ -229,7 +228,7 @@ export const StudentAttendancePage = () => {
         <CardContent className="p-0">
           {isStudentsLoading || isAttendanceLoading ? (
             <div className="flex h-32 items-center justify-center">
-              <Spinner icon={Loading01Icon} className="size-6" />
+              <Spinner className="size-6" />
             </div>
           ) : (
             <DataTable
@@ -257,4 +256,3 @@ export const StudentAttendancePage = () => {
     </div>
   );
 };
-

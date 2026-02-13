@@ -1,20 +1,24 @@
-import * as React from 'react'
-import { TabsContent, Tabs } from '@/components/ui/tabs'
-import { DataTable } from '@/components/ui/data-table'
+import { useUsersStore } from '../store'
 import { UserBoardView } from './user-board-view'
 import { UserListView } from './user-list-view'
-import { useUsersStore } from '../store'
-import { useMutation } from '@tanstack/react-query'
-import { patchUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation } from '@/lib/api/@tanstack/react-query.gen'
-import { authClient } from '@/lib/clients'
-import { getUserColumns } from './user-table-columns'
+import type { ColumnDef } from '@tanstack/react-table'
+import type { UserResponse } from '@/lib/api'
+import { Tabs, TabsContent } from '@/components/ui/tabs'
+import { DataTable } from '@/components/ui/data-table'
 
 interface UsersListContainerProps {
-  usersQuery: any // TODO: Type this properly
+  usersQuery: any
   limit: number
+  columns: Array<ColumnDef<UserResponse>>
+  updateMutation: any
 }
 
-export function UsersListContainer({ usersQuery, limit }: UsersListContainerProps) {
+export function UsersListContainer({
+  usersQuery,
+  limit,
+  columns,
+  updateMutation,
+}: UsersListContainerProps) {
   const {
     page,
     view,
@@ -27,30 +31,6 @@ export function UsersListContainer({ usersQuery, limit }: UsersListContainerProp
     setUserToDelete,
     setUserToManagePermissions,
   } = useUsersStore()
-
-  const updateMutation = useMutation({
-    ...patchUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation({
-      client: authClient,
-    }),
-  })
-
-  const columns = React.useMemo(
-    () =>
-      getUserColumns({
-        users: usersQuery.data?.data,
-        onToggleVerify: (user) =>
-          updateMutation.mutate({
-            path: { user_id: user.id },
-            body: { is_verified: !user.is_verified },
-          }),
-        onToggleLock: (user) =>
-          updateMutation.mutate({
-            path: { user_id: user.id },
-            body: { is_locked: true },
-          }),
-      }),
-    [usersQuery.data?.data, updateMutation],
-  )
 
   return (
     <div className="flex-1 px-8 py-4 space-y-4">

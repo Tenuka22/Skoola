@@ -1,40 +1,40 @@
-import * as React from 'react'
 import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
+    keepPreviousData,
+    useMutation,
+    useQuery,
+    useQueryClient,
 } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import * as React from 'react'
 import { toast } from 'sonner'
 
-import { authClient } from '@/lib/clients'
 
 import { UserBulkPermissionsDialog } from '../../features/permissions/components/user-bulk-permissions-dialog'
 import { UserPermissionsDialog } from '../../features/permissions/components/user-permissions-dialog'
-import { UserCreateDialog } from '../../features/users/components/user-create-dialog'
 import { UserComparisonOverlay } from '../../features/users/components/user-comparison-overlay'
+import { UserCreateDialog } from '../../features/users/components/user-create-dialog'
 import { UserModals } from '../../features/users/components/user-modals'
-import { useUsersStore } from '../../features/users/store'
-import { UsersHeader } from '../../features/users/components/users-header'
-import { UsersToolbar } from '../../features/users/components/users-toolbar'
+import { getUserColumns } from '../../features/users/components/user-table-columns'
 import { UsersFilters } from '../../features/users/components/users-filters'
+import { UsersHeader } from '../../features/users/components/users-header'
 import { UsersListContainer } from '../../features/users/components/users-list-container'
-
+import { UsersToolbar } from '../../features/users/components/users-toolbar'
+import { useUsersStore } from '../../features/users/store'
 
 import type {
-  BulkUpdateValues,
-  UpdateUserValues,
+    BulkUpdateValues,
+    UpdateUserValues,
 } from '../../features/users/schemas'
+import { authClient } from '@/lib/clients'
 
 import {
-  deleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
-  deleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
-  getUsers06Bdcf95Aafda840B1D04322636De293Options,
-  getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaOptions,
-  patchUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
-  patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
-  postAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Mutation,
+    deleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
+    deleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
+    getUsers06Bdcf95Aafda840B1D04322636De293Options,
+    getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaOptions,
+    patchUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
+    patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
+    postAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Mutation,
 } from '@/lib/api/@tanstack/react-query.gen'
 
 export const Route = createFileRoute('/admin/users')({
@@ -56,20 +56,23 @@ function Users() {
     isBulkPermissionsOpen,
     isCreateUserOpen,
     userToEdit,
+    userToLock,
     userToManagePermissions,
 
-    setDebouncedSearch, 
+    setDebouncedSearch,
     setUserToDelete,
     setIsBulkDeleteOpen,
     setIsBulkEditOpen,
     setIsBulkPermissionsOpen,
     setIsCreateUserOpen,
     setUserToEdit,
+    setUserToLock,
     setUserToManagePermissions,
+    setSelectedUsers,
     resetSelection,
   } = useUsersStore()
 
-  const limit = 10 
+  const limit = 10
 
   const queryClient = useQueryClient()
 
@@ -146,6 +149,43 @@ function Users() {
     },
   })
 
+  const columns = React.useMemo(
+    () =>
+      getUserColumns({
+        users: usersQuery.data?.data,
+        onToggleVerify: (user) =>
+          updateMutation.mutate({
+            path: { user_id: user.id },
+            body: { is_verified: !user.is_verified },
+          }),
+        onToggleLock: (user) => {
+          if (user.lockout_until) {
+            updateMutation.mutate({
+              path: { user_id: user.id },
+              body: { lockout_until: null },
+            })
+          } else {
+            setUserToLock(user)
+          }
+        },
+        selectedUsers,
+        setSelectedUsers,
+        setUserToDelete,
+        setUserToEdit,
+        setUserToManagePermissions,
+      }),
+    [
+      usersQuery.data?.data,
+      updateMutation,
+      selectedUsers,
+      setSelectedUsers,
+      setUserToDelete,
+      setUserToEdit,
+      setUserToLock,
+      setUserToManagePermissions,
+    ],
+  )
+
 
   const bulkUpdateMutation = useMutation({
     ...patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation({
@@ -206,7 +246,12 @@ function Users() {
       <UsersHeader />
       <UsersToolbar handleExportCSV={handleExportCSV} />
       <UsersFilters />
-      <UsersListContainer usersQuery={usersQuery} limit={limit} />
+      <UsersListContainer
+        usersQuery={usersQuery}
+        limit={limit}
+        columns={columns}
+        updateMutation={updateMutation}
+      />
 
       <UserComparisonOverlay
         selectedUsers={selectedUsers}
@@ -254,6 +299,21 @@ function Users() {
           })
         }
         isUpdating={updateMutation.isPending}
+        userToLock={userToLock}
+        setUserToLock={setUserToLock}
+        onLockConfirm={(date) =>
+          userToLock &&
+          updateMutation.mutate(
+            {
+              path: { user_id: userToLock.id },
+              body: { lockout_until: date.toISOString() },
+            },
+            {
+              onSuccess: () => setUserToLock(null),
+            },
+          )
+        }
+        isLocking={updateMutation.isPending}
       />
 
       <UserPermissionsDialog

@@ -1237,12 +1237,13 @@ export const BulkUpdateRequestSchema = {
         'user_ids'
     ],
     properties: {
-        is_locked: {
+        is_verified: {
             type: 'boolean',
             nullable: true
         },
-        is_verified: {
-            type: 'boolean',
+        lockout_until: {
+            type: 'string',
+            format: 'partial-date-time',
             nullable: true
         },
         role: {
@@ -7523,12 +7524,13 @@ export const UpdateUserRequestSchema = {
             type: 'string',
             nullable: true
         },
-        is_locked: {
+        is_verified: {
             type: 'boolean',
             nullable: true
         },
-        is_verified: {
-            type: 'boolean',
+        lockout_until: {
+            type: 'string',
+            format: 'partial-date-time',
             nullable: true
         },
         role: {
@@ -7607,6 +7609,11 @@ export const UserResponseSchema = {
         },
         is_verified: {
             type: 'boolean'
+        },
+        lockout_until: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
         },
         updated_at: {
             type: 'string',

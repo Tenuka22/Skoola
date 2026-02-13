@@ -1,41 +1,50 @@
-import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  Delete02Icon,
-  PencilEdit01Icon,
-  DotsHorizontalIcon, // Added for dropdown menu
-  CheckCircle01Icon, // Added for Toggle Verify
-  Lock01Icon, // Added for Toggle Lock
-  UserCheckIcon, // Added for Manage Permissions
+    CheckmarkCircle01Icon,
+    Delete02Icon,
+    LockIcon,
+    Menu01Icon,
+    PencilEdit01Icon,
+    UserCheckIcon
 } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { format } from 'date-fns'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { User } from '../types'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu' // Added for dropdown menu
-import { useUsersStore } from '../store' // Import the store
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 interface GetColumnsProps {
   users?: Array<User>
   onToggleVerify: (user: User) => void
+  selectedUsers: Set<string>
+  setSelectedUsers: (
+    users: Set<string> | ((prev: Set<string>) => Set<string>),
+  ) => void
   onToggleLock: (user: User) => void
+  setUserToDelete: (id: string | null) => void
+  setUserToEdit: (user: User | null) => void
+  setUserToManagePermissions: (user: User | null) => void
 }
 
 export function getUserColumns({
   users,
   onToggleVerify,
-  onToggleLock,
+  selectedUsers,
+  setSelectedUsers,
+  setUserToDelete,
+  setUserToEdit,
+  setUserToManagePermissions,
+  onToggleLock
 }: GetColumnsProps): Array<ColumnDef<User>> {
-  const { setSelectedUsers, setUserToDelete, setUserToEdit, setUserToManagePermissions, selectedUsers } = useUsersStore() // Get actions and state from store
-
   return [
     {
       id: 'select',
@@ -71,11 +80,10 @@ export function getUserColumns({
       enableHiding: false,
     },
     {
-      accessorKey: 'full_name',
-      header: 'Full name',
+      accessorKey: 'email',
+      header: 'User Info',
       cell: ({ row }) => {
         const user = row.original
-        // Mock name from email since API doesn't return it yet
         const name = user.email
           .split('@')[0]
           .replace(/[._]/g, ' ')
@@ -102,37 +110,56 @@ export function getUserColumns({
       },
     },
     {
-      accessorKey: 'role',
-      header: 'Role',
-      cell: ({ row }) => {
-        // Mock role since API doesn't return it yet
-        const role = (row.original as any).role || 'Member'
-        return (
-          <span className="text-sm text-foreground/80 font-medium">{role}</span>
-        )
-      },
-    },
-    {
       accessorKey: 'is_verified',
       header: 'Status',
       cell: ({ row }) => {
-        const isActive = row.getValue('is_verified')
+        const user = row.original
+        const isVerified = user.is_verified
+        const lockoutUntil = user.lockout_until
+        const isLocked =
+          lockoutUntil && new Date(lockoutUntil) > new Date()
+
         return (
           <div className="flex items-center gap-2">
             <span className={`relative flex h-2 w-2`}>
               <span
-                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isActive ? 'bg-green-400' : 'bg-red-400'}`}
+                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                  isLocked
+                    ? 'bg-amber-400'
+                    : isVerified
+                      ? 'bg-green-400'
+                      : 'bg-red-400'
+                }`}
               ></span>
               <span
-                className={`relative inline-flex rounded-full h-2 w-2 ${isActive ? 'bg-green-500' : 'bg-red-500'}`}
+                className={`relative inline-flex rounded-full h-2 w-2 ${
+                  isLocked
+                    ? 'bg-amber-500'
+                    : isVerified
+                      ? 'bg-green-500'
+                      : 'bg-red-500'
+                }`}
               ></span>
             </span>
-            <Badge
-              variant="outline"
-              className={`border-0 bg-transparent px-0 font-medium ${isActive ? 'text-green-500' : 'text-red-500'}`}
-            >
-              {isActive ? 'Active' : 'Inactive'}
-            </Badge>
+            <div className="flex flex-col">
+              <Badge
+                variant="outline"
+                className={`border-0 bg-transparent px-0 font-medium ${
+                  isLocked
+                    ? 'text-amber-500'
+                    : isVerified
+                      ? 'text-green-500'
+                      : 'text-red-500'
+                }`}
+              >
+                {isLocked ? 'Locked' : isVerified ? 'Active' : 'Inactive'}
+              </Badge>
+              {isLocked && lockoutUntil && (
+                <span className="text-[10px] text-muted-foreground -mt-1 whitespace-nowrap">
+                  Until {format(new Date(lockoutUntil), 'd MMM')}
+                </span>
+              )}
+            </div>
           </div>
         )
       },
@@ -151,37 +178,51 @@ export function getUserColumns({
       header: 'Actions',
       cell: ({ row }) => {
         const user = row.original
+        const isLocked =
+          user.lockout_until && new Date(user.lockout_until) > new Date()
         return (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
-              >
-                <HugeiconsIcon icon={DotsHorizontalIcon} className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+                >
+                  <HugeiconsIcon icon={Menu01Icon} className="h-4 w-4" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              }
+            />
             <DropdownMenuContent align="end" className="w-[160px]">
               <DropdownMenuItem onClick={() => setUserToEdit(user)}>
-                <HugeiconsIcon icon={PencilEdit01Icon} className="mr-2 h-4 w-4" />
+                <HugeiconsIcon
+                  icon={PencilEdit01Icon}
+                  className="mr-2 h-4 w-4"
+                />
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onToggleVerify(user)}>
-                <HugeiconsIcon icon={CheckCircle01Icon} className="mr-2 h-4 w-4" />
+                <HugeiconsIcon
+                  icon={CheckmarkCircle01Icon}
+                  className="mr-2 h-4 w-4"
+                />
                 {user.is_verified ? 'Unverify' : 'Verify'}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onToggleLock(user)}>
-                <HugeiconsIcon icon={Lock01Icon} className="mr-2 h-4 w-4" />
-                {user.is_locked ? 'Unlock' : 'Lock'}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setUserToManagePermissions(user)}>
+              <DropdownMenuItem
+                onClick={() => setUserToManagePermissions(user)}
+              >
                 <HugeiconsIcon icon={UserCheckIcon} className="mr-2 h-4 w-4" />
                 Permissions
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onToggleLock(user)}>
+                <HugeiconsIcon icon={LockIcon} className="mr-2 h-4 w-4" />
+                {isLocked ? 'Unlock' : 'Lock'}
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setUserToDelete(user.id)} className="text-destructive focus:text-destructive">
+              <DropdownMenuItem
+                onClick={() => setUserToDelete(user.id)}
+                className="text-destructive focus:text-destructive"
+              >
                 <HugeiconsIcon icon={Delete02Icon} className="mr-2 h-4 w-4" />
                 Delete
               </DropdownMenuItem>
@@ -192,4 +233,3 @@ export function getUserColumns({
     },
   ]
 }
-
