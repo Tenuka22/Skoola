@@ -46,10 +46,31 @@ Use the following color mappings for consistency across the platform:
   - Use `'use client'` at the top of files only when interactivity (state, effects, event handlers) is required.
 - **Data Fetching**: Use TanStack Query/loaders pattern provided by the framework.
 
+## State Management
+
+- **Global State**: Use `Zustand` for managing complex feature states (e.g., `web/src/features/users/store.ts`).
+- **Persistence**: Store filter preferences, view modes, and pagination state in the store to ensure a consistent user experience.
+- **Data Fetching**: Use `TanStack Query` for all API interactions. Prefer auto-generated query options and keys from `web/src/lib/api/@tanstack/react-query.gen.ts`.
+
+## Iconography
+
+- **Library**: Use `@hugeicons/react`.
+- **Icon Sets**: Prefer `@hugeicons/core-free-icons`.
+- **Implementation**:
+  ```tsx
+  import { HugeiconsIcon } from '@hugeicons/react'
+  import { Search01Icon } from '@hugeicons/core-free-icons'
+  
+  <HugeiconsIcon icon={Search01Icon} className="size-4" />
+  ```
+
 ## Component Usage
 
 - **Sidebar**: Use `SidebarProvider`, `Sidebar`, `SidebarContent`, `SidebarGroup`, `SidebarMenu`, etc.
-- **Icons**: Use `@hugeicons/react`.
+- **Input Groups**: Use `InputGroup`, `InputGroupInput`, and `InputGroupAddon` for inputs with icons or actions.
+- **Button Groups**: Use `ButtonGroup` to cluster related actions (e.g., bulk actions).
+- **Tabs**: Use `Tabs`, `TabsList`, and `TabsTrigger` for view switching (e.g., Table vs. Board view).
+- **Modals**: Use the custom `Dialog` components from `web/src/components/ui/dialog.tsx`. Follow the pattern of separate `Dialog` and `Form` components for complex editing tasks.
 
 ## Example: Sidebar Link
 

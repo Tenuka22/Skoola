@@ -8,6 +8,8 @@ import {
   Settings01Icon,
   Shield01Icon,
   UserGroupIcon,
+  User02Icon,
+  Briefcase01Icon,
 } from '@hugeicons/core-free-icons'
 import {
   getActiveSessionServer,
@@ -142,6 +144,27 @@ function AdminLayout() {
                   <SidebarMenuButton tooltip="Settings">
                     <HugeiconsIcon icon={Settings01Icon} />
                     <span>Settings</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel>Academics</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <Link to="/admin/students">
+                  <SidebarMenuButton tooltip="Students">
+                    <HugeiconsIcon icon={User02Icon} />
+                    <span>Students</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link to="/admin/staff">
+                  <SidebarMenuButton tooltip="Staff">
+                    <HugeiconsIcon icon={Briefcase01Icon} />
+                    <span>Staff</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>

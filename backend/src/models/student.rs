@@ -112,31 +112,9 @@ impl From<Student> for StudentResponse {
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct PaginatedStudentResponse {
-    pub students: Vec<StudentResponse>,
-    pub total_students: i64,
+    pub data: Vec<StudentResponse>,
+    pub total: i64,
+    pub page: i64,
     pub limit: i64,
-    pub offset: i64,
-}
-
-#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
-pub struct StudentSearchQuery {
-    pub name: Option<String>,
-    pub admission_number: Option<String>,
-    #[serde(flatten)]
-    pub pagination: PaginationInfo,
-}
-
-#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
-pub struct StudentFilterQuery {
-    pub grade_id: Option<String>,
-    pub class_id: Option<String>,
-    pub status: Option<StudentStatus>, // Assuming StudentStatus enum exists
-    #[serde(flatten)]
-    pub pagination: PaginationInfo,
-}
-
-#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
-pub struct PaginationInfo {
-    pub limit: Option<i64>,
-    pub offset: Option<i64>,
+    pub total_pages: i64,
 }

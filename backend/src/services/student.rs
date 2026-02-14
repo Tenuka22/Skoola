@@ -2,11 +2,12 @@ use diesel::prelude::*;
 use crate::{
     errors::APIError,
     AppState,
-    models::student::{Student, CreateStudentRequest, StudentResponse, UpdateStudentRequest, PaginatedStudentResponse, StudentSearchQuery, StudentFilterQuery},
+    models::student::{Student, CreateStudentRequest, StudentResponse, UpdateStudentRequest, PaginatedStudentResponse},
+    handlers::student::StudentQuery,
 };
 use actix_web::{web, HttpResponse};
 use uuid::Uuid;
-use chrono::Utc;
+use chrono::{NaiveDateTime, Utc};
 use crate::schema::students;
 use crate::database::enums::StudentStatus;
 
@@ -16,10 +17,7 @@ pub async fn create_student(
 ) -> Result<StudentResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    // Generate unique ID and admission number (example, actual logic might be more complex)
     let student_id = Uuid::new_v4().to_string();
-    // Assuming admission number is provided in the request as per CreateStudentRequest
-    // You might want to generate this if it's supposed to be internal
 
     let new_student = Student {
         id: student_id,
@@ -35,7 +33,7 @@ pub async fn create_student(
         email: new_student_request.email,
         religion: new_student_request.religion,
         ethnicity: new_student_request.ethnicity,
-        status: new_student_request.status.unwrap_or(StudentStatus::Active), // Default to Active
+        status: new_student_request.status.unwrap_or(StudentStatus::Active),
         photo_url: new_student_request.photo_url,
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
@@ -82,128 +80,82 @@ pub async fn get_student_by_id(
     let student: Student = students::table
         .filter(students::id.eq(&student_id))
         .select(Student::as_select())
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(StudentResponse::from(student))
 }
 
 pub async fn get_all_students(
     pool: web::Data<AppState>,
-    limit: i64,
-    offset: i64,
+    query: StudentQuery,
 ) -> Result<PaginatedStudentResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    let students_list: Vec<Student> = students::table
-        .select(Student::as_select())
-        .limit(limit)
-        .offset(offset)
-        .load::<Student>(&mut conn)?;
-
-    let total_students = students::table
-        .count()
-        .get_result(&mut conn)?;
-
-    let student_responses: Vec<StudentResponse> = students_list
-        .into_iter()
-        .map(StudentResponse::from)
-        .collect();
-
-    Ok(PaginatedStudentResponse {
-        students: student_responses,
-        total_students,
-        limit,
-        offset,
-    })
-}
-
-pub async fn search_students(
-    pool: web::Data<AppState>,
-    search_query: StudentSearchQuery,
-) -> Result<PaginatedStudentResponse, APIError> {
-    let mut conn = pool.db_pool.get()?;
-
-    let mut query = students::table.into_boxed();
+    let mut data_query = students::table.into_boxed();
     let mut count_query = students::table.into_boxed();
 
-    if let Some(name) = &search_query.name {
-        let search_pattern = format!("%{}%", name);
-        query = query.filter(students::name_english.like(search_pattern.clone()));
-        count_query = count_query.filter(students::name_english.like(search_pattern));
+    if let Some(search_term) = &query.search {
+        let pattern = format!("%{}%", search_term);
+        let filter = students::name_english.like(pattern.clone())
+            .or(students::admission_number.like(pattern));
+        data_query = data_query.filter(filter.clone());
+        count_query = count_query.filter(filter);
     }
 
-    if let Some(admission_number) = &search_query.admission_number {
-        let search_pattern = format!("%{}%", admission_number);
-        query = query.filter(students::admission_number.like(search_pattern.clone()));
-        count_query = count_query.filter(students::admission_number.like(search_pattern));
+    if let Some(status_str) = &query.status {
+        if let Ok(status) = status_str.parse::<StudentStatus>() {
+            data_query = data_query.filter(students::status.eq(status.clone()));
+            count_query = count_query.filter(students::status.eq(status));
+        }
+    }
+    
+    if let Some(after_str) = &query.created_after {
+        if let Ok(after) = NaiveDateTime::parse_from_str(&format!("{} 00:00:00", after_str), "%Y-%m-%d %H:%M:%S") {
+            data_query = data_query.filter(students::created_at.ge(after));
+            count_query = count_query.filter(students::created_at.ge(after));
+        }
+    }
+    if let Some(before_str) = &query.created_before {
+        if let Ok(before) = NaiveDateTime::parse_from_str(&format!("{} 23:59:59", before_str), "%Y-%m-%d %H:%M:%S") {
+            data_query = data_query.filter(students::created_at.le(before));
+            count_query = count_query.filter(students::created_at.le(before));
+        }
     }
 
-    let limit = search_query.pagination.limit.unwrap_or(10);
-    let offset = search_query.pagination.offset.unwrap_or(0);
+    let total_students: i64 = count_query.count().get_result(&mut conn)?;
 
-    let students_list: Vec<Student> = query
+    let sort_col = query.sort_by.as_deref().unwrap_or("created_at");
+    let sort_order = query.sort_order.as_deref().unwrap_or("desc");
+
+    data_query = match (sort_col, sort_order) {
+        ("name", "asc") => data_query.order(students::name_english.asc()),
+        ("name", "desc") => data_query.order(students::name_english.desc()),
+        ("admission_number", "asc") => data_query.order(students::admission_number.asc()),
+        ("admission_number", "desc") => data_query.order(students::admission_number.desc()),
+        ("status", "asc") => data_query.order(students::status.asc()),
+        ("status", "desc") => data_query.order(students::status.desc()),
+        ("created_at", "asc") => data_query.order(students::created_at.asc()),
+        _ => data_query.order(students::created_at.desc()),
+    };
+
+    let page = query.page.unwrap_or(1);
+    let limit = query.limit.unwrap_or(10);
+    let offset = (page - 1) * limit;
+
+    let student_list = data_query
         .select(Student::as_select())
         .limit(limit)
         .offset(offset)
         .load::<Student>(&mut conn)?;
 
-    let total_students = count_query
-        .count()
-        .get_result(&mut conn)?;
-
-    let student_responses: Vec<StudentResponse> = students_list
-        .into_iter()
-        .map(StudentResponse::from)
-        .collect();
+    let total_pages = (total_students as f64 / limit as f64).ceil() as i64;
 
     Ok(PaginatedStudentResponse {
-        students: student_responses,
-        total_students,
+        data: student_list.into_iter().map(StudentResponse::from).collect(),
+        total: total_students,
+        page,
         limit,
-        offset,
-    })
-}
-
-pub async fn filter_students(
-    pool: web::Data<AppState>,
-    filter_query: StudentFilterQuery,
-) -> Result<PaginatedStudentResponse, APIError> {
-    let mut conn = pool.db_pool.get()?;
-
-    let mut query = students::table.into_boxed();
-    let mut count_query = students::table.into_boxed();
-
-    if let Some(status) = &filter_query.status {
-        query = query.filter(students::status.eq(status));
-        count_query = count_query.filter(students::status.eq(status));
-    }
-
-    // TODO: Implement filtering by grade_id and class_id once student_class_assignments table is available.
-
-    let limit = filter_query.pagination.limit.unwrap_or(10);
-    let offset = filter_query.pagination.offset.unwrap_or(0);
-
-    let students_list: Vec<Student> = query
-        .select(Student::as_select())
-        .limit(limit)
-        .offset(offset)
-        .load::<Student>(&mut conn)?;
-
-    let total_students = count_query
-        .count()
-        .get_result(&mut conn)?;
-
-    let student_responses: Vec<StudentResponse> = students_list
-        .into_iter()
-        .map(StudentResponse::from)
-        .collect();
-
-    Ok(PaginatedStudentResponse {
-        students: student_responses,
-        total_students,
-        limit,
-        offset,
+        total_pages,
     })
 }
 

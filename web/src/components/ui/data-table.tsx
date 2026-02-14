@@ -76,7 +76,7 @@ export function DataTable<TData, TValue>({
       },
       sorting,
       columnVisibility,
-      rowSelection,
+      rowSelection: rowSelection ?? {},
     },
     onSortingChange,
     onColumnVisibilityChange,

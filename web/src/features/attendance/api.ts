@@ -5,9 +5,10 @@ import {
   getClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbOptions,
   getStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Options,
   getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Options,
+  
   getStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dOptions,
   getStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dOptions,
-  getStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6Options,
+
   postStaffAttendanceBulk8F2A2Bc0B290E669419582F4B20549F7Mutation,
   postStudentAttendanceBulkEe86115B6Fcc8B311828E782275Ec9F4Mutation,
   putStaffAttendanceDb2F8533D2Be67Cf8725Bfeb7Eb137BbMutation,
@@ -88,13 +89,13 @@ export const useClasses = () => {
   })
 }
 
-export const useStudentsInClass = (classId: string) => {
+export const useStudentsInClass = (classId: string, date: string) => {
   return useQuery({
-    ...getStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6Options({
+    ...getStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dOptions({
       client: authClient,
-      query: { class_id: classId, limit: 100 },
+      path: { class_id: classId, date },
     }),
-    enabled: !!classId,
+    enabled: !!classId && !!date,
   })
 }
 

@@ -213,8 +213,6 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{student_id}", web::put().to(student::update_student))
             .route("/{student_id}", web::get().to(student::get_student_by_id))
             .route("", web::get().to(student::get_all_students))
-            .route("/search", web::get().to(student::search_students))
-            .route("/filter", web::get().to(student::filter_students))
             .route("/{student_id}", web::delete().to(student::delete_student))
             .route(
                 "/{student_id}/photo",

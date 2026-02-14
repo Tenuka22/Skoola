@@ -14,10 +14,6 @@ import type {
   GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response,
   GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data,
   GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Response,
-  GetStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6Data,
-  GetStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6Response,
-  GetStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030aData,
-  GetStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030aResponse,
   PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aData,
   PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aResponse,
   PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data,
@@ -31,8 +27,6 @@ import {
   deleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855,
   getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855,
   getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1,
-  getStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6,
-  getStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030A,
   postStudents87F142Fffc2984E3Ceb560Aac590Bf2A,
   postStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1,
   putStudents4D5Cba944Bd069Fdf2A0246F5Bac2855,
@@ -286,59 +280,9 @@ export const putStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Mutation = (
   return mutationOptions
 }
 
-// getStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030A
-export const getStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030AQueryKey = (
-  options?: Options<GetStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030aData>,
-) =>
-  createQueryKey('getStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030A', options)
-export const getStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030AOptions = (
-  options?: Options<GetStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030aData>,
-) =>
-  queryOptions<
-    GetStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030aResponse,
-    DefaultError,
-    GetStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030aResponse,
-    ReturnType<typeof getStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030AQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await getStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030A({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      })
-      return data
-    },
-    queryKey:
-      getStudentsSearch0F4D7Fb5A84E5A127E2Bc6232De9030AQueryKey(options),
-  })
 
-// getStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6
-export const getStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6QueryKey = (
-  options?: Options<GetStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6Data>,
-) =>
-  createQueryKey('getStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6', options)
-export const getStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6Options = (
-  options?: Options<GetStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6Data>,
-) =>
-  queryOptions<
-    GetStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6Response,
-    DefaultError,
-    GetStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6Response,
-    ReturnType<typeof getStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6QueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await getStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      })
-      return data
-    },
-    queryKey:
-      getStudentsFilterC21054074427E0Dcf7272Dd5086Ce1F6QueryKey(options),
-  })
+
+
 
 // postStudents87F142Fffc2984E3Ceb560Aac590Bf2A
 export const postStudents87F142Fffc2984E3Ceb560Aac590Bf2AMutation = (

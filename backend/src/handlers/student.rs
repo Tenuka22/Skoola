@@ -1,5 +1,5 @@
 use actix_web::web;
-use apistos::api_operation;
+use apistos::{api_operation, ApiComponent};
 use actix_multipart::Multipart;
 use futures_util::stream::{StreamExt, TryStreamExt};
 use std::io::Write;
@@ -7,14 +7,28 @@ use std::fs::create_dir_all;
 use crate::schema::students;
 use diesel::prelude::*;
 use actix_web::web::Json;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState,
     errors::APIError,
-    models::student::{CreateStudentRequest, UpdateStudentRequest, PaginationInfo, StudentSearchQuery, StudentFilterQuery, StudentResponse, Student, PaginatedStudentResponse},
+    models::student::{CreateStudentRequest, UpdateStudentRequest, StudentResponse, Student, PaginatedStudentResponse},
     models::MessageResponse,
     services::student,
 };
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
+pub struct StudentQuery {
+    pub search: Option<String>,
+    pub status: Option<String>,
+    pub created_after: Option<String>,
+    pub created_before: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}
 
 #[api_operation(
     summary = "Create a new student",
@@ -59,43 +73,15 @@ pub async fn get_student_by_id(
 }
 
 #[api_operation(
-    summary = "Get all students with pagination",
-    description = "Retrieves a paginated list of all students.",
+    summary = "Get all students",
+    description = "Returns a list of all students with pagination, fuzzy search, filtering and sorting.",
     tag = "students"
 )]
 pub async fn get_all_students(
     data: web::Data<AppState>,
-    web::Query(info): web::Query<PaginationInfo>,
+    query: web::Query<StudentQuery>,
 ) -> Result<Json<PaginatedStudentResponse>, APIError> {
-    let limit = info.limit.unwrap_or(10);
-    let offset = info.offset.unwrap_or(0);
-    let students = student::get_all_students(data.clone(), limit, offset).await?;
-    Ok(Json(students))
-}
-
-#[api_operation(
-    summary = "Search students by name or admission number with pagination",
-    description = "Searches for students matching the provided name or admission number, with pagination.",
-    tag = "students"
-)]
-pub async fn search_students(
-    data: web::Data<AppState>,
-    web::Query(search_query): web::Query<StudentSearchQuery>,
-) -> Result<Json<PaginatedStudentResponse>, APIError> {
-    let students = student::search_students(data.clone(), search_query).await?;
-    Ok(Json(students))
-}
-
-#[api_operation(
-    summary = "Filter students by status",
-    description = "Filters students based on their status, with pagination.",
-    tag = "students"
-)]
-pub async fn filter_students(
-    data: web::Data<AppState>,
-    web::Query(filter_query): web::Query<StudentFilterQuery>,
-) -> Result<Json<PaginatedStudentResponse>, APIError> {
-    let students = student::filter_students(data.clone(), filter_query).await?;
+    let students = student::get_all_students(data.clone(), query.into_inner()).await?;
     Ok(Json(students))
 }
 

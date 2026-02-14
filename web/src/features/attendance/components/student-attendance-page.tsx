@@ -49,7 +49,7 @@ export const StudentAttendancePage = () => {
 
   const { data: classesData, isLoading: isClassesLoading } = useClasses()
   const { data: studentsData, isLoading: isStudentsLoading } =
-    useStudentsInClass(selectedClassId)
+    useStudentsInClass(selectedClassId, formattedDateForApi)
   const {
     data: attendanceData,
     isLoading: isAttendanceLoading,
@@ -110,26 +110,15 @@ export const StudentAttendancePage = () => {
   }, [])
 
   const mergedData: Array<StudentAttendanceWithMember> = React.useMemo(() => {
-    if (!studentsData?.students) return []
-    return studentsData.students.map((student) => {
-      const attendance = attendanceData?.find(
-        (a) => a.student_id === student.id,
-      )
+    if (!studentsData) return []
+    return studentsData.map((attendance) => {
+      const student = attendance.student
       return {
-        ...(attendance ?? {
-          id: `temp-${student.id}`,
-          student_id: student.id,
-          class_id: selectedClassId,
-          date: formattedDateForApi,
-          status: 'Absent',
-          created_at: '',
-          updated_at: '',
-          marked_by: '',
-        }),
+        ...attendance,
         student,
       }
     })
-  }, [studentsData, attendanceData, formattedDateForApi, selectedClassId])
+  }, [studentsData])
 
   const filteredData = React.useMemo(() => {
     return mergedData.filter(
