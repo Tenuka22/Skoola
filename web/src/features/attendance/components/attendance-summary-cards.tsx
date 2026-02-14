@@ -1,12 +1,12 @@
 import { useMemo } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import type { IconSvgElement } from '@hugeicons/react'
 import {
   Cancel01Icon,
   Logout01Icon,
   MoreHorizontalIcon,
   Tick01Icon,
 } from '@hugeicons/core-free-icons'
+import type { IconSvgElement } from '@hugeicons/react'
 import type {
   StaffAttendanceWithMember,
   StudentAttendanceWithMember,

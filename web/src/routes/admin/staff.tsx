@@ -20,14 +20,16 @@ import { useStaffStore } from '../../features/staff/store'
 import { handleExportCSV } from '../../lib/export'
 import { authClient } from '../../lib/clients'
 import {
+  isEmploymentStatus,
+  isStaffType,
+} from '../../features/staff/utils/staff-guards'
+import {
   deleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Mutation,
   getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Options,
   getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857QueryKey,
   postStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Mutation,
   putStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Mutation,
 } from '@/lib/api/@tanstack/react-query.gen'
-
-import { isEmploymentStatus, isStaffType } from '../../features/staff/utils/staff-guards'
 
 export const Route = createFileRoute('/admin/staff')({
   component: StaffPage,
@@ -53,7 +55,7 @@ function StaffPage() {
     debouncedSearch,
     setStaffToDelete,
     setStaffToEdit,
-    setIsAddStaffOpen,
+    setIsCreateStaffOpen,
   } = store
 
   const staffQuery = useQuery({
@@ -108,7 +110,7 @@ function StaffPage() {
     onSuccess: () => {
       toast.success(`Staff member created successfully.`)
       invalidateStaff()
-      setIsAddStaffOpen(false)
+      setIsCreateStaffOpen(false)
     },
     onError: (error) => {
       toast.error(`Failed to create staff: ${error.message || 'Unknown error'}`)
@@ -158,16 +160,15 @@ function StaffPage() {
         setRowSelection={setRowSelection}
       />
 
-
       <StaffDeleteDialog
-        staffToDelete={store.staffToDelete}
-        setStaffToDelete={store.setStaffToDelete}
+        staffToDeleteId={store.staffToDelete}
+        setStaffToDeleteId={store.setStaffToDelete}
         onDeleteConfirm={(id) => deleteStaff.mutate({ path: { staff_id: id } })}
       />
 
       <StaffAddDialog
-        isAddOpen={store.isAddStaffOpen}
-        setIsAddOpen={store.setIsAddStaffOpen}
+        isAddOpen={store.isCreateStaffOpen}
+        setIsAddOpen={store.setIsCreateStaffOpen}
         onAddConfirm={(values) => createStaff.mutate({ body: values })}
         isAdding={createStaff.isPending}
       />
@@ -184,7 +185,6 @@ function StaffPage() {
         }
         isEditing={updateStaff.isPending}
       />
-
     </div>
   )
 }

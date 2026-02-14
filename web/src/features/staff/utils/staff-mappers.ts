@@ -1,7 +1,9 @@
 import type { StaffResponse } from '@/lib/api/types.gen'
 import type { CreateStaffValues } from '../schemas'
 
-export const mapStaffResponseToCreateStaffValues = (staff: StaffResponse): Partial<CreateStaffValues> => {
+export const mapStaffResponseToCreateStaffValues = (
+  staff: StaffResponse,
+): Partial<CreateStaffValues> => {
   return {
     employee_id: staff.employee_id,
     employment_status: staff.employment_status,

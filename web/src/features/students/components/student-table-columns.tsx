@@ -1,10 +1,10 @@
-import type { ColumnDef } from '@tanstack/react-table'
 import {
+  Delete02Icon,
   MoreHorizontalIcon,
   PencilEdit01Icon,
-  Delete02Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import type { ColumnDef } from '@tanstack/react-table'
 import type { StudentResponse } from '@/lib/api/types.gen'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge'
 
 interface GetStudentColumnsProps {
   onEdit: (student: StudentResponse) => void
-  onDelete: (student: StudentResponse) => void
+  onDelete: (id: string) => void
 }
 
 export const getStudentColumns = ({
@@ -111,7 +111,7 @@ export const getStudentColumns = ({
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
-              onClick={() => onDelete(student)}
+              onClick={() => onDelete(student.id)}
             >
               <HugeiconsIcon icon={Delete02Icon} className="mr-2 size-4" />
               Delete

@@ -50,10 +50,8 @@ export const StudentAttendancePage = () => {
   const { data: classesData, isLoading: isClassesLoading } = useClasses()
   const { data: studentsData, isLoading: isStudentsLoading } =
     useStudentsInClass(selectedClassId, formattedDateForApi)
-  const {
-    isLoading: isAttendanceLoading,
-    refetch: refetchAttendance,
-  } = useStudentAttendance(selectedClassId, formattedDateForApi)
+  const { isLoading: isAttendanceLoading, refetch: refetchAttendance } =
+    useStudentAttendance(selectedClassId, formattedDateForApi)
   const { data: reportData, isLoading: isReportLoading } =
     useGenerateStudentAttendanceReport(
       selectedClassId,

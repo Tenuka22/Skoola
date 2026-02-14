@@ -2,8 +2,6 @@
 
 import { HugeiconsIcon } from '@hugeicons/react'
 import { UserAdd01Icon } from '@hugeicons/core-free-icons'
-import { StaffForm } from './staff-form'
-import type { CreateStaffValues } from '../schemas'
 import {
   Dialog,
   DialogContent,
@@ -11,6 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../../components/ui/dialog'
+import { StaffForm } from './staff-form'
+import type { CreateStaffValues } from '../schemas'
 
 interface StaffAddDialogProps {
   isAddOpen: boolean

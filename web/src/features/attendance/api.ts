@@ -5,10 +5,8 @@ import {
   getClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbOptions,
   getStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Options,
   getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Options,
-  
   getStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dOptions,
   getStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dOptions,
-
   postStaffAttendanceBulk8F2A2Bc0B290E669419582F4B20549F7Mutation,
   postStudentAttendanceBulkEe86115B6Fcc8B311828E782275Ec9F4Mutation,
   putStaffAttendanceDb2F8533D2Be67Cf8725Bfeb7Eb137BbMutation,

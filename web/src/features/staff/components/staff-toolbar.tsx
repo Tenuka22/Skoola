@@ -21,11 +21,8 @@ interface StaffToolbarProps {
   handleImportCSV?: () => void
 }
 
-export function StaffToolbar({
-  onExport,
-  handleImportCSV,
-}: StaffToolbarProps) {
-  const { view, setView, search, setSearch, setIsAddStaffOpen } =
+export function StaffToolbar({ onExport, handleImportCSV }: StaffToolbarProps) {
+  const { view, setView, search, setSearch, setIsCreateStaffOpen } =
     useStaffStore()
 
   return (
@@ -80,7 +77,7 @@ export function StaffToolbar({
         <Button
           size="sm"
           className="gap-2"
-          onClick={() => setIsAddStaffOpen(true)}
+          onClick={() => setIsCreateStaffOpen(true)}
         >
           <HugeiconsIcon icon={Add01Icon} className="size-4" />
           Add Staff

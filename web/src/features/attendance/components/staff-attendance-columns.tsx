@@ -1,13 +1,12 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Image01Icon, Location01Icon } from '@hugeicons/core-free-icons'
-import type { ColumnDef, CellContext } from '@tanstack/react-table'
+import type { CellContext, ColumnDef } from '@tanstack/react-table'
 import type { StaffAttendanceWithMember } from '../types'
 import type { AttendanceStatus } from '@/lib/api/types.gen'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-
 
 export const getStatusColor = (status: AttendanceStatus) => {
   switch (status) {
@@ -138,7 +137,10 @@ export const staffAttendanceColumns: Array<
   {
     id: 'actions',
     header: '',
-    cell: ({ row, column }: CellContext<StaffAttendanceWithMember, unknown>) => {
+    cell: ({
+      row,
+      column,
+    }: CellContext<StaffAttendanceWithMember, unknown>) => {
       const onMarkAttendance = column.columnDef.meta?.onMarkAttendance
       return onMarkAttendance ? (
         <Button

@@ -28,7 +28,6 @@ import {
   putStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Mutation,
 } from '@/lib/api/@tanstack/react-query.gen'
 
-
 export const Route = createFileRoute('/admin/students')({
   component: StudentsPage,
 })
@@ -104,7 +103,7 @@ function StudentsPage() {
     onSuccess: () => {
       toast.success(`Student created successfully.`)
       invalidateStudents()
-      store.setIsAddStudentOpen(false)
+      store.setIsCreateStudentOpen(false)
     },
     onError: (error) => {
       toast.error(
@@ -172,18 +171,17 @@ function StudentsPage() {
         onExport={() => {}}
       />
 
-
       <StudentDeleteDialog
-        studentToDelete={store.studentToDelete}
-        setStudentToDelete={store.setStudentToDelete}
+        studentToDeleteId={store.studentToDelete}
+        setStudentToDeleteId={store.setStudentToDelete}
         onDeleteConfirm={(id) =>
           deleteStudent.mutate({ path: { student_id: id } })
         }
       />
 
       <StudentAddDialog
-        isAddOpen={store.isAddStudentOpen}
-        setIsAddOpen={store.setIsAddStudentOpen}
+        isAddOpen={store.isCreateStudentOpen}
+        setIsAddOpen={store.setIsCreateStudentOpen}
         onAddConfirm={(values) => createStudent.mutate({ body: values })}
         isAdding={createStudent.isPending}
       />
@@ -210,7 +208,6 @@ function StudentsPage() {
         }}
         selectedCount={selectedStudents.size}
       />
-
     </div>
   )
 }

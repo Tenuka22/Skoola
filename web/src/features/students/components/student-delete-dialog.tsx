@@ -2,7 +2,8 @@
 
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Delete02Icon } from '@hugeicons/core-free-icons'
-import type { StudentResponse } from '../../../lib/api/types.gen'
+
+import { useQuery } from '@tanstack/react-query'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,22 +14,34 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../../../components/ui/alert-dialog'
+import { getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Options } from '@/lib/api/@tanstack/react-query.gen'
+import { authClient } from '@/lib/clients'
 
 interface StudentDeleteDialogProps {
-  studentToDelete: StudentResponse | null
-  setStudentToDelete: (student: StudentResponse | null) => void
+  studentToDeleteId: string | null
+  setStudentToDeleteId: (id: string | null) => void
   onDeleteConfirm: (id: string) => void
 }
 
 export function StudentDeleteDialog({
-  studentToDelete,
-  setStudentToDelete,
+  studentToDeleteId,
+  setStudentToDeleteId,
   onDeleteConfirm,
 }: StudentDeleteDialogProps) {
+  const studentQuery = useQuery({
+    ...getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Options({
+      client: authClient,
+      path: { student_id: studentToDeleteId || '' },
+    }),
+    enabled: !!studentToDeleteId,
+  })
+
+  const student = studentQuery.data
+
   return (
     <AlertDialog
-      open={!!studentToDelete}
-      onOpenChange={(open) => !open && setStudentToDelete(null)}
+      open={!!studentToDeleteId}
+      onOpenChange={(open) => !open && setStudentToDeleteId(null)}
     >
       <AlertDialogContent className="rounded-[2.5rem] border-none p-10 shadow-2xl backdrop-blur-3xl ring-1 ring-white/20">
         <AlertDialogHeader>
@@ -40,8 +53,8 @@ export function StudentDeleteDialog({
           </AlertDialogTitle>
           <AlertDialogDescription className="text-center text-base font-medium leading-relaxed opacity-70">
             This will permanently remove{' '}
-            <strong>{studentToDelete?.name_english}</strong> from the
-            institution records. This action cannot be undone.
+            <strong>{student?.name_english}</strong> from the institution
+            records. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="mt-10 sm:justify-center gap-3">
@@ -50,7 +63,7 @@ export function StudentDeleteDialog({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={() =>
-              studentToDelete && onDeleteConfirm(studentToDelete.id)
+              studentToDeleteId && onDeleteConfirm(studentToDeleteId)
             }
             className="h-14 min-w-[160px] rounded-2xl bg-destructive font-black uppercase tracking-widest text-destructive-foreground shadow-2xl shadow-destructive/20 transition-all hover:bg-destructive/90 active:scale-95"
           >

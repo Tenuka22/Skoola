@@ -1,16 +1,16 @@
+import { useStudentsStore } from '../store'
+import { StudentBoardView } from './student-board-view'
 import type {
   ColumnDef,
   RowSelectionState,
   Updater,
 } from '@tanstack/react-table'
 import type { UseQueryResult } from '@tanstack/react-query'
-import { useStudentsStore } from '../store'
-import { DataTable } from '@/components/ui/data-table'
-import { StudentCard } from './student-card'
 import type {
   PaginatedStudentResponse,
   StudentResponse,
 } from '@/lib/api/types.gen'
+import { DataTable } from '@/components/ui/data-table'
 
 import { Button } from '@/components/ui/button'
 
@@ -57,33 +57,13 @@ export function StudentListContainer({
   }
 
   return (
-    <div className="px-8 pb-8">
-      {studentsQuery.isLoading ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-64 animate-pulse rounded-[2.5rem] bg-muted/50"
-            />
-          ))}
-        </div>
-      ) : students.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {students.map((student) => (
-            <StudentCard
-              key={student.id}
-              student={student}
-              onEdit={setStudentToEdit}
-              onDelete={setStudentToDelete}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="flex h-64 flex-col items-center justify-center rounded-[2.5rem] border-2 border-dashed">
-          <p className="text-muted-foreground">No students found.</p>
-        </div>
-      )}
-
+    <div className="px-8 py-4 space-y-4">
+      <StudentBoardView
+        students={students}
+        isLoading={studentsQuery.isFetching}
+        onEdit={(student) => setStudentToEdit(student)}
+        onDelete={setStudentToDelete}
+      />
       {totalPages > 1 && (
         <div className="mt-8 flex items-center justify-center gap-4">
           <Button

@@ -1,4 +1,5 @@
 import { useUsersStore } from '../store'
+import { mapUserResponseToUserProfile } from '../utils/user-mappers'
 import { UserBoardView } from './user-board-view'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -9,7 +10,6 @@ import type {
   PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaData,
   UserResponse,
 } from '@/lib/api'
-import { mapUserResponseToUserProfile } from '../utils/user-mappers'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { DataTable } from '@/components/ui/data-table'
 

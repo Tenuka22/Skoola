@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
 
+import { Label } from './label'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -9,7 +10,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { Label } from './label'
 
 interface DatePickerProps {
   label: string
@@ -30,23 +30,31 @@ export function DatePicker({
     <div className={cn('grid gap-2', className)}>
       <Label htmlFor={label}>{label}</Label>
       <Popover>
-        <PopoverTrigger render={
-          <Button
-            variant={'outline'}
-            className={cn(
-              'w-[200px] justify-start text-left font-normal h-10 rounded-xl border-none bg-muted/50 ring-1 ring-border focus-visible:ring-2 focus-visible:ring-primary shadow-sm',
-              !value && 'text-muted-foreground',
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {value ? format(selectedDate as Date, 'PPP') : <span>Pick a date</span>}
-          </Button>
-        } />
+        <PopoverTrigger
+          render={
+            <Button
+              variant={'outline'}
+              className={cn(
+                'w-[200px] justify-start text-left font-normal h-10 rounded-xl border-none bg-muted/50 ring-1 ring-border focus-visible:ring-2 focus-visible:ring-primary shadow-sm',
+                !value && 'text-muted-foreground',
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {value ? (
+                format(selectedDate as Date, 'PPP')
+              ) : (
+                <span>Pick a date</span>
+              )}
+            </Button>
+          }
+        />
         <PopoverContent className="w-auto p-0 rounded-xl bg-background border-none shadow-xl">
           <Calendar
             mode="single"
             selected={selectedDate}
-            onSelect={(date) => onChange(date ? format(date, 'yyyy-MM-dd') : null)}
+            onSelect={(date) =>
+              onChange(date ? format(date, 'yyyy-MM-dd') : null)
+            }
             initialFocus
           />
         </PopoverContent>

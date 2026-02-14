@@ -2,17 +2,11 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { createStaffSchema } from '../schemas'
 import type { CreateStaffValues } from '../schemas'
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -20,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 
 interface StaffFormProps {
   initialValues?: Partial<CreateStaffValues>
@@ -58,174 +52,149 @@ export function StaffForm({
     },
   })
 
+  const gender = watch('gender')
   const staffType = watch('staff_type')
   const employmentStatus = watch('employment_status')
-  const gender = watch('gender')
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      <FieldGroup className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-              Employee ID
-            </FieldLabel>
-            <Input
-              {...register('employee_id')}
-              placeholder="EMP001"
-              className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
-            />
-            <FieldError errors={[errors.employee_id]} />
-          </Field>
-
-          <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-              Full Name
-            </FieldLabel>
-            <Input
-              {...register('name')}
-              placeholder="John Doe"
-              className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
-            />
-            <FieldError errors={[errors.name]} />
-          </Field>
-
-          <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-              Email
-            </FieldLabel>
-            <Input
-              {...register('email')}
-              placeholder="john@example.com"
-              type="email"
-              className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
-            />
-            <FieldError errors={[errors.email]} />
-          </Field>
-
-          <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-              Phone Number
-            </FieldLabel>
-            <Input
-              {...register('phone')}
-              placeholder="+94 77 123 4567"
-              className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
-            />
-            <FieldError errors={[errors.phone]} />
-          </Field>
-
-          <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-              NIC
-            </FieldLabel>
-            <Input
-              {...register('nic')}
-              placeholder="123456789V"
-              className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
-            />
-            <FieldError errors={[errors.nic]} />
-          </Field>
-
-          <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-              Date of Birth
-            </FieldLabel>
-            <Input
-              {...register('dob')}
-              type="date"
-              className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
-            />
-            <FieldError errors={[errors.dob]} />
-          </Field>
-
-          <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-              Gender
-            </FieldLabel>
-            <Select
-              onValueChange={(val) => setValue('gender', val!)}
-              defaultValue={gender}
-            >
-              <SelectTrigger className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus:ring-2 focus:ring-primary">
-                <SelectValue placeholder="Select gender" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="Male">Male</SelectItem>
-                <SelectItem value="Female">Female</SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-            <FieldError errors={[errors.gender]} />
-          </Field>
-
-          <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-              Staff Type
-            </FieldLabel>
-            <Select
-              onValueChange={(val) => setValue('staff_type', val!)}
-              defaultValue={staffType}
-            >
-              <SelectTrigger className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus:ring-2 focus:ring-primary">
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="Teaching">Teaching</SelectItem>
-                <SelectItem value="NonTeaching">Non-Teaching</SelectItem>
-                <SelectItem value="Administrative">Administrative</SelectItem>
-              </SelectContent>
-            </Select>
-            <FieldError errors={[errors.staff_type]} />
-          </Field>
-
-          <Field>
-            <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-              Employment Status
-            </FieldLabel>
-            <Select
-              onValueChange={(val) => setValue('employment_status', val!)}
-              defaultValue={employmentStatus}
-            >
-              <SelectTrigger className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus:ring-2 focus:ring-primary">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="Permanent">Permanent</SelectItem>
-                <SelectItem value="Contract">Contract</SelectItem>
-                <SelectItem value="Temporary">Temporary</SelectItem>
-              </SelectContent>
-            </Select>
-            <FieldError errors={[errors.employment_status]} />
-          </Field>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <Label>Employee ID</Label>
+          <Input {...register('employee_id')} placeholder="EMP001" />
+          {errors.employee_id && (
+            <p className="text-sm text-destructive">
+              {errors.employee_id.message}
+            </p>
+          )}
         </div>
 
-        <Field>
-          <FieldLabel className="text-xs font-black uppercase tracking-widest opacity-50">
-            Address
-          </FieldLabel>
+        <div className="space-y-2">
+          <Label>Full Name</Label>
+          <Input {...register('name')} placeholder="John Doe" />
+          {errors.name && (
+            <p className="text-sm text-destructive">{errors.name.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label>Email</Label>
+          <Input
+            {...register('email')}
+            type="email"
+            placeholder="john@example.com"
+          />
+          {errors.email && (
+            <p className="text-sm text-destructive">{errors.email.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label>Phone</Label>
+          <Input {...register('phone')} placeholder="+94 77 123 4567" />
+          {errors.phone && (
+            <p className="text-sm text-destructive">{errors.phone.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label>NIC</Label>
+          <Input {...register('nic')} placeholder="123456789V" />
+          {errors.nic && (
+            <p className="text-sm text-destructive">{errors.nic.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label>Date of Birth</Label>
+          <Input {...register('dob')} type="date" />
+          {errors.dob && (
+            <p className="text-sm text-destructive">{errors.dob.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label>Gender</Label>
+          <Select
+            value={gender}
+            onValueChange={(val) => setValue('gender', val)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select gender" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Male">Male</SelectItem>
+              <SelectItem value="Female">Female</SelectItem>
+              <SelectItem value="Other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.gender && (
+            <p className="text-sm text-destructive">{errors.gender.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label>Staff Type</Label>
+          <Select
+            value={staffType}
+            onValueChange={(val) => setValue('staff_type', val)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select staff type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Teaching">Teaching</SelectItem>
+              <SelectItem value="NonTeaching">Non-Teaching</SelectItem>
+              <SelectItem value="Administrative">Administrative</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.staff_type && (
+            <p className="text-sm text-destructive">
+              {errors.staff_type.message}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2 col-span-2">
+          <Label>Employment Status</Label>
+          <Select
+            value={employmentStatus}
+            onValueChange={(val) => setValue('employment_status', val)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Permanent">Permanent</SelectItem>
+              <SelectItem value="Contract">Contract</SelectItem>
+              <SelectItem value="Temporary">Temporary</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.employment_status && (
+            <p className="text-sm text-destructive">
+              {errors.employment_status.message}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2 col-span-2">
+          <Label>Address</Label>
           <Input
             {...register('address')}
             placeholder="123, Main Street, City"
-            className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus-visible:ring-2 focus-visible:ring-primary"
           />
-          <FieldError errors={[errors.address]} />
-        </Field>
-      </FieldGroup>
+          {errors.address && (
+            <p className="text-sm text-destructive">{errors.address.message}</p>
+          )}
+        </div>
+      </div>
 
-      <Button
-        type="submit"
-        className="w-full h-14 rounded-[1.25rem] font-black uppercase tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-[0.98]"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
-          <HugeiconsIcon
-            icon={Loading03Icon}
-            className="mr-2 h-5 w-5 animate-spin"
-          />
-        ) : null}
-        {submitLabel}
-      </Button>
+      <div className="flex justify-end gap-2">
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting && <Spinner className="mr-2 h-4 w-4" />}
+          {submitLabel}
+        </Button>
+      </div>
     </form>
   )
 }

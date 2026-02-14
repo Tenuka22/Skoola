@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { SortingState } from '@tanstack/react-table'
-import type { StaffResponse } from '@/lib/api/types.gen'
+import type { StaffResponse } from '@/lib/api'
 
 type ViewMode = 'table' | 'board' | 'list'
 
@@ -13,12 +13,11 @@ interface StaffState {
   sorting: SortingState
   columnVisibility: Record<string, boolean>
   view: ViewMode
-  staffToDelete: StaffResponse | null
+  staffToDelete: string | null
   isBulkDeleteOpen: boolean
   isBulkEditOpen: boolean
-  isAddStaffOpen: boolean
+  isCreateStaffOpen: boolean
   staffToEdit: StaffResponse | null
-
   setPage: (page: number) => void
   setSearch: (search: string) => void
   setDebouncedSearch: (search: string) => void
@@ -33,10 +32,10 @@ interface StaffState {
       | ((prev: Record<string, boolean>) => Record<string, boolean>),
   ) => void
   setView: (view: ViewMode) => void
-  setStaffToDelete: (staff: StaffResponse | null) => void
+  setStaffToDelete: (id: string | null) => void
   setIsBulkDeleteOpen: (open: boolean) => void
   setIsBulkEditOpen: (open: boolean) => void
-  setIsAddStaffOpen: (open: boolean) => void
+  setIsCreateStaffOpen: (open: boolean) => void
   setStaffToEdit: (staff: StaffResponse | null) => void
 }
 
@@ -52,7 +51,7 @@ export const useStaffStore = create<StaffState>((set) => ({
   staffToDelete: null,
   isBulkDeleteOpen: false,
   isBulkEditOpen: false,
-  isAddStaffOpen: false,
+  isCreateStaffOpen: false,
   staffToEdit: null,
 
   setPage: (page) => set({ page }),
@@ -73,10 +72,10 @@ export const useStaffStore = create<StaffState>((set) => ({
           ? visibility(state.columnVisibility)
           : visibility,
     })),
-  setView: (view) => set({ view }),
+  setView: (view) => set({ view: view }),
   setStaffToDelete: (staffToDelete) => set({ staffToDelete }),
   setIsBulkDeleteOpen: (isBulkDeleteOpen) => set({ isBulkDeleteOpen }),
   setIsBulkEditOpen: (isBulkEditOpen) => set({ isBulkEditOpen }),
-  setIsAddStaffOpen: (isAddStaffOpen) => set({ isAddStaffOpen }),
+  setIsCreateStaffOpen: (isCreateStaffOpen) => set({ isCreateStaffOpen }),
   setStaffToEdit: (staffToEdit) => set({ staffToEdit }),
 }))

@@ -1,5 +1,6 @@
-import { FilterIcon } from '@hugeicons/core-free-icons'
+import { Calendar01Icon, FilterIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { format } from 'date-fns'
 import { useStudentsStore } from '../store'
 import {
   DropdownMenu,
@@ -11,7 +12,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { DatePicker } from '@/components/ui/date-picker'
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
+import { Calendar } from '@/components/ui/calendar'
 
 export function StudentFilters() {
   const {
@@ -23,8 +31,7 @@ export function StudentFilters() {
     setCreatedBefore,
   } = useStudentsStore()
 
-  const hasFilters =
-    statusFilter !== 'all' || !!createdAfter || !!createdBefore
+  const hasFilters = statusFilter !== 'all' || !!createdAfter || !!createdBefore
 
   const clearFilters = () => {
     setStatusFilter('all')
@@ -35,16 +42,18 @@ export function StudentFilters() {
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2 px-8">
       <DropdownMenu>
-        <DropdownMenuTrigger render={
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 rounded-lg border-none bg-muted/50 ring-1 ring-border"
-          >
-            <HugeiconsIcon icon={FilterIcon} className="mr-2 size-4" />
-            {statusFilter === 'all' ? 'All Status' : statusFilter}
-          </Button>
-        } />
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 rounded-lg border-none bg-muted/50 ring-1 ring-border"
+            >
+              <HugeiconsIcon icon={FilterIcon} className="mr-2 size-4" />
+              {statusFilter === 'all' ? 'All Status' : statusFilter}
+            </Button>
+          }
+        />
         <DropdownMenuContent align="start" className="w-56 rounded-xl p-2">
           <DropdownMenuLabel>Student Status</DropdownMenuLabel>
           <DropdownMenuSeparator />
@@ -52,7 +61,9 @@ export function StudentFilters() {
             value={statusFilter}
             onValueChange={setStatusFilter}
           >
-            <DropdownMenuRadioItem value="all">All Status</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="all">
+              All Status
+            </DropdownMenuRadioItem>
             <DropdownMenuRadioItem value="Active">Active</DropdownMenuRadioItem>
             <DropdownMenuRadioItem value="Suspended">
               Suspended
@@ -70,16 +81,67 @@ export function StudentFilters() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <DatePicker
-        label="Created after"
-        value={createdAfter}
-        onChange={setCreatedAfter}
-      />
-      <DatePicker
-        label="Created before"
-        value={createdBefore}
-        onChange={setCreatedBefore}
-      />
+      <Popover>
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              className={cn(
+                'justify-start text-left font-normal',
+                !createdAfter && 'text-muted-foreground',
+              )}
+            >
+              <HugeiconsIcon
+                icon={Calendar01Icon}
+                className="mr-2 h-3.5 w-3.5"
+              />
+              {createdAfter
+                ? format(new Date(createdAfter), 'PPP')
+                : 'Created After'}
+            </Button>
+          }
+        />
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={createdAfter ? new Date(createdAfter) : undefined}
+            onSelect={(date) =>
+              setCreatedAfter(date ? format(date, 'yyyy-MM-dd') : null)
+            }
+          />
+        </PopoverContent>
+      </Popover>
+
+      <Popover>
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              className={cn(
+                'justify-start text-left font-normal',
+                !createdBefore && 'text-muted-foreground',
+              )}
+            >
+              <HugeiconsIcon
+                icon={Calendar01Icon}
+                className="mr-2 h-3.5 w-3.5"
+              />
+              {createdBefore
+                ? format(new Date(createdBefore), 'PPP')
+                : 'Created Before'}
+            </Button>
+          }
+        />
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={createdBefore ? new Date(createdBefore) : undefined}
+            onSelect={(date) =>
+              setCreatedBefore(date ? format(date, 'yyyy-MM-dd') : null)
+            }
+          />
+        </PopoverContent>
+      </Popover>
 
       {hasFilters && (
         <Button

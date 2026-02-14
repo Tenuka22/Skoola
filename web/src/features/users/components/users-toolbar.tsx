@@ -6,7 +6,8 @@ import {
   TableIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useUsersStore, ViewMode } from '../store'
+import { useUsersStore } from '../store'
+import type { ViewMode } from '../store'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import {

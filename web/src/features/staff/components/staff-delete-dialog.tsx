@@ -2,7 +2,8 @@
 
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Delete02Icon } from '@hugeicons/core-free-icons'
-import type { StaffResponse } from '../../../lib/api/types.gen'
+
+import { useQuery } from '@tanstack/react-query'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,22 +14,34 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../../../components/ui/alert-dialog'
+import { getStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Options } from '@/lib/api/@tanstack/react-query.gen'
+import { authClient } from '@/lib/clients'
 
 interface StaffDeleteDialogProps {
-  staffToDelete: StaffResponse | null
-  setStaffToDelete: (staff: StaffResponse | null) => void
+  staffToDeleteId: string | null
+  setStaffToDeleteId: (id: string | null) => void
   onDeleteConfirm: (id: string) => void
 }
 
 export function StaffDeleteDialog({
-  staffToDelete,
-  setStaffToDelete,
+  staffToDeleteId,
+  setStaffToDeleteId,
   onDeleteConfirm,
 }: StaffDeleteDialogProps) {
+  const staffQuery = useQuery({
+    ...getStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Options({
+      client: authClient,
+      path: { staff_id: staffToDeleteId || '' },
+    }),
+    enabled: !!staffToDeleteId,
+  })
+
+  const staff = staffQuery.data
+
   return (
     <AlertDialog
-      open={!!staffToDelete}
-      onOpenChange={(open) => !open && setStaffToDelete(null)}
+      open={!!staffToDeleteId}
+      onOpenChange={(open) => !open && setStaffToDeleteId(null)}
     >
       <AlertDialogContent className="rounded-[2.5rem] border-none p-10 shadow-2xl backdrop-blur-3xl ring-1 ring-white/20">
         <AlertDialogHeader>
@@ -39,9 +52,8 @@ export function StaffDeleteDialog({
             Remove Staff?
           </AlertDialogTitle>
           <AlertDialogDescription className="text-center text-base font-medium leading-relaxed opacity-70">
-            This will permanently remove{' '}
-            <strong>{staffToDelete?.name}</strong> from the institution
-            records. This action cannot be undone.
+            This will permanently remove <strong>{staff?.name}</strong> from the
+            institution records. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="mt-10 sm:justify-center gap-3">
@@ -49,7 +61,7 @@ export function StaffDeleteDialog({
             Abort
           </AlertDialogCancel>
           <AlertDialogAction
-            onClick={() => staffToDelete && onDeleteConfirm(staffToDelete.id)}
+            onClick={() => staffToDeleteId && onDeleteConfirm(staffToDeleteId)}
             className="h-14 min-w-[160px] rounded-2xl bg-destructive font-black uppercase tracking-widest text-destructive-foreground shadow-2xl shadow-destructive/20 transition-all hover:bg-destructive/90 active:scale-95"
           >
             Confirm Removal

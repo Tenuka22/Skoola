@@ -14,10 +14,10 @@ interface StudentsState {
   createdBefore: string | null
   columnVisibility: Record<string, boolean>
   view: ViewMode
-  studentToDelete: StudentResponse | null
+  studentToDelete: string | null
   isBulkDeleteOpen: boolean
   isBulkEditOpen: boolean
-  isAddStudentOpen: boolean
+  isCreateStudentOpen: boolean
   studentToEdit: StudentResponse | null
 
   setPage: (page: number) => void
@@ -35,10 +35,10 @@ interface StudentsState {
       | ((prev: Record<string, boolean>) => Record<string, boolean>),
   ) => void
   setView: (view: ViewMode) => void
-  setStudentToDelete: (student: StudentResponse | null) => void
+  setStudentToDelete: (id: string | null) => void
   setIsBulkDeleteOpen: (open: boolean) => void
   setIsBulkEditOpen: (open: boolean) => void
-  setIsAddStudentOpen: (open: boolean) => void
+  setIsCreateStudentOpen: (open: boolean) => void
   setStudentToEdit: (student: StudentResponse | null) => void
 }
 
@@ -56,6 +56,7 @@ export const useStudentsStore = create<StudentsState>((set) => ({
   isBulkDeleteOpen: false,
   isBulkEditOpen: false,
   isAddStudentOpen: false,
+  isCreateStudentOpen: false,
   studentToEdit: null,
 
   setPage: (page) => set({ page }),
@@ -76,10 +77,10 @@ export const useStudentsStore = create<StudentsState>((set) => ({
           ? visibility(state.columnVisibility)
           : visibility,
     })),
-  setView: (view) => set({ view }),
+  setView: (view) => set({ view: view }),
   setStudentToDelete: (studentToDelete) => set({ studentToDelete }),
   setIsBulkDeleteOpen: (isBulkDeleteOpen) => set({ isBulkDeleteOpen }),
   setIsBulkEditOpen: (isBulkEditOpen) => set({ isBulkEditOpen }),
-  setIsAddStudentOpen: (isAddStudentOpen) => set({ isAddStudentOpen }),
+  setIsCreateStudentOpen: (isCreateStudentOpen) => set({ isCreateStudentOpen }),
   setStudentToEdit: (studentToEdit) => set({ studentToEdit }),
 }))

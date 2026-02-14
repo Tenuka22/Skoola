@@ -14,10 +14,6 @@ import { PermissionManager } from './permission-manager'
 import type { PermissionSet } from '../types'
 import type { Permission } from '../../../lib/api/types.gen'
 
-interface PermissionSetWithPermissionsResponse {
-  permissions: Permission[]
-}
-
 import {
   Dialog,
   DialogContent,
@@ -28,6 +24,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { getPermissionSets9F945C97A8E86681C452E5Cc961Ebc33 as getPermissionSetById } from '@/lib/api/sdk.gen'
 import { authClient } from '@/lib/clients'
+
+interface PermissionSetWithPermissionsResponse {
+  permissions: Array<Permission>
+}
 
 interface RolePermissionsDialogProps {
   permissionSet: PermissionSet | null
@@ -56,7 +56,10 @@ export function RolePermissionsDialog({
         client: authClient,
         path: { permission_set_id: permissionSet.id },
       })
-      return (response.data as PermissionSetWithPermissionsResponse).permissions || []
+      return (
+        (response.data as PermissionSetWithPermissionsResponse).permissions ||
+        []
+      )
     },
     enabled: !!permissionSet && open,
   })

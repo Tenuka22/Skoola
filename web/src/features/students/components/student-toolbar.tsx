@@ -8,7 +8,8 @@ import {
   Upload01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useStudentsStore, ViewMode } from '../store'
+import { useStudentsStore } from '../store'
+import type { ViewMode } from '../store'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,7 +17,6 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from '@/components/ui/input-group'
-
 
 interface StudentToolbarProps {
   onExport: () => void
@@ -33,7 +33,7 @@ export function StudentToolbar({
   onBulkDelete,
   isBottomToolbar = false,
 }: StudentToolbarProps) {
-  const { view, setView, search, setSearch, setIsAddStudentOpen } =
+  const { view, setView, search, setSearch, setIsCreateStudentOpen } =
     useStudentsStore()
 
   if (isBottomToolbar) {
@@ -99,7 +99,12 @@ export function StudentToolbar({
           Import
         </Button>
 
-        <Button variant="outline" size="sm" className="gap-2" onClick={onExport}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2"
+          onClick={onExport}
+        >
           <HugeiconsIcon icon={Download01Icon} className="size-4" />
           Export
         </Button>
@@ -107,7 +112,7 @@ export function StudentToolbar({
         <Button
           size="sm"
           className="gap-2"
-          onClick={() => setIsAddStudentOpen(true)}
+          onClick={() => setIsCreateStudentOpen(true)}
         >
           <HugeiconsIcon icon={Add01Icon} className="size-4" />
           Add Student

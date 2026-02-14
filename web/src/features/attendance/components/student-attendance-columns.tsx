@@ -1,11 +1,10 @@
 import { getStatusColor } from './staff-attendance-columns'
-import type { ColumnDef, CellContext } from '@tanstack/react-table'
+import type { CellContext, ColumnDef } from '@tanstack/react-table'
 import type { StudentAttendanceWithMember } from '../types'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-
 
 export const studentAttendanceColumns: Array<
   ColumnDef<StudentAttendanceWithMember, unknown>
@@ -65,7 +64,10 @@ export const studentAttendanceColumns: Array<
   {
     id: 'actions',
     header: '',
-    cell: ({ row, column }: CellContext<StudentAttendanceWithMember, unknown>) => {
+    cell: ({
+      row,
+      column,
+    }: CellContext<StudentAttendanceWithMember, unknown>) => {
       const onMarkAttendance = column.columnDef.meta?.onMarkAttendance
       return onMarkAttendance ? (
         <Button

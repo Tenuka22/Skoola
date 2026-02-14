@@ -1,6 +1,3 @@
-import type { Permission } from '@/lib/api/types.gen'
-'use client'
-
 import * as React from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
@@ -16,6 +13,7 @@ import {
   UserGroupIcon,
   ZapIcon,
 } from '@hugeicons/core-free-icons'
+import type { Permission } from '@/lib/api/types.gen'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'

@@ -43,7 +43,9 @@ export function StaffFilters() {
             onValueChange={setStaffTypeFilter}
           >
             <DropdownMenuRadioItem value="all">All Roles</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="Teaching">Teaching</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="Teaching">
+              Teaching
+            </DropdownMenuRadioItem>
             <DropdownMenuRadioItem value="NonTeaching">
               Non-Teaching
             </DropdownMenuRadioItem>
@@ -76,7 +78,9 @@ export function StaffFilters() {
             value={employmentStatusFilter}
             onValueChange={setEmploymentStatusFilter}
           >
-            <DropdownMenuRadioItem value="all">All Status</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="all">
+              All Status
+            </DropdownMenuRadioItem>
             <DropdownMenuRadioItem value="Permanent">
               Permanent
             </DropdownMenuRadioItem>

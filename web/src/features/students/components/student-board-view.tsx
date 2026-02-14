@@ -6,14 +6,12 @@ import {
   Mail01Icon,
   MoreVerticalIcon,
   PencilEdit01Icon,
-  Shield01Icon,
-  Tick01Icon,
 } from '@hugeicons/core-free-icons'
-import type { UserProfileResponse, UserResponse } from '@/lib/api/types.gen'
+import type { StudentResponse } from '@/lib/api/types.gen'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,29 +20,20 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Spinner } from '@/components/ui/spinner'
 
-interface UserBoardViewProps {
-  users: Array<UserProfileResponse> | undefined
+interface StudentBoardViewProps {
+  students: Array<StudentResponse> | undefined
   isLoading?: boolean
-  onEdit: (user: UserResponse) => void
+  onEdit: (student: StudentResponse) => void
   onDelete: (id: string) => void
-  onToggleVerify: (user: UserResponse) => void
-  onManagePermissions: (user: UserResponse) => void
-  isUpdating?: boolean
-  updatingUserId?: string | null
 }
 
-export function UserBoardView({
-  users,
+export function StudentBoardView({
+  students,
   isLoading,
   onEdit,
   onDelete,
-  onToggleVerify,
-  onManagePermissions,
-  isUpdating,
-  updatingUserId,
-}: UserBoardViewProps) {
+}: StudentBoardViewProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -69,36 +58,36 @@ export function UserBoardView({
     )
   }
 
-  if (!users?.length) {
+  if (!students?.length) {
     return (
       <div className="flex h-64 flex-col items-center justify-center rounded-xl border border-dashed bg-muted/10">
-        <p className="text-muted-foreground">No users found</p>
+        <p className="text-muted-foreground">No students found</p>
       </div>
     )
   }
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {users.map((user) => {
-        const name = user.email
-          .split('@')[0]
-          .replace(/[._]/g, ' ')
-          .replace(/\b\w/g, (l: string) => l.toUpperCase())
-        const initials = name.substring(0, 2).toUpperCase()
-        const role =
-          user.roles && user.roles.length > 0 ? user.roles[0] : 'Member'
-        const isBeingUpdated = isUpdating && updatingUserId === user.id
+      {students.map((student) => {
+        const initials = student.name_english
+          .split(' ')
+          .map((n) => n[0])
+          .join('')
+          .toUpperCase()
 
         return (
           <Card
-            key={user.id}
+            key={student.id}
             className="overflow-hidden border-border/60 shadow-none"
           >
             <CardHeader className="flex flex-row items-start justify-between p-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 border border-border/50">
                   <AvatarImage
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                    src={
+                      student.photo_url ||
+                      `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.id}`
+                    }
                   />
                   <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                     {initials}
@@ -106,9 +95,11 @@ export function UserBoardView({
                 </Avatar>
                 <div>
                   <h3 className="font-semibold leading-none tracking-tight">
-                    {name}
+                    {student.name_english}
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-1">{role}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {student.status}
+                  </p>
                 </div>
               </div>
               <DropdownMenu>
@@ -127,37 +118,16 @@ export function UserBoardView({
                   }
                 />
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onEdit(user)}>
+                  <DropdownMenuItem onClick={() => onEdit(student)}>
                     <HugeiconsIcon
                       icon={PencilEdit01Icon}
                       className="mr-2 size-4 opacity-70"
                     />
                     Edit
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => onToggleVerify(user)}
-                    disabled={isBeingUpdated}
-                  >
-                    {isBeingUpdated ? (
-                      <Spinner className="mr-2 size-4" />
-                    ) : (
-                      <HugeiconsIcon
-                        icon={Tick01Icon}
-                        className="mr-2 size-4 opacity-70"
-                      />
-                    )}
-                    Verify
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onManagePermissions(user)}>
-                    <HugeiconsIcon
-                      icon={Shield01Icon}
-                      className="mr-2 size-4 opacity-70"
-                    />
-                    Permissions
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={() => onDelete(user.id)}
+                    onClick={() => onDelete(student.id)}
                     className="text-destructive focus:text-destructive"
                   >
                     <HugeiconsIcon
@@ -171,29 +141,29 @@ export function UserBoardView({
             </CardHeader>
 
             <CardContent className="p-4 pt-0 space-y-3">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <HugeiconsIcon icon={Mail01Icon} className="size-3.5" />
-                <span className="truncate">{user.email}</span>
-              </div>
+              {student.email && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <HugeiconsIcon icon={Mail01Icon} className="size-3.5" />
+                  <span className="truncate">{student.email}</span>
+                </div>
+              )}
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <HugeiconsIcon icon={Calendar01Icon} className="size-3.5" />
                 <span>
-                  Joined {format(new Date(user.created_at), 'MMM d, yyyy')}
+                  Joined {format(new Date(student.created_at), 'MMM d, yyyy')}
                 </span>
               </div>
             </CardContent>
 
-            <CardFooter>
-              <Badge
-                variant="outline"
-                className={`border-0 bg-transparent px-0 font-medium ${user.is_verified ? 'text-green-500' : 'text-amber-500'}`}
-              >
-                <span
-                  className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${user.is_verified ? 'bg-green-500' : 'bg-amber-500'}`}
-                />
-                {user.is_verified ? 'Active' : 'Pending'}
-              </Badge>
-            </CardFooter>
+            <Badge
+              variant="outline"
+              className={`m-4 mt-0 border-0 bg-transparent px-0 font-medium ${student.status === 'Active' ? 'text-green-500' : 'text-amber-500'}`}
+            >
+              <span
+                className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${student.status === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}
+              />
+              {student.status}
+            </Badge>
           </Card>
         )
       })}

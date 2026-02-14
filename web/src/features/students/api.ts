@@ -280,10 +280,6 @@ export const putStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Mutation = (
   return mutationOptions
 }
 
-
-
-
-
 // postStudents87F142Fffc2984E3Ceb560Aac590Bf2A
 export const postStudents87F142Fffc2984E3Ceb560Aac590Bf2AMutation = (
   options?: Partial<Options<PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aData>>,

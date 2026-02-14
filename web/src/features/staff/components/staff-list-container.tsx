@@ -1,13 +1,13 @@
+import { useStaffStore } from '../store'
+import { StaffBoardView } from './staff-board-view'
 import type {
   ColumnDef,
   RowSelectionState,
   Updater,
 } from '@tanstack/react-table'
 import type { UseQueryResult } from '@tanstack/react-query'
-import { useStaffStore } from '../store'
-import { DataTable } from '@/components/ui/data-table'
-import { StaffCard } from './staff-card'
 import type { StaffResponse } from '@/lib/api/types.gen'
+import { DataTable } from '@/components/ui/data-table'
 
 import { Button } from '@/components/ui/button'
 
@@ -56,33 +56,13 @@ export function StaffListContainer({
   }
 
   return (
-    <div className="px-8 pb-8">
-      {staffQuery.isLoading ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-64 animate-pulse rounded-[2.5rem] bg-muted/50"
-            />
-          ))}
-        </div>
-      ) : staffMembers.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {staffMembers.map((staff) => (
-            <StaffCard
-              key={staff.id}
-              staff={staff}
-              onEdit={setStaffToEdit}
-              onDelete={setStaffToDelete}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="flex h-64 flex-col items-center justify-center rounded-[2.5rem] border-2 border-dashed">
-          <p className="text-muted-foreground">No staff members found.</p>
-        </div>
-      )}
-
+    <div className="px-8 py-4 space-y-4">
+      <StaffBoardView
+        staff={staffMembers}
+        isLoading={staffQuery.isFetching}
+        onEdit={(staff) => setStaffToEdit(staff)}
+        onDelete={setStaffToDelete}
+      />
       {totalPages > 1 && (
         <div className="mt-8 flex items-center justify-center gap-4">
           <Button

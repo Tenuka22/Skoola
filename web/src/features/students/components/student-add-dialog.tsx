@@ -2,8 +2,6 @@
 
 import { HugeiconsIcon } from '@hugeicons/react'
 import { UserAdd01Icon } from '@hugeicons/core-free-icons'
-import { StudentForm } from './student-form'
-import type { CreateStudentValues } from '../schemas'
 import {
   Dialog,
   DialogContent,
@@ -11,6 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../../components/ui/dialog'
+import { StudentForm } from './student-form'
+import type { CreateStudentValues } from '../schemas'
 
 interface StudentAddDialogProps {
   isAddOpen: boolean

@@ -57,11 +57,11 @@ Use the following color mappings for consistency across the platform:
 - **Library**: Use `@hugeicons/react`.
 - **Icon Sets**: Prefer `@hugeicons/core-free-icons`.
 - **Implementation**:
+
   ```tsx
   import { HugeiconsIcon } from '@hugeicons/react'
   import { Search01Icon } from '@hugeicons/core-free-icons'
-  
-  <HugeiconsIcon icon={Search01Icon} className="size-4" />
+  ;<HugeiconsIcon icon={Search01Icon} className="size-4" />
   ```
 
 ## Component Usage

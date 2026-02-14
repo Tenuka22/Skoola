@@ -83,7 +83,12 @@ export function StaffBoardView({
             <CardHeader className="flex flex-row items-start justify-between p-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 border border-border/50">
-                  <AvatarImage src={member.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.email}`} />
+                  <AvatarImage
+                    src={
+                      member.photo_url ||
+                      `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.email}`
+                    }
+                  />
                   <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                     {initials}
                   </AvatarFallback>
