@@ -10,6 +10,14 @@
   - Use the `render` prop for composition (e.g., `render={<Link to="..." />}`).
   - Example: `<SidebarMenuButton render={<Link to="/admin" />} >Home</SidebarMenuButton>`
 
+## Typing & Error Handling
+
+- **Strict Typing**: Strictly prohibit the usage of `as any`, `| as`, or any manual type casts. Use Zod schemas or type guards for safe casting.
+- **Error Handling**: Non-error handling behavior is prohibited. All mutations must handle success and error states using `sonner`.
+  - Example: `onSuccess: () => toast.success('Success!'), onError: (err) => toast.error(err.message)`
+- **Zod Parsing**: In event handlers (like `onValueChange` for Selects), use the Zod schema's `.parse()` method to ensure the value matches the expected type.
+  - Example: `onValueChange={(val) => setValue('status', studentStatusSchema.parse(val))}`
+
 ## Zod Schema Usage
 
 - **Extension**: Always extend auto-generated schemas from `web/src/lib/api/zod.gen.ts` when creating form schemas or validation logic.
@@ -37,6 +45,13 @@ Use the following color mappings for consistency across the platform:
 - **Info/Medium Risk**: `text-blue-500 bg-blue-500/10 border-blue-500/20`
 - **Warning/High Risk**: `text-orange-500 bg-orange-500/10 border-orange-500/20`
 - **Destructive/Severe Risk**: `text-red-500 bg-red-500/10 border-red-500/20`
+
+### Entity Management Toolbars
+
+Entity management pages (Users, Students, Staff) should follow a dual-toolbar pattern:
+
+- **Top Toolbar**: Contains view switching (Table/Board), search input, and global actions like Export or Add.
+- **Bottom Fixed Toolbar**: A `ButtonGroup` that appears fixed at the bottom when items are selected, containing bulk actions (Bulk Edit, Bulk Delete, etc.).
 
 ## Framework: TanStack Start
 
@@ -70,7 +85,11 @@ Use the following color mappings for consistency across the platform:
 - **Input Groups**: Use `InputGroup`, `InputGroupInput`, and `InputGroupAddon` for inputs with icons or actions.
 - **Button Groups**: Use `ButtonGroup` to cluster related actions (e.g., bulk actions).
 - **Tabs**: Use `Tabs`, `TabsList`, and `TabsTrigger` for view switching (e.g., Table vs. Board view).
-- **Modals**: Use the custom `Dialog` components from `web/src/components/ui/dialog.tsx`. Follow the pattern of separate `Dialog` and `Form` components for complex editing tasks.
+- **Modals**:
+  - Use the custom `Dialog` components from `web/src/components/ui/dialog.tsx`.
+  - Avoid complex custom styling like `rounded-[2.5rem]` or background icons in headers.
+  - Consolidate related modals into a single `*Modals` component (e.g., `UserModals`, `StudentModals`).
+  - Follow the pattern of separate `Dialog` and `Form` components for complex editing tasks.
 
 ## Example: Sidebar Link
 
