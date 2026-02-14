@@ -7,14 +7,13 @@ use crate::{
         grading_criteria, grading_schemes,
         hello::{hello, hello_error},
         oauth::{github_callback, google_callback},
-        permissions::{
-            create_permission, delete_permission, get_permission, get_permissions,
-            update_permission,
-        },
         profile::{
             change_email, change_password, get_profile, link_github, link_google, update_profile,
         },
         report_cards,
+        role_permissions::{
+            assign_permission_to_role, get_role_permissions, unassign_permission_from_role,
+        },
         special_exams,
         staff::{
             create_staff, delete_staff, get_all_staff, get_staff_by_id, update_staff,
@@ -35,7 +34,9 @@ use crate::{
         user_permissions::{
             assign_permission_to_user, get_user_permissions, unassign_permission_from_user,
         },
-        permission_sets,
+        user_set_permissions::{
+            assign_permission_to_user_set, get_user_set_permissions, unassign_permission_from_user_set,
+        },
         verification::verify_email,
         zscore,
     },
@@ -80,57 +81,44 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{user_id}", web::patch().to(crate::handlers::users::update_user))
             .route("/{user_id}/permissions", web::get().to(get_user_permissions))
             .route(
-                "/{user_id}/permissions/{permission_id}",
+                "/{user_id}/permissions/{permission}",
                 web::post().to(assign_permission_to_user),
             )
             .route(
-                "/{user_id}/permissions/{permission_id}",
+                "/{user_id}/permissions/{permission}",
                 web::delete().to(unassign_permission_from_user),
             ),
     )
     .service(
-        web::scope("/permissions")
+        web::scope("/roles/{role_id}/permissions")
             .wrap(PermissionVerification {
-                required_permission: PermissionEnum::PermissionManage,
+                required_permission: PermissionEnum::RoleAssignPermissions,
             })
             .wrap(Authenticated)
-            .route("", web::get().to(get_permissions))
-            .route("", web::post().to(create_permission))
-            .route("/{permission_id}", web::get().to(get_permission))
-            .route("/{permission_id}", web::put().to(update_permission))
-            .route("/{permission_id}", web::delete().to(delete_permission)),
+            .route("", web::get().to(get_role_permissions))
+            .route(
+                "/{permission}",
+                web::post().to(assign_permission_to_role),
+            )
+            .route(
+                "/{permission}",
+                web::delete().to(unassign_permission_from_role),
+            ),
     )
     .service(
-        web::scope("/permission-sets")
+        web::scope("/user-sets/{user_set_id}/permissions")
             .wrap(PermissionVerification {
-                required_permission: PermissionEnum::PermissionSetManage,
+                required_permission: PermissionEnum::PermissionSetManage, // Assuming this maps to user set permission management
             })
             .wrap(Authenticated)
-            .route("", web::get().to(permission_sets::get_all_permission_sets))
-            .route("", web::post().to(permission_sets::create_permission_set))
+            .route("", web::get().to(get_user_set_permissions))
             .route(
-                "/{permission_set_id}",
-                web::get().to(permission_sets::get_permission_set_by_id),
+                "/{permission}",
+                web::post().to(assign_permission_to_user_set),
             )
             .route(
-                "/{permission_set_id}",
-                web::put().to(permission_sets::update_permission_set),
-            )
-            .route(
-                "/{permission_set_id}",
-                web::delete().to(permission_sets::delete_permission_set),
-            )
-            .route(
-                "/{permission_set_id}/permissions",
-                web::get().to(permission_sets::get_permissions_by_permission_set),
-            )
-            .route(
-                "/{permission_set_id}/permissions/{permission_id}",
-                web::post().to(permission_sets::assign_permission_to_permission_set),
-            )
-            .route(
-                "/{permission_set_id}/permissions/{permission_id}",
-                web::delete().to(permission_sets::unassign_permission_from_permission_set),
+                "/{permission}",
+                web::delete().to(unassign_permission_from_user_set),
             ),
     )
     .service(

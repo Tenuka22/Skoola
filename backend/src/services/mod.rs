@@ -26,8 +26,6 @@ pub mod library;
 pub mod co_curricular;
 pub mod property;
 pub mod financial;
-pub mod permissions;
 pub mod staff;
 pub mod user_service;
-pub mod permission_sets_service;
 pub mod user_permissions;

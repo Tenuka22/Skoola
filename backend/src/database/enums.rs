@@ -1184,6 +1184,61 @@ impl Display for PermissionEnum {
     }
 }
 
+impl PermissionEnum {
+    pub fn severity(&self) -> PermissionSeverity {
+        match self {
+            // High Severity
+            PermissionEnum::UserDelete |
+            PermissionEnum::RoleDelete |
+            PermissionEnum::PermissionDelete |
+            PermissionEnum::StaffDelete |
+            PermissionEnum::StudentDelete |
+            PermissionEnum::UserDeleteSevere => PermissionSeverity::Severe,
+
+            // Medium Severity
+            PermissionEnum::UserUpdate |
+            PermissionEnum::RoleUpdate |
+            PermissionEnum::PermissionUpdate |
+            PermissionEnum::StaffUpdate |
+            PermissionEnum::StudentUpdate |
+            PermissionEnum::AcademicYearManage |
+            PermissionEnum::TermManage |
+            PermissionEnum::GradeLevelManage |
+            PermissionEnum::ClassManage |
+            PermissionEnum::SubjectManage |
+            PermissionEnum::ClassSubjectTeacherManage |
+            PermissionEnum::TimetableManage |
+            PermissionEnum::ExamTypeManage |
+            PermissionEnum::ExamManage |
+            PermissionEnum::ExamSubjectManage |
+            PermissionEnum::GradingSchemeManage |
+            PermissionEnum::GradingCriterionManage |
+            PermissionEnum::LibraryManage |
+            PermissionEnum::UserUpdateMedium |
+            PermissionEnum::PermissionSetManage |
+            PermissionEnum::UserManageRoles |
+            PermissionEnum::UserManagePermissions |
+            PermissionEnum::RoleAssignPermissions |
+            PermissionEnum::StaffManageAttendance |
+            PermissionEnum::StaffManageLeaves |
+            PermissionEnum::StudentManageGuardians |
+            PermissionEnum::StudentManageEnrollment |
+            PermissionEnum::StudentManageAttendance |
+            PermissionEnum::StudentManageMarks => PermissionSeverity::Medium,
+
+            // Low Severity (Read/Create usually lower risk than Delete/Update, but Create can be Medium. Let's say Read is Low, Create is Medium)
+            PermissionEnum::UserRead |
+            PermissionEnum::RoleRead |
+            PermissionEnum::PermissionRead |
+            PermissionEnum::StaffRead |
+            PermissionEnum::StudentRead => PermissionSeverity::Low,
+
+            // Default others to Medium if not specified
+            _ => PermissionSeverity::Medium,
+        }
+    }
+}
+
 impl std::str::FromStr for PermissionEnum {
     type Err = &'static str;
 

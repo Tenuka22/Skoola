@@ -1,9 +1,9 @@
 use crate::config::Config;
-use crate::database::enums::{EmploymentStatus, StaffType, PermissionSeverity, PermissionEnum};
-use crate::database::tables::{Staff, User, Permission, RolePermission, NewPermission, PermissionSet, PermissionSetPermission, UserPermissionSet};
+use crate::database::enums::{EmploymentStatus, StaffType, PermissionEnum};
+use crate::database::tables::{Staff, User, RolePermission};
 use crate::database::enums::RoleEnum;
 use crate::errors::APIError;
-use crate::schema::{staff, users, permissions, role_permissions, permission_sets, permission_set_permissions, user_permission_sets};
+use crate::schema::{staff, users, role_permissions};
 use crate::utils::security::hash_password;
 use chrono::{Duration, Utc};
 use diesel::SqliteConnection;
@@ -17,7 +17,7 @@ pub fn seed_all(
     (
         Vec<String>, // seeded_user_ids
         Vec<String>, // seeded_role_ids (unused now)
-        Vec<i32>,    // seeded_permission_ids
+        Vec<i32>,    // seeded_permission_ids (unused now)
         Vec<String>, // seeded_staff_ids
         Vec<String>,
         Vec<String>,
@@ -30,7 +30,7 @@ pub fn seed_all(
         Vec<String>,
         Vec<String>,
         Vec<String>,
-        Vec<String>, // seeded_permission_set_ids
+        Vec<String>, // seeded_permission_set_ids (unused)
         Vec<String>, // seeded_role_set_ids
         Vec<String>, // seeded_user_set_ids
     ),
@@ -50,67 +50,75 @@ pub fn seed_all(
     let seeded_leave_ids = Vec::new();
     let seeded_session_ids = Vec::new();
     let seeded_user_permission_ids = Vec::new();
-    let mut seeded_permission_set_ids = Vec::new();
+    let seeded_permission_set_ids = Vec::new();
     let seeded_role_set_ids = Vec::new();
     let seeded_user_set_ids = Vec::new();
 
     let now = Utc::now().naive_utc();
 
-    // 1. Seed Permissions
-    let technical_permissions = vec![
-        (PermissionEnum::UserRead, "Ability to read user data", PermissionSeverity::Low),
-        (PermissionEnum::UserCreate, "Ability to create users", PermissionSeverity::Medium),
-        (PermissionEnum::RoleManage, "Ability to manage roles", PermissionSeverity::High),
-        (PermissionEnum::PermissionManage, "Ability to manage permissions", PermissionSeverity::Severe),
-    ];
-
-    let executive_permissions = vec![
-        (PermissionEnum::StaffManage, "Manage all staff members", PermissionSeverity::High),
-        (PermissionEnum::StudentManage, "Manage all students", PermissionSeverity::High),
-        (PermissionEnum::LibraryManage, "Manage library system", PermissionSeverity::Medium),
-    ];
-
-    for (name, desc, level) in technical_permissions.into_iter().chain(executive_permissions.into_iter()) {
-        diesel::insert_into(permissions::table)
-            .values(&NewPermission {
-                name,
-                description: desc.to_string(),
-                safety_level: level,
-                is_admin_only: false,
-            })
-            .execute(conn)?;
-    }
-
-    let all_permissions = permissions::table.load::<Permission>(conn)?;
-    let seeded_permission_ids = all_permissions.iter().map(|p| p.id).collect();
-
-    // 1.1 Seed Permission Sets
-    let admin_permission_set_id = Uuid::new_v4().to_string();
-    let admin_ps = PermissionSet {
-        id: admin_permission_set_id.clone(),
-        name: "Admin Core Permissions".to_string(),
-        description: Some("Core permissions required for administrative tasks".to_string()),
-    };
-    diesel::insert_into(permission_sets::table)
-        .values(&admin_ps)
-        .execute(conn)?;
-    seeded_permission_set_ids.push(admin_permission_set_id.clone());
-
-    // Assign all permissions to Admin Core Permission Set
-    let ps_perms: Vec<PermissionSetPermission> = all_permissions.iter().map(|p| PermissionSetPermission {
-        permission_set_id: admin_permission_set_id.clone(),
-        permission_id: p.id,
-    }).collect();
-    diesel::insert_into(permission_set_permissions::table)
-        .values(&ps_perms)
-        .execute(conn)?;
-
     // 2. Assign some permissions directly to roles (using role name as role_id now)
+    // FullAdmin gets ALL permissions
+    // We can list them manually or if we have an iterator. 
+    // For now, let's just add a few key ones or all if possible.
+    // Since I don't know if strum::IntoEnumIterator is derived, I will list the ones from the previous file + others.
+    
+    let all_permissions = vec![
+        PermissionEnum::UserCreate,
+        PermissionEnum::UserRead,
+        PermissionEnum::UserUpdate,
+        PermissionEnum::UserDelete,
+        PermissionEnum::UserManage,
+        PermissionEnum::UserManageRoles,
+        PermissionEnum::UserManagePermissions,
+        PermissionEnum::RoleCreate,
+        PermissionEnum::RoleRead,
+        PermissionEnum::RoleUpdate,
+        PermissionEnum::RoleDelete,
+        PermissionEnum::RoleManage,
+        PermissionEnum::RoleAssignPermissions,
+        PermissionEnum::PermissionCreate,
+        PermissionEnum::PermissionRead,
+        PermissionEnum::PermissionUpdate,
+        PermissionEnum::PermissionDelete,
+        PermissionEnum::PermissionManage,
+        PermissionEnum::PermissionSetManage,
+        PermissionEnum::StaffCreate,
+        PermissionEnum::StaffRead,
+        PermissionEnum::StaffUpdate,
+        PermissionEnum::StaffDelete,
+        PermissionEnum::StaffManage,
+        PermissionEnum::StaffManageAttendance,
+        PermissionEnum::StaffManageLeaves,
+        PermissionEnum::StudentCreate,
+        PermissionEnum::StudentRead,
+        PermissionEnum::StudentUpdate,
+        PermissionEnum::StudentDelete,
+        PermissionEnum::StudentManage,
+        PermissionEnum::StudentManageGuardians,
+        PermissionEnum::StudentManageEnrollment,
+        PermissionEnum::StudentManageAttendance,
+        PermissionEnum::StudentManageMarks,
+        PermissionEnum::AcademicYearManage,
+        PermissionEnum::TermManage,
+        PermissionEnum::GradeLevelManage,
+        PermissionEnum::ClassManage,
+        PermissionEnum::SubjectManage,
+        PermissionEnum::ClassSubjectTeacherManage,
+        PermissionEnum::TimetableManage,
+        PermissionEnum::ExamTypeManage,
+        PermissionEnum::ExamManage,
+        PermissionEnum::ExamSubjectManage,
+        PermissionEnum::GradingSchemeManage,
+        PermissionEnum::GradingCriterionManage,
+        PermissionEnum::LibraryManage,
+    ];
+
     let full_admin_role_name = RoleEnum::FullAdmin.to_string();
     let role_perms: Vec<RolePermission> = all_permissions.iter().map(|p| RolePermission {
         role_id: full_admin_role_name.clone(),
-        permission_id: p.id,
+        permission: p.to_string(),
     }).collect();
+    
     diesel::insert_into(role_permissions::table)
         .values(&role_perms)
         .execute(conn)?;
@@ -188,16 +196,6 @@ pub fn seed_all(
         };
         staff_to_insert.push(new_staff);
         seeded_staff_ids.push(staff_id);
-
-        // Assign Admin core permission set to test admin users
-        if role_name == "FullAdmin" || role_name == "Admin" {
-            diesel::insert_into(user_permission_sets::table)
-                .values(&UserPermissionSet {
-                    user_id: user_id.clone(),
-                    permission_set_id: admin_permission_set_id.clone(),
-                })
-                .execute(conn)?;
-        }
     }
 
     diesel::insert_into(users::table)
@@ -210,7 +208,7 @@ pub fn seed_all(
     Ok((
         seeded_user_ids,
         seeded_role_ids,
-        seeded_permission_ids,
+        Vec::new(), // seeded_permission_ids (empty)
         seeded_staff_ids,
         seeded_qualification_ids,
         seeded_employment_history_ids,

@@ -43,7 +43,7 @@ pub fn seed_data(
         let (
             seeded_user_ids,
             _seeded_role_ids,
-            seeded_permission_ids,
+            _seeded_permission_ids,
             seeded_staff_ids,
             seeded_qualification_ids,
             seeded_employment_history_ids,
@@ -56,20 +56,13 @@ pub fn seed_data(
             seeded_leave_ids,
             seeded_session_ids,
             seeded_user_permission_ids,
-            seeded_permission_set_ids,
+            _seeded_permission_set_ids,
             _seeded_role_set_ids,
             _seeded_user_set_ids,
         ) = users_and_staff::seed_all(conn, app_config)?;
 
         track_seeded_ids(conn, "users", seeded_user_ids)?;
-        track_seeded_ids(
-            conn,
-            "permissions",
-            seeded_permission_ids
-                .into_iter()
-                .map(|id| id.to_string())
-                .collect(),
-        )?;
+        // Permissions not tracked via IDs anymore as they are static/enum based or not seeded as records
         track_seeded_ids(conn, "staff", seeded_staff_ids.clone())?;
         track_seeded_ids(conn, "staff_qualifications", seeded_qualification_ids)?;
         track_seeded_ids(
@@ -93,8 +86,7 @@ pub fn seed_data(
         track_seeded_ids(conn, "staff_leaves", seeded_leave_ids)?;
         track_seeded_ids(conn, "sessions", seeded_session_ids)?;
         track_seeded_ids(conn, "user_permissions", seeded_user_permission_ids)?;
-        track_seeded_ids(conn, "permission_sets", seeded_permission_set_ids)?;
-
+        
         // 2. Academic Structure
         let (
             seeded_academic_year_ids,
@@ -361,8 +353,9 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
         fee_payments, fee_structures, grade_levels, grade_streams, grade_subjects,
         grading_criteria, grading_schemes, income_sources, income_transactions, inventory_items,
         library_books, library_categories, library_issues, library_settings, maintenance_requests,
-        ol_exams, permission_set_permissions, permission_sets, permissions,
+        ol_exams,
         petty_cash_transactions, report_card_marks, report_cards,
+        role_permissions, user_permissions, user_set_permissions,
         salary_components, salary_payments,
         scholarship_exams, sessions, sport_event_participants, sport_events, sport_team_members,
         sport_teams, sports, staff, staff_attendance, staff_departments, staff_employment_history,
@@ -371,7 +364,7 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
         student_class_assignments, student_emergency_contacts, student_fees, student_guardians,
         student_marks, student_medical_info, student_previous_schools, student_zscores, students,
         subjects, teacher_class_assignments, teacher_subject_assignments, terms, timetable,
-        uniform_issues, uniform_items, user_permission_sets, user_permissions, user_set_users,
+        uniform_issues, uniform_items, user_set_users,
         user_sets, users, zscore_calculations,
     };
 
@@ -392,13 +385,13 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
         .execute(conn)?;
     diesel::delete(library_settings::table)
         .execute(conn)?;
-    diesel::delete(permission_set_permissions::table).execute(conn)?;
-    diesel::delete(user_permission_sets::table).execute(conn)?;
     diesel::delete(user_set_users::table).execute(conn)?;
-    diesel::delete(permission_sets::table).execute(conn)?;
     diesel::delete(user_sets::table).execute(conn)?;
-    diesel::delete(permissions::table)
-        .execute(conn)?;
+    
+    // Clear assignment tables
+    diesel::delete(role_permissions::table).execute(conn)?;
+    diesel::delete(user_permissions::table).execute(conn)?;
+    diesel::delete(user_set_permissions::table).execute(conn)?;
 
     let seeded_entries = seeds::table.load::<Seed>(conn)?;
 
@@ -458,7 +451,6 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
         "club_activities",
         "report_cards",
         "zscore_calculations",
-        "user_permission_sets",
         "user_set_users",
         "user_permissions",
         "sessions",
@@ -489,10 +481,7 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
         "library_categories",
         "library_books",
         "library_settings",
-        "permission_set_permissions",
-        "permission_sets",
         "user_sets",
-        "permissions",
         "users",
         "staff_departments",
         "seeds",
@@ -502,8 +491,7 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
         if let Some(ids) = records_by_table.get(table_name) {
             let _delete_count = match table_name {
                 // Tables with INTEGER primary keys
-                "library_books" | "library_categories" | "library_issues" | "library_settings"
-                | "permissions" => {
+                "library_books" | "library_categories" | "library_issues" | "library_settings" => {
                     let int_ids: Vec<i32> =
                         ids.iter().filter_map(|s| s.parse::<i32>().ok()).collect();
                     match table_name {
@@ -522,10 +510,6 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
                         .execute(conn)?,
                         "library_settings" => diesel::delete(
                             library_settings::table.filter(library_settings::id.eq_any(&int_ids)),
-                        )
-                        .execute(conn)?,
-                        "permissions" => diesel::delete(
-                            permissions::table.filter(permissions::id.eq_any(&int_ids)),
                         )
                         .execute(conn)?,
                         _ => 0, // Should not happen
@@ -818,16 +802,8 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
                     user_permissions::table.filter(user_permissions::user_id.eq_any(ids)),
                 )
                 .execute(conn)?,
-                "user_permission_sets" => diesel::delete(
-                    user_permission_sets::table.filter(user_permission_sets::user_id.eq_any(ids)),
-                )
-                .execute(conn)?,
                 "user_set_users" => diesel::delete(
                     user_set_users::table.filter(user_set_users::user_id.eq_any(ids)),
-                )
-                .execute(conn)?,
-                "permission_sets" => diesel::delete(
-                    permission_sets::table.filter(permission_sets::id.eq_any(ids)),
                 )
                 .execute(conn)?,
                 "user_sets" => {

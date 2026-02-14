@@ -2,9 +2,11 @@ use actix_web::web;
 use apistos::api_operation;
 use diesel::prelude::*;
 use actix_web::web::Json;
+use std::str::FromStr;
 
 use crate::{
     AppState,
+    database::enums::PermissionEnum,
     database::tables::RolePermission,
     errors::APIError,
     models::MessageResponse,
@@ -13,7 +15,7 @@ use crate::{
 
 #[api_operation(
     summary = "Assign a permission to a role",
-    description = "Assigns a permission to a role by their IDs.",
+    description = "Assigns a permission to a role by Role ID (Enum string) and Permission Enum.",
     tag = "roles"
 )]
 pub async fn assign_permission_to_role(
@@ -21,12 +23,15 @@ pub async fn assign_permission_to_role(
     path: web::Path<(String, String)>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let (role_id, permission_id_str) = path.into_inner();
-    let permission_id = permission_id_str.parse::<i32>()?;
+    let (role_id, permission_str) = path.into_inner();
+    
+    // Validate permission enum
+    let permission_enum = PermissionEnum::from_str(&permission_str)
+        .map_err(|_| APIError::bad_request("Invalid permission"))?;
 
     let new_assignment = RolePermission {
         role_id,
-        permission_id,
+        permission: permission_enum.to_string(),
     };
 
     diesel::insert_into(role_permissions::table)
@@ -38,7 +43,7 @@ pub async fn assign_permission_to_role(
 
 #[api_operation(
     summary = "Unassign a permission from a role",
-    description = "Unassigns a permission from a role by their IDs.",
+    description = "Unassigns a permission from a role.",
     tag = "roles"
 )]
 pub async fn unassign_permission_from_role(
@@ -46,15 +51,33 @@ pub async fn unassign_permission_from_role(
     path: web::Path<(String, String)>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let (role_id, permission_id_str) = path.into_inner();
-    let permission_id = permission_id_str.parse::<i32>()?;
+    let (role_id, permission_str) = path.into_inner();
 
     diesel::delete(
         role_permissions::table
             .filter(role_permissions::role_id.eq(role_id))
-            .filter(role_permissions::permission_id.eq(permission_id)),
+            .filter(role_permissions::permission.eq(permission_str)),
     )
     .execute(&mut conn)?;
 
     Ok(Json(MessageResponse { message: "Permission unassigned from role successfully".to_string() }))
+}
+
+#[api_operation(
+    summary = "Get role permissions",
+    description = "Returns a list of all permissions assigned to a specific role.",
+    tag = "roles"
+)]
+pub async fn get_role_permissions(
+    data: web::Data<AppState>,
+    role_id: web::Path<String>,
+) -> Result<Json<Vec<String>>, APIError> {
+    let mut conn = data.db_pool.get()?;
+    
+    let role_perms: Vec<String> = role_permissions::table
+        .filter(role_permissions::role_id.eq(role_id.into_inner()))
+        .select(role_permissions::permission)
+        .load::<String>(&mut conn)?;
+
+    Ok(Json(role_perms))
 }

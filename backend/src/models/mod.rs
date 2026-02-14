@@ -13,7 +13,6 @@ pub mod grade_level;
 pub mod grading_criteria;
 pub mod grading_schemes;
 pub mod library;
-pub mod permissions;
 pub mod profile;
 pub mod property; // Added
 pub mod report_cards;

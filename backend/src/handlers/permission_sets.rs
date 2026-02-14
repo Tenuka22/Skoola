@@ -1,154 +1,79 @@
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::web;
 use apistos::api_operation;
-use apistos::ApiComponent;
-use schemars::JsonSchema;
+use diesel::prelude::*;
+use actix_web::web::Json;
 
-use crate::errors::APIError;
-use crate::config::AppState;
-use crate::services::permission_sets_service::{get_permissions_for_permission_set, assign_permission_to_set, unassign_permission_from_set};
+use crate::{
+    AppState,
+    database::tables::{UserSet, UserSetUser},
+    errors::APIError,
+    models::MessageResponse,
+    schema::{user_sets, user_set_users},
+};
 
-#[derive(Debug, serde::Deserialize, utoipa::ToSchema, ApiComponent, JsonSchema)]
-pub struct CreatePermissionSetRequest {
-    pub name: String,
-    pub description: String,
-}
-
-#[derive(Debug, serde::Deserialize, utoipa::ToSchema, ApiComponent, JsonSchema)]
-pub struct UpdatePermissionSetRequest {
-    pub name: Option<String>,
-    pub description: Option<String>,
-}
-
-#[derive(Debug, serde::Serialize, utoipa::ToSchema, ApiComponent, JsonSchema)]
-pub struct PermissionSetResponse {
-    pub id: String,
-    pub name: String,
-    pub description: String,
-}
-
-#[api_operation(tag = "Permission Sets")]
-pub async fn get_all_permission_sets() -> impl Responder {
-    // This still returns mocked data as the service layer for fetching all permission sets is not implemented yet.
-    HttpResponse::Ok().json(vec![PermissionSetResponse {
-        id: "admin_set".to_string(),
-        name: "Admin Set".to_string(),
-        description: "Set of permissions for administrators".to_string(),
-    }])
-}
-
-#[api_operation(tag = "Permission Sets")]
-pub async fn create_permission_set(
-    _req: web::Json<CreatePermissionSetRequest>,
-) -> impl Responder {
-    // This still returns mocked data as the service layer for creating permission sets is not implemented yet.
-    HttpResponse::Created().json(PermissionSetResponse {
-        id: "new_set".to_string(),
-        name: _req.name.clone(),
-        description: _req.description.clone(),
-    })
-}
-
-#[api_operation(tag = "Permission Sets")]
-pub async fn get_permission_set_by_id(
-    _path: web::Path<String>,
-) -> impl Responder {
-    // This still returns mocked data as the service layer for fetching a single permission set is not implemented yet.
-    HttpResponse::Ok().json(PermissionSetResponse {
-        id: _path.into_inner(),
-        name: "Admin Set".to_string(),
-        description: "Set of permissions for administrators".to_string(),
-    })
-}
-
-#[api_operation(tag = "Permission Sets")]
-pub async fn update_permission_set(
-    _path: web::Path<String>,
-    _req: web::Json<UpdatePermissionSetRequest>,
-) -> impl Responder {
-    // This still returns mocked data as the service layer for updating permission sets is not implemented yet.
-    HttpResponse::Ok().json(PermissionSetResponse {
-        id: _path.into_inner(),
-        name: _req.name.clone().unwrap_or_default(),
-        description: _req.description.clone().unwrap_or_default(),
-    })
-}
-
-#[api_operation(tag = "Permission Sets")]
-pub async fn delete_permission_set(
-    _path: web::Path<String>,
-) -> impl Responder {
-    // This still returns mocked data as the service layer for deleting permission sets is not implemented yet.
-    HttpResponse::NoContent().finish()
-}
-
-#[api_operation(tag = "Permission Sets")]
-pub async fn get_permissions_by_permission_set(
-    pool: web::Data<AppState>,
-    path: web::Path<String>,
-) -> Result<HttpResponse, APIError> {
-    let permission_set_id = path.into_inner();
-    let permissions = get_permissions_for_permission_set(pool, &permission_set_id).await?;
-    Ok(HttpResponse::Ok().json(permissions))
-}
-
-#[api_operation(tag = "Permission Sets")]
-pub async fn assign_permission_to_permission_set(
-    pool: web::Data<AppState>,
-    path: web::Path<(String, i32)>,
-) -> Result<HttpResponse, APIError> {
-    let (permission_set_id, permission_id) = path.into_inner();
-    assign_permission_to_set(pool, &permission_set_id, permission_id).await?;
-    Ok(HttpResponse::Ok().json(PermissionSetResponse {
-        id: permission_set_id.clone(),
-        name: "Updated Set".to_string(), // Placeholder, ideally fetch and return actual set
-        description: "Updated permissions for set".to_string(), // Placeholder
-    }))
-}
-
-#[api_operation(tag = "Permission Sets")]
-pub async fn unassign_permission_from_permission_set(
-    pool: web::Data<AppState>,
-    path: web::Path<(String, i32)>,
-) -> Result<HttpResponse, APIError> {
-    let (permission_set_id, permission_id) = path.into_inner();
-    unassign_permission_from_set(pool, &permission_set_id, permission_id).await?;
-    Ok(HttpResponse::Ok().json(PermissionSetResponse {
-        id: permission_set_id.clone(),
-        name: "Updated Set".to_string(), // Placeholder, ideally fetch and return actual set
-        description: "Updated permissions for set".to_string(), // Placeholder
-    }))
-}
-
-// Staff related permission set handlers
-#[api_operation(tag = "Permission Sets")]
+#[api_operation(
+    summary = "Get permission sets for a staff member",
+    description = "Returns a list of permission sets assigned to a specific staff member.",
+    tag = "staff"
+)]
 pub async fn get_staff_permission_sets(
-    _path: web::Path<String>,
-) -> impl Responder {
-    HttpResponse::Ok().json(vec![PermissionSetResponse {
-        id: "admin_set".to_string(),
-        name: "Admin Set".to_string(),
-        description: "Set of permissions for administrators".to_string(),
-    }])
+    data: web::Data<AppState>,
+    staff_id: web::Path<String>,
+) -> Result<Json<Vec<UserSet>>, APIError> {
+    let mut conn = data.db_pool.get()?;
+    let staff_id_inner = staff_id.into_inner();
+
+    let sets = user_set_users::table
+        .inner_join(user_sets::table)
+        .filter(user_set_users::user_id.eq(staff_id_inner))
+        .select(UserSet::as_select())
+        .load::<UserSet>(&mut conn)?;
+
+    Ok(Json(sets))
 }
 
-#[api_operation(tag = "Permission Sets")]
+#[api_operation(
+    summary = "Assign a permission set to a staff member",
+    description = "Assigns a specified permission set to a staff member.",
+    tag = "staff"
+)]
 pub async fn assign_permission_set_to_staff(
-    _path: web::Path<(String, String)>,
-) -> impl Responder {
-    HttpResponse::Ok().json(PermissionSetResponse {
-        id: _path.1.clone(),
-        name: "Admin Set".to_string(),
-        description: "Set of permissions for administrators".to_string(),
-    })
+    data: web::Data<AppState>,
+    path: web::Path<(String, String)>,
+) -> Result<Json<MessageResponse>, APIError> {
+    let mut conn = data.db_pool.get()?;
+    let (staff_id, set_id) = path.into_inner();
+
+    let new_assignment = UserSetUser {
+        user_id: staff_id,
+        user_set_id: set_id,
+    };
+
+    diesel::insert_into(user_set_users::table)
+        .values(&new_assignment)
+        .execute(&mut conn)?;
+
+    Ok(Json(MessageResponse { message: "Permission set assigned to staff successfully".to_string() }))
 }
 
-#[api_operation(tag = "Permission Sets")]
+#[api_operation(
+    summary = "Unassign a permission set from a staff member",
+    description = "Removes a specified permission set from a staff member.",
+    tag = "staff"
+)]
 pub async fn unassign_permission_set_from_staff(
-    _path: web::Path<(String, String)>,
-) -> impl Responder {
-    HttpResponse::Ok().json(PermissionSetResponse {
-        id: _path.1.clone(),
-        name: "Admin Set".to_string(),
-        description: "Set of permissions for administrators".to_string(),
-    })
+    data: web::Data<AppState>,
+    path: web::Path<(String, String)>,
+) -> Result<Json<MessageResponse>, APIError> {
+    let mut conn = data.db_pool.get()?;
+    let (staff_id, set_id) = path.into_inner();
+
+    diesel::delete(
+        user_set_users::table
+            .filter(user_set_users::user_id.eq(staff_id))
+            .filter(user_set_users::user_set_id.eq(set_id)),
+    )
+    .execute(&mut conn)?;
+
+    Ok(Json(MessageResponse { message: "Permission set unassigned from staff successfully".to_string() }))
 }

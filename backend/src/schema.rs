@@ -471,31 +471,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    permission_set_permissions (permission_set_id, permission_id) {
-        permission_set_id -> Text,
-        permission_id -> Integer,
-    }
-}
-
-diesel::table! {
-    permission_sets (id) {
-        id -> Text,
-        name -> Text,
-        description -> Nullable<Text>,
-    }
-}
-
-diesel::table! {
-    permissions (id) {
-        id -> Integer,
-        name -> Text,
-        description -> Text,
-        safety_level -> Text,
-        is_admin_only -> Bool,
-    }
-}
-
-diesel::table! {
     petty_cash_transactions (id) {
         id -> Text,
         amount -> Float,
@@ -535,16 +510,9 @@ diesel::table! {
 }
 
 diesel::table! {
-    role_permission_sets (role_id, permission_set_id) {
+    role_permissions (role_id, permission) {
         role_id -> Text,
-        permission_set_id -> Text,
-    }
-}
-
-diesel::table! {
-    role_permissions (role_id, permission_id) {
-        role_id -> Text,
-        permission_id -> Integer,
+        permission -> Text,
     }
 }
 
@@ -1053,16 +1021,16 @@ diesel::table! {
 }
 
 diesel::table! {
-    user_permission_sets (user_id, permission_set_id) {
+    user_permissions (user_id, permission) {
         user_id -> Text,
-        permission_set_id -> Text,
+        permission -> Text,
     }
 }
 
 diesel::table! {
-    user_permissions (user_id, permission_id) {
-        user_id -> Text,
-        permission_id -> Integer,
+    user_set_permissions (user_set_id, permission) {
+        user_set_id -> Text,
+        permission -> Text,
     }
 }
 
@@ -1157,66 +1125,9 @@ diesel::joinable!(library_issues -> library_books (book_id));
 diesel::joinable!(library_issues -> students (student_id));
 diesel::joinable!(maintenance_requests -> inventory_items (item_id));
 diesel::joinable!(ol_exams -> students (student_id));
-diesel::joinable!(permission_set_permissions -> permission_sets (permission_set_id));
-diesel::joinable!(permission_set_permissions -> permissions (permission_id));
-diesel::joinable!(petty_cash_transactions -> staff (handled_by));
-diesel::joinable!(report_card_marks -> report_cards (report_card_id));
-diesel::joinable!(report_card_marks -> subjects (subject_id));
-diesel::joinable!(report_cards -> academic_years (academic_year_id));
-diesel::joinable!(report_cards -> classes (class_id));
-diesel::joinable!(report_cards -> students (student_id));
-diesel::joinable!(report_cards -> terms (term_id));
-diesel::joinable!(role_permission_sets -> permission_sets (permission_set_id));
-diesel::joinable!(role_permissions -> permissions (permission_id));
-diesel::joinable!(role_set_roles -> role_sets (role_set_id));
-diesel::joinable!(salary_payments -> staff (staff_id));
-diesel::joinable!(scholarship_exams -> students (student_id));
-diesel::joinable!(sessions -> users (user_id));
-diesel::joinable!(sport_event_participants -> sport_events (event_id));
-diesel::joinable!(sport_event_participants -> sport_teams (team_id));
-diesel::joinable!(sport_event_participants -> students (student_id));
-diesel::joinable!(sport_events -> sports (sport_id));
-diesel::joinable!(sport_team_members -> sport_teams (team_id));
-diesel::joinable!(sport_team_members -> students (student_id));
-diesel::joinable!(sport_teams -> sports (sport_id));
-diesel::joinable!(sport_teams -> staff (coach_id));
-diesel::joinable!(staff_attendance -> staff (staff_id));
-diesel::joinable!(staff_employment_history -> staff (staff_id));
-diesel::joinable!(staff_leaves -> staff (staff_id));
-diesel::joinable!(staff_qualifications -> staff (staff_id));
-diesel::joinable!(staff_salaries -> salary_components (component_id));
-diesel::joinable!(staff_salaries -> staff (staff_id));
-diesel::joinable!(staff_subjects -> staff (staff_id));
-diesel::joinable!(staff_subjects -> subjects (subject_id));
-diesel::joinable!(stream_subjects -> streams (stream_id));
-diesel::joinable!(stream_subjects -> subjects (subject_id));
-diesel::joinable!(student_achievements -> students (student_id));
-diesel::joinable!(student_emergency_contacts -> students (student_id));
-diesel::joinable!(student_fees -> fee_structures (fee_structure_id));
-diesel::joinable!(student_fees -> students (student_id));
-diesel::joinable!(student_guardians -> students (student_id));
 diesel::joinable!(student_marks -> students (student_id));
-diesel::joinable!(student_medical_info -> students (student_id));
-diesel::joinable!(student_previous_schools -> students (student_id));
-diesel::joinable!(student_zscores -> students (student_id));
-diesel::joinable!(teacher_class_assignments -> academic_years (academic_year_id));
-diesel::joinable!(teacher_class_assignments -> classes (class_id));
-diesel::joinable!(teacher_class_assignments -> staff (teacher_id));
-diesel::joinable!(teacher_subject_assignments -> academic_years (academic_year_id));
-diesel::joinable!(teacher_subject_assignments -> staff (teacher_id));
-diesel::joinable!(teacher_subject_assignments -> subjects (subject_id));
-diesel::joinable!(terms -> academic_years (academic_year_id));
-diesel::joinable!(timetable -> academic_years (academic_year_id));
-diesel::joinable!(timetable -> classes (class_id));
-diesel::joinable!(timetable -> staff (teacher_id));
-diesel::joinable!(timetable -> subjects (subject_id));
-diesel::joinable!(uniform_issues -> staff (issued_by));
-diesel::joinable!(uniform_issues -> students (student_id));
-diesel::joinable!(uniform_issues -> uniform_items (uniform_item_id));
-diesel::joinable!(user_permission_sets -> permission_sets (permission_set_id));
-diesel::joinable!(user_permission_sets -> users (user_id));
-diesel::joinable!(user_permissions -> permissions (permission_id));
 diesel::joinable!(user_permissions -> users (user_id));
+diesel::joinable!(user_set_permissions -> user_sets (user_set_id));
 diesel::joinable!(user_set_users -> user_sets (user_set_id));
 diesel::joinable!(user_set_users -> users (user_id));
 
@@ -1258,13 +1169,9 @@ diesel::allow_tables_to_appear_in_same_query!(
     library_settings,
     maintenance_requests,
     ol_exams,
-    permission_set_permissions,
-    permission_sets,
-    permissions,
     petty_cash_transactions,
     report_card_marks,
     report_cards,
-    role_permission_sets,
     role_permissions,
     role_set_roles,
     role_sets,
@@ -1306,8 +1213,8 @@ diesel::allow_tables_to_appear_in_same_query!(
     timetable,
     uniform_issues,
     uniform_items,
-    user_permission_sets,
     user_permissions,
+    user_set_permissions,
     user_set_users,
     user_sets,
     users,

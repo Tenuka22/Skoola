@@ -2,32 +2,40 @@ use actix_web::web;
 use apistos::api_operation;
 use diesel::prelude::*;
 use actix_web::web::Json;
+use std::str::FromStr;
 
 use crate::{
     AppState,
-    database::tables::{Permission},
+    database::enums::PermissionEnum,
+    database::tables::UserPermission,
     errors::APIError,
     models::MessageResponse,
-    schema::{user_permissions, permissions},
+    schema::user_permissions,
 };
 
 #[api_operation(
     summary = "Assign a permission to a user",
-    description = "Assigns a permission to a user by their IDs.",
+    description = "Assigns a permission to a user by ID and Permission Enum.",
     tag = "users"
 )]
 pub async fn assign_permission_to_user(
     data: web::Data<AppState>,
-    path: web::Path<(String, i32)>,
+    path: web::Path<(String, String)>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let (user_id, permission_id) = path.into_inner();
+    let (user_id, permission_str) = path.into_inner();
+    
+    // Validate permission enum
+    let permission_enum = PermissionEnum::from_str(&permission_str)
+        .map_err(|_| APIError::bad_request("Invalid permission"))?;
+
+    let new_assignment = UserPermission {
+        user_id,
+        permission: permission_enum.to_string(),
+    };
 
     diesel::insert_into(user_permissions::table)
-        .values((
-            user_permissions::user_id.eq(user_id),
-            user_permissions::permission_id.eq(permission_id),
-        ))
+        .values(&new_assignment)
         .execute(&mut conn)?;
 
     Ok(Json(MessageResponse { message: "Permission assigned to user successfully".to_string() }))
@@ -35,20 +43,20 @@ pub async fn assign_permission_to_user(
 
 #[api_operation(
     summary = "Unassign a permission from a user",
-    description = "Unassigns a permission from a user by their IDs.",
+    description = "Unassigns a permission from a user by ID and Permission Enum.",
     tag = "users"
 )]
 pub async fn unassign_permission_from_user(
     data: web::Data<AppState>,
-    path: web::Path<(String, i32)>,
+    path: web::Path<(String, String)>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let (user_id, permission_id) = path.into_inner();
+    let (user_id, permission_str) = path.into_inner();
 
     diesel::delete(
         user_permissions::table
             .filter(user_permissions::user_id.eq(user_id))
-            .filter(user_permissions::permission_id.eq(permission_id)),
+            .filter(user_permissions::permission.eq(permission_str)),
     )
     .execute(&mut conn)?;
 
@@ -57,20 +65,19 @@ pub async fn unassign_permission_from_user(
 
 #[api_operation(
     summary = "Get user permissions",
-    description = "Returns a list of all permissions assigned to a specific user.",
+    description = "Returns a list of all permissions assigned to a specific user (direct assignment).",
     tag = "users"
 )]
 pub async fn get_user_permissions(
     data: web::Data<AppState>,
     user_id: web::Path<String>,
-) -> Result<Json<Vec<Permission>>, APIError> {
+) -> Result<Json<Vec<String>>, APIError> {
     let mut conn = data.db_pool.get()?;
     
-    let user_perms = user_permissions::table
+    let user_perms: Vec<String> = user_permissions::table
         .filter(user_permissions::user_id.eq(user_id.into_inner()))
-        .inner_join(permissions::table)
-        .select(permissions::all_columns)
-        .load::<Permission>(&mut conn)?;
+        .select(user_permissions::permission)
+        .load::<String>(&mut conn)?;
 
     Ok(Json(user_perms))
 }

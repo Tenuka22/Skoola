@@ -8,7 +8,7 @@ use crate::schema::students;
 use diesel::prelude::*;
 use actix_web::web::Json;
 use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::{
     AppState,

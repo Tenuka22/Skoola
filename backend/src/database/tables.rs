@@ -1,19 +1,18 @@
 use crate::database::enums::{
     AllocationType, ComponentType, Ethnicity, FeeFrequency, Gender, MaintenanceStatus,
-    PaymentMethod, Religion, TransactionType, RoleEnum, PermissionEnum, PermissionSeverity,
+    PaymentMethod, Religion, TransactionType, RoleEnum,
 };
 use crate::schema::{
     asset_allocations, asset_categories, budget_categories, budgets, expense_categories,
     expense_transactions, fee_categories, fee_payments, fee_structures, income_sources,
     income_transactions, inventory_items, library_books, library_categories, library_issues,
-    library_settings, maintenance_requests, permission_set_permissions, permission_sets,
-    permissions, petty_cash_transactions, role_permission_sets, role_permissions,
+    library_settings, maintenance_requests, role_permissions,
     salary_components, salary_payments, sessions, staff, staff_attendance,
     staff_departments, staff_employment_history, staff_leaves, staff_qualifications,
     staff_salaries, staff_subjects, student_emergency_contacts, student_fees, student_guardians,
     student_medical_info, student_previous_schools, students, teacher_class_assignments,
-    teacher_subject_assignments, uniform_issues, uniform_items, user_permission_sets,
-    user_set_users, user_sets, users,
+    teacher_subject_assignments, uniform_issues, uniform_items, user_permissions,
+    user_set_permissions, user_set_users, user_sets, users, petty_cash_transactions,
 };
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use diesel::prelude::*;
@@ -63,25 +62,21 @@ pub struct NewUser {
     pub role: RoleEnum,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
-#[diesel(table_name = permissions)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+)]
+#[diesel(table_name = role_permissions)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct Permission {
-    pub id: i32,
-    pub name: PermissionEnum,
-    pub description: String,
-    pub safety_level: PermissionSeverity,
-    pub is_admin_only: bool,
-}
-
-#[derive(Debug, Insertable)]
-#[diesel(table_name = permissions)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct NewPermission {
-    pub name: PermissionEnum,
-    pub description: String,
-    pub safety_level: PermissionSeverity,
-    pub is_admin_only: bool,
+pub struct RolePermission {
+    pub role_id: String,
+    pub permission: String,
 }
 
 #[derive(
@@ -95,39 +90,31 @@ pub struct NewPermission {
     Clone,
     Associations,
 )]
-#[diesel(table_name = role_permissions)]
-#[diesel(belongs_to(Permission))]
+#[diesel(table_name = user_permissions)]
+#[diesel(belongs_to(User))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct RolePermission {
-    pub role_id: String,
-    pub permission_id: i32,
+pub struct UserPermission {
+    pub user_id: String,
+    pub permission: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
-#[diesel(table_name = permission_sets)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
+#[diesel(table_name = user_set_permissions)]
+#[diesel(belongs_to(UserSet))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct PermissionSet {
-    pub id: String,
-    pub name: String,
-    pub description: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
-#[diesel(table_name = permission_set_permissions)]
-#[diesel(belongs_to(PermissionSet))]
-#[diesel(belongs_to(Permission))]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct PermissionSetPermission {
-    pub permission_set_id: String,
-    pub permission_id: i32,
-}
-
-#[derive(Debug, Insertable)]
-#[diesel(table_name = permission_set_permissions)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct NewPermissionSetPermission {
-    pub permission_set_id: String,
-    pub permission_id: i32,
+pub struct UserSetPermission {
+    pub user_set_id: String,
+    pub permission: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
@@ -147,25 +134,6 @@ pub struct UserSet {
 pub struct UserSetUser {
     pub user_set_id: String,
     pub user_id: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
-#[diesel(table_name = user_permission_sets)]
-#[diesel(belongs_to(User))]
-#[diesel(belongs_to(PermissionSet))]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct UserPermissionSet {
-    pub user_id: String,
-    pub permission_set_id: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
-#[diesel(table_name = role_permission_sets)]
-#[diesel(belongs_to(PermissionSet))]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct RolePermissionSet {
-    pub role_id: String,
-    pub permission_set_id: String,
 }
 
 #[derive(Debug, Insertable)]
