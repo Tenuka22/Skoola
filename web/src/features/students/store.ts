@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { SortingState } from '@tanstack/react-table'
 import type { StudentResponse } from '@/features/students/types'
+import type { StudentStatus } from '@/lib/api/types.gen'
 
 export type ViewMode = 'table' | 'board' | 'list'
 
@@ -8,7 +9,7 @@ interface StudentsState {
   page: number
   search: string
   debouncedSearch: string
-  statusFilter: string
+  statusFilter: StudentStatus | 'all'
   sorting: SortingState
   createdAfter: string | null
   createdBefore: string | null
@@ -23,7 +24,7 @@ interface StudentsState {
   setPage: (page: number) => void
   setSearch: (search: string) => void
   setDebouncedSearch: (search: string) => void
-  setStatusFilter: (filter: string) => void
+  setStatusFilter: (filter: StudentStatus | 'all') => void
   setSorting: (
     sorting: SortingState | ((prev: SortingState) => SortingState),
   ) => void
@@ -55,7 +56,6 @@ export const useStudentsStore = create<StudentsState>((set) => ({
   studentToDelete: null,
   isBulkDeleteOpen: false,
   isBulkEditOpen: false,
-  isAddStudentOpen: false,
   isCreateStudentOpen: false,
   studentToEdit: null,
 

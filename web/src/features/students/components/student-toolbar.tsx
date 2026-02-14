@@ -1,123 +1,41 @@
-import {
-  Add01Icon,
-  DeleteIcon,
-  Download01Icon,
-  LayoutGridIcon,
-  Search01Icon,
-  TableIcon,
-  Upload01Icon,
-} from '@hugeicons/core-free-icons'
+'use client'
+
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useStudentsStore } from '../store'
-import type { ViewMode } from '../store'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Delete02Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
+
 import { Button } from '@/components/ui/button'
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group'
+import { ButtonGroup } from '@/components/ui/button-group'
 
 interface StudentToolbarProps {
-  onExport: () => void
-  onImport?: () => void
   selectedStudents: Set<string>
   onBulkDelete: () => void
-  isBottomToolbar?: boolean
+  onBulkEdit: () => void
 }
 
 export function StudentToolbar({
-  onExport,
-  onImport,
   selectedStudents,
   onBulkDelete,
-  isBottomToolbar = false,
+  onBulkEdit,
 }: StudentToolbarProps) {
-  const { view, setView, search, setSearch, setIsCreateStudentOpen } =
-    useStudentsStore()
-
-  if (isBottomToolbar) {
-    const selectedCount = selectedStudents.size
-    if (selectedCount === 0) return null
-
-    return (
-      <div className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2">
-        <div className="flex items-center gap-4 rounded-lg border bg-background p-2 shadow-lg">
-          <div className="text-sm font-medium">
-            {selectedCount} student{selectedCount > 1 ? 's' : ''} selected
-          </div>
-          <Button
-            variant="destructive"
-            size="sm"
-            className="gap-2"
-            onClick={onBulkDelete}
-          >
-            <HugeiconsIcon icon={DeleteIcon} className="size-4" />
-            Delete Selected
-          </Button>
-        </div>
-      </div>
-    )
-  }
+  if (selectedStudents.size === 0) return null
 
   return (
-    <div className="mb-4 flex flex-col gap-4 px-8 sm:flex-row sm:items-center sm:justify-between">
-      <Tabs value={view} onValueChange={(value: ViewMode) => setView(value)}>
-        <TabsList>
-          <TabsTrigger value="table" className="gap-2">
-            <HugeiconsIcon icon={TableIcon} className="size-4" />
-            Table
-          </TabsTrigger>
-          <TabsTrigger value="board" className="gap-2">
-            <HugeiconsIcon icon={LayoutGridIcon} className="size-4" />
-            Board
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:w-auto sm:pb-0">
-        <div className="relative flex-1 sm:w-64">
-          <InputGroup>
-            <InputGroupInput
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search students..."
-            />
-            <InputGroupAddon>
-              <HugeiconsIcon icon={Search01Icon} />
-            </InputGroupAddon>
-          </InputGroup>
-        </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={onImport}
-        >
-          <HugeiconsIcon icon={Upload01Icon} className="size-4" />
-          Import
+    <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
+      <ButtonGroup>
+        <Button variant="outline" disabled>
+          {selectedStudents.size} Selected
         </Button>
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={onExport}
-        >
-          <HugeiconsIcon icon={Download01Icon} className="size-4" />
-          Export
+        <Button variant="outline" onClick={onBulkEdit}>
+          <HugeiconsIcon icon={PencilEdit01Icon} className="mr-2 size-4" />
+          Edit
         </Button>
 
-        <Button
-          size="sm"
-          className="gap-2"
-          onClick={() => setIsCreateStudentOpen(true)}
-        >
-          <HugeiconsIcon icon={Add01Icon} className="size-4" />
-          Add Student
+        <Button onClick={onBulkDelete} variant="destructive">
+          <HugeiconsIcon icon={Delete02Icon} />
+          Delete
         </Button>
-      </div>
+      </ButtonGroup>
     </div>
   )
 }

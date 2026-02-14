@@ -9,13 +9,7 @@ import {
   religionSchema,
   studentStatusSchema,
 } from '../schemas'
-import type {
-  CreateStudentValues,
-  Ethnicity,
-  Gender,
-  Religion,
-  StudentStatus,
-} from '../schemas'
+import type { CreateStudentValues } from '../schemas'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -161,7 +155,10 @@ export function StudentForm({
           <Label>Gender</Label>
           <Select
             value={gender}
-            onValueChange={(val) => setValue('gender', val as Gender)}
+            onValueChange={(val) => {
+              const g = genderSchema.parse(val)
+              setValue('gender', g)
+            }}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select gender" />
@@ -183,7 +180,10 @@ export function StudentForm({
           <Label>Ethnicity (Optional)</Label>
           <Select
             value={ethnicity ?? ''}
-            onValueChange={(val) => setValue('ethnicity', val as Ethnicity)}
+            onValueChange={(val) => {
+              const e = ethnicitySchema.parse(val)
+              setValue('ethnicity', e)
+            }}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select ethnicity" />
@@ -207,7 +207,10 @@ export function StudentForm({
           <Label>Religion (Optional)</Label>
           <Select
             value={religion ?? ''}
-            onValueChange={(val) => setValue('religion', val as Religion)}
+            onValueChange={(val) => {
+              const r = religionSchema.parse(val)
+              setValue('religion', r)
+            }}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select religion" />
@@ -231,7 +234,10 @@ export function StudentForm({
           <Label>Status</Label>
           <Select
             value={status}
-            onValueChange={(val) => setValue('status', val as StudentStatus)}
+            onValueChange={(val) => {
+              const s = studentStatusSchema.parse(val)
+              setValue('status', s)
+            }}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select status" />

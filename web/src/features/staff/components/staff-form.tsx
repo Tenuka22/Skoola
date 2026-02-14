@@ -1,8 +1,13 @@
 'use client'
 
+import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createStaffSchema } from '../schemas'
+import {
+  createStaffSchema,
+  employmentStatusSchema,
+  staffTypeSchema,
+} from '../schemas'
 import type { CreateStaffValues } from '../schemas'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -117,7 +122,10 @@ export function StaffForm({
           <Label>Gender</Label>
           <Select
             value={gender}
-            onValueChange={(val) => setValue('gender', val)}
+            onValueChange={(val) => {
+              const g = z.string().parse(val)
+              setValue('gender', g)
+            }}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select gender" />
@@ -137,7 +145,10 @@ export function StaffForm({
           <Label>Staff Type</Label>
           <Select
             value={staffType}
-            onValueChange={(val) => setValue('staff_type', val)}
+            onValueChange={(val) => {
+              const type = staffTypeSchema.parse(val)
+              setValue('staff_type', type)
+            }}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select staff type" />
@@ -159,7 +170,10 @@ export function StaffForm({
           <Label>Employment Status</Label>
           <Select
             value={employmentStatus}
-            onValueChange={(val) => setValue('employment_status', val)}
+            onValueChange={(val) => {
+              const status = employmentStatusSchema.parse(val)
+              setValue('employment_status', status)
+            }}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select status" />
