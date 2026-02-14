@@ -144,7 +144,7 @@ export function StaffForm({
               Gender
             </FieldLabel>
             <Select
-              onValueChange={(val) => setValue('gender', val as any)}
+              onValueChange={(val) => setValue('gender', val!)}
               defaultValue={gender}
             >
               <SelectTrigger className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus:ring-2 focus:ring-primary">
@@ -164,7 +164,7 @@ export function StaffForm({
               Staff Type
             </FieldLabel>
             <Select
-              onValueChange={(val: any) => setValue('staff_type', val)}
+              onValueChange={(val) => setValue('staff_type', val!)}
               defaultValue={staffType}
             >
               <SelectTrigger className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus:ring-2 focus:ring-primary">
@@ -184,7 +184,7 @@ export function StaffForm({
               Employment Status
             </FieldLabel>
             <Select
-              onValueChange={(val: any) => setValue('employment_status', val)}
+              onValueChange={(val) => setValue('employment_status', val!)}
               defaultValue={employmentStatus}
             >
               <SelectTrigger className="h-12 rounded-2xl border-none bg-muted/30 px-4 font-bold focus:ring-2 focus:ring-primary">

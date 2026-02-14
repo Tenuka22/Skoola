@@ -11,7 +11,8 @@ import {
 } from '@hugeicons/core-free-icons'
 import { PermissionsTable } from '../../features/permissions/components/permissions-table'
 import { PermissionSetsList } from '../../features/permissions/components/permission-sets-list'
-import type { PermissionSet } from '../../features/permissions/types'
+
+import { isPermissionSetArray } from '../../features/permissions/utils/permission-guards'
 import {
   Card,
   CardContent,
@@ -52,7 +53,7 @@ function PermissionsPage() {
         limit: permissionsLimit,
         search: permissionsSearch,
         sort_by: permissionsSortBy,
-        sort_order: permissionsSortOrder as any,
+        sort_order: permissionsSortOrder,
       },
     }),
     placeholderData: (previousData) => previousData, // Keep previous data for smooth transitions
@@ -69,7 +70,7 @@ function PermissionsPage() {
     }),
     placeholderData: (previousData) => previousData,
     // Assuming getPermissionSets returns an array of PermissionSet directly, adjust if it's paginated.
-    select: (data) => data as Array<PermissionSet>,
+    select: (data) => (isPermissionSetArray(data) ? data : []),
   })
 
   return (

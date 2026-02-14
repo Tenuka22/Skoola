@@ -50,8 +50,7 @@ export function PermissionSetsList({
   //       queryClient.invalidateQueries({ queryKey: ['permissionSets'] })
   //     },
   //     onError: (error) => {
-  //       toast.error(`Failed to delete permission set: ${(error as any).message}`)
-  //     },
+  //       toast.error(`Failed to delete permission set: ${error.message}`)  //     },
   //   })
 
   if (isLoading) {

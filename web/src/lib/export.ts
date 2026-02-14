@@ -5,7 +5,7 @@ export type Column<T> = {
     | ((item: T) => string | number | boolean | null | undefined)
 }
 
-export const handleExportCSV = <T extends Record<string, any>>(
+export const handleExportCSV = <T extends Record<string, unknown>>(
   data: Array<T>,
   filename: string,
   columns?: Array<Column<T>>,
@@ -37,10 +37,13 @@ export const handleExportCSV = <T extends Record<string, any>>(
   const headers = cols.map((c) => c.header)
   const rows = data.map((row) =>
     cols.map((col) => {
+      let value: unknown
       if (typeof col.accessor === 'function') {
-        return col.accessor(row)
+        value = col.accessor(row)
+      } else {
+        value = row[col.accessor]
       }
-      return row[col.accessor]
+      return value as string | number | boolean | null | undefined
     }),
   )
 

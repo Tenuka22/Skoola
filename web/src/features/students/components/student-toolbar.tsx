@@ -8,7 +8,7 @@ import {
   Upload01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useStudentsStore } from '../store'
+import { useStudentsStore, ViewMode } from '../store'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import {
@@ -62,7 +62,7 @@ export function StudentToolbar({
 
   return (
     <div className="mb-4 flex flex-col gap-4 px-8 sm:flex-row sm:items-center sm:justify-between">
-      <Tabs value={view} onValueChange={(value) => setView(value as any)}>
+      <Tabs value={view} onValueChange={(value: ViewMode) => setView(value)}>
         <TabsList>
           <TabsTrigger value="table" className="gap-2">
             <HugeiconsIcon icon={TableIcon} className="size-4" />

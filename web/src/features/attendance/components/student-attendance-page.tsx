@@ -51,7 +51,6 @@ export const StudentAttendancePage = () => {
   const { data: studentsData, isLoading: isStudentsLoading } =
     useStudentsInClass(selectedClassId, formattedDateForApi)
   const {
-    data: attendanceData,
     isLoading: isAttendanceLoading,
     refetch: refetchAttendance,
   } = useStudentAttendance(selectedClassId, formattedDateForApi)
@@ -112,10 +111,8 @@ export const StudentAttendancePage = () => {
   const mergedData: Array<StudentAttendanceWithMember> = React.useMemo(() => {
     if (!studentsData) return []
     return studentsData.map((attendance) => {
-      const student = attendance.student
       return {
         ...attendance,
-        student,
       }
     })
   }, [studentsData])

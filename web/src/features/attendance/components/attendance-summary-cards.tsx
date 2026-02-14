@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
+import type { IconSvgElement } from '@hugeicons/react'
 import {
   Cancel01Icon,
   Logout01Icon,
@@ -15,7 +16,7 @@ import { cn } from '@/lib/utils'
 
 interface SummaryCardProps {
   title: string
-  icon: any
+  icon: IconSvgElement
   iconClassName?: string
   items: Array<{
     label: string

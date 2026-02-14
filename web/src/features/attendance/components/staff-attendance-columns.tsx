@@ -1,12 +1,13 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Image01Icon, Location01Icon } from '@hugeicons/core-free-icons'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, CellContext } from '@tanstack/react-table'
 import type { StaffAttendanceWithMember } from '../types'
 import type { AttendanceStatus } from '@/lib/api/types.gen'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+
 
 export const getStatusColor = (status: AttendanceStatus) => {
   switch (status) {
@@ -26,12 +27,12 @@ export const getStatusColor = (status: AttendanceStatus) => {
 }
 
 export const staffAttendanceColumns: Array<
-  ColumnDef<StaffAttendanceWithMember>
+  ColumnDef<StaffAttendanceWithMember, unknown>
 > = [
   {
     id: 'staff_name',
     header: 'Employee Name',
-    cell: ({ row }) => {
+    cell: ({ row }: CellContext<StaffAttendanceWithMember, unknown>) => {
       const staff = row.original.staff
       return (
         <div className="flex items-center gap-3">
@@ -54,7 +55,7 @@ export const staffAttendanceColumns: Array<
   {
     id: 'clock_in_out',
     header: 'Clock-in & Out',
-    cell: ({ row }) => {
+    cell: ({ row }: CellContext<StaffAttendanceWithMember, unknown>) => {
       const { time_in, time_out } = row.original
       if (!time_in) return <span className="text-muted-foreground">-</span>
       return (
@@ -86,7 +87,7 @@ export const staffAttendanceColumns: Array<
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: ({ row }) => {
+    cell: ({ row }: CellContext<StaffAttendanceWithMember, unknown>) => {
       const status = row.original.status
       return (
         <Badge
@@ -126,7 +127,7 @@ export const staffAttendanceColumns: Array<
   {
     accessorKey: 'remarks',
     header: 'Note',
-    cell: ({ row }) => (
+    cell: ({ row }: CellContext<StaffAttendanceWithMember, unknown>) => (
       <div className="flex items-center gap-1 max-w-[200px] truncate">
         <span className="text-[10px] font-medium text-muted-foreground">
           {row.original.remarks ?? 'No remarks'}
@@ -137,15 +138,14 @@ export const staffAttendanceColumns: Array<
   {
     id: 'actions',
     header: '',
-    cell: ({ row, column }) => {
-      return (column.columnDef.meta as any)?.onMarkAttendance ? (
+    cell: ({ row, column }: CellContext<StaffAttendanceWithMember, unknown>) => {
+      const onMarkAttendance = column.columnDef.meta?.onMarkAttendance
+      return onMarkAttendance ? (
         <Button
           variant="ghost"
           size="sm"
           className="h-8 font-bold text-[10px] uppercase tracking-wider hover:bg-primary hover:text-primary-foreground"
-          onClick={() =>
-            (column.columnDef.meta as any).onMarkAttendance(row.original)
-          }
+          onClick={() => onMarkAttendance(row.original)}
         >
           {row.original.created_at ? 'Edit' : 'Mark'}
         </Button>

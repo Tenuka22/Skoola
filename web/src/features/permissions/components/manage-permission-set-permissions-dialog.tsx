@@ -61,8 +61,8 @@ export function ManagePermissionSetPermissionsDialog({
       setSelectedPermissions(
         new Set(
           allPermissions
-            .filter((p: any) => p.id % 2 === 0)
-            .map((p: any) => p.id),
+            .filter((p: Permission) => p.id % 2 === 0)
+            .map((p: Permission) => p.id),
         ),
       )
     }
@@ -76,8 +76,7 @@ export function ManagePermissionSetPermissionsDialog({
   //       toast.success('Permission assigned to set.')
   //     },
   //     onError: (error) => {
-  //       toast.error(`Failed to assign permission: ${(error as any).message}`)
-  //     },
+  //       toast.error(`Failed to assign permission: ${error.message}`)  //     },
   //   })
 
   //   const unassignMutation = useMutation({
@@ -88,8 +87,7 @@ export function ManagePermissionSetPermissionsDialog({
   //       toast.success('Permission unassigned from set.')
   //     },
   //     onError: (error) => {
-  //       toast.error(`Failed to unassign permission: ${(error as any).message}`)
-  //     },
+  //       toast.error(`Failed to unassign permission: ${error.message}`)  //     },
   //   })
 
   const handlePermissionToggle = (permissionId: number, isChecked: boolean) => {
@@ -133,7 +131,7 @@ export function ManagePermissionSetPermissionsDialog({
               <h3 className="font-semibold text-lg mb-2">{category}</h3>
               <Separator className="mb-3" />
               <div className="grid grid-cols-2 gap-2">
-                {permissions.map((p: any) => (
+                {permissions.map((p: Permission) => (
                   <div key={p.id} className="flex items-center space-x-2">
                     <Checkbox
                       id={`perm-${p.id}`}

@@ -71,8 +71,7 @@ export function EditPermissionSetDialog({
   //       queryClient.invalidateQueries({ queryKey: ['permissionSets'] })
   //     },
   //     onError: (error) => {
-  //       toast.error(`Failed to update permission set: ${(error as any).message}`)
-  //     },
+  //       toast.error(`Failed to update permission set: ${error.message}`)  //     },
   //   })
 
   //   const onSubmit = (values: z.infer<typeof formSchema>) => {

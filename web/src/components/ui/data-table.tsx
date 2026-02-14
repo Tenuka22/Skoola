@@ -23,7 +23,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends { id: string | number }, TValue> {
   columns: Array<ColumnDef<TData, TValue>>
   data: Array<TData>
   pageIndex: number
@@ -42,7 +42,7 @@ interface DataTableProps<TData, TValue> {
   isLoading?: boolean
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends { id: string | number }, TValue>({
   columns,
   data,
   pageIndex,
@@ -68,7 +68,7 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
     manualSorting: true,
-    getRowId: (row: any) => row.id,
+    getRowId: (row: TData) => String(row.id),
     state: {
       pagination: {
         pageIndex,

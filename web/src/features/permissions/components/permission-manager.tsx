@@ -1,3 +1,4 @@
+import type { Permission } from '@/lib/api/types.gen'
 'use client'
 
 import * as React from 'react'
@@ -15,10 +16,6 @@ import {
   UserGroupIcon,
   ZapIcon,
 } from '@hugeicons/core-free-icons'
-// import { useMutation, useQueryClient } from '@tanstack/react-query'
-// import { toast } from 'sonner'
-// import { createPermission, deletePermission } from '../api'
-// import type { Permission, PermissionEnum, PermissionSeverity  } from '@/lib/api/types.gen'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -43,7 +40,7 @@ import {
 } from '@/components/ui/select'
 
 interface PermissionManagerProps {
-  permissions: Array<any>
+  permissions: Array<Permission>
   assignedPermissionIds: Array<number>
   onToggle: (permissionId: number, isEnabled: boolean) => void
   readOnly?: boolean
@@ -83,7 +80,7 @@ export function PermissionManager({
   //   })
 
   // Group permissions by prefix/category
-  const categories: Record<string, Array<any>> = {
+  const categories: Record<string, Array<Permission>> = {
     'User Management': permissions.filter((p) => p.name.startsWith('User')),
     'Role Management': permissions.filter((p) => p.name.startsWith('Role')),
     'Permission Management': permissions.filter((p) =>

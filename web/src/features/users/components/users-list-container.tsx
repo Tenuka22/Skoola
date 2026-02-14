@@ -9,6 +9,7 @@ import type {
   PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaData,
   UserResponse,
 } from '@/lib/api'
+import { mapUserResponseToUserProfile } from '../utils/user-mappers'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { DataTable } from '@/components/ui/data-table'
 
@@ -82,7 +83,7 @@ export function UsersListContainer({
 
         <TabsContent value="board">
           <UserBoardView
-            users={usersQuery.data?.data}
+            users={usersQuery.data?.data?.map(mapUserResponseToUserProfile)}
             isLoading={usersQuery.isFetching}
             onEdit={(user) => setUserToEdit(user)}
             onDelete={(id) => setUserToDelete(id)}

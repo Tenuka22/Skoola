@@ -49,8 +49,7 @@ export function PermissionsTable({
   //       queryClient.invalidateQueries({ queryKey: ['permissions'] })
   //     },
   //     onError: (error) => {
-  //       toast.error(`Failed to delete permission: ${(error as any).message}`)
-  //     },
+  //       toast.error(`Failed to delete permission: ${error.message}`)  //     },
   //   })
 
   const columns = React.useMemo(

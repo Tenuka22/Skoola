@@ -75,8 +75,7 @@ export function CreatePermissionDialog({
   //       queryClient.invalidateQueries({ queryKey: ['permissions'] })
   //     },
   //     onError: (error) => {
-  //       toast.error(`Failed to create permission: ${(error as any).message}`)
-  //     },
+  //       toast.error(`Failed to create permission: ${error.message}`)  //     },
   //   })
 
   //   const onSubmit = (values: z.infer<typeof formSchema>) => {

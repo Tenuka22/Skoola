@@ -12,6 +12,12 @@ import { toast } from 'sonner'
 import { fetchPermissions, unassignPermissionFromPermissionSet } from '../api'
 import { PermissionManager } from './permission-manager'
 import type { PermissionSet } from '../types'
+import type { Permission } from '../../../lib/api/types.gen'
+
+interface PermissionSetWithPermissionsResponse {
+  permissions: Permission[]
+}
+
 import {
   Dialog,
   DialogContent,
@@ -50,13 +56,13 @@ export function RolePermissionsDialog({
         client: authClient,
         path: { permission_set_id: permissionSet.id },
       })
-      return (response.data as any)?.permissions || []
+      return (response.data as PermissionSetWithPermissionsResponse).permissions || []
     },
     enabled: !!permissionSet && open,
   })
 
   const assignedIds = React.useMemo(
-    () => assignedPermissions?.map((p: any) => p.id) || [],
+    () => assignedPermissions?.map((p: Permission) => p.id) || [],
     [assignedPermissions],
   )
 

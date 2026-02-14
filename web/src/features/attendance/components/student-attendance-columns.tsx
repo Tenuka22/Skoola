@@ -1,18 +1,19 @@
 import { getStatusColor } from './staff-attendance-columns'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, CellContext } from '@tanstack/react-table'
 import type { StudentAttendanceWithMember } from '../types'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
+
 export const studentAttendanceColumns: Array<
-  ColumnDef<StudentAttendanceWithMember>
+  ColumnDef<StudentAttendanceWithMember, unknown>
 > = [
   {
     id: 'student_name',
     header: 'Student Name',
-    cell: ({ row }) => {
+    cell: ({ row }: CellContext<StudentAttendanceWithMember, unknown>) => {
       const student = row.original.student
       return (
         <div className="flex items-center gap-3">
@@ -38,7 +39,7 @@ export const studentAttendanceColumns: Array<
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: ({ row }) => {
+    cell: ({ row }: CellContext<StudentAttendanceWithMember, unknown>) => {
       const status = row.original.status
       return (
         <Badge
@@ -53,7 +54,7 @@ export const studentAttendanceColumns: Array<
   {
     accessorKey: 'remarks',
     header: 'Note',
-    cell: ({ row }) => (
+    cell: ({ row }: CellContext<StudentAttendanceWithMember, unknown>) => (
       <div className="flex items-center gap-1 max-w-[200px] truncate">
         <span className="text-[10px] font-medium text-muted-foreground">
           {row.original.remarks ?? 'No remarks'}
@@ -64,15 +65,14 @@ export const studentAttendanceColumns: Array<
   {
     id: 'actions',
     header: '',
-    cell: ({ row, column }) => {
-      return (column.columnDef.meta as any)?.onMarkAttendance ? (
+    cell: ({ row, column }: CellContext<StudentAttendanceWithMember, unknown>) => {
+      const onMarkAttendance = column.columnDef.meta?.onMarkAttendance
+      return onMarkAttendance ? (
         <Button
           variant="ghost"
           size="sm"
           className="h-8 font-bold text-[10px] uppercase tracking-wider hover:bg-primary hover:text-primary-foreground"
-          onClick={() =>
-            (column.columnDef.meta as any).onMarkAttendance(row.original)
-          }
+          onClick={() => onMarkAttendance(row.original)}
         >
           {row.original.id && !row.original.id.startsWith('temp-')
             ? 'Edit'

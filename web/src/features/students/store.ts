@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { SortingState } from '@tanstack/react-table'
 import type { StudentResponse } from '@/features/students/types'
 
-type ViewMode = 'table' | 'board' | 'list'
+export type ViewMode = 'table' | 'board' | 'list'
 
 interface StudentsState {
   page: number

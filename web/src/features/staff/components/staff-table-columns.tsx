@@ -33,7 +33,14 @@ export const getStaffColumns = ({
       return (
         <div className="flex items-center gap-3">
           <Avatar className="size-8">
-            <AvatarImage src={staff.photo_url || undefined} alt={staff.name} />
+            <AvatarImage
+              src={
+                staff.photo_url ||
+                undefined ||
+                `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.email}`
+              }
+              alt={staff.name}
+            />
             <AvatarFallback>
               {staff.name
                 .split(' ')
@@ -60,7 +67,7 @@ export const getStaffColumns = ({
     accessorKey: 'staff_type',
     header: 'Role',
     cell: ({ row }) => {
-      const type = row.getValue('staff_type') as string
+      const type = row.original.staff_type
       return (
         <Badge variant="outline" className="font-normal">
           {type}
@@ -72,7 +79,7 @@ export const getStaffColumns = ({
     accessorKey: 'employment_status',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.getValue('employment_status') as string
+      const status = row.original.employment_status
       return (
         <Badge
           variant="secondary"

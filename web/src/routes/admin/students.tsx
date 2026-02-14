@@ -8,15 +8,18 @@ import {
 import * as React from 'react'
 import { toast } from 'sonner'
 
-import { StudentModals } from '@/features/students/components/student-modals'
-import { StudentToolbar } from '@/features/students/components/student-toolbar'
-import { getStudentColumns } from '@/features/students/components/student-table-columns'
-import { StudentFilters } from '@/features/students/components/student-filters'
-import { StudentHeader } from '@/features/students/components/student-header'
-import { StudentListContainer } from '@/features/students/components/student-list-container'
-import { useStudentsStore } from '@/features/students/store'
-import { handleExportCSV } from '@/lib/export'
-import { authClient } from '@/lib/clients'
+import { StudentAddDialog } from '../../features/students/components/student-add-dialog'
+import { StudentBulkDeleteDialog } from '../../features/students/components/student-bulk-delete-dialog'
+import { StudentDeleteDialog } from '../../features/students/components/student-delete-dialog'
+import { StudentEditDialog } from '../../features/students/components/student-edit-dialog'
+import { StudentToolbar } from '../../features/students/components/student-toolbar'
+import { getStudentColumns } from '../../features/students/components/student-table-columns'
+import { StudentFilters } from '../../features/students/components/student-filters'
+import { StudentHeader } from '../../features/students/components/student-header'
+import { StudentListContainer } from '../../features/students/components/student-list-container'
+import { useStudentsStore } from '../../features/students/store'
+import { handleExportCSV } from '../../lib/export'
+import { authClient } from '../../lib/clients'
 import {
   deleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Mutation,
   getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Options,
@@ -24,7 +27,7 @@ import {
   postStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Mutation,
   putStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Mutation,
 } from '@/lib/api/@tanstack/react-query.gen'
-import type { UpdateStudentRequest } from '@/lib/api/types.gen'
+
 
 export const Route = createFileRoute('/admin/students')({
   component: StudentsPage,
@@ -169,19 +172,26 @@ function StudentsPage() {
         onExport={() => {}}
       />
 
-      <StudentModals
+
+      <StudentDeleteDialog
         studentToDelete={store.studentToDelete}
         setStudentToDelete={store.setStudentToDelete}
         onDeleteConfirm={(id) =>
           deleteStudent.mutate({ path: { student_id: id } })
         }
+      />
+
+      <StudentAddDialog
         isAddOpen={store.isAddStudentOpen}
         setIsAddOpen={store.setIsAddStudentOpen}
         onAddConfirm={(values) => createStudent.mutate({ body: values })}
         isAdding={createStudent.isPending}
+      />
+
+      <StudentEditDialog
         studentToEdit={store.studentToEdit}
         setStudentToEdit={store.setStudentToEdit}
-        onEditConfirm={(values: UpdateStudentRequest) =>
+        onEditConfirm={(values) =>
           store.studentToEdit &&
           updateStudent.mutate({
             path: { student_id: store.studentToEdit.id },
@@ -189,6 +199,9 @@ function StudentsPage() {
           })
         }
         isEditing={updateStudent.isPending}
+      />
+
+      <StudentBulkDeleteDialog
         isBulkDeleteOpen={store.isBulkDeleteOpen}
         setIsBulkDeleteOpen={store.setIsBulkDeleteOpen}
         onBulkDeleteConfirm={() => {
@@ -197,6 +210,7 @@ function StudentsPage() {
         }}
         selectedCount={selectedStudents.size}
       />
+
     </div>
   )
 }

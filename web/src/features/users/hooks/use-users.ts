@@ -19,7 +19,8 @@ export function useUsers() {
 
   const limit = 10
   const sortBy = sorting[0]?.id
-  const sortOrder = sorting[0]?.desc ? 'desc' : 'asc'
+  type SortOrder = 'asc' | 'desc'
+  const sortOrder: SortOrder = sorting[0]?.desc ? 'desc' : 'asc'
 
   return useQuery({
     ...getUsers06Bdcf95Aafda840B1D04322636De293Options({
@@ -34,7 +35,7 @@ export function useUsers() {
         created_after: createdAfter ?? undefined,
         created_before: createdBefore ?? undefined,
         sort_by: sortBy,
-        sort_order: sortOrder as any,
+        sort_order: sortOrder,
       },
     }),
     placeholderData: keepPreviousData,

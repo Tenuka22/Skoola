@@ -85,7 +85,7 @@ export const MarkStudentAttendanceDialog = ({
       updateMutation.mutate(
         {
           path: { attendance_id: attendance.id },
-          body: values as any,
+          body: values,
         },
         {
           onSuccess: () => onOpenChange(false),

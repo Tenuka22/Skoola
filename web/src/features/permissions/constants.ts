@@ -10,7 +10,7 @@ export const AdminRoutesAllowedRoles = [
   'Principal',
   'VicePrincipal',
   'Accountant',
-] satisfies Array<RoleEnum> as Array<RoleEnum>
+] satisfies Array<RoleEnum>
 
 export const PERMISSION_NAMES = PermissionEnumSchema.enum
 export const PERMISSION_SEVERITIES = PermissionSeveritySchema.enum

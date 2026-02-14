@@ -38,7 +38,8 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@/components/ui/empty'
-import { AdminRoutesAllowedRoles } from '@/features/permissions/constants'
+
+import { isAdminRouteRole } from '../routes/utils/role-guards'
 import { AccountSwitcher } from '@/features/auth/components/account-switcher'
 
 export const Route = createFileRoute('/admin')({
@@ -70,9 +71,7 @@ function AdminLayout() {
 
   if (
     !activeSession ||
-    !activeSession.user.roles.some((role) =>
-      AdminRoutesAllowedRoles.includes(role),
-    )
+    !activeSession.user.roles.some((role) => isAdminRouteRole(role))
   ) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-muted/40 p-4">

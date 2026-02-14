@@ -6,7 +6,7 @@ import {
   TableIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useUsersStore } from '../store'
+import { useUsersStore, ViewMode } from '../store'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import {
@@ -25,7 +25,7 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
 
   return (
     <div className="mb-4 flex flex-col gap-4 px-8 sm:flex-row sm:items-center sm:justify-between">
-      <Tabs value={view} onValueChange={(value: any) => setView(value)}>
+      <Tabs value={view} onValueChange={(value: ViewMode) => setView(value)}>
         <TabsList>
           <TabsTrigger value="table" className="gap-2">
             <HugeiconsIcon icon={TableIcon} className="size-4" />

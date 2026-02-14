@@ -8,15 +8,17 @@ import {
 import * as React from 'react'
 import { toast } from 'sonner'
 
-import { StaffHeader } from '@/features/staff/components/staff-header'
-import { StaffToolbar } from '@/features/staff/components/staff-toolbar'
-import { StaffFilters } from '@/features/staff/components/staff-filters'
-import { StaffListContainer } from '@/features/staff/components/staff-list-container'
-import { getStaffColumns } from '@/features/staff/components/staff-table-columns'
-import { StaffModals } from '@/features/staff/components/staff-modals'
-import { useStaffStore } from '@/features/staff/store'
-import { handleExportCSV } from '@/lib/export'
-import { authClient } from '@/lib/clients'
+import { StaffHeader } from '../../features/staff/components/staff-header'
+import { StaffToolbar } from '../../features/staff/components/staff-toolbar'
+import { StaffFilters } from '../../features/staff/components/staff-filters'
+import { StaffListContainer } from '../../features/staff/components/staff-list-container'
+import { getStaffColumns } from '../../features/staff/components/staff-table-columns'
+import { StaffAddDialog } from '../../features/staff/components/staff-add-dialog'
+import { StaffDeleteDialog } from '../../features/staff/components/staff-delete-dialog'
+import { StaffEditDialog } from '../../features/staff/components/staff-edit-dialog'
+import { useStaffStore } from '../../features/staff/store'
+import { handleExportCSV } from '../../lib/export'
+import { authClient } from '../../lib/clients'
 import {
   deleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Mutation,
   getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Options,
@@ -24,7 +26,8 @@ import {
   postStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Mutation,
   putStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Mutation,
 } from '@/lib/api/@tanstack/react-query.gen'
-import type { EmploymentStatus, StaffType } from '@/lib/api/types.gen'
+
+import { isEmploymentStatus, isStaffType } from '../../features/staff/utils/staff-guards'
 
 export const Route = createFileRoute('/admin/staff')({
   component: StaffPage,
@@ -61,11 +64,17 @@ function StaffPage() {
         limit,
         search: debouncedSearch,
         staff_type:
-          staffTypeFilter === 'all' ? undefined : (staffTypeFilter as StaffType),
+          staffTypeFilter === 'all'
+            ? undefined
+            : isStaffType(staffTypeFilter)
+              ? staffTypeFilter
+              : undefined,
         employment_status:
           employmentStatusFilter === 'all'
             ? undefined
-            : (employmentStatusFilter as EmploymentStatus),
+            : isEmploymentStatus(employmentStatusFilter)
+              ? employmentStatusFilter
+              : undefined,
       },
     }),
     placeholderData: keepPreviousData,
@@ -129,9 +138,9 @@ function StaffPage() {
 
   return (
     <div className="flex h-full flex-col bg-background">
-      <StaffHeader totalStaff={staffQuery.data?.total} />
+      <StaffHeader />
       <StaffToolbar
-        handleExportCSV={() =>
+        onExport={() =>
           handleExportCSV(staffQuery.data?.data || [], 'staff_export.csv', [
             { header: 'ID', accessor: 'employee_id' },
             { header: 'Name', accessor: 'name' },
@@ -149,14 +158,21 @@ function StaffPage() {
         setRowSelection={setRowSelection}
       />
 
-      <StaffModals
+
+      <StaffDeleteDialog
         staffToDelete={store.staffToDelete}
         setStaffToDelete={store.setStaffToDelete}
         onDeleteConfirm={(id) => deleteStaff.mutate({ path: { staff_id: id } })}
+      />
+
+      <StaffAddDialog
         isAddOpen={store.isAddStaffOpen}
         setIsAddOpen={store.setIsAddStaffOpen}
         onAddConfirm={(values) => createStaff.mutate({ body: values })}
         isAdding={createStaff.isPending}
+      />
+
+      <StaffEditDialog
         staffToEdit={store.staffToEdit}
         setStaffToEdit={store.setStaffToEdit}
         onEditConfirm={(values) =>
@@ -168,6 +184,7 @@ function StaffPage() {
         }
         isEditing={updateStaff.isPending}
       />
+
     </div>
   )
 }

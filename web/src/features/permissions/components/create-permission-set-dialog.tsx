@@ -59,8 +59,7 @@ export function CreatePermissionSetDialog({
   //       queryClient.invalidateQueries({ queryKey: ['permissionSets'] })
   //     },
   //     onError: (error) => {
-  //       toast.error(`Failed to create permission set: ${(error as any).message}`)
-  //     },
+  //       toast.error(`Failed to create permission set: ${error.message}`)  //     },
   //   })
 
   //   const onSubmit = (values: z.infer<typeof formSchema>) => {

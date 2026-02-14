@@ -94,8 +94,7 @@ export function EditPermissionDialog({
   //       queryClient.invalidateQueries({ queryKey: ['permissions'] })
   //     },
   //     onError: (error) => {
-  //       toast.error(`Failed to update permission: ${(error as any).message}`)
-  //     },
+  //       toast.error(`Failed to update permission: ${error.message}`)  //     },
   //   })
 
   //   const onSubmit = (values: z.infer<typeof formSchema>) => {

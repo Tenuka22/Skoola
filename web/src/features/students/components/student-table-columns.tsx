@@ -33,7 +33,14 @@ export const getStudentColumns = ({
       return (
         <div className="flex items-center gap-3">
           <Avatar className="size-8">
-            <AvatarImage src={student.photo_url || undefined} alt={student.name_english} />
+            <AvatarImage
+              src={
+                student.photo_url ||
+                undefined ||
+                `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.email}`
+              }
+              alt={student.name_english}
+            />
             <AvatarFallback>
               {student.name_english
                 .split(' ')
@@ -61,7 +68,7 @@ export const getStudentColumns = ({
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.getValue('status') as string
+      const status = row.original.status
       return (
         <Badge
           variant="secondary"

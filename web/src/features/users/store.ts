@@ -3,7 +3,7 @@ import type { SortingState } from '@tanstack/react-table'
 
 import type { UserResponse } from '@/lib/api/types.gen'
 
-type ViewMode = 'table' | 'board' | 'list'
+export type ViewMode = 'table' | 'board' | 'list'
 
 interface UsersState {
   page: number

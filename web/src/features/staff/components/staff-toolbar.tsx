@@ -17,12 +17,12 @@ import {
 } from '@/components/ui/input-group'
 
 interface StaffToolbarProps {
-  handleExportCSV: () => void
+  onExport: () => void
   handleImportCSV?: () => void
 }
 
 export function StaffToolbar({
-  handleExportCSV,
+  onExport,
   handleImportCSV,
 }: StaffToolbarProps) {
   const { view, setView, search, setSearch, setIsAddStaffOpen } =
@@ -71,7 +71,7 @@ export function StaffToolbar({
           variant="outline"
           size="sm"
           className="gap-2"
-          onClick={handleExportCSV}
+          onClick={onExport}
         >
           <HugeiconsIcon icon={Download01Icon} className="size-4" />
           Export
