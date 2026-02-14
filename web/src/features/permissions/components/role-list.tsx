@@ -1,8 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useQuery } from '@tanstack/react-query'
-// import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Add01Icon,
@@ -10,8 +9,7 @@ import {
   Loading03Icon,
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
-// import { toast } from 'sonner'
-// import { createPermissionSet, deletePermissionSet, fetchPermissionSets } from '../api'
+import { toast } from 'sonner'
 import { RoleCard } from './role-card'
 import { RolePermissionsDialog } from './role-permissions-dialog'
 import type { PermissionSet } from '../types'
@@ -27,6 +25,14 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  getPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44Options,
+  getPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44QueryKey,
+  postPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44Mutation,
+  deletePermissionSets9F945C97A8E86681C452E5Cc961Ebc33Mutation,
+} from '@/lib/api/@tanstack/react-query.gen'
+import { authClient } from '@/lib/clients'
+import { isPermissionSetArray } from '../utils/permission-guards'
 
 export function RoleList() {
   const [selectedPermissionSet, setSelectedPermissionSet] =
@@ -36,33 +42,43 @@ export function RoleList() {
   const [newRoleName, setNewRoleName] = React.useState('')
   const [newRoleDescription, setNewRoleDescription] = React.useState('')
 
-  //   const queryClient = useQueryClient()
+  const queryClient = useQueryClient()
 
   const { data: permissionSets = [], isLoading } = useQuery({
-    queryKey: ['permission-sets'],
-    queryFn: async () => [], // Mocking as fetchPermissionSets is commented out
+    ...getPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44Options({
+      client: authClient,
+    }),
+    select: (data) => (isPermissionSetArray(data) ? data : []),
   })
 
-  //   const createMutation = useMutation({
-  //     mutationFn: () => createPermissionSet(newRoleName, newRoleDescription),
-  //     onSuccess: () => {
-  //       queryClient.invalidateQueries({ queryKey: ['permission-sets'] })
-  //       setIsCreateOpen(false)
-  //       setNewRoleName('')
-  //       setNewRoleDescription('')
-  //       toast.success('New permission set integrated into mesh')
-  //     },
-  //     onError: () => toast.error('Failed to create permission set'),
-  //   })
+  const createMutation = useMutation({
+    ...postPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44Mutation({
+      client: authClient,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44QueryKey(),
+      })
+      setIsCreateOpen(false)
+      setNewRoleName('')
+      setNewRoleDescription('')
+      toast.success('New permission set integrated into mesh')
+    },
+    onError: () => toast.error('Failed to create permission set'),
+  })
 
-  //   const deleteMutation = useMutation({
-  //     mutationFn: (id: string) => deletePermissionSet(id),
-  //     onSuccess: () => {
-  //       queryClient.invalidateQueries({ queryKey: ['permission-sets'] })
-  //       toast.success('Permission set purged from infrastructure')
-  //     },
-  //     onError: () => toast.error('Failed to delete permission set'),
-  //   })
+  const deleteMutation = useMutation({
+    ...deletePermissionSets9F945C97A8E86681C452E5Cc961Ebc33Mutation({
+      client: authClient,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44QueryKey(),
+      })
+      toast.success('Permission set purged from infrastructure')
+    },
+    onError: () => toast.error('Failed to delete permission set'),
+  })
 
   const handleManage = (permissionSet: PermissionSet) => {
     setSelectedPermissionSet(permissionSet)
@@ -74,16 +90,18 @@ export function RoleList() {
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {permissionSets.map((permissionSet: any) => (
+        {permissionSets.map((permissionSet: PermissionSet) => (
           <div key={permissionSet.id} className="space-y-6">
             <RoleCard
               permissionSet={permissionSet}
               userCount={0}
               permissionCount={0}
               onManage={handleManage}
-              onDelete={() => {
-                /* deleteMutation.mutate(permissionSet.id) */
-              }}
+              onDelete={() =>
+                deleteMutation.mutate({
+                  path: { permission_set_id: permissionSet.id },
+                })
+              }
             />
           </div>
         ))}
@@ -177,8 +195,17 @@ export function RoleList() {
                 Abort
               </Button>
               <Button
-                //   disabled={!newRoleName || !newRoleDescription || createMutation.isPending}
-                //   onClick={() => createMutation.mutate()}
+                disabled={
+                  !newRoleName || !newRoleDescription || createMutation.isPending
+                }
+                onClick={() =>
+                  createMutation.mutate({
+                    body: {
+                      name: newRoleName,
+                      description: newRoleDescription,
+                    },
+                  })
+                }
                 className="h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20"
               >
                 Create Permission Set

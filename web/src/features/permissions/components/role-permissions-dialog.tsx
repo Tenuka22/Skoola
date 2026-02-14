@@ -9,10 +9,9 @@ import {
   Shield01Icon,
 } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
-import { fetchPermissions, unassignPermissionFromPermissionSet } from '../api'
 import { PermissionManager } from './permission-manager'
 import type { PermissionSet } from '../types'
-import type { Permission } from '../../../lib/api/types.gen'
+import type { Permission } from '@/lib/api/types.gen'
 
 import {
   Dialog,
@@ -22,12 +21,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { getPermissionSets9F945C97A8E86681C452E5Cc961Ebc33 as getPermissionSetById } from '@/lib/api/sdk.gen'
+import {
+  getPermissions9C8839E73223Cb930255A2882A4B0Db4Options,
+  getPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0Options,
+  getPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0QueryKey,
+  postPermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Mutation,
+  deletePermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Mutation,
+} from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
-
-interface PermissionSetWithPermissionsResponse {
-  permissions: Array<Permission>
-}
 
 interface RolePermissionsDialogProps {
   permissionSet: PermissionSet | null
@@ -42,61 +43,87 @@ export function RolePermissionsDialog({
 }: RolePermissionsDialogProps) {
   const queryClient = useQueryClient()
 
-  const { data: permissions, isLoading: isLoadingAll } = useQuery({
-    queryKey: ['permissions'],
-    queryFn: fetchPermissions,
+  const { data: permissionsResponse, isLoading: isLoadingAll } = useQuery({
+    ...getPermissions9C8839E73223Cb930255A2882A4B0Db4Options({
+      client: authClient,
+      query: { limit: 1000 }, // Fetch all permissions
+    }),
     enabled: open,
   })
 
+  const permissions = permissionsResponse?.data || []
+
   const { data: assignedPermissions, isLoading: isLoadingAssigned } = useQuery({
-    queryKey: ['permission-set-permissions', permissionSet?.id],
-    queryFn: async () => {
-      if (!permissionSet) return []
-      const response = await getPermissionSetById({
-        client: authClient,
-        path: { permission_set_id: permissionSet.id },
-      })
-      return (
-        (response.data as PermissionSetWithPermissionsResponse).permissions ||
-        []
-      )
-    },
+    ...getPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0Options({
+      client: authClient,
+      path: { permission_set_id: permissionSet?.id || '' },
+    }),
     enabled: !!permissionSet && open,
   })
 
-  const assignedIds = React.useMemo(
-    () => assignedPermissions?.map((p: Permission) => p.id) || [],
-    [assignedPermissions],
-  )
+  const assignedIds = React.useMemo(() => {
+    if (Array.isArray(assignedPermissions)) {
+      return (assignedPermissions as Array<Permission>).map((p) => p.id)
+    }
+    return []
+  }, [assignedPermissions])
 
-  const mutation = useMutation({
-    mutationFn: async ({
-      permissionId,
-      isEnabled,
-    }: {
-      permissionId: number
-      isEnabled: boolean
-    }) => {
-      if (!permissionSet) return
-      if (isEnabled) {
-        // return assignPermissionToPermissionSet(permissionSet.id, permissionId)
-      } else {
-        return unassignPermissionFromPermissionSet(
-          permissionSet.id,
-          permissionId,
-        )
-      }
-    },
+  const assignMutation = useMutation({
+    ...postPermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Mutation({
+      client: authClient,
+    }),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['permission-set-permissions', permissionSet?.id],
-      })
+      if (permissionSet) {
+        queryClient.invalidateQueries({
+          queryKey: getPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0QueryKey({
+            path: { permission_set_id: permissionSet.id },
+          }),
+        })
+      }
       toast.success('Security policy synchronized')
     },
     onError: () => {
       toast.error('Failed to update mesh parameters')
     },
   })
+
+  const unassignMutation = useMutation({
+    ...deletePermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Mutation({
+      client: authClient,
+    }),
+    onSuccess: () => {
+      if (permissionSet) {
+        queryClient.invalidateQueries({
+          queryKey: getPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0QueryKey({
+            path: { permission_set_id: permissionSet.id },
+          }),
+        })
+      }
+      toast.success('Security policy synchronized')
+    },
+    onError: () => {
+      toast.error('Failed to update mesh parameters')
+    },
+  })
+
+  const handleToggle = (permissionId: number, isEnabled: boolean) => {
+    if (!permissionSet) return
+    if (isEnabled) {
+      assignMutation.mutate({
+        path: {
+          permission_set_id: permissionSet.id,
+          permission_id: permissionId,
+        },
+      })
+    } else {
+      unassignMutation.mutate({
+        path: {
+          permission_set_id: permissionSet.id,
+          permission_id: permissionId,
+        },
+      })
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -137,9 +164,7 @@ export function RolePermissionsDialog({
             <PermissionManager
               permissions={permissions || []}
               assignedPermissionIds={assignedIds}
-              onToggle={(id, enabled) =>
-                mutation.mutate({ permissionId: id, isEnabled: enabled })
-              }
+              onToggle={handleToggle}
             />
           )}
         </div>

@@ -12,7 +12,6 @@ import {
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
-import { fetchPermissions, unassignPermissionFromUser } from '../api'
 import { PermissionManager } from './permission-manager'
 import { Button } from '@/components/ui/button'
 import {
@@ -23,6 +22,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  getPermissions9C8839E73223Cb930255A2882A4B0Db4Options,
+  getUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cQueryKey,
+} from '@/lib/api/@tanstack/react-query.gen'
+import {
+  postUsers069Bc83C67Aeddbeed75C9632Ba56B82,
+  deleteUsers069Bc83C67Aeddbeed75C9632Ba56B82,
+} from '@/lib/api/sdk.gen'
+import { authClient } from '@/lib/clients'
 
 interface UserBulkPermissionsDialogProps {
   userIds: Array<string>
@@ -42,23 +50,56 @@ export function UserBulkPermissionsDialog({
   >([])
   const [isProcessing, setIsProcessing] = React.useState(false)
 
-  const { data: allPermissions, isLoading: isLoadingAll } = useQuery({
-    queryKey: ['permissions'],
-    queryFn: fetchPermissions,
+  const { data: allPermissionsResponse, isLoading: isLoadingAll } = useQuery({
+    ...getPermissions9C8839E73223Cb930255A2882A4B0Db4Options({
+      client: authClient,
+      query: { limit: 1000 },
+    }),
     enabled: open,
   })
+  const allPermissions = allPermissionsResponse?.data || []
 
   const handleApply = async () => {
     setIsProcessing(true)
     try {
+      const promises = []
+
       // Add permissions
       for (const userId of userIds) {
-        for (const permId of selectedRemoveIds) {
-          await unassignPermissionFromUser(userId, permId)
+        for (const permId of selectedAddIds) {
+          promises.push(
+            postUsers069Bc83C67Aeddbeed75C9632Ba56B82({
+              client: authClient,
+              path: { user_id: userId, permission_id: permId },
+            }),
+          )
         }
       }
+
+      // Remove permissions
+      for (const userId of userIds) {
+        for (const permId of selectedRemoveIds) {
+          promises.push(
+            deleteUsers069Bc83C67Aeddbeed75C9632Ba56B82({
+              client: authClient,
+              path: { user_id: userId, permission_id: permId },
+            }),
+          )
+        }
+      }
+
+      await Promise.all(promises)
+
       toast.success(`Security mesh updated for ${userIds.length} users`)
-      queryClient.invalidateQueries({ queryKey: ['user-permissions'] })
+      // Invalidate permissions for all modified users
+      userIds.forEach((userId) => {
+        queryClient.invalidateQueries({
+          queryKey: getUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cQueryKey({
+            path: { user_id: userId },
+          }),
+        })
+      })
+
       onOpenChange(false)
       setSelectedAddIds([])
       setSelectedRemoveIds([])

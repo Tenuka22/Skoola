@@ -8,10 +8,8 @@ import {
   zPermissionEnum,
   zPermissionSeverity,
 } from '@/lib/api/zod.gen'
-// import { toast } from 'sonner'
-// import { useMutation, useQueryClient } from '@tanstack/react-query'
-// import { createPermission } from '../../permissions/api'
-// import type { PermissionEnum, PermissionSeverity } from '@/lib/api/types.gen'
+import { toast } from 'sonner'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -37,11 +35,16 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  postPermissions9C8839E73223Cb930255A2882A4B0Db4Mutation,
+  getPermissions9C8839E73223Cb930255A2882A4B0Db4QueryKey,
+} from '@/lib/api/@tanstack/react-query.gen'
+import { authClient } from '@/lib/clients'
 
 const formSchema = zCreatePermissionRequest.extend({
-  name: zPermissionEnum, // Already has message from zPermissionEnum
+  name: zPermissionEnum,
   description: z.string().min(1, 'Description is required'),
-  safety_level: zPermissionSeverity, // Already has message from zPermissionSeverity
+  safety_level: zPermissionSeverity,
   is_admin_only: z.boolean().optional(),
 })
 
@@ -54,33 +57,39 @@ export function CreatePermissionDialog({
   open,
   onOpenChange,
 }: CreatePermissionDialogProps) {
-  //   const queryClient = useQueryClient()
+  const queryClient = useQueryClient()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: 'UserRead', // Default to a common permission
+      name: 'UserRead',
       description: '',
       safety_level: 'Low',
       is_admin_only: false,
     },
   })
 
-  //   const createMutation = useMutation({
-  //     mutationFn: (values: z.infer<typeof formSchema>) =>
-  //       createPermission(values.name as PermissionEnum, values.description, values.safety_level as PermissionSeverity),
-  //     onSuccess: () => {
-  //       toast.success('Permission created successfully.')
-  //       onOpenChange(false)
-  //       form.reset()
-  //       queryClient.invalidateQueries({ queryKey: ['permissions'] })
-  //     },
-  //     onError: (error) => {
-  //       toast.error(`Failed to create permission: ${error.message}`)  //     },
-  //   })
+  const createMutation = useMutation({
+    ...postPermissions9C8839E73223Cb930255A2882A4B0Db4Mutation({
+      client: authClient,
+    }),
+    onSuccess: () => {
+      toast.success('Permission created successfully.')
+      onOpenChange(false)
+      form.reset()
+      queryClient.invalidateQueries({
+        queryKey: getPermissions9C8839E73223Cb930255A2882A4B0Db4QueryKey(),
+      })
+    },
+    onError: (error) => {
+      toast.error(`Failed to create permission: ${error.message}`)
+    },
+  })
 
-  //   const onSubmit = (values: z.infer<typeof formSchema>) => {
-  //     createMutation.mutate(values)
-  //   }
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    createMutation.mutate({
+      body: values,
+    })
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -89,7 +98,7 @@ export function CreatePermissionDialog({
           <DialogTitle>Create New Permission</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={() => {}} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -181,7 +190,7 @@ export function CreatePermissionDialog({
                       type="checkbox"
                       checked={field.value}
                       onChange={(e) => field.onChange(e.target.checked)}
-                      className="h-4 w-4"
+                      className="h-4 w-4 accent-primary"
                     />
                   </FormControl>
                 </FormItem>
@@ -195,7 +204,9 @@ export function CreatePermissionDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit">Create</Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? 'Creating...' : 'Create'}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

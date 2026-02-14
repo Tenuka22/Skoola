@@ -1,4 +1,5 @@
 import type { PermissionSet } from '../types'
+import type { PermissionsViewMode } from '../store'
 
 export const isPermissionSetArray = (
   data: unknown,
@@ -16,3 +17,10 @@ export const isPermissionSetArray = (
     )
   )
 }
+
+export const isPermissionsViewMode = (
+  value: string,
+): value is PermissionsViewMode => {
+  return value === 'permissions' || value === 'permission-sets'
+}
+

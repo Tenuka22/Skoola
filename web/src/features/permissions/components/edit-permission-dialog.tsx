@@ -10,10 +10,8 @@ import {
   zPermissionSeverity,
   zUpdatePermissionRequest,
 } from '@/lib/api/zod.gen'
-// import { toast } from 'sonner'
-// import { useMutation, useQueryClient } from '@tanstack/react-query'
-// import { updatePermission } from '../../permissions/api'
-// import type { PermissionEnum, PermissionSeverity } from '@/lib/api/types.gen'
+import { toast } from 'sonner'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -39,6 +37,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  putPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eMutation,
+  getPermissions9C8839E73223Cb930255A2882A4B0Db4QueryKey,
+} from '@/lib/api/@tanstack/react-query.gen'
+import { authClient } from '@/lib/clients'
 
 const formSchema = zUpdatePermissionRequest.extend({
   name: zPermissionEnum.optional(),
@@ -58,7 +61,7 @@ export function EditPermissionDialog({
   onOpenChange,
   permission,
 }: EditPermissionDialogProps) {
-  //   const queryClient = useQueryClient()
+  const queryClient = useQueryClient()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -80,26 +83,28 @@ export function EditPermissionDialog({
     }
   }, [permission, form])
 
-  //   const updateMutation = useMutation({
-  //     mutationFn: (values: z.infer<typeof formSchema>) =>
-  //       updatePermission(
-  //         permission.id,
-  //         values.name as PermissionEnum,
-  //         values.description,
-  //         values.safety_level as PermissionSeverity,
-  //       ),
-  //     onSuccess: () => {
-  //       toast.success('Permission updated successfully.')
-  //       onOpenChange(false)
-  //       queryClient.invalidateQueries({ queryKey: ['permissions'] })
-  //     },
-  //     onError: (error) => {
-  //       toast.error(`Failed to update permission: ${error.message}`)  //     },
-  //   })
+  const updateMutation = useMutation({
+    ...putPermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eMutation({
+      client: authClient,
+    }),
+    onSuccess: () => {
+      toast.success('Permission updated successfully.')
+      onOpenChange(false)
+      queryClient.invalidateQueries({
+        queryKey: getPermissions9C8839E73223Cb930255A2882A4B0Db4QueryKey(),
+      })
+    },
+    onError: (error) => {
+      toast.error(`Failed to update permission: ${error.message}`)
+    },
+  })
 
-  //   const onSubmit = (values: z.infer<typeof formSchema>) => {
-  //     updateMutation.mutate(values)
-  //   }
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    updateMutation.mutate({
+      path: { permission_id: permission.id },
+      body: values,
+    })
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -108,7 +113,7 @@ export function EditPermissionDialog({
           <DialogTitle>Edit Permission: {permission.name}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={() => {}} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -200,7 +205,7 @@ export function EditPermissionDialog({
                       type="checkbox"
                       checked={field.value}
                       onChange={(e) => field.onChange(e.target.checked)}
-                      className="h-4 w-4"
+                      className="h-4 w-4 accent-primary"
                     />
                   </FormControl>
                 </FormItem>
@@ -214,7 +219,9 @@ export function EditPermissionDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit">Update</Button>
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? 'Updating...' : 'Update'}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

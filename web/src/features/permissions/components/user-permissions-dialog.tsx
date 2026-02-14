@@ -9,28 +9,26 @@ import {
   UserIcon,
 } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
-import {
-  fetchPermissionSets,
-  fetchPermissions,
-  fetchUserPermissions,
-  getStaffPermissionSets,
-  unassignPermissionFromUser,
-} from '../api'
 import { PermissionManager } from './permission-manager'
-import type { UserResponse } from '@/lib/api/types.gen'
+import type { UserResponse, Permission } from '@/lib/api/types.gen'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-// import type { PermissionSet } from '../types' // Commented out as PermissionSet is not used in the current state
-// import { PermissionSet } from '@/lib/api/types.gen' // This import is no longer needed as PermissionSet is from ../types
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-// import { Badge } from '@/components/ui/badge' // Commented out as Badge is not used in the current state
-// import { cn } from '@/lib/utils' // Commented out as cn is not used in the current state
 import { Checkbox } from '@/components/ui/checkbox'
+import {
+  getPermissions9C8839E73223Cb930255A2882A4B0Db4Options,
+  getPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44Options,
+  getUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cOptions,
+  getUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cQueryKey,
+  postUsers069Bc83C67Aeddbeed75C9632Ba56B82Mutation,
+  deleteUsers069Bc83C67Aeddbeed75C9632Ba56B82Mutation,
+} from '@/lib/api/@tanstack/react-query.gen'
+import { authClient } from '@/lib/clients'
 
 interface UserPermissionsDialogProps {
   user: UserResponse | null
@@ -45,107 +43,100 @@ export function UserPermissionsDialog({
 }: UserPermissionsDialogProps) {
   const queryClient = useQueryClient()
 
-  const { data: allPermissions } = useQuery({
-    queryKey: ['permissions'],
-    queryFn: fetchPermissions,
+  const { data: allPermissionsResponse } = useQuery({
+    ...getPermissions9C8839E73223Cb930255A2882A4B0Db4Options({
+      client: authClient,
+      query: { limit: 1000 },
+    }),
     enabled: open,
   })
+  const allPermissions = allPermissionsResponse?.data || []
 
   const { data: allPermissionSets } = useQuery({
-    queryKey: ['permission-sets'],
-    queryFn: fetchPermissionSets,
+    ...getPermissionSets2Bd49615D055600Ba22C7Cf2Eb651B44Options({
+      client: authClient,
+    }),
     enabled: open,
   })
 
-  const { data: userPermissionSets } = useQuery({
-    queryKey: ['user-permission-sets', user?.id],
-    queryFn: () => (user ? getStaffPermissionSets(user.id) : []), // Assuming getStaffPermissionSets can be used for users temporarily, or proper user permission set API is added later
-    enabled: !!user && open,
-  })
-
-  // Direct permissions are currently supported via a dedicated API endpoint
-  const { data: directPermissions, isLoading: isLoadingDirect } = useQuery({
-    queryKey: ['user-permissions', user?.id],
-    queryFn: () => (user ? fetchUserPermissions(user.id) : []),
-    enabled: !!user && open,
-  })
-
-  const directIds = React.useMemo(
-    () => directPermissions?.map((p) => p.id) || [],
-    [directPermissions],
-  )
-
-  const userPermissionSetIds = React.useMemo(
-    () => userPermissionSets?.map((ps) => ps.id) || [],
-    [userPermissionSets],
-  )
-
-  // Mutation for direct permissions
-  const mutation = useMutation({
-    mutationFn: async ({
-      permissionId,
-      isEnabled,
-    }: {
-      permissionId: number
-      isEnabled: boolean
-    }) => {
-      if (!user) return
-      if (isEnabled) {
-        // return assignPermissionToUser(user.id, permissionId)
-      } else {
-        return unassignPermissionFromUser(user.id, permissionId)
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['user-permissions', user?.id],
-      })
-      toast.success('User permissions updated')
-    },
-    onError: () => {
-      toast.error('Failed to update user permissions')
-    },
-  })
-
-  // Mutation for role-based permission sets - commented out due to lack of direct API support for user permission sets
-  // const roleMutation = useMutation({
-  //   mutationFn: async ({
-  //     setId,
-  //     isEnabled,
-  //   }: {
-  //     setId: string
-  //     isEnabled: boolean
-  //   }) => {
-  //     if (!user) return
-  //     if (isEnabled) {
-  //       return assignPermissionSetToUser(user.id, setId)
-  //     } else {
-  //       return unassignPermissionSetFromUser(user.id, setId)
-  //     }
-  //   },
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({ queryKey: ['user-permission-sets', user?.id] })
-  //     toast.success('User permission sets synchronized')
-  //   },
-  //   onError: () => {
-  //     toast.error('Partial failure in permission set propagation')
-  //   },
+  // Placeholder for user permission sets - currently not supported by API
+  const userPermissionSets: any[] = []
+  // const { data: userPermissionSets } = useQuery({
+  //   queryKey: ['user-permission-sets', user?.id],
+  //   queryFn: () => (user ? getStaffPermissionSets(user.id) : []),
+  //   enabled: !!user && open,
   // })
 
-  // const getSeverityStyles = (severity: string) => { // Commented out as getSeverityStyles is not used in the current state
-  //   switch (severity) {
-  //     case 'Low':
-  //       return 'text-green-500 bg-green-500/10 border-green-500/20'
-  //     case 'Medium':
-  //       return 'text-blue-500 bg-blue-500/10 border-blue-500/20'
-  //     case 'High':
-  //       return 'text-orange-500 bg-orange-500/10 border-orange-500/20'
-  //     case 'Severe':
-  //       return 'text-red-500 bg-red-500/10 border-red-500/20'
-  //     default:
-  //       return 'text-muted-foreground bg-muted border-transparent'
-  //   }
-  // }
+  const { data: directPermissions, isLoading: isLoadingDirect } = useQuery({
+    ...getUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cOptions({
+      client: authClient,
+      path: { user_id: user?.id || '' },
+    }),
+    enabled: !!user && open,
+  })
+
+  const directIds = React.useMemo(() => {
+    if (Array.isArray(directPermissions)) {
+      return (directPermissions as Array<Permission>).map((p) => p.id)
+    }
+    return []
+  }, [directPermissions])
+
+  // const userPermissionSetIds = React.useMemo(
+  //   () => userPermissionSets?.map((ps) => ps.id) || [],
+  //   [userPermissionSets],
+  // )
+
+  const assignMutation = useMutation({
+    ...postUsers069Bc83C67Aeddbeed75C9632Ba56B82Mutation({
+      client: authClient,
+    }),
+    onSuccess: () => {
+      if (user) {
+        queryClient.invalidateQueries({
+          queryKey: getUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cQueryKey({
+            path: { user_id: user.id },
+          }),
+        })
+      }
+      toast.success('User permissions updated')
+    },
+    onError: (error) => {
+      toast.error(`Failed to update user permissions: ${error.message}`)
+    },
+  })
+
+  const unassignMutation = useMutation({
+    ...deleteUsers069Bc83C67Aeddbeed75C9632Ba56B82Mutation({
+      client: authClient,
+    }),
+    onSuccess: () => {
+      if (user) {
+        queryClient.invalidateQueries({
+          queryKey: getUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92cQueryKey({
+            path: { user_id: user.id },
+          }),
+        })
+      }
+      toast.success('User permissions updated')
+    },
+    onError: (error) => {
+      toast.error(`Failed to update user permissions: ${error.message}`)
+    },
+  })
+
+  const handleToggle = (permissionId: number, isEnabled: boolean) => {
+    if (!user) return
+    if (isEnabled) {
+      assignMutation.mutate({
+        path: { user_id: user.id, permission_id: permissionId },
+      })
+    } else {
+      unassignMutation.mutate({
+        path: { user_id: user.id, permission_id: permissionId },
+      })
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -171,29 +162,31 @@ export function UserPermissionsDialog({
                 Assigned Permission Sets ({userPermissionSets?.length || 0})
               </AccordionTrigger>
               <AccordionContent className="pt-4 px-1 space-y-2 max-h-[30vh] overflow-y-auto custom-scrollbar">
-                {allPermissionSets?.map((permissionSet) => (
+                {(Array.isArray(allPermissionSets)
+                  ? allPermissionSets
+                  : []
+                ).map((permissionSet: any) => (
                   <div
                     key={permissionSet.id}
-                    className="flex items-center justify-between p-3 rounded-xl bg-background/50 ring-1 ring-border transition-all hover:ring-primary/30 cursor-not-allowed" // Changed cursor to not-allowed as functionality is disabled
-                    // onClick={() => roleMutation.mutate({ setId: permissionSet.id, isEnabled: !userPermissionSetIds.includes(permissionSet.id) })} // Commented out click handler
+                    className="flex items-center justify-between p-3 rounded-xl bg-background/50 ring-1 ring-border transition-all hover:ring-primary/30 cursor-not-allowed"
                   >
                     <div className="flex items-center gap-3">
                       <Checkbox
-                        checked={userPermissionSetIds.includes(
-                          permissionSet.id,
-                        )}
-                        // onCheckedChange={(checked) => roleMutation.mutate({ setId: permissionSet.id, isEnabled: !!checked })} // Commented out change handler
-                        disabled={true} // Disable checkbox as functionality is disabled
+                        checked={false} // userPermissionSetIds.includes(permissionSet.id)
+                        disabled={true}
                       />
                       <span className="text-[10px] font-bold">
                         {permissionSet.name}
                       </span>
                     </div>
-                    {userPermissionSetIds.includes(permissionSet.id) && (
+                    {/* {userPermissionSetIds.includes(permissionSet.id) && (
                       <div className="size-1.5 rounded-full bg-primary animate-pulse" />
-                    )}
+                    )} */}
                   </div>
                 ))}
+                <p className="text-[9px] text-muted-foreground text-center pt-2">
+                  User roles management coming soon.
+                </p>
               </AccordionContent>
             </AccordionItem>
 
@@ -203,7 +196,10 @@ export function UserPermissionsDialog({
                 Active Overrides ({directPermissions?.length || 0})
               </AccordionTrigger>
               <AccordionContent className="pt-4 px-1 space-y-2 max-h-[40vh] overflow-y-auto custom-scrollbar">
-                {directPermissions?.map((permission) => (
+                {(Array.isArray(directPermissions)
+                  ? (directPermissions as Permission[])
+                  : []
+                ).map((permission) => (
                   <div
                     key={permission.id}
                     className="flex items-center justify-between p-3 rounded-xl bg-background/50 ring-1 ring-border"
@@ -266,9 +262,7 @@ export function UserPermissionsDialog({
               <PermissionManager
                 permissions={allPermissions || []}
                 assignedPermissionIds={directIds}
-                onToggle={(id, enabled) =>
-                  mutation.mutate({ permissionId: id, isEnabled: enabled })
-                }
+                onToggle={handleToggle}
               />
             )}
           </div>

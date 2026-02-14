@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
@@ -5,7 +7,6 @@ import {
   DashboardSquare01Icon,
   Delete02Icon,
   LibraryIcon,
-  //   Loading03Icon,
   Mortarboard01Icon,
   SecurityIcon,
   Shield01Icon,
@@ -14,6 +15,7 @@ import {
   ZapIcon,
 } from '@hugeicons/core-free-icons'
 import type { Permission } from '@/lib/api/types.gen'
+import type { PermissionSeverity } from '@/lib/api/types.gen'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -36,6 +38,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { toast } from 'sonner'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  postPermissions9C8839E73223Cb930255A2882A4B0Db4Mutation,
+  deletePermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eMutation,
+  getPermissions9C8839E73223Cb930255A2882A4B0Db4QueryKey,
+} from '@/lib/api/@tanstack/react-query.gen'
+import { authClient } from '@/lib/clients'
 
 interface PermissionManagerProps {
   permissions: Array<Permission>
@@ -55,27 +65,35 @@ export function PermissionManager({
   const [newDesc, setNewDesc] = React.useState('')
   const [newSeverity, setNewSeverity] = React.useState<string>('Low')
 
-  //   const queryClient = useQueryClient()
+  const queryClient = useQueryClient()
 
-  //   const createMutation = useMutation({
-  //     mutationFn: () => createPermission(newName, newDesc, newSeverity),
-  //     onSuccess: () => {
-  //       queryClient.invalidateQueries({ queryKey: ['permissions'] })
-  //       setIsCreateOpen(false)
-  //       setNewDesc('')
-  //       toast.success('Permission added to global registry')
-  //     },
-  //     onError: () => toast.error('Failed to register permission'),
-  //   })
+  const createMutation = useMutation({
+    ...postPermissions9C8839E73223Cb930255A2882A4B0Db4Mutation({
+      client: authClient,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getPermissions9C8839E73223Cb930255A2882A4B0Db4QueryKey(),
+      })
+      setIsCreateOpen(false)
+      setNewDesc('')
+      toast.success('Permission added to global registry')
+    },
+    onError: () => toast.error('Failed to register permission'),
+  })
 
-  //   const deleteMutation = useMutation({
-  //     mutationFn: (id: number) => deletePermission(id),
-  //     onSuccess: () => {
-  //       queryClient.invalidateQueries({ queryKey: ['permissions'] })
-  //       toast.success('Permission removed from registry')
-  //     },
-  //     onError: () => toast.error('Failed to purge permission'),
-  //   })
+  const deleteMutation = useMutation({
+    ...deletePermissions0C5E2C69F1Ce8F3Fb90Ed62D4339Ab5eMutation({
+      client: authClient,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getPermissions9C8839E73223Cb930255A2882A4B0Db4QueryKey(),
+      })
+      toast.success('Permission removed from registry')
+    },
+    onError: () => toast.error('Failed to purge permission'),
+  })
 
   // Group permissions by prefix/category
   const categories: Record<string, Array<Permission>> = {
@@ -285,8 +303,16 @@ export function PermissionManager({
                 Abort
               </Button>
               <Button
-                disabled={!newDesc}
-                // onClick={() => createMutation.mutate()}
+                disabled={!newDesc || createMutation.isPending}
+                onClick={() =>
+                  createMutation.mutate({
+                    body: {
+                      name: newName as any,
+                      description: newDesc,
+                      safety_level: newSeverity as PermissionSeverity,
+                    },
+                  })
+                }
                 className="h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20"
               >
                 Register Mesh Unit
@@ -354,7 +380,11 @@ export function PermissionManager({
                             variant="ghost"
                             size="icon"
                             className="size-8 rounded-lg text-destructive opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive/10"
-                            // onClick={() => deleteMutation.mutate(permission.id)}
+                            onClick={() =>
+                              deleteMutation.mutate({
+                                path: { permission_id: permission.id },
+                              })
+                            }
                           >
                             <HugeiconsIcon
                               icon={Delete02Icon}

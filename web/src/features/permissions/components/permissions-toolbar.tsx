@@ -6,7 +6,7 @@ import {
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { usePermissionsStore } from '../store'
-import type { PermissionsViewMode } from '../store'
+import { isPermissionsViewMode } from '../utils/permission-guards'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import {
@@ -37,7 +37,11 @@ export function PermissionsToolbar() {
     <div className="mb-4 flex flex-col gap-4 px-8 sm:flex-row sm:items-center sm:justify-between">
       <Tabs
         value={view}
-        onValueChange={(value) => setView(value as PermissionsViewMode)}
+        onValueChange={(value) => {
+          if (isPermissionsViewMode(value)) {
+            setView(value)
+          }
+        }}
       >
         <TabsList>
           <TabsTrigger value="permissions" className="gap-2">

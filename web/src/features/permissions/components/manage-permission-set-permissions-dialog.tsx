@@ -1,9 +1,8 @@
 'use client'
 
 import * as React from 'react'
-// import { toast } from 'sonner'
-// import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-// import { assignPermissionToPermissionSet, unassignPermissionFromPermissionSet } from '../../permissions/api'
+import { toast } from 'sonner'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Permission } from '@/lib/api/types.gen'
 import type { PermissionSet } from '../types'
 import { Button } from '@/components/ui/button'
@@ -18,6 +17,13 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
+import {
+  getPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0Options,
+  getPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0QueryKey,
+  postPermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Mutation,
+  deletePermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Mutation,
+} from '@/lib/api/@tanstack/react-query.gen'
+import { authClient } from '@/lib/clients'
 
 interface ManagePermissionSetPermissionsDialogProps {
   open: boolean
@@ -32,75 +38,88 @@ export function ManagePermissionSetPermissionsDialog({
   permissionSet,
   allPermissions,
 }: ManagePermissionSetPermissionsDialogProps) {
-  //   const queryClient = useQueryClient()
+  const queryClient = useQueryClient()
   const [selectedPermissions, setSelectedPermissions] = React.useState<
     Set<number>
   >(new Set())
 
   // Fetch permissions currently assigned to this permission set
-  //   const { data: currentPermissionsInSet, isLoading: isLoadingCurrentPermissions } = useQuery({
-  //     queryKey: ['permissionSets', permissionSet.id, 'permissions'],
-  //     queryFn: async () => {
-  //         // There is no direct API to get permissions by permission set ID.
-  //         // So, we need to fetch all permissions and then filter them based on the permissionSet.id.
-  //         // This means, the backend should have an API that returns a list of permission IDs for a given permission set.
-  //         // For now, I will assume a mock or a direct comparison if allPermissions has the set_id field.
-  //         // Since the backend doesn't have a direct API, I will mock this for now.
-  //         // In a real scenario, the backend would expose an endpoint like /permission-sets/{id}/permissions
-
-  //         // Mocking the current permissions in the set.
-  //         // In a real application, you would fetch this from an API.
-  //         console.warn("WARNING: Mocking current permissions in permission set. Implement actual API call.");
-  //         return allPermissions.filter((p: any) => p.id % 2 === 0); // Example: half of the permissions are in the set
-  //     },
-  //     enabled: open, // Only run when the dialog is open
-  //   })
+  const {
+    data: currentPermissionsInSet,
+    isLoading: isLoadingCurrentPermissions,
+  } = useQuery({
+    ...getPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0Options({
+      client: authClient,
+      path: { permission_set_id: permissionSet.id },
+    }),
+    enabled: open && !!permissionSet.id,
+  })
 
   React.useEffect(() => {
-    if (permissionSet) {
+    if (currentPermissionsInSet && Array.isArray(currentPermissionsInSet)) {
       setSelectedPermissions(
         new Set(
-          allPermissions
-            .filter((p: Permission) => p.id % 2 === 0)
-            .map((p: Permission) => p.id),
+          (currentPermissionsInSet as Array<Permission>).map((p) => p.id),
         ),
       )
     }
-  }, [permissionSet, allPermissions])
+  }, [currentPermissionsInSet])
 
-  //   const assignMutation = useMutation({
-  //     mutationFn: ({ setId, permissionId }: { setId: string; permissionId: number }) =>
-  //       assignPermissionToPermissionSet(setId, permissionId),
-  //     onSuccess: () => {
-  //       queryClient.invalidateQueries({ queryKey: ['permissionSets', permissionSet.id, 'permissions'] })
-  //       toast.success('Permission assigned to set.')
-  //     },
-  //     onError: (error) => {
-  //       toast.error(`Failed to assign permission: ${error.message}`)  //     },
-  //   })
+  const assignMutation = useMutation({
+    ...postPermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Mutation({
+      client: authClient,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0QueryKey({
+          path: { permission_set_id: permissionSet.id },
+        }),
+      })
+      toast.success('Permission assigned to set.')
+    },
+    onError: (error) => {
+      toast.error(`Failed to assign permission: ${error.message}`)
+    },
+  })
 
-  //   const unassignMutation = useMutation({
-  //     mutationFn: ({ setId, permissionId }: { setId: string; permissionId: number }) =>
-  //       unassignPermissionFromPermissionSet(setId, permissionId),
-  //     onSuccess: () => {
-  //       queryClient.invalidateQueries({ queryKey: ['permissionSets', permissionSet.id, 'permissions'] })
-  //       toast.success('Permission unassigned from set.')
-  //     },
-  //     onError: (error) => {
-  //       toast.error(`Failed to unassign permission: ${error.message}`)  //     },
-  //   })
+  const unassignMutation = useMutation({
+    ...deletePermissionSetsE88249A62Acbe1Edff95479F9E23B8F3Mutation({
+      client: authClient,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getPermissionSets3134991Ad907142C0B9D153Ceaf59Bc0QueryKey({
+          path: { permission_set_id: permissionSet.id },
+        }),
+      })
+      toast.success('Permission unassigned from set.')
+    },
+    onError: (error) => {
+      toast.error(`Failed to unassign permission: ${error.message}`)
+    },
+  })
 
   const handlePermissionToggle = (permissionId: number, isChecked: boolean) => {
     if (isChecked) {
       setSelectedPermissions((prev) => new Set(prev).add(permissionId))
-      // assignMutation.mutate({ setId: permissionSet.id, permissionId })
+      assignMutation.mutate({
+        path: {
+          permission_set_id: permissionSet.id,
+          permission_id: permissionId,
+        },
+      })
     } else {
       setSelectedPermissions((prev) => {
         const newSet = new Set(prev)
         newSet.delete(permissionId)
         return newSet
       })
-      // unassignMutation.mutate({ setId: permissionSet.id, permissionId })
+      unassignMutation.mutate({
+        path: {
+          permission_set_id: permissionSet.id,
+          permission_id: permissionId,
+        },
+      })
     }
   }
 
@@ -123,30 +142,30 @@ export function ManagePermissionSetPermissionsDialog({
           <DialogTitle>Manage Permissions for {permissionSet.name}</DialogTitle>
         </DialogHeader>
         <ScrollArea className="h-[400px] pr-4">
-          {/* {isLoadingCurrentPermissions ? (
-                      <div className="text-center py-4">Loading permissions...</div>
-                    ) : ( */}
-          {Object.entries(groupedPermissions).map(([category, permissions]) => (
-            <div key={category} className="mb-4">
-              <h3 className="font-semibold text-lg mb-2">{category}</h3>
-              <Separator className="mb-3" />
-              <div className="grid grid-cols-2 gap-2">
-                {permissions.map((p: Permission) => (
-                  <div key={p.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`perm-${p.id}`}
-                      checked={selectedPermissions.has(p.id)}
-                      onCheckedChange={(checked) =>
-                        handlePermissionToggle(p.id, checked)
-                      }
-                    />
-                    <Label htmlFor={`perm-${p.id}`}>{p.name}</Label>
-                  </div>
-                ))}
+          {isLoadingCurrentPermissions ? (
+            <div className="text-center py-4">Loading permissions...</div>
+          ) : (
+            Object.entries(groupedPermissions).map(([category, permissions]) => (
+              <div key={category} className="mb-4">
+                <h3 className="font-semibold text-lg mb-2">{category}</h3>
+                <Separator className="mb-3" />
+                <div className="grid grid-cols-2 gap-2">
+                  {permissions.map((p: Permission) => (
+                    <div key={p.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`perm-${p.id}`}
+                        checked={selectedPermissions.has(p.id)}
+                        onCheckedChange={(checked) =>
+                          handlePermissionToggle(p.id, checked as boolean)
+                        }
+                      />
+                      <Label htmlFor={`perm-${p.id}`}>{p.name}</Label>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-          {/* )} */}
+            ))
+          )}
         </ScrollArea>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
