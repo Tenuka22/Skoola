@@ -4,7 +4,6 @@ import {
   LayoutGridIcon,
   Search01Icon,
   TableIcon,
-  Upload01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useStaffStore } from '../store'
@@ -18,10 +17,9 @@ import {
 
 interface StaffToolbarProps {
   onExport: () => void
-  handleImportCSV?: () => void
 }
 
-export function StaffToolbar({ onExport, handleImportCSV }: StaffToolbarProps) {
+export function StaffToolbar({ onExport }: StaffToolbarProps) {
   const { view, setView, search, setSearch, setIsCreateStaffOpen } =
     useStaffStore()
 
@@ -53,16 +51,6 @@ export function StaffToolbar({ onExport, handleImportCSV }: StaffToolbarProps) {
             </InputGroupAddon>
           </InputGroup>
         </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={handleImportCSV}
-        >
-          <HugeiconsIcon icon={Upload01Icon} className="size-4" />
-          Import
-        </Button>
 
         <Button
           variant="outline"
