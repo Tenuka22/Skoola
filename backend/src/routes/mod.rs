@@ -1,5 +1,5 @@
 use crate::{
-    database::enums::{PermissionEnum},
+    database::enums::PermissionEnum,
     handlers::{
         academic_year,
         auth::{login, logout, refresh, register, request_password_reset, reset_password},
@@ -7,6 +7,10 @@ use crate::{
         grading_criteria, grading_schemes,
         hello::{hello, hello_error},
         oauth::{github_callback, google_callback},
+        permission_sets::{
+            create_permission_set, delete_permission_set, get_all_permission_sets,
+            update_permission_set,
+        },
         profile::{
             change_email, change_password, get_profile, link_github, link_google, update_profile,
         },
@@ -37,6 +41,7 @@ use crate::{
         user_set_permissions::{
             assign_permission_to_user_set, get_user_set_permissions, unassign_permission_from_user_set,
         },
+
         verification::verify_email,
         zscore,
     },
@@ -68,6 +73,20 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/link/github", web::get().to(link_github)),
     )
     .service(
+        apistos::web::scope("/user-sets")
+            .wrap(Authenticated)
+            .route("/", apistos::web::get().to(get_all_permission_sets))
+            .route("/", apistos::web::post().to(create_permission_set))
+            .route(
+                "/{permission_set_id}",
+                apistos::web::put().to(update_permission_set),
+            )
+            .route(
+                "/{permission_set_id}",
+                apistos::web::delete().to(delete_permission_set),
+            ),
+    )
+    .service(
         web::scope("/users")
             .wrap(PermissionVerification {
                 required_permission: PermissionEnum::UserManage,
@@ -75,11 +94,6 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .wrap(Authenticated)
             .route("", web::get().to(crate::handlers::users::get_all_users))
             .route("/stats", web::get().to(crate::handlers::users::get_user_stats))
-            .route("/bulk", web::delete().to(crate::handlers::users::bulk_delete_users))
-            .route("/bulk", web::patch().to(crate::handlers::users::bulk_update_users))
-            .route("/{user_id}", web::delete().to(crate::handlers::users::delete_user))
-            .route("/{user_id}", web::patch().to(crate::handlers::users::update_user))
-            .route("/{user_id}/permissions", web::get().to(get_user_permissions))
             .route(
                 "/{user_id}/permissions/{permission}",
                 web::post().to(assign_permission_to_user),
@@ -190,6 +204,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 "/{staff_id}/permission-sets/{set_id}",
                 web::delete().to(crate::handlers::permission_sets::unassign_permission_set_from_staff),
             ),
+
     )
     .service(
         web::scope("/students")
@@ -311,8 +326,12 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             })
             .wrap(Authenticated)
             .route("", web::post().to(student_marks::create_student_mark))
-            .route("/{id}", web::get().to(student_marks::get_student_mark_by_id))
             .route("", web::get().to(student_marks::get_all_student_marks))
+            .route(
+                "/bulk",
+                web::post().to(student_marks::bulk_create_student_marks),
+            )
+            .route("/{id}", web::get().to(student_marks::get_student_mark_by_id))
             .route(
                 "/student/{student_id}",
                 web::get().to(student_marks::get_student_marks_by_student_id),
@@ -322,9 +341,9 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 web::get().to(student_marks::get_student_marks_by_exam_and_class),
             )
             .route("/{id}", web::put().to(student_marks::update_student_mark))
-            .route("/{id}", web::delete().to(student_marks::delete_student_mark))
-            .route("/bulk", web::post().to(student_marks::bulk_create_student_marks)),
+            .route("/{id}", web::delete().to(student_marks::delete_student_mark)),
     )
+
     .service(
         web::scope("/academic-years")
             .wrap(PermissionVerification {
@@ -347,8 +366,12 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 web::put().to(academic_year::set_current_academic_year),
             )
             .route("/bulk", web::delete().to(academic_year::bulk_delete_academic_years))
-            .route("/bulk", web::patch().to(academic_year::bulk_update_academic_years)),
+            .route(
+                "/bulk",
+                web::patch().to(academic_year::bulk_update_academic_years),
+            ),
     )
+
     .service(
         web::scope("/terms")
             .wrap(PermissionVerification {
@@ -369,8 +392,12 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{id}", web::put().to(grade_level::update_grade_level))
             .route("/{id}", web::delete().to(grade_level::delete_grade_level))
             .route("/bulk", web::delete().to(grade_level::bulk_delete_grade_levels))
-            .route("/bulk", web::patch().to(grade_level::bulk_update_grade_levels)),
+            .route(
+                "/bulk",
+                web::patch().to(grade_level::bulk_update_grade_levels),
+            ),
     )
+
     .service(
         web::scope("/classes")
             .wrap(PermissionVerification {
@@ -474,7 +501,10 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{id}", web::put().to(exam_types::update_exam_type))
             .route("/{id}", web::delete().to(exam_types::delete_exam_type))
             .route("/bulk", web::delete().to(exam_types::bulk_delete_exam_types))
-            .route("/bulk", web::patch().to(exam_types::bulk_update_exam_types)),
+            .route(
+                "/bulk",
+                web::patch().to(exam_types::bulk_update_exam_types),
+            ),
     )
     .service(
         web::scope("/exams")
