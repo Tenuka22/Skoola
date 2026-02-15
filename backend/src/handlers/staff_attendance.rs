@@ -1,18 +1,18 @@
 use actix_web::web;
 use apistos::api_operation;
-use diesel::prelude::*;
-use uuid::Uuid;
-use chrono::{Utc, NaiveDate, Days};
 use actix_web::web::Json;
-// use serde_json; // Removed unused import
-
 use crate::{
     AppState,
-    database::tables::StaffAttendance,
     errors::APIError,
-    models::staff_attendance::{MarkStaffAttendanceRequest, BulkMarkStaffAttendanceRequest, StaffAttendanceResponse, UpdateStaffAttendanceRequest, StaffAttendanceChangeset, StaffAttendanceDateQuery, StaffAttendanceByStaffQuery, MonthlyAttendancePercentageResponse},
-    schema::staff_attendance,
+    models::staff_attendance::{
+        MarkStaffAttendanceRequest, BulkMarkStaffAttendanceRequest, StaffAttendanceResponse, UpdateStaffAttendanceRequest,
+        SuggestSubstituteRequest, CreateSubstitutionRequest, SubstitutionResponse
+    },
+    models::attendance_v2::{CreateLessonProgressRequest, LessonProgressResponse},
+    services::staff_attendance::{self, SubstitutionService, LessonProgressService},
+    utils::jwt::UserId,
 };
+use chrono::NaiveDate; // Added NaiveDate explicitly and ParseError
 
 #[api_operation(
     summary = "Mark daily staff attendance",
@@ -24,38 +24,10 @@ pub async fn mark_staff_attendance_daily(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
     body: web::Json<MarkStaffAttendanceRequest>,
+    _user_id: UserId,
 ) -> Result<Json<StaffAttendanceResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let staff_id_inner = staff_id.into_inner();
-
-    // Check for existing attendance record for the same staff and date
-    let existing_attendance: Option<StaffAttendance> = staff_attendance::table
-        .filter(staff_attendance::staff_id.eq(&staff_id_inner))
-        .filter(staff_attendance::date.eq(&body.date))
-        .select(StaffAttendance::as_select())
-        .first(&mut conn).optional()?;
-
-    if existing_attendance.is_some() {
-        return Err(APIError::conflict("Attendance already marked for this staff member on this date"));
-    }
-
-    let new_attendance = StaffAttendance {
-        id: Uuid::new_v4().to_string(),
-        staff_id: staff_id_inner.clone(),
-        date: body.date,
-        status: body.status.to_string(),
-        time_in: body.time_in,
-        time_out: body.time_out,
-        remarks: body.remarks.clone(),
-        created_at: Utc::now().naive_utc(),
-        updated_at: Utc::now().naive_utc(),
-    };
-
-    diesel::insert_into(staff_attendance::table)
-        .values(&new_attendance)
-        .execute(&mut conn)?;
-
-    Ok(Json(StaffAttendanceResponse::from(new_attendance)))
+    let res = staff_attendance::mark_daily_staff_attendance(data, staff_id.into_inner(), body.into_inner()).await?;
+    Ok(Json(res))
 }
 
 #[api_operation(
@@ -67,48 +39,10 @@ pub async fn mark_staff_attendance_daily(
 pub async fn mark_bulk_staff_attendance(
     data: web::Data<AppState>,
     body: web::Json<BulkMarkStaffAttendanceRequest>,
+    _user_id: UserId, // Changed to _user_id
 ) -> Result<Json<Vec<StaffAttendanceResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let mut new_attendance_records = Vec::new();
-    let mut conflicts = Vec::new();
-
-    for item in body.attendance_records.iter() {
-        // Check for existing attendance record for the same staff and date
-        let existing_attendance: Option<StaffAttendance> = staff_attendance::table
-            .filter(staff_attendance::staff_id.eq(&item.staff_id))
-            .filter(staff_attendance::date.eq(&body.date))
-            .select(StaffAttendance::as_select())
-            .first(&mut conn).optional()?;
-
-        if existing_attendance.is_some() {
-            conflicts.push(item.staff_id.clone());
-        } else {
-            new_attendance_records.push(StaffAttendance {
-                id: Uuid::new_v4().to_string(),
-                staff_id: item.staff_id.clone(),
-                date: body.date,
-                status: item.status.to_string(),
-                time_in: item.time_in,
-                time_out: item.time_out,
-                remarks: item.remarks.clone(),
-                created_at: Utc::now().naive_utc(),
-                updated_at: Utc::now().naive_utc(),
-            });
-        }
-    }
-
-    if !new_attendance_records.is_empty() {
-        diesel::insert_into(staff_attendance::table)
-            .values(&new_attendance_records)
-            .execute(&mut conn)?;
-    }
-
-    if conflicts.is_empty() {
-        Ok(Json(new_attendance_records.into_iter().map(StaffAttendanceResponse::from).collect::<Vec<_>>()))
-    } else {
-        let error_message = format!("Attendance already marked for staff IDs: {:?}", conflicts);
-        Err(APIError::conflict(&error_message))
-    }
+    let res = staff_attendance::bulk_mark_staff_attendance(data, body.into_inner(), _user_id.0).await?;
+    Ok(Json(res))
 }
 
 #[api_operation(
@@ -121,28 +55,27 @@ pub async fn update_staff_attendance(
     data: web::Data<AppState>,
     attendance_id: web::Path<String>,
     body: web::Json<UpdateStaffAttendanceRequest>,
+    _user_id: UserId, // Changed to _user_id
 ) -> Result<Json<StaffAttendanceResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let attendance_id_inner = attendance_id.into_inner();
+    let res = staff_attendance::update_staff_attendance(data, attendance_id.into_inner(), body.into_inner(), _user_id.0).await?;
+    Ok(Json(res))
+}
 
-    let changeset = StaffAttendanceChangeset {
-        status: body.status.as_ref().map(|s| s.to_string()),
-        time_in: body.time_in,
-        time_out: body.time_out,
-        remarks: body.remarks.clone(),
-        updated_at: Utc::now().naive_utc(),
-    };
-
-    diesel::update(staff_attendance::table.find(&attendance_id_inner))
-        .set(changeset)
-        .execute(&mut conn)?;
-
-    let updated_attendance = staff_attendance::table
-        .find(&attendance_id_inner)
-        .select(StaffAttendance::as_select())
-        .first::<StaffAttendance>(&mut conn)?;
-
-    Ok(Json(StaffAttendanceResponse::from(updated_attendance)))
+#[api_operation(
+    summary = "Sync staff leaves to attendance",
+    description = "Automatically marks staff as 'Excused' if they have approved leave for the date.",
+    tag = "staff_attendance",
+    operation_id = "sync_staff_leaves"
+)]
+pub async fn sync_leaves(
+    data: web::Data<AppState>,
+    path: web::Path<String>, // Changed to String
+) -> Result<Json<i32>, APIError> {
+    let date_str = path.into_inner();
+    let date = NaiveDate::parse_from_str(&date_str, "%Y-%m-%d")
+        .map_err(|_| APIError::bad_request("Invalid date format. Expected YYYY-MM-DD."))?;
+    let count = staff_attendance::sync_staff_leaves(data, date).await?;
+    Ok(Json(count))
 }
 
 #[api_operation(
@@ -153,16 +86,10 @@ pub async fn update_staff_attendance(
 )]
 pub async fn get_staff_attendance_by_date(
     data: web::Data<AppState>,
-    query: web::Query<StaffAttendanceDateQuery>,
+    query: web::Query<crate::models::staff_attendance::StaffAttendanceDateQuery>,
 ) -> Result<Json<Vec<StaffAttendanceResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-
-    let attendance_list = staff_attendance::table
-        .filter(staff_attendance::date.eq(&query.date))
-        .select(StaffAttendance::as_select())
-        .load::<StaffAttendance>(&mut conn)?;
-
-    Ok(Json(attendance_list.into_iter().map(StaffAttendanceResponse::from).collect::<Vec<_>>()))
+    let res = staff_attendance::get_attendance_by_date(data, query.date).await?;
+    Ok(Json(res))
 }
 
 #[api_operation(
@@ -174,26 +101,33 @@ pub async fn get_staff_attendance_by_date(
 pub async fn get_staff_attendance_by_staff_member(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
-    query: web::Query<StaffAttendanceByStaffQuery>,
+    query: web::Query<crate::models::staff_attendance::StaffAttendanceByStaffQuery>,
 ) -> Result<Json<Vec<StaffAttendanceResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let staff_id_inner = staff_id.into_inner();
-    let mut attendance_query = staff_attendance::table.into_boxed();
+    let res = staff_attendance::get_attendance_by_staff(data, staff_id.into_inner(), query.start_date, query.end_date).await?;
+    Ok(Json(res))
+}
 
-    attendance_query = attendance_query.filter(staff_attendance::staff_id.eq(&staff_id_inner));
-
-    if let Some(start_date) = query.start_date {
-        attendance_query = attendance_query.filter(staff_attendance::date.ge(start_date));
-    }
-    if let Some(end_date) = query.end_date {
-        attendance_query = attendance_query.filter(staff_attendance::date.le(end_date));
-    }
-
-    let attendance_list = attendance_query
-        .select(StaffAttendance::as_select())
-        .load::<StaffAttendance>(&mut conn)?;
-
-    Ok(Json(attendance_list.into_iter().map(StaffAttendanceResponse::from).collect::<Vec<_>>()))
+#[api_operation(
+    summary = "Get my substitutions",
+    description = "Returns a list of substitution assignments for the current teacher on a specific date.",
+    tag = "staff_attendance",
+    operation_id = "get_my_substitutions"
+)]
+pub async fn get_my_substitutions(
+    data: web::Data<AppState>,
+    query: web::Query<crate::models::staff_attendance::StaffAttendanceDateQuery>,
+    user_id: UserId,
+) -> Result<Json<Vec<SubstitutionResponse>>, APIError> {
+    let res = SubstitutionService::get_substitutions_by_teacher(data, user_id.0, query.date).await?;
+    Ok(Json(res.into_iter().map(|s| SubstitutionResponse {
+        id: s.id,
+        original_teacher_id: s.original_teacher_id,
+        substitute_teacher_id: s.substitute_teacher_id,
+        timetable_id: s.timetable_id,
+        date: s.date,
+        status: s.status.to_string(),
+        remarks: s.remarks,
+    }).collect()))
 }
 
 #[api_operation(
@@ -206,46 +140,90 @@ pub async fn calculate_monthly_attendance_percentage(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
     path_info: web::Path<(i32, u32)>, // (year, month)
-) -> Result<Json<MonthlyAttendancePercentageResponse>, APIError> {
+) -> Result<Json<crate::models::staff_attendance::MonthlyAttendancePercentageResponse>, APIError> {
     let (year, month) = path_info.into_inner();
-    let staff_id_inner = staff_id.into_inner();
-    let mut conn = data.db_pool.get()?;
+    let res = staff_attendance::calculate_monthly_percentage(data, staff_id.into_inner(), year, month).await?;
+    Ok(Json(res))
+}
 
-    // Determine the start and end dates of the month
-    let start_of_month = NaiveDate::from_ymd_opt(year, month, 1)
-        .ok_or_else(|| APIError::bad_request("Invalid month or year"))?;
-    let end_of_month = NaiveDate::from_ymd_opt(year, month, 1)
-        .and_then(|d| d.checked_add_months(chrono::Months::new(1)))
-        .and_then(|d| d.checked_sub_days(Days::new(1)))
-        .ok_or_else(|| APIError::internal("Could not determine end of month"))?;
+#[api_operation(
+    summary = "Suggest a substitute teacher",
+    description = "Finds an available teaching staff member for a specific timetable slot and date.",
+    tag = "staff_attendance",
+    operation_id = "suggest_substitute"
+)]
+pub async fn suggest_substitute(
+    data: web::Data<AppState>,
+    body: web::Json<SuggestSubstituteRequest>,
+) -> Result<Json<Option<crate::models::staff::StaffResponse>>, APIError> {
+    let res = SubstitutionService::suggest_substitute(data, body.timetable_id.clone(), body.date).await?;
+    Ok(Json(res.map(crate::models::staff::StaffResponse::from)))
+}
 
-    // Filter attendance records for the given staff, month, and year
-    let attendance_records = staff_attendance::table
-        .filter(staff_attendance::staff_id.eq(&staff_id_inner))
-        .filter(staff_attendance::date.ge(start_of_month))
-        .filter(staff_attendance::date.le(end_of_month))
-        .select(StaffAttendance::as_select())
-        .load::<StaffAttendance>(&mut conn)?;
-
-    let present_days = attendance_records
-        .iter()
-        .filter(|rec| matches!(rec.status.parse::<crate::database::enums::AttendanceStatus>(), Ok(crate::database::enums::AttendanceStatus::Present)))
-        .count() as i64;
-
-    let total_working_days = attendance_records.len() as i64;
-
-    let attendance_percentage = if total_working_days > 0 {
-        (present_days as f64 / total_working_days as f64) * 100.0
-    } else {
-        0.0
-    };
-
-    Ok(Json(MonthlyAttendancePercentageResponse {
-        staff_id: staff_id_inner,
-        month,
-        year,
-        present_days,
-        total_working_days,
-        attendance_percentage,
+#[api_operation(
+    summary = "Create an auto-substitution",
+    description = "Automatically assigns a substitute teacher for an absent teacher's slot.",
+    tag = "staff_attendance",
+    operation_id = "create_substitution"
+)]
+pub async fn create_substitution(
+    data: web::Data<AppState>,
+    body: web::Json<CreateSubstitutionRequest>,
+) -> Result<Json<SubstitutionResponse>, APIError> {
+    let res = SubstitutionService::create_auto_substitution(data, body.original_teacher_id.clone(), body.timetable_id.clone(), body.date).await?;
+    Ok(Json(SubstitutionResponse {
+        id: res.id,
+        original_teacher_id: res.original_teacher_id,
+        substitute_teacher_id: res.substitute_teacher_id,
+        timetable_id: res.timetable_id,
+        date: res.date,
+        status: res.status.to_string(),
+        remarks: res.remarks,
     }))
+}
+
+#[api_operation(
+    summary = "Record lesson progress",
+    description = "Allows a teacher to record the topics covered during a lesson.",
+    tag = "staff_attendance",
+    operation_id = "record_lesson_progress"
+)]
+pub async fn record_lesson_progress(
+    data: web::Data<AppState>,
+    body: web::Json<CreateLessonProgressRequest>,
+    teacher_id: UserId,
+) -> Result<Json<LessonProgressResponse>, APIError> {
+    let res = LessonProgressService::record_progress(data, body.into_inner(), teacher_id.0).await?;
+    Ok(Json(LessonProgressResponse {
+        id: res.id,
+        class_id: res.class_id,
+        subject_id: res.subject_id,
+        teacher_id: res.teacher_id,
+        date: res.date,
+        topic_covered: res.topic_covered,
+        progress_percentage: res.progress_percentage,
+    }))
+}
+
+#[api_operation(
+    summary = "Get lesson progress by class and subject",
+    description = "Returns the progress history for a specific class and subject.",
+    tag = "staff_attendance",
+    operation_id = "get_lesson_progress"
+)]
+pub async fn get_lesson_progress(
+    data: web::Data<AppState>,
+    path: web::Path<(String, String)>, // (class_id, subject_id)
+) -> Result<Json<Vec<LessonProgressResponse>>, APIError> {
+    let (class_id, subject_id) = path.into_inner();
+    let res = LessonProgressService::get_progress_by_class(data, class_id, subject_id).await?;
+    Ok(Json(res.into_iter().map(|p| LessonProgressResponse {
+        id: p.id,
+        class_id: p.class_id,
+        subject_id: p.subject_id,
+        teacher_id: p.teacher_id,
+        date: p.date,
+        topic_covered: p.topic_covered,
+        progress_percentage: p.progress_percentage,
+    }).collect()))
 }

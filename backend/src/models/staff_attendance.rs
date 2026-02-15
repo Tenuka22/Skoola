@@ -108,3 +108,27 @@ impl From<StaffAttendance> for StaffAttendanceResponse {
         }
     }
 }
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct SuggestSubstituteRequest {
+    pub timetable_id: String,
+    pub date: NaiveDate,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct CreateSubstitutionRequest {
+    pub original_teacher_id: String,
+    pub timetable_id: String,
+    pub date: NaiveDate,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct SubstitutionResponse {
+    pub id: String,
+    pub original_teacher_id: String,
+    pub substitute_teacher_id: String,
+    pub timetable_id: String,
+    pub date: NaiveDate,
+    pub status: String,
+    pub remarks: Option<String>,
+}

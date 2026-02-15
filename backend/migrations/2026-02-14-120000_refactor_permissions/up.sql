@@ -21,7 +21,7 @@ CREATE TABLE user_permissions (
 );
 
 -- Create user_set_permissions table
-CREATE TABLE user_set_permissions (
+CREATE TABLE IF NOT EXISTS user_set_permissions (
     user_set_id TEXT NOT NULL REFERENCES user_sets(id) ON DELETE CASCADE,
     permission TEXT NOT NULL,
     PRIMARY KEY (user_set_id, permission)

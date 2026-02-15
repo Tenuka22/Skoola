@@ -3,13 +3,57 @@ use diesel::{QueryDsl, RunQueryDsl};
 use crate::{
     errors::APIError,
     AppState,
-    models::subject::{Subject, SubjectResponse, CreateSubjectRequest, UpdateSubjectRequest, AssignSubjectToGradeRequest, AssignSubjectToStreamRequest},
+    models::subject::{Subject, SubjectResponse, CreateSubjectRequest, UpdateSubjectRequest, AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, EnrollStudentInSubjectRequest, SubjectEnrollmentResponse},
 };
 use actix_web::web;
 use uuid::Uuid;
 use chrono::Utc;
-use crate::schema::{subjects, grade_subjects, grade_levels, stream_subjects, streams};
+use crate::schema::{subjects, grade_subjects, grade_levels, stream_subjects, streams, subject_enrollments};
 use crate::handlers::subject::{SubjectQuery, BulkUpdateSubjectsRequest};
+
+// NEW IMPORTS
+use crate::database::tables::SubjectEnrollment;
+
+pub async fn enroll_student_in_subject(
+    pool: web::Data<AppState>,
+    req: EnrollStudentInSubjectRequest,
+) -> Result<SubjectEnrollmentResponse, APIError> {
+    let mut conn = pool.db_pool.get()?;
+
+    let new_enrollment = SubjectEnrollment {
+        student_id: req.student_id,
+        subject_id: req.subject_id,
+        academic_year_id: req.academic_year_id,
+        created_at: Utc::now().naive_utc(),
+    };
+
+    diesel::insert_into(subject_enrollments::table)
+        .values(&new_enrollment)
+        .execute(&mut conn)?;
+
+    Ok(SubjectEnrollmentResponse {
+        student_id: new_enrollment.student_id,
+        subject_id: new_enrollment.subject_id,
+        academic_year_id: new_enrollment.academic_year_id,
+        created_at: new_enrollment.created_at,
+    })
+}
+
+pub async fn get_student_enrollments(
+    pool: web::Data<AppState>,
+    student_id: String,
+    academic_year_id: String,
+) -> Result<Vec<SubjectResponse>, APIError> {
+    let mut conn = pool.db_pool.get()?;
+    let list = subjects::table
+        .inner_join(subject_enrollments::table.on(subjects::id.eq(subject_enrollments::subject_id)))
+        .filter(subject_enrollments::student_id.eq(student_id))
+        .filter(subject_enrollments::academic_year_id.eq(academic_year_id))
+        .select(subjects::all_columns)
+        .load::<Subject>(&mut conn)?;
+    
+    Ok(list.into_iter().map(SubjectResponse::from).collect())
+}
 
 // Struct to represent a row in the grade_subjects junction table for insertion
 #[derive(Debug, Insertable)]

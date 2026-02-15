@@ -2,7 +2,7 @@ use crate::schema::student_attendance;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use apistos::ApiComponent;
 use crate::database::enums::AttendanceStatus;
 
@@ -19,6 +19,7 @@ pub struct StudentAttendance {
     pub remarks: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub is_locked: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
@@ -43,6 +44,7 @@ pub struct UpdateStudentAttendanceRequest {
     pub status: Option<AttendanceStatus>,
     pub marked_by: Option<String>,
     pub remarks: Option<String>,
+    pub is_locked: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
@@ -56,6 +58,7 @@ pub struct StudentAttendanceResponse {
     pub remarks: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub is_locked: bool,
 }
 
 impl From<StudentAttendance> for StudentAttendanceResponse {
@@ -70,6 +73,7 @@ impl From<StudentAttendance> for StudentAttendanceResponse {
             remarks: attendance.remarks,
             created_at: attendance.created_at,
             updated_at: attendance.updated_at,
+            is_locked: attendance.is_locked,
         }
     }
 }
@@ -112,7 +116,107 @@ pub struct LowAttendanceStudentQuery {
 }
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
+
 pub struct SendAbsenceNotificationRequest {
+
     pub class_id: String,
+
     pub date: NaiveDate,
+
 }
+
+
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
+
+
+
+pub struct InitiateEmergencyRollCallRequest {
+
+
+
+    pub event_name: String,
+
+
+
+}
+
+
+
+
+
+
+
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
+
+
+
+pub struct IssueExitPassRequest {
+
+
+
+    pub student_id: String,
+
+
+
+    pub exit_time: NaiveTime,
+
+
+
+    pub reason: crate::database::enums::ExitReason,
+
+
+
+}
+
+
+
+
+
+
+
+#[derive(Debug, Serialize, JsonSchema, ApiComponent)]
+
+
+
+pub struct ExitPassResponse {
+
+
+
+    pub id: String,
+
+
+
+    pub student_id: String,
+
+
+
+    pub date: NaiveDate,
+
+
+
+    pub exit_time: NaiveTime,
+
+
+
+    pub reason_type: crate::database::enums::ExitReason,
+
+
+
+    pub remarks: Option<String>,
+
+
+
+    pub approved_by: String,
+
+
+
+    pub guardian_notified: bool,
+
+
+
+}
+
+
+
+

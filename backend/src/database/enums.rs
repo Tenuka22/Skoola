@@ -202,6 +202,7 @@ pub enum AttendanceStatus {
     Late,
     Excused,
     HalfDay,
+    SchoolBusiness,
 }
 
 impl Display for AttendanceStatus {
@@ -212,6 +213,7 @@ impl Display for AttendanceStatus {
             AttendanceStatus::Late => write!(f, "Late"),
             AttendanceStatus::Excused => write!(f, "Excused"),
             AttendanceStatus::HalfDay => write!(f, "HalfDay"),
+            AttendanceStatus::SchoolBusiness => write!(f, "SchoolBusiness"),
         }
     }
 }
@@ -226,6 +228,7 @@ impl std::str::FromStr for AttendanceStatus {
             "Late" => Ok(AttendanceStatus::Late),
             "Excused" => Ok(AttendanceStatus::Excused),
             "HalfDay" => Ok(AttendanceStatus::HalfDay),
+            "SchoolBusiness" => Ok(AttendanceStatus::SchoolBusiness),
             _ => Err("Invalid AttendanceStatus"),
         }
     }
@@ -249,6 +252,474 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for AttendanceStatus {
             "Late" => Ok(AttendanceStatus::Late),
             "Excused" => Ok(AttendanceStatus::Excused),
             "HalfDay" => Ok(AttendanceStatus::HalfDay),
+            "SchoolBusiness" => Ok(AttendanceStatus::SchoolBusiness),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum DayType {
+    Working,
+    Holiday,
+    Weekend,
+    SpecialEvent,
+}
+
+impl Display for DayType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            DayType::Working => write!(f, "Working"),
+            DayType::Holiday => write!(f, "Holiday"),
+            DayType::Weekend => write!(f, "Weekend"),
+            DayType::SpecialEvent => write!(f, "SpecialEvent"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for DayType {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for DayType {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Working" => Ok(DayType::Working),
+            "Holiday" => Ok(DayType::Holiday),
+            "Weekend" => Ok(DayType::Weekend),
+            "SpecialEvent" => Ok(DayType::SpecialEvent),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum ParticipantType {
+    Participant,
+    Organizer,
+    Supervisor,
+    Detained,
+}
+
+impl Display for ParticipantType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            ParticipantType::Participant => write!(f, "Participant"),
+            ParticipantType::Organizer => write!(f, "Organizer"),
+            ParticipantType::Supervisor => write!(f, "Supervisor"),
+            ParticipantType::Detained => write!(f, "Detained"),
+        }
+    }
+}
+
+impl std::str::FromStr for ParticipantType {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Participant" => Ok(ParticipantType::Participant),
+            "Organizer" => Ok(ParticipantType::Organizer),
+            "Supervisor" => Ok(ParticipantType::Supervisor),
+            "Detained" => Ok(ParticipantType::Detained),
+            _ => Err("Invalid ParticipantType"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for ParticipantType {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for ParticipantType {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Participant" => Ok(ParticipantType::Participant),
+            "Organizer" => Ok(ParticipantType::Organizer),
+            "Supervisor" => Ok(ParticipantType::Supervisor),
+            "Detained" => Ok(ParticipantType::Detained),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum SuspicionFlag {
+    None,
+    FrequentExit,
+    Avoidance,
+    UnusualDrowsiness,
+    SkippingAfterInterval,
+    Other,
+}
+
+impl Display for SuspicionFlag {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            SuspicionFlag::None => write!(f, "None"),
+            SuspicionFlag::FrequentExit => write!(f, "FrequentExit"),
+            SuspicionFlag::Avoidance => write!(f, "Avoidance"),
+            SuspicionFlag::UnusualDrowsiness => write!(f, "UnusualDrowsiness"),
+            SuspicionFlag::SkippingAfterInterval => write!(f, "SkippingAfterInterval"),
+            SuspicionFlag::Other => write!(f, "Other"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for SuspicionFlag {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for SuspicionFlag {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "None" => Ok(SuspicionFlag::None),
+            "FrequentExit" => Ok(SuspicionFlag::FrequentExit),
+            "Avoidance" => Ok(SuspicionFlag::Avoidance),
+            "UnusualDrowsiness" => Ok(SuspicionFlag::UnusualDrowsiness),
+            "SkippingAfterInterval" => Ok(SuspicionFlag::SkippingAfterInterval),
+            "Other" => Ok(SuspicionFlag::Other),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum DetailedStatus {
+    Normal,
+    SickBay,
+    FieldTrip,
+    Counseling,
+    Suspended,
+    ExternalExam,
+}
+
+impl Display for DetailedStatus {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            DetailedStatus::Normal => write!(f, "Normal"),
+            DetailedStatus::SickBay => write!(f, "SickBay"),
+            DetailedStatus::FieldTrip => write!(f, "FieldTrip"),
+            DetailedStatus::Counseling => write!(f, "Counseling"),
+            DetailedStatus::Suspended => write!(f, "Suspended"),
+            DetailedStatus::ExternalExam => write!(f, "ExternalExam"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for DetailedStatus {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for DetailedStatus {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Normal" => Ok(DetailedStatus::Normal),
+            "SickBay" => Ok(DetailedStatus::SickBay),
+            "FieldTrip" => Ok(DetailedStatus::FieldTrip),
+            "Counseling" => Ok(DetailedStatus::Counseling),
+            "Suspended" => Ok(DetailedStatus::Suspended),
+            "ExternalExam" => Ok(DetailedStatus::ExternalExam),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum ExcuseType {
+    Medical,
+    Educational,
+    Family,
+    Bereavement,
+    Official,
+}
+
+impl Display for ExcuseType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            ExcuseType::Medical => write!(f, "Medical"),
+            ExcuseType::Educational => write!(f, "Educational"),
+            ExcuseType::Family => write!(f, "Family"),
+            ExcuseType::Bereavement => write!(f, "Bereavement"),
+            ExcuseType::Official => write!(f, "Official"),
+        }
+    }
+}
+
+impl std::str::FromStr for ExcuseType {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "Medical" => Ok(ExcuseType::Medical),
+            "Educational" => Ok(ExcuseType::Educational),
+            "Family" => Ok(ExcuseType::Family),
+            "Bereavement" => Ok(ExcuseType::Bereavement),
+            "Official" => Ok(ExcuseType::Official),
+            _ => Err("Invalid ExcuseType"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for ExcuseType {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for ExcuseType {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Medical" => Ok(ExcuseType::Medical),
+            "Educational" => Ok(ExcuseType::Educational),
+            "Family" => Ok(ExcuseType::Family),
+            "Bereavement" => Ok(ExcuseType::Bereavement),
+            "Official" => Ok(ExcuseType::Official),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum SubstitutionStatus {
+    Pending,
+    Confirmed,
+    Completed,
+    Cancelled,
+}
+
+impl Display for SubstitutionStatus {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            SubstitutionStatus::Pending => write!(f, "Pending"),
+            SubstitutionStatus::Confirmed => write!(f, "Confirmed"),
+            SubstitutionStatus::Completed => write!(f, "Completed"),
+            SubstitutionStatus::Cancelled => write!(f, "Cancelled"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for SubstitutionStatus {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for SubstitutionStatus {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Pending" => Ok(SubstitutionStatus::Pending),
+            "Confirmed" => Ok(SubstitutionStatus::Confirmed),
+            "Completed" => Ok(SubstitutionStatus::Completed),
+            "Cancelled" => Ok(SubstitutionStatus::Cancelled),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum PreApprovedReason {
+    Sick,
+    FamilyEvent,
+    Visa,
+    Bereavement,
+    Religious,
+    Other,
+}
+
+impl Display for PreApprovedReason {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            PreApprovedReason::Sick => write!(f, "Sick"),
+            PreApprovedReason::FamilyEvent => write!(f, "FamilyEvent"),
+            PreApprovedReason::Visa => write!(f, "Visa"),
+            PreApprovedReason::Bereavement => write!(f, "Bereavement"),
+            PreApprovedReason::Religious => write!(f, "Religious"),
+            PreApprovedReason::Other => write!(f, "Other"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for PreApprovedReason {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for PreApprovedReason {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Sick" => Ok(PreApprovedReason::Sick),
+            "FamilyEvent" => Ok(PreApprovedReason::FamilyEvent),
+            "Visa" => Ok(PreApprovedReason::Visa),
+            "Bereavement" => Ok(PreApprovedReason::Bereavement),
+            "Religious" => Ok(PreApprovedReason::Religious),
+            "Other" => Ok(PreApprovedReason::Other),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum EmergencyStatus {
+    Safe,
+    Missing,
+    Unknown,
+    Injured,
+}
+
+impl Display for EmergencyStatus {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            EmergencyStatus::Safe => write!(f, "Safe"),
+            EmergencyStatus::Missing => write!(f, "Missing"),
+            EmergencyStatus::Unknown => write!(f, "Unknown"),
+            EmergencyStatus::Injured => write!(f, "Injured"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for EmergencyStatus {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for EmergencyStatus {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Safe" => Ok(EmergencyStatus::Safe),
+            "Missing" => Ok(EmergencyStatus::Missing),
+            "Unknown" => Ok(EmergencyStatus::Unknown),
+            "Injured" => Ok(EmergencyStatus::Injured),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum ExitReason {
+    Medical,
+    Personal,
+    Disciplinary,
+    Dismissal,
+}
+
+impl Display for ExitReason {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            ExitReason::Medical => write!(f, "Medical"),
+            ExitReason::Personal => write!(f, "Personal"),
+            ExitReason::Disciplinary => write!(f, "Disciplinary"),
+            ExitReason::Dismissal => write!(f, "Dismissal"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for ExitReason {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for ExitReason {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "Medical" => Ok(ExitReason::Medical),
+            "Personal" => Ok(ExitReason::Personal),
+            "Disciplinary" => Ok(ExitReason::Disciplinary),
+            "Dismissal" => Ok(ExitReason::Dismissal),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq)]
+#[diesel(sql_type = Text)]
+pub enum PolicyRuleType {
+    ConsecutiveLate,
+    TotalLate,
+    UnexcusedAbsent,
+}
+
+impl Display for PolicyRuleType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            PolicyRuleType::ConsecutiveLate => write!(f, "ConsecutiveLate"),
+            PolicyRuleType::TotalLate => write!(f, "TotalLate"),
+            PolicyRuleType::UnexcusedAbsent => write!(f, "UnexcusedAbsent"),
+        }
+    }
+}
+
+impl ToSql<Text, diesel::sqlite::Sqlite> for PolicyRuleType {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, diesel::sqlite::Sqlite>) -> diesel::serialize::Result {
+        out.set_value(self.to_string());
+        Ok(IsNull::No)
+    }
+}
+
+impl FromSql<Text, diesel::sqlite::Sqlite> for PolicyRuleType {
+    fn from_sql(
+        bytes: <diesel::sqlite::Sqlite as Backend>::RawValue<'_>,
+    ) -> diesel::deserialize::Result<Self> {
+        let s = <String as FromSql<Text, diesel::sqlite::Sqlite>>::from_sql(bytes)?;
+        match s.as_str() {
+            "ConsecutiveLate" => Ok(PolicyRuleType::ConsecutiveLate),
+            "TotalLate" => Ok(PolicyRuleType::TotalLate),
+            "UnexcusedAbsent" => Ok(PolicyRuleType::UnexcusedAbsent),
             _ => Err("Unrecognized enum variant".into()),
         }
     }
@@ -1122,6 +1593,12 @@ pub enum PermissionEnum {
     // Library Permissions
     LibraryManage,
 
+    // Activity & Co-curricular Permissions
+    CoCurricularManage,
+
+    // System Permissions
+    SystemAdmin,
+
     // Other/Severity Examples (matching what was there)
     UserUpdateMedium,
     UserDeleteSevere,
@@ -1178,6 +1655,8 @@ impl Display for PermissionEnum {
             PermissionEnum::GradingSchemeManage => write!(f, "GradingSchemeManage"),
             PermissionEnum::GradingCriterionManage => write!(f, "GradingCriterionManage"),
             PermissionEnum::LibraryManage => write!(f, "LibraryManage"),
+            PermissionEnum::CoCurricularManage => write!(f, "CoCurricularManage"),
+            PermissionEnum::SystemAdmin => write!(f, "SystemAdmin"),
             PermissionEnum::UserUpdateMedium => write!(f, "UserUpdateMedium"),
             PermissionEnum::UserDeleteSevere => write!(f, "UserDeleteSevere"),
         }
@@ -1292,6 +1771,8 @@ impl std::str::FromStr for PermissionEnum {
             "GradingSchemeManage" => Ok(PermissionEnum::GradingSchemeManage),
             "GradingCriterionManage" => Ok(PermissionEnum::GradingCriterionManage),
             "LibraryManage" => Ok(PermissionEnum::LibraryManage),
+            "CoCurricularManage" => Ok(PermissionEnum::CoCurricularManage),
+            "SystemAdmin" => Ok(PermissionEnum::SystemAdmin),
             "UserUpdateMedium" => Ok(PermissionEnum::UserUpdateMedium),
             "UserDeleteSevere" => Ok(PermissionEnum::UserDeleteSevere),
             _ => Err("Invalid Permission"),
@@ -1363,6 +1844,8 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for PermissionEnum {
             "GradingSchemeManage" => Ok(PermissionEnum::GradingSchemeManage),
             "GradingCriterionManage" => Ok(PermissionEnum::GradingCriterionManage),
             "LibraryManage" => Ok(PermissionEnum::LibraryManage),
+            "CoCurricularManage" => Ok(PermissionEnum::CoCurricularManage),
+            "SystemAdmin" => Ok(PermissionEnum::SystemAdmin),
             "UserUpdateMedium" => Ok(PermissionEnum::UserUpdateMedium),
             "UserDeleteSevere" => Ok(PermissionEnum::UserDeleteSevere),
             _ => Err("Unrecognized enum variant".into()),

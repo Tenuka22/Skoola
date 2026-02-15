@@ -1,4 +1,5 @@
 pub mod academic_year;
+pub mod activities;
 pub mod auth;
 pub mod class;
 pub mod class_subject_teacher;
@@ -19,6 +20,7 @@ pub mod profile;
 pub mod property;
 pub mod report_cards;
 pub mod role_permissions;
+pub mod school_settings;
 
 pub mod seed;
 pub mod seed_runner;

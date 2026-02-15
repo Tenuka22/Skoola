@@ -16,7 +16,7 @@ pub mod library;
 pub mod profile;
 pub mod property; // Added
 pub mod report_cards;
-
+pub mod school_settings;
 pub mod special_exams;
 pub mod staff_attendance;
 pub mod staff_leaves;
@@ -35,6 +35,8 @@ pub mod teacher_assignments;
 pub mod terms;
 pub mod timetable;
 pub mod zscore;
+pub mod activities;
+pub mod attendance_v2;
 
 use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;

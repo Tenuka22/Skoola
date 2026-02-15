@@ -52,6 +52,21 @@ pub struct AssignSubjectToStreamRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
+pub struct EnrollStudentInSubjectRequest {
+    pub student_id: String,
+    pub subject_id: String,
+    pub academic_year_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
+pub struct SubjectEnrollmentResponse {
+    pub student_id: String,
+    pub subject_id: String,
+    pub academic_year_id: String,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct SubjectResponse {
     pub id: String,
     pub subject_code: String,

@@ -7,10 +7,39 @@ use serde::{Deserialize, Serialize};
 use crate::{
     AppState,
     errors::APIError,
-    models::subject::{CreateSubjectRequest, UpdateSubjectRequest, AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, SubjectResponse},
+    models::subject::{CreateSubjectRequest, UpdateSubjectRequest, AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, SubjectResponse, EnrollStudentInSubjectRequest, SubjectEnrollmentResponse},
     models::MessageResponse,
     services::subject,
 };
+
+#[api_operation(
+    summary = "Enroll student in elective subject",
+    description = "Enrolls a student in a specific elective subject for an academic year.",
+    tag = "subjects",
+    operation_id = "enroll_student_in_subject"
+)]
+pub async fn enroll_student_in_subject(
+    data: web::Data<AppState>,
+    body: web::Json<EnrollStudentInSubjectRequest>,
+) -> Result<Json<SubjectEnrollmentResponse>, APIError> {
+    let res = subject::enroll_student_in_subject(data, body.into_inner()).await?;
+    Ok(Json(res))
+}
+
+#[api_operation(
+    summary = "Get student subject enrollments",
+    description = "Retrieves all subjects a student is enrolled in for a specific academic year.",
+    tag = "subjects",
+    operation_id = "get_student_enrollments"
+)]
+pub async fn get_student_enrollments(
+    data: web::Data<AppState>,
+    path: web::Path<(String, String)>, // (student_id, academic_year_id)
+) -> Result<Json<Vec<SubjectResponse>>, APIError> {
+    let (student_id, academic_year_id) = path.into_inner();
+    let res = subject::get_student_enrollments(data, student_id, academic_year_id).await?;
+    Ok(Json(res))
+}
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
 pub struct SubjectQuery {

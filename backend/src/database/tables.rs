@@ -1,26 +1,309 @@
 use crate::database::enums::{
-    AllocationType, ComponentType, Ethnicity, FeeFrequency, Gender, MaintenanceStatus,
-    PaymentMethod, Religion, TransactionType, RoleEnum,
+    AllocationType, AttendanceStatus, ComponentType, DayType, DetailedStatus, EmergencyStatus,
+    Ethnicity, ExcuseType, ExitReason, FeeFrequency, Gender, MaintenanceStatus, ParticipantType,
+    PaymentMethod, PolicyRuleType, PreApprovedReason, Religion, RoleEnum, SubstitutionStatus,
+    SuspicionFlag, TransactionType,
 };
 use crate::schema::{
-    asset_allocations, asset_categories, budget_categories, budgets, expense_categories,
-    expense_transactions, fee_categories, fee_payments, fee_structures, income_sources,
-    income_transactions, inventory_items, library_books, library_categories, library_issues,
-    library_settings, maintenance_requests, role_permissions,
-    salary_components, salary_payments, sessions, staff, staff_attendance,
+    activities, activity_attendance, activity_participants, activity_types,
+    asset_allocations, asset_categories, attendance_audit_log, attendance_discrepancies,
+    attendance_excuses, attendance_policies, budget_categories, budgets,
+    detention_balances, emergency_roll_call_entries, emergency_roll_calls, exit_passes,
+    expense_categories, expense_transactions, fee_categories, fee_payments, fee_structures,
+    income_sources, income_transactions, inventory_items, lesson_progress, library_books,
+    library_categories, library_issues, library_settings, maintenance_requests,
+    petty_cash_transactions, pre_approved_absences, role_permissions, salary_components,
+    salary_payments, school_calendar, school_settings, sessions, staff, staff_attendance,
     staff_departments, staff_employment_history, staff_leaves, staff_qualifications,
-    staff_salaries, staff_subjects, student_emergency_contacts, student_fees, student_guardians,
-    student_medical_info, student_previous_schools, students, teacher_class_assignments,
-    teacher_subject_assignments, uniform_issues, uniform_items, user_permissions,
-    user_set_permissions, user_set_users, user_sets, users, petty_cash_transactions,
+    staff_salaries, staff_subjects,
+    student_emergency_contacts, student_fees, student_guardians, student_medical_info,
+    student_period_attendance, student_previous_schools, students, subject_enrollments,
+    substitutions, teacher_class_assignments, teacher_subject_assignments,
+    uniform_issues, uniform_items, user_permissions, user_set_permissions, user_set_users,
+    user_sets, users,
 };
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = attendance_policies)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct AttendancePolicy {
+    pub id: String,
+    pub name: String,
+    pub rule_type: PolicyRuleType,
+    pub threshold: i32,
+    pub consequence_type: String,
+    pub consequence_value: Option<f32>,
+    pub is_active: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = exit_passes)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct ExitPass {
+    pub id: String,
+    pub student_id: String,
+    pub date: NaiveDate,
+    pub exit_time: NaiveTime,
+    pub reason_type: ExitReason,
+    pub remarks: Option<String>,
+    pub approved_by: String,
+    pub guardian_notified: bool,
+    pub gate_cleared_at: Option<NaiveDateTime>,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = subject_enrollments)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+#[diesel(primary_key(student_id, subject_id, academic_year_id))]
+pub struct SubjectEnrollment {
+    pub student_id: String,
+    pub subject_id: String,
+    pub academic_year_id: String,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = pre_approved_absences)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct PreApprovedAbsence {
+    pub id: String,
+    pub student_id: String,
+    pub start_date: NaiveDate,
+    pub end_date: NaiveDate,
+    pub reason_type: PreApprovedReason,
+    pub remarks: Option<String>,
+    pub approved_by: String,
+    pub document_url: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = emergency_roll_calls)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct EmergencyRollCall {
+    pub id: String,
+    pub event_name: String,
+    pub start_time: NaiveDateTime,
+    pub end_time: Option<NaiveDateTime>,
+    pub initiated_by: String,
+    pub status: String,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = emergency_roll_call_entries)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+#[diesel(primary_key(roll_call_id, user_id))]
+pub struct EmergencyRollCallEntry {
+    pub roll_call_id: String,
+    pub user_id: String,
+    pub status: EmergencyStatus,
+    pub location_found: Option<String>,
+    pub marked_at: Option<NaiveDateTime>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = school_settings)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct SchoolSetting {
+    pub setting_key: String,
+    pub setting_value: String,
+    pub description: Option<String>,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = attendance_discrepancies)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct AttendanceDiscrepancy {
+    pub id: String,
+    pub student_id: String,
+    pub date: NaiveDate,
+    pub discrepancy_type: String,
+    pub details: Option<String>,
+    pub severity: String,
+    pub is_resolved: bool,
+    pub resolved_by: Option<String>,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = detention_balances)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct DetentionBalance {
+    pub student_id: String,
+    pub total_hours_assigned: f32,
+    pub total_hours_served: f32,
+    pub remaining_hours: f32,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = lesson_progress)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct LessonProgress {
+    pub id: String,
+    pub class_id: String,
+    pub subject_id: String,
+    pub teacher_id: String,
+    pub timetable_id: Option<String>,
+    pub date: NaiveDate,
+    pub topic_covered: String,
+    pub sub_topic: Option<String>,
+    pub homework_assigned: Option<String>,
+    pub resources_used: Option<String>,
+    pub progress_percentage: Option<i32>,
+    pub is_substitution: bool,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = substitutions)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct Substitution {
+    pub id: String,
+    pub original_teacher_id: String,
+    pub substitute_teacher_id: String,
+    pub timetable_id: String,
+    pub date: NaiveDate,
+    pub status: SubstitutionStatus,
+    pub remarks: Option<String>,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = attendance_excuses)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct AttendanceExcuse {
+    pub id: String,
+    pub attendance_record_id: String,
+    pub excuse_type: ExcuseType,
+    pub document_url: Option<String>,
+    pub is_verified: bool,
+    pub verified_by: Option<String>,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = school_calendar)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct SchoolCalendar {
+    pub date: Option<NaiveDate>,
+    pub day_type: DayType,
+    pub name: Option<String>,
+    pub is_academic_day: bool,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = activity_types)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct ActivityType {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = activities)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct Activity {
+    pub id: String,
+    pub activity_type_id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub location: Option<String>,
+    pub start_time: NaiveDateTime,
+    pub end_time: NaiveDateTime,
+    pub is_mandatory: bool,
+    pub academic_year_id: String,
+    pub created_by: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = activity_participants)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+#[diesel(primary_key(activity_id, user_id))]
+pub struct ActivityParticipant {
+    pub activity_id: String,
+    pub user_id: String,
+    pub participant_type: ParticipantType,
+    pub enrollment_reason: Option<String>,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = activity_attendance)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct ActivityAttendance {
+    pub id: String,
+    pub activity_id: String,
+    pub user_id: String,
+    pub status: AttendanceStatus,
+    pub check_in_time: Option<NaiveDateTime>,
+    pub check_out_time: Option<NaiveDateTime>,
+    pub remarks: Option<String>,
+    pub marked_by: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = student_period_attendance)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct StudentPeriodAttendance {
+    pub id: String,
+    pub student_id: String,
+    pub class_id: String,
+    pub timetable_id: String,
+    pub date: NaiveDate,
+    pub status: AttendanceStatus,
+    pub minutes_late: Option<i32>,
+    pub remarks: Option<String>,
+    pub is_locked: bool,
+    pub marked_by: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub suspicion_flag: Option<SuspicionFlag>,
+    pub detailed_status: Option<DetailedStatus>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
+#[diesel(table_name = attendance_audit_log)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct AttendanceAuditLog {
+    pub id: String,
+    pub attendance_type: String,
+    pub attendance_record_id: String,
+    pub old_status: Option<String>,
+    pub new_status: String,
+    pub change_reason: String,
+    pub changed_by: String,
+    pub changed_at: NaiveDateTime,
+}
+use apistos::ApiComponent;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use apistos::ApiComponent;
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+)]
 #[diesel(table_name = users)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct User {
@@ -62,16 +345,7 @@ pub struct NewUser {
     pub role: RoleEnum,
 }
 
-#[derive(
-    Debug,
-    Serialize,
-    Deserialize,
-    JsonSchema,
-    Queryable,
-    Selectable,
-    Insertable,
-    Clone,
-)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
 #[diesel(table_name = role_permissions)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct RolePermission {
@@ -117,7 +391,17 @@ pub struct UserSetPermission {
     pub permission: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+)]
 #[diesel(table_name = user_sets)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct UserSet {
@@ -126,7 +410,17 @@ pub struct UserSet {
     pub description: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = user_set_users)]
 #[diesel(belongs_to(UserSet))]
 #[diesel(belongs_to(User))]
@@ -156,7 +450,17 @@ pub struct NewStaff {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+)]
 #[diesel(table_name = staff)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Staff {
@@ -314,7 +618,18 @@ pub struct TeacherSubjectAssignment {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone, Associations)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
 #[diesel(table_name = staff_attendance)]
 #[diesel(belongs_to(Staff))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -356,7 +671,17 @@ pub struct StaffLeave {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+)]
 #[diesel(table_name = students)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Student {

@@ -9,7 +9,7 @@ use crate::{
         oauth::{github_callback, google_callback},
         permission_sets::{
             create_permission_set, delete_permission_set, get_all_permission_sets,
-            update_permission_set, get_user_set_members,
+            get_user_set_members, update_permission_set,
         },
         profile::{
             change_email, change_password, get_profile, link_github, link_google, update_profile,
@@ -24,9 +24,11 @@ use crate::{
             upload_staff_photo,
         },
         staff_attendance::{
-            calculate_monthly_attendance_percentage, get_staff_attendance_by_date,
-            get_staff_attendance_by_staff_member, mark_bulk_staff_attendance,
-            mark_staff_attendance_daily, update_staff_attendance,
+            /*
+            27:             calculate_monthly_attendance_percentage, get_staff_attendance_by_date,
+            28:             get_staff_attendance_by_staff_member, mark_bulk_staff_attendance,
+            29: */
+            mark_staff_attendance_daily, update_staff_attendance, mark_bulk_staff_attendance,
         },
         staff_leaves::{apply_for_leave, approve_reject_leave, view_leave_balance},
         student, student_attendance, student_class_assignment, student_guardian, student_marks,
@@ -39,9 +41,9 @@ use crate::{
             assign_permission_to_user, get_user_permissions, unassign_permission_from_user,
         },
         user_set_permissions::{
-            assign_permission_to_user_set, get_user_set_permissions, unassign_permission_from_user_set,
+            assign_permission_to_user_set, get_user_set_permissions,
+            unassign_permission_from_user_set,
         },
-
         verification::verify_email,
         zscore,
     },
@@ -97,11 +99,26 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             })
             .wrap(Authenticated)
             .route("", web::get().to(crate::handlers::users::get_all_users))
-            .route("/stats", web::get().to(crate::handlers::users::get_user_stats))
-            .route("/bulk", web::delete().to(crate::handlers::users::bulk_delete_users))
-            .route("/bulk", web::patch().to(crate::handlers::users::bulk_update_users))
-            .route("/{user_id}", web::put().to(crate::handlers::users::update_user))
-            .route("/{user_id}", web::delete().to(crate::handlers::users::delete_user))
+            .route(
+                "/stats",
+                web::get().to(crate::handlers::users::get_user_stats),
+            )
+            .route(
+                "/bulk",
+                web::delete().to(crate::handlers::users::bulk_delete_users),
+            )
+            .route(
+                "/bulk",
+                web::patch().to(crate::handlers::users::bulk_update_users),
+            )
+            .route(
+                "/{user_id}",
+                web::put().to(crate::handlers::users::update_user),
+            )
+            .route(
+                "/{user_id}",
+                web::delete().to(crate::handlers::users::delete_user),
+            )
             .route(
                 "/{user_id}/permissions/{permission}",
                 web::post().to(assign_permission_to_user),
@@ -122,10 +139,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             })
             .wrap(Authenticated)
             .route("", web::get().to(get_role_permissions))
-            .route(
-                "/{permission}",
-                web::post().to(assign_permission_to_role),
-            )
+            .route("/{permission}", web::post().to(assign_permission_to_role))
             .route(
                 "/{permission}",
                 web::delete().to(unassign_permission_from_role),
@@ -184,16 +198,40 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 web::put().to(update_staff_attendance),
             )
             .route(
-                "/attendance/date",
-                web::get().to(get_staff_attendance_by_date),
+                "/attendance/date/{date}",
+                web::get().to(crate::handlers::staff_attendance::get_staff_attendance_by_date),
             )
             .route(
                 "/{staff_id}/attendance/member",
-                web::get().to(get_staff_attendance_by_staff_member),
+                web::get().to(crate::handlers::staff_attendance::get_staff_attendance_by_staff_member),
             )
             .route(
                 "/{staff_id}/attendance/percentage/{year}/{month}",
-                web::get().to(calculate_monthly_attendance_percentage),
+                web::get().to(crate::handlers::staff_attendance::calculate_monthly_attendance_percentage),
+            )
+            .route(
+                "/attendance/sync-leaves/{date}",
+                web::post().to(crate::handlers::staff_attendance::sync_leaves),
+            )
+            .route(
+                "/substitute/suggest",
+                web::post().to(crate::handlers::staff_attendance::suggest_substitute),
+            )
+            .route(
+                "/substitute/create",
+                web::post().to(crate::handlers::staff_attendance::create_substitution),
+            )
+            .route(
+                "/substitute/my",
+                web::get().to(crate::handlers::staff_attendance::get_my_substitutions),
+            )
+            .route(
+                "/lesson-progress",
+                web::post().to(crate::handlers::staff_attendance::record_lesson_progress),
+            )
+            .route(
+                "/lesson-progress/{class_id}/{subject_id}",
+                web::get().to(crate::handlers::staff_attendance::get_lesson_progress),
             )
             .route("/{staff_id}/leaves", web::post().to(apply_for_leave))
             .route(
@@ -214,9 +252,9 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             )
             .route(
                 "/{staff_id}/permission-sets/{set_id}",
-                web::delete().to(crate::handlers::permission_sets::unassign_permission_set_from_staff),
+                web::delete()
+                    .to(crate::handlers::permission_sets::unassign_permission_set_from_staff),
             ),
-
     )
     .service(
         web::scope("/students")
@@ -329,6 +367,54 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/notifications/absent",
                 web::post().to(student_attendance::send_absence_notifications),
+            )
+            .route(
+                "/emergency/initiate",
+                web::post().to(student_attendance::initiate_emergency_roll_call),
+            )
+            .route(
+                "/emergency/{roll_call_id}/{user_id}",
+                web::put().to(student_attendance::update_emergency_status),
+            )
+            .route(
+                "/emergency/{roll_call_id}/complete",
+                web::post().to(student_attendance::complete_emergency_roll_call),
+            )
+            .route(
+                "/sync/pre-approved/{date}",
+                web::post().to(student_attendance::sync_pre_approved_absences),
+            )
+            .route(
+                "/sync/school-business/{date}",
+                web::post().to(student_attendance::sync_school_business),
+            )
+            .route(
+                "/check-discrepancies/{date}",
+                web::get().to(student_attendance::run_discrepancy_check),
+            )
+            .route(
+                "/enriched-list/{class_id}/{date}",
+                web::get().to(student_attendance::get_enriched_student_list),
+            )
+            .route(
+                "/period",
+                web::post().to(student_attendance::mark_period_attendance),
+            )
+            .route(
+                "/exit-pass",
+                web::post().to(student_attendance::issue_exit_pass),
+            )
+            .route(
+                "/{student_id}/evaluate-policies",
+                web::post().to(student_attendance::evaluate_policies),
+            )
+            .route(
+                "/excuses",
+                web::post().to(student_attendance::submit_excuse),
+            )
+            .route(
+                "/excuses/{excuse_id}/verify",
+                web::post().to(student_attendance::verify_excuse),
             ),
     )
     .service(
@@ -343,7 +429,10 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 "/bulk",
                 web::post().to(student_marks::bulk_create_student_marks),
             )
-            .route("/{id}", web::get().to(student_marks::get_student_mark_by_id))
+            .route(
+                "/{id}",
+                web::get().to(student_marks::get_student_mark_by_id),
+            )
             .route(
                 "/student/{student_id}",
                 web::get().to(student_marks::get_student_marks_by_student_id),
@@ -353,9 +442,11 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 web::get().to(student_marks::get_student_marks_by_exam_and_class),
             )
             .route("/{id}", web::put().to(student_marks::update_student_mark))
-            .route("/{id}", web::delete().to(student_marks::delete_student_mark)),
+            .route(
+                "/{id}",
+                web::delete().to(student_marks::delete_student_mark),
+            ),
     )
-
     .service(
         web::scope("/academic-years")
             .wrap(PermissionVerification {
@@ -377,13 +468,15 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 "/{id}/set-current",
                 web::put().to(academic_year::set_current_academic_year),
             )
-            .route("/bulk", web::delete().to(academic_year::bulk_delete_academic_years))
+            .route(
+                "/bulk",
+                web::delete().to(academic_year::bulk_delete_academic_years),
+            )
             .route(
                 "/bulk",
                 web::patch().to(academic_year::bulk_update_academic_years),
             ),
     )
-
     .service(
         web::scope("/terms")
             .wrap(PermissionVerification {
@@ -403,13 +496,15 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(grade_level::get_all_grade_levels))
             .route("/{id}", web::put().to(grade_level::update_grade_level))
             .route("/{id}", web::delete().to(grade_level::delete_grade_level))
-            .route("/bulk", web::delete().to(grade_level::bulk_delete_grade_levels))
+            .route(
+                "/bulk",
+                web::delete().to(grade_level::bulk_delete_grade_levels),
+            )
             .route(
                 "/bulk",
                 web::patch().to(grade_level::bulk_update_grade_levels),
             ),
     )
-
     .service(
         web::scope("/classes")
             .wrap(PermissionVerification {
@@ -451,6 +546,14 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/assign-to-stream",
                 web::post().to(subject::assign_subject_to_stream_handler),
+            )
+            .route(
+                "/enroll",
+                web::post().to(subject::enroll_student_in_subject),
+            )
+            .route(
+                "/enrollments/{student_id}/{academic_year_id}",
+                web::get().to(subject::get_student_enrollments),
             )
             .route("/bulk", web::delete().to(subject::bulk_delete_subjects))
             .route("/bulk", web::patch().to(subject::bulk_update_subjects)),
@@ -512,11 +615,11 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(exam_types::get_all_exam_types))
             .route("/{id}", web::put().to(exam_types::update_exam_type))
             .route("/{id}", web::delete().to(exam_types::delete_exam_type))
-            .route("/bulk", web::delete().to(exam_types::bulk_delete_exam_types))
             .route(
                 "/bulk",
-                web::patch().to(exam_types::bulk_update_exam_types),
-            ),
+                web::delete().to(exam_types::bulk_delete_exam_types),
+            )
+            .route("/bulk", web::patch().to(exam_types::bulk_update_exam_types)),
     )
     .service(
         web::scope("/exams")
@@ -754,11 +857,13 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/stats",
                 apistos::web::get().to(crate::handlers::library::get_library_stats),
-            )
+            ),
     );
 
     cfg.configure(crate::handlers::property::config);
     cfg.configure(crate::handlers::financial::config);
+    cfg.configure(|cfg_local| crate::handlers::activities::config(&mut *cfg_local));
+    cfg.configure(|cfg_local| crate::handlers::school_settings::config(&mut *cfg_local));
 
     cfg.route("/", apistos::web::get().to(hello));
     cfg.route("/error", apistos::web::get().to(hello_error));
