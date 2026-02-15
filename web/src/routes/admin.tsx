@@ -7,6 +7,7 @@ import {
   Calendar02Icon,
   Home01Icon,
   Settings01Icon,
+  Shield01Icon,
   User02Icon,
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
@@ -69,7 +70,9 @@ function AdminLayout() {
 
   if (
     !activeSession ||
-    !['Admin', 'FullAdmin', 'Principal', 'VicePrincipal'].some((role) => activeSession.user.roles.includes(role as any))
+    !['Admin', 'FullAdmin', 'Principal', 'VicePrincipal'].some((role) =>
+      activeSession.user.roles.includes(role as any),
+    )
   ) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-muted/40 p-4">
@@ -125,6 +128,14 @@ function AdminLayout() {
                   <SidebarMenuButton tooltip="Users">
                     <HugeiconsIcon icon={UserGroupIcon} />
                     <span>Users</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link to="/admin/rbac">
+                  <SidebarMenuButton tooltip="Access Control">
+                    <HugeiconsIcon icon={Shield01Icon} />
+                    <span>Access Control</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
@@ -197,4 +208,3 @@ function AdminLayout() {
     </SidebarProvider>
   )
 }
-

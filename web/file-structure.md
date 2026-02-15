@@ -57,39 +57,6 @@
 - `web/src/features/users/components/user-lock-dialog.tsx`
   - Purpose: Dialog for setting account lockout duration.
 
-### Permissions & RBAC Management Feature
-
-- `web/src/features/permissions/types.ts`
-  - Purpose: Domain types for Permissions, Roles, and Permission Sets.
-- `web/src/features/permissions/api.ts`
-  - Purpose: Encapsulated API calls for RBAC CRUD and assignments.
-- `web/src/features/permissions/constants.ts`
-  - Purpose: Constants and enums related to permissions and security levels.
-- `web/src/features/permissions/components/permission-manager.tsx`
-  - Purpose: Main container for managing permissions and roles.
-- `web/src/features/permissions/components/permissions-table.tsx`
-  - Purpose: Table for listing and managing global permissions.
-- `web/src/features/permissions/components/permission-table-columns.tsx`
-  - Purpose: Column definitions for the permissions table.
-- `web/src/features/permissions/components/permission-sets-list.tsx`
-  - Purpose: List and management for Permission Sets.
-- `web/src/features/permissions/components/role-list.tsx`
-  - Purpose: List of system roles.
-- `web/src/features/permissions/components/role-card.tsx`
-  - Purpose: Individual card view for a security role.
-- `web/src/features/permissions/components/role-permissions-dialog.tsx`
-  - Purpose: Capability management for a specific role.
-- `web/src/features/permissions/components/user-permissions-dialog.tsx`
-  - Purpose: Direct permission management and set assignments for specific users.
-- `web/src/features/permissions/components/user-bulk-permissions-dialog.tsx`
-  - Purpose: Bulk permission assignment for multiple users.
-- `web/src/features/permissions/components/manage-permission-set-permissions-dialog.tsx`
-  - Purpose: Manage permissions within a specific Permission Set.
-- `web/src/features/permissions/components/create-permission-dialog.tsx` / `edit-permission-dialog.tsx`
-  - Purpose: Dialogs for CRUD operations on individual permissions.
-- `web/src/features/permissions/components/create-permission-set-dialog.tsx` / `edit-permission-set-dialog.tsx`
-  - Purpose: Dialogs for CRUD operations on Permission Sets.
-
 ### Staff Management Feature
 
 - `web/src/features/staff/store.ts`
@@ -140,8 +107,6 @@
   - Purpose: Admin dashboard with high-level metrics and analytics overview.
 - `web/src/routes/admin/users.tsx`
   - Purpose: Admin user directory dashboard. Supports searching, filtering, bulk actions, and RBAC management.
-- `web/src/routes/admin/permissions.tsx`
-  - Purpose: Central hub for Role management, Permission Sets, and global capability registry.
 - `web/src/routes/admin/staff.tsx`
   - Purpose: Management interface for school staff members.
 - `web/src/routes/admin/students.tsx`

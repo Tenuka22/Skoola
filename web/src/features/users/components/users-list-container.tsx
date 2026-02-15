@@ -1,5 +1,4 @@
 import { useUsersStore } from '../store'
-import { mapUserResponseToUserProfile } from '../utils/user-mappers'
 import { UserBoardView } from './user-board-view'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -82,7 +81,7 @@ export function UsersListContainer({
 
         <TabsContent value="board">
           <UserBoardView
-            users={usersQuery.data?.data?.map(mapUserResponseToUserProfile)}
+            users={usersQuery.data?.data}
             isLoading={usersQuery.isFetching}
             onEdit={(user) => setUserToEdit(user)}
             onDelete={(id) => setUserToDelete(id)}
@@ -90,7 +89,7 @@ export function UsersListContainer({
               updateMutation.mutate({
                 path: { user_id: user.id },
                 body: { is_verified: !user.is_verified },
-              })
+              } as any)
             }
             isUpdating={isUpdating}
             updatingUserId={updatingUserId}

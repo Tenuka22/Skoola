@@ -1,20 +1,19 @@
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { authClient } from '@/lib/clients'
 
 import {
+  bulkMarkStudentAttendanceMutation,
+  generateAttendanceReportOptions,
   getAllClassesOptions,
-  getStaffAttendanceByDateOptions,
   getAllStaffOptions,
   getAttendanceByClassAndDateOptions,
-  generateAttendanceReportOptions,
+  getAttendanceByClassAndDateQueryKey,
+  getStaffAttendanceByDateOptions,
+  getStaffAttendanceByDateQueryKey,
   markBulkStaffAttendanceMutation,
-  bulkMarkStudentAttendanceMutation,
   updateStaffAttendanceMutation,
   updateStudentAttendanceMutation,
-  getStaffAttendanceByDateQueryKey,
-  getAttendanceByClassAndDateQueryKey,
 } from '@/lib/api/@tanstack/react-query.gen'
 
 export const useStaffAttendance = (date: string) => {

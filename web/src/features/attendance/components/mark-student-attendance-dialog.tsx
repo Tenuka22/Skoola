@@ -95,7 +95,6 @@ export const MarkStudentAttendanceDialog = ({
       // Create new record
       markBulkMutation.mutate(
         {
-
           body: {
             attendance_records: [
               {

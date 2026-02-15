@@ -8,7 +8,7 @@ import {
   PencilEdit01Icon,
   Tick01Icon,
 } from '@hugeicons/core-free-icons'
-import type { UserProfileResponse, UserResponse } from '@/lib/api/types.gen'
+import type { UserResponse } from '@/lib/api/types.gen'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -24,7 +24,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Spinner } from '@/components/ui/spinner'
 
 interface UserBoardViewProps {
-  users: Array<UserProfileResponse> | undefined
+  users: Array<UserResponse> | undefined
   isLoading?: boolean
   onEdit: (user: UserResponse) => void
   onDelete: (id: string) => void
@@ -82,8 +82,7 @@ export function UserBoardView({
           .replace(/[._]/g, ' ')
           .replace(/\b\w/g, (l: string) => l.toUpperCase())
         const initials = name.substring(0, 2).toUpperCase()
-        const role =
-          user.roles && user.roles.length > 0 ? user.roles[0] : 'Member'
+        const role = user.role
         const isBeingUpdated = isUpdating && updatingUserId === user.id
 
         return (

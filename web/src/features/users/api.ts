@@ -1,20 +1,15 @@
-import type {
-  GetAllUsersData,
-  UpdateUserRequest,
-} from '@/lib/api/types.gen'
+import type { GetAllUsersData, UpdateUserRequest } from '@/lib/api/types.gen'
 import { authClient } from '@/lib/clients'
 import {
-  deleteUser as deleteUserApi,
   bulkDeleteUsers as bulkDeleteUsersApi,
+  bulkUpdateUsers as bulkUpdateUsersApi,
+  deleteUser as deleteUserApi,
   getAllUsers,
   getUserStatistics,
   updateUser as updateUserApi,
-  bulkUpdateUsers as bulkUpdateUsersApi,
 } from '@/lib/api/sdk.gen'
 
-export async function getUsers(
-  query: GetAllUsersData['query'],
-) {
+export async function getUsers(query: GetAllUsersData['query']) {
   const { data } = await getAllUsers({
     client: authClient,
     query,
@@ -50,13 +45,12 @@ export async function bulkDeleteUsers(userIds: Array<string>) {
 }
 
 export async function updateUser(userId: string, data: UpdateUserRequest) {
-  const { data: response_data } =
-    await updateUserApi({
-      client: authClient,
-      path: { user_id: userId },
-      body: data,
-      throwOnError: true,
-    })
+  const { data: response_data } = await updateUserApi({
+    client: authClient,
+    path: { user_id: userId },
+    body: data,
+    throwOnError: true,
+  })
   return response_data
 }
 
@@ -64,11 +58,10 @@ export async function bulkUpdateUsers(
   userIds: Array<string>,
   data: { is_verified?: boolean },
 ) {
-  const { data: response_data } =
-    await bulkUpdateUsersApi({
-      client: authClient,
-      body: { user_ids: userIds, ...data },
-      throwOnError: true,
-    })
+  const { data: response_data } = await bulkUpdateUsersApi({
+    client: authClient,
+    body: { user_ids: userIds, ...data },
+    throwOnError: true,
+  })
   return response_data
 }

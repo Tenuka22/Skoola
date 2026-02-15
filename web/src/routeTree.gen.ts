@@ -16,7 +16,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminStudentsRouteImport } from './routes/admin/students'
 import { Route as AdminStaffRouteImport } from './routes/admin/staff'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
-import { Route as AdminPermissionsRouteImport } from './routes/admin/permissions'
+import { Route as AdminRbacRouteImport } from './routes/admin/rbac'
 import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as authProfileRouteImport } from './routes/(auth)/profile'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
@@ -58,9 +58,9 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminPermissionsRoute = AdminPermissionsRouteImport.update({
-  id: '/permissions',
-  path: '/permissions',
+const AdminRbacRoute = AdminRbacRouteImport.update({
+  id: '/rbac',
+  path: '/rbac',
   getParentRoute: () => AdminRoute,
 } as any)
 const authSignUpRoute = authSignUpRouteImport.update({
@@ -95,7 +95,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
   '/profile': typeof authProfileRoute
   '/sign-up': typeof authSignUpRoute
-  '/admin/permissions': typeof AdminPermissionsRoute
+  '/admin/rbac': typeof AdminRbacRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/students': typeof AdminStudentsRoute
@@ -109,7 +109,7 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/profile': typeof authProfileRoute
   '/sign-up': typeof authSignUpRoute
-  '/admin/permissions': typeof AdminPermissionsRoute
+  '/admin/rbac': typeof AdminRbacRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/students': typeof AdminStudentsRoute
@@ -125,7 +125,7 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/profile': typeof authProfileRoute
   '/(auth)/sign-up': typeof authSignUpRoute
-  '/admin/permissions': typeof AdminPermissionsRoute
+  '/admin/rbac': typeof AdminRbacRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/students': typeof AdminStudentsRoute
@@ -142,7 +142,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/sign-up'
-    | '/admin/permissions'
+    | '/admin/rbac'
     | '/admin/settings'
     | '/admin/staff'
     | '/admin/students'
@@ -156,7 +156,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/sign-up'
-    | '/admin/permissions'
+    | '/admin/rbac'
     | '/admin/settings'
     | '/admin/staff'
     | '/admin/students'
@@ -171,7 +171,7 @@ export interface FileRouteTypes {
     | '/(auth)/login'
     | '/(auth)/profile'
     | '/(auth)/sign-up'
-    | '/admin/permissions'
+    | '/admin/rbac'
     | '/admin/settings'
     | '/admin/staff'
     | '/admin/students'
@@ -240,11 +240,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/permissions': {
-      id: '/admin/permissions'
-      path: '/permissions'
-      fullPath: '/admin/permissions'
-      preLoaderRoute: typeof AdminPermissionsRouteImport
+    '/admin/rbac': {
+      id: '/admin/rbac'
+      path: '/rbac'
+      fullPath: '/admin/rbac'
+      preLoaderRoute: typeof AdminRbacRouteImport
       parentRoute: typeof AdminRoute
     }
     '/(auth)/sign-up': {
@@ -286,7 +286,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
-  AdminPermissionsRoute: typeof AdminPermissionsRoute
+  AdminRbacRoute: typeof AdminRbacRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminStaffRoute: typeof AdminStaffRoute
   AdminStudentsRoute: typeof AdminStudentsRoute
@@ -297,7 +297,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
-  AdminPermissionsRoute: AdminPermissionsRoute,
+  AdminRbacRoute: AdminRbacRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminStaffRoute: AdminStaffRoute,
   AdminStudentsRoute: AdminStudentsRoute,

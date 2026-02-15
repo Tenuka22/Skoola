@@ -9,7 +9,7 @@ use crate::{
         oauth::{github_callback, google_callback},
         permission_sets::{
             create_permission_set, delete_permission_set, get_all_permission_sets,
-            update_permission_set,
+            update_permission_set, get_user_set_members,
         },
         profile::{
             change_email, change_password, get_profile, link_github, link_google, update_profile,
@@ -84,6 +84,10 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/{permission_set_id}",
                 apistos::web::delete().to(delete_permission_set),
+            )
+            .route(
+                "/{permission_set_id}/users",
+                apistos::web::get().to(get_user_set_members),
             ),
     )
     .service(
@@ -94,6 +98,10 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .wrap(Authenticated)
             .route("", web::get().to(crate::handlers::users::get_all_users))
             .route("/stats", web::get().to(crate::handlers::users::get_user_stats))
+            .route("/bulk", web::delete().to(crate::handlers::users::bulk_delete_users))
+            .route("/bulk", web::patch().to(crate::handlers::users::bulk_update_users))
+            .route("/{user_id}", web::put().to(crate::handlers::users::update_user))
+            .route("/{user_id}", web::delete().to(crate::handlers::users::delete_user))
             .route(
                 "/{user_id}/permissions/{permission}",
                 web::post().to(assign_permission_to_user),

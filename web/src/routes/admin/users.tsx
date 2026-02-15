@@ -24,14 +24,14 @@ import type {
 } from '../../features/users/schemas'
 import { authClient } from '@/lib/clients'
 import {
+  bulkDeleteUsersMutation,
+  bulkUpdateUsersMutation,
+  deleteUserMutation,
   getAllUsersOptions,
   getAllUsersQueryKey,
   getUserStatisticsQueryKey,
-  deleteUserMutation,
-  bulkDeleteUsersMutation,
-  updateUserMutation,
-  bulkUpdateUsersMutation,
   registerUserMutation,
+  updateUserMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
 
 export const Route = createFileRoute('/admin/users')({
@@ -103,13 +103,13 @@ function Users() {
     ...deleteUserMutation({
       client: authClient,
     }),
-    onSuccess: (_, variables) => {
+    onSuccess: (_, variables: any) => {
       const userIdentifier = variables.path?.user_id || 'User'
       toast.success(`Successfully deleted ${userIdentifier}.`)
       invalidateUsers()
       setUserToDelete(null)
     },
-    onError: (error, variables) => {
+    onError: (error, variables: any) => {
       const userIdentifier = variables.path?.user_id || 'User'
       toast.error(
         `Failed to delete ${userIdentifier}: ${error.message || 'Unknown error'}`,
@@ -121,7 +121,7 @@ function Users() {
     ...bulkDeleteUsersMutation({
       client: authClient,
     }),
-    onSuccess: (_, variables) => {
+    onSuccess: (_, variables: any) => {
       const count = variables.body?.user_ids?.length || 0
       toast.success(
         `Successfully deleted ${count} user${count !== 1 ? 's' : ''}.`,
@@ -138,14 +138,14 @@ function Users() {
     ...updateUserMutation({
       client: authClient,
     }),
-    onSuccess: (_, variables) => {
+    onSuccess: (_, variables: any) => {
       const userIdentifier = variables.path?.user_id || 'User'
       toast.success(`Successfully updated ${userIdentifier}.`)
       invalidateUsers()
       setUserToEdit(null)
       setUserToLock(null)
     },
-    onError: (error, variables) => {
+    onError: (error, variables: any) => {
       const userIdentifier = variables.path?.user_id || 'User'
       toast.error(
         `Failed to update ${userIdentifier}: ${error.message || 'Unknown error'}`,
@@ -157,7 +157,7 @@ function Users() {
     ...bulkUpdateUsersMutation({
       client: authClient,
     }),
-    onSuccess: (_, variables) => {
+    onSuccess: (_, variables: any) => {
       const count = variables.body?.user_ids?.length || 0
       toast.success(
         `Successfully updated ${count} user${count !== 1 ? 's' : ''}.`,
@@ -180,7 +180,7 @@ function Users() {
       invalidateUsers()
       setIsCreateUserOpen(false)
     },
-    onError: (error, variables) => {
+    onError: (error, variables: any) => {
       const userIdentifier = variables.body.email || 'User'
       toast.error(
         `Failed to create ${userIdentifier}: ${error.message || 'Unknown error'}`,
@@ -200,7 +200,7 @@ function Users() {
       updateUser.mutate({
         path: { user_id: user.id },
         body: { is_verified: !user.is_verified },
-      }),
+      } as any),
     onToggleLock: (user) => {
       if (user.lockout_until) {
         updateUser.mutate({
@@ -208,7 +208,7 @@ function Users() {
           body: {
             lockout_until: null,
           },
-        })
+        } as any)
       } else {
         store.setUserToLock(user)
       }
@@ -216,7 +216,7 @@ function Users() {
     setUserToDelete: store.setUserToDelete,
     setUserToEdit: store.setUserToEdit,
     isUpdating: updateUser.isPending,
-    updatingUserId: updateUser.variables?.path?.user_id,
+    updatingUserId: (updateUser.variables as any)?.path?.user_id,
   })
 
   return (
@@ -257,7 +257,7 @@ function Users() {
                 user_ids: Array.from(selectedUsers),
                 is_verified: v,
               },
-            },
+            } as any,
             {
               onSuccess: () => setRowSelection({}),
             },
@@ -272,7 +272,7 @@ function Users() {
         userToDelete={store.userToDelete}
         setUserToDelete={store.setUserToDelete}
         onDeleteConfirm={(id: string) =>
-          deleteUser.mutate({ path: { user_id: id } })
+          deleteUser.mutate({ path: { user_id: id } } as any)
         }
         isBulkDeleteOpen={store.isBulkDeleteOpen}
         setIsBulkDeleteOpen={store.setIsBulkDeleteOpen}
@@ -280,7 +280,7 @@ function Users() {
           bulkDeleteUsers.mutate(
             {
               body: { user_ids: Array.from(selectedUsers) },
-            },
+            } as any,
             {
               onSuccess: () => setRowSelection({}),
             },
@@ -292,7 +292,7 @@ function Users() {
           bulkUpdateUsers.mutate(
             {
               body: { user_ids: Array.from(selectedUsers), ...data },
-            },
+            } as any,
             {
               onSuccess: () => setRowSelection({}),
             },
@@ -307,7 +307,7 @@ function Users() {
           updateUser.mutate({
             path: { user_id: store.userToEdit.id },
             body: data,
-          })
+          } as any)
         }
         isUpdating={updateUser.isPending}
         userToLock={store.userToLock}
@@ -318,7 +318,7 @@ function Users() {
             {
               path: { user_id: store.userToLock.id },
               body: { lockout_until: date.toISOString().slice(0, 19) },
-            },
+            } as any,
             {
               onSuccess: () => store.setUserToLock(null),
             },
@@ -330,7 +330,7 @@ function Users() {
       <UserCreateDialog
         open={store.isCreateUserOpen}
         onOpenChange={store.setIsCreateUserOpen}
-        onConfirm={(data) => createUser.mutate({ body: { ...data } })}
+        onConfirm={(data) => createUser.mutate({ body: { ...data } } as any)}
         isSubmitting={createUser.isPending}
       />
     </div>

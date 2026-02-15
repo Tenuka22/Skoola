@@ -8,24 +8,24 @@ import type {
 } from '@tanstack/react-query'
 
 import type {
-  DeleteStudentData,
-  DeleteStudentResponse,
-  GetStudentByIdData,
-  GetStudentByIdResponse,
-  GetAllStudentsData,
-  GetAllStudentsResponse,
   CreateStudentData,
   CreateStudentResponse,
+  DeleteStudentData,
+  DeleteStudentResponse,
+  GetAllStudentsData,
+  GetAllStudentsResponse,
+  GetStudentByIdData,
+  GetStudentByIdResponse,
   UpdateStudentData,
   UpdateStudentResponse,
 } from '@/lib/api/types.gen'
 import type { Options } from '@/lib/api/sdk.gen'
 import { client } from '@/lib/api/client.gen'
 import {
-  deleteStudent,
-  getStudentById,
-  getAllStudents,
   createStudent,
+  deleteStudent,
+  getAllStudents,
+  getStudentById,
   updateStudent,
 } from '@/lib/api/sdk.gen'
 
@@ -104,12 +104,9 @@ const createInfiniteParams = <
 }
 
 // getAllStudents
-export const getAllStudentsQueryKey = (
-  options?: Options<GetAllStudentsData>,
-) => createQueryKey('getAllStudents', options)
-export const getAllStudentsOptions = (
-  options?: Options<GetAllStudentsData>,
-) =>
+export const getAllStudentsQueryKey = (options?: Options<GetAllStudentsData>) =>
+  createQueryKey('getAllStudents', options)
+export const getAllStudentsOptions = (options?: Options<GetAllStudentsData>) =>
   queryOptions<
     GetAllStudentsResponse,
     DefaultError,
@@ -225,12 +222,9 @@ export const deleteStudentMutation = (
 }
 
 // getStudentById
-export const getStudentByIdQueryKey = (
-  options: Options<GetStudentByIdData>,
-) => createQueryKey('getStudentById', options)
-export const getStudentByIdOptions = (
-  options: Options<GetStudentByIdData>,
-) =>
+export const getStudentByIdQueryKey = (options: Options<GetStudentByIdData>) =>
+  createQueryKey('getStudentById', options)
+export const getStudentByIdOptions = (options: Options<GetStudentByIdData>) =>
   queryOptions<
     GetStudentByIdResponse,
     DefaultError,
@@ -273,5 +267,3 @@ export const updateStudentMutation = (
   }
   return mutationOptions
 }
-
-

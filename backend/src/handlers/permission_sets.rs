@@ -8,10 +8,10 @@ use uuid::Uuid;
 
 use crate::{
     AppState,
-    database::tables::{UserSet, UserSetUser},
+    database::tables::{UserSet, UserSetUser, User},
     errors::APIError,
-    models::MessageResponse,
-    schema::{user_sets, user_set_users},
+    models::{MessageResponse, auth::UserResponse},
+    schema::{user_sets, user_set_users, users},
 };
 
 #[derive(Debug, Deserialize, Serialize, ApiComponent, JsonSchema)]
@@ -110,6 +110,28 @@ pub async fn delete_permission_set(
     diesel::delete(user_sets::table.find(permission_set_id.into_inner()))
         .execute(&mut conn)?;
     Ok(Json(MessageResponse { message: "Permission set deleted successfully".to_string() }))
+}
+
+#[api_operation(
+    summary = "Get users in a permission set",
+    description = "Returns a list of all users assigned to a specific permission set.",
+    tag = "user_sets",
+    operation_id = "get_user_set_members"
+)]
+pub async fn get_user_set_members(
+    data: web::Data<AppState>,
+    permission_set_id: web::Path<String>,
+) -> Result<Json<Vec<UserResponse>>, APIError> {
+    let mut conn = data.db_pool.get()?;
+    let id = permission_set_id.into_inner();
+
+    let user_list = user_set_users::table
+        .inner_join(users::table)
+        .filter(user_set_users::user_set_id.eq(id))
+        .select(User::as_select())
+        .load::<User>(&mut conn)?;
+
+    Ok(Json(user_list.into_iter().map(UserResponse::from).collect()))
 }
 
 #[api_operation(

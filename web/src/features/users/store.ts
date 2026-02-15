@@ -93,4 +93,3 @@ export const useUsersStore = create<UsersState>((set) => ({
   setUserToEdit: (userToEdit) => set({ userToEdit }),
   setUserToLock: (userToLock) => set({ userToLock }),
 }))
-

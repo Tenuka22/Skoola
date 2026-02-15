@@ -1,11 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import {
-  getProfile,
-  loginUser,
-  logoutUser,
-  registerUser,
-} from '../api/sdk.gen'
+import { getProfile, loginUser, logoutUser, registerUser } from '../api/sdk.gen'
 import { zLoginRequest, zRegisterRequest } from '../api/zod.gen'
 import { authClient, publicClient } from '../clients'
 import { createClient } from '../api/client/index'
