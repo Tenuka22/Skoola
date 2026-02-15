@@ -1,10 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import {
-  getProfileC838C8E7Da73Bfc08645A117E4Df91F3 as getProfileApi,
-  postAuthLogin9E9Be264D609C0E1A535693Ba4C389Aa as loginApi,
-  postAuthLogout5D5C18E2301F7F66A8222C30Cd9230A0 as logoutApi,
-  postAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9 as signUpApi,
+  getProfile,
+  loginUser,
+  logoutUser,
+  registerUser,
 } from '../api/sdk.gen'
 import { zLoginRequest, zRegisterRequest } from '../api/zod.gen'
 import { authClient, publicClient } from '../clients'
@@ -34,7 +34,7 @@ export const loginFn = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     try {
-      const loginResponse = await loginApi({
+      const loginResponse = await loginUser({
         client: publicClient,
         body: {
           email: data.email,
@@ -56,7 +56,7 @@ export const loginFn = createServerFn({ method: 'POST' })
         },
       })
 
-      const userProfileResponse = await getProfileApi({
+      const userProfileResponse = await getProfile({
         client: tempAuthClient,
       })
 
@@ -110,7 +110,7 @@ export const signUpFn = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     try {
-      const signUpResponse = await signUpApi({
+      const signUpResponse = await registerUser({
         client: publicClient,
         body: {
           email: data.email,
@@ -138,7 +138,7 @@ export const logoutFn = createServerFn({ method: 'POST' }).handler(async () => {
   try {
     const session = await getActiveSessionServer()
     if (session?.tokens?.refresh_token) {
-      await logoutApi({
+      await logoutUser({
         client: authClient,
         body: { refresh_token: session.tokens.refresh_token },
       })

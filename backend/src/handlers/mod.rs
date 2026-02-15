@@ -19,12 +19,14 @@ pub mod profile;
 pub mod property;
 pub mod report_cards;
 pub mod role_permissions;
+
 pub mod seed;
 pub mod seed_runner;
 pub mod special_exams;
 pub mod staff;
 pub mod staff_attendance;
 pub mod staff_leaves;
+
 pub mod student;
 pub mod student_attendance;
 pub mod student_class_assignment;

@@ -11,8 +11,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../../../components/ui/alert-dialog'
-import { getStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Options } from '@/lib/api/@tanstack/react-query.gen'
+
 import { authClient } from '@/lib/clients'
+import { getStaffByIdOptions } from '@/lib/api/@tanstack/react-query.gen'
 
 interface StaffDeleteDialogProps {
   staffToDeleteId: string | null
@@ -26,7 +27,7 @@ export function StaffDeleteDialog({
   onDeleteConfirm,
 }: StaffDeleteDialogProps) {
   const staffQuery = useQuery({
-    ...getStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Options({
+    ...getStaffByIdOptions({
       client: authClient,
       path: { staff_id: staffToDeleteId || '' },
     }),

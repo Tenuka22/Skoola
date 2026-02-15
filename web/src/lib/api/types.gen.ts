@@ -303,6 +303,20 @@ export type BulkDeleteLibraryCategoriesRequest = {
 };
 
 /**
+ * BulkDeleteRequest
+ */
+export type BulkDeleteRequest = {
+    user_ids: Array<string>;
+};
+
+/**
+ * BulkDeleteStaffRequest
+ */
+export type BulkDeleteStaffRequest = {
+    staff_ids: Array<string>;
+};
+
+/**
  * BulkDeleteSubjectsRequest
  */
 export type BulkDeleteSubjectsRequest = {
@@ -444,6 +458,34 @@ export type BulkUpdateLibraryCategoriesRequest = {
     category_ids: Array<number>;
     category_name?: string | null;
     description?: string | null;
+};
+
+/**
+ * BulkUpdateRequest
+ */
+export type BulkUpdateRequest = {
+    is_verified?: boolean | null;
+    lockout_until?: string | null;
+    role?: RoleEnum | null;
+    user_ids: Array<string>;
+};
+
+/**
+ * BulkUpdateStaffRequest
+ */
+export type BulkUpdateStaffRequest = {
+    address?: string | null;
+    dob?: string | null;
+    email?: string | null;
+    employee_id?: string | null;
+    employment_status?: EmploymentStatus | null;
+    gender?: string | null;
+    name?: string | null;
+    nic?: string | null;
+    phone?: string | null;
+    photo_url?: string | null;
+    staff_ids: Array<string>;
+    staff_type?: StaffType | null;
 };
 
 /**
@@ -1610,6 +1652,8 @@ export type PayFineRequest = {
 
 export type PaymentMethod = 'Cash' | 'BankTransfer' | 'Cheque' | 'Online';
 
+export type PermissionEnum = 'UserCreate' | 'UserRead' | 'UserUpdate' | 'UserDelete' | 'UserManage' | 'UserManageRoles' | 'UserManagePermissions' | 'RoleCreate' | 'RoleRead' | 'RoleUpdate' | 'RoleDelete' | 'RoleManage' | 'RoleAssignPermissions' | 'PermissionCreate' | 'PermissionRead' | 'PermissionUpdate' | 'PermissionDelete' | 'PermissionManage' | 'PermissionSetManage' | 'StaffCreate' | 'StaffRead' | 'StaffUpdate' | 'StaffDelete' | 'StaffManage' | 'StaffManageAttendance' | 'StaffManageLeaves' | 'StudentCreate' | 'StudentRead' | 'StudentUpdate' | 'StudentDelete' | 'StudentManage' | 'StudentManageGuardians' | 'StudentManageEnrollment' | 'StudentManageAttendance' | 'StudentManageMarks' | 'AcademicYearManage' | 'TermManage' | 'GradeLevelManage' | 'ClassManage' | 'SubjectManage' | 'ClassSubjectTeacherManage' | 'TimetableManage' | 'ExamTypeManage' | 'ExamManage' | 'ExamSubjectManage' | 'GradingSchemeManage' | 'GradingCriterionManage' | 'LibraryManage' | 'UserUpdateMedium' | 'UserDeleteSevere';
+
 /**
  * PettyCashTransactionResponse
  */
@@ -1737,6 +1781,13 @@ export type RegisterRequest = {
 export type Religion = 'Buddhism' | 'Hinduism' | 'Islam' | 'Christianity' | 'Other';
 
 /**
+ * ResendVerificationEmailRequest
+ */
+export type ResendVerificationEmailRequest = {
+    email: string;
+};
+
+/**
  * ReturnAssetRequest
  */
 export type ReturnAssetRequest = {
@@ -1751,6 +1802,13 @@ export type ReturnBookRequest = {
 };
 
 export type RoleEnum = 'Admin' | 'Teacher' | 'Student' | 'Guest' | 'Parent' | 'FullAdmin' | 'Principal' | 'VicePrincipal' | 'Accountant' | 'Librarian';
+
+/**
+ * RolePermissionRequest
+ */
+export type RolePermissionRequest = {
+    permission: PermissionEnum;
+};
 
 /**
  * SalaryComponentResponse
@@ -2485,9 +2543,26 @@ export type UpdateTimetableRequest = {
 };
 
 /**
+ * UpdateUserRequest
+ */
+export type UpdateUserRequest = {
+    email?: string | null;
+    is_verified?: boolean | null;
+    lockout_until?: string | null;
+    role?: RoleEnum | null;
+};
+
+/**
  * UserId
  */
 export type UserId = string;
+
+/**
+ * UserPermissionRequest
+ */
+export type UserPermissionRequest = {
+    permission: PermissionEnum;
+};
 
 /**
  * UserProfileResponse
@@ -2517,6 +2592,13 @@ export type UserSet = {
     description?: string | null;
     id: string;
     name: string;
+};
+
+/**
+ * UserSetPermissionRequest
+ */
+export type UserSetPermissionRequest = {
+    permission: PermissionEnum;
 };
 
 /**
@@ -3212,6 +3294,90 @@ export type GithubCallbackResponses = {
 };
 
 export type GithubCallbackResponse = GithubCallbackResponses[keyof GithubCallbackResponses];
+
+export type ResendVerificationEmailData = {
+    body: ResendVerificationEmailRequest;
+    path?: never;
+    query?: never;
+    url: '/auth/verify-email/resend';
+};
+
+export type ResendVerificationEmailErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type ResendVerificationEmailResponses = {
+    200: MessageResponse;
+};
+
+export type ResendVerificationEmailResponse = ResendVerificationEmailResponses[keyof ResendVerificationEmailResponses];
 
 export type VerifyEmailData = {
     body?: never;
@@ -4334,20 +4500,362 @@ export type GetUserStatisticsResponses = {
 
 export type GetUserStatisticsResponse = GetUserStatisticsResponses[keyof GetUserStatisticsResponses];
 
-export type UnassignPermissionFromUserData = {
+export type BulkDeleteUsersData = {
+    body: BulkDeleteRequest;
+    path?: never;
+    query?: never;
+    url: '/users/bulk';
+};
+
+export type BulkDeleteUsersErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkDeleteUsersResponses = {
+    200: MessageResponse;
+};
+
+export type BulkDeleteUsersResponse = BulkDeleteUsersResponses[keyof BulkDeleteUsersResponses];
+
+export type BulkUpdateUsersData = {
+    body: BulkUpdateRequest;
+    path?: never;
+    query?: never;
+    url: '/users/bulk';
+};
+
+export type BulkUpdateUsersErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkUpdateUsersResponses = {
+    200: MessageResponse;
+};
+
+export type BulkUpdateUsersResponse = BulkUpdateUsersResponses[keyof BulkUpdateUsersResponses];
+
+export type DeleteUserData = {
     body?: never;
     path: {
         /**
          * String
          */
         user_id: string;
+    };
+    query?: never;
+    url: '/users/{user_id}';
+};
+
+export type DeleteUserErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteUserResponses = {
+    200: MessageResponse;
+};
+
+export type DeleteUserResponse = DeleteUserResponses[keyof DeleteUserResponses];
+
+export type UpdateUserData = {
+    body: UpdateUserRequest;
+    path: {
         /**
          * String
          */
-        permission: string;
+        user_id: string;
     };
     query?: never;
-    url: '/users/{user_id}/permissions/{permission}';
+    url: '/users/{user_id}';
+};
+
+export type UpdateUserErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type UpdateUserResponses = {
+    200: MessageResponse;
+};
+
+export type UpdateUserResponse = UpdateUserResponses[keyof UpdateUserResponses];
+
+export type UnassignPermissionFromUserData = {
+    body: UserPermissionRequest;
+    path: {
+        /**
+         * String
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/users/{user_id}/permissions';
 };
 
 export type UnassignPermissionFromUserErrors = {
@@ -4426,99 +4934,6 @@ export type UnassignPermissionFromUserResponses = {
 };
 
 export type UnassignPermissionFromUserResponse = UnassignPermissionFromUserResponses[keyof UnassignPermissionFromUserResponses];
-
-export type AssignPermissionToUserData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        user_id: string;
-        /**
-         * String
-         */
-        permission: string;
-    };
-    query?: never;
-    url: '/users/{user_id}/permissions/{permission}';
-};
-
-export type AssignPermissionToUserErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type AssignPermissionToUserResponses = {
-    200: MessageResponse;
-};
-
-export type AssignPermissionToUserResponse = AssignPermissionToUserResponses[keyof AssignPermissionToUserResponses];
 
 export type GetUserPermissionsData = {
     body?: never;
@@ -4612,6 +5027,184 @@ export type GetUserPermissionsResponses = {
 
 export type GetUserPermissionsResponse = GetUserPermissionsResponses[keyof GetUserPermissionsResponses];
 
+export type AssignPermissionToUserData = {
+    body: UserPermissionRequest;
+    path: {
+        /**
+         * String
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/users/{user_id}/permissions';
+};
+
+export type AssignPermissionToUserErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type AssignPermissionToUserResponses = {
+    200: MessageResponse;
+};
+
+export type AssignPermissionToUserResponse = AssignPermissionToUserResponses[keyof AssignPermissionToUserResponses];
+
+export type UnassignPermissionFromRoleData = {
+    body: RolePermissionRequest;
+    path: {
+        /**
+         * String
+         */
+        role_id: string;
+    };
+    query?: never;
+    url: '/roles/{role_id}/permissions';
+};
+
+export type UnassignPermissionFromRoleErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type UnassignPermissionFromRoleResponses = {
+    200: MessageResponse;
+};
+
+export type UnassignPermissionFromRoleResponse = UnassignPermissionFromRoleResponses[keyof UnassignPermissionFromRoleResponses];
+
 export type GetRolePermissionsData = {
     body?: never;
     path: {
@@ -4704,113 +5297,16 @@ export type GetRolePermissionsResponses = {
 
 export type GetRolePermissionsResponse = GetRolePermissionsResponses[keyof GetRolePermissionsResponses];
 
-export type UnassignPermissionFromRoleData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        role_id: string;
-        /**
-         * String
-         */
-        permission: string;
-    };
-    query?: never;
-    url: '/roles/{role_id}/permissions/{permission}';
-};
-
-export type UnassignPermissionFromRoleErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type UnassignPermissionFromRoleResponses = {
-    200: MessageResponse;
-};
-
-export type UnassignPermissionFromRoleResponse = UnassignPermissionFromRoleResponses[keyof UnassignPermissionFromRoleResponses];
-
 export type AssignPermissionToRoleData = {
-    body?: never;
+    body: RolePermissionRequest;
     path: {
         /**
          * String
          */
         role_id: string;
-        /**
-         * String
-         */
-        permission: string;
     };
     query?: never;
-    url: '/roles/{role_id}/permissions/{permission}';
+    url: '/roles/{role_id}/permissions';
 };
 
 export type AssignPermissionToRoleErrors = {
@@ -4889,6 +5385,95 @@ export type AssignPermissionToRoleResponses = {
 };
 
 export type AssignPermissionToRoleResponse = AssignPermissionToRoleResponses[keyof AssignPermissionToRoleResponses];
+
+export type UnassignPermissionFromUserSetData = {
+    body: UserSetPermissionRequest;
+    path: {
+        /**
+         * String
+         */
+        user_set_id: string;
+    };
+    query?: never;
+    url: '/user-sets/{user_set_id}/permissions';
+};
+
+export type UnassignPermissionFromUserSetErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type UnassignPermissionFromUserSetResponses = {
+    200: MessageResponse;
+};
+
+export type UnassignPermissionFromUserSetResponse = UnassignPermissionFromUserSetResponses[keyof UnassignPermissionFromUserSetResponses];
 
 export type GetUserSetPermissionsData = {
     body?: never;
@@ -4982,113 +5567,16 @@ export type GetUserSetPermissionsResponses = {
 
 export type GetUserSetPermissionsResponse = GetUserSetPermissionsResponses[keyof GetUserSetPermissionsResponses];
 
-export type UnassignPermissionFromUserSetData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        user_set_id: string;
-        /**
-         * String
-         */
-        permission: string;
-    };
-    query?: never;
-    url: '/user-sets/{user_set_id}/permissions/{permission}';
-};
-
-export type UnassignPermissionFromUserSetErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type UnassignPermissionFromUserSetResponses = {
-    200: MessageResponse;
-};
-
-export type UnassignPermissionFromUserSetResponse = UnassignPermissionFromUserSetResponses[keyof UnassignPermissionFromUserSetResponses];
-
 export type AssignPermissionToUserSetData = {
-    body?: never;
+    body: UserSetPermissionRequest;
     path: {
         /**
          * String
          */
         user_set_id: string;
-        /**
-         * String
-         */
-        permission: string;
     };
     query?: never;
-    url: '/user-sets/{user_set_id}/permissions/{permission}';
+    url: '/user-sets/{user_set_id}/permissions';
 };
 
 export type AssignPermissionToUserSetErrors = {
@@ -5612,6 +6100,174 @@ export type UpdateStaffResponses = {
 };
 
 export type UpdateStaffResponse = UpdateStaffResponses[keyof UpdateStaffResponses];
+
+export type BulkDeleteStaffData = {
+    body: BulkDeleteStaffRequest;
+    path?: never;
+    query?: never;
+    url: '/staff/bulk';
+};
+
+export type BulkDeleteStaffErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkDeleteStaffResponses = {
+    200: MessageResponse;
+};
+
+export type BulkDeleteStaffResponse = BulkDeleteStaffResponses[keyof BulkDeleteStaffResponses];
+
+export type BulkUpdateStaffData = {
+    body: BulkUpdateStaffRequest;
+    path?: never;
+    query?: never;
+    url: '/staff/bulk';
+};
+
+export type BulkUpdateStaffErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkUpdateStaffResponses = {
+    200: MessageResponse;
+};
+
+export type BulkUpdateStaffResponse = BulkUpdateStaffResponses[keyof BulkUpdateStaffResponses];
 
 export type UploadStaffPhotoData = {
     body: unknown;

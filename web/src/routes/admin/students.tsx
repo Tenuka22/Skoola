@@ -21,11 +21,11 @@ import { handleExportCSV } from '../../lib/export'
 import { authClient } from '../../lib/clients'
 import type { UpdateStudentRequest } from '@/lib/api/types.gen'
 import {
-  deleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Mutation,
-  getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Options,
-  getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1QueryKey,
-  postStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Mutation,
-  putStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Mutation,
+  createStudentMutation,
+  deleteStudentMutation,
+  getAllStudentsOptions,
+  getAllStudentsQueryKey,
+  updateStudentMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
 
 export const Route = createFileRoute('/admin/students')({
@@ -62,7 +62,7 @@ function StudentsPage() {
   const sortOrder = sorting[0]?.desc ? 'desc' : 'asc'
 
   const studentsQuery = useQuery({
-    ...getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Options({
+    ...getAllStudentsOptions({
       client: authClient,
       query: {
         page,
@@ -81,12 +81,12 @@ function StudentsPage() {
   const queryClient = useQueryClient()
   const invalidateStudents = () => {
     queryClient.invalidateQueries({
-      queryKey: getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1QueryKey(),
+      queryKey: getAllStudentsQueryKey(),
     })
   }
 
   const deleteStudent = useMutation({
-    ...deleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Mutation({
+    ...deleteStudentMutation({
       client: authClient,
     }),
     onSuccess: (_, variables) => {
@@ -104,7 +104,7 @@ function StudentsPage() {
   })
 
   const createStudent = useMutation({
-    ...postStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Mutation({
+    ...createStudentMutation({
       client: authClient,
     }),
     onSuccess: (_, variables) => {
@@ -122,7 +122,7 @@ function StudentsPage() {
   })
 
   const updateStudent = useMutation({
-    ...putStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Mutation({
+    ...updateStudentMutation({
       client: authClient,
     }),
     onSuccess: (_, variables) => {

@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
-import { Calendar as CalendarIcon } from 'lucide-react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Calendar01Icon } from '@hugeicons/core-free-icons'
 
 import { Label } from './label'
 import { cn } from '@/lib/utils'
@@ -39,7 +40,7 @@ export function DatePicker({
                 !value && 'text-muted-foreground',
               )}
             >
-              <CalendarIcon className="mr-2 h-4 w-4" />
+              <HugeiconsIcon icon={Calendar01Icon} className="mr-2 h-4 w-4" />
               {value ? (
                 format(selectedDate as Date, 'PPP')
               ) : (

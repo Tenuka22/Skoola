@@ -19,11 +19,9 @@ interface UsersState {
   userToDelete: string | null
   isBulkDeleteOpen: boolean
   isBulkEditOpen: boolean
-  isBulkPermissionsOpen: boolean
   isCreateUserOpen: boolean
   userToEdit: UserResponse | null
   userToLock: UserResponse | null
-  userToManagePermissions: UserResponse | null
 
   setPage: (page: number) => void
   setSearch: (search: string) => void
@@ -44,11 +42,9 @@ interface UsersState {
   setUserToDelete: (id: string | null) => void
   setIsBulkDeleteOpen: (open: boolean) => void
   setIsBulkEditOpen: (open: boolean) => void
-  setIsBulkPermissionsOpen: (open: boolean) => void
   setIsCreateUserOpen: (open: boolean) => void
   setUserToEdit: (user: UserResponse | null) => void
   setUserToLock: (user: UserResponse | null) => void
-  setUserToManagePermissions: (user: UserResponse | null) => void
 }
 
 export const useUsersStore = create<UsersState>((set) => ({
@@ -65,11 +61,9 @@ export const useUsersStore = create<UsersState>((set) => ({
   userToDelete: null,
   isBulkDeleteOpen: false,
   isBulkEditOpen: false,
-  isBulkPermissionsOpen: false,
   isCreateUserOpen: false,
   userToEdit: null,
   userToLock: null,
-  userToManagePermissions: null,
 
   setPage: (page) => set({ page }),
   setSearch: (search) => set({ search }),
@@ -95,11 +89,8 @@ export const useUsersStore = create<UsersState>((set) => ({
   setUserToDelete: (userToDelete) => set({ userToDelete }),
   setIsBulkDeleteOpen: (isBulkDeleteOpen) => set({ isBulkDeleteOpen }),
   setIsBulkEditOpen: (isBulkEditOpen) => set({ isBulkEditOpen }),
-  setIsBulkPermissionsOpen: (isBulkPermissionsOpen) =>
-    set({ isBulkPermissionsOpen }),
   setIsCreateUserOpen: (isCreateUserOpen) => set({ isCreateUserOpen }),
   setUserToEdit: (userToEdit) => set({ userToEdit }),
   setUserToLock: (userToLock) => set({ userToLock }),
-  setUserToManagePermissions: (userToManagePermissions) =>
-    set({ userToManagePermissions }),
 }))
+

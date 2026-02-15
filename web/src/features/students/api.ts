@@ -8,28 +8,25 @@ import type {
 } from '@tanstack/react-query'
 
 import type {
-  DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data,
-  DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response,
-  GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data,
-  GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response,
-  GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data,
-  GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Response,
-  PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aData,
-  PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aResponse,
-  PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data,
-  PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Response,
-  PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data,
-  PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response,
+  DeleteStudentData,
+  DeleteStudentResponse,
+  GetStudentByIdData,
+  GetStudentByIdResponse,
+  GetAllStudentsData,
+  GetAllStudentsResponse,
+  CreateStudentData,
+  CreateStudentResponse,
+  UpdateStudentData,
+  UpdateStudentResponse,
 } from '@/lib/api/types.gen'
 import type { Options } from '@/lib/api/sdk.gen'
 import { client } from '@/lib/api/client.gen'
 import {
-  deleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855,
-  getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855,
-  getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1,
-  postStudents87F142Fffc2984E3Ceb560Aac590Bf2A,
-  postStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1,
-  putStudents4D5Cba944Bd069Fdf2A0246F5Bac2855,
+  deleteStudent,
+  getStudentById,
+  getAllStudents,
+  createStudent,
+  updateStudent,
 } from '@/lib/api/sdk.gen'
 
 export type QueryKey<TOptions extends Options> = [
@@ -106,21 +103,21 @@ const createInfiniteParams = <
   return params as unknown as typeof page
 }
 
-// getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1
-export const getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1QueryKey = (
-  options?: Options<GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data>,
-) => createQueryKey('getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1', options)
-export const getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Options = (
-  options?: Options<GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data>,
+// getAllStudents
+export const getAllStudentsQueryKey = (
+  options?: Options<GetAllStudentsData>,
+) => createQueryKey('getAllStudents', options)
+export const getAllStudentsOptions = (
+  options?: Options<GetAllStudentsData>,
 ) =>
   queryOptions<
-    GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Response,
+    GetAllStudentsResponse,
     DefaultError,
-    GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Response,
-    ReturnType<typeof getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1QueryKey>
+    GetAllStudentsResponse,
+    ReturnType<typeof getAllStudentsQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1({
+      const { data } = await getAllStudents({
         ...options,
         ...queryKey[0],
         signal,
@@ -128,24 +125,24 @@ export const getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Options = (
       })
       return data
     },
-    queryKey: getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1QueryKey(options),
+    queryKey: getAllStudentsQueryKey(options),
   })
-export const getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1InfiniteQueryKey = (
-  options?: Options<GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data>,
-): QueryKey<Options<GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data>> =>
-  createQueryKey('getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1', options, true)
-export const getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1InfiniteOptions = (
-  options?: Options<GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data>,
+export const getAllStudentsInfiniteQueryKey = (
+  options?: Options<GetAllStudentsData>,
+): QueryKey<Options<GetAllStudentsData>> =>
+  createQueryKey('getAllStudents', options, true)
+export const getAllStudentsInfiniteOptions = (
+  options?: Options<GetAllStudentsData>,
 ) =>
   infiniteQueryOptions<
-    GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Response,
+    GetAllStudentsResponse,
     DefaultError,
-    InfiniteData<GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Response>,
-    QueryKey<Options<GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data>>,
+    InfiniteData<GetAllStudentsResponse>,
+    QueryKey<Options<GetAllStudentsData>>,
     | number
     | null
     | Pick<
-        QueryKey<Options<GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data>>[0],
+        QueryKey<Options<GetAllStudentsData>>[0],
         'body' | 'headers' | 'path' | 'query'
       >
   >(
@@ -154,7 +151,7 @@ export const getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1InfiniteOptions = (
       queryFn: async ({ pageParam, queryKey, signal }) => {
         // @ts-ignore
         const page: Pick<
-          QueryKey<Options<GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data>>[0],
+          QueryKey<Options<GetAllStudentsData>>[0],
           'body' | 'headers' | 'path' | 'query'
         > =
           typeof pageParam === 'object'
@@ -165,7 +162,7 @@ export const getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1InfiniteOptions = (
                 },
               }
         const params = createInfiniteParams(queryKey, page)
-        const { data } = await getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1({
+        const { data } = await getAllStudents({
           ...options,
           ...params,
           signal,
@@ -173,26 +170,25 @@ export const getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1InfiniteOptions = (
         })
         return data
       },
-      queryKey:
-        getStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1InfiniteQueryKey(options),
+      queryKey: getAllStudentsInfiniteQueryKey(options),
     },
   )
 
-// postStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1
-export const postStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Mutation = (
-  options?: Partial<Options<PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data>>,
+// createStudent
+export const createStudentMutation = (
+  options?: Partial<Options<CreateStudentData>>,
 ): UseMutationOptions<
-  PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Response,
+  CreateStudentResponse,
   DefaultError,
-  Options<PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data>
+  Options<CreateStudentData>
 > => {
   const mutationOptions: UseMutationOptions<
-    PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Response,
+    CreateStudentResponse,
     DefaultError,
-    Options<PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data>
+    Options<CreateStudentData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await postStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1({
+      const { data } = await createStudent({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -203,23 +199,21 @@ export const postStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Mutation = (
   return mutationOptions
 }
 
-// deleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855
-export const deleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Mutation = (
-  options?: Partial<
-    Options<DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data>
-  >,
+// deleteStudent
+export const deleteStudentMutation = (
+  options?: Partial<Options<DeleteStudentData>>,
 ): UseMutationOptions<
-  DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response,
+  DeleteStudentResponse,
   DefaultError,
-  Options<DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data>
+  Options<DeleteStudentData>
 > => {
   const mutationOptions: UseMutationOptions<
-    DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response,
+    DeleteStudentResponse,
     DefaultError,
-    Options<DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data>
+    Options<DeleteStudentData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await deleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855({
+      const { data } = await deleteStudent({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -230,21 +224,21 @@ export const deleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Mutation = (
   return mutationOptions
 }
 
-// getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855
-export const getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855QueryKey = (
-  options: Options<GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data>,
-) => createQueryKey('getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855', options)
-export const getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Options = (
-  options: Options<GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data>,
+// getStudentById
+export const getStudentByIdQueryKey = (
+  options: Options<GetStudentByIdData>,
+) => createQueryKey('getStudentById', options)
+export const getStudentByIdOptions = (
+  options: Options<GetStudentByIdData>,
 ) =>
   queryOptions<
-    GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response,
+    GetStudentByIdResponse,
     DefaultError,
-    GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response,
-    ReturnType<typeof getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855QueryKey>
+    GetStudentByIdResponse,
+    ReturnType<typeof getStudentByIdQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855({
+      const { data } = await getStudentById({
         ...options,
         ...queryKey[0],
         signal,
@@ -252,24 +246,24 @@ export const getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Options = (
       })
       return data
     },
-    queryKey: getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855QueryKey(options),
+    queryKey: getStudentByIdQueryKey(options),
   })
 
-// putStudents4D5Cba944Bd069Fdf2A0246F5Bac2855
-export const putStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Mutation = (
-  options?: Partial<Options<PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data>>,
+// updateStudent
+export const updateStudentMutation = (
+  options?: Partial<Options<UpdateStudentData>>,
 ): UseMutationOptions<
-  PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response,
+  UpdateStudentResponse,
   DefaultError,
-  Options<PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data>
+  Options<UpdateStudentData>
 > => {
   const mutationOptions: UseMutationOptions<
-    PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response,
+    UpdateStudentResponse,
     DefaultError,
-    Options<PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data>
+    Options<UpdateStudentData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await putStudents4D5Cba944Bd069Fdf2A0246F5Bac2855({
+      const { data } = await updateStudent({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -280,27 +274,4 @@ export const putStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Mutation = (
   return mutationOptions
 }
 
-// postStudents87F142Fffc2984E3Ceb560Aac590Bf2A
-export const postStudents87F142Fffc2984E3Ceb560Aac590Bf2AMutation = (
-  options?: Partial<Options<PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aData>>,
-): UseMutationOptions<
-  PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aResponse,
-  DefaultError,
-  Options<PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aResponse,
-    DefaultError,
-    Options<PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await postStudents87F142Fffc2984E3Ceb560Aac590Bf2A({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      })
-      return data
-    },
-  }
-  return mutationOptions
-}
+

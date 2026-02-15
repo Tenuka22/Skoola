@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { Badge } from '@/components/ui/badge'
-import { getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaOptions } from '@/lib/api/@tanstack/react-query.gen'
+import { getUserStatisticsOptions } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 
 export function UsersHeader() {
   const { data: stats } = useQuery(
-    getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaOptions({
+    getUserStatisticsOptions({
       client: authClient,
     }),
   )

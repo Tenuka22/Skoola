@@ -1,8 +1,9 @@
 use actix_web::web;
-use apistos::api_operation;
+use apistos::{api_operation, ApiComponent};
 use diesel::prelude::*;
 use actix_web::web::Json;
-use std::str::FromStr;
+use serde::{Deserialize, Serialize};
+use schemars::JsonSchema;
 
 use crate::{
     AppState,
@@ -13,6 +14,11 @@ use crate::{
     schema::user_set_permissions,
 };
 
+#[derive(Debug, Deserialize, Serialize, ApiComponent, JsonSchema)]
+pub struct UserSetPermissionRequest {
+    pub permission: PermissionEnum,
+}
+
 #[api_operation(
     summary = "Assign a permission to a user set",
     description = "Assigns a permission to a user set by Set ID and Permission Enum.",
@@ -21,18 +27,14 @@ use crate::{
 )]
 pub async fn assign_permission_to_user_set(
     data: web::Data<AppState>,
-    path: web::Path<(String, String)>,
+    user_set_id: web::Path<String>,
+    body: web::Json<UserSetPermissionRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let (user_set_id, permission_str) = path.into_inner();
     
-    // Validate permission enum
-    let permission_enum = PermissionEnum::from_str(&permission_str)
-        .map_err(|_| APIError::bad_request("Invalid permission"))?;
-
     let new_assignment = UserSetPermission {
-        user_set_id,
-        permission: permission_enum.to_string(),
+        user_set_id: user_set_id.into_inner(),
+        permission: body.permission.to_string(),
     };
 
     diesel::insert_into(user_set_permissions::table)
@@ -50,15 +52,15 @@ pub async fn assign_permission_to_user_set(
 )]
 pub async fn unassign_permission_from_user_set(
     data: web::Data<AppState>,
-    path: web::Path<(String, String)>,
+    user_set_id: web::Path<String>,
+    body: web::Json<UserSetPermissionRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let (user_set_id, permission_str) = path.into_inner();
 
     diesel::delete(
         user_set_permissions::table
-            .filter(user_set_permissions::user_set_id.eq(user_set_id))
-            .filter(user_set_permissions::permission.eq(permission_str)),
+            .filter(user_set_permissions::user_set_id.eq(user_set_id.into_inner()))
+            .filter(user_set_permissions::permission.eq(body.permission.to_string())),
     )
     .execute(&mut conn)?;
 

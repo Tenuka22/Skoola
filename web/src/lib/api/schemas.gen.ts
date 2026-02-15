@@ -781,6 +781,38 @@ export const BulkDeleteLibraryCategoriesRequestSchema = {
     }
 } as const;
 
+export const BulkDeleteRequestSchema = {
+    title: 'BulkDeleteRequest',
+    type: 'object',
+    required: [
+        'user_ids'
+    ],
+    properties: {
+        user_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkDeleteStaffRequestSchema = {
+    title: 'BulkDeleteStaffRequest',
+    type: 'object',
+    required: [
+        'staff_ids'
+    ],
+    properties: {
+        staff_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
 export const BulkDeleteSubjectsRequestSchema = {
     title: 'BulkDeleteSubjectsRequest',
     type: 'object',
@@ -1209,6 +1241,109 @@ export const BulkUpdateLibraryCategoriesRequestSchema = {
         },
         description: {
             type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const BulkUpdateRequestSchema = {
+    title: 'BulkUpdateRequest',
+    type: 'object',
+    required: [
+        'user_ids'
+    ],
+    properties: {
+        is_verified: {
+            type: 'boolean',
+            nullable: true
+        },
+        lockout_until: {
+            default: null,
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        role: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/RoleEnum'
+                }
+            ],
+            nullable: true
+        },
+        user_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkUpdateStaffRequestSchema = {
+    title: 'BulkUpdateStaffRequest',
+    type: 'object',
+    required: [
+        'staff_ids'
+    ],
+    properties: {
+        address: {
+            type: 'string',
+            nullable: true
+        },
+        dob: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+        },
+        email: {
+            type: 'string',
+            nullable: true
+        },
+        employee_id: {
+            type: 'string',
+            nullable: true
+        },
+        employment_status: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/EmploymentStatus'
+                }
+            ],
+            nullable: true
+        },
+        gender: {
+            type: 'string',
+            nullable: true
+        },
+        name: {
+            type: 'string',
+            nullable: true
+        },
+        nic: {
+            type: 'string',
+            nullable: true
+        },
+        phone: {
+            type: 'string',
+            nullable: true
+        },
+        photo_url: {
+            type: 'string',
+            nullable: true
+        },
+        staff_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        staff_type: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/StaffType'
+                }
+            ],
             nullable: true
         }
     }
@@ -4716,6 +4851,62 @@ export const PaymentMethodSchema = {
     ]
 } as const;
 
+export const PermissionEnumSchema = {
+    type: 'string',
+    enum: [
+        'UserCreate',
+        'UserRead',
+        'UserUpdate',
+        'UserDelete',
+        'UserManage',
+        'UserManageRoles',
+        'UserManagePermissions',
+        'RoleCreate',
+        'RoleRead',
+        'RoleUpdate',
+        'RoleDelete',
+        'RoleManage',
+        'RoleAssignPermissions',
+        'PermissionCreate',
+        'PermissionRead',
+        'PermissionUpdate',
+        'PermissionDelete',
+        'PermissionManage',
+        'PermissionSetManage',
+        'StaffCreate',
+        'StaffRead',
+        'StaffUpdate',
+        'StaffDelete',
+        'StaffManage',
+        'StaffManageAttendance',
+        'StaffManageLeaves',
+        'StudentCreate',
+        'StudentRead',
+        'StudentUpdate',
+        'StudentDelete',
+        'StudentManage',
+        'StudentManageGuardians',
+        'StudentManageEnrollment',
+        'StudentManageAttendance',
+        'StudentManageMarks',
+        'AcademicYearManage',
+        'TermManage',
+        'GradeLevelManage',
+        'ClassManage',
+        'SubjectManage',
+        'ClassSubjectTeacherManage',
+        'TimetableManage',
+        'ExamTypeManage',
+        'ExamManage',
+        'ExamSubjectManage',
+        'GradingSchemeManage',
+        'GradingCriterionManage',
+        'LibraryManage',
+        'UserUpdateMedium',
+        'UserDeleteSevere'
+    ]
+} as const;
+
 export const PettyCashTransactionResponseSchema = {
     title: 'PettyCashTransactionResponse',
     type: 'object',
@@ -5079,6 +5270,19 @@ export const ReligionSchema = {
     ]
 } as const;
 
+export const ResendVerificationEmailRequestSchema = {
+    title: 'ResendVerificationEmailRequest',
+    type: 'object',
+    required: [
+        'email'
+    ],
+    properties: {
+        email: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const ReturnAssetRequestSchema = {
     title: 'ReturnAssetRequest',
     type: 'object',
@@ -5116,6 +5320,19 @@ export const RoleEnumSchema = {
         'Accountant',
         'Librarian'
     ]
+} as const;
+
+export const RolePermissionRequestSchema = {
+    title: 'RolePermissionRequest',
+    type: 'object',
+    required: [
+        'permission'
+    ],
+    properties: {
+        permission: {
+            $ref: '#/components/schemas/PermissionEnum'
+        }
+    }
 } as const;
 
 export const SalaryComponentResponseSchema = {
@@ -7292,9 +7509,51 @@ export const UpdateTimetableRequestSchema = {
     }
 } as const;
 
+export const UpdateUserRequestSchema = {
+    title: 'UpdateUserRequest',
+    type: 'object',
+    properties: {
+        email: {
+            type: 'string',
+            nullable: true
+        },
+        is_verified: {
+            type: 'boolean',
+            nullable: true
+        },
+        lockout_until: {
+            default: null,
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        role: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/RoleEnum'
+                }
+            ],
+            nullable: true
+        }
+    }
+} as const;
+
 export const UserIdSchema = {
     title: 'UserId',
     type: 'string'
+} as const;
+
+export const UserPermissionRequestSchema = {
+    title: 'UserPermissionRequest',
+    type: 'object',
+    required: [
+        'permission'
+    ],
+    properties: {
+        permission: {
+            $ref: '#/components/schemas/PermissionEnum'
+        }
+    }
 } as const;
 
 export const UserProfileResponseSchema = {
@@ -7387,6 +7646,19 @@ export const UserSetSchema = {
         },
         name: {
             type: 'string'
+        }
+    }
+} as const;
+
+export const UserSetPermissionRequestSchema = {
+    title: 'UserSetPermissionRequest',
+    type: 'object',
+    required: [
+        'permission'
+    ],
+    properties: {
+        permission: {
+            $ref: '#/components/schemas/PermissionEnum'
         }
     }
 } as const;

@@ -32,7 +32,6 @@ interface GetColumnsProps {
   onToggleLock: (user: User) => void
   setUserToDelete: (id: string | null) => void
   setUserToEdit: (user: User | null) => void
-  setUserToManagePermissions: (user: User | null) => void
   isUpdating?: boolean
   updatingUserId?: string | null
 }
@@ -41,7 +40,6 @@ export function getUserColumns({
   onToggleVerify,
   setUserToDelete,
   setUserToEdit,
-  setUserToManagePermissions,
   onToggleLock,
   isUpdating,
   updatingUserId,
@@ -334,15 +332,6 @@ export function getUserColumns({
                   <HugeiconsIcon icon={LockIcon} className="mr-2 h-4 w-4" />
                 )}
                 {isLocked ? 'Unlock' : 'Lock'}
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem
-                onClick={() => setUserToManagePermissions(user)}
-              >
-                <HugeiconsIcon icon={UserCheckIcon} className="mr-2 h-4 w-4" />
-                Permissions
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />

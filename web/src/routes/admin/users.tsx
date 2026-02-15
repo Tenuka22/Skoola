@@ -8,8 +8,6 @@ import {
 import * as React from 'react'
 import { toast } from 'sonner'
 
-import { UserBulkPermissionsDialog } from '../../features/permissions/components/user-bulk-permissions-dialog'
-import { UserPermissionsDialog } from '../../features/permissions/components/user-permissions-dialog'
 import { UserCreateDialog } from '../../features/users/components/user-create-dialog'
 import { UserModals } from '../../features/users/components/user-modals'
 import { UserToolbar } from '../../features/users/components/user-toolbar'
@@ -26,14 +24,14 @@ import type {
 } from '../../features/users/schemas'
 import { authClient } from '@/lib/clients'
 import {
-  deleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
-  deleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
-  getUsers06Bdcf95Aafda840B1D04322636De293Options,
-  getUsers06Bdcf95Aafda840B1D04322636De293QueryKey,
-  getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaQueryKey,
-  patchUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation,
-  patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation,
-  postAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Mutation,
+  getAllUsersOptions,
+  getAllUsersQueryKey,
+  getUserStatisticsQueryKey,
+  deleteUserMutation,
+  bulkDeleteUsersMutation,
+  updateUserMutation,
+  bulkUpdateUsersMutation,
+  registerUserMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
 
 export const Route = createFileRoute('/admin/users')({
@@ -73,7 +71,7 @@ function Users() {
   const sortOrder = sorting[0]?.desc ? 'desc' : 'asc'
 
   const usersQuery = useQuery({
-    ...getUsers06Bdcf95Aafda840B1D04322636De293Options({
+    ...getAllUsersOptions({
       client: authClient,
       query: {
         page,
@@ -94,25 +92,25 @@ function Users() {
   const queryClient = useQueryClient()
   const invalidateUsers = () => {
     queryClient.invalidateQueries({
-      queryKey: getUsers06Bdcf95Aafda840B1D04322636De293QueryKey(),
+      queryKey: getAllUsersQueryKey(),
     })
     queryClient.invalidateQueries({
-      queryKey: getUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaQueryKey(),
+      queryKey: getUserStatisticsQueryKey(),
     })
   }
 
   const deleteUser = useMutation({
-    ...deleteUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation({
+    ...deleteUserMutation({
       client: authClient,
     }),
     onSuccess: (_, variables) => {
-      const userIdentifier = variables?.path.user_id || 'User'
+      const userIdentifier = variables.path?.user_id || 'User'
       toast.success(`Successfully deleted ${userIdentifier}.`)
       invalidateUsers()
       setUserToDelete(null)
     },
     onError: (error, variables) => {
-      const userIdentifier = variables?.path.user_id || 'User'
+      const userIdentifier = variables.path?.user_id || 'User'
       toast.error(
         `Failed to delete ${userIdentifier}: ${error.message || 'Unknown error'}`,
       )
@@ -120,11 +118,11 @@ function Users() {
   })
 
   const bulkDeleteUsers = useMutation({
-    ...deleteUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation({
+    ...bulkDeleteUsersMutation({
       client: authClient,
     }),
     onSuccess: (_, variables) => {
-      const count = variables?.body.user_ids.length || 0
+      const count = variables.body?.user_ids?.length || 0
       toast.success(
         `Successfully deleted ${count} user${count !== 1 ? 's' : ''}.`,
       )
@@ -137,18 +135,18 @@ function Users() {
   })
 
   const updateUser = useMutation({
-    ...patchUsers5D3C91131F7D9Efc5999C92Dbfac75DaMutation({
+    ...updateUserMutation({
       client: authClient,
     }),
     onSuccess: (_, variables) => {
-      const userIdentifier = variables?.path.user_id || 'User'
+      const userIdentifier = variables.path?.user_id || 'User'
       toast.success(`Successfully updated ${userIdentifier}.`)
       invalidateUsers()
       setUserToEdit(null)
       setUserToLock(null)
     },
     onError: (error, variables) => {
-      const userIdentifier = variables?.path.user_id || 'User'
+      const userIdentifier = variables.path?.user_id || 'User'
       toast.error(
         `Failed to update ${userIdentifier}: ${error.message || 'Unknown error'}`,
       )
@@ -156,11 +154,11 @@ function Users() {
   })
 
   const bulkUpdateUsers = useMutation({
-    ...patchUsersBulk6B8Be22247333C35E8A37A5Db37Fbfa8Mutation({
+    ...bulkUpdateUsersMutation({
       client: authClient,
     }),
     onSuccess: (_, variables) => {
-      const count = variables?.body.user_ids.length || 0
+      const count = variables.body?.user_ids?.length || 0
       toast.success(
         `Successfully updated ${count} user${count !== 1 ? 's' : ''}.`,
       )
@@ -173,17 +171,17 @@ function Users() {
   })
 
   const createUser = useMutation({
-    ...postAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Mutation({
+    ...registerUserMutation({
       client: authClient,
     }),
-    onSuccess: (_, variables) => {
-      const userIdentifier = variables?.body.email || 'New user'
+    onSuccess: (user) => {
+      const userIdentifier = user.email || 'New user'
       toast.success(`User ${userIdentifier} created successfully.`)
       invalidateUsers()
       setIsCreateUserOpen(false)
     },
     onError: (error, variables) => {
-      const userIdentifier = variables?.body.email || 'User'
+      const userIdentifier = variables.body.email || 'User'
       toast.error(
         `Failed to create ${userIdentifier}: ${error.message || 'Unknown error'}`,
       )
@@ -197,7 +195,7 @@ function Users() {
   }, [rowSelection])
 
   const columns = getUserColumns({
-    users: usersQuery.data?.data,
+    users: usersQuery.data?.data || [],
     onToggleVerify: (user) =>
       updateUser.mutate({
         path: { user_id: user.id },
@@ -217,9 +215,8 @@ function Users() {
     },
     setUserToDelete: store.setUserToDelete,
     setUserToEdit: store.setUserToEdit,
-    setUserToManagePermissions: store.setUserToManagePermissions,
     isUpdating: updateUser.isPending,
-    updatingUserId: updateUser.variables?.path.user_id,
+    updatingUserId: updateUser.variables?.path?.user_id,
   })
 
   return (
@@ -268,7 +265,6 @@ function Users() {
         }
         onBulkDelete={() => store.setIsBulkDeleteOpen(true)}
         onBulkEdit={() => store.setIsBulkEditOpen(true)}
-        onBulkManagePermissions={() => store.setIsBulkPermissionsOpen(true)}
         users={usersQuery.data?.data}
       />
 
@@ -329,18 +325,6 @@ function Users() {
           )
         }
         isLocking={updateUser.isPending}
-      />
-
-      <UserPermissionsDialog
-        user={store.userToManagePermissions}
-        open={!!store.userToManagePermissions}
-        onOpenChange={(open) => !open && store.setUserToManagePermissions(null)}
-      />
-
-      <UserBulkPermissionsDialog
-        userIds={Array.from(selectedUsers)}
-        open={store.isBulkPermissionsOpen}
-        onOpenChange={store.setIsBulkPermissionsOpen}
       />
 
       <UserCreateDialog

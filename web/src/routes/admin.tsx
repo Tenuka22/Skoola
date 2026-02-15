@@ -7,11 +7,9 @@ import {
   Calendar02Icon,
   Home01Icon,
   Settings01Icon,
-  Shield01Icon,
   User02Icon,
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
-import { isAdminRouteRole } from '../routes/utils/role-guards'
 import {
   getActiveSessionServer,
   getAuthStorageServer,
@@ -71,7 +69,7 @@ function AdminLayout() {
 
   if (
     !activeSession ||
-    !activeSession.user.roles.some((role) => isAdminRouteRole(role))
+    !['Admin', 'FullAdmin', 'Principal', 'VicePrincipal'].some((role) => activeSession.user.roles.includes(role as any))
   ) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-muted/40 p-4">
@@ -127,14 +125,6 @@ function AdminLayout() {
                   <SidebarMenuButton tooltip="Users">
                     <HugeiconsIcon icon={UserGroupIcon} />
                     <span>Users</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <Link to="/admin/permissions">
-                  <SidebarMenuButton tooltip="Permissions">
-                    <HugeiconsIcon icon={Shield01Icon} />
-                    <span>Permissions</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
@@ -207,3 +197,4 @@ function AdminLayout() {
     </SidebarProvider>
   )
 }
+

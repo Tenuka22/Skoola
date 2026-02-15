@@ -312,6 +312,20 @@ export const zBulkDeleteLibraryCategoriesRequest = z.object({
 });
 
 /**
+ * BulkDeleteRequest
+ */
+export const zBulkDeleteRequest = z.object({
+    user_ids: z.array(z.string())
+});
+
+/**
+ * BulkDeleteStaffRequest
+ */
+export const zBulkDeleteStaffRequest = z.object({
+    staff_ids: z.array(z.string())
+});
+
+/**
  * BulkDeleteSubjectsRequest
  */
 export const zBulkDeleteSubjectsRequest = z.object({
@@ -1994,6 +2008,59 @@ export const zFeeReceiptResponse = z.object({
     student_name: z.string()
 });
 
+export const zPermissionEnum = z.enum([
+    'UserCreate',
+    'UserRead',
+    'UserUpdate',
+    'UserDelete',
+    'UserManage',
+    'UserManageRoles',
+    'UserManagePermissions',
+    'RoleCreate',
+    'RoleRead',
+    'RoleUpdate',
+    'RoleDelete',
+    'RoleManage',
+    'RoleAssignPermissions',
+    'PermissionCreate',
+    'PermissionRead',
+    'PermissionUpdate',
+    'PermissionDelete',
+    'PermissionManage',
+    'PermissionSetManage',
+    'StaffCreate',
+    'StaffRead',
+    'StaffUpdate',
+    'StaffDelete',
+    'StaffManage',
+    'StaffManageAttendance',
+    'StaffManageLeaves',
+    'StudentCreate',
+    'StudentRead',
+    'StudentUpdate',
+    'StudentDelete',
+    'StudentManage',
+    'StudentManageGuardians',
+    'StudentManageEnrollment',
+    'StudentManageAttendance',
+    'StudentManageMarks',
+    'AcademicYearManage',
+    'TermManage',
+    'GradeLevelManage',
+    'ClassManage',
+    'SubjectManage',
+    'ClassSubjectTeacherManage',
+    'TimetableManage',
+    'ExamTypeManage',
+    'ExamManage',
+    'ExamSubjectManage',
+    'GradingSchemeManage',
+    'GradingCriterionManage',
+    'LibraryManage',
+    'UserUpdateMedium',
+    'UserDeleteSevere'
+]);
+
 /**
  * PromoteStudentRequest
  */
@@ -2147,6 +2214,13 @@ export const zReligion = z.enum([
 ]);
 
 /**
+ * ResendVerificationEmailRequest
+ */
+export const zResendVerificationEmailRequest = z.object({
+    email: z.string()
+});
+
+/**
  * ReturnAssetRequest
  */
 export const zReturnAssetRequest = z.object({
@@ -2178,6 +2252,32 @@ export const zRoleEnum = z.enum([
     'Accountant',
     'Librarian'
 ]);
+
+/**
+ * BulkUpdateRequest
+ */
+export const zBulkUpdateRequest = z.object({
+    is_verified: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    lockout_until: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])).default(null),
+    role: z.optional(z.union([
+        zRoleEnum,
+        z.null()
+    ])),
+    user_ids: z.array(z.string())
+});
+
+/**
+ * RolePermissionRequest
+ */
+export const zRolePermissionRequest = z.object({
+    permission: zPermissionEnum
+});
 
 /**
  * SalaryComponentResponse
@@ -2381,6 +2481,57 @@ export const zStaffType = z.enum([
     'NonTeaching',
     'Administrative'
 ]);
+
+/**
+ * BulkUpdateStaffRequest
+ */
+export const zBulkUpdateStaffRequest = z.object({
+    address: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    dob: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    email: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    employee_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    employment_status: z.optional(z.union([
+        zEmploymentStatus,
+        z.null()
+    ])),
+    gender: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    name: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    nic: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    phone: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    photo_url: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    staff_ids: z.array(z.string()),
+    staff_type: z.optional(z.union([
+        zStaffType,
+        z.null()
+    ]))
+});
 
 /**
  * CreateStaffRequest
@@ -3478,9 +3629,38 @@ export const zUpdateTimetableRequest = z.object({
 });
 
 /**
+ * UpdateUserRequest
+ */
+export const zUpdateUserRequest = z.object({
+    email: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    is_verified: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    lockout_until: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])).default(null),
+    role: z.optional(z.union([
+        zRoleEnum,
+        z.null()
+    ]))
+});
+
+/**
  * UserId
  */
 export const zUserId = z.string();
+
+/**
+ * UserPermissionRequest
+ */
+export const zUserPermissionRequest = z.object({
+    permission: zPermissionEnum
+});
 
 /**
  * UserProfileResponse
@@ -3527,6 +3707,13 @@ export const zUserSet = z.object({
     ])),
     id: z.string(),
     name: z.string()
+});
+
+/**
+ * UserSetPermissionRequest
+ */
+export const zUserSetPermissionRequest = z.object({
+    permission: zPermissionEnum
 });
 
 /**
@@ -3611,6 +3798,14 @@ export const zGithubCallbackData = z.object({
 });
 
 export const zGithubCallbackResponse = zTokenResponse;
+
+export const zResendVerificationEmailData = z.object({
+    body: zResendVerificationEmailRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zResendVerificationEmailResponse = zMessageResponse;
 
 export const zVerifyEmailData = z.object({
     body: z.optional(z.never()),
@@ -3763,27 +3958,51 @@ export const zGetUserStatisticsData = z.object({
 
 export const zGetUserStatisticsResponse = zUserStatsResponse;
 
-export const zUnassignPermissionFromUserData = z.object({
+export const zBulkDeleteUsersData = z.object({
+    body: zBulkDeleteRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zBulkDeleteUsersResponse = zMessageResponse;
+
+export const zBulkUpdateUsersData = z.object({
+    body: zBulkUpdateRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zBulkUpdateUsersResponse = zMessageResponse;
+
+export const zDeleteUserData = z.object({
     body: z.optional(z.never()),
     path: z.object({
-        user_id: z.string(),
-        permission: z.string()
+        user_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zDeleteUserResponse = zMessageResponse;
+
+export const zUpdateUserData = z.object({
+    body: zUpdateUserRequest,
+    path: z.object({
+        user_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zUpdateUserResponse = zMessageResponse;
+
+export const zUnassignPermissionFromUserData = z.object({
+    body: zUserPermissionRequest,
+    path: z.object({
+        user_id: z.string()
     }),
     query: z.optional(z.never())
 });
 
 export const zUnassignPermissionFromUserResponse = zMessageResponse;
-
-export const zAssignPermissionToUserData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        user_id: z.string(),
-        permission: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zAssignPermissionToUserResponse = zMessageResponse;
 
 export const zGetUserPermissionsData = z.object({
     body: z.optional(z.never()),
@@ -3798,6 +4017,26 @@ export const zGetUserPermissionsData = z.object({
  */
 export const zGetUserPermissionsResponse = z.string();
 
+export const zAssignPermissionToUserData = z.object({
+    body: zUserPermissionRequest,
+    path: z.object({
+        user_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zAssignPermissionToUserResponse = zMessageResponse;
+
+export const zUnassignPermissionFromRoleData = z.object({
+    body: zRolePermissionRequest,
+    path: z.object({
+        role_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zUnassignPermissionFromRoleResponse = zMessageResponse;
+
 export const zGetRolePermissionsData = z.object({
     body: z.optional(z.never()),
     path: z.object({
@@ -3811,27 +4050,25 @@ export const zGetRolePermissionsData = z.object({
  */
 export const zGetRolePermissionsResponse = z.string();
 
-export const zUnassignPermissionFromRoleData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        role_id: z.string(),
-        permission: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zUnassignPermissionFromRoleResponse = zMessageResponse;
-
 export const zAssignPermissionToRoleData = z.object({
-    body: z.optional(z.never()),
+    body: zRolePermissionRequest,
     path: z.object({
-        role_id: z.string(),
-        permission: z.string()
+        role_id: z.string()
     }),
     query: z.optional(z.never())
 });
 
 export const zAssignPermissionToRoleResponse = zMessageResponse;
+
+export const zUnassignPermissionFromUserSetData = z.object({
+    body: zUserSetPermissionRequest,
+    path: z.object({
+        user_set_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zUnassignPermissionFromUserSetResponse = zMessageResponse;
 
 export const zGetUserSetPermissionsData = z.object({
     body: z.optional(z.never()),
@@ -3846,22 +4083,10 @@ export const zGetUserSetPermissionsData = z.object({
  */
 export const zGetUserSetPermissionsResponse = z.string();
 
-export const zUnassignPermissionFromUserSetData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        user_set_id: z.string(),
-        permission: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zUnassignPermissionFromUserSetResponse = zMessageResponse;
-
 export const zAssignPermissionToUserSetData = z.object({
-    body: z.optional(z.never()),
+    body: zUserSetPermissionRequest,
     path: z.object({
-        user_set_id: z.string(),
-        permission: z.string()
+        user_set_id: z.string()
     }),
     query: z.optional(z.never())
 });
@@ -3950,6 +4175,22 @@ export const zUpdateStaffData = z.object({
 });
 
 export const zUpdateStaffResponse = zStaffResponse;
+
+export const zBulkDeleteStaffData = z.object({
+    body: zBulkDeleteStaffRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zBulkDeleteStaffResponse = zMessageResponse;
+
+export const zBulkUpdateStaffData = z.object({
+    body: zBulkUpdateStaffRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zBulkUpdateStaffResponse = zMessageResponse;
 
 export const zUploadStaffPhotoData = z.object({
     body: z.unknown(),

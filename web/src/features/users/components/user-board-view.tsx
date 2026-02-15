@@ -6,7 +6,6 @@ import {
   Mail01Icon,
   MoreVerticalIcon,
   PencilEdit01Icon,
-  Shield01Icon,
   Tick01Icon,
 } from '@hugeicons/core-free-icons'
 import type { UserProfileResponse, UserResponse } from '@/lib/api/types.gen'
@@ -30,7 +29,6 @@ interface UserBoardViewProps {
   onEdit: (user: UserResponse) => void
   onDelete: (id: string) => void
   onToggleVerify: (user: UserResponse) => void
-  onManagePermissions: (user: UserResponse) => void
   isUpdating?: boolean
   updatingUserId?: string | null
 }
@@ -41,7 +39,6 @@ export function UserBoardView({
   onEdit,
   onDelete,
   onToggleVerify,
-  onManagePermissions,
   isUpdating,
   updatingUserId,
 }: UserBoardViewProps) {
@@ -147,13 +144,6 @@ export function UserBoardView({
                       />
                     )}
                     Verify
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onManagePermissions(user)}>
-                    <HugeiconsIcon
-                      icon={Shield01Icon}
-                      className="mr-2 size-4 opacity-70"
-                    />
-                    Permissions
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem

@@ -11,8 +11,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../../../components/ui/alert-dialog'
-import { getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Options } from '@/lib/api/@tanstack/react-query.gen'
+
 import { authClient } from '@/lib/clients'
+import { getStudentByIdOptions } from '@/lib/api/@tanstack/react-query.gen'
 
 interface StudentDeleteDialogProps {
   studentToDeleteId: string | null
@@ -26,7 +27,7 @@ export function StudentDeleteDialog({
   onDeleteConfirm,
 }: StudentDeleteDialogProps) {
   const studentQuery = useQuery({
-    ...getStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Options({
+    ...getStudentByIdOptions({
       client: authClient,
       path: { student_id: studentToDeleteId || '' },
     }),

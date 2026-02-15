@@ -2,10 +2,9 @@ import { z } from 'zod'
 import { createServerFn } from '@tanstack/react-start'
 import { getCookie, setCookie } from '@tanstack/react-start/server'
 import { zTokenResponse, zUserProfileResponse } from '../api/zod.gen'
-import {
-  AUTH_COOKIE_NAME,
-  AUTH_COOKIE_TTL,
-} from '@/features/permissions/constants'
+
+export const AUTH_COOKIE_NAME = 'skoola_auth'
+export const AUTH_COOKIE_TTL = 30 * 24 * 60 * 60
 
 export const SessionSchema = z.object({
   tokens: zTokenResponse,

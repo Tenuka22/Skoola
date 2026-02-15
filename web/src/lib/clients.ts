@@ -5,7 +5,7 @@ import {
   clearAuthServer,
   getActiveSessionServer,
 } from './auth/session'
-import { postAuthRefresh6Aadba1Bf11B4320428155Ff0462660D as postAuthRefreshApi } from './api/sdk.gen'
+import { refreshToken as refreshTokenApi } from './api/sdk.gen'
 import { reloginNeeded } from './auth/actions'
 import type { ClientOptions, RequestOptions } from './api/client/index'
 import { env } from '@/lib/env'
@@ -79,7 +79,7 @@ authClient.interceptors.response.use(
       isRefreshing = true
 
       try {
-        const refreshResponse = await postAuthRefreshApi({
+        const refreshResponse = await refreshTokenApi({
           body: {
             refresh_token: session.tokens.refresh_token,
           },

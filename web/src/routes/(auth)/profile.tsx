@@ -25,7 +25,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@/components/ui/empty'
-import { getUsersF4D0D9F0Ef0F26C7129Bc0A687Bdd92C as getUserPermissionsApi } from '@/lib/api/sdk.gen'
+import { getUserPermissions } from '@/lib/api/sdk.gen'
 import { authClient } from '@/lib/clients'
 import { Badge } from '@/components/ui/badge'
 
@@ -44,15 +44,16 @@ export const Route = createFileRoute('/(auth)/profile')({
 
       if (activeSession?.user.id) {
         try {
-          const userPermissionsRes = await getUserPermissionsApi({
+          const userPermissionsRes = await getUserPermissions({
             path: { user_id: activeSession?.user.id },
             client: authClient,
           })
+          const processedPermissions = userPermissionsRes.data ? userPermissionsRes.data.split(',').filter(s => s.trim() !== '') : [];
           return {
             activeSession,
             otherSessions,
             authStorage,
-            userPermissions: userPermissionsRes.data,
+            userPermissions: processedPermissions,
           }
         } catch (e) {
           console.error('Failed to load user permissions:', e)
@@ -147,8 +148,8 @@ function ProfilePage() {
               <strong>Permissions:</strong>
               <div className="flex flex-wrap gap-2 mt-2">
                 {permissions.map((permission) => (
-                  <Badge key={permission.id} variant="outline">
-                    {permission.name}
+                  <Badge key={permission} variant="outline">
+                    {permission}
                   </Badge>
                 ))}
               </div>

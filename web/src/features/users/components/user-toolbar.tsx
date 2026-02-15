@@ -4,7 +4,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Delete02Icon,
   PencilEdit01Icon,
-  Shield01Icon,
   Tick01Icon,
 } from '@hugeicons/core-free-icons'
 
@@ -17,7 +16,6 @@ interface UserToolbarProps {
   onBulkVerify: (verify: boolean) => void
   onBulkDelete: () => void
   onBulkEdit: () => void
-  onBulkManagePermissions: () => void
   users?: Array<User>
 }
 
@@ -26,7 +24,6 @@ export function UserToolbar({
   onBulkVerify,
   onBulkDelete,
   onBulkEdit,
-  onBulkManagePermissions,
 }: UserToolbarProps) {
   if (selectedUsers.size === 0) return null
 
@@ -40,11 +37,6 @@ export function UserToolbar({
         <Button variant="outline" onClick={onBulkEdit}>
           <HugeiconsIcon icon={PencilEdit01Icon} className="mr-2 size-4" />
           Edit
-        </Button>
-
-        <Button variant="outline" onClick={onBulkManagePermissions}>
-          <HugeiconsIcon icon={Shield01Icon} className="mr-2 size-4" />
-          Permissions
         </Button>
 
         <Button variant="outline" onClick={() => onBulkVerify(true)}>

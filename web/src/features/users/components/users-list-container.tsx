@@ -7,7 +7,7 @@ import type {
   MessageResponse,
   Options,
   PaginatedUserResponse,
-  PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaData,
+  UpdateUserData,
   UserResponse,
 } from '@/lib/api'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
@@ -20,7 +20,7 @@ interface UsersListContainerProps {
   updateMutation: UseMutationResult<
     MessageResponse,
     Error,
-    Options<PatchUsers5D3C91131F7D9Efc5999C92Dbfac75DaData>,
+    Options<UpdateUserData>,
     unknown
   >
   rowSelection: Record<string, boolean>
@@ -49,7 +49,6 @@ export function UsersListContainer({
     setColumnVisibility,
     setUserToEdit,
     setUserToDelete,
-    setUserToManagePermissions,
   } = useUsersStore()
 
   const isUpdating = updateMutation.isPending
@@ -93,7 +92,6 @@ export function UsersListContainer({
                 body: { is_verified: !user.is_verified },
               })
             }
-            onManagePermissions={(user) => setUserToManagePermissions(user)}
             isUpdating={isUpdating}
             updatingUserId={updatingUserId}
           />

@@ -1,8 +1,9 @@
 use actix_web::web;
-use apistos::api_operation;
+use apistos::{api_operation, ApiComponent};
 use diesel::prelude::*;
 use actix_web::web::Json;
-use std::str::FromStr;
+use serde::{Deserialize, Serialize};
+use schemars::JsonSchema;
 
 use crate::{
     AppState,
@@ -13,6 +14,11 @@ use crate::{
     schema::role_permissions,
 };
 
+#[derive(Debug, Deserialize, Serialize, ApiComponent, JsonSchema)]
+pub struct RolePermissionRequest {
+    pub permission: PermissionEnum,
+}
+
 #[api_operation(
     summary = "Assign a permission to a role",
     description = "Assigns a permission to a role by Role ID (Enum string) and Permission Enum.",
@@ -21,18 +27,13 @@ use crate::{
 )]
 pub async fn assign_permission_to_role(
     data: web::Data<AppState>,
-    path: web::Path<(String, String)>,
+    role_id: web::Path<String>,
+    body: web::Json<RolePermissionRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let (role_id, permission_str) = path.into_inner();
-    
-    // Validate permission enum
-    let permission_enum = PermissionEnum::from_str(&permission_str)
-        .map_err(|_| APIError::bad_request("Invalid permission"))?;
-
     let new_assignment = RolePermission {
-        role_id,
-        permission: permission_enum.to_string(),
+        role_id: role_id.into_inner(),
+        permission: body.permission.to_string(),
     };
 
     diesel::insert_into(role_permissions::table)
@@ -50,15 +51,14 @@ pub async fn assign_permission_to_role(
 )]
 pub async fn unassign_permission_from_role(
     data: web::Data<AppState>,
-    path: web::Path<(String, String)>,
+    role_id: web::Path<String>,
+    body: web::Json<RolePermissionRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let (role_id, permission_str) = path.into_inner();
-
     diesel::delete(
         role_permissions::table
-            .filter(role_permissions::role_id.eq(role_id))
-            .filter(role_permissions::permission.eq(permission_str)),
+            .filter(role_permissions::role_id.eq(role_id.into_inner()))
+            .filter(role_permissions::permission.eq(body.permission.to_string())),
     )
     .execute(&mut conn)?;
 

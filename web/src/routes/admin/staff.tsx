@@ -24,11 +24,11 @@ import {
   isStaffType,
 } from '../../features/staff/utils/staff-guards'
 import {
-  deleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Mutation,
-  getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Options,
-  getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857QueryKey,
-  postStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Mutation,
-  putStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Mutation,
+  deleteStaffMutation,
+  getAllStaffOptions,
+  getAllStaffQueryKey,
+  createStaffMutation,
+  updateStaffMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
 
 export const Route = createFileRoute('/admin/staff')({
@@ -59,7 +59,7 @@ function StaffPage() {
   } = store
 
   const staffQuery = useQuery({
-    ...getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Options({
+    ...getAllStaffOptions({
       client: authClient,
       query: {
         page,
@@ -85,12 +85,12 @@ function StaffPage() {
   const queryClient = useQueryClient()
   const invalidateStaff = () => {
     queryClient.invalidateQueries({
-      queryKey: getStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857QueryKey(),
+      queryKey: getAllStaffQueryKey(),
     })
   }
 
   const deleteStaff = useMutation({
-    ...deleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Mutation({
+    ...deleteStaffMutation({
       client: authClient,
     }),
     onSuccess: () => {
@@ -104,7 +104,7 @@ function StaffPage() {
   })
 
   const createStaff = useMutation({
-    ...postStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Mutation({
+    ...createStaffMutation({
       client: authClient,
     }),
     onSuccess: () => {
@@ -118,7 +118,7 @@ function StaffPage() {
   })
 
   const updateStaff = useMutation({
-    ...putStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Mutation({
+    ...updateStaffMutation({
       client: authClient,
     }),
     onSuccess: () => {
