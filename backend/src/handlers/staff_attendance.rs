@@ -17,7 +17,8 @@ use crate::{
 #[api_operation(
     summary = "Mark daily staff attendance",
     description = "Marks attendance for a single staff member for a specific date.",
-    tag = "staff_attendance"
+    tag = "staff_attendance",
+    operation_id = "mark_staff_attendance_daily"
 )]
 pub async fn mark_staff_attendance_daily(
     data: web::Data<AppState>,
@@ -60,7 +61,8 @@ pub async fn mark_staff_attendance_daily(
 #[api_operation(
     summary = "Mark bulk staff attendance",
     description = "Marks attendance for multiple staff members for a specific date.",
-    tag = "staff_attendance"
+    tag = "staff_attendance",
+    operation_id = "mark_bulk_staff_attendance"
 )]
 pub async fn mark_bulk_staff_attendance(
     data: web::Data<AppState>,
@@ -112,7 +114,8 @@ pub async fn mark_bulk_staff_attendance(
 #[api_operation(
     summary = "Update staff attendance record",
     description = "Updates an existing staff attendance record by ID.",
-    tag = "staff_attendance"
+    tag = "staff_attendance",
+    operation_id = "update_staff_attendance"
 )]
 pub async fn update_staff_attendance(
     data: web::Data<AppState>,
@@ -145,7 +148,8 @@ pub async fn update_staff_attendance(
 #[api_operation(
     summary = "View staff attendance by date",
     description = "Returns a list of staff attendance records for a specific date.",
-    tag = "staff_attendance"
+    tag = "staff_attendance",
+    operation_id = "get_staff_attendance_by_date"
 )]
 pub async fn get_staff_attendance_by_date(
     data: web::Data<AppState>,
@@ -164,7 +168,8 @@ pub async fn get_staff_attendance_by_date(
 #[api_operation(
     summary = "View staff attendance by staff member",
     description = "Returns a list of staff attendance records for a specific staff member, optionally filtered by a date range.",
-    tag = "staff_attendance"
+    tag = "staff_attendance",
+    operation_id = "get_staff_attendance_by_staff_member"
 )]
 pub async fn get_staff_attendance_by_staff_member(
     data: web::Data<AppState>,
@@ -194,7 +199,8 @@ pub async fn get_staff_attendance_by_staff_member(
 #[api_operation(
     summary = "Calculate monthly attendance percentage",
     description = "Calculates the attendance percentage for a staff member for a given month and year.",
-    tag = "staff_attendance"
+    tag = "staff_attendance",
+    operation_id = "calculate_monthly_staff_attendance_percentage"
 )]
 pub async fn calculate_monthly_attendance_percentage(
     data: web::Data<AppState>,

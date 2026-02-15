@@ -10,7 +10,12 @@ use crate::{
 
 // --- Sports Handlers ---
 
-#[api_operation(summary = "Create a new sport", tag = "co-curricular")]
+#[api_operation(
+    summary = "Create a new sport",
+    description = "Creates a new sport category in the system.",
+    tag = "co-curricular",
+    operation_id = "create_sport"
+)]
 pub async fn create_sport(
     data: Data<AppState>,
     body: Json<CreateSportRequest>,
@@ -19,13 +24,23 @@ pub async fn create_sport(
     Ok(Json(sport))
 }
 
-#[api_operation(summary = "Get all sports", tag = "co-curricular")]
+#[api_operation(
+    summary = "Get all sports",
+    description = "Retrieves a list of all sports available in the school.",
+    tag = "co-curricular",
+    operation_id = "get_all_sports"
+)]
 pub async fn get_all_sports(data: Data<AppState>) -> Result<Json<Vec<Sport>>, APIError> {
     let sports = co_curricular::get_all_sports(data).await?;
     Ok(Json(sports))
 }
 
-#[api_operation(summary = "Create a sport team", tag = "co-curricular")]
+#[api_operation(
+    summary = "Create a sport team",
+    description = "Creates a new sport team for a specific sport and grade level.",
+    tag = "co-curricular",
+    operation_id = "create_sport_team"
+)]
 pub async fn create_sport_team(
     data: Data<AppState>,
     body: Json<CreateSportTeamRequest>,
@@ -34,7 +49,12 @@ pub async fn create_sport_team(
     Ok(Json(team))
 }
 
-#[api_operation(summary = "Add member to sport team", tag = "co-curricular")]
+#[api_operation(
+    summary = "Add member to sport team",
+    description = "Adds a student to a specific sport team.",
+    tag = "co-curricular",
+    operation_id = "add_sport_team_member"
+)]
 pub async fn add_sport_team_member(
     data: Data<AppState>,
     path: Path<String>,
@@ -45,7 +65,12 @@ pub async fn add_sport_team_member(
     Ok(Json(member))
 }
 
-#[api_operation(summary = "Create sport event", tag = "co-curricular")]
+#[api_operation(
+    summary = "Create sport event",
+    description = "Registers a new sport event (e.g., match, tournament).",
+    tag = "co-curricular",
+    operation_id = "create_sport_event"
+)]
 pub async fn create_sport_event(
     data: Data<AppState>,
     body: Json<CreateSportEventRequest>,
@@ -54,7 +79,12 @@ pub async fn create_sport_event(
     Ok(Json(event))
 }
 
-#[api_operation(summary = "Record sport event result", tag = "co-curricular")]
+#[api_operation(
+    summary = "Record sport event result",
+    description = "Records the result or achievement of a participant in a sport event.",
+    tag = "co-curricular",
+    operation_id = "record_sport_event_result"
+)]
 pub async fn record_sport_event_result(
     data: Data<AppState>,
     path: Path<String>,
@@ -67,7 +97,12 @@ pub async fn record_sport_event_result(
 
 // --- Clubs Handlers ---
 
-#[api_operation(summary = "Create a new club", tag = "co-curricular")]
+#[api_operation(
+    summary = "Create a new club",
+    description = "Creates a new school club or society.",
+    tag = "co-curricular",
+    operation_id = "create_club"
+)]
 pub async fn create_club(
     data: Data<AppState>,
     body: Json<CreateClubRequest>,
@@ -76,7 +111,12 @@ pub async fn create_club(
     Ok(Json(club))
 }
 
-#[api_operation(summary = "Add member to club", tag = "co-curricular")]
+#[api_operation(
+    summary = "Add member to club",
+    description = "Adds a student as a member of a school club.",
+    tag = "co-curricular",
+    operation_id = "add_club_member"
+)]
 pub async fn add_club_member(
     data: Data<AppState>,
     path: Path<String>,
@@ -87,7 +127,12 @@ pub async fn add_club_member(
     Ok(Json(member))
 }
 
-#[api_operation(summary = "Create club activity", tag = "co-curricular")]
+#[api_operation(
+    summary = "Create club activity",
+    description = "Logs a specific activity or meeting for a club.",
+    tag = "co-curricular",
+    operation_id = "create_club_activity"
+)]
 pub async fn create_club_activity(
     data: Data<AppState>,
     body: Json<CreateClubActivityRequest>,
@@ -98,7 +143,12 @@ pub async fn create_club_activity(
 
 // --- Competitions Handlers ---
 
-#[api_operation(summary = "Create a competition", tag = "co-curricular")]
+#[api_operation(
+    summary = "Create a competition",
+    description = "Registers a new school or inter-school competition.",
+    tag = "co-curricular",
+    operation_id = "create_competition"
+)]
 pub async fn create_competition(
     data: Data<AppState>,
     body: Json<CreateCompetitionRequest>,
@@ -107,7 +157,12 @@ pub async fn create_competition(
     Ok(Json(comp))
 }
 
-#[api_operation(summary = "Add participant to competition", tag = "co-curricular")]
+#[api_operation(
+    summary = "Add participant to competition",
+    description = "Registers a student as a participant in a competition.",
+    tag = "co-curricular",
+    operation_id = "add_competition_participant"
+)]
 pub async fn add_competition_participant(
     data: Data<AppState>,
     path: Path<String>,
@@ -118,7 +173,12 @@ pub async fn add_competition_participant(
     Ok(Json(participant))
 }
 
-#[api_operation(summary = "Create student achievement", tag = "co-curricular")]
+#[api_operation(
+    summary = "Create student achievement",
+    description = "Records an achievement or award earned by a student.",
+    tag = "co-curricular",
+    operation_id = "create_student_achievement"
+)]
 pub async fn create_student_achievement(
     data: Data<AppState>,
     body: Json<CreateStudentAchievementRequest>,
@@ -129,7 +189,12 @@ pub async fn create_student_achievement(
 
 // --- Cultural Handlers ---
 
-#[api_operation(summary = "Create cultural event", tag = "co-curricular")]
+#[api_operation(
+    summary = "Create cultural event",
+    description = "Registers a new cultural event (e.g., concert, exhibition).",
+    tag = "co-curricular",
+    operation_id = "create_cultural_event"
+)]
 pub async fn create_cultural_event(
     data: Data<AppState>,
     body: Json<CreateCulturalEventRequest>,
@@ -138,7 +203,12 @@ pub async fn create_cultural_event(
     Ok(Json(event))
 }
 
-#[api_operation(summary = "Add participant to cultural event", tag = "co-curricular")]
+#[api_operation(
+    summary = "Add participant to cultural event",
+    description = "Registers a student as a participant in a cultural event.",
+    tag = "co-curricular",
+    operation_id = "add_cultural_event_participant"
+)]
 pub async fn add_cultural_event_participant(
     data: Data<AppState>,
     path: Path<String>,
@@ -149,7 +219,12 @@ pub async fn add_cultural_event_participant(
     Ok(Json(participant))
 }
 
-#[api_operation(summary = "Get student co-curricular summary", tag = "co-curricular")]
+#[api_operation(
+    summary = "Get student co-curricular summary",
+    description = "Retrieves a summary of all co-curricular activities and achievements for a specific student.",
+    tag = "co-curricular",
+    operation_id = "get_student_co_curricular_summary"
+)]
 pub async fn get_student_summary(
     data: Data<AppState>,
     path: Path<String>,

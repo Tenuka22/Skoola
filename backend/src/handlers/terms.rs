@@ -8,10 +8,11 @@ use crate::{
     services::terms,
 };
 
-#[api_operation( // Added
+#[api_operation(
     summary = "Create Term",
     description = "Creates a new term.",
-    tag = "terms"
+    tag = "terms",
+    operation_id = "create_term"
 )]
 // Handler for creating a new term
 pub async fn create_term_handler(

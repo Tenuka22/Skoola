@@ -46,7 +46,8 @@ pub struct BulkUpdateExamTypesRequest {
 #[api_operation(
     summary = "Create Exam Type",
     description = "Creates a new exam type.",
-    tag = "exam_types"
+    tag = "exam_types",
+    operation_id = "create_exam_type"
 )]
 pub async fn create_exam_type(
     data: web::Data<AppState>,
@@ -59,7 +60,8 @@ pub async fn create_exam_type(
 #[api_operation(
     summary = "Get Exam Type by ID",
     description = "Retrieves an exam type by its ID.",
-    tag = "exam_types"
+    tag = "exam_types",
+    operation_id = "get_exam_type_by_id"
 )]
 pub async fn get_exam_type_by_id(
     data: web::Data<AppState>,
@@ -73,7 +75,8 @@ pub async fn get_exam_type_by_id(
 #[api_operation(
     summary = "Get All Exam Types",
     description = "Retrieves a paginated list of all exam types with search and filtering options.",
-    tag = "exam_types"
+    tag = "exam_types",
+    operation_id = "get_all_exam_types"
 )]
 pub async fn get_all_exam_types(
     data: web::Data<AppState>,
@@ -94,7 +97,8 @@ pub async fn get_all_exam_types(
 #[api_operation(
     summary = "Bulk Delete Exam Types",
     description = "Deletes multiple exam types by their IDs.",
-    tag = "exam_types"
+    tag = "exam_types",
+    operation_id = "bulk_delete_exam_types"
 )]
 pub async fn bulk_delete_exam_types(
     data: web::Data<AppState>,
@@ -107,7 +111,8 @@ pub async fn bulk_delete_exam_types(
 #[api_operation(
     summary = "Bulk Update Exam Types",
     description = "Updates multiple exam types' information.",
-    tag = "exam_types"
+    tag = "exam_types",
+    operation_id = "bulk_update_exam_types"
 )]
 pub async fn bulk_update_exam_types(
     data: web::Data<AppState>,
@@ -120,7 +125,8 @@ pub async fn bulk_update_exam_types(
 #[api_operation(
     summary = "Update Exam Type",
     description = "Updates an existing exam type.",
-    tag = "exam_types"
+    tag = "exam_types",
+    operation_id = "update_exam_type"
 )]
 pub async fn update_exam_type(
     data: web::Data<AppState>,
@@ -135,7 +141,8 @@ pub async fn update_exam_type(
 #[api_operation(
     summary = "Delete Exam Type",
     description = "Deletes an exam type by its ID.",
-    tag = "exam_types"
+    tag = "exam_types",
+    operation_id = "delete_exam_type"
 )]
 pub async fn delete_exam_type(
     data: web::Data<AppState>,

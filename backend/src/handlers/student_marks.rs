@@ -14,7 +14,8 @@ use crate::{
 #[api_operation(
     summary = "Create Student Mark",
     description = "Creates a new student mark.",
-    tag = "student_marks"
+    tag = "student_marks",
+    operation_id = "create_student_mark"
 )]
 pub async fn create_student_mark(
     data: web::Data<AppState>,
@@ -28,7 +29,8 @@ pub async fn create_student_mark(
 #[api_operation(
     summary = "Get Student Mark by ID",
     description = "Retrieves a student mark by its ID.",
-    tag = "student_marks"
+    tag = "student_marks",
+    operation_id = "get_student_mark_by_id"
 )]
 pub async fn get_student_mark_by_id(
     data: web::Data<AppState>,
@@ -42,7 +44,8 @@ pub async fn get_student_mark_by_id(
 #[api_operation(
     summary = "Get All Student Marks",
     description = "Retrieves a list of all student marks.",
-    tag = "student_marks"
+    tag = "student_marks",
+    operation_id = "get_all_student_marks"
 )]
 pub async fn get_all_student_marks(
     data: web::Data<AppState>,
@@ -54,7 +57,8 @@ pub async fn get_all_student_marks(
 #[api_operation(
     summary = "Get Student Marks by Student ID",
     description = "Retrieves a list of student marks for a given student ID.",
-    tag = "student_marks"
+    tag = "student_marks",
+    operation_id = "get_student_marks_by_student_id"
 )]
 pub async fn get_student_marks_by_student_id(
     data: web::Data<AppState>,
@@ -68,7 +72,8 @@ pub async fn get_student_marks_by_student_id(
 #[api_operation(
     summary = "Get Student Marks by Exam and Class",
     description = "Retrieves a list of student marks for a given exam ID and class ID.",
-    tag = "student_marks"
+    tag = "student_marks",
+    operation_id = "get_student_marks_by_exam_and_class"
 )]
 pub async fn get_student_marks_by_exam_and_class(
     data: web::Data<AppState>,
@@ -82,7 +87,8 @@ pub async fn get_student_marks_by_exam_and_class(
 #[api_operation(
     summary = "Update Student Mark",
     description = "Updates an existing student mark.",
-    tag = "student_marks"
+    tag = "student_marks",
+    operation_id = "update_student_mark"
 )]
 pub async fn update_student_mark(
     data: web::Data<AppState>,
@@ -98,7 +104,8 @@ pub async fn update_student_mark(
 #[api_operation(
     summary = "Delete Student Mark",
     description = "Deletes a student mark by its ID.",
-    tag = "student_marks"
+    tag = "student_marks",
+    operation_id = "delete_student_mark"
 )]
 pub async fn delete_student_mark(
     data: web::Data<AppState>,
@@ -112,7 +119,8 @@ pub async fn delete_student_mark(
 #[api_operation(
     summary = "Bulk Create Student Marks",
     description = "Creates multiple student marks in bulk.",
-    tag = "student_marks"
+    tag = "student_marks",
+    operation_id = "bulk_create_student_marks"
 )]
 pub async fn bulk_create_student_marks(
     data: web::Data<AppState>,

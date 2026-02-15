@@ -2532,14 +2532,14 @@ export type UserStatsResponse = {
     verified_users: number;
 };
 
-export type PostAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Data = {
+export type RegisterUserData = {
     body: RegisterRequest;
     path?: never;
     query?: never;
     url: '/auth/register';
 };
 
-export type PostAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Errors = {
+export type RegisterUserErrors = {
     /**
      * Bad Request
      */
@@ -2610,20 +2610,20 @@ export type PostAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Errors = {
     504: unknown;
 };
 
-export type PostAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Responses = {
+export type RegisterUserResponses = {
     200: UserResponse;
 };
 
-export type PostAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Response = PostAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Responses[keyof PostAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Responses];
+export type RegisterUserResponse = RegisterUserResponses[keyof RegisterUserResponses];
 
-export type PostAuthLogin9E9Be264D609C0E1A535693Ba4C389AaData = {
+export type LoginUserData = {
     body: LoginRequest;
     path?: never;
     query?: never;
     url: '/auth/login';
 };
 
-export type PostAuthLogin9E9Be264D609C0E1A535693Ba4C389AaErrors = {
+export type LoginUserErrors = {
     /**
      * Bad Request
      */
@@ -2694,20 +2694,20 @@ export type PostAuthLogin9E9Be264D609C0E1A535693Ba4C389AaErrors = {
     504: unknown;
 };
 
-export type PostAuthLogin9E9Be264D609C0E1A535693Ba4C389AaResponses = {
+export type LoginUserResponses = {
     200: TokenResponse;
 };
 
-export type PostAuthLogin9E9Be264D609C0E1A535693Ba4C389AaResponse = PostAuthLogin9E9Be264D609C0E1A535693Ba4C389AaResponses[keyof PostAuthLogin9E9Be264D609C0E1A535693Ba4C389AaResponses];
+export type LoginUserResponse = LoginUserResponses[keyof LoginUserResponses];
 
-export type PostAuthLogout5D5C18E2301F7F66A8222C30Cd9230A0Data = {
+export type LogoutUserData = {
     body: RefreshTokenRequest;
     path?: never;
     query?: never;
     url: '/auth/logout';
 };
 
-export type PostAuthLogout5D5C18E2301F7F66A8222C30Cd9230A0Errors = {
+export type LogoutUserErrors = {
     /**
      * Bad Request
      */
@@ -2778,20 +2778,20 @@ export type PostAuthLogout5D5C18E2301F7F66A8222C30Cd9230A0Errors = {
     504: unknown;
 };
 
-export type PostAuthLogout5D5C18E2301F7F66A8222C30Cd9230A0Responses = {
+export type LogoutUserResponses = {
     200: MessageResponse;
 };
 
-export type PostAuthLogout5D5C18E2301F7F66A8222C30Cd9230A0Response = PostAuthLogout5D5C18E2301F7F66A8222C30Cd9230A0Responses[keyof PostAuthLogout5D5C18E2301F7F66A8222C30Cd9230A0Responses];
+export type LogoutUserResponse = LogoutUserResponses[keyof LogoutUserResponses];
 
-export type PostAuthRefresh6Aadba1Bf11B4320428155Ff0462660dData = {
+export type RefreshTokenData = {
     body: RefreshTokenRequest;
     path?: never;
     query?: never;
     url: '/auth/refresh';
 };
 
-export type PostAuthRefresh6Aadba1Bf11B4320428155Ff0462660dErrors = {
+export type RefreshTokenErrors = {
     /**
      * Bad Request
      */
@@ -2862,20 +2862,20 @@ export type PostAuthRefresh6Aadba1Bf11B4320428155Ff0462660dErrors = {
     504: unknown;
 };
 
-export type PostAuthRefresh6Aadba1Bf11B4320428155Ff0462660dResponses = {
+export type RefreshTokenResponses = {
     200: TokenResponse;
 };
 
-export type PostAuthRefresh6Aadba1Bf11B4320428155Ff0462660dResponse = PostAuthRefresh6Aadba1Bf11B4320428155Ff0462660dResponses[keyof PostAuthRefresh6Aadba1Bf11B4320428155Ff0462660dResponses];
+export type RefreshTokenResponse = RefreshTokenResponses[keyof RefreshTokenResponses];
 
-export type PostAuthPasswordRequest958Dc1121F130A1Ad3C117E1Ec11B28bData = {
+export type RequestPasswordResetData = {
     body: PasswordResetRequest;
     path?: never;
     query?: never;
     url: '/auth/password/request';
 };
 
-export type PostAuthPasswordRequest958Dc1121F130A1Ad3C117E1Ec11B28bErrors = {
+export type RequestPasswordResetErrors = {
     /**
      * Bad Request
      */
@@ -2946,13 +2946,13 @@ export type PostAuthPasswordRequest958Dc1121F130A1Ad3C117E1Ec11B28bErrors = {
     504: unknown;
 };
 
-export type PostAuthPasswordRequest958Dc1121F130A1Ad3C117E1Ec11B28bResponses = {
+export type RequestPasswordResetResponses = {
     200: MessageResponse;
 };
 
-export type PostAuthPasswordRequest958Dc1121F130A1Ad3C117E1Ec11B28bResponse = PostAuthPasswordRequest958Dc1121F130A1Ad3C117E1Ec11B28bResponses[keyof PostAuthPasswordRequest958Dc1121F130A1Ad3C117E1Ec11B28bResponses];
+export type RequestPasswordResetResponse = RequestPasswordResetResponses[keyof RequestPasswordResetResponses];
 
-export type PostAuthPasswordReset3Ad21Be550006F0Cebd8Fe02554A472eData = {
+export type ResetPasswordData = {
     body: PasswordReset;
     path: {
         /**
@@ -2964,7 +2964,7 @@ export type PostAuthPasswordReset3Ad21Be550006F0Cebd8Fe02554A472eData = {
     url: '/auth/password/reset/{token}';
 };
 
-export type PostAuthPasswordReset3Ad21Be550006F0Cebd8Fe02554A472eErrors = {
+export type ResetPasswordErrors = {
     /**
      * Bad Request
      */
@@ -3035,13 +3035,13 @@ export type PostAuthPasswordReset3Ad21Be550006F0Cebd8Fe02554A472eErrors = {
     504: unknown;
 };
 
-export type PostAuthPasswordReset3Ad21Be550006F0Cebd8Fe02554A472eResponses = {
+export type ResetPasswordResponses = {
     200: MessageResponse;
 };
 
-export type PostAuthPasswordReset3Ad21Be550006F0Cebd8Fe02554A472eResponse = PostAuthPasswordReset3Ad21Be550006F0Cebd8Fe02554A472eResponses[keyof PostAuthPasswordReset3Ad21Be550006F0Cebd8Fe02554A472eResponses];
+export type ResetPasswordResponse = ResetPasswordResponses[keyof ResetPasswordResponses];
 
-export type GetAuthGoogleCallback458F2E13A81Ef174B7223B3112A3445fData = {
+export type GoogleCallbackData = {
     body?: never;
     path?: never;
     query: {
@@ -3050,7 +3050,7 @@ export type GetAuthGoogleCallback458F2E13A81Ef174B7223B3112A3445fData = {
     url: '/auth/google/callback';
 };
 
-export type GetAuthGoogleCallback458F2E13A81Ef174B7223B3112A3445fErrors = {
+export type GoogleCallbackErrors = {
     /**
      * Bad Request
      */
@@ -3121,13 +3121,13 @@ export type GetAuthGoogleCallback458F2E13A81Ef174B7223B3112A3445fErrors = {
     504: unknown;
 };
 
-export type GetAuthGoogleCallback458F2E13A81Ef174B7223B3112A3445fResponses = {
+export type GoogleCallbackResponses = {
     200: TokenResponse;
 };
 
-export type GetAuthGoogleCallback458F2E13A81Ef174B7223B3112A3445fResponse = GetAuthGoogleCallback458F2E13A81Ef174B7223B3112A3445fResponses[keyof GetAuthGoogleCallback458F2E13A81Ef174B7223B3112A3445fResponses];
+export type GoogleCallbackResponse = GoogleCallbackResponses[keyof GoogleCallbackResponses];
 
-export type GetAuthGithubCallbackFd62426A52D82B58258Cd19C736C1912Data = {
+export type GithubCallbackData = {
     body?: never;
     path?: never;
     query: {
@@ -3136,7 +3136,7 @@ export type GetAuthGithubCallbackFd62426A52D82B58258Cd19C736C1912Data = {
     url: '/auth/github/callback';
 };
 
-export type GetAuthGithubCallbackFd62426A52D82B58258Cd19C736C1912Errors = {
+export type GithubCallbackErrors = {
     /**
      * Bad Request
      */
@@ -3207,13 +3207,13 @@ export type GetAuthGithubCallbackFd62426A52D82B58258Cd19C736C1912Errors = {
     504: unknown;
 };
 
-export type GetAuthGithubCallbackFd62426A52D82B58258Cd19C736C1912Responses = {
+export type GithubCallbackResponses = {
     200: TokenResponse;
 };
 
-export type GetAuthGithubCallbackFd62426A52D82B58258Cd19C736C1912Response = GetAuthGithubCallbackFd62426A52D82B58258Cd19C736C1912Responses[keyof GetAuthGithubCallbackFd62426A52D82B58258Cd19C736C1912Responses];
+export type GithubCallbackResponse = GithubCallbackResponses[keyof GithubCallbackResponses];
 
-export type GetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eData = {
+export type VerifyEmailData = {
     body?: never;
     path: {
         /**
@@ -3225,7 +3225,7 @@ export type GetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eData = {
     url: '/auth/verify-email/{token}';
 };
 
-export type GetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eErrors = {
+export type VerifyEmailErrors = {
     /**
      * Bad Request
      */
@@ -3296,20 +3296,20 @@ export type GetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eErrors = {
     504: unknown;
 };
 
-export type GetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eResponses = {
+export type VerifyEmailResponses = {
     200: MessageResponse;
 };
 
-export type GetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eResponse = GetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eResponses[keyof GetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eResponses];
+export type VerifyEmailResponse = VerifyEmailResponses[keyof VerifyEmailResponses];
 
-export type GetProfileC838C8E7Da73Bfc08645A117E4Df91F3Data = {
+export type GetProfileData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/profile';
 };
 
-export type GetProfileC838C8E7Da73Bfc08645A117E4Df91F3Errors = {
+export type GetProfileErrors = {
     /**
      * Bad Request
      */
@@ -3380,20 +3380,20 @@ export type GetProfileC838C8E7Da73Bfc08645A117E4Df91F3Errors = {
     504: unknown;
 };
 
-export type GetProfileC838C8E7Da73Bfc08645A117E4Df91F3Responses = {
+export type GetProfileResponses = {
     200: UserProfileResponse;
 };
 
-export type GetProfileC838C8E7Da73Bfc08645A117E4Df91F3Response = GetProfileC838C8E7Da73Bfc08645A117E4Df91F3Responses[keyof GetProfileC838C8E7Da73Bfc08645A117E4Df91F3Responses];
+export type GetProfileResponse = GetProfileResponses[keyof GetProfileResponses];
 
-export type PutProfileC838C8E7Da73Bfc08645A117E4Df91F3Data = {
+export type UpdateProfileData = {
     body: UpdateProfileRequest;
     path?: never;
     query?: never;
     url: '/profile';
 };
 
-export type PutProfileC838C8E7Da73Bfc08645A117E4Df91F3Errors = {
+export type UpdateProfileErrors = {
     /**
      * Bad Request
      */
@@ -3464,20 +3464,20 @@ export type PutProfileC838C8E7Da73Bfc08645A117E4Df91F3Errors = {
     504: unknown;
 };
 
-export type PutProfileC838C8E7Da73Bfc08645A117E4Df91F3Responses = {
+export type UpdateProfileResponses = {
     200: UserResponse;
 };
 
-export type PutProfileC838C8E7Da73Bfc08645A117E4Df91F3Response = PutProfileC838C8E7Da73Bfc08645A117E4Df91F3Responses[keyof PutProfileC838C8E7Da73Bfc08645A117E4Df91F3Responses];
+export type UpdateProfileResponse = UpdateProfileResponses[keyof UpdateProfileResponses];
 
-export type PostProfilePassword9037B3C985Aaf669A931670F06701375Data = {
+export type ChangePasswordData = {
     body: ChangePasswordRequest;
     path?: never;
     query?: never;
     url: '/profile/password';
 };
 
-export type PostProfilePassword9037B3C985Aaf669A931670F06701375Errors = {
+export type ChangePasswordErrors = {
     /**
      * Bad Request
      */
@@ -3548,20 +3548,20 @@ export type PostProfilePassword9037B3C985Aaf669A931670F06701375Errors = {
     504: unknown;
 };
 
-export type PostProfilePassword9037B3C985Aaf669A931670F06701375Responses = {
+export type ChangePasswordResponses = {
     200: UserResponse;
 };
 
-export type PostProfilePassword9037B3C985Aaf669A931670F06701375Response = PostProfilePassword9037B3C985Aaf669A931670F06701375Responses[keyof PostProfilePassword9037B3C985Aaf669A931670F06701375Responses];
+export type ChangePasswordResponse = ChangePasswordResponses[keyof ChangePasswordResponses];
 
-export type PostProfileEmailC21C33Ced9E08E80742790Ae70717Ea5Data = {
+export type ChangeEmailData = {
     body: ChangeEmailRequest;
     path?: never;
     query?: never;
     url: '/profile/email';
 };
 
-export type PostProfileEmailC21C33Ced9E08E80742790Ae70717Ea5Errors = {
+export type ChangeEmailErrors = {
     /**
      * Bad Request
      */
@@ -3632,13 +3632,13 @@ export type PostProfileEmailC21C33Ced9E08E80742790Ae70717Ea5Errors = {
     504: unknown;
 };
 
-export type PostProfileEmailC21C33Ced9E08E80742790Ae70717Ea5Responses = {
+export type ChangeEmailResponses = {
     200: UserResponse;
 };
 
-export type PostProfileEmailC21C33Ced9E08E80742790Ae70717Ea5Response = PostProfileEmailC21C33Ced9E08E80742790Ae70717Ea5Responses[keyof PostProfileEmailC21C33Ced9E08E80742790Ae70717Ea5Responses];
+export type ChangeEmailResponse = ChangeEmailResponses[keyof ChangeEmailResponses];
 
-export type GetProfileLinkGoogle9A3D4362C5C946A2E95769Da6D37052eData = {
+export type LinkGoogleData = {
     body: UserId;
     path?: never;
     query: {
@@ -3647,7 +3647,7 @@ export type GetProfileLinkGoogle9A3D4362C5C946A2E95769Da6D37052eData = {
     url: '/profile/link/google';
 };
 
-export type GetProfileLinkGoogle9A3D4362C5C946A2E95769Da6D37052eErrors = {
+export type LinkGoogleErrors = {
     /**
      * Bad Request
      */
@@ -3718,13 +3718,13 @@ export type GetProfileLinkGoogle9A3D4362C5C946A2E95769Da6D37052eErrors = {
     504: unknown;
 };
 
-export type GetProfileLinkGoogle9A3D4362C5C946A2E95769Da6D37052eResponses = {
+export type LinkGoogleResponses = {
     200: UserResponse;
 };
 
-export type GetProfileLinkGoogle9A3D4362C5C946A2E95769Da6D37052eResponse = GetProfileLinkGoogle9A3D4362C5C946A2E95769Da6D37052eResponses[keyof GetProfileLinkGoogle9A3D4362C5C946A2E95769Da6D37052eResponses];
+export type LinkGoogleResponse = LinkGoogleResponses[keyof LinkGoogleResponses];
 
-export type GetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Data = {
+export type LinkGithubData = {
     body: UserId;
     path?: never;
     query: {
@@ -3733,7 +3733,7 @@ export type GetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Data = {
     url: '/profile/link/github';
 };
 
-export type GetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Errors = {
+export type LinkGithubErrors = {
     /**
      * Bad Request
      */
@@ -3804,20 +3804,20 @@ export type GetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Errors = {
     504: unknown;
 };
 
-export type GetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Responses = {
+export type LinkGithubResponses = {
     200: UserResponse;
 };
 
-export type GetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Response = GetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Responses[keyof GetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Responses];
+export type LinkGithubResponse = LinkGithubResponses[keyof LinkGithubResponses];
 
-export type GetUserSets7Fe720F86Ab0A3336B32F90857F962FbData = {
+export type GetAllPermissionSetsData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/user-sets/';
 };
 
-export type GetUserSets7Fe720F86Ab0A3336B32F90857F962FbErrors = {
+export type GetAllPermissionSetsErrors = {
     /**
      * Bad Request
      */
@@ -3888,20 +3888,20 @@ export type GetUserSets7Fe720F86Ab0A3336B32F90857F962FbErrors = {
     504: unknown;
 };
 
-export type GetUserSets7Fe720F86Ab0A3336B32F90857F962FbResponses = {
+export type GetAllPermissionSetsResponses = {
     200: Array<UserSet>;
 };
 
-export type GetUserSets7Fe720F86Ab0A3336B32F90857F962FbResponse = GetUserSets7Fe720F86Ab0A3336B32F90857F962FbResponses[keyof GetUserSets7Fe720F86Ab0A3336B32F90857F962FbResponses];
+export type GetAllPermissionSetsResponse = GetAllPermissionSetsResponses[keyof GetAllPermissionSetsResponses];
 
-export type PostUserSets7Fe720F86Ab0A3336B32F90857F962FbData = {
+export type CreatePermissionSetData = {
     body: CreatePermissionSetRequest;
     path?: never;
     query?: never;
     url: '/user-sets/';
 };
 
-export type PostUserSets7Fe720F86Ab0A3336B32F90857F962FbErrors = {
+export type CreatePermissionSetErrors = {
     /**
      * Bad Request
      */
@@ -3972,13 +3972,13 @@ export type PostUserSets7Fe720F86Ab0A3336B32F90857F962FbErrors = {
     504: unknown;
 };
 
-export type PostUserSets7Fe720F86Ab0A3336B32F90857F962FbResponses = {
+export type CreatePermissionSetResponses = {
     200: UserSet;
 };
 
-export type PostUserSets7Fe720F86Ab0A3336B32F90857F962FbResponse = PostUserSets7Fe720F86Ab0A3336B32F90857F962FbResponses[keyof PostUserSets7Fe720F86Ab0A3336B32F90857F962FbResponses];
+export type CreatePermissionSetResponse = CreatePermissionSetResponses[keyof CreatePermissionSetResponses];
 
-export type DeleteUserSets022A335C92B18Bef15F7F6B8Ee63DebeData = {
+export type DeletePermissionSetData = {
     body?: never;
     path: {
         /**
@@ -3990,7 +3990,7 @@ export type DeleteUserSets022A335C92B18Bef15F7F6B8Ee63DebeData = {
     url: '/user-sets/{permission_set_id}';
 };
 
-export type DeleteUserSets022A335C92B18Bef15F7F6B8Ee63DebeErrors = {
+export type DeletePermissionSetErrors = {
     /**
      * Bad Request
      */
@@ -4061,13 +4061,13 @@ export type DeleteUserSets022A335C92B18Bef15F7F6B8Ee63DebeErrors = {
     504: unknown;
 };
 
-export type DeleteUserSets022A335C92B18Bef15F7F6B8Ee63DebeResponses = {
+export type DeletePermissionSetResponses = {
     200: MessageResponse;
 };
 
-export type DeleteUserSets022A335C92B18Bef15F7F6B8Ee63DebeResponse = DeleteUserSets022A335C92B18Bef15F7F6B8Ee63DebeResponses[keyof DeleteUserSets022A335C92B18Bef15F7F6B8Ee63DebeResponses];
+export type DeletePermissionSetResponse = DeletePermissionSetResponses[keyof DeletePermissionSetResponses];
 
-export type PutUserSets022A335C92B18Bef15F7F6B8Ee63DebeData = {
+export type UpdatePermissionSetData = {
     body: UpdatePermissionSetRequest;
     path: {
         /**
@@ -4079,7 +4079,7 @@ export type PutUserSets022A335C92B18Bef15F7F6B8Ee63DebeData = {
     url: '/user-sets/{permission_set_id}';
 };
 
-export type PutUserSets022A335C92B18Bef15F7F6B8Ee63DebeErrors = {
+export type UpdatePermissionSetErrors = {
     /**
      * Bad Request
      */
@@ -4150,13 +4150,13 @@ export type PutUserSets022A335C92B18Bef15F7F6B8Ee63DebeErrors = {
     504: unknown;
 };
 
-export type PutUserSets022A335C92B18Bef15F7F6B8Ee63DebeResponses = {
+export type UpdatePermissionSetResponses = {
     200: UserSet;
 };
 
-export type PutUserSets022A335C92B18Bef15F7F6B8Ee63DebeResponse = PutUserSets022A335C92B18Bef15F7F6B8Ee63DebeResponses[keyof PutUserSets022A335C92B18Bef15F7F6B8Ee63DebeResponses];
+export type UpdatePermissionSetResponse = UpdatePermissionSetResponses[keyof UpdatePermissionSetResponses];
 
-export type GetUsers06Bdcf95Aafda840B1D04322636De293Data = {
+export type GetAllUsersData = {
     body?: never;
     path?: never;
     query?: {
@@ -4173,7 +4173,7 @@ export type GetUsers06Bdcf95Aafda840B1D04322636De293Data = {
     url: '/users';
 };
 
-export type GetUsers06Bdcf95Aafda840B1D04322636De293Errors = {
+export type GetAllUsersErrors = {
     /**
      * Bad Request
      */
@@ -4244,20 +4244,20 @@ export type GetUsers06Bdcf95Aafda840B1D04322636De293Errors = {
     504: unknown;
 };
 
-export type GetUsers06Bdcf95Aafda840B1D04322636De293Responses = {
+export type GetAllUsersResponses = {
     200: PaginatedUserResponse;
 };
 
-export type GetUsers06Bdcf95Aafda840B1D04322636De293Response = GetUsers06Bdcf95Aafda840B1D04322636De293Responses[keyof GetUsers06Bdcf95Aafda840B1D04322636De293Responses];
+export type GetAllUsersResponse = GetAllUsersResponses[keyof GetAllUsersResponses];
 
-export type GetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaData = {
+export type GetUserStatisticsData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/users/stats';
 };
 
-export type GetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaErrors = {
+export type GetUserStatisticsErrors = {
     /**
      * Bad Request
      */
@@ -4328,13 +4328,13 @@ export type GetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaErrors = {
     504: unknown;
 };
 
-export type GetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaResponses = {
+export type GetUserStatisticsResponses = {
     200: UserStatsResponse;
 };
 
-export type GetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaResponse = GetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaResponses[keyof GetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaResponses];
+export type GetUserStatisticsResponse = GetUserStatisticsResponses[keyof GetUserStatisticsResponses];
 
-export type DeleteUsers66Efee124008C43Eb5Cbf0B9F62F672dData = {
+export type UnassignPermissionFromUserData = {
     body?: never;
     path: {
         /**
@@ -4350,7 +4350,7 @@ export type DeleteUsers66Efee124008C43Eb5Cbf0B9F62F672dData = {
     url: '/users/{user_id}/permissions/{permission}';
 };
 
-export type DeleteUsers66Efee124008C43Eb5Cbf0B9F62F672dErrors = {
+export type UnassignPermissionFromUserErrors = {
     /**
      * Bad Request
      */
@@ -4421,13 +4421,13 @@ export type DeleteUsers66Efee124008C43Eb5Cbf0B9F62F672dErrors = {
     504: unknown;
 };
 
-export type DeleteUsers66Efee124008C43Eb5Cbf0B9F62F672dResponses = {
+export type UnassignPermissionFromUserResponses = {
     200: MessageResponse;
 };
 
-export type DeleteUsers66Efee124008C43Eb5Cbf0B9F62F672dResponse = DeleteUsers66Efee124008C43Eb5Cbf0B9F62F672dResponses[keyof DeleteUsers66Efee124008C43Eb5Cbf0B9F62F672dResponses];
+export type UnassignPermissionFromUserResponse = UnassignPermissionFromUserResponses[keyof UnassignPermissionFromUserResponses];
 
-export type PostUsers66Efee124008C43Eb5Cbf0B9F62F672dData = {
+export type AssignPermissionToUserData = {
     body?: never;
     path: {
         /**
@@ -4443,7 +4443,7 @@ export type PostUsers66Efee124008C43Eb5Cbf0B9F62F672dData = {
     url: '/users/{user_id}/permissions/{permission}';
 };
 
-export type PostUsers66Efee124008C43Eb5Cbf0B9F62F672dErrors = {
+export type AssignPermissionToUserErrors = {
     /**
      * Bad Request
      */
@@ -4514,13 +4514,105 @@ export type PostUsers66Efee124008C43Eb5Cbf0B9F62F672dErrors = {
     504: unknown;
 };
 
-export type PostUsers66Efee124008C43Eb5Cbf0B9F62F672dResponses = {
+export type AssignPermissionToUserResponses = {
     200: MessageResponse;
 };
 
-export type PostUsers66Efee124008C43Eb5Cbf0B9F62F672dResponse = PostUsers66Efee124008C43Eb5Cbf0B9F62F672dResponses[keyof PostUsers66Efee124008C43Eb5Cbf0B9F62F672dResponses];
+export type AssignPermissionToUserResponse = AssignPermissionToUserResponses[keyof AssignPermissionToUserResponses];
 
-export type GetRoles093101418A291472A1Fd0321B44Ee588Data = {
+export type GetUserPermissionsData = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/users/{user_id}/permissions';
+};
+
+export type GetUserPermissionsErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetUserPermissionsResponses = {
+    /**
+     * String
+     */
+    200: string;
+};
+
+export type GetUserPermissionsResponse = GetUserPermissionsResponses[keyof GetUserPermissionsResponses];
+
+export type GetRolePermissionsData = {
     body?: never;
     path: {
         /**
@@ -4532,7 +4624,7 @@ export type GetRoles093101418A291472A1Fd0321B44Ee588Data = {
     url: '/roles/{role_id}/permissions';
 };
 
-export type GetRoles093101418A291472A1Fd0321B44Ee588Errors = {
+export type GetRolePermissionsErrors = {
     /**
      * Bad Request
      */
@@ -4603,16 +4695,16 @@ export type GetRoles093101418A291472A1Fd0321B44Ee588Errors = {
     504: unknown;
 };
 
-export type GetRoles093101418A291472A1Fd0321B44Ee588Responses = {
+export type GetRolePermissionsResponses = {
     /**
      * String
      */
     200: string;
 };
 
-export type GetRoles093101418A291472A1Fd0321B44Ee588Response = GetRoles093101418A291472A1Fd0321B44Ee588Responses[keyof GetRoles093101418A291472A1Fd0321B44Ee588Responses];
+export type GetRolePermissionsResponse = GetRolePermissionsResponses[keyof GetRolePermissionsResponses];
 
-export type DeleteRoles7A6218185E67924974Ea68847Babf449Data = {
+export type UnassignPermissionFromRoleData = {
     body?: never;
     path: {
         /**
@@ -4628,7 +4720,7 @@ export type DeleteRoles7A6218185E67924974Ea68847Babf449Data = {
     url: '/roles/{role_id}/permissions/{permission}';
 };
 
-export type DeleteRoles7A6218185E67924974Ea68847Babf449Errors = {
+export type UnassignPermissionFromRoleErrors = {
     /**
      * Bad Request
      */
@@ -4699,13 +4791,13 @@ export type DeleteRoles7A6218185E67924974Ea68847Babf449Errors = {
     504: unknown;
 };
 
-export type DeleteRoles7A6218185E67924974Ea68847Babf449Responses = {
+export type UnassignPermissionFromRoleResponses = {
     200: MessageResponse;
 };
 
-export type DeleteRoles7A6218185E67924974Ea68847Babf449Response = DeleteRoles7A6218185E67924974Ea68847Babf449Responses[keyof DeleteRoles7A6218185E67924974Ea68847Babf449Responses];
+export type UnassignPermissionFromRoleResponse = UnassignPermissionFromRoleResponses[keyof UnassignPermissionFromRoleResponses];
 
-export type PostRoles7A6218185E67924974Ea68847Babf449Data = {
+export type AssignPermissionToRoleData = {
     body?: never;
     path: {
         /**
@@ -4721,7 +4813,7 @@ export type PostRoles7A6218185E67924974Ea68847Babf449Data = {
     url: '/roles/{role_id}/permissions/{permission}';
 };
 
-export type PostRoles7A6218185E67924974Ea68847Babf449Errors = {
+export type AssignPermissionToRoleErrors = {
     /**
      * Bad Request
      */
@@ -4792,13 +4884,13 @@ export type PostRoles7A6218185E67924974Ea68847Babf449Errors = {
     504: unknown;
 };
 
-export type PostRoles7A6218185E67924974Ea68847Babf449Responses = {
+export type AssignPermissionToRoleResponses = {
     200: MessageResponse;
 };
 
-export type PostRoles7A6218185E67924974Ea68847Babf449Response = PostRoles7A6218185E67924974Ea68847Babf449Responses[keyof PostRoles7A6218185E67924974Ea68847Babf449Responses];
+export type AssignPermissionToRoleResponse = AssignPermissionToRoleResponses[keyof AssignPermissionToRoleResponses];
 
-export type GetUserSetsAc58050F7Cf71Cc1A1Fe712058C24D90Data = {
+export type GetUserSetPermissionsData = {
     body?: never;
     path: {
         /**
@@ -4810,7 +4902,7 @@ export type GetUserSetsAc58050F7Cf71Cc1A1Fe712058C24D90Data = {
     url: '/user-sets/{user_set_id}/permissions';
 };
 
-export type GetUserSetsAc58050F7Cf71Cc1A1Fe712058C24D90Errors = {
+export type GetUserSetPermissionsErrors = {
     /**
      * Bad Request
      */
@@ -4881,16 +4973,16 @@ export type GetUserSetsAc58050F7Cf71Cc1A1Fe712058C24D90Errors = {
     504: unknown;
 };
 
-export type GetUserSetsAc58050F7Cf71Cc1A1Fe712058C24D90Responses = {
+export type GetUserSetPermissionsResponses = {
     /**
      * String
      */
     200: string;
 };
 
-export type GetUserSetsAc58050F7Cf71Cc1A1Fe712058C24D90Response = GetUserSetsAc58050F7Cf71Cc1A1Fe712058C24D90Responses[keyof GetUserSetsAc58050F7Cf71Cc1A1Fe712058C24D90Responses];
+export type GetUserSetPermissionsResponse = GetUserSetPermissionsResponses[keyof GetUserSetPermissionsResponses];
 
-export type DeleteUserSetsD1C6Ed0Ce2809866159443869187F11fData = {
+export type UnassignPermissionFromUserSetData = {
     body?: never;
     path: {
         /**
@@ -4906,7 +4998,7 @@ export type DeleteUserSetsD1C6Ed0Ce2809866159443869187F11fData = {
     url: '/user-sets/{user_set_id}/permissions/{permission}';
 };
 
-export type DeleteUserSetsD1C6Ed0Ce2809866159443869187F11fErrors = {
+export type UnassignPermissionFromUserSetErrors = {
     /**
      * Bad Request
      */
@@ -4977,13 +5069,13 @@ export type DeleteUserSetsD1C6Ed0Ce2809866159443869187F11fErrors = {
     504: unknown;
 };
 
-export type DeleteUserSetsD1C6Ed0Ce2809866159443869187F11fResponses = {
+export type UnassignPermissionFromUserSetResponses = {
     200: MessageResponse;
 };
 
-export type DeleteUserSetsD1C6Ed0Ce2809866159443869187F11fResponse = DeleteUserSetsD1C6Ed0Ce2809866159443869187F11fResponses[keyof DeleteUserSetsD1C6Ed0Ce2809866159443869187F11fResponses];
+export type UnassignPermissionFromUserSetResponse = UnassignPermissionFromUserSetResponses[keyof UnassignPermissionFromUserSetResponses];
 
-export type PostUserSetsD1C6Ed0Ce2809866159443869187F11fData = {
+export type AssignPermissionToUserSetData = {
     body?: never;
     path: {
         /**
@@ -4999,7 +5091,7 @@ export type PostUserSetsD1C6Ed0Ce2809866159443869187F11fData = {
     url: '/user-sets/{user_set_id}/permissions/{permission}';
 };
 
-export type PostUserSetsD1C6Ed0Ce2809866159443869187F11fErrors = {
+export type AssignPermissionToUserSetErrors = {
     /**
      * Bad Request
      */
@@ -5070,13 +5162,13 @@ export type PostUserSetsD1C6Ed0Ce2809866159443869187F11fErrors = {
     504: unknown;
 };
 
-export type PostUserSetsD1C6Ed0Ce2809866159443869187F11fResponses = {
+export type AssignPermissionToUserSetResponses = {
     200: MessageResponse;
 };
 
-export type PostUserSetsD1C6Ed0Ce2809866159443869187F11fResponse = PostUserSetsD1C6Ed0Ce2809866159443869187F11fResponses[keyof PostUserSetsD1C6Ed0Ce2809866159443869187F11fResponses];
+export type AssignPermissionToUserSetResponse = AssignPermissionToUserSetResponses[keyof AssignPermissionToUserSetResponses];
 
-export type GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data = {
+export type GetAllStaffData = {
     body?: never;
     path?: never;
     query?: {
@@ -5093,7 +5185,7 @@ export type GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data = {
     url: '/staff';
 };
 
-export type GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Errors = {
+export type GetAllStaffErrors = {
     /**
      * Bad Request
      */
@@ -5164,20 +5256,20 @@ export type GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Errors = {
     504: unknown;
 };
 
-export type GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Responses = {
+export type GetAllStaffResponses = {
     200: PaginatedStaffResponse;
 };
 
-export type GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Response = GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Responses[keyof GetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Responses];
+export type GetAllStaffResponse = GetAllStaffResponses[keyof GetAllStaffResponses];
 
-export type PostStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data = {
+export type CreateStaffData = {
     body: CreateStaffRequest;
     path?: never;
     query?: never;
     url: '/staff';
 };
 
-export type PostStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Errors = {
+export type CreateStaffErrors = {
     /**
      * Bad Request
      */
@@ -5248,13 +5340,13 @@ export type PostStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Errors = {
     504: unknown;
 };
 
-export type PostStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Responses = {
+export type CreateStaffResponses = {
     200: StaffResponse;
 };
 
-export type PostStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Response = PostStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Responses[keyof PostStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Responses];
+export type CreateStaffResponse = CreateStaffResponses[keyof CreateStaffResponses];
 
-export type DeleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Data = {
+export type DeleteStaffData = {
     body?: never;
     path: {
         /**
@@ -5266,7 +5358,7 @@ export type DeleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Data = {
     url: '/staff/{staff_id}';
 };
 
-export type DeleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Errors = {
+export type DeleteStaffErrors = {
     /**
      * Bad Request
      */
@@ -5337,13 +5429,13 @@ export type DeleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Errors = {
     504: unknown;
 };
 
-export type DeleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Responses = {
+export type DeleteStaffResponses = {
     200: MessageResponse;
 };
 
-export type DeleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Response = DeleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Responses[keyof DeleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Responses];
+export type DeleteStaffResponse = DeleteStaffResponses[keyof DeleteStaffResponses];
 
-export type GetStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Data = {
+export type GetStaffByIdData = {
     body?: never;
     path: {
         /**
@@ -5355,7 +5447,7 @@ export type GetStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Data = {
     url: '/staff/{staff_id}';
 };
 
-export type GetStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Errors = {
+export type GetStaffByIdErrors = {
     /**
      * Bad Request
      */
@@ -5426,13 +5518,13 @@ export type GetStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Errors = {
     504: unknown;
 };
 
-export type GetStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Responses = {
+export type GetStaffByIdResponses = {
     200: StaffResponse;
 };
 
-export type GetStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Response = GetStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Responses[keyof GetStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Responses];
+export type GetStaffByIdResponse = GetStaffByIdResponses[keyof GetStaffByIdResponses];
 
-export type PutStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Data = {
+export type UpdateStaffData = {
     body: UpdateStaffRequest;
     path: {
         /**
@@ -5444,7 +5536,7 @@ export type PutStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Data = {
     url: '/staff/{staff_id}';
 };
 
-export type PutStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Errors = {
+export type UpdateStaffErrors = {
     /**
      * Bad Request
      */
@@ -5515,13 +5607,13 @@ export type PutStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Errors = {
     504: unknown;
 };
 
-export type PutStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Responses = {
+export type UpdateStaffResponses = {
     200: StaffResponse;
 };
 
-export type PutStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Response = PutStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Responses[keyof PutStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Responses];
+export type UpdateStaffResponse = UpdateStaffResponses[keyof UpdateStaffResponses];
 
-export type PostStaffE424D8D8De9D3Afdcc732A2A39439017Data = {
+export type UploadStaffPhotoData = {
     body: unknown;
     path: {
         /**
@@ -5533,7 +5625,7 @@ export type PostStaffE424D8D8De9D3Afdcc732A2A39439017Data = {
     url: '/staff/{staff_id}/photo';
 };
 
-export type PostStaffE424D8D8De9D3Afdcc732A2A39439017Errors = {
+export type UploadStaffPhotoErrors = {
     /**
      * Bad Request
      */
@@ -5604,13 +5696,13 @@ export type PostStaffE424D8D8De9D3Afdcc732A2A39439017Errors = {
     504: unknown;
 };
 
-export type PostStaffE424D8D8De9D3Afdcc732A2A39439017Responses = {
+export type UploadStaffPhotoResponses = {
     200: StaffResponse;
 };
 
-export type PostStaffE424D8D8De9D3Afdcc732A2A39439017Response = PostStaffE424D8D8De9D3Afdcc732A2A39439017Responses[keyof PostStaffE424D8D8De9D3Afdcc732A2A39439017Responses];
+export type UploadStaffPhotoResponse = UploadStaffPhotoResponses[keyof UploadStaffPhotoResponses];
 
-export type PostStaff545C1F6Bb0D08A4E1Bf2707083425A0fData = {
+export type AssignClassToTeacherData = {
     body: AssignClassToTeacherRequest;
     path: {
         /**
@@ -5622,7 +5714,7 @@ export type PostStaff545C1F6Bb0D08A4E1Bf2707083425A0fData = {
     url: '/staff/{teacher_id}/classes';
 };
 
-export type PostStaff545C1F6Bb0D08A4E1Bf2707083425A0fErrors = {
+export type AssignClassToTeacherErrors = {
     /**
      * Bad Request
      */
@@ -5693,13 +5785,13 @@ export type PostStaff545C1F6Bb0D08A4E1Bf2707083425A0fErrors = {
     504: unknown;
 };
 
-export type PostStaff545C1F6Bb0D08A4E1Bf2707083425A0fResponses = {
+export type AssignClassToTeacherResponses = {
     200: TeacherClassAssignmentResponse;
 };
 
-export type PostStaff545C1F6Bb0D08A4E1Bf2707083425A0fResponse = PostStaff545C1F6Bb0D08A4E1Bf2707083425A0fResponses[keyof PostStaff545C1F6Bb0D08A4E1Bf2707083425A0fResponses];
+export type AssignClassToTeacherResponse = AssignClassToTeacherResponses[keyof AssignClassToTeacherResponses];
 
-export type PostStaffF4267B27A708Fcc75349Da3C1545Ffb7Data = {
+export type AssignSubjectToTeacherData = {
     body: AssignSubjectToTeacherRequest;
     path: {
         /**
@@ -5711,7 +5803,7 @@ export type PostStaffF4267B27A708Fcc75349Da3C1545Ffb7Data = {
     url: '/staff/{teacher_id}/subjects';
 };
 
-export type PostStaffF4267B27A708Fcc75349Da3C1545Ffb7Errors = {
+export type AssignSubjectToTeacherErrors = {
     /**
      * Bad Request
      */
@@ -5782,13 +5874,13 @@ export type PostStaffF4267B27A708Fcc75349Da3C1545Ffb7Errors = {
     504: unknown;
 };
 
-export type PostStaffF4267B27A708Fcc75349Da3C1545Ffb7Responses = {
+export type AssignSubjectToTeacherResponses = {
     200: TeacherSubjectAssignmentResponse;
 };
 
-export type PostStaffF4267B27A708Fcc75349Da3C1545Ffb7Response = PostStaffF4267B27A708Fcc75349Da3C1545Ffb7Responses[keyof PostStaffF4267B27A708Fcc75349Da3C1545Ffb7Responses];
+export type AssignSubjectToTeacherResponse = AssignSubjectToTeacherResponses[keyof AssignSubjectToTeacherResponses];
 
-export type GetStaff358D485E99Adcdd52664B3E4Ae247766Data = {
+export type GetTeacherWorkloadData = {
     body?: never;
     path: {
         /**
@@ -5800,7 +5892,7 @@ export type GetStaff358D485E99Adcdd52664B3E4Ae247766Data = {
     url: '/staff/{teacher_id}/workload';
 };
 
-export type GetStaff358D485E99Adcdd52664B3E4Ae247766Errors = {
+export type GetTeacherWorkloadErrors = {
     /**
      * Bad Request
      */
@@ -5871,13 +5963,13 @@ export type GetStaff358D485E99Adcdd52664B3E4Ae247766Errors = {
     504: unknown;
 };
 
-export type GetStaff358D485E99Adcdd52664B3E4Ae247766Responses = {
+export type GetTeacherWorkloadResponses = {
     200: TeacherWorkloadResponse;
 };
 
-export type GetStaff358D485E99Adcdd52664B3E4Ae247766Response = GetStaff358D485E99Adcdd52664B3E4Ae247766Responses[keyof GetStaff358D485E99Adcdd52664B3E4Ae247766Responses];
+export type GetTeacherWorkloadResponse = GetTeacherWorkloadResponses[keyof GetTeacherWorkloadResponses];
 
-export type PostStaffFc78Cd9C98B981Beffc10Bed6C705417Data = {
+export type MarkStaffAttendanceDailyData = {
     body: MarkStaffAttendanceRequest;
     path: {
         /**
@@ -5889,7 +5981,7 @@ export type PostStaffFc78Cd9C98B981Beffc10Bed6C705417Data = {
     url: '/staff/{staff_id}/attendance';
 };
 
-export type PostStaffFc78Cd9C98B981Beffc10Bed6C705417Errors = {
+export type MarkStaffAttendanceDailyErrors = {
     /**
      * Bad Request
      */
@@ -5960,20 +6052,20 @@ export type PostStaffFc78Cd9C98B981Beffc10Bed6C705417Errors = {
     504: unknown;
 };
 
-export type PostStaffFc78Cd9C98B981Beffc10Bed6C705417Responses = {
+export type MarkStaffAttendanceDailyResponses = {
     200: StaffAttendanceResponse;
 };
 
-export type PostStaffFc78Cd9C98B981Beffc10Bed6C705417Response = PostStaffFc78Cd9C98B981Beffc10Bed6C705417Responses[keyof PostStaffFc78Cd9C98B981Beffc10Bed6C705417Responses];
+export type MarkStaffAttendanceDailyResponse = MarkStaffAttendanceDailyResponses[keyof MarkStaffAttendanceDailyResponses];
 
-export type PostStaffAttendanceBulk8F2A2Bc0B290E669419582F4B20549F7Data = {
+export type MarkBulkStaffAttendanceData = {
     body: BulkMarkStaffAttendanceRequest;
     path?: never;
     query?: never;
     url: '/staff/attendance/bulk';
 };
 
-export type PostStaffAttendanceBulk8F2A2Bc0B290E669419582F4B20549F7Errors = {
+export type MarkBulkStaffAttendanceErrors = {
     /**
      * Bad Request
      */
@@ -6044,13 +6136,13 @@ export type PostStaffAttendanceBulk8F2A2Bc0B290E669419582F4B20549F7Errors = {
     504: unknown;
 };
 
-export type PostStaffAttendanceBulk8F2A2Bc0B290E669419582F4B20549F7Responses = {
+export type MarkBulkStaffAttendanceResponses = {
     200: Array<StaffAttendanceResponse>;
 };
 
-export type PostStaffAttendanceBulk8F2A2Bc0B290E669419582F4B20549F7Response = PostStaffAttendanceBulk8F2A2Bc0B290E669419582F4B20549F7Responses[keyof PostStaffAttendanceBulk8F2A2Bc0B290E669419582F4B20549F7Responses];
+export type MarkBulkStaffAttendanceResponse = MarkBulkStaffAttendanceResponses[keyof MarkBulkStaffAttendanceResponses];
 
-export type PutStaffAttendanceDb2F8533D2Be67Cf8725Bfeb7Eb137BbData = {
+export type UpdateStaffAttendanceData = {
     body: UpdateStaffAttendanceRequest;
     path: {
         /**
@@ -6062,7 +6154,7 @@ export type PutStaffAttendanceDb2F8533D2Be67Cf8725Bfeb7Eb137BbData = {
     url: '/staff/attendance/{attendance_id}';
 };
 
-export type PutStaffAttendanceDb2F8533D2Be67Cf8725Bfeb7Eb137BbErrors = {
+export type UpdateStaffAttendanceErrors = {
     /**
      * Bad Request
      */
@@ -6133,13 +6225,13 @@ export type PutStaffAttendanceDb2F8533D2Be67Cf8725Bfeb7Eb137BbErrors = {
     504: unknown;
 };
 
-export type PutStaffAttendanceDb2F8533D2Be67Cf8725Bfeb7Eb137BbResponses = {
+export type UpdateStaffAttendanceResponses = {
     200: StaffAttendanceResponse;
 };
 
-export type PutStaffAttendanceDb2F8533D2Be67Cf8725Bfeb7Eb137BbResponse = PutStaffAttendanceDb2F8533D2Be67Cf8725Bfeb7Eb137BbResponses[keyof PutStaffAttendanceDb2F8533D2Be67Cf8725Bfeb7Eb137BbResponses];
+export type UpdateStaffAttendanceResponse = UpdateStaffAttendanceResponses[keyof UpdateStaffAttendanceResponses];
 
-export type GetStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Data = {
+export type GetStaffAttendanceByDateData = {
     body?: never;
     path?: never;
     query: {
@@ -6148,7 +6240,7 @@ export type GetStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Data = {
     url: '/staff/attendance/date';
 };
 
-export type GetStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Errors = {
+export type GetStaffAttendanceByDateErrors = {
     /**
      * Bad Request
      */
@@ -6219,13 +6311,13 @@ export type GetStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Errors = {
     504: unknown;
 };
 
-export type GetStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Responses = {
+export type GetStaffAttendanceByDateResponses = {
     200: Array<StaffAttendanceResponse>;
 };
 
-export type GetStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Response = GetStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Responses[keyof GetStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Responses];
+export type GetStaffAttendanceByDateResponse = GetStaffAttendanceByDateResponses[keyof GetStaffAttendanceByDateResponses];
 
-export type GetStaffF1Fbe56Dc8A3080E09Ca2Fdbceebd71aData = {
+export type GetStaffAttendanceByStaffMemberData = {
     body?: never;
     path: {
         /**
@@ -6240,7 +6332,7 @@ export type GetStaffF1Fbe56Dc8A3080E09Ca2Fdbceebd71aData = {
     url: '/staff/{staff_id}/attendance/member';
 };
 
-export type GetStaffF1Fbe56Dc8A3080E09Ca2Fdbceebd71aErrors = {
+export type GetStaffAttendanceByStaffMemberErrors = {
     /**
      * Bad Request
      */
@@ -6311,13 +6403,13 @@ export type GetStaffF1Fbe56Dc8A3080E09Ca2Fdbceebd71aErrors = {
     504: unknown;
 };
 
-export type GetStaffF1Fbe56Dc8A3080E09Ca2Fdbceebd71aResponses = {
+export type GetStaffAttendanceByStaffMemberResponses = {
     200: Array<StaffAttendanceResponse>;
 };
 
-export type GetStaffF1Fbe56Dc8A3080E09Ca2Fdbceebd71aResponse = GetStaffF1Fbe56Dc8A3080E09Ca2Fdbceebd71aResponses[keyof GetStaffF1Fbe56Dc8A3080E09Ca2Fdbceebd71aResponses];
+export type GetStaffAttendanceByStaffMemberResponse = GetStaffAttendanceByStaffMemberResponses[keyof GetStaffAttendanceByStaffMemberResponses];
 
-export type GetStaffF53343C2722B834F87526A02A22Dbc4eData = {
+export type CalculateMonthlyStaffAttendancePercentageData = {
     body?: never;
     path: {
         /**
@@ -6337,7 +6429,7 @@ export type GetStaffF53343C2722B834F87526A02A22Dbc4eData = {
     url: '/staff/{staff_id}/attendance/percentage/{year}/{month}';
 };
 
-export type GetStaffF53343C2722B834F87526A02A22Dbc4eErrors = {
+export type CalculateMonthlyStaffAttendancePercentageErrors = {
     /**
      * Bad Request
      */
@@ -6408,13 +6500,13 @@ export type GetStaffF53343C2722B834F87526A02A22Dbc4eErrors = {
     504: unknown;
 };
 
-export type GetStaffF53343C2722B834F87526A02A22Dbc4eResponses = {
+export type CalculateMonthlyStaffAttendancePercentageResponses = {
     200: MonthlyAttendancePercentageResponse;
 };
 
-export type GetStaffF53343C2722B834F87526A02A22Dbc4eResponse = GetStaffF53343C2722B834F87526A02A22Dbc4eResponses[keyof GetStaffF53343C2722B834F87526A02A22Dbc4eResponses];
+export type CalculateMonthlyStaffAttendancePercentageResponse = CalculateMonthlyStaffAttendancePercentageResponses[keyof CalculateMonthlyStaffAttendancePercentageResponses];
 
-export type PostStaff735Aa508C9832Dea38A091Cae075B4C8Data = {
+export type ApplyForLeaveData = {
     body: ApplyLeaveRequest;
     path: {
         /**
@@ -6426,7 +6518,7 @@ export type PostStaff735Aa508C9832Dea38A091Cae075B4C8Data = {
     url: '/staff/{staff_id}/leaves';
 };
 
-export type PostStaff735Aa508C9832Dea38A091Cae075B4C8Errors = {
+export type ApplyForLeaveErrors = {
     /**
      * Bad Request
      */
@@ -6497,13 +6589,13 @@ export type PostStaff735Aa508C9832Dea38A091Cae075B4C8Errors = {
     504: unknown;
 };
 
-export type PostStaff735Aa508C9832Dea38A091Cae075B4C8Responses = {
+export type ApplyForLeaveResponses = {
     200: StaffLeaveResponse;
 };
 
-export type PostStaff735Aa508C9832Dea38A091Cae075B4C8Response = PostStaff735Aa508C9832Dea38A091Cae075B4C8Responses[keyof PostStaff735Aa508C9832Dea38A091Cae075B4C8Responses];
+export type ApplyForLeaveResponse = ApplyForLeaveResponses[keyof ApplyForLeaveResponses];
 
-export type PutStaffLeaves808972A537Eb405D52C61E7Cdb120C37Data = {
+export type ApproveRejectLeaveData = {
     body: ApproveRejectLeaveRequest;
     path: {
         /**
@@ -6515,7 +6607,7 @@ export type PutStaffLeaves808972A537Eb405D52C61E7Cdb120C37Data = {
     url: '/staff/leaves/{leave_id}/status';
 };
 
-export type PutStaffLeaves808972A537Eb405D52C61E7Cdb120C37Errors = {
+export type ApproveRejectLeaveErrors = {
     /**
      * Bad Request
      */
@@ -6586,13 +6678,13 @@ export type PutStaffLeaves808972A537Eb405D52C61E7Cdb120C37Errors = {
     504: unknown;
 };
 
-export type PutStaffLeaves808972A537Eb405D52C61E7Cdb120C37Responses = {
+export type ApproveRejectLeaveResponses = {
     200: StaffLeaveResponse;
 };
 
-export type PutStaffLeaves808972A537Eb405D52C61E7Cdb120C37Response = PutStaffLeaves808972A537Eb405D52C61E7Cdb120C37Responses[keyof PutStaffLeaves808972A537Eb405D52C61E7Cdb120C37Responses];
+export type ApproveRejectLeaveResponse = ApproveRejectLeaveResponses[keyof ApproveRejectLeaveResponses];
 
-export type GetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Data = {
+export type ViewLeaveBalanceData = {
     body?: never;
     path: {
         /**
@@ -6604,7 +6696,7 @@ export type GetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Data = {
     url: '/staff/{staff_id}/leaves/balance';
 };
 
-export type GetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Errors = {
+export type ViewLeaveBalanceErrors = {
     /**
      * Bad Request
      */
@@ -6675,13 +6767,13 @@ export type GetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Errors = {
     504: unknown;
 };
 
-export type GetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Responses = {
+export type ViewLeaveBalanceResponses = {
     200: Array<LeaveBalanceResponse>;
 };
 
-export type GetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Response = GetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Responses[keyof GetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Responses];
+export type ViewLeaveBalanceResponse = ViewLeaveBalanceResponses[keyof ViewLeaveBalanceResponses];
 
-export type GetStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2Data = {
+export type GetStaffPermissionSetsData = {
     body?: never;
     path: {
         /**
@@ -6693,7 +6785,7 @@ export type GetStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2Data = {
     url: '/staff/{staff_id}/permission-sets';
 };
 
-export type GetStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2Errors = {
+export type GetStaffPermissionSetsErrors = {
     /**
      * Bad Request
      */
@@ -6764,13 +6856,13 @@ export type GetStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2Errors = {
     504: unknown;
 };
 
-export type GetStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2Responses = {
+export type GetStaffPermissionSetsResponses = {
     200: Array<UserSet>;
 };
 
-export type GetStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2Response = GetStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2Responses[keyof GetStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2Responses];
+export type GetStaffPermissionSetsResponse = GetStaffPermissionSetsResponses[keyof GetStaffPermissionSetsResponses];
 
-export type DeleteStaff524Cd96166B0B1868B53A942A4154443Data = {
+export type UnassignPermissionSetFromStaffData = {
     body?: never;
     path: {
         /**
@@ -6786,7 +6878,7 @@ export type DeleteStaff524Cd96166B0B1868B53A942A4154443Data = {
     url: '/staff/{staff_id}/permission-sets/{set_id}';
 };
 
-export type DeleteStaff524Cd96166B0B1868B53A942A4154443Errors = {
+export type UnassignPermissionSetFromStaffErrors = {
     /**
      * Bad Request
      */
@@ -6857,13 +6949,13 @@ export type DeleteStaff524Cd96166B0B1868B53A942A4154443Errors = {
     504: unknown;
 };
 
-export type DeleteStaff524Cd96166B0B1868B53A942A4154443Responses = {
+export type UnassignPermissionSetFromStaffResponses = {
     200: MessageResponse;
 };
 
-export type DeleteStaff524Cd96166B0B1868B53A942A4154443Response = DeleteStaff524Cd96166B0B1868B53A942A4154443Responses[keyof DeleteStaff524Cd96166B0B1868B53A942A4154443Responses];
+export type UnassignPermissionSetFromStaffResponse = UnassignPermissionSetFromStaffResponses[keyof UnassignPermissionSetFromStaffResponses];
 
-export type PostStaff524Cd96166B0B1868B53A942A4154443Data = {
+export type AssignPermissionSetToStaffData = {
     body?: never;
     path: {
         /**
@@ -6879,7 +6971,7 @@ export type PostStaff524Cd96166B0B1868B53A942A4154443Data = {
     url: '/staff/{staff_id}/permission-sets/{set_id}';
 };
 
-export type PostStaff524Cd96166B0B1868B53A942A4154443Errors = {
+export type AssignPermissionSetToStaffErrors = {
     /**
      * Bad Request
      */
@@ -6950,13 +7042,13 @@ export type PostStaff524Cd96166B0B1868B53A942A4154443Errors = {
     504: unknown;
 };
 
-export type PostStaff524Cd96166B0B1868B53A942A4154443Responses = {
+export type AssignPermissionSetToStaffResponses = {
     200: MessageResponse;
 };
 
-export type PostStaff524Cd96166B0B1868B53A942A4154443Response = PostStaff524Cd96166B0B1868B53A942A4154443Responses[keyof PostStaff524Cd96166B0B1868B53A942A4154443Responses];
+export type AssignPermissionSetToStaffResponse = AssignPermissionSetToStaffResponses[keyof AssignPermissionSetToStaffResponses];
 
-export type GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data = {
+export type GetAllStudentsData = {
     body?: never;
     path?: never;
     query?: {
@@ -6972,7 +7064,7 @@ export type GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data = {
     url: '/students';
 };
 
-export type GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Errors = {
+export type GetAllStudentsErrors = {
     /**
      * Bad Request
      */
@@ -7043,20 +7135,20 @@ export type GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Errors = {
     504: unknown;
 };
 
-export type GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Responses = {
+export type GetAllStudentsResponses = {
     200: PaginatedStudentResponse;
 };
 
-export type GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Response = GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Responses[keyof GetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Responses];
+export type GetAllStudentsResponse = GetAllStudentsResponses[keyof GetAllStudentsResponses];
 
-export type PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data = {
+export type CreateStudentData = {
     body: CreateStudentRequest;
     path?: never;
     query?: never;
     url: '/students';
 };
 
-export type PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Errors = {
+export type CreateStudentErrors = {
     /**
      * Bad Request
      */
@@ -7127,13 +7219,13 @@ export type PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Errors = {
     504: unknown;
 };
 
-export type PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Responses = {
+export type CreateStudentResponses = {
     200: StudentResponse;
 };
 
-export type PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Response = PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Responses[keyof PostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Responses];
+export type CreateStudentResponse = CreateStudentResponses[keyof CreateStudentResponses];
 
-export type DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data = {
+export type DeleteStudentData = {
     body?: never;
     path: {
         /**
@@ -7145,7 +7237,7 @@ export type DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data = {
     url: '/students/{student_id}';
 };
 
-export type DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Errors = {
+export type DeleteStudentErrors = {
     /**
      * Bad Request
      */
@@ -7216,13 +7308,13 @@ export type DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Errors = {
     504: unknown;
 };
 
-export type DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Responses = {
+export type DeleteStudentResponses = {
     200: MessageResponse;
 };
 
-export type DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response = DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Responses[keyof DeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Responses];
+export type DeleteStudentResponse = DeleteStudentResponses[keyof DeleteStudentResponses];
 
-export type GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data = {
+export type GetStudentByIdData = {
     body?: never;
     path: {
         /**
@@ -7234,7 +7326,7 @@ export type GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data = {
     url: '/students/{student_id}';
 };
 
-export type GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Errors = {
+export type GetStudentByIdErrors = {
     /**
      * Bad Request
      */
@@ -7305,13 +7397,13 @@ export type GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Errors = {
     504: unknown;
 };
 
-export type GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Responses = {
+export type GetStudentByIdResponses = {
     200: StudentResponse;
 };
 
-export type GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response = GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Responses[keyof GetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Responses];
+export type GetStudentByIdResponse = GetStudentByIdResponses[keyof GetStudentByIdResponses];
 
-export type PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data = {
+export type UpdateStudentData = {
     body: UpdateStudentRequest;
     path: {
         /**
@@ -7323,7 +7415,7 @@ export type PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data = {
     url: '/students/{student_id}';
 };
 
-export type PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Errors = {
+export type UpdateStudentErrors = {
     /**
      * Bad Request
      */
@@ -7394,13 +7486,13 @@ export type PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Errors = {
     504: unknown;
 };
 
-export type PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Responses = {
+export type UpdateStudentResponses = {
     200: StudentResponse;
 };
 
-export type PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response = PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Responses[keyof PutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Responses];
+export type UpdateStudentResponse = UpdateStudentResponses[keyof UpdateStudentResponses];
 
-export type PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aData = {
+export type UploadStudentPhotoData = {
     body: unknown;
     path: {
         /**
@@ -7412,7 +7504,7 @@ export type PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aData = {
     url: '/students/{student_id}/photo';
 };
 
-export type PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aErrors = {
+export type UploadStudentPhotoErrors = {
     /**
      * Bad Request
      */
@@ -7483,13 +7575,13 @@ export type PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aErrors = {
     504: unknown;
 };
 
-export type PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aResponses = {
+export type UploadStudentPhotoResponses = {
     200: StudentResponse;
 };
 
-export type PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aResponse = PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aResponses[keyof PostStudents87F142Fffc2984E3Ceb560Aac590Bf2aResponses];
+export type UploadStudentPhotoResponse = UploadStudentPhotoResponses[keyof UploadStudentPhotoResponses];
 
-export type GetStudentsC15Cedf000Afcf123D5F8Ff23792Fb9fData = {
+export type GetCurrentClassOfStudentData = {
     body?: never;
     path: {
         /**
@@ -7501,7 +7593,7 @@ export type GetStudentsC15Cedf000Afcf123D5F8Ff23792Fb9fData = {
     url: '/students/{student_id}/current-class';
 };
 
-export type GetStudentsC15Cedf000Afcf123D5F8Ff23792Fb9fErrors = {
+export type GetCurrentClassOfStudentErrors = {
     /**
      * Bad Request
      */
@@ -7572,13 +7664,13 @@ export type GetStudentsC15Cedf000Afcf123D5F8Ff23792Fb9fErrors = {
     504: unknown;
 };
 
-export type GetStudentsC15Cedf000Afcf123D5F8Ff23792Fb9fResponses = {
+export type GetCurrentClassOfStudentResponses = {
     200: StudentClassAssignmentResponse;
 };
 
-export type GetStudentsC15Cedf000Afcf123D5F8Ff23792Fb9fResponse = GetStudentsC15Cedf000Afcf123D5F8Ff23792Fb9fResponses[keyof GetStudentsC15Cedf000Afcf123D5F8Ff23792Fb9fResponses];
+export type GetCurrentClassOfStudentResponse = GetCurrentClassOfStudentResponses[keyof GetCurrentClassOfStudentResponses];
 
-export type GetStudentsAf114410Bce31973Dedaa89Aceef423dData = {
+export type GetClassHistoryOfStudentData = {
     body?: never;
     path: {
         /**
@@ -7590,7 +7682,7 @@ export type GetStudentsAf114410Bce31973Dedaa89Aceef423dData = {
     url: '/students/{student_id}/class-history';
 };
 
-export type GetStudentsAf114410Bce31973Dedaa89Aceef423dErrors = {
+export type GetClassHistoryOfStudentErrors = {
     /**
      * Bad Request
      */
@@ -7661,13 +7753,13 @@ export type GetStudentsAf114410Bce31973Dedaa89Aceef423dErrors = {
     504: unknown;
 };
 
-export type GetStudentsAf114410Bce31973Dedaa89Aceef423dResponses = {
+export type GetClassHistoryOfStudentResponses = {
     200: Array<StudentClassAssignmentResponse>;
 };
 
-export type GetStudentsAf114410Bce31973Dedaa89Aceef423dResponse = GetStudentsAf114410Bce31973Dedaa89Aceef423dResponses[keyof GetStudentsAf114410Bce31973Dedaa89Aceef423dResponses];
+export type GetClassHistoryOfStudentResponse = GetClassHistoryOfStudentResponses[keyof GetClassHistoryOfStudentResponses];
 
-export type GetStudentsD35F79014D845Abd1Ee7B65E65376C0fData = {
+export type GetAllGuardiansForStudentData = {
     body?: never;
     path: {
         /**
@@ -7679,7 +7771,7 @@ export type GetStudentsD35F79014D845Abd1Ee7B65E65376C0fData = {
     url: '/students/{student_id}/guardians';
 };
 
-export type GetStudentsD35F79014D845Abd1Ee7B65E65376C0fErrors = {
+export type GetAllGuardiansForStudentErrors = {
     /**
      * Bad Request
      */
@@ -7750,13 +7842,13 @@ export type GetStudentsD35F79014D845Abd1Ee7B65E65376C0fErrors = {
     504: unknown;
 };
 
-export type GetStudentsD35F79014D845Abd1Ee7B65E65376C0fResponses = {
+export type GetAllGuardiansForStudentResponses = {
     200: Array<StudentGuardianResponse>;
 };
 
-export type GetStudentsD35F79014D845Abd1Ee7B65E65376C0fResponse = GetStudentsD35F79014D845Abd1Ee7B65E65376C0fResponses[keyof GetStudentsD35F79014D845Abd1Ee7B65E65376C0fResponses];
+export type GetAllGuardiansForStudentResponse = GetAllGuardiansForStudentResponses[keyof GetAllGuardiansForStudentResponses];
 
-export type PostStudentsD35F79014D845Abd1Ee7B65E65376C0fData = {
+export type AddGuardianToStudentData = {
     body: CreateStudentGuardianRequest;
     path: {
         /**
@@ -7768,7 +7860,7 @@ export type PostStudentsD35F79014D845Abd1Ee7B65E65376C0fData = {
     url: '/students/{student_id}/guardians';
 };
 
-export type PostStudentsD35F79014D845Abd1Ee7B65E65376C0fErrors = {
+export type AddGuardianToStudentErrors = {
     /**
      * Bad Request
      */
@@ -7839,13 +7931,13 @@ export type PostStudentsD35F79014D845Abd1Ee7B65E65376C0fErrors = {
     504: unknown;
 };
 
-export type PostStudentsD35F79014D845Abd1Ee7B65E65376C0fResponses = {
+export type AddGuardianToStudentResponses = {
     200: StudentGuardianResponse;
 };
 
-export type PostStudentsD35F79014D845Abd1Ee7B65E65376C0fResponse = PostStudentsD35F79014D845Abd1Ee7B65E65376C0fResponses[keyof PostStudentsD35F79014D845Abd1Ee7B65E65376C0fResponses];
+export type AddGuardianToStudentResponse = AddGuardianToStudentResponses[keyof AddGuardianToStudentResponses];
 
-export type DeleteStudents391Ed37E05683E98Ce0123A438Ee3D9fData = {
+export type RemoveGuardianFromStudentData = {
     body?: never;
     path: {
         /**
@@ -7861,7 +7953,7 @@ export type DeleteStudents391Ed37E05683E98Ce0123A438Ee3D9fData = {
     url: '/students/{student_id}/guardians/{guardian_id}';
 };
 
-export type DeleteStudents391Ed37E05683E98Ce0123A438Ee3D9fErrors = {
+export type RemoveGuardianFromStudentErrors = {
     /**
      * Bad Request
      */
@@ -7932,13 +8024,13 @@ export type DeleteStudents391Ed37E05683E98Ce0123A438Ee3D9fErrors = {
     504: unknown;
 };
 
-export type DeleteStudents391Ed37E05683E98Ce0123A438Ee3D9fResponses = {
+export type RemoveGuardianFromStudentResponses = {
     200: MessageResponse;
 };
 
-export type DeleteStudents391Ed37E05683E98Ce0123A438Ee3D9fResponse = DeleteStudents391Ed37E05683E98Ce0123A438Ee3D9fResponses[keyof DeleteStudents391Ed37E05683E98Ce0123A438Ee3D9fResponses];
+export type RemoveGuardianFromStudentResponse = RemoveGuardianFromStudentResponses[keyof RemoveGuardianFromStudentResponses];
 
-export type PutStudents391Ed37E05683E98Ce0123A438Ee3D9fData = {
+export type UpdateGuardianInformationData = {
     body: UpdateStudentGuardianRequest;
     path: {
         /**
@@ -7954,7 +8046,7 @@ export type PutStudents391Ed37E05683E98Ce0123A438Ee3D9fData = {
     url: '/students/{student_id}/guardians/{guardian_id}';
 };
 
-export type PutStudents391Ed37E05683E98Ce0123A438Ee3D9fErrors = {
+export type UpdateGuardianInformationErrors = {
     /**
      * Bad Request
      */
@@ -8025,20 +8117,20 @@ export type PutStudents391Ed37E05683E98Ce0123A438Ee3D9fErrors = {
     504: unknown;
 };
 
-export type PutStudents391Ed37E05683E98Ce0123A438Ee3D9fResponses = {
+export type UpdateGuardianInformationResponses = {
     200: StudentGuardianResponse;
 };
 
-export type PutStudents391Ed37E05683E98Ce0123A438Ee3D9fResponse = PutStudents391Ed37E05683E98Ce0123A438Ee3D9fResponses[keyof PutStudents391Ed37E05683E98Ce0123A438Ee3D9fResponses];
+export type UpdateGuardianInformationResponse = UpdateGuardianInformationResponses[keyof UpdateGuardianInformationResponses];
 
-export type PostStudentClassAssignments6972B923527Ded7D6401B6C9Dc99E367Data = {
+export type AssignStudentToClassData = {
     body: CreateStudentClassAssignmentRequest;
     path?: never;
     query?: never;
     url: '/student-class-assignments';
 };
 
-export type PostStudentClassAssignments6972B923527Ded7D6401B6C9Dc99E367Errors = {
+export type AssignStudentToClassErrors = {
     /**
      * Bad Request
      */
@@ -8109,13 +8201,13 @@ export type PostStudentClassAssignments6972B923527Ded7D6401B6C9Dc99E367Errors = 
     504: unknown;
 };
 
-export type PostStudentClassAssignments6972B923527Ded7D6401B6C9Dc99E367Responses = {
+export type AssignStudentToClassResponses = {
     200: StudentClassAssignmentResponse;
 };
 
-export type PostStudentClassAssignments6972B923527Ded7D6401B6C9Dc99E367Response = PostStudentClassAssignments6972B923527Ded7D6401B6C9Dc99E367Responses[keyof PostStudentClassAssignments6972B923527Ded7D6401B6C9Dc99E367Responses];
+export type AssignStudentToClassResponse = AssignStudentToClassResponses[keyof AssignStudentToClassResponses];
 
-export type PutStudentClassAssignmentsEd4A01E5E07C53634853Cefb56A17Cc3Data = {
+export type TransferStudentClassData = {
     body: CreateStudentClassAssignmentRequest;
     path: {
         /**
@@ -8131,7 +8223,7 @@ export type PutStudentClassAssignmentsEd4A01E5E07C53634853Cefb56A17Cc3Data = {
     url: '/student-class-assignments/{student_id}/{assignment_id}/transfer';
 };
 
-export type PutStudentClassAssignmentsEd4A01E5E07C53634853Cefb56A17Cc3Errors = {
+export type TransferStudentClassErrors = {
     /**
      * Bad Request
      */
@@ -8202,20 +8294,20 @@ export type PutStudentClassAssignmentsEd4A01E5E07C53634853Cefb56A17Cc3Errors = {
     504: unknown;
 };
 
-export type PutStudentClassAssignmentsEd4A01E5E07C53634853Cefb56A17Cc3Responses = {
+export type TransferStudentClassResponses = {
     200: StudentClassAssignmentResponse;
 };
 
-export type PutStudentClassAssignmentsEd4A01E5E07C53634853Cefb56A17Cc3Response = PutStudentClassAssignmentsEd4A01E5E07C53634853Cefb56A17Cc3Responses[keyof PutStudentClassAssignmentsEd4A01E5E07C53634853Cefb56A17Cc3Responses];
+export type TransferStudentClassResponse = TransferStudentClassResponses[keyof TransferStudentClassResponses];
 
-export type PostStudentClassAssignmentsBulkB35977522C3F8831101945E6E38E3D58Data = {
+export type BulkAssignStudentsToClassesData = {
     body: BulkAssignStudentClassRequest;
     path?: never;
     query?: never;
     url: '/student-class-assignments/bulk';
 };
 
-export type PostStudentClassAssignmentsBulkB35977522C3F8831101945E6E38E3D58Errors = {
+export type BulkAssignStudentsToClassesErrors = {
     /**
      * Bad Request
      */
@@ -8286,20 +8378,20 @@ export type PostStudentClassAssignmentsBulkB35977522C3F8831101945E6E38E3D58Error
     504: unknown;
 };
 
-export type PostStudentClassAssignmentsBulkB35977522C3F8831101945E6E38E3D58Responses = {
+export type BulkAssignStudentsToClassesResponses = {
     200: Array<StudentClassAssignmentResponse>;
 };
 
-export type PostStudentClassAssignmentsBulkB35977522C3F8831101945E6E38E3D58Response = PostStudentClassAssignmentsBulkB35977522C3F8831101945E6E38E3D58Responses[keyof PostStudentClassAssignmentsBulkB35977522C3F8831101945E6E38E3D58Responses];
+export type BulkAssignStudentsToClassesResponse = BulkAssignStudentsToClassesResponses[keyof BulkAssignStudentsToClassesResponses];
 
-export type PostStudentClassAssignmentsPromoteCb1C67C822F34340D3410829Aabca0E8Data = {
+export type PromoteStudentToNextGradeData = {
     body: PromoteStudentRequest;
     path?: never;
     query?: never;
     url: '/student-class-assignments/promote';
 };
 
-export type PostStudentClassAssignmentsPromoteCb1C67C822F34340D3410829Aabca0E8Errors = {
+export type PromoteStudentToNextGradeErrors = {
     /**
      * Bad Request
      */
@@ -8370,20 +8462,20 @@ export type PostStudentClassAssignmentsPromoteCb1C67C822F34340D3410829Aabca0E8Er
     504: unknown;
 };
 
-export type PostStudentClassAssignmentsPromoteCb1C67C822F34340D3410829Aabca0E8Responses = {
+export type PromoteStudentToNextGradeResponses = {
     200: StudentClassAssignmentResponse;
 };
 
-export type PostStudentClassAssignmentsPromoteCb1C67C822F34340D3410829Aabca0E8Response = PostStudentClassAssignmentsPromoteCb1C67C822F34340D3410829Aabca0E8Responses[keyof PostStudentClassAssignmentsPromoteCb1C67C822F34340D3410829Aabca0E8Responses];
+export type PromoteStudentToNextGradeResponse = PromoteStudentToNextGradeResponses[keyof PromoteStudentToNextGradeResponses];
 
-export type PostStudentAttendanceBulkEe86115B6Fcc8B311828E782275Ec9F4Data = {
+export type BulkMarkStudentAttendanceData = {
     body: BulkMarkStudentAttendanceRequest;
     path?: never;
     query?: never;
     url: '/student-attendance/bulk';
 };
 
-export type PostStudentAttendanceBulkEe86115B6Fcc8B311828E782275Ec9F4Errors = {
+export type BulkMarkStudentAttendanceErrors = {
     /**
      * Bad Request
      */
@@ -8454,20 +8546,20 @@ export type PostStudentAttendanceBulkEe86115B6Fcc8B311828E782275Ec9F4Errors = {
     504: unknown;
 };
 
-export type PostStudentAttendanceBulkEe86115B6Fcc8B311828E782275Ec9F4Responses = {
+export type BulkMarkStudentAttendanceResponses = {
     200: Array<StudentAttendanceResponse>;
 };
 
-export type PostStudentAttendanceBulkEe86115B6Fcc8B311828E782275Ec9F4Response = PostStudentAttendanceBulkEe86115B6Fcc8B311828E782275Ec9F4Responses[keyof PostStudentAttendanceBulkEe86115B6Fcc8B311828E782275Ec9F4Responses];
+export type BulkMarkStudentAttendanceResponse = BulkMarkStudentAttendanceResponses[keyof BulkMarkStudentAttendanceResponses];
 
-export type PostStudentAttendanceC9Cb294Af52Dc103975Dda37B912B0E6Data = {
+export type MarkIndividualStudentAttendanceData = {
     body: MarkStudentAttendanceRequest;
     path?: never;
     query?: never;
     url: '/student-attendance';
 };
 
-export type PostStudentAttendanceC9Cb294Af52Dc103975Dda37B912B0E6Errors = {
+export type MarkIndividualStudentAttendanceErrors = {
     /**
      * Bad Request
      */
@@ -8538,13 +8630,13 @@ export type PostStudentAttendanceC9Cb294Af52Dc103975Dda37B912B0E6Errors = {
     504: unknown;
 };
 
-export type PostStudentAttendanceC9Cb294Af52Dc103975Dda37B912B0E6Responses = {
+export type MarkIndividualStudentAttendanceResponses = {
     200: StudentAttendanceResponse;
 };
 
-export type PostStudentAttendanceC9Cb294Af52Dc103975Dda37B912B0E6Response = PostStudentAttendanceC9Cb294Af52Dc103975Dda37B912B0E6Responses[keyof PostStudentAttendanceC9Cb294Af52Dc103975Dda37B912B0E6Responses];
+export type MarkIndividualStudentAttendanceResponse = MarkIndividualStudentAttendanceResponses[keyof MarkIndividualStudentAttendanceResponses];
 
-export type PutStudentAttendance8Ee593Dc2Eb175A5E213A7Cb2A5Fa69bData = {
+export type UpdateStudentAttendanceData = {
     body: UpdateStudentAttendanceRequest;
     path: {
         /**
@@ -8556,7 +8648,7 @@ export type PutStudentAttendance8Ee593Dc2Eb175A5E213A7Cb2A5Fa69bData = {
     url: '/student-attendance/{attendance_id}';
 };
 
-export type PutStudentAttendance8Ee593Dc2Eb175A5E213A7Cb2A5Fa69bErrors = {
+export type UpdateStudentAttendanceErrors = {
     /**
      * Bad Request
      */
@@ -8627,13 +8719,13 @@ export type PutStudentAttendance8Ee593Dc2Eb175A5E213A7Cb2A5Fa69bErrors = {
     504: unknown;
 };
 
-export type PutStudentAttendance8Ee593Dc2Eb175A5E213A7Cb2A5Fa69bResponses = {
+export type UpdateStudentAttendanceResponses = {
     200: StudentAttendanceResponse;
 };
 
-export type PutStudentAttendance8Ee593Dc2Eb175A5E213A7Cb2A5Fa69bResponse = PutStudentAttendance8Ee593Dc2Eb175A5E213A7Cb2A5Fa69bResponses[keyof PutStudentAttendance8Ee593Dc2Eb175A5E213A7Cb2A5Fa69bResponses];
+export type UpdateStudentAttendanceResponse = UpdateStudentAttendanceResponses[keyof UpdateStudentAttendanceResponses];
 
-export type GetStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dData = {
+export type GetAttendanceByClassAndDateData = {
     body?: never;
     path: {
         class_id: string;
@@ -8643,7 +8735,7 @@ export type GetStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dData = {
     url: '/student-attendance/class/{class_id}/date/{date}';
 };
 
-export type GetStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dErrors = {
+export type GetAttendanceByClassAndDateErrors = {
     /**
      * Bad Request
      */
@@ -8714,13 +8806,13 @@ export type GetStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dErrors = {
     504: unknown;
 };
 
-export type GetStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dResponses = {
+export type GetAttendanceByClassAndDateResponses = {
     200: Array<StudentAttendanceResponse>;
 };
 
-export type GetStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dResponse = GetStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dResponses[keyof GetStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dResponses];
+export type GetAttendanceByClassAndDateResponse = GetAttendanceByClassAndDateResponses[keyof GetAttendanceByClassAndDateResponses];
 
-export type GetStudentAttendanceStudentCbbbd2605B69C552A30F213Bbed65251Data = {
+export type GetAttendanceByStudentData = {
     body?: never;
     path: {
         student_id: string;
@@ -8732,7 +8824,7 @@ export type GetStudentAttendanceStudentCbbbd2605B69C552A30F213Bbed65251Data = {
     url: '/student-attendance/student/{student_id}';
 };
 
-export type GetStudentAttendanceStudentCbbbd2605B69C552A30F213Bbed65251Errors = {
+export type GetAttendanceByStudentErrors = {
     /**
      * Bad Request
      */
@@ -8803,13 +8895,13 @@ export type GetStudentAttendanceStudentCbbbd2605B69C552A30F213Bbed65251Errors = 
     504: unknown;
 };
 
-export type GetStudentAttendanceStudentCbbbd2605B69C552A30F213Bbed65251Responses = {
+export type GetAttendanceByStudentResponses = {
     200: Array<StudentAttendanceResponse>;
 };
 
-export type GetStudentAttendanceStudentCbbbd2605B69C552A30F213Bbed65251Response = GetStudentAttendanceStudentCbbbd2605B69C552A30F213Bbed65251Responses[keyof GetStudentAttendanceStudentCbbbd2605B69C552A30F213Bbed65251Responses];
+export type GetAttendanceByStudentResponse = GetAttendanceByStudentResponses[keyof GetAttendanceByStudentResponses];
 
-export type GetStudentAttendanceStudentF7Ef3Dbb1F865A0Dcf802Dbe04103922Data = {
+export type CalculateStudentAttendancePercentageData = {
     body?: never;
     path: {
         /**
@@ -8824,7 +8916,7 @@ export type GetStudentAttendanceStudentF7Ef3Dbb1F865A0Dcf802Dbe04103922Data = {
     url: '/student-attendance/student/{student_id}/percentage';
 };
 
-export type GetStudentAttendanceStudentF7Ef3Dbb1F865A0Dcf802Dbe04103922Errors = {
+export type CalculateStudentAttendancePercentageErrors = {
     /**
      * Bad Request
      */
@@ -8895,16 +8987,16 @@ export type GetStudentAttendanceStudentF7Ef3Dbb1F865A0Dcf802Dbe04103922Errors = 
     504: unknown;
 };
 
-export type GetStudentAttendanceStudentF7Ef3Dbb1F865A0Dcf802Dbe04103922Responses = {
+export type CalculateStudentAttendancePercentageResponses = {
     /**
      * double
      */
     200: number;
 };
 
-export type GetStudentAttendanceStudentF7Ef3Dbb1F865A0Dcf802Dbe04103922Response = GetStudentAttendanceStudentF7Ef3Dbb1F865A0Dcf802Dbe04103922Responses[keyof GetStudentAttendanceStudentF7Ef3Dbb1F865A0Dcf802Dbe04103922Responses];
+export type CalculateStudentAttendancePercentageResponse = CalculateStudentAttendancePercentageResponses[keyof CalculateStudentAttendancePercentageResponses];
 
-export type GetStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dData = {
+export type GenerateAttendanceReportData = {
     body?: never;
     path?: never;
     query: {
@@ -8915,7 +9007,7 @@ export type GetStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dData = {
     url: '/student-attendance/report';
 };
 
-export type GetStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dErrors = {
+export type GenerateAttendanceReportErrors = {
     /**
      * Bad Request
      */
@@ -8986,13 +9078,13 @@ export type GetStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dErrors = {
     504: unknown;
 };
 
-export type GetStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dResponses = {
+export type GenerateAttendanceReportResponses = {
     200: Array<StudentAttendanceReportResponse>;
 };
 
-export type GetStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dResponse = GetStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dResponses[keyof GetStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dResponses];
+export type GenerateAttendanceReportResponse = GenerateAttendanceReportResponses[keyof GenerateAttendanceReportResponses];
 
-export type GetStudentAttendanceLowAttendanceCc245019A776B2781C79E8Fba9D3CfceData = {
+export type GetStudentsWithLowAttendanceData = {
     body?: never;
     path?: never;
     query: {
@@ -9004,7 +9096,7 @@ export type GetStudentAttendanceLowAttendanceCc245019A776B2781C79E8Fba9D3CfceDat
     url: '/student-attendance/low-attendance';
 };
 
-export type GetStudentAttendanceLowAttendanceCc245019A776B2781C79E8Fba9D3CfceErrors = {
+export type GetStudentsWithLowAttendanceErrors = {
     /**
      * Bad Request
      */
@@ -9075,20 +9167,20 @@ export type GetStudentAttendanceLowAttendanceCc245019A776B2781C79E8Fba9D3CfceErr
     504: unknown;
 };
 
-export type GetStudentAttendanceLowAttendanceCc245019A776B2781C79E8Fba9D3CfceResponses = {
+export type GetStudentsWithLowAttendanceResponses = {
     200: Array<StudentAttendanceReportResponse>;
 };
 
-export type GetStudentAttendanceLowAttendanceCc245019A776B2781C79E8Fba9D3CfceResponse = GetStudentAttendanceLowAttendanceCc245019A776B2781C79E8Fba9D3CfceResponses[keyof GetStudentAttendanceLowAttendanceCc245019A776B2781C79E8Fba9D3CfceResponses];
+export type GetStudentsWithLowAttendanceResponse = GetStudentsWithLowAttendanceResponses[keyof GetStudentsWithLowAttendanceResponses];
 
-export type PostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28486cData = {
+export type SendAbsenceNotificationsData = {
     body: SendAbsenceNotificationRequest;
     path?: never;
     query?: never;
     url: '/student-attendance/notifications/absent';
 };
 
-export type PostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28486cErrors = {
+export type SendAbsenceNotificationsErrors = {
     /**
      * Bad Request
      */
@@ -9159,20 +9251,20 @@ export type PostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28
     504: unknown;
 };
 
-export type PostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28486cResponses = {
+export type SendAbsenceNotificationsResponses = {
     200: MessageResponse;
 };
 
-export type PostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28486cResponse = PostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28486cResponses[keyof PostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28486cResponses];
+export type SendAbsenceNotificationsResponse = SendAbsenceNotificationsResponses[keyof SendAbsenceNotificationsResponses];
 
-export type GetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfData = {
+export type GetAllStudentMarksData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/student-marks';
 };
 
-export type GetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfErrors = {
+export type GetAllStudentMarksErrors = {
     /**
      * Bad Request
      */
@@ -9243,20 +9335,20 @@ export type GetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfErrors = {
     504: unknown;
 };
 
-export type GetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponses = {
+export type GetAllStudentMarksResponses = {
     200: Array<StudentMarkResponse>;
 };
 
-export type GetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponse = GetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponses[keyof GetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponses];
+export type GetAllStudentMarksResponse = GetAllStudentMarksResponses[keyof GetAllStudentMarksResponses];
 
-export type PostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfData = {
+export type CreateStudentMarkData = {
     body: UserId;
     path?: never;
     query?: never;
     url: '/student-marks';
 };
 
-export type PostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfErrors = {
+export type CreateStudentMarkErrors = {
     /**
      * Bad Request
      */
@@ -9327,20 +9419,20 @@ export type PostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfErrors = {
     504: unknown;
 };
 
-export type PostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponses = {
+export type CreateStudentMarkResponses = {
     200: StudentMarkResponse;
 };
 
-export type PostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponse = PostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponses[keyof PostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponses];
+export type CreateStudentMarkResponse = CreateStudentMarkResponses[keyof CreateStudentMarkResponses];
 
-export type PostStudentMarksBulk93Bc791320C6081B960044154A039A2fData = {
+export type BulkCreateStudentMarksData = {
     body: UserId;
     path?: never;
     query?: never;
     url: '/student-marks/bulk';
 };
 
-export type PostStudentMarksBulk93Bc791320C6081B960044154A039A2fErrors = {
+export type BulkCreateStudentMarksErrors = {
     /**
      * Bad Request
      */
@@ -9411,13 +9503,13 @@ export type PostStudentMarksBulk93Bc791320C6081B960044154A039A2fErrors = {
     504: unknown;
 };
 
-export type PostStudentMarksBulk93Bc791320C6081B960044154A039A2fResponses = {
+export type BulkCreateStudentMarksResponses = {
     200: Array<StudentMarkResponse>;
 };
 
-export type PostStudentMarksBulk93Bc791320C6081B960044154A039A2fResponse = PostStudentMarksBulk93Bc791320C6081B960044154A039A2fResponses[keyof PostStudentMarksBulk93Bc791320C6081B960044154A039A2fResponses];
+export type BulkCreateStudentMarksResponse = BulkCreateStudentMarksResponses[keyof BulkCreateStudentMarksResponses];
 
-export type DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = {
+export type DeleteStudentMarkData = {
     body?: never;
     path: {
         /**
@@ -9429,7 +9521,7 @@ export type DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = {
     url: '/student-marks/{id}';
 };
 
-export type DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Errors = {
+export type DeleteStudentMarkErrors = {
     /**
      * Bad Request
      */
@@ -9500,13 +9592,13 @@ export type DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Errors = {
     504: unknown;
 };
 
-export type DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses = {
+export type DeleteStudentMarkResponses = {
     200: MessageResponse;
 };
 
-export type DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Response = DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses[keyof DeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses];
+export type DeleteStudentMarkResponse = DeleteStudentMarkResponses[keyof DeleteStudentMarkResponses];
 
-export type GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = {
+export type GetStudentMarkByIdData = {
     body?: never;
     path: {
         /**
@@ -9518,7 +9610,7 @@ export type GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = {
     url: '/student-marks/{id}';
 };
 
-export type GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Errors = {
+export type GetStudentMarkByIdErrors = {
     /**
      * Bad Request
      */
@@ -9589,13 +9681,13 @@ export type GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Errors = {
     504: unknown;
 };
 
-export type GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses = {
+export type GetStudentMarkByIdResponses = {
     200: StudentMarkResponse;
 };
 
-export type GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Response = GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses[keyof GetStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses];
+export type GetStudentMarkByIdResponse = GetStudentMarkByIdResponses[keyof GetStudentMarkByIdResponses];
 
-export type PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = {
+export type UpdateStudentMarkData = {
     body: UserId;
     path: {
         /**
@@ -9607,7 +9699,7 @@ export type PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = {
     url: '/student-marks/{id}';
 };
 
-export type PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Errors = {
+export type UpdateStudentMarkErrors = {
     /**
      * Bad Request
      */
@@ -9678,13 +9770,13 @@ export type PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Errors = {
     504: unknown;
 };
 
-export type PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses = {
+export type UpdateStudentMarkResponses = {
     200: StudentMarkResponse;
 };
 
-export type PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Response = PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses[keyof PutStudentMarks2Fd93F5A28De4E67508299C8813898A0Responses];
+export type UpdateStudentMarkResponse = UpdateStudentMarkResponses[keyof UpdateStudentMarkResponses];
 
-export type GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaData = {
+export type GetStudentMarksByStudentIdData = {
     body?: never;
     path: {
         /**
@@ -9696,7 +9788,7 @@ export type GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaData = {
     url: '/student-marks/student/{student_id}';
 };
 
-export type GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaErrors = {
+export type GetStudentMarksByStudentIdErrors = {
     /**
      * Bad Request
      */
@@ -9767,13 +9859,13 @@ export type GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaErrors = {
     504: unknown;
 };
 
-export type GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaResponses = {
+export type GetStudentMarksByStudentIdResponses = {
     200: Array<StudentMarkResponse>;
 };
 
-export type GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaResponse = GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaResponses[keyof GetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaResponses];
+export type GetStudentMarksByStudentIdResponse = GetStudentMarksByStudentIdResponses[keyof GetStudentMarksByStudentIdResponses];
 
-export type GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Data = {
+export type GetStudentMarksByExamAndClassData = {
     body?: never;
     path: {
         /**
@@ -9789,7 +9881,7 @@ export type GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Data = {
     url: '/student-marks/exam/{exam_id}/class/{class_id}';
 };
 
-export type GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Errors = {
+export type GetStudentMarksByExamAndClassErrors = {
     /**
      * Bad Request
      */
@@ -9860,13 +9952,13 @@ export type GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Errors = {
     504: unknown;
 };
 
-export type GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Responses = {
+export type GetStudentMarksByExamAndClassResponses = {
     200: Array<StudentMarkResponse>;
 };
 
-export type GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Response = GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Responses[keyof GetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Responses];
+export type GetStudentMarksByExamAndClassResponse = GetStudentMarksByExamAndClassResponses[keyof GetStudentMarksByExamAndClassResponses];
 
-export type GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceData = {
+export type GetAllAcademicYearsData = {
     body?: never;
     path?: never;
     query?: {
@@ -9880,7 +9972,7 @@ export type GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceData = {
     url: '/academic-years';
 };
 
-export type GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceErrors = {
+export type GetAllAcademicYearsErrors = {
     /**
      * Bad Request
      */
@@ -9951,20 +10043,20 @@ export type GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceErrors = {
     504: unknown;
 };
 
-export type GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponses = {
+export type GetAllAcademicYearsResponses = {
     200: PaginatedAcademicYearResponse;
 };
 
-export type GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponse = GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponses[keyof GetAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponses];
+export type GetAllAcademicYearsResponse = GetAllAcademicYearsResponses[keyof GetAllAcademicYearsResponses];
 
-export type PostAcademicYearsFccd08769F5A31A4E619B146B8C92DceData = {
+export type CreateAcademicYearData = {
     body: CreateAcademicYearRequest;
     path?: never;
     query?: never;
     url: '/academic-years';
 };
 
-export type PostAcademicYearsFccd08769F5A31A4E619B146B8C92DceErrors = {
+export type CreateAcademicYearErrors = {
     /**
      * Bad Request
      */
@@ -10035,13 +10127,13 @@ export type PostAcademicYearsFccd08769F5A31A4E619B146B8C92DceErrors = {
     504: unknown;
 };
 
-export type PostAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponses = {
+export type CreateAcademicYearResponses = {
     200: AcademicYearResponse;
 };
 
-export type PostAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponse = PostAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponses[keyof PostAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponses];
+export type CreateAcademicYearResponse = CreateAcademicYearResponses[keyof CreateAcademicYearResponses];
 
-export type DeleteAcademicYears9480326F1E5661955Af73085324B82C5Data = {
+export type DeleteAcademicYearData = {
     body?: never;
     path: {
         /**
@@ -10053,7 +10145,7 @@ export type DeleteAcademicYears9480326F1E5661955Af73085324B82C5Data = {
     url: '/academic-years/{id}';
 };
 
-export type DeleteAcademicYears9480326F1E5661955Af73085324B82C5Errors = {
+export type DeleteAcademicYearErrors = {
     /**
      * Bad Request
      */
@@ -10124,13 +10216,13 @@ export type DeleteAcademicYears9480326F1E5661955Af73085324B82C5Errors = {
     504: unknown;
 };
 
-export type DeleteAcademicYears9480326F1E5661955Af73085324B82C5Responses = {
+export type DeleteAcademicYearResponses = {
     200: MessageResponse;
 };
 
-export type DeleteAcademicYears9480326F1E5661955Af73085324B82C5Response = DeleteAcademicYears9480326F1E5661955Af73085324B82C5Responses[keyof DeleteAcademicYears9480326F1E5661955Af73085324B82C5Responses];
+export type DeleteAcademicYearResponse = DeleteAcademicYearResponses[keyof DeleteAcademicYearResponses];
 
-export type GetAcademicYears9480326F1E5661955Af73085324B82C5Data = {
+export type GetAcademicYearByIdData = {
     body?: never;
     path: {
         /**
@@ -10142,7 +10234,7 @@ export type GetAcademicYears9480326F1E5661955Af73085324B82C5Data = {
     url: '/academic-years/{id}';
 };
 
-export type GetAcademicYears9480326F1E5661955Af73085324B82C5Errors = {
+export type GetAcademicYearByIdErrors = {
     /**
      * Bad Request
      */
@@ -10213,13 +10305,13 @@ export type GetAcademicYears9480326F1E5661955Af73085324B82C5Errors = {
     504: unknown;
 };
 
-export type GetAcademicYears9480326F1E5661955Af73085324B82C5Responses = {
+export type GetAcademicYearByIdResponses = {
     200: AcademicYearResponse;
 };
 
-export type GetAcademicYears9480326F1E5661955Af73085324B82C5Response = GetAcademicYears9480326F1E5661955Af73085324B82C5Responses[keyof GetAcademicYears9480326F1E5661955Af73085324B82C5Responses];
+export type GetAcademicYearByIdResponse = GetAcademicYearByIdResponses[keyof GetAcademicYearByIdResponses];
 
-export type PutAcademicYears9480326F1E5661955Af73085324B82C5Data = {
+export type UpdateAcademicYearData = {
     body: UpdateAcademicYearRequest;
     path: {
         /**
@@ -10231,7 +10323,7 @@ export type PutAcademicYears9480326F1E5661955Af73085324B82C5Data = {
     url: '/academic-years/{id}';
 };
 
-export type PutAcademicYears9480326F1E5661955Af73085324B82C5Errors = {
+export type UpdateAcademicYearErrors = {
     /**
      * Bad Request
      */
@@ -10302,13 +10394,13 @@ export type PutAcademicYears9480326F1E5661955Af73085324B82C5Errors = {
     504: unknown;
 };
 
-export type PutAcademicYears9480326F1E5661955Af73085324B82C5Responses = {
+export type UpdateAcademicYearResponses = {
     200: AcademicYearResponse;
 };
 
-export type PutAcademicYears9480326F1E5661955Af73085324B82C5Response = PutAcademicYears9480326F1E5661955Af73085324B82C5Responses[keyof PutAcademicYears9480326F1E5661955Af73085324B82C5Responses];
+export type UpdateAcademicYearResponse = UpdateAcademicYearResponses[keyof UpdateAcademicYearResponses];
 
-export type PutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dData = {
+export type SetCurrentAcademicYearData = {
     body?: never;
     path: {
         /**
@@ -10320,7 +10412,7 @@ export type PutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dData = {
     url: '/academic-years/{id}/set-current';
 };
 
-export type PutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dErrors = {
+export type SetCurrentAcademicYearErrors = {
     /**
      * Bad Request
      */
@@ -10391,20 +10483,20 @@ export type PutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dErrors = {
     504: unknown;
 };
 
-export type PutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dResponses = {
+export type SetCurrentAcademicYearResponses = {
     200: AcademicYearResponse;
 };
 
-export type PutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dResponse = PutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dResponses[keyof PutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dResponses];
+export type SetCurrentAcademicYearResponse = SetCurrentAcademicYearResponses[keyof SetCurrentAcademicYearResponses];
 
-export type DeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfData = {
+export type BulkDeleteAcademicYearsData = {
     body: BulkDeleteAcademicYearsRequest;
     path?: never;
     query?: never;
     url: '/academic-years/bulk';
 };
 
-export type DeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfErrors = {
+export type BulkDeleteAcademicYearsErrors = {
     /**
      * Bad Request
      */
@@ -10475,20 +10567,20 @@ export type DeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfErrors = {
     504: unknown;
 };
 
-export type DeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponses = {
+export type BulkDeleteAcademicYearsResponses = {
     200: MessageResponse;
 };
 
-export type DeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponse = DeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponses[keyof DeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponses];
+export type BulkDeleteAcademicYearsResponse = BulkDeleteAcademicYearsResponses[keyof BulkDeleteAcademicYearsResponses];
 
-export type PatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfData = {
+export type BulkUpdateAcademicYearsData = {
     body: BulkUpdateAcademicYearsRequest;
     path?: never;
     query?: never;
     url: '/academic-years/bulk';
 };
 
-export type PatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfErrors = {
+export type BulkUpdateAcademicYearsErrors = {
     /**
      * Bad Request
      */
@@ -10559,20 +10651,20 @@ export type PatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfErrors = {
     504: unknown;
 };
 
-export type PatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponses = {
+export type BulkUpdateAcademicYearsResponses = {
     200: MessageResponse;
 };
 
-export type PatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponse = PatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponses[keyof PatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponses];
+export type BulkUpdateAcademicYearsResponse = BulkUpdateAcademicYearsResponses[keyof BulkUpdateAcademicYearsResponses];
 
-export type PostTerms8B2745Aa317D6F207Aed05Ee27289127Data = {
+export type CreateTermData = {
     body: CreateTermRequest;
     path?: never;
     query?: never;
     url: '/terms';
 };
 
-export type PostTerms8B2745Aa317D6F207Aed05Ee27289127Errors = {
+export type CreateTermErrors = {
     /**
      * Bad Request
      */
@@ -10643,13 +10735,13 @@ export type PostTerms8B2745Aa317D6F207Aed05Ee27289127Errors = {
     504: unknown;
 };
 
-export type PostTerms8B2745Aa317D6F207Aed05Ee27289127Responses = {
+export type CreateTermResponses = {
     200: TermResponse;
 };
 
-export type PostTerms8B2745Aa317D6F207Aed05Ee27289127Response = PostTerms8B2745Aa317D6F207Aed05Ee27289127Responses[keyof PostTerms8B2745Aa317D6F207Aed05Ee27289127Responses];
+export type CreateTermResponse = CreateTermResponses[keyof CreateTermResponses];
 
-export type GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaData = {
+export type GetAllGradeLevelsData = {
     body?: never;
     path?: never;
     query?: {
@@ -10663,7 +10755,7 @@ export type GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaData = {
     url: '/grade-levels';
 };
 
-export type GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaErrors = {
+export type GetAllGradeLevelsErrors = {
     /**
      * Bad Request
      */
@@ -10734,20 +10826,20 @@ export type GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaErrors = {
     504: unknown;
 };
 
-export type GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponses = {
+export type GetAllGradeLevelsResponses = {
     200: PaginatedGradeLevelResponse;
 };
 
-export type GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponse = GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponses[keyof GetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponses];
+export type GetAllGradeLevelsResponse = GetAllGradeLevelsResponses[keyof GetAllGradeLevelsResponses];
 
-export type PostGradeLevels729E40Defc3E46608Ed6D9De3A002BdaData = {
+export type CreateGradeLevelData = {
     body: CreateGradeLevelRequest;
     path?: never;
     query?: never;
     url: '/grade-levels';
 };
 
-export type PostGradeLevels729E40Defc3E46608Ed6D9De3A002BdaErrors = {
+export type CreateGradeLevelErrors = {
     /**
      * Bad Request
      */
@@ -10818,13 +10910,13 @@ export type PostGradeLevels729E40Defc3E46608Ed6D9De3A002BdaErrors = {
     504: unknown;
 };
 
-export type PostGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponses = {
+export type CreateGradeLevelResponses = {
     200: GradeLevelResponse;
 };
 
-export type PostGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponse = PostGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponses[keyof PostGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponses];
+export type CreateGradeLevelResponse = CreateGradeLevelResponses[keyof CreateGradeLevelResponses];
 
-export type DeleteGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Data = {
+export type DeleteGradeLevelData = {
     body?: never;
     path: {
         /**
@@ -10836,7 +10928,7 @@ export type DeleteGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Data = {
     url: '/grade-levels/{id}';
 };
 
-export type DeleteGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Errors = {
+export type DeleteGradeLevelErrors = {
     /**
      * Bad Request
      */
@@ -10907,13 +10999,13 @@ export type DeleteGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Errors = {
     504: unknown;
 };
 
-export type DeleteGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Responses = {
+export type DeleteGradeLevelResponses = {
     200: MessageResponse;
 };
 
-export type DeleteGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Response = DeleteGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Responses[keyof DeleteGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Responses];
+export type DeleteGradeLevelResponse = DeleteGradeLevelResponses[keyof DeleteGradeLevelResponses];
 
-export type GetGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Data = {
+export type GetGradeLevelByIdData = {
     body?: never;
     path: {
         /**
@@ -10925,7 +11017,7 @@ export type GetGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Data = {
     url: '/grade-levels/{id}';
 };
 
-export type GetGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Errors = {
+export type GetGradeLevelByIdErrors = {
     /**
      * Bad Request
      */
@@ -10996,13 +11088,13 @@ export type GetGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Errors = {
     504: unknown;
 };
 
-export type GetGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Responses = {
+export type GetGradeLevelByIdResponses = {
     200: GradeLevelResponse;
 };
 
-export type GetGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Response = GetGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Responses[keyof GetGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Responses];
+export type GetGradeLevelByIdResponse = GetGradeLevelByIdResponses[keyof GetGradeLevelByIdResponses];
 
-export type PutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Data = {
+export type UpdateGradeLevelData = {
     body: UpdateGradeLevelRequest;
     path: {
         /**
@@ -11014,7 +11106,7 @@ export type PutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Data = {
     url: '/grade-levels/{id}';
 };
 
-export type PutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Errors = {
+export type UpdateGradeLevelErrors = {
     /**
      * Bad Request
      */
@@ -11085,20 +11177,20 @@ export type PutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Errors = {
     504: unknown;
 };
 
-export type PutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Responses = {
+export type UpdateGradeLevelResponses = {
     200: GradeLevelResponse;
 };
 
-export type PutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Response = PutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Responses[keyof PutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Responses];
+export type UpdateGradeLevelResponse = UpdateGradeLevelResponses[keyof UpdateGradeLevelResponses];
 
-export type DeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aData = {
+export type BulkDeleteGradeLevelsData = {
     body: BulkDeleteGradeLevelsRequest;
     path?: never;
     query?: never;
     url: '/grade-levels/bulk';
 };
 
-export type DeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aErrors = {
+export type BulkDeleteGradeLevelsErrors = {
     /**
      * Bad Request
      */
@@ -11169,20 +11261,20 @@ export type DeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aErrors = {
     504: unknown;
 };
 
-export type DeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponses = {
+export type BulkDeleteGradeLevelsResponses = {
     200: MessageResponse;
 };
 
-export type DeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponse = DeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponses[keyof DeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponses];
+export type BulkDeleteGradeLevelsResponse = BulkDeleteGradeLevelsResponses[keyof BulkDeleteGradeLevelsResponses];
 
-export type PatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aData = {
+export type BulkUpdateGradeLevelsData = {
     body: BulkUpdateGradeLevelsRequest;
     path?: never;
     query?: never;
     url: '/grade-levels/bulk';
 };
 
-export type PatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aErrors = {
+export type BulkUpdateGradeLevelsErrors = {
     /**
      * Bad Request
      */
@@ -11253,13 +11345,13 @@ export type PatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aErrors = {
     504: unknown;
 };
 
-export type PatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponses = {
+export type BulkUpdateGradeLevelsResponses = {
     200: MessageResponse;
 };
 
-export type PatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponse = PatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponses[keyof PatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponses];
+export type BulkUpdateGradeLevelsResponse = BulkUpdateGradeLevelsResponses[keyof BulkUpdateGradeLevelsResponses];
 
-export type GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbData = {
+export type GetAllClassesData = {
     body?: never;
     path?: never;
     query?: {
@@ -11274,7 +11366,7 @@ export type GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbData = {
     url: '/classes';
 };
 
-export type GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbErrors = {
+export type GetAllClassesErrors = {
     /**
      * Bad Request
      */
@@ -11345,20 +11437,20 @@ export type GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbErrors = {
     504: unknown;
 };
 
-export type GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponses = {
+export type GetAllClassesResponses = {
     200: PaginatedClassResponse;
 };
 
-export type GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponse = GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponses[keyof GetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponses];
+export type GetAllClassesResponse = GetAllClassesResponses[keyof GetAllClassesResponses];
 
-export type PostClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbData = {
+export type CreateClassData = {
     body: CreateClassRequest;
     path?: never;
     query?: never;
     url: '/classes';
 };
 
-export type PostClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbErrors = {
+export type CreateClassErrors = {
     /**
      * Bad Request
      */
@@ -11429,13 +11521,13 @@ export type PostClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbErrors = {
     504: unknown;
 };
 
-export type PostClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponses = {
+export type CreateClassResponses = {
     200: ClassResponse;
 };
 
-export type PostClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponse = PostClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponses[keyof PostClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponses];
+export type CreateClassResponse = CreateClassResponses[keyof CreateClassResponses];
 
-export type DeleteClasses5B39B6B14A966Fa2E82D150861B446D0Data = {
+export type DeleteClassData = {
     body?: never;
     path: {
         /**
@@ -11447,7 +11539,7 @@ export type DeleteClasses5B39B6B14A966Fa2E82D150861B446D0Data = {
     url: '/classes/{id}';
 };
 
-export type DeleteClasses5B39B6B14A966Fa2E82D150861B446D0Errors = {
+export type DeleteClassErrors = {
     /**
      * Bad Request
      */
@@ -11518,13 +11610,13 @@ export type DeleteClasses5B39B6B14A966Fa2E82D150861B446D0Errors = {
     504: unknown;
 };
 
-export type DeleteClasses5B39B6B14A966Fa2E82D150861B446D0Responses = {
+export type DeleteClassResponses = {
     200: MessageResponse;
 };
 
-export type DeleteClasses5B39B6B14A966Fa2E82D150861B446D0Response = DeleteClasses5B39B6B14A966Fa2E82D150861B446D0Responses[keyof DeleteClasses5B39B6B14A966Fa2E82D150861B446D0Responses];
+export type DeleteClassResponse = DeleteClassResponses[keyof DeleteClassResponses];
 
-export type GetClasses5B39B6B14A966Fa2E82D150861B446D0Data = {
+export type GetClassByIdData = {
     body?: never;
     path: {
         /**
@@ -11536,7 +11628,7 @@ export type GetClasses5B39B6B14A966Fa2E82D150861B446D0Data = {
     url: '/classes/{id}';
 };
 
-export type GetClasses5B39B6B14A966Fa2E82D150861B446D0Errors = {
+export type GetClassByIdErrors = {
     /**
      * Bad Request
      */
@@ -11607,13 +11699,13 @@ export type GetClasses5B39B6B14A966Fa2E82D150861B446D0Errors = {
     504: unknown;
 };
 
-export type GetClasses5B39B6B14A966Fa2E82D150861B446D0Responses = {
+export type GetClassByIdResponses = {
     200: ClassResponse;
 };
 
-export type GetClasses5B39B6B14A966Fa2E82D150861B446D0Response = GetClasses5B39B6B14A966Fa2E82D150861B446D0Responses[keyof GetClasses5B39B6B14A966Fa2E82D150861B446D0Responses];
+export type GetClassByIdResponse = GetClassByIdResponses[keyof GetClassByIdResponses];
 
-export type PutClasses5B39B6B14A966Fa2E82D150861B446D0Data = {
+export type UpdateClassData = {
     body: UpdateClassRequest;
     path: {
         /**
@@ -11625,7 +11717,7 @@ export type PutClasses5B39B6B14A966Fa2E82D150861B446D0Data = {
     url: '/classes/{id}';
 };
 
-export type PutClasses5B39B6B14A966Fa2E82D150861B446D0Errors = {
+export type UpdateClassErrors = {
     /**
      * Bad Request
      */
@@ -11696,13 +11788,13 @@ export type PutClasses5B39B6B14A966Fa2E82D150861B446D0Errors = {
     504: unknown;
 };
 
-export type PutClasses5B39B6B14A966Fa2E82D150861B446D0Responses = {
+export type UpdateClassResponses = {
     200: ClassResponse;
 };
 
-export type PutClasses5B39B6B14A966Fa2E82D150861B446D0Response = PutClasses5B39B6B14A966Fa2E82D150861B446D0Responses[keyof PutClasses5B39B6B14A966Fa2E82D150861B446D0Responses];
+export type UpdateClassResponse = UpdateClassResponses[keyof UpdateClassResponses];
 
-export type GetClassesGrade695C16540Bee6079F14687Cf9Cd6644bData = {
+export type GetClassesByGradeData = {
     body?: never;
     path: {
         /**
@@ -11714,7 +11806,7 @@ export type GetClassesGrade695C16540Bee6079F14687Cf9Cd6644bData = {
     url: '/classes/grade/{id}';
 };
 
-export type GetClassesGrade695C16540Bee6079F14687Cf9Cd6644bErrors = {
+export type GetClassesByGradeErrors = {
     /**
      * Bad Request
      */
@@ -11785,20 +11877,20 @@ export type GetClassesGrade695C16540Bee6079F14687Cf9Cd6644bErrors = {
     504: unknown;
 };
 
-export type GetClassesGrade695C16540Bee6079F14687Cf9Cd6644bResponses = {
+export type GetClassesByGradeResponses = {
     200: Array<ClassResponse>;
 };
 
-export type GetClassesGrade695C16540Bee6079F14687Cf9Cd6644bResponse = GetClassesGrade695C16540Bee6079F14687Cf9Cd6644bResponses[keyof GetClassesGrade695C16540Bee6079F14687Cf9Cd6644bResponses];
+export type GetClassesByGradeResponse = GetClassesByGradeResponses[keyof GetClassesByGradeResponses];
 
-export type DeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Data = {
+export type BulkDeleteClassesData = {
     body: BulkDeleteClassesRequest;
     path?: never;
     query?: never;
     url: '/classes/bulk';
 };
 
-export type DeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Errors = {
+export type BulkDeleteClassesErrors = {
     /**
      * Bad Request
      */
@@ -11869,20 +11961,20 @@ export type DeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Errors = {
     504: unknown;
 };
 
-export type DeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Responses = {
+export type BulkDeleteClassesResponses = {
     200: MessageResponse;
 };
 
-export type DeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Response = DeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Responses[keyof DeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Responses];
+export type BulkDeleteClassesResponse = BulkDeleteClassesResponses[keyof BulkDeleteClassesResponses];
 
-export type PatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Data = {
+export type BulkUpdateClassesData = {
     body: BulkUpdateClassesRequest;
     path?: never;
     query?: never;
     url: '/classes/bulk';
 };
 
-export type PatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Errors = {
+export type BulkUpdateClassesErrors = {
     /**
      * Bad Request
      */
@@ -11953,13 +12045,13 @@ export type PatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Errors = {
     504: unknown;
 };
 
-export type PatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Responses = {
+export type BulkUpdateClassesResponses = {
     200: MessageResponse;
 };
 
-export type PatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Response = PatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Responses[keyof PatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Responses];
+export type BulkUpdateClassesResponse = BulkUpdateClassesResponses[keyof BulkUpdateClassesResponses];
 
-export type GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Data = {
+export type GetAllSubjectsData = {
     body?: never;
     path?: never;
     query?: {
@@ -11975,7 +12067,7 @@ export type GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Data = {
     url: '/subjects';
 };
 
-export type GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Errors = {
+export type GetAllSubjectsErrors = {
     /**
      * Bad Request
      */
@@ -12046,20 +12138,20 @@ export type GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Errors = {
     504: unknown;
 };
 
-export type GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Responses = {
+export type GetAllSubjectsResponses = {
     200: PaginatedSubjectResponse;
 };
 
-export type GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Response = GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Responses[keyof GetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Responses];
+export type GetAllSubjectsResponse = GetAllSubjectsResponses[keyof GetAllSubjectsResponses];
 
-export type PostSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Data = {
+export type CreateSubjectData = {
     body: CreateSubjectRequest;
     path?: never;
     query?: never;
     url: '/subjects';
 };
 
-export type PostSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Errors = {
+export type CreateSubjectErrors = {
     /**
      * Bad Request
      */
@@ -12130,13 +12222,13 @@ export type PostSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Errors = {
     504: unknown;
 };
 
-export type PostSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Responses = {
+export type CreateSubjectResponses = {
     200: SubjectResponse;
 };
 
-export type PostSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Response = PostSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Responses[keyof PostSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Responses];
+export type CreateSubjectResponse = CreateSubjectResponses[keyof CreateSubjectResponses];
 
-export type DeleteSubjectsEefb0F505181Abdae58893Ea73C80C9fData = {
+export type DeleteSubjectData = {
     body?: never;
     path: {
         /**
@@ -12148,7 +12240,7 @@ export type DeleteSubjectsEefb0F505181Abdae58893Ea73C80C9fData = {
     url: '/subjects/{id}';
 };
 
-export type DeleteSubjectsEefb0F505181Abdae58893Ea73C80C9fErrors = {
+export type DeleteSubjectErrors = {
     /**
      * Bad Request
      */
@@ -12219,13 +12311,13 @@ export type DeleteSubjectsEefb0F505181Abdae58893Ea73C80C9fErrors = {
     504: unknown;
 };
 
-export type DeleteSubjectsEefb0F505181Abdae58893Ea73C80C9fResponses = {
+export type DeleteSubjectResponses = {
     200: MessageResponse;
 };
 
-export type DeleteSubjectsEefb0F505181Abdae58893Ea73C80C9fResponse = DeleteSubjectsEefb0F505181Abdae58893Ea73C80C9fResponses[keyof DeleteSubjectsEefb0F505181Abdae58893Ea73C80C9fResponses];
+export type DeleteSubjectResponse = DeleteSubjectResponses[keyof DeleteSubjectResponses];
 
-export type GetSubjectsEefb0F505181Abdae58893Ea73C80C9fData = {
+export type GetSubjectByIdData = {
     body?: never;
     path: {
         /**
@@ -12237,7 +12329,7 @@ export type GetSubjectsEefb0F505181Abdae58893Ea73C80C9fData = {
     url: '/subjects/{id}';
 };
 
-export type GetSubjectsEefb0F505181Abdae58893Ea73C80C9fErrors = {
+export type GetSubjectByIdErrors = {
     /**
      * Bad Request
      */
@@ -12308,13 +12400,13 @@ export type GetSubjectsEefb0F505181Abdae58893Ea73C80C9fErrors = {
     504: unknown;
 };
 
-export type GetSubjectsEefb0F505181Abdae58893Ea73C80C9fResponses = {
+export type GetSubjectByIdResponses = {
     200: SubjectResponse;
 };
 
-export type GetSubjectsEefb0F505181Abdae58893Ea73C80C9fResponse = GetSubjectsEefb0F505181Abdae58893Ea73C80C9fResponses[keyof GetSubjectsEefb0F505181Abdae58893Ea73C80C9fResponses];
+export type GetSubjectByIdResponse = GetSubjectByIdResponses[keyof GetSubjectByIdResponses];
 
-export type PutSubjectsEefb0F505181Abdae58893Ea73C80C9fData = {
+export type UpdateSubjectData = {
     body: UpdateSubjectRequest;
     path: {
         /**
@@ -12326,7 +12418,7 @@ export type PutSubjectsEefb0F505181Abdae58893Ea73C80C9fData = {
     url: '/subjects/{id}';
 };
 
-export type PutSubjectsEefb0F505181Abdae58893Ea73C80C9fErrors = {
+export type UpdateSubjectErrors = {
     /**
      * Bad Request
      */
@@ -12397,13 +12489,13 @@ export type PutSubjectsEefb0F505181Abdae58893Ea73C80C9fErrors = {
     504: unknown;
 };
 
-export type PutSubjectsEefb0F505181Abdae58893Ea73C80C9fResponses = {
+export type UpdateSubjectResponses = {
     200: SubjectResponse;
 };
 
-export type PutSubjectsEefb0F505181Abdae58893Ea73C80C9fResponse = PutSubjectsEefb0F505181Abdae58893Ea73C80C9fResponses[keyof PutSubjectsEefb0F505181Abdae58893Ea73C80C9fResponses];
+export type UpdateSubjectResponse = UpdateSubjectResponses[keyof UpdateSubjectResponses];
 
-export type GetSubjectsGrade8A1Ee74C3Aee7880F3774Fbe1D955E1eData = {
+export type GetSubjectsByGradeData = {
     body?: never;
     path: {
         /**
@@ -12415,7 +12507,7 @@ export type GetSubjectsGrade8A1Ee74C3Aee7880F3774Fbe1D955E1eData = {
     url: '/subjects/grade/{grade_id}';
 };
 
-export type GetSubjectsGrade8A1Ee74C3Aee7880F3774Fbe1D955E1eErrors = {
+export type GetSubjectsByGradeErrors = {
     /**
      * Bad Request
      */
@@ -12486,13 +12578,13 @@ export type GetSubjectsGrade8A1Ee74C3Aee7880F3774Fbe1D955E1eErrors = {
     504: unknown;
 };
 
-export type GetSubjectsGrade8A1Ee74C3Aee7880F3774Fbe1D955E1eResponses = {
+export type GetSubjectsByGradeResponses = {
     200: Array<SubjectResponse>;
 };
 
-export type GetSubjectsGrade8A1Ee74C3Aee7880F3774Fbe1D955E1eResponse = GetSubjectsGrade8A1Ee74C3Aee7880F3774Fbe1D955E1eResponses[keyof GetSubjectsGrade8A1Ee74C3Aee7880F3774Fbe1D955E1eResponses];
+export type GetSubjectsByGradeResponse = GetSubjectsByGradeResponses[keyof GetSubjectsByGradeResponses];
 
-export type GetSubjectsStream4934B62F9A3Eec13022C7D1A63689427Data = {
+export type GetSubjectsByStreamData = {
     body?: never;
     path: {
         /**
@@ -12504,7 +12596,7 @@ export type GetSubjectsStream4934B62F9A3Eec13022C7D1A63689427Data = {
     url: '/subjects/stream/{stream_id}';
 };
 
-export type GetSubjectsStream4934B62F9A3Eec13022C7D1A63689427Errors = {
+export type GetSubjectsByStreamErrors = {
     /**
      * Bad Request
      */
@@ -12575,20 +12667,20 @@ export type GetSubjectsStream4934B62F9A3Eec13022C7D1A63689427Errors = {
     504: unknown;
 };
 
-export type GetSubjectsStream4934B62F9A3Eec13022C7D1A63689427Responses = {
+export type GetSubjectsByStreamResponses = {
     200: Array<SubjectResponse>;
 };
 
-export type GetSubjectsStream4934B62F9A3Eec13022C7D1A63689427Response = GetSubjectsStream4934B62F9A3Eec13022C7D1A63689427Responses[keyof GetSubjectsStream4934B62F9A3Eec13022C7D1A63689427Responses];
+export type GetSubjectsByStreamResponse = GetSubjectsByStreamResponses[keyof GetSubjectsByStreamResponses];
 
-export type PostSubjectsAssignToGrade774F1D22C1059125C70F8E16261F7Db1Data = {
+export type AssignSubjectToGradeData = {
     body: AssignSubjectToGradeRequest;
     path?: never;
     query?: never;
     url: '/subjects/assign-to-grade';
 };
 
-export type PostSubjectsAssignToGrade774F1D22C1059125C70F8E16261F7Db1Errors = {
+export type AssignSubjectToGradeErrors = {
     /**
      * Bad Request
      */
@@ -12659,20 +12751,20 @@ export type PostSubjectsAssignToGrade774F1D22C1059125C70F8E16261F7Db1Errors = {
     504: unknown;
 };
 
-export type PostSubjectsAssignToGrade774F1D22C1059125C70F8E16261F7Db1Responses = {
+export type AssignSubjectToGradeResponses = {
     200: MessageResponse;
 };
 
-export type PostSubjectsAssignToGrade774F1D22C1059125C70F8E16261F7Db1Response = PostSubjectsAssignToGrade774F1D22C1059125C70F8E16261F7Db1Responses[keyof PostSubjectsAssignToGrade774F1D22C1059125C70F8E16261F7Db1Responses];
+export type AssignSubjectToGradeResponse = AssignSubjectToGradeResponses[keyof AssignSubjectToGradeResponses];
 
-export type PostSubjectsAssignToStream06856089Edf81Ade0699Fd53Db5Aeab6Data = {
+export type AssignSubjectToStreamData = {
     body: AssignSubjectToStreamRequest;
     path?: never;
     query?: never;
     url: '/subjects/assign-to-stream';
 };
 
-export type PostSubjectsAssignToStream06856089Edf81Ade0699Fd53Db5Aeab6Errors = {
+export type AssignSubjectToStreamErrors = {
     /**
      * Bad Request
      */
@@ -12743,20 +12835,20 @@ export type PostSubjectsAssignToStream06856089Edf81Ade0699Fd53Db5Aeab6Errors = {
     504: unknown;
 };
 
-export type PostSubjectsAssignToStream06856089Edf81Ade0699Fd53Db5Aeab6Responses = {
+export type AssignSubjectToStreamResponses = {
     200: MessageResponse;
 };
 
-export type PostSubjectsAssignToStream06856089Edf81Ade0699Fd53Db5Aeab6Response = PostSubjectsAssignToStream06856089Edf81Ade0699Fd53Db5Aeab6Responses[keyof PostSubjectsAssignToStream06856089Edf81Ade0699Fd53Db5Aeab6Responses];
+export type AssignSubjectToStreamResponse = AssignSubjectToStreamResponses[keyof AssignSubjectToStreamResponses];
 
-export type DeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Data = {
+export type BulkDeleteSubjectsData = {
     body: BulkDeleteSubjectsRequest;
     path?: never;
     query?: never;
     url: '/subjects/bulk';
 };
 
-export type DeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Errors = {
+export type BulkDeleteSubjectsErrors = {
     /**
      * Bad Request
      */
@@ -12827,20 +12919,20 @@ export type DeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Errors = {
     504: unknown;
 };
 
-export type DeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Responses = {
+export type BulkDeleteSubjectsResponses = {
     200: MessageResponse;
 };
 
-export type DeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Response = DeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Responses[keyof DeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Responses];
+export type BulkDeleteSubjectsResponse = BulkDeleteSubjectsResponses[keyof BulkDeleteSubjectsResponses];
 
-export type PatchSubjectsBulk068Fdccc032E210B35F3B27601895347Data = {
+export type BulkUpdateSubjectsData = {
     body: BulkUpdateSubjectsRequest;
     path?: never;
     query?: never;
     url: '/subjects/bulk';
 };
 
-export type PatchSubjectsBulk068Fdccc032E210B35F3B27601895347Errors = {
+export type BulkUpdateSubjectsErrors = {
     /**
      * Bad Request
      */
@@ -12911,20 +13003,20 @@ export type PatchSubjectsBulk068Fdccc032E210B35F3B27601895347Errors = {
     504: unknown;
 };
 
-export type PatchSubjectsBulk068Fdccc032E210B35F3B27601895347Responses = {
+export type BulkUpdateSubjectsResponses = {
     200: MessageResponse;
 };
 
-export type PatchSubjectsBulk068Fdccc032E210B35F3B27601895347Response = PatchSubjectsBulk068Fdccc032E210B35F3B27601895347Responses[keyof PatchSubjectsBulk068Fdccc032E210B35F3B27601895347Responses];
+export type BulkUpdateSubjectsResponse = BulkUpdateSubjectsResponses[keyof BulkUpdateSubjectsResponses];
 
-export type PostClassSubjectTeachers3A4Eb377F8Fa0158A544625F9Ebe2F73Data = {
+export type AssignSubjectTeacherToClassData = {
     body: CreateClassSubjectTeacherRequest;
     path?: never;
     query?: never;
     url: '/class-subject-teachers';
 };
 
-export type PostClassSubjectTeachers3A4Eb377F8Fa0158A544625F9Ebe2F73Errors = {
+export type AssignSubjectTeacherToClassErrors = {
     /**
      * Bad Request
      */
@@ -12995,13 +13087,13 @@ export type PostClassSubjectTeachers3A4Eb377F8Fa0158A544625F9Ebe2F73Errors = {
     504: unknown;
 };
 
-export type PostClassSubjectTeachers3A4Eb377F8Fa0158A544625F9Ebe2F73Responses = {
+export type AssignSubjectTeacherToClassResponses = {
     200: ClassSubjectTeacherResponse;
 };
 
-export type PostClassSubjectTeachers3A4Eb377F8Fa0158A544625F9Ebe2F73Response = PostClassSubjectTeachers3A4Eb377F8Fa0158A544625F9Ebe2F73Responses[keyof PostClassSubjectTeachers3A4Eb377F8Fa0158A544625F9Ebe2F73Responses];
+export type AssignSubjectTeacherToClassResponse = AssignSubjectTeacherToClassResponses[keyof AssignSubjectTeacherToClassResponses];
 
-export type PutClassSubjectTeachers30F007F9700D63Eaffb9E2Cef7868661Data = {
+export type UpdateSubjectTeacherAssignmentData = {
     body: UpdateClassSubjectTeacherRequest;
     path: {
         /**
@@ -13021,7 +13113,7 @@ export type PutClassSubjectTeachers30F007F9700D63Eaffb9E2Cef7868661Data = {
     url: '/class-subject-teachers/{class_id}/{subject_id}/{academic_year_id}';
 };
 
-export type PutClassSubjectTeachers30F007F9700D63Eaffb9E2Cef7868661Errors = {
+export type UpdateSubjectTeacherAssignmentErrors = {
     /**
      * Bad Request
      */
@@ -13092,13 +13184,13 @@ export type PutClassSubjectTeachers30F007F9700D63Eaffb9E2Cef7868661Errors = {
     504: unknown;
 };
 
-export type PutClassSubjectTeachers30F007F9700D63Eaffb9E2Cef7868661Responses = {
+export type UpdateSubjectTeacherAssignmentResponses = {
     200: ClassSubjectTeacherResponse;
 };
 
-export type PutClassSubjectTeachers30F007F9700D63Eaffb9E2Cef7868661Response = PutClassSubjectTeachers30F007F9700D63Eaffb9E2Cef7868661Responses[keyof PutClassSubjectTeachers30F007F9700D63Eaffb9E2Cef7868661Responses];
+export type UpdateSubjectTeacherAssignmentResponse = UpdateSubjectTeacherAssignmentResponses[keyof UpdateSubjectTeacherAssignmentResponses];
 
-export type DeleteClassSubjectTeachers8D4605708579450D816E27B0Db113EdbData = {
+export type RemoveSubjectTeacherAssignmentData = {
     body?: never;
     path: {
         /**
@@ -13122,7 +13214,7 @@ export type DeleteClassSubjectTeachers8D4605708579450D816E27B0Db113EdbData = {
     url: '/class-subject-teachers/{class_id}/{subject_id}/{teacher_id}/{academic_year_id}';
 };
 
-export type DeleteClassSubjectTeachers8D4605708579450D816E27B0Db113EdbErrors = {
+export type RemoveSubjectTeacherAssignmentErrors = {
     /**
      * Bad Request
      */
@@ -13193,13 +13285,13 @@ export type DeleteClassSubjectTeachers8D4605708579450D816E27B0Db113EdbErrors = {
     504: unknown;
 };
 
-export type DeleteClassSubjectTeachers8D4605708579450D816E27B0Db113EdbResponses = {
+export type RemoveSubjectTeacherAssignmentResponses = {
     200: MessageResponse;
 };
 
-export type DeleteClassSubjectTeachers8D4605708579450D816E27B0Db113EdbResponse = DeleteClassSubjectTeachers8D4605708579450D816E27B0Db113EdbResponses[keyof DeleteClassSubjectTeachers8D4605708579450D816E27B0Db113EdbResponses];
+export type RemoveSubjectTeacherAssignmentResponse = RemoveSubjectTeacherAssignmentResponses[keyof RemoveSubjectTeacherAssignmentResponses];
 
-export type GetClassSubjectTeachersClass6E0E6Bfe96F5114F4E78E916Ffd6D0D3Data = {
+export type GetSubjectsByClassData = {
     body?: never;
     path: {
         /**
@@ -13215,7 +13307,7 @@ export type GetClassSubjectTeachersClass6E0E6Bfe96F5114F4E78E916Ffd6D0D3Data = {
     url: '/class-subject-teachers/class/{class_id}/academic-year/{academic_year_id}/subjects';
 };
 
-export type GetClassSubjectTeachersClass6E0E6Bfe96F5114F4E78E916Ffd6D0D3Errors = {
+export type GetSubjectsByClassErrors = {
     /**
      * Bad Request
      */
@@ -13286,13 +13378,13 @@ export type GetClassSubjectTeachersClass6E0E6Bfe96F5114F4E78E916Ffd6D0D3Errors =
     504: unknown;
 };
 
-export type GetClassSubjectTeachersClass6E0E6Bfe96F5114F4E78E916Ffd6D0D3Responses = {
+export type GetSubjectsByClassResponses = {
     200: Array<SubjectResponse>;
 };
 
-export type GetClassSubjectTeachersClass6E0E6Bfe96F5114F4E78E916Ffd6D0D3Response = GetClassSubjectTeachersClass6E0E6Bfe96F5114F4E78E916Ffd6D0D3Responses[keyof GetClassSubjectTeachersClass6E0E6Bfe96F5114F4E78E916Ffd6D0D3Responses];
+export type GetSubjectsByClassResponse = GetSubjectsByClassResponses[keyof GetSubjectsByClassResponses];
 
-export type GetClassSubjectTeachersTeacherBd709B78E6394Acb697D3F07Dc82004fData = {
+export type GetClassesByTeacherData = {
     body?: never;
     path: {
         /**
@@ -13308,7 +13400,7 @@ export type GetClassSubjectTeachersTeacherBd709B78E6394Acb697D3F07Dc82004fData =
     url: '/class-subject-teachers/teacher/{teacher_id}/academic-year/{academic_year_id}/classes';
 };
 
-export type GetClassSubjectTeachersTeacherBd709B78E6394Acb697D3F07Dc82004fErrors = {
+export type GetClassesByTeacherErrors = {
     /**
      * Bad Request
      */
@@ -13379,20 +13471,20 @@ export type GetClassSubjectTeachersTeacherBd709B78E6394Acb697D3F07Dc82004fErrors
     504: unknown;
 };
 
-export type GetClassSubjectTeachersTeacherBd709B78E6394Acb697D3F07Dc82004fResponses = {
+export type GetClassesByTeacherResponses = {
     200: Array<ClassResponse>;
 };
 
-export type GetClassSubjectTeachersTeacherBd709B78E6394Acb697D3F07Dc82004fResponse = GetClassSubjectTeachersTeacherBd709B78E6394Acb697D3F07Dc82004fResponses[keyof GetClassSubjectTeachersTeacherBd709B78E6394Acb697D3F07Dc82004fResponses];
+export type GetClassesByTeacherResponse = GetClassesByTeacherResponses[keyof GetClassesByTeacherResponses];
 
-export type PostTimetablesA60Ac438B0A6B7Be33E9Eaa32Dfaf6AbData = {
+export type CreateTimetableEntryData = {
     body: CreateTimetableRequest;
     path?: never;
     query?: never;
     url: '/timetables';
 };
 
-export type PostTimetablesA60Ac438B0A6B7Be33E9Eaa32Dfaf6AbErrors = {
+export type CreateTimetableEntryErrors = {
     /**
      * Bad Request
      */
@@ -13463,13 +13555,13 @@ export type PostTimetablesA60Ac438B0A6B7Be33E9Eaa32Dfaf6AbErrors = {
     504: unknown;
 };
 
-export type PostTimetablesA60Ac438B0A6B7Be33E9Eaa32Dfaf6AbResponses = {
+export type CreateTimetableEntryResponses = {
     200: TimetableResponse;
 };
 
-export type PostTimetablesA60Ac438B0A6B7Be33E9Eaa32Dfaf6AbResponse = PostTimetablesA60Ac438B0A6B7Be33E9Eaa32Dfaf6AbResponses[keyof PostTimetablesA60Ac438B0A6B7Be33E9Eaa32Dfaf6AbResponses];
+export type CreateTimetableEntryResponse = CreateTimetableEntryResponses[keyof CreateTimetableEntryResponses];
 
-export type DeleteTimetables8F6B15244Ef6Af89538A8D46Aeb50686Data = {
+export type DeleteTimetableEntryData = {
     body?: never;
     path: {
         /**
@@ -13481,7 +13573,7 @@ export type DeleteTimetables8F6B15244Ef6Af89538A8D46Aeb50686Data = {
     url: '/timetables/{id}';
 };
 
-export type DeleteTimetables8F6B15244Ef6Af89538A8D46Aeb50686Errors = {
+export type DeleteTimetableEntryErrors = {
     /**
      * Bad Request
      */
@@ -13552,13 +13644,13 @@ export type DeleteTimetables8F6B15244Ef6Af89538A8D46Aeb50686Errors = {
     504: unknown;
 };
 
-export type DeleteTimetables8F6B15244Ef6Af89538A8D46Aeb50686Responses = {
+export type DeleteTimetableEntryResponses = {
     200: MessageResponse;
 };
 
-export type DeleteTimetables8F6B15244Ef6Af89538A8D46Aeb50686Response = DeleteTimetables8F6B15244Ef6Af89538A8D46Aeb50686Responses[keyof DeleteTimetables8F6B15244Ef6Af89538A8D46Aeb50686Responses];
+export type DeleteTimetableEntryResponse = DeleteTimetableEntryResponses[keyof DeleteTimetableEntryResponses];
 
-export type GetTimetables8F6B15244Ef6Af89538A8D46Aeb50686Data = {
+export type GetTimetableEntryByIdData = {
     body?: never;
     path: {
         /**
@@ -13570,7 +13662,7 @@ export type GetTimetables8F6B15244Ef6Af89538A8D46Aeb50686Data = {
     url: '/timetables/{id}';
 };
 
-export type GetTimetables8F6B15244Ef6Af89538A8D46Aeb50686Errors = {
+export type GetTimetableEntryByIdErrors = {
     /**
      * Bad Request
      */
@@ -13641,13 +13733,13 @@ export type GetTimetables8F6B15244Ef6Af89538A8D46Aeb50686Errors = {
     504: unknown;
 };
 
-export type GetTimetables8F6B15244Ef6Af89538A8D46Aeb50686Responses = {
+export type GetTimetableEntryByIdResponses = {
     200: TimetableResponse;
 };
 
-export type GetTimetables8F6B15244Ef6Af89538A8D46Aeb50686Response = GetTimetables8F6B15244Ef6Af89538A8D46Aeb50686Responses[keyof GetTimetables8F6B15244Ef6Af89538A8D46Aeb50686Responses];
+export type GetTimetableEntryByIdResponse = GetTimetableEntryByIdResponses[keyof GetTimetableEntryByIdResponses];
 
-export type PutTimetables8F6B15244Ef6Af89538A8D46Aeb50686Data = {
+export type UpdateTimetableEntryData = {
     body: UpdateTimetableRequest;
     path: {
         /**
@@ -13659,7 +13751,7 @@ export type PutTimetables8F6B15244Ef6Af89538A8D46Aeb50686Data = {
     url: '/timetables/{id}';
 };
 
-export type PutTimetables8F6B15244Ef6Af89538A8D46Aeb50686Errors = {
+export type UpdateTimetableEntryErrors = {
     /**
      * Bad Request
      */
@@ -13730,13 +13822,13 @@ export type PutTimetables8F6B15244Ef6Af89538A8D46Aeb50686Errors = {
     504: unknown;
 };
 
-export type PutTimetables8F6B15244Ef6Af89538A8D46Aeb50686Responses = {
+export type UpdateTimetableEntryResponses = {
     200: TimetableResponse;
 };
 
-export type PutTimetables8F6B15244Ef6Af89538A8D46Aeb50686Response = PutTimetables8F6B15244Ef6Af89538A8D46Aeb50686Responses[keyof PutTimetables8F6B15244Ef6Af89538A8D46Aeb50686Responses];
+export type UpdateTimetableEntryResponse = UpdateTimetableEntryResponses[keyof UpdateTimetableEntryResponses];
 
-export type GetTimetablesClass429Dfa8D9860D97656269395Fb268924Data = {
+export type GetTimetableByClassAndDayData = {
     body?: never;
     path: {
         /**
@@ -13756,7 +13848,7 @@ export type GetTimetablesClass429Dfa8D9860D97656269395Fb268924Data = {
     url: '/timetables/class/{class_id}/day/{day_of_week}/academic-year/{academic_year_id}';
 };
 
-export type GetTimetablesClass429Dfa8D9860D97656269395Fb268924Errors = {
+export type GetTimetableByClassAndDayErrors = {
     /**
      * Bad Request
      */
@@ -13827,13 +13919,13 @@ export type GetTimetablesClass429Dfa8D9860D97656269395Fb268924Errors = {
     504: unknown;
 };
 
-export type GetTimetablesClass429Dfa8D9860D97656269395Fb268924Responses = {
+export type GetTimetableByClassAndDayResponses = {
     200: Array<TimetableResponse>;
 };
 
-export type GetTimetablesClass429Dfa8D9860D97656269395Fb268924Response = GetTimetablesClass429Dfa8D9860D97656269395Fb268924Responses[keyof GetTimetablesClass429Dfa8D9860D97656269395Fb268924Responses];
+export type GetTimetableByClassAndDayResponse = GetTimetableByClassAndDayResponses[keyof GetTimetableByClassAndDayResponses];
 
-export type GetTimetablesTeacherDf5669087F5F2852Aa8B2007Eb13E808Data = {
+export type GetTimetableByTeacherData = {
     body?: never;
     path: {
         /**
@@ -13849,7 +13941,7 @@ export type GetTimetablesTeacherDf5669087F5F2852Aa8B2007Eb13E808Data = {
     url: '/timetables/teacher/{teacher_id}/academic-year/{academic_year_id}';
 };
 
-export type GetTimetablesTeacherDf5669087F5F2852Aa8B2007Eb13E808Errors = {
+export type GetTimetableByTeacherErrors = {
     /**
      * Bad Request
      */
@@ -13920,13 +14012,13 @@ export type GetTimetablesTeacherDf5669087F5F2852Aa8B2007Eb13E808Errors = {
     504: unknown;
 };
 
-export type GetTimetablesTeacherDf5669087F5F2852Aa8B2007Eb13E808Responses = {
+export type GetTimetableByTeacherResponses = {
     200: Array<TimetableResponse>;
 };
 
-export type GetTimetablesTeacherDf5669087F5F2852Aa8B2007Eb13E808Response = GetTimetablesTeacherDf5669087F5F2852Aa8B2007Eb13E808Responses[keyof GetTimetablesTeacherDf5669087F5F2852Aa8B2007Eb13E808Responses];
+export type GetTimetableByTeacherResponse = GetTimetableByTeacherResponses[keyof GetTimetableByTeacherResponses];
 
-export type GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bData = {
+export type GetAllExamTypesData = {
     body?: never;
     path?: never;
     query?: {
@@ -13939,7 +14031,7 @@ export type GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bData = {
     url: '/exam-types';
 };
 
-export type GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bErrors = {
+export type GetAllExamTypesErrors = {
     /**
      * Bad Request
      */
@@ -14010,20 +14102,20 @@ export type GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bErrors = {
     504: unknown;
 };
 
-export type GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponses = {
+export type GetAllExamTypesResponses = {
     200: PaginatedExamTypeResponse;
 };
 
-export type GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponse = GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponses[keyof GetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponses];
+export type GetAllExamTypesResponse = GetAllExamTypesResponses[keyof GetAllExamTypesResponses];
 
-export type PostExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bData = {
+export type CreateExamTypeData = {
     body: CreateExamTypeRequest;
     path?: never;
     query?: never;
     url: '/exam-types';
 };
 
-export type PostExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bErrors = {
+export type CreateExamTypeErrors = {
     /**
      * Bad Request
      */
@@ -14094,13 +14186,13 @@ export type PostExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bErrors = {
     504: unknown;
 };
 
-export type PostExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponses = {
+export type CreateExamTypeResponses = {
     200: ExamTypeResponse;
 };
 
-export type PostExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponse = PostExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponses[keyof PostExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponses];
+export type CreateExamTypeResponse = CreateExamTypeResponses[keyof CreateExamTypeResponses];
 
-export type DeleteExamTypes9126Da3723A75916Edd30E224C192A8fData = {
+export type DeleteExamTypeData = {
     body?: never;
     path: {
         /**
@@ -14112,7 +14204,7 @@ export type DeleteExamTypes9126Da3723A75916Edd30E224C192A8fData = {
     url: '/exam-types/{id}';
 };
 
-export type DeleteExamTypes9126Da3723A75916Edd30E224C192A8fErrors = {
+export type DeleteExamTypeErrors = {
     /**
      * Bad Request
      */
@@ -14183,13 +14275,13 @@ export type DeleteExamTypes9126Da3723A75916Edd30E224C192A8fErrors = {
     504: unknown;
 };
 
-export type DeleteExamTypes9126Da3723A75916Edd30E224C192A8fResponses = {
+export type DeleteExamTypeResponses = {
     200: MessageResponse;
 };
 
-export type DeleteExamTypes9126Da3723A75916Edd30E224C192A8fResponse = DeleteExamTypes9126Da3723A75916Edd30E224C192A8fResponses[keyof DeleteExamTypes9126Da3723A75916Edd30E224C192A8fResponses];
+export type DeleteExamTypeResponse = DeleteExamTypeResponses[keyof DeleteExamTypeResponses];
 
-export type GetExamTypes9126Da3723A75916Edd30E224C192A8fData = {
+export type GetExamTypeByIdData = {
     body?: never;
     path: {
         /**
@@ -14201,7 +14293,7 @@ export type GetExamTypes9126Da3723A75916Edd30E224C192A8fData = {
     url: '/exam-types/{id}';
 };
 
-export type GetExamTypes9126Da3723A75916Edd30E224C192A8fErrors = {
+export type GetExamTypeByIdErrors = {
     /**
      * Bad Request
      */
@@ -14272,13 +14364,13 @@ export type GetExamTypes9126Da3723A75916Edd30E224C192A8fErrors = {
     504: unknown;
 };
 
-export type GetExamTypes9126Da3723A75916Edd30E224C192A8fResponses = {
+export type GetExamTypeByIdResponses = {
     200: ExamTypeResponse;
 };
 
-export type GetExamTypes9126Da3723A75916Edd30E224C192A8fResponse = GetExamTypes9126Da3723A75916Edd30E224C192A8fResponses[keyof GetExamTypes9126Da3723A75916Edd30E224C192A8fResponses];
+export type GetExamTypeByIdResponse = GetExamTypeByIdResponses[keyof GetExamTypeByIdResponses];
 
-export type PutExamTypes9126Da3723A75916Edd30E224C192A8fData = {
+export type UpdateExamTypeData = {
     body: UpdateExamTypeRequest;
     path: {
         /**
@@ -14290,7 +14382,7 @@ export type PutExamTypes9126Da3723A75916Edd30E224C192A8fData = {
     url: '/exam-types/{id}';
 };
 
-export type PutExamTypes9126Da3723A75916Edd30E224C192A8fErrors = {
+export type UpdateExamTypeErrors = {
     /**
      * Bad Request
      */
@@ -14361,20 +14453,20 @@ export type PutExamTypes9126Da3723A75916Edd30E224C192A8fErrors = {
     504: unknown;
 };
 
-export type PutExamTypes9126Da3723A75916Edd30E224C192A8fResponses = {
+export type UpdateExamTypeResponses = {
     200: ExamTypeResponse;
 };
 
-export type PutExamTypes9126Da3723A75916Edd30E224C192A8fResponse = PutExamTypes9126Da3723A75916Edd30E224C192A8fResponses[keyof PutExamTypes9126Da3723A75916Edd30E224C192A8fResponses];
+export type UpdateExamTypeResponse = UpdateExamTypeResponses[keyof UpdateExamTypeResponses];
 
-export type DeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdData = {
+export type BulkDeleteExamTypesData = {
     body: BulkDeleteExamTypesRequest;
     path?: never;
     query?: never;
     url: '/exam-types/bulk';
 };
 
-export type DeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdErrors = {
+export type BulkDeleteExamTypesErrors = {
     /**
      * Bad Request
      */
@@ -14445,20 +14537,20 @@ export type DeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdErrors = {
     504: unknown;
 };
 
-export type DeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdResponses = {
+export type BulkDeleteExamTypesResponses = {
     200: MessageResponse;
 };
 
-export type DeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdResponse = DeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdResponses[keyof DeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdResponses];
+export type BulkDeleteExamTypesResponse = BulkDeleteExamTypesResponses[keyof BulkDeleteExamTypesResponses];
 
-export type PatchExamTypesBulk11Ebec7E83Add123E833C872820803CdData = {
+export type BulkUpdateExamTypesData = {
     body: BulkUpdateExamTypesRequest;
     path?: never;
     query?: never;
     url: '/exam-types/bulk';
 };
 
-export type PatchExamTypesBulk11Ebec7E83Add123E833C872820803CdErrors = {
+export type BulkUpdateExamTypesErrors = {
     /**
      * Bad Request
      */
@@ -14529,13 +14621,13 @@ export type PatchExamTypesBulk11Ebec7E83Add123E833C872820803CdErrors = {
     504: unknown;
 };
 
-export type PatchExamTypesBulk11Ebec7E83Add123E833C872820803CdResponses = {
+export type BulkUpdateExamTypesResponses = {
     200: MessageResponse;
 };
 
-export type PatchExamTypesBulk11Ebec7E83Add123E833C872820803CdResponse = PatchExamTypesBulk11Ebec7E83Add123E833C872820803CdResponses[keyof PatchExamTypesBulk11Ebec7E83Add123E833C872820803CdResponses];
+export type BulkUpdateExamTypesResponse = BulkUpdateExamTypesResponses[keyof BulkUpdateExamTypesResponses];
 
-export type GetExams2D53A11E6361124D0D26Bdae3906F4B5Data = {
+export type GetAllExamsData = {
     body?: never;
     path?: never;
     query?: {
@@ -14551,7 +14643,7 @@ export type GetExams2D53A11E6361124D0D26Bdae3906F4B5Data = {
     url: '/exams';
 };
 
-export type GetExams2D53A11E6361124D0D26Bdae3906F4B5Errors = {
+export type GetAllExamsErrors = {
     /**
      * Bad Request
      */
@@ -14622,20 +14714,20 @@ export type GetExams2D53A11E6361124D0D26Bdae3906F4B5Errors = {
     504: unknown;
 };
 
-export type GetExams2D53A11E6361124D0D26Bdae3906F4B5Responses = {
+export type GetAllExamsResponses = {
     200: PaginatedExamResponse;
 };
 
-export type GetExams2D53A11E6361124D0D26Bdae3906F4B5Response = GetExams2D53A11E6361124D0D26Bdae3906F4B5Responses[keyof GetExams2D53A11E6361124D0D26Bdae3906F4B5Responses];
+export type GetAllExamsResponse = GetAllExamsResponses[keyof GetAllExamsResponses];
 
-export type PostExams2D53A11E6361124D0D26Bdae3906F4B5Data = {
+export type CreateExamData = {
     body: CreateExamRequest;
     path?: never;
     query?: never;
     url: '/exams';
 };
 
-export type PostExams2D53A11E6361124D0D26Bdae3906F4B5Errors = {
+export type CreateExamErrors = {
     /**
      * Bad Request
      */
@@ -14706,13 +14798,13 @@ export type PostExams2D53A11E6361124D0D26Bdae3906F4B5Errors = {
     504: unknown;
 };
 
-export type PostExams2D53A11E6361124D0D26Bdae3906F4B5Responses = {
+export type CreateExamResponses = {
     200: ExamResponse;
 };
 
-export type PostExams2D53A11E6361124D0D26Bdae3906F4B5Response = PostExams2D53A11E6361124D0D26Bdae3906F4B5Responses[keyof PostExams2D53A11E6361124D0D26Bdae3906F4B5Responses];
+export type CreateExamResponse = CreateExamResponses[keyof CreateExamResponses];
 
-export type DeleteExams35F92A1465B1D9202D8F4383749E2096Data = {
+export type DeleteExamData = {
     body?: never;
     path: {
         /**
@@ -14724,7 +14816,7 @@ export type DeleteExams35F92A1465B1D9202D8F4383749E2096Data = {
     url: '/exams/{id}';
 };
 
-export type DeleteExams35F92A1465B1D9202D8F4383749E2096Errors = {
+export type DeleteExamErrors = {
     /**
      * Bad Request
      */
@@ -14795,13 +14887,13 @@ export type DeleteExams35F92A1465B1D9202D8F4383749E2096Errors = {
     504: unknown;
 };
 
-export type DeleteExams35F92A1465B1D9202D8F4383749E2096Responses = {
+export type DeleteExamResponses = {
     200: MessageResponse;
 };
 
-export type DeleteExams35F92A1465B1D9202D8F4383749E2096Response = DeleteExams35F92A1465B1D9202D8F4383749E2096Responses[keyof DeleteExams35F92A1465B1D9202D8F4383749E2096Responses];
+export type DeleteExamResponse = DeleteExamResponses[keyof DeleteExamResponses];
 
-export type GetExams35F92A1465B1D9202D8F4383749E2096Data = {
+export type GetExamByIdData = {
     body?: never;
     path: {
         /**
@@ -14813,7 +14905,7 @@ export type GetExams35F92A1465B1D9202D8F4383749E2096Data = {
     url: '/exams/{id}';
 };
 
-export type GetExams35F92A1465B1D9202D8F4383749E2096Errors = {
+export type GetExamByIdErrors = {
     /**
      * Bad Request
      */
@@ -14884,13 +14976,13 @@ export type GetExams35F92A1465B1D9202D8F4383749E2096Errors = {
     504: unknown;
 };
 
-export type GetExams35F92A1465B1D9202D8F4383749E2096Responses = {
+export type GetExamByIdResponses = {
     200: ExamResponse;
 };
 
-export type GetExams35F92A1465B1D9202D8F4383749E2096Response = GetExams35F92A1465B1D9202D8F4383749E2096Responses[keyof GetExams35F92A1465B1D9202D8F4383749E2096Responses];
+export type GetExamByIdResponse = GetExamByIdResponses[keyof GetExamByIdResponses];
 
-export type PutExams35F92A1465B1D9202D8F4383749E2096Data = {
+export type UpdateExamData = {
     body: UpdateExamRequest;
     path: {
         /**
@@ -14902,7 +14994,7 @@ export type PutExams35F92A1465B1D9202D8F4383749E2096Data = {
     url: '/exams/{id}';
 };
 
-export type PutExams35F92A1465B1D9202D8F4383749E2096Errors = {
+export type UpdateExamErrors = {
     /**
      * Bad Request
      */
@@ -14973,13 +15065,13 @@ export type PutExams35F92A1465B1D9202D8F4383749E2096Errors = {
     504: unknown;
 };
 
-export type PutExams35F92A1465B1D9202D8F4383749E2096Responses = {
+export type UpdateExamResponses = {
     200: ExamResponse;
 };
 
-export type PutExams35F92A1465B1D9202D8F4383749E2096Response = PutExams35F92A1465B1D9202D8F4383749E2096Responses[keyof PutExams35F92A1465B1D9202D8F4383749E2096Responses];
+export type UpdateExamResponse = UpdateExamResponses[keyof UpdateExamResponses];
 
-export type GetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bData = {
+export type GetExamsByTermIdData = {
     body?: never;
     path: {
         /**
@@ -14991,7 +15083,7 @@ export type GetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bData = {
     url: '/exams/term/{term_id}';
 };
 
-export type GetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bErrors = {
+export type GetExamsByTermIdErrors = {
     /**
      * Bad Request
      */
@@ -15062,20 +15154,20 @@ export type GetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bErrors = {
     504: unknown;
 };
 
-export type GetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bResponses = {
+export type GetExamsByTermIdResponses = {
     200: Array<ExamResponse>;
 };
 
-export type GetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bResponse = GetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bResponses[keyof GetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bResponses];
+export type GetExamsByTermIdResponse = GetExamsByTermIdResponses[keyof GetExamsByTermIdResponses];
 
-export type DeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcData = {
+export type BulkDeleteExamsData = {
     body: BulkDeleteExamsRequest;
     path?: never;
     query?: never;
     url: '/exams/bulk';
 };
 
-export type DeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcErrors = {
+export type BulkDeleteExamsErrors = {
     /**
      * Bad Request
      */
@@ -15146,20 +15238,20 @@ export type DeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcErrors = {
     504: unknown;
 };
 
-export type DeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponses = {
+export type BulkDeleteExamsResponses = {
     200: MessageResponse;
 };
 
-export type DeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponse = DeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponses[keyof DeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponses];
+export type BulkDeleteExamsResponse = BulkDeleteExamsResponses[keyof BulkDeleteExamsResponses];
 
-export type PatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcData = {
+export type BulkUpdateExamsData = {
     body: BulkUpdateExamsRequest;
     path?: never;
     query?: never;
     url: '/exams/bulk';
 };
 
-export type PatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcErrors = {
+export type BulkUpdateExamsErrors = {
     /**
      * Bad Request
      */
@@ -15230,20 +15322,20 @@ export type PatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcErrors = {
     504: unknown;
 };
 
-export type PatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponses = {
+export type BulkUpdateExamsResponses = {
     200: MessageResponse;
 };
 
-export type PatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponse = PatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponses[keyof PatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponses];
+export type BulkUpdateExamsResponse = BulkUpdateExamsResponses[keyof BulkUpdateExamsResponses];
 
-export type GetExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Data = {
+export type GetAllExamSubjectsData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/exam-subjects';
 };
 
-export type GetExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Errors = {
+export type GetAllExamSubjectsErrors = {
     /**
      * Bad Request
      */
@@ -15314,20 +15406,20 @@ export type GetExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Errors = {
     504: unknown;
 };
 
-export type GetExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Responses = {
+export type GetAllExamSubjectsResponses = {
     200: Array<ExamSubjectResponse>;
 };
 
-export type GetExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Response = GetExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Responses[keyof GetExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Responses];
+export type GetAllExamSubjectsResponse = GetAllExamSubjectsResponses[keyof GetAllExamSubjectsResponses];
 
-export type PostExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Data = {
+export type CreateExamSubjectData = {
     body: CreateExamSubjectRequest;
     path?: never;
     query?: never;
     url: '/exam-subjects';
 };
 
-export type PostExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Errors = {
+export type CreateExamSubjectErrors = {
     /**
      * Bad Request
      */
@@ -15398,13 +15490,13 @@ export type PostExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Errors = {
     504: unknown;
 };
 
-export type PostExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Responses = {
+export type CreateExamSubjectResponses = {
     200: ExamSubjectResponse;
 };
 
-export type PostExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Response = PostExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Responses[keyof PostExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Responses];
+export type CreateExamSubjectResponse = CreateExamSubjectResponses[keyof CreateExamSubjectResponses];
 
-export type DeleteExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Data = {
+export type DeleteExamSubjectData = {
     body?: never;
     path: {
         /**
@@ -15420,7 +15512,7 @@ export type DeleteExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Data = {
     url: '/exam-subjects/{exam_id}/{subject_id}';
 };
 
-export type DeleteExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Errors = {
+export type DeleteExamSubjectErrors = {
     /**
      * Bad Request
      */
@@ -15491,13 +15583,13 @@ export type DeleteExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Errors = {
     504: unknown;
 };
 
-export type DeleteExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Responses = {
+export type DeleteExamSubjectResponses = {
     200: MessageResponse;
 };
 
-export type DeleteExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Response = DeleteExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Responses[keyof DeleteExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Responses];
+export type DeleteExamSubjectResponse = DeleteExamSubjectResponses[keyof DeleteExamSubjectResponses];
 
-export type GetExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Data = {
+export type GetExamSubjectByIdsData = {
     body?: never;
     path: {
         /**
@@ -15513,7 +15605,7 @@ export type GetExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Data = {
     url: '/exam-subjects/{exam_id}/{subject_id}';
 };
 
-export type GetExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Errors = {
+export type GetExamSubjectByIdsErrors = {
     /**
      * Bad Request
      */
@@ -15584,13 +15676,13 @@ export type GetExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Errors = {
     504: unknown;
 };
 
-export type GetExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Responses = {
+export type GetExamSubjectByIdsResponses = {
     200: ExamSubjectResponse;
 };
 
-export type GetExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Response = GetExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Responses[keyof GetExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Responses];
+export type GetExamSubjectByIdsResponse = GetExamSubjectByIdsResponses[keyof GetExamSubjectByIdsResponses];
 
-export type PutExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Data = {
+export type UpdateExamSubjectData = {
     body: UpdateExamSubjectRequest;
     path: {
         /**
@@ -15606,7 +15698,7 @@ export type PutExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Data = {
     url: '/exam-subjects/{exam_id}/{subject_id}';
 };
 
-export type PutExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Errors = {
+export type UpdateExamSubjectErrors = {
     /**
      * Bad Request
      */
@@ -15677,13 +15769,13 @@ export type PutExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Errors = {
     504: unknown;
 };
 
-export type PutExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Responses = {
+export type UpdateExamSubjectResponses = {
     200: ExamSubjectResponse;
 };
 
-export type PutExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Response = PutExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Responses[keyof PutExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Responses];
+export type UpdateExamSubjectResponse = UpdateExamSubjectResponses[keyof UpdateExamSubjectResponses];
 
-export type GetExamSubjectsExam6Bc5E1214F89603399C945D9Cd18A766Data = {
+export type GetExamSubjectsByExamIdData = {
     body?: never;
     path: {
         /**
@@ -15695,7 +15787,7 @@ export type GetExamSubjectsExam6Bc5E1214F89603399C945D9Cd18A766Data = {
     url: '/exam-subjects/exam/{exam_id}';
 };
 
-export type GetExamSubjectsExam6Bc5E1214F89603399C945D9Cd18A766Errors = {
+export type GetExamSubjectsByExamIdErrors = {
     /**
      * Bad Request
      */
@@ -15766,13 +15858,13 @@ export type GetExamSubjectsExam6Bc5E1214F89603399C945D9Cd18A766Errors = {
     504: unknown;
 };
 
-export type GetExamSubjectsExam6Bc5E1214F89603399C945D9Cd18A766Responses = {
+export type GetExamSubjectsByExamIdResponses = {
     200: Array<ExamSubjectResponse>;
 };
 
-export type GetExamSubjectsExam6Bc5E1214F89603399C945D9Cd18A766Response = GetExamSubjectsExam6Bc5E1214F89603399C945D9Cd18A766Responses[keyof GetExamSubjectsExam6Bc5E1214F89603399C945D9Cd18A766Responses];
+export type GetExamSubjectsByExamIdResponse = GetExamSubjectsByExamIdResponses[keyof GetExamSubjectsByExamIdResponses];
 
-export type GetExamSubjectsSubject8A37005B88457Ff0498Bb92451Bc3DddData = {
+export type GetExamSubjectsBySubjectIdData = {
     body?: never;
     path: {
         /**
@@ -15784,7 +15876,7 @@ export type GetExamSubjectsSubject8A37005B88457Ff0498Bb92451Bc3DddData = {
     url: '/exam-subjects/subject/{subject_id}';
 };
 
-export type GetExamSubjectsSubject8A37005B88457Ff0498Bb92451Bc3DddErrors = {
+export type GetExamSubjectsBySubjectIdErrors = {
     /**
      * Bad Request
      */
@@ -15855,13 +15947,13 @@ export type GetExamSubjectsSubject8A37005B88457Ff0498Bb92451Bc3DddErrors = {
     504: unknown;
 };
 
-export type GetExamSubjectsSubject8A37005B88457Ff0498Bb92451Bc3DddResponses = {
+export type GetExamSubjectsBySubjectIdResponses = {
     200: Array<ExamSubjectResponse>;
 };
 
-export type GetExamSubjectsSubject8A37005B88457Ff0498Bb92451Bc3DddResponse = GetExamSubjectsSubject8A37005B88457Ff0498Bb92451Bc3DddResponses[keyof GetExamSubjectsSubject8A37005B88457Ff0498Bb92451Bc3DddResponses];
+export type GetExamSubjectsBySubjectIdResponse = GetExamSubjectsBySubjectIdResponses[keyof GetExamSubjectsBySubjectIdResponses];
 
-export type GetExamSubjectsScheduleAcademicYearD454F3Be99F7004E419069C5Ec501F48Data = {
+export type GetExamScheduleData = {
     body?: never;
     path: {
         /**
@@ -15877,7 +15969,7 @@ export type GetExamSubjectsScheduleAcademicYearD454F3Be99F7004E419069C5Ec501F48D
     url: '/exam-subjects/schedule/academic-year/{academic_year_id}/term/{term_id}';
 };
 
-export type GetExamSubjectsScheduleAcademicYearD454F3Be99F7004E419069C5Ec501F48Errors = {
+export type GetExamScheduleErrors = {
     /**
      * Bad Request
      */
@@ -15948,11 +16040,11 @@ export type GetExamSubjectsScheduleAcademicYearD454F3Be99F7004E419069C5Ec501F48E
     504: unknown;
 };
 
-export type GetExamSubjectsScheduleAcademicYearD454F3Be99F7004E419069C5Ec501F48Responses = {
+export type GetExamScheduleResponses = {
     200: Array<ExamSubjectResponse>;
 };
 
-export type GetExamSubjectsScheduleAcademicYearD454F3Be99F7004E419069C5Ec501F48Response = GetExamSubjectsScheduleAcademicYearD454F3Be99F7004E419069C5Ec501F48Responses[keyof GetExamSubjectsScheduleAcademicYearD454F3Be99F7004E419069C5Ec501F48Responses];
+export type GetExamScheduleResponse = GetExamScheduleResponses[keyof GetExamScheduleResponses];
 
 export type GetAllGradingSchemesData = {
     body?: never;
@@ -16922,14 +17014,14 @@ export type GetGradingCriteriaBySchemeIdResponses = {
 
 export type GetGradingCriteriaBySchemeIdResponse = GetGradingCriteriaBySchemeIdResponses[keyof GetGradingCriteriaBySchemeIdResponses];
 
-export type PostZscoresCalculateAa644B5C557600979Ad41617F0A37643Data = {
+export type CalculateZscoresData = {
     body: CalculateZScoreRequest;
     path?: never;
     query?: never;
     url: '/zscores/calculate';
 };
 
-export type PostZscoresCalculateAa644B5C557600979Ad41617F0A37643Errors = {
+export type CalculateZscoresErrors = {
     /**
      * Bad Request
      */
@@ -17000,20 +17092,20 @@ export type PostZscoresCalculateAa644B5C557600979Ad41617F0A37643Errors = {
     504: unknown;
 };
 
-export type PostZscoresCalculateAa644B5C557600979Ad41617F0A37643Responses = {
+export type CalculateZscoresResponses = {
     200: MessageResponse;
 };
 
-export type PostZscoresCalculateAa644B5C557600979Ad41617F0A37643Response = PostZscoresCalculateAa644B5C557600979Ad41617F0A37643Responses[keyof PostZscoresCalculateAa644B5C557600979Ad41617F0A37643Responses];
+export type CalculateZscoresResponse = CalculateZscoresResponses[keyof CalculateZscoresResponses];
 
-export type PostSpecialExamsRegisterE2896F3F2Bd7Def90B824Df268659A65Data = {
+export type RegisterStudentSpecialExamData = {
     body: ExamRegistrationRequest;
     path?: never;
     query?: never;
     url: '/special-exams/register';
 };
 
-export type PostSpecialExamsRegisterE2896F3F2Bd7Def90B824Df268659A65Errors = {
+export type RegisterStudentSpecialExamErrors = {
     /**
      * Bad Request
      */
@@ -17084,13 +17176,13 @@ export type PostSpecialExamsRegisterE2896F3F2Bd7Def90B824Df268659A65Errors = {
     504: unknown;
 };
 
-export type PostSpecialExamsRegisterE2896F3F2Bd7Def90B824Df268659A65Responses = {
+export type RegisterStudentSpecialExamResponses = {
     200: MessageResponse;
 };
 
-export type PostSpecialExamsRegisterE2896F3F2Bd7Def90B824Df268659A65Response = PostSpecialExamsRegisterE2896F3F2Bd7Def90B824Df268659A65Responses[keyof PostSpecialExamsRegisterE2896F3F2Bd7Def90B824Df268659A65Responses];
+export type RegisterStudentSpecialExamResponse = RegisterStudentSpecialExamResponses[keyof RegisterStudentSpecialExamResponses];
 
-export type PostReportCardsCb11F2Df03874Fd70F003Be0Cf56C617Data = {
+export type GenerateReportCardData = {
     body?: never;
     path: {
         /**
@@ -17102,7 +17194,7 @@ export type PostReportCardsCb11F2Df03874Fd70F003Be0Cf56C617Data = {
     url: '/report-cards/{student_id}';
 };
 
-export type PostReportCardsCb11F2Df03874Fd70F003Be0Cf56C617Errors = {
+export type GenerateReportCardErrors = {
     /**
      * Bad Request
      */
@@ -17173,13 +17265,13 @@ export type PostReportCardsCb11F2Df03874Fd70F003Be0Cf56C617Errors = {
     504: unknown;
 };
 
-export type PostReportCardsCb11F2Df03874Fd70F003Be0Cf56C617Responses = {
+export type GenerateReportCardResponses = {
     200: MessageResponse;
 };
 
-export type PostReportCardsCb11F2Df03874Fd70F003Be0Cf56C617Response = PostReportCardsCb11F2Df03874Fd70F003Be0Cf56C617Responses[keyof PostReportCardsCb11F2Df03874Fd70F003Be0Cf56C617Responses];
+export type GenerateReportCardResponse = GenerateReportCardResponses[keyof GenerateReportCardResponses];
 
-export type GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Data = {
+export type GetAllFeeCategoriesData = {
     body?: never;
     path?: never;
     query?: {
@@ -17193,7 +17285,7 @@ export type GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Data = {
     url: '/fees/categories';
 };
 
-export type GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Errors = {
+export type GetAllFeeCategoriesErrors = {
     /**
      * Bad Request
      */
@@ -17264,20 +17356,20 @@ export type GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Errors = {
     504: unknown;
 };
 
-export type GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Responses = {
+export type GetAllFeeCategoriesResponses = {
     200: PaginatedFeeCategoryResponse;
 };
 
-export type GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Response = GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Responses[keyof GetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Responses];
+export type GetAllFeeCategoriesResponse = GetAllFeeCategoriesResponses[keyof GetAllFeeCategoriesResponses];
 
-export type PostFeesCategoriesD298A597Defddd820187Cae143Fd4E33Data = {
+export type CreateFeeCategoryData = {
     body: CreateFeeCategoryRequest;
     path?: never;
     query?: never;
     url: '/fees/categories';
 };
 
-export type PostFeesCategoriesD298A597Defddd820187Cae143Fd4E33Errors = {
+export type CreateFeeCategoryErrors = {
     /**
      * Bad Request
      */
@@ -17348,13 +17440,13 @@ export type PostFeesCategoriesD298A597Defddd820187Cae143Fd4E33Errors = {
     504: unknown;
 };
 
-export type PostFeesCategoriesD298A597Defddd820187Cae143Fd4E33Responses = {
+export type CreateFeeCategoryResponses = {
     200: FeeCategoryResponse;
 };
 
-export type PostFeesCategoriesD298A597Defddd820187Cae143Fd4E33Response = PostFeesCategoriesD298A597Defddd820187Cae143Fd4E33Responses[keyof PostFeesCategoriesD298A597Defddd820187Cae143Fd4E33Responses];
+export type CreateFeeCategoryResponse = CreateFeeCategoryResponses[keyof CreateFeeCategoryResponses];
 
-export type PutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Data = {
+export type UpdateFeeCategoryData = {
     body: UpdateFeeCategoryRequest;
     path: {
         /**
@@ -17366,7 +17458,7 @@ export type PutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Data = {
     url: '/fees/categories/{id}';
 };
 
-export type PutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Errors = {
+export type UpdateFeeCategoryErrors = {
     /**
      * Bad Request
      */
@@ -17437,20 +17529,20 @@ export type PutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Errors = {
     504: unknown;
 };
 
-export type PutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Responses = {
+export type UpdateFeeCategoryResponses = {
     200: FeeCategoryResponse;
 };
 
-export type PutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Response = PutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Responses[keyof PutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Responses];
+export type UpdateFeeCategoryResponse = UpdateFeeCategoryResponses[keyof UpdateFeeCategoryResponses];
 
-export type DeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Data = {
+export type BulkDeleteFeeCategoriesData = {
     body: BulkDeleteFeeCategoriesRequest;
     path?: never;
     query?: never;
     url: '/fees/categories/bulk';
 };
 
-export type DeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Errors = {
+export type BulkDeleteFeeCategoriesErrors = {
     /**
      * Bad Request
      */
@@ -17521,20 +17613,20 @@ export type DeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Errors = {
     504: unknown;
 };
 
-export type DeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Responses = {
+export type BulkDeleteFeeCategoriesResponses = {
     200: MessageResponse;
 };
 
-export type DeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Response = DeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Responses[keyof DeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Responses];
+export type BulkDeleteFeeCategoriesResponse = BulkDeleteFeeCategoriesResponses[keyof BulkDeleteFeeCategoriesResponses];
 
-export type PatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Data = {
+export type BulkUpdateFeeCategoriesData = {
     body: BulkUpdateFeeCategoriesRequest;
     path?: never;
     query?: never;
     url: '/fees/categories/bulk';
 };
 
-export type PatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Errors = {
+export type BulkUpdateFeeCategoriesErrors = {
     /**
      * Bad Request
      */
@@ -17605,13 +17697,13 @@ export type PatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Errors = {
     504: unknown;
 };
 
-export type PatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Responses = {
+export type BulkUpdateFeeCategoriesResponses = {
     200: MessageResponse;
 };
 
-export type PatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Response = PatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Responses[keyof PatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Responses];
+export type BulkUpdateFeeCategoriesResponse = BulkUpdateFeeCategoriesResponses[keyof BulkUpdateFeeCategoriesResponses];
 
-export type GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfData = {
+export type GetAllFeeStructuresData = {
     body?: never;
     path?: never;
     query?: {
@@ -17628,7 +17720,7 @@ export type GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfData = {
     url: '/fees/structures';
 };
 
-export type GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfErrors = {
+export type GetAllFeeStructuresErrors = {
     /**
      * Bad Request
      */
@@ -17699,20 +17791,20 @@ export type GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfErrors = {
     504: unknown;
 };
 
-export type GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponses = {
+export type GetAllFeeStructuresResponses = {
     200: PaginatedFeeStructureResponse;
 };
 
-export type GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponse = GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponses[keyof GetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponses];
+export type GetAllFeeStructuresResponse = GetAllFeeStructuresResponses[keyof GetAllFeeStructuresResponses];
 
-export type PostFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfData = {
+export type CreateFeeStructureData = {
     body: CreateFeeStructureRequest;
     path?: never;
     query?: never;
     url: '/fees/structures';
 };
 
-export type PostFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfErrors = {
+export type CreateFeeStructureErrors = {
     /**
      * Bad Request
      */
@@ -17783,13 +17875,13 @@ export type PostFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfErrors = {
     504: unknown;
 };
 
-export type PostFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponses = {
+export type CreateFeeStructureResponses = {
     200: FeeStructureResponse;
 };
 
-export type PostFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponse = PostFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponses[keyof PostFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponses];
+export type CreateFeeStructureResponse = CreateFeeStructureResponses[keyof CreateFeeStructureResponses];
 
-export type PutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dData = {
+export type UpdateFeeStructureData = {
     body: UpdateFeeStructureRequest;
     path: {
         /**
@@ -17801,7 +17893,7 @@ export type PutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dData = {
     url: '/fees/structures/{id}';
 };
 
-export type PutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dErrors = {
+export type UpdateFeeStructureErrors = {
     /**
      * Bad Request
      */
@@ -17872,20 +17964,20 @@ export type PutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dErrors = {
     504: unknown;
 };
 
-export type PutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dResponses = {
+export type UpdateFeeStructureResponses = {
     200: FeeStructureResponse;
 };
 
-export type PutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dResponse = PutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dResponses[keyof PutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dResponses];
+export type UpdateFeeStructureResponse = UpdateFeeStructureResponses[keyof UpdateFeeStructureResponses];
 
-export type DeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Data = {
+export type BulkDeleteFeeStructuresData = {
     body: BulkDeleteFeeStructuresRequest;
     path?: never;
     query?: never;
     url: '/fees/structures/bulk';
 };
 
-export type DeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Errors = {
+export type BulkDeleteFeeStructuresErrors = {
     /**
      * Bad Request
      */
@@ -17956,20 +18048,20 @@ export type DeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Errors = {
     504: unknown;
 };
 
-export type DeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Responses = {
+export type BulkDeleteFeeStructuresResponses = {
     200: MessageResponse;
 };
 
-export type DeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Response = DeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Responses[keyof DeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Responses];
+export type BulkDeleteFeeStructuresResponse = BulkDeleteFeeStructuresResponses[keyof BulkDeleteFeeStructuresResponses];
 
-export type PatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Data = {
+export type BulkUpdateFeeStructuresData = {
     body: BulkUpdateFeeStructuresRequest;
     path?: never;
     query?: never;
     url: '/fees/structures/bulk';
 };
 
-export type PatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Errors = {
+export type BulkUpdateFeeStructuresErrors = {
     /**
      * Bad Request
      */
@@ -18040,13 +18132,13 @@ export type PatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Errors = {
     504: unknown;
 };
 
-export type PatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Responses = {
+export type BulkUpdateFeeStructuresResponses = {
     200: MessageResponse;
 };
 
-export type PatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Response = PatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Responses[keyof PatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Responses];
+export type BulkUpdateFeeStructuresResponse = BulkUpdateFeeStructuresResponses[keyof BulkUpdateFeeStructuresResponses];
 
-export type GetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeData = {
+export type GetFeeStructuresByGradeData = {
     body?: never;
     path: {
         /**
@@ -18058,7 +18150,7 @@ export type GetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeData = {
     url: '/fees/structures/grade/{grade_id}';
 };
 
-export type GetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeErrors = {
+export type GetFeeStructuresByGradeErrors = {
     /**
      * Bad Request
      */
@@ -18129,20 +18221,20 @@ export type GetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeErrors = {
     504: unknown;
 };
 
-export type GetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeResponses = {
+export type GetFeeStructuresByGradeResponses = {
     200: Array<FeeStructureResponse>;
 };
 
-export type GetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeResponse = GetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeResponses[keyof GetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeResponses];
+export type GetFeeStructuresByGradeResponse = GetFeeStructuresByGradeResponses[keyof GetFeeStructuresByGradeResponses];
 
-export type PostFeesAssignmentsBc032Dc6E75D287C09C64Ce88Db67898Data = {
+export type AssignFeeToStudentData = {
     body: AssignFeeToStudentRequest;
     path?: never;
     query?: never;
     url: '/fees/assignments';
 };
 
-export type PostFeesAssignmentsBc032Dc6E75D287C09C64Ce88Db67898Errors = {
+export type AssignFeeToStudentErrors = {
     /**
      * Bad Request
      */
@@ -18213,20 +18305,20 @@ export type PostFeesAssignmentsBc032Dc6E75D287C09C64Ce88Db67898Errors = {
     504: unknown;
 };
 
-export type PostFeesAssignmentsBc032Dc6E75D287C09C64Ce88Db67898Responses = {
+export type AssignFeeToStudentResponses = {
     200: StudentFeeResponse;
 };
 
-export type PostFeesAssignmentsBc032Dc6E75D287C09C64Ce88Db67898Response = PostFeesAssignmentsBc032Dc6E75D287C09C64Ce88Db67898Responses[keyof PostFeesAssignmentsBc032Dc6E75D287C09C64Ce88Db67898Responses];
+export type AssignFeeToStudentResponse = AssignFeeToStudentResponses[keyof AssignFeeToStudentResponses];
 
-export type PostFeesAssignmentsBulkBff7D6A6B872De013Ae618F82064D83dData = {
+export type BulkAssignFeesData = {
     body: BulkAssignFeesRequest;
     path?: never;
     query?: never;
     url: '/fees/assignments/bulk';
 };
 
-export type PostFeesAssignmentsBulkBff7D6A6B872De013Ae618F82064D83dErrors = {
+export type BulkAssignFeesErrors = {
     /**
      * Bad Request
      */
@@ -18297,13 +18389,13 @@ export type PostFeesAssignmentsBulkBff7D6A6B872De013Ae618F82064D83dErrors = {
     504: unknown;
 };
 
-export type PostFeesAssignmentsBulkBff7D6A6B872De013Ae618F82064D83dResponses = {
+export type BulkAssignFeesResponses = {
     200: MessageResponse;
 };
 
-export type PostFeesAssignmentsBulkBff7D6A6B872De013Ae618F82064D83dResponse = PostFeesAssignmentsBulkBff7D6A6B872De013Ae618F82064D83dResponses[keyof PostFeesAssignmentsBulkBff7D6A6B872De013Ae618F82064D83dResponses];
+export type BulkAssignFeesResponse = BulkAssignFeesResponses[keyof BulkAssignFeesResponses];
 
-export type GetFeesAssignmentsStudentE63A0211Fbb1A447Be51D679Ed7E4471Data = {
+export type GetStudentFeesData = {
     body?: never;
     path: {
         /**
@@ -18315,7 +18407,7 @@ export type GetFeesAssignmentsStudentE63A0211Fbb1A447Be51D679Ed7E4471Data = {
     url: '/fees/assignments/student/{student_id}';
 };
 
-export type GetFeesAssignmentsStudentE63A0211Fbb1A447Be51D679Ed7E4471Errors = {
+export type GetStudentFeesErrors = {
     /**
      * Bad Request
      */
@@ -18386,13 +18478,13 @@ export type GetFeesAssignmentsStudentE63A0211Fbb1A447Be51D679Ed7E4471Errors = {
     504: unknown;
 };
 
-export type GetFeesAssignmentsStudentE63A0211Fbb1A447Be51D679Ed7E4471Responses = {
+export type GetStudentFeesResponses = {
     200: Array<StudentFeeResponse>;
 };
 
-export type GetFeesAssignmentsStudentE63A0211Fbb1A447Be51D679Ed7E4471Response = GetFeesAssignmentsStudentE63A0211Fbb1A447Be51D679Ed7E4471Responses[keyof GetFeesAssignmentsStudentE63A0211Fbb1A447Be51D679Ed7E4471Responses];
+export type GetStudentFeesResponse = GetStudentFeesResponses[keyof GetStudentFeesResponses];
 
-export type PutFeesAssignments312A6691Ada2Ce4640A5Ecd4E63Ca30dData = {
+export type UpdateStudentFeeData = {
     body: ExemptFeeRequest;
     path: {
         /**
@@ -18404,7 +18496,7 @@ export type PutFeesAssignments312A6691Ada2Ce4640A5Ecd4E63Ca30dData = {
     url: '/fees/assignments/{id}';
 };
 
-export type PutFeesAssignments312A6691Ada2Ce4640A5Ecd4E63Ca30dErrors = {
+export type UpdateStudentFeeErrors = {
     /**
      * Bad Request
      */
@@ -18475,13 +18567,13 @@ export type PutFeesAssignments312A6691Ada2Ce4640A5Ecd4E63Ca30dErrors = {
     504: unknown;
 };
 
-export type PutFeesAssignments312A6691Ada2Ce4640A5Ecd4E63Ca30dResponses = {
+export type UpdateStudentFeeResponses = {
     200: StudentFeeResponse;
 };
 
-export type PutFeesAssignments312A6691Ada2Ce4640A5Ecd4E63Ca30dResponse = PutFeesAssignments312A6691Ada2Ce4640A5Ecd4E63Ca30dResponses[keyof PutFeesAssignments312A6691Ada2Ce4640A5Ecd4E63Ca30dResponses];
+export type UpdateStudentFeeResponse = UpdateStudentFeeResponses[keyof UpdateStudentFeeResponses];
 
-export type PostFeesAssignments8C2034Ad304Fa96Eb1F89C3Ad5401235Data = {
+export type ApplyFeeWaiverData = {
     body: ApplyWaiverRequest;
     path: {
         /**
@@ -18493,7 +18585,7 @@ export type PostFeesAssignments8C2034Ad304Fa96Eb1F89C3Ad5401235Data = {
     url: '/fees/assignments/{id}/waiver';
 };
 
-export type PostFeesAssignments8C2034Ad304Fa96Eb1F89C3Ad5401235Errors = {
+export type ApplyFeeWaiverErrors = {
     /**
      * Bad Request
      */
@@ -18564,20 +18656,20 @@ export type PostFeesAssignments8C2034Ad304Fa96Eb1F89C3Ad5401235Errors = {
     504: unknown;
 };
 
-export type PostFeesAssignments8C2034Ad304Fa96Eb1F89C3Ad5401235Responses = {
+export type ApplyFeeWaiverResponses = {
     200: StudentFeeResponse;
 };
 
-export type PostFeesAssignments8C2034Ad304Fa96Eb1F89C3Ad5401235Response = PostFeesAssignments8C2034Ad304Fa96Eb1F89C3Ad5401235Responses[keyof PostFeesAssignments8C2034Ad304Fa96Eb1F89C3Ad5401235Responses];
+export type ApplyFeeWaiverResponse = ApplyFeeWaiverResponses[keyof ApplyFeeWaiverResponses];
 
-export type GetFeesAssignmentsExemptedC9Ca3C1A426C5Ec60D99582Ba996Dd52Data = {
+export type GetExemptedStudentsData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/fees/assignments/exempted';
 };
 
-export type GetFeesAssignmentsExemptedC9Ca3C1A426C5Ec60D99582Ba996Dd52Errors = {
+export type GetExemptedStudentsErrors = {
     /**
      * Bad Request
      */
@@ -18648,20 +18740,20 @@ export type GetFeesAssignmentsExemptedC9Ca3C1A426C5Ec60D99582Ba996Dd52Errors = {
     504: unknown;
 };
 
-export type GetFeesAssignmentsExemptedC9Ca3C1A426C5Ec60D99582Ba996Dd52Responses = {
+export type GetExemptedStudentsResponses = {
     200: Array<StudentFeeResponse>;
 };
 
-export type GetFeesAssignmentsExemptedC9Ca3C1A426C5Ec60D99582Ba996Dd52Response = GetFeesAssignmentsExemptedC9Ca3C1A426C5Ec60D99582Ba996Dd52Responses[keyof GetFeesAssignmentsExemptedC9Ca3C1A426C5Ec60D99582Ba996Dd52Responses];
+export type GetExemptedStudentsResponse = GetExemptedStudentsResponses[keyof GetExemptedStudentsResponses];
 
-export type PostFeesPayments9F342Bb2Eabe8B12A27B1D3B2B636831Data = {
+export type RecordFeePaymentData = {
     body: RecordFeePaymentRequest;
     path?: never;
     query?: never;
     url: '/fees/payments';
 };
 
-export type PostFeesPayments9F342Bb2Eabe8B12A27B1D3B2B636831Errors = {
+export type RecordFeePaymentErrors = {
     /**
      * Bad Request
      */
@@ -18732,13 +18824,13 @@ export type PostFeesPayments9F342Bb2Eabe8B12A27B1D3B2B636831Errors = {
     504: unknown;
 };
 
-export type PostFeesPayments9F342Bb2Eabe8B12A27B1D3B2B636831Responses = {
+export type RecordFeePaymentResponses = {
     200: FeePaymentResponse;
 };
 
-export type PostFeesPayments9F342Bb2Eabe8B12A27B1D3B2B636831Response = PostFeesPayments9F342Bb2Eabe8B12A27B1D3B2B636831Responses[keyof PostFeesPayments9F342Bb2Eabe8B12A27B1D3B2B636831Responses];
+export type RecordFeePaymentResponse = RecordFeePaymentResponses[keyof RecordFeePaymentResponses];
 
-export type GetFeesPaymentsReport1D69Ac724D19A7Ccf66B9E628B96E4EfData = {
+export type GetPaymentsByDateRangeData = {
     body?: never;
     path?: never;
     query: {
@@ -18748,7 +18840,7 @@ export type GetFeesPaymentsReport1D69Ac724D19A7Ccf66B9E628B96E4EfData = {
     url: '/fees/payments/report';
 };
 
-export type GetFeesPaymentsReport1D69Ac724D19A7Ccf66B9E628B96E4EfErrors = {
+export type GetPaymentsByDateRangeErrors = {
     /**
      * Bad Request
      */
@@ -18819,13 +18911,13 @@ export type GetFeesPaymentsReport1D69Ac724D19A7Ccf66B9E628B96E4EfErrors = {
     504: unknown;
 };
 
-export type GetFeesPaymentsReport1D69Ac724D19A7Ccf66B9E628B96E4EfResponses = {
+export type GetPaymentsByDateRangeResponses = {
     200: Array<FeePaymentResponse>;
 };
 
-export type GetFeesPaymentsReport1D69Ac724D19A7Ccf66B9E628B96E4EfResponse = GetFeesPaymentsReport1D69Ac724D19A7Ccf66B9E628B96E4EfResponses[keyof GetFeesPaymentsReport1D69Ac724D19A7Ccf66B9E628B96E4EfResponses];
+export type GetPaymentsByDateRangeResponse = GetPaymentsByDateRangeResponses[keyof GetPaymentsByDateRangeResponses];
 
-export type GetFeesPaymentsBde5B84Fcac5A8B447095F8349597A01Data = {
+export type GetFeeReceiptData = {
     body?: never;
     path: {
         /**
@@ -18837,7 +18929,7 @@ export type GetFeesPaymentsBde5B84Fcac5A8B447095F8349597A01Data = {
     url: '/fees/payments/{id}/receipt';
 };
 
-export type GetFeesPaymentsBde5B84Fcac5A8B447095F8349597A01Errors = {
+export type GetFeeReceiptErrors = {
     /**
      * Bad Request
      */
@@ -18908,13 +19000,13 @@ export type GetFeesPaymentsBde5B84Fcac5A8B447095F8349597A01Errors = {
     504: unknown;
 };
 
-export type GetFeesPaymentsBde5B84Fcac5A8B447095F8349597A01Responses = {
+export type GetFeeReceiptResponses = {
     200: FeeReceiptResponse;
 };
 
-export type GetFeesPaymentsBde5B84Fcac5A8B447095F8349597A01Response = GetFeesPaymentsBde5B84Fcac5A8B447095F8349597A01Responses[keyof GetFeesPaymentsBde5B84Fcac5A8B447095F8349597A01Responses];
+export type GetFeeReceiptResponse = GetFeeReceiptResponses[keyof GetFeeReceiptResponses];
 
-export type GetFeesHistoryBa8Ecca797B476Aaa9D7062223B2E459Data = {
+export type GetStudentPaymentHistoryData = {
     body?: never;
     path: {
         /**
@@ -18926,7 +19018,7 @@ export type GetFeesHistoryBa8Ecca797B476Aaa9D7062223B2E459Data = {
     url: '/fees/history/{student_id}';
 };
 
-export type GetFeesHistoryBa8Ecca797B476Aaa9D7062223B2E459Errors = {
+export type GetStudentPaymentHistoryErrors = {
     /**
      * Bad Request
      */
@@ -18997,13 +19089,13 @@ export type GetFeesHistoryBa8Ecca797B476Aaa9D7062223B2E459Errors = {
     504: unknown;
 };
 
-export type GetFeesHistoryBa8Ecca797B476Aaa9D7062223B2E459Responses = {
+export type GetStudentPaymentHistoryResponses = {
     200: FeePaymentHistoryResponse;
 };
 
-export type GetFeesHistoryBa8Ecca797B476Aaa9D7062223B2E459Response = GetFeesHistoryBa8Ecca797B476Aaa9D7062223B2E459Responses[keyof GetFeesHistoryBa8Ecca797B476Aaa9D7062223B2E459Responses];
+export type GetStudentPaymentHistoryResponse = GetStudentPaymentHistoryResponses[keyof GetStudentPaymentHistoryResponses];
 
-export type GetFeesBalanceAcff369326673B3264564C75Df847D0dData = {
+export type GetStudentBalanceData = {
     body?: never;
     path: {
         /**
@@ -19015,7 +19107,7 @@ export type GetFeesBalanceAcff369326673B3264564C75Df847D0dData = {
     url: '/fees/balance/{student_id}';
 };
 
-export type GetFeesBalanceAcff369326673B3264564C75Df847D0dErrors = {
+export type GetStudentBalanceErrors = {
     /**
      * Bad Request
      */
@@ -19086,20 +19178,20 @@ export type GetFeesBalanceAcff369326673B3264564C75Df847D0dErrors = {
     504: unknown;
 };
 
-export type GetFeesBalanceAcff369326673B3264564C75Df847D0dResponses = {
+export type GetStudentBalanceResponses = {
     200: StudentBalanceResponse;
 };
 
-export type GetFeesBalanceAcff369326673B3264564C75Df847D0dResponse = GetFeesBalanceAcff369326673B3264564C75Df847D0dResponses[keyof GetFeesBalanceAcff369326673B3264564C75Df847D0dResponses];
+export type GetStudentBalanceResponse = GetStudentBalanceResponses[keyof GetStudentBalanceResponses];
 
-export type GetFeesDefaulters733Db2E6Ff3D670Fdc3D7A60278FdecfData = {
+export type GetFeeDefaultersData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/fees/defaulters';
 };
 
-export type GetFeesDefaulters733Db2E6Ff3D670Fdc3D7A60278FdecfErrors = {
+export type GetFeeDefaultersErrors = {
     /**
      * Bad Request
      */
@@ -19170,20 +19262,20 @@ export type GetFeesDefaulters733Db2E6Ff3D670Fdc3D7A60278FdecfErrors = {
     504: unknown;
 };
 
-export type GetFeesDefaulters733Db2E6Ff3D670Fdc3D7A60278FdecfResponses = {
+export type GetFeeDefaultersResponses = {
     200: Array<FeeDefaulterResponse>;
 };
 
-export type GetFeesDefaulters733Db2E6Ff3D670Fdc3D7A60278FdecfResponse = GetFeesDefaulters733Db2E6Ff3D670Fdc3D7A60278FdecfResponses[keyof GetFeesDefaulters733Db2E6Ff3D670Fdc3D7A60278FdecfResponses];
+export type GetFeeDefaultersResponse = GetFeeDefaultersResponses[keyof GetFeeDefaultersResponses];
 
-export type GetFeesReportsCollection9Fa337D81Ca17817997Aa4A0217Fc5A4Data = {
+export type GetFeeCollectionReportData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/fees/reports/collection';
 };
 
-export type GetFeesReportsCollection9Fa337D81Ca17817997Aa4A0217Fc5A4Errors = {
+export type GetFeeCollectionReportErrors = {
     /**
      * Bad Request
      */
@@ -19254,20 +19346,20 @@ export type GetFeesReportsCollection9Fa337D81Ca17817997Aa4A0217Fc5A4Errors = {
     504: unknown;
 };
 
-export type GetFeesReportsCollection9Fa337D81Ca17817997Aa4A0217Fc5A4Responses = {
+export type GetFeeCollectionReportResponses = {
     200: Array<FeeCollectionReport>;
 };
 
-export type GetFeesReportsCollection9Fa337D81Ca17817997Aa4A0217Fc5A4Response = GetFeesReportsCollection9Fa337D81Ca17817997Aa4A0217Fc5A4Responses[keyof GetFeesReportsCollection9Fa337D81Ca17817997Aa4A0217Fc5A4Responses];
+export type GetFeeCollectionReportResponse = GetFeeCollectionReportResponses[keyof GetFeeCollectionReportResponses];
 
-export type GetFeesReportsGrade6B63Dde3E50B70B7C96Cd8B49Ad8Ee29Data = {
+export type GetGradeFeeCollectionReportData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/fees/reports/grade';
 };
 
-export type GetFeesReportsGrade6B63Dde3E50B70B7C96Cd8B49Ad8Ee29Errors = {
+export type GetGradeFeeCollectionReportErrors = {
     /**
      * Bad Request
      */
@@ -19338,20 +19430,20 @@ export type GetFeesReportsGrade6B63Dde3E50B70B7C96Cd8B49Ad8Ee29Errors = {
     504: unknown;
 };
 
-export type GetFeesReportsGrade6B63Dde3E50B70B7C96Cd8B49Ad8Ee29Responses = {
+export type GetGradeFeeCollectionReportResponses = {
     200: Array<GradeFeeCollectionReport>;
 };
 
-export type GetFeesReportsGrade6B63Dde3E50B70B7C96Cd8B49Ad8Ee29Response = GetFeesReportsGrade6B63Dde3E50B70B7C96Cd8B49Ad8Ee29Responses[keyof GetFeesReportsGrade6B63Dde3E50B70B7C96Cd8B49Ad8Ee29Responses];
+export type GetGradeFeeCollectionReportResponse = GetGradeFeeCollectionReportResponses[keyof GetGradeFeeCollectionReportResponses];
 
-export type GetFeesReportsExport04502F618F4D7B8700F8Ab316497757dData = {
+export type ExportFeeReportsData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/fees/reports/export';
 };
 
-export type GetFeesReportsExport04502F618F4D7B8700F8Ab316497757dErrors = {
+export type ExportFeeReportsErrors = {
     /**
      * Bad Request
      */
@@ -19422,20 +19514,20 @@ export type GetFeesReportsExport04502F618F4D7B8700F8Ab316497757dErrors = {
     504: unknown;
 };
 
-export type GetFeesReportsExport04502F618F4D7B8700F8Ab316497757dResponses = {
+export type ExportFeeReportsResponses = {
     200: ExportReportResponse;
 };
 
-export type GetFeesReportsExport04502F618F4D7B8700F8Ab316497757dResponse = GetFeesReportsExport04502F618F4D7B8700F8Ab316497757dResponses[keyof GetFeesReportsExport04502F618F4D7B8700F8Ab316497757dResponses];
+export type ExportFeeReportsResponse = ExportFeeReportsResponses[keyof ExportFeeReportsResponses];
 
-export type PostFeesRemindersC4054D5Edc68450D55D29B611Adabc25Data = {
+export type SendFeeRemindersData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/fees/reminders';
 };
 
-export type PostFeesRemindersC4054D5Edc68450D55D29B611Adabc25Errors = {
+export type SendFeeRemindersErrors = {
     /**
      * Bad Request
      */
@@ -19506,20 +19598,20 @@ export type PostFeesRemindersC4054D5Edc68450D55D29B611Adabc25Errors = {
     504: unknown;
 };
 
-export type PostFeesRemindersC4054D5Edc68450D55D29B611Adabc25Responses = {
+export type SendFeeRemindersResponses = {
     200: SendRemindersResponse;
 };
 
-export type PostFeesRemindersC4054D5Edc68450D55D29B611Adabc25Response = PostFeesRemindersC4054D5Edc68450D55D29B611Adabc25Responses[keyof PostFeesRemindersC4054D5Edc68450D55D29B611Adabc25Responses];
+export type SendFeeRemindersResponse = SendFeeRemindersResponses[keyof SendFeeRemindersResponses];
 
-export type GetCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Data = {
+export type GetAllSportsData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/co-curricular/sports';
 };
 
-export type GetCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Errors = {
+export type GetAllSportsErrors = {
     /**
      * Bad Request
      */
@@ -19590,20 +19682,20 @@ export type GetCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Errors = {
     504: unknown;
 };
 
-export type GetCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Responses = {
+export type GetAllSportsResponses = {
     200: Array<Sport>;
 };
 
-export type GetCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Response = GetCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Responses[keyof GetCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Responses];
+export type GetAllSportsResponse = GetAllSportsResponses[keyof GetAllSportsResponses];
 
-export type PostCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Data = {
+export type CreateSportData = {
     body: CreateSportRequest;
     path?: never;
     query?: never;
     url: '/co-curricular/sports';
 };
 
-export type PostCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Errors = {
+export type CreateSportErrors = {
     /**
      * Bad Request
      */
@@ -19674,20 +19766,20 @@ export type PostCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Errors = {
     504: unknown;
 };
 
-export type PostCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Responses = {
+export type CreateSportResponses = {
     200: Sport;
 };
 
-export type PostCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Response = PostCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Responses[keyof PostCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Responses];
+export type CreateSportResponse = CreateSportResponses[keyof CreateSportResponses];
 
-export type PostCoCurricularSportsTeams957Febae3Fa5548Ef11301322C31Bb32Data = {
+export type CreateSportTeamData = {
     body: CreateSportTeamRequest;
     path?: never;
     query?: never;
     url: '/co-curricular/sports/teams';
 };
 
-export type PostCoCurricularSportsTeams957Febae3Fa5548Ef11301322C31Bb32Errors = {
+export type CreateSportTeamErrors = {
     /**
      * Bad Request
      */
@@ -19758,13 +19850,13 @@ export type PostCoCurricularSportsTeams957Febae3Fa5548Ef11301322C31Bb32Errors = 
     504: unknown;
 };
 
-export type PostCoCurricularSportsTeams957Febae3Fa5548Ef11301322C31Bb32Responses = {
+export type CreateSportTeamResponses = {
     200: SportTeam;
 };
 
-export type PostCoCurricularSportsTeams957Febae3Fa5548Ef11301322C31Bb32Response = PostCoCurricularSportsTeams957Febae3Fa5548Ef11301322C31Bb32Responses[keyof PostCoCurricularSportsTeams957Febae3Fa5548Ef11301322C31Bb32Responses];
+export type CreateSportTeamResponse = CreateSportTeamResponses[keyof CreateSportTeamResponses];
 
-export type PostCoCurricularSportsTeams6Fa169E07Ed85A50822A8F6C9207B778Data = {
+export type AddSportTeamMemberData = {
     body: AddSportTeamMemberRequest;
     path: {
         /**
@@ -19776,7 +19868,7 @@ export type PostCoCurricularSportsTeams6Fa169E07Ed85A50822A8F6C9207B778Data = {
     url: '/co-curricular/sports/teams/{team_id}/members';
 };
 
-export type PostCoCurricularSportsTeams6Fa169E07Ed85A50822A8F6C9207B778Errors = {
+export type AddSportTeamMemberErrors = {
     /**
      * Bad Request
      */
@@ -19847,20 +19939,20 @@ export type PostCoCurricularSportsTeams6Fa169E07Ed85A50822A8F6C9207B778Errors = 
     504: unknown;
 };
 
-export type PostCoCurricularSportsTeams6Fa169E07Ed85A50822A8F6C9207B778Responses = {
+export type AddSportTeamMemberResponses = {
     200: SportTeamMember;
 };
 
-export type PostCoCurricularSportsTeams6Fa169E07Ed85A50822A8F6C9207B778Response = PostCoCurricularSportsTeams6Fa169E07Ed85A50822A8F6C9207B778Responses[keyof PostCoCurricularSportsTeams6Fa169E07Ed85A50822A8F6C9207B778Responses];
+export type AddSportTeamMemberResponse = AddSportTeamMemberResponses[keyof AddSportTeamMemberResponses];
 
-export type PostCoCurricularSportsEventsAebaf9D0A1Ac40F470A5F3F11Db4Bd6eData = {
+export type CreateSportEventData = {
     body: CreateSportEventRequest;
     path?: never;
     query?: never;
     url: '/co-curricular/sports/events';
 };
 
-export type PostCoCurricularSportsEventsAebaf9D0A1Ac40F470A5F3F11Db4Bd6eErrors = {
+export type CreateSportEventErrors = {
     /**
      * Bad Request
      */
@@ -19931,13 +20023,13 @@ export type PostCoCurricularSportsEventsAebaf9D0A1Ac40F470A5F3F11Db4Bd6eErrors =
     504: unknown;
 };
 
-export type PostCoCurricularSportsEventsAebaf9D0A1Ac40F470A5F3F11Db4Bd6eResponses = {
+export type CreateSportEventResponses = {
     200: SportEvent;
 };
 
-export type PostCoCurricularSportsEventsAebaf9D0A1Ac40F470A5F3F11Db4Bd6eResponse = PostCoCurricularSportsEventsAebaf9D0A1Ac40F470A5F3F11Db4Bd6eResponses[keyof PostCoCurricularSportsEventsAebaf9D0A1Ac40F470A5F3F11Db4Bd6eResponses];
+export type CreateSportEventResponse = CreateSportEventResponses[keyof CreateSportEventResponses];
 
-export type PostCoCurricularSportsEventsCae142036Ab7B7E1C2B104D89Bfa9A5fData = {
+export type RecordSportEventResultData = {
     body: RecordEventResultRequest;
     path: {
         /**
@@ -19949,7 +20041,7 @@ export type PostCoCurricularSportsEventsCae142036Ab7B7E1C2B104D89Bfa9A5fData = {
     url: '/co-curricular/sports/events/{event_id}/results';
 };
 
-export type PostCoCurricularSportsEventsCae142036Ab7B7E1C2B104D89Bfa9A5fErrors = {
+export type RecordSportEventResultErrors = {
     /**
      * Bad Request
      */
@@ -20020,20 +20112,20 @@ export type PostCoCurricularSportsEventsCae142036Ab7B7E1C2B104D89Bfa9A5fErrors =
     504: unknown;
 };
 
-export type PostCoCurricularSportsEventsCae142036Ab7B7E1C2B104D89Bfa9A5fResponses = {
+export type RecordSportEventResultResponses = {
     200: SportEventParticipant;
 };
 
-export type PostCoCurricularSportsEventsCae142036Ab7B7E1C2B104D89Bfa9A5fResponse = PostCoCurricularSportsEventsCae142036Ab7B7E1C2B104D89Bfa9A5fResponses[keyof PostCoCurricularSportsEventsCae142036Ab7B7E1C2B104D89Bfa9A5fResponses];
+export type RecordSportEventResultResponse = RecordSportEventResultResponses[keyof RecordSportEventResultResponses];
 
-export type PostCoCurricularClubsD5F034D0Daab91E767092625De69E105Data = {
+export type CreateClubData = {
     body: CreateClubRequest;
     path?: never;
     query?: never;
     url: '/co-curricular/clubs';
 };
 
-export type PostCoCurricularClubsD5F034D0Daab91E767092625De69E105Errors = {
+export type CreateClubErrors = {
     /**
      * Bad Request
      */
@@ -20104,13 +20196,13 @@ export type PostCoCurricularClubsD5F034D0Daab91E767092625De69E105Errors = {
     504: unknown;
 };
 
-export type PostCoCurricularClubsD5F034D0Daab91E767092625De69E105Responses = {
+export type CreateClubResponses = {
     200: Club;
 };
 
-export type PostCoCurricularClubsD5F034D0Daab91E767092625De69E105Response = PostCoCurricularClubsD5F034D0Daab91E767092625De69E105Responses[keyof PostCoCurricularClubsD5F034D0Daab91E767092625De69E105Responses];
+export type CreateClubResponse = CreateClubResponses[keyof CreateClubResponses];
 
-export type PostCoCurricularClubs0B41747093Aa16E2Ef0E22Ce714A6AcaData = {
+export type AddClubMemberData = {
     body: AddClubMemberRequest;
     path: {
         /**
@@ -20122,7 +20214,7 @@ export type PostCoCurricularClubs0B41747093Aa16E2Ef0E22Ce714A6AcaData = {
     url: '/co-curricular/clubs/{club_id}/members';
 };
 
-export type PostCoCurricularClubs0B41747093Aa16E2Ef0E22Ce714A6AcaErrors = {
+export type AddClubMemberErrors = {
     /**
      * Bad Request
      */
@@ -20193,20 +20285,20 @@ export type PostCoCurricularClubs0B41747093Aa16E2Ef0E22Ce714A6AcaErrors = {
     504: unknown;
 };
 
-export type PostCoCurricularClubs0B41747093Aa16E2Ef0E22Ce714A6AcaResponses = {
+export type AddClubMemberResponses = {
     200: ClubMember;
 };
 
-export type PostCoCurricularClubs0B41747093Aa16E2Ef0E22Ce714A6AcaResponse = PostCoCurricularClubs0B41747093Aa16E2Ef0E22Ce714A6AcaResponses[keyof PostCoCurricularClubs0B41747093Aa16E2Ef0E22Ce714A6AcaResponses];
+export type AddClubMemberResponse = AddClubMemberResponses[keyof AddClubMemberResponses];
 
-export type PostCoCurricularClubsActivities9862279029D206E33A3F18A8514642EbData = {
+export type CreateClubActivityData = {
     body: CreateClubActivityRequest;
     path?: never;
     query?: never;
     url: '/co-curricular/clubs/activities';
 };
 
-export type PostCoCurricularClubsActivities9862279029D206E33A3F18A8514642EbErrors = {
+export type CreateClubActivityErrors = {
     /**
      * Bad Request
      */
@@ -20277,20 +20369,20 @@ export type PostCoCurricularClubsActivities9862279029D206E33A3F18A8514642EbError
     504: unknown;
 };
 
-export type PostCoCurricularClubsActivities9862279029D206E33A3F18A8514642EbResponses = {
+export type CreateClubActivityResponses = {
     200: ClubActivity;
 };
 
-export type PostCoCurricularClubsActivities9862279029D206E33A3F18A8514642EbResponse = PostCoCurricularClubsActivities9862279029D206E33A3F18A8514642EbResponses[keyof PostCoCurricularClubsActivities9862279029D206E33A3F18A8514642EbResponses];
+export type CreateClubActivityResponse = CreateClubActivityResponses[keyof CreateClubActivityResponses];
 
-export type PostCoCurricularCompetitionsBe2C82Beb4896A37022Ad67De2274075Data = {
+export type CreateCompetitionData = {
     body: CreateCompetitionRequest;
     path?: never;
     query?: never;
     url: '/co-curricular/competitions';
 };
 
-export type PostCoCurricularCompetitionsBe2C82Beb4896A37022Ad67De2274075Errors = {
+export type CreateCompetitionErrors = {
     /**
      * Bad Request
      */
@@ -20361,13 +20453,13 @@ export type PostCoCurricularCompetitionsBe2C82Beb4896A37022Ad67De2274075Errors =
     504: unknown;
 };
 
-export type PostCoCurricularCompetitionsBe2C82Beb4896A37022Ad67De2274075Responses = {
+export type CreateCompetitionResponses = {
     200: Competition;
 };
 
-export type PostCoCurricularCompetitionsBe2C82Beb4896A37022Ad67De2274075Response = PostCoCurricularCompetitionsBe2C82Beb4896A37022Ad67De2274075Responses[keyof PostCoCurricularCompetitionsBe2C82Beb4896A37022Ad67De2274075Responses];
+export type CreateCompetitionResponse = CreateCompetitionResponses[keyof CreateCompetitionResponses];
 
-export type PostCoCurricularCompetitions208A9B96533Fedfd2F432Ab4746E686eData = {
+export type AddCompetitionParticipantData = {
     body: AddCompetitionParticipantRequest;
     path: {
         /**
@@ -20379,7 +20471,7 @@ export type PostCoCurricularCompetitions208A9B96533Fedfd2F432Ab4746E686eData = {
     url: '/co-curricular/competitions/{id}/participants';
 };
 
-export type PostCoCurricularCompetitions208A9B96533Fedfd2F432Ab4746E686eErrors = {
+export type AddCompetitionParticipantErrors = {
     /**
      * Bad Request
      */
@@ -20450,20 +20542,20 @@ export type PostCoCurricularCompetitions208A9B96533Fedfd2F432Ab4746E686eErrors =
     504: unknown;
 };
 
-export type PostCoCurricularCompetitions208A9B96533Fedfd2F432Ab4746E686eResponses = {
+export type AddCompetitionParticipantResponses = {
     200: CompetitionParticipant;
 };
 
-export type PostCoCurricularCompetitions208A9B96533Fedfd2F432Ab4746E686eResponse = PostCoCurricularCompetitions208A9B96533Fedfd2F432Ab4746E686eResponses[keyof PostCoCurricularCompetitions208A9B96533Fedfd2F432Ab4746E686eResponses];
+export type AddCompetitionParticipantResponse = AddCompetitionParticipantResponses[keyof AddCompetitionParticipantResponses];
 
-export type PostCoCurricularAchievementsEbfee1523F740Fdfa21B2F22D50BcdfbData = {
+export type CreateStudentAchievementData = {
     body: CreateStudentAchievementRequest;
     path?: never;
     query?: never;
     url: '/co-curricular/achievements';
 };
 
-export type PostCoCurricularAchievementsEbfee1523F740Fdfa21B2F22D50BcdfbErrors = {
+export type CreateStudentAchievementErrors = {
     /**
      * Bad Request
      */
@@ -20534,20 +20626,20 @@ export type PostCoCurricularAchievementsEbfee1523F740Fdfa21B2F22D50BcdfbErrors =
     504: unknown;
 };
 
-export type PostCoCurricularAchievementsEbfee1523F740Fdfa21B2F22D50BcdfbResponses = {
+export type CreateStudentAchievementResponses = {
     200: StudentAchievement;
 };
 
-export type PostCoCurricularAchievementsEbfee1523F740Fdfa21B2F22D50BcdfbResponse = PostCoCurricularAchievementsEbfee1523F740Fdfa21B2F22D50BcdfbResponses[keyof PostCoCurricularAchievementsEbfee1523F740Fdfa21B2F22D50BcdfbResponses];
+export type CreateStudentAchievementResponse = CreateStudentAchievementResponses[keyof CreateStudentAchievementResponses];
 
-export type PostCoCurricularCulturalEventsE7Faa7Dd3Fb138Efce63D60266Ef8433Data = {
+export type CreateCulturalEventData = {
     body: CreateCulturalEventRequest;
     path?: never;
     query?: never;
     url: '/co-curricular/cultural/events';
 };
 
-export type PostCoCurricularCulturalEventsE7Faa7Dd3Fb138Efce63D60266Ef8433Errors = {
+export type CreateCulturalEventErrors = {
     /**
      * Bad Request
      */
@@ -20618,13 +20710,13 @@ export type PostCoCurricularCulturalEventsE7Faa7Dd3Fb138Efce63D60266Ef8433Errors
     504: unknown;
 };
 
-export type PostCoCurricularCulturalEventsE7Faa7Dd3Fb138Efce63D60266Ef8433Responses = {
+export type CreateCulturalEventResponses = {
     200: CulturalEvent;
 };
 
-export type PostCoCurricularCulturalEventsE7Faa7Dd3Fb138Efce63D60266Ef8433Response = PostCoCurricularCulturalEventsE7Faa7Dd3Fb138Efce63D60266Ef8433Responses[keyof PostCoCurricularCulturalEventsE7Faa7Dd3Fb138Efce63D60266Ef8433Responses];
+export type CreateCulturalEventResponse = CreateCulturalEventResponses[keyof CreateCulturalEventResponses];
 
-export type PostCoCurricularCulturalEvents7C52B4A4Cfebb90Af784F5C7805D9Ab3Data = {
+export type AddCulturalEventParticipantData = {
     body: AddCulturalEventParticipantRequest;
     path: {
         /**
@@ -20636,7 +20728,7 @@ export type PostCoCurricularCulturalEvents7C52B4A4Cfebb90Af784F5C7805D9Ab3Data =
     url: '/co-curricular/cultural/events/{id}/participants';
 };
 
-export type PostCoCurricularCulturalEvents7C52B4A4Cfebb90Af784F5C7805D9Ab3Errors = {
+export type AddCulturalEventParticipantErrors = {
     /**
      * Bad Request
      */
@@ -20707,13 +20799,13 @@ export type PostCoCurricularCulturalEvents7C52B4A4Cfebb90Af784F5C7805D9Ab3Errors
     504: unknown;
 };
 
-export type PostCoCurricularCulturalEvents7C52B4A4Cfebb90Af784F5C7805D9Ab3Responses = {
+export type AddCulturalEventParticipantResponses = {
     200: CulturalEventParticipant;
 };
 
-export type PostCoCurricularCulturalEvents7C52B4A4Cfebb90Af784F5C7805D9Ab3Response = PostCoCurricularCulturalEvents7C52B4A4Cfebb90Af784F5C7805D9Ab3Responses[keyof PostCoCurricularCulturalEvents7C52B4A4Cfebb90Af784F5C7805D9Ab3Responses];
+export type AddCulturalEventParticipantResponse = AddCulturalEventParticipantResponses[keyof AddCulturalEventParticipantResponses];
 
-export type GetCoCurricularSummaryStudent769D6648F7E0672783Bf8A05466D8C4dData = {
+export type GetStudentCoCurricularSummaryData = {
     body?: never;
     path: {
         /**
@@ -20725,7 +20817,7 @@ export type GetCoCurricularSummaryStudent769D6648F7E0672783Bf8A05466D8C4dData = 
     url: '/co-curricular/summary/student/{student_id}';
 };
 
-export type GetCoCurricularSummaryStudent769D6648F7E0672783Bf8A05466D8C4dErrors = {
+export type GetStudentCoCurricularSummaryErrors = {
     /**
      * Bad Request
      */
@@ -20796,13 +20888,13 @@ export type GetCoCurricularSummaryStudent769D6648F7E0672783Bf8A05466D8C4dErrors 
     504: unknown;
 };
 
-export type GetCoCurricularSummaryStudent769D6648F7E0672783Bf8A05466D8C4dResponses = {
+export type GetStudentCoCurricularSummaryResponses = {
     200: StudentCoCurricularSummary;
 };
 
-export type GetCoCurricularSummaryStudent769D6648F7E0672783Bf8A05466D8C4dResponse = GetCoCurricularSummaryStudent769D6648F7E0672783Bf8A05466D8C4dResponses[keyof GetCoCurricularSummaryStudent769D6648F7E0672783Bf8A05466D8C4dResponses];
+export type GetStudentCoCurricularSummaryResponse = GetStudentCoCurricularSummaryResponses[keyof GetStudentCoCurricularSummaryResponses];
 
-export type GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Data = {
+export type GetAllLibraryCategoriesData = {
     body?: never;
     path?: never;
     query?: {
@@ -20815,7 +20907,7 @@ export type GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Data = {
     url: '/library/categories';
 };
 
-export type GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Errors = {
+export type GetAllLibraryCategoriesErrors = {
     /**
      * Bad Request
      */
@@ -20886,20 +20978,20 @@ export type GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Errors = {
     504: unknown;
 };
 
-export type GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Responses = {
+export type GetAllLibraryCategoriesResponses = {
     200: PaginatedLibraryCategoryResponse;
 };
 
-export type GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Response = GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Responses[keyof GetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Responses];
+export type GetAllLibraryCategoriesResponse = GetAllLibraryCategoriesResponses[keyof GetAllLibraryCategoriesResponses];
 
-export type PostLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Data = {
+export type CreateLibraryCategoryData = {
     body: CreateLibraryCategoryRequest;
     path?: never;
     query?: never;
     url: '/library/categories';
 };
 
-export type PostLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Errors = {
+export type CreateLibraryCategoryErrors = {
     /**
      * Bad Request
      */
@@ -20970,20 +21062,20 @@ export type PostLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Errors = {
     504: unknown;
 };
 
-export type PostLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Responses = {
+export type CreateLibraryCategoryResponses = {
     200: LibraryCategory;
 };
 
-export type PostLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Response = PostLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Responses[keyof PostLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Responses];
+export type CreateLibraryCategoryResponse = CreateLibraryCategoryResponses[keyof CreateLibraryCategoryResponses];
 
-export type DeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Data = {
+export type BulkDeleteLibraryCategoriesData = {
     body: BulkDeleteLibraryCategoriesRequest;
     path?: never;
     query?: never;
     url: '/library/categories/bulk';
 };
 
-export type DeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Errors = {
+export type BulkDeleteLibraryCategoriesErrors = {
     /**
      * Bad Request
      */
@@ -21054,20 +21146,20 @@ export type DeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Errors = 
     504: unknown;
 };
 
-export type DeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Responses = {
+export type BulkDeleteLibraryCategoriesResponses = {
     200: MessageResponse;
 };
 
-export type DeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Response = DeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Responses[keyof DeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Responses];
+export type BulkDeleteLibraryCategoriesResponse = BulkDeleteLibraryCategoriesResponses[keyof BulkDeleteLibraryCategoriesResponses];
 
-export type PatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Data = {
+export type BulkUpdateLibraryCategoriesData = {
     body: BulkUpdateLibraryCategoriesRequest;
     path?: never;
     query?: never;
     url: '/library/categories/bulk';
 };
 
-export type PatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Errors = {
+export type BulkUpdateLibraryCategoriesErrors = {
     /**
      * Bad Request
      */
@@ -21138,13 +21230,13 @@ export type PatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Errors = {
     504: unknown;
 };
 
-export type PatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Responses = {
+export type BulkUpdateLibraryCategoriesResponses = {
     200: MessageResponse;
 };
 
-export type PatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Response = PatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Responses[keyof PatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Responses];
+export type BulkUpdateLibraryCategoriesResponse = BulkUpdateLibraryCategoriesResponses[keyof BulkUpdateLibraryCategoriesResponses];
 
-export type GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbData = {
+export type GetAllLibraryBooksData = {
     body?: never;
     path?: never;
     query?: {
@@ -21158,7 +21250,7 @@ export type GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbData = {
     url: '/library/books';
 };
 
-export type GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbErrors = {
+export type GetAllLibraryBooksErrors = {
     /**
      * Bad Request
      */
@@ -21229,20 +21321,20 @@ export type GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbErrors = {
     504: unknown;
 };
 
-export type GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponses = {
+export type GetAllLibraryBooksResponses = {
     200: PaginatedLibraryBookResponse;
 };
 
-export type GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponse = GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponses[keyof GetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponses];
+export type GetAllLibraryBooksResponse = GetAllLibraryBooksResponses[keyof GetAllLibraryBooksResponses];
 
-export type PostLibraryBooks1Ceba562D35D84E43760Aafbdad311AbData = {
+export type CreateLibraryBookData = {
     body: CreateLibraryBookRequest;
     path?: never;
     query?: never;
     url: '/library/books';
 };
 
-export type PostLibraryBooks1Ceba562D35D84E43760Aafbdad311AbErrors = {
+export type CreateLibraryBookErrors = {
     /**
      * Bad Request
      */
@@ -21313,20 +21405,20 @@ export type PostLibraryBooks1Ceba562D35D84E43760Aafbdad311AbErrors = {
     504: unknown;
 };
 
-export type PostLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponses = {
+export type CreateLibraryBookResponses = {
     200: LibraryBookResponse;
 };
 
-export type PostLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponse = PostLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponses[keyof PostLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponses];
+export type CreateLibraryBookResponse = CreateLibraryBookResponses[keyof CreateLibraryBookResponses];
 
-export type DeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Data = {
+export type BulkDeleteLibraryBooksData = {
     body: BulkDeleteLibraryBooksRequest;
     path?: never;
     query?: never;
     url: '/library/books/bulk';
 };
 
-export type DeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Errors = {
+export type BulkDeleteLibraryBooksErrors = {
     /**
      * Bad Request
      */
@@ -21397,20 +21489,20 @@ export type DeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Errors = {
     504: unknown;
 };
 
-export type DeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Responses = {
+export type BulkDeleteLibraryBooksResponses = {
     200: MessageResponse;
 };
 
-export type DeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Response = DeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Responses[keyof DeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Responses];
+export type BulkDeleteLibraryBooksResponse = BulkDeleteLibraryBooksResponses[keyof BulkDeleteLibraryBooksResponses];
 
-export type PatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Data = {
+export type BulkUpdateLibraryBooksData = {
     body: BulkUpdateLibraryBooksRequest;
     path?: never;
     query?: never;
     url: '/library/books/bulk';
 };
 
-export type PatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Errors = {
+export type BulkUpdateLibraryBooksErrors = {
     /**
      * Bad Request
      */
@@ -21481,13 +21573,13 @@ export type PatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Errors = {
     504: unknown;
 };
 
-export type PatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Responses = {
+export type BulkUpdateLibraryBooksResponses = {
     200: MessageResponse;
 };
 
-export type PatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Response = PatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Responses[keyof PatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Responses];
+export type BulkUpdateLibraryBooksResponse = BulkUpdateLibraryBooksResponses[keyof BulkUpdateLibraryBooksResponses];
 
-export type GetLibraryBooksSearch10595D409Fabb30860Ac34Da57666587Data = {
+export type SearchLibraryBooksData = {
     body?: never;
     path?: never;
     query?: {
@@ -21496,7 +21588,7 @@ export type GetLibraryBooksSearch10595D409Fabb30860Ac34Da57666587Data = {
     url: '/library/books/search';
 };
 
-export type GetLibraryBooksSearch10595D409Fabb30860Ac34Da57666587Errors = {
+export type SearchLibraryBooksErrors = {
     /**
      * Bad Request
      */
@@ -21567,13 +21659,13 @@ export type GetLibraryBooksSearch10595D409Fabb30860Ac34Da57666587Errors = {
     504: unknown;
 };
 
-export type GetLibraryBooksSearch10595D409Fabb30860Ac34Da57666587Responses = {
+export type SearchLibraryBooksResponses = {
     200: Array<LibraryBookResponse>;
 };
 
-export type GetLibraryBooksSearch10595D409Fabb30860Ac34Da57666587Response = GetLibraryBooksSearch10595D409Fabb30860Ac34Da57666587Responses[keyof GetLibraryBooksSearch10595D409Fabb30860Ac34Da57666587Responses];
+export type SearchLibraryBooksResponse = SearchLibraryBooksResponses[keyof SearchLibraryBooksResponses];
 
-export type DeleteLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Data = {
+export type DeleteLibraryBookData = {
     body?: never;
     path: {
         /**
@@ -21585,7 +21677,7 @@ export type DeleteLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Data = {
     url: '/library/books/{book_id}';
 };
 
-export type DeleteLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Errors = {
+export type DeleteLibraryBookErrors = {
     /**
      * Bad Request
      */
@@ -21656,13 +21748,13 @@ export type DeleteLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Errors = {
     504: unknown;
 };
 
-export type DeleteLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Responses = {
+export type DeleteLibraryBookResponses = {
     200: MessageResponse;
 };
 
-export type DeleteLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Response = DeleteLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Responses[keyof DeleteLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Responses];
+export type DeleteLibraryBookResponse = DeleteLibraryBookResponses[keyof DeleteLibraryBookResponses];
 
-export type GetLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Data = {
+export type GetLibraryBookByIdData = {
     body?: never;
     path: {
         /**
@@ -21674,7 +21766,7 @@ export type GetLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Data = {
     url: '/library/books/{book_id}';
 };
 
-export type GetLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Errors = {
+export type GetLibraryBookByIdErrors = {
     /**
      * Bad Request
      */
@@ -21745,13 +21837,13 @@ export type GetLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Errors = {
     504: unknown;
 };
 
-export type GetLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Responses = {
+export type GetLibraryBookByIdResponses = {
     200: LibraryBookResponse;
 };
 
-export type GetLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Response = GetLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Responses[keyof GetLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Responses];
+export type GetLibraryBookByIdResponse = GetLibraryBookByIdResponses[keyof GetLibraryBookByIdResponses];
 
-export type PutLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Data = {
+export type UpdateLibraryBookData = {
     body: UpdateLibraryBookRequest;
     path: {
         /**
@@ -21763,7 +21855,7 @@ export type PutLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Data = {
     url: '/library/books/{book_id}';
 };
 
-export type PutLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Errors = {
+export type UpdateLibraryBookErrors = {
     /**
      * Bad Request
      */
@@ -21834,13 +21926,13 @@ export type PutLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Errors = {
     504: unknown;
 };
 
-export type PutLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Responses = {
+export type UpdateLibraryBookResponses = {
     200: LibraryBookResponse;
 };
 
-export type PutLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Response = PutLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Responses[keyof PutLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Responses];
+export type UpdateLibraryBookResponse = UpdateLibraryBookResponses[keyof UpdateLibraryBookResponses];
 
-export type GetLibraryBooksCategory5F00B784A047Bcc0Bdc4C5732A3Ece66Data = {
+export type GetLibraryBooksByCategoryData = {
     body?: never;
     path: {
         /**
@@ -21852,7 +21944,7 @@ export type GetLibraryBooksCategory5F00B784A047Bcc0Bdc4C5732A3Ece66Data = {
     url: '/library/books/category/{category_id}';
 };
 
-export type GetLibraryBooksCategory5F00B784A047Bcc0Bdc4C5732A3Ece66Errors = {
+export type GetLibraryBooksByCategoryErrors = {
     /**
      * Bad Request
      */
@@ -21923,20 +22015,20 @@ export type GetLibraryBooksCategory5F00B784A047Bcc0Bdc4C5732A3Ece66Errors = {
     504: unknown;
 };
 
-export type GetLibraryBooksCategory5F00B784A047Bcc0Bdc4C5732A3Ece66Responses = {
+export type GetLibraryBooksByCategoryResponses = {
     200: Array<LibraryBookResponse>;
 };
 
-export type GetLibraryBooksCategory5F00B784A047Bcc0Bdc4C5732A3Ece66Response = GetLibraryBooksCategory5F00B784A047Bcc0Bdc4C5732A3Ece66Responses[keyof GetLibraryBooksCategory5F00B784A047Bcc0Bdc4C5732A3Ece66Responses];
+export type GetLibraryBooksByCategoryResponse = GetLibraryBooksByCategoryResponses[keyof GetLibraryBooksByCategoryResponses];
 
-export type PostLibraryIssuesFbe006Fa0Bcaaa326D27C0F91D2Bf749Data = {
+export type IssueLibraryBookData = {
     body: IssueBookRequest;
     path?: never;
     query?: never;
     url: '/library/issues';
 };
 
-export type PostLibraryIssuesFbe006Fa0Bcaaa326D27C0F91D2Bf749Errors = {
+export type IssueLibraryBookErrors = {
     /**
      * Bad Request
      */
@@ -22007,13 +22099,13 @@ export type PostLibraryIssuesFbe006Fa0Bcaaa326D27C0F91D2Bf749Errors = {
     504: unknown;
 };
 
-export type PostLibraryIssuesFbe006Fa0Bcaaa326D27C0F91D2Bf749Responses = {
+export type IssueLibraryBookResponses = {
     200: LibraryIssueResponse;
 };
 
-export type PostLibraryIssuesFbe006Fa0Bcaaa326D27C0F91D2Bf749Response = PostLibraryIssuesFbe006Fa0Bcaaa326D27C0F91D2Bf749Responses[keyof PostLibraryIssuesFbe006Fa0Bcaaa326D27C0F91D2Bf749Responses];
+export type IssueLibraryBookResponse = IssueLibraryBookResponses[keyof IssueLibraryBookResponses];
 
-export type GetLibraryIssuesB1De09091Dbda1B9B91C35Af06Fc7749Data = {
+export type GetLibraryIssueByIdData = {
     body?: never;
     path: {
         /**
@@ -22025,7 +22117,7 @@ export type GetLibraryIssuesB1De09091Dbda1B9B91C35Af06Fc7749Data = {
     url: '/library/issues/{issue_id}';
 };
 
-export type GetLibraryIssuesB1De09091Dbda1B9B91C35Af06Fc7749Errors = {
+export type GetLibraryIssueByIdErrors = {
     /**
      * Bad Request
      */
@@ -22096,13 +22188,13 @@ export type GetLibraryIssuesB1De09091Dbda1B9B91C35Af06Fc7749Errors = {
     504: unknown;
 };
 
-export type GetLibraryIssuesB1De09091Dbda1B9B91C35Af06Fc7749Responses = {
+export type GetLibraryIssueByIdResponses = {
     200: LibraryIssueResponse;
 };
 
-export type GetLibraryIssuesB1De09091Dbda1B9B91C35Af06Fc7749Response = GetLibraryIssuesB1De09091Dbda1B9B91C35Af06Fc7749Responses[keyof GetLibraryIssuesB1De09091Dbda1B9B91C35Af06Fc7749Responses];
+export type GetLibraryIssueByIdResponse = GetLibraryIssueByIdResponses[keyof GetLibraryIssueByIdResponses];
 
-export type PostLibraryIssues793Edaa9Dcba90Caedb847B02F8117FaData = {
+export type ReturnLibraryBookData = {
     body: ReturnBookRequest;
     path: {
         /**
@@ -22114,7 +22206,7 @@ export type PostLibraryIssues793Edaa9Dcba90Caedb847B02F8117FaData = {
     url: '/library/issues/{issue_id}/return';
 };
 
-export type PostLibraryIssues793Edaa9Dcba90Caedb847B02F8117FaErrors = {
+export type ReturnLibraryBookErrors = {
     /**
      * Bad Request
      */
@@ -22185,13 +22277,13 @@ export type PostLibraryIssues793Edaa9Dcba90Caedb847B02F8117FaErrors = {
     504: unknown;
 };
 
-export type PostLibraryIssues793Edaa9Dcba90Caedb847B02F8117FaResponses = {
+export type ReturnLibraryBookResponses = {
     200: LibraryIssueResponse;
 };
 
-export type PostLibraryIssues793Edaa9Dcba90Caedb847B02F8117FaResponse = PostLibraryIssues793Edaa9Dcba90Caedb847B02F8117FaResponses[keyof PostLibraryIssues793Edaa9Dcba90Caedb847B02F8117FaResponses];
+export type ReturnLibraryBookResponse = ReturnLibraryBookResponses[keyof ReturnLibraryBookResponses];
 
-export type GetLibraryIssuesStudent7C8258Ad543D4259B56C699Ea96Fdfe7Data = {
+export type GetLibraryIssuesByStudentData = {
     body?: never;
     path: {
         /**
@@ -22203,7 +22295,7 @@ export type GetLibraryIssuesStudent7C8258Ad543D4259B56C699Ea96Fdfe7Data = {
     url: '/library/issues/student/{student_id}';
 };
 
-export type GetLibraryIssuesStudent7C8258Ad543D4259B56C699Ea96Fdfe7Errors = {
+export type GetLibraryIssuesByStudentErrors = {
     /**
      * Bad Request
      */
@@ -22274,13 +22366,13 @@ export type GetLibraryIssuesStudent7C8258Ad543D4259B56C699Ea96Fdfe7Errors = {
     504: unknown;
 };
 
-export type GetLibraryIssuesStudent7C8258Ad543D4259B56C699Ea96Fdfe7Responses = {
+export type GetLibraryIssuesByStudentResponses = {
     200: Array<LibraryIssueResponse>;
 };
 
-export type GetLibraryIssuesStudent7C8258Ad543D4259B56C699Ea96Fdfe7Response = GetLibraryIssuesStudent7C8258Ad543D4259B56C699Ea96Fdfe7Responses[keyof GetLibraryIssuesStudent7C8258Ad543D4259B56C699Ea96Fdfe7Responses];
+export type GetLibraryIssuesByStudentResponse = GetLibraryIssuesByStudentResponses[keyof GetLibraryIssuesByStudentResponses];
 
-export type GetLibraryIssuesStaff655Aa6A4E13B3E1315Cf5D97Aa327632Data = {
+export type GetLibraryIssuesByStaffData = {
     body?: never;
     path: {
         /**
@@ -22292,7 +22384,7 @@ export type GetLibraryIssuesStaff655Aa6A4E13B3E1315Cf5D97Aa327632Data = {
     url: '/library/issues/staff/{staff_id}';
 };
 
-export type GetLibraryIssuesStaff655Aa6A4E13B3E1315Cf5D97Aa327632Errors = {
+export type GetLibraryIssuesByStaffErrors = {
     /**
      * Bad Request
      */
@@ -22363,20 +22455,20 @@ export type GetLibraryIssuesStaff655Aa6A4E13B3E1315Cf5D97Aa327632Errors = {
     504: unknown;
 };
 
-export type GetLibraryIssuesStaff655Aa6A4E13B3E1315Cf5D97Aa327632Responses = {
+export type GetLibraryIssuesByStaffResponses = {
     200: Array<LibraryIssueResponse>;
 };
 
-export type GetLibraryIssuesStaff655Aa6A4E13B3E1315Cf5D97Aa327632Response = GetLibraryIssuesStaff655Aa6A4E13B3E1315Cf5D97Aa327632Responses[keyof GetLibraryIssuesStaff655Aa6A4E13B3E1315Cf5D97Aa327632Responses];
+export type GetLibraryIssuesByStaffResponse = GetLibraryIssuesByStaffResponses[keyof GetLibraryIssuesByStaffResponses];
 
-export type GetLibraryIssuesOverdueC3951408A5Cfb1B86D4739Ed4B56B40dData = {
+export type GetOverdueLibraryBooksData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/library/issues/overdue';
 };
 
-export type GetLibraryIssuesOverdueC3951408A5Cfb1B86D4739Ed4B56B40dErrors = {
+export type GetOverdueLibraryBooksErrors = {
     /**
      * Bad Request
      */
@@ -22447,13 +22539,13 @@ export type GetLibraryIssuesOverdueC3951408A5Cfb1B86D4739Ed4B56B40dErrors = {
     504: unknown;
 };
 
-export type GetLibraryIssuesOverdueC3951408A5Cfb1B86D4739Ed4B56B40dResponses = {
+export type GetOverdueLibraryBooksResponses = {
     200: Array<LibraryIssueResponse>;
 };
 
-export type GetLibraryIssuesOverdueC3951408A5Cfb1B86D4739Ed4B56B40dResponse = GetLibraryIssuesOverdueC3951408A5Cfb1B86D4739Ed4B56B40dResponses[keyof GetLibraryIssuesOverdueC3951408A5Cfb1B86D4739Ed4B56B40dResponses];
+export type GetOverdueLibraryBooksResponse = GetOverdueLibraryBooksResponses[keyof GetOverdueLibraryBooksResponses];
 
-export type PostLibraryFines2Eaeb120241A6E36986B8B297F1F61CeData = {
+export type PayLibraryFineData = {
     body: PayFineRequest;
     path: {
         /**
@@ -22465,7 +22557,7 @@ export type PostLibraryFines2Eaeb120241A6E36986B8B297F1F61CeData = {
     url: '/library/fines/{issue_id}/pay';
 };
 
-export type PostLibraryFines2Eaeb120241A6E36986B8B297F1F61CeErrors = {
+export type PayLibraryFineErrors = {
     /**
      * Bad Request
      */
@@ -22536,13 +22628,13 @@ export type PostLibraryFines2Eaeb120241A6E36986B8B297F1F61CeErrors = {
     504: unknown;
 };
 
-export type PostLibraryFines2Eaeb120241A6E36986B8B297F1F61CeResponses = {
+export type PayLibraryFineResponses = {
     200: LibraryIssueResponse;
 };
 
-export type PostLibraryFines2Eaeb120241A6E36986B8B297F1F61CeResponse = PostLibraryFines2Eaeb120241A6E36986B8B297F1F61CeResponses[keyof PostLibraryFines2Eaeb120241A6E36986B8B297F1F61CeResponses];
+export type PayLibraryFineResponse = PayLibraryFineResponses[keyof PayLibraryFineResponses];
 
-export type PostLibraryFinesAa3446C6Edb4008F0B8Aa7724De6Ec5cData = {
+export type WaiveLibraryFineData = {
     body?: never;
     path: {
         /**
@@ -22554,7 +22646,7 @@ export type PostLibraryFinesAa3446C6Edb4008F0B8Aa7724De6Ec5cData = {
     url: '/library/fines/{issue_id}/waive';
 };
 
-export type PostLibraryFinesAa3446C6Edb4008F0B8Aa7724De6Ec5cErrors = {
+export type WaiveLibraryFineErrors = {
     /**
      * Bad Request
      */
@@ -22625,20 +22717,20 @@ export type PostLibraryFinesAa3446C6Edb4008F0B8Aa7724De6Ec5cErrors = {
     504: unknown;
 };
 
-export type PostLibraryFinesAa3446C6Edb4008F0B8Aa7724De6Ec5cResponses = {
+export type WaiveLibraryFineResponses = {
     200: LibraryIssueResponse;
 };
 
-export type PostLibraryFinesAa3446C6Edb4008F0B8Aa7724De6Ec5cResponse = PostLibraryFinesAa3446C6Edb4008F0B8Aa7724De6Ec5cResponses[keyof PostLibraryFinesAa3446C6Edb4008F0B8Aa7724De6Ec5cResponses];
+export type WaiveLibraryFineResponse = WaiveLibraryFineResponses[keyof WaiveLibraryFineResponses];
 
-export type GetLibraryFinesHistoryA8D16Eb9F9Fbf751Cf4B610A3Db67099Data = {
+export type GetLibraryFineHistoryData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/library/fines/history';
 };
 
-export type GetLibraryFinesHistoryA8D16Eb9F9Fbf751Cf4B610A3Db67099Errors = {
+export type GetLibraryFineHistoryErrors = {
     /**
      * Bad Request
      */
@@ -22709,20 +22801,20 @@ export type GetLibraryFinesHistoryA8D16Eb9F9Fbf751Cf4B610A3Db67099Errors = {
     504: unknown;
 };
 
-export type GetLibraryFinesHistoryA8D16Eb9F9Fbf751Cf4B610A3Db67099Responses = {
+export type GetLibraryFineHistoryResponses = {
     200: Array<LibraryIssueResponse>;
 };
 
-export type GetLibraryFinesHistoryA8D16Eb9F9Fbf751Cf4B610A3Db67099Response = GetLibraryFinesHistoryA8D16Eb9F9Fbf751Cf4B610A3Db67099Responses[keyof GetLibraryFinesHistoryA8D16Eb9F9Fbf751Cf4B610A3Db67099Responses];
+export type GetLibraryFineHistoryResponse = GetLibraryFineHistoryResponses[keyof GetLibraryFineHistoryResponses];
 
-export type GetLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdData = {
+export type GetLibrarySettingsData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/library/settings';
 };
 
-export type GetLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdErrors = {
+export type GetLibrarySettingsErrors = {
     /**
      * Bad Request
      */
@@ -22793,20 +22885,20 @@ export type GetLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdErrors = {
     504: unknown;
 };
 
-export type GetLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdResponses = {
+export type GetLibrarySettingsResponses = {
     200: LibrarySettings;
 };
 
-export type GetLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdResponse = GetLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdResponses[keyof GetLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdResponses];
+export type GetLibrarySettingsResponse = GetLibrarySettingsResponses[keyof GetLibrarySettingsResponses];
 
-export type PutLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdData = {
+export type UpdateLibrarySettingsData = {
     body: UpdateLibrarySettingsRequest;
     path?: never;
     query?: never;
     url: '/library/settings';
 };
 
-export type PutLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdErrors = {
+export type UpdateLibrarySettingsErrors = {
     /**
      * Bad Request
      */
@@ -22877,20 +22969,20 @@ export type PutLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdErrors = {
     504: unknown;
 };
 
-export type PutLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdResponses = {
+export type UpdateLibrarySettingsResponses = {
     200: LibrarySettings;
 };
 
-export type PutLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdResponse = PutLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdResponses[keyof PutLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdResponses];
+export type UpdateLibrarySettingsResponse = UpdateLibrarySettingsResponses[keyof UpdateLibrarySettingsResponses];
 
-export type GetLibraryStatsB35Deac7830F1F87D33B609B46Ee7F69Data = {
+export type GetLibraryStatsData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/library/stats';
 };
 
-export type GetLibraryStatsB35Deac7830F1F87D33B609B46Ee7F69Errors = {
+export type GetLibraryStatsErrors = {
     /**
      * Bad Request
      */
@@ -22961,20 +23053,20 @@ export type GetLibraryStatsB35Deac7830F1F87D33B609B46Ee7F69Errors = {
     504: unknown;
 };
 
-export type GetLibraryStatsB35Deac7830F1F87D33B609B46Ee7F69Responses = {
+export type GetLibraryStatsResponses = {
     200: LibraryStatsResponse;
 };
 
-export type GetLibraryStatsB35Deac7830F1F87D33B609B46Ee7F69Response = GetLibraryStatsB35Deac7830F1F87D33B609B46Ee7F69Responses[keyof GetLibraryStatsB35Deac7830F1F87D33B609B46Ee7F69Responses];
+export type GetLibraryStatsResponse = GetLibraryStatsResponses[keyof GetLibraryStatsResponses];
 
-export type GetPropertyCategories88Ed84312B25823C8727757B37F4D83bData = {
+export type GetAssetCategoriesData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/property/categories';
 };
 
-export type GetPropertyCategories88Ed84312B25823C8727757B37F4D83bErrors = {
+export type GetAssetCategoriesErrors = {
     /**
      * Bad Request
      */
@@ -23045,20 +23137,20 @@ export type GetPropertyCategories88Ed84312B25823C8727757B37F4D83bErrors = {
     504: unknown;
 };
 
-export type GetPropertyCategories88Ed84312B25823C8727757B37F4D83bResponses = {
+export type GetAssetCategoriesResponses = {
     200: Array<AssetCategoryResponse>;
 };
 
-export type GetPropertyCategories88Ed84312B25823C8727757B37F4D83bResponse = GetPropertyCategories88Ed84312B25823C8727757B37F4D83bResponses[keyof GetPropertyCategories88Ed84312B25823C8727757B37F4D83bResponses];
+export type GetAssetCategoriesResponse = GetAssetCategoriesResponses[keyof GetAssetCategoriesResponses];
 
-export type PostPropertyCategories88Ed84312B25823C8727757B37F4D83bData = {
+export type CreateAssetCategoryData = {
     body: CreateAssetCategoryRequest;
     path?: never;
     query?: never;
     url: '/property/categories';
 };
 
-export type PostPropertyCategories88Ed84312B25823C8727757B37F4D83bErrors = {
+export type CreateAssetCategoryErrors = {
     /**
      * Bad Request
      */
@@ -23129,20 +23221,20 @@ export type PostPropertyCategories88Ed84312B25823C8727757B37F4D83bErrors = {
     504: unknown;
 };
 
-export type PostPropertyCategories88Ed84312B25823C8727757B37F4D83bResponses = {
+export type CreateAssetCategoryResponses = {
     200: AssetCategoryResponse;
 };
 
-export type PostPropertyCategories88Ed84312B25823C8727757B37F4D83bResponse = PostPropertyCategories88Ed84312B25823C8727757B37F4D83bResponses[keyof PostPropertyCategories88Ed84312B25823C8727757B37F4D83bResponses];
+export type CreateAssetCategoryResponse = CreateAssetCategoryResponses[keyof CreateAssetCategoryResponses];
 
-export type PostPropertyInventory5Dbb938E80674548B251Fd9D87Af8704Data = {
+export type AddInventoryItemData = {
     body: CreateInventoryItemRequest;
     path?: never;
     query?: never;
     url: '/property/inventory';
 };
 
-export type PostPropertyInventory5Dbb938E80674548B251Fd9D87Af8704Errors = {
+export type AddInventoryItemErrors = {
     /**
      * Bad Request
      */
@@ -23213,20 +23305,20 @@ export type PostPropertyInventory5Dbb938E80674548B251Fd9D87Af8704Errors = {
     504: unknown;
 };
 
-export type PostPropertyInventory5Dbb938E80674548B251Fd9D87Af8704Responses = {
+export type AddInventoryItemResponses = {
     200: InventoryItemResponse;
 };
 
-export type PostPropertyInventory5Dbb938E80674548B251Fd9D87Af8704Response = PostPropertyInventory5Dbb938E80674548B251Fd9D87Af8704Responses[keyof PostPropertyInventory5Dbb938E80674548B251Fd9D87Af8704Responses];
+export type AddInventoryItemResponse = AddInventoryItemResponses[keyof AddInventoryItemResponses];
 
-export type GetPropertyInventoryLowStockD18Da1C347139391D1A8Fe29093122D6Data = {
+export type GetLowStockItemsData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/property/inventory/low-stock';
 };
 
-export type GetPropertyInventoryLowStockD18Da1C347139391D1A8Fe29093122D6Errors = {
+export type GetLowStockItemsErrors = {
     /**
      * Bad Request
      */
@@ -23297,13 +23389,13 @@ export type GetPropertyInventoryLowStockD18Da1C347139391D1A8Fe29093122D6Errors =
     504: unknown;
 };
 
-export type GetPropertyInventoryLowStockD18Da1C347139391D1A8Fe29093122D6Responses = {
+export type GetLowStockItemsResponses = {
     200: Array<InventoryItemResponse>;
 };
 
-export type GetPropertyInventoryLowStockD18Da1C347139391D1A8Fe29093122D6Response = GetPropertyInventoryLowStockD18Da1C347139391D1A8Fe29093122D6Responses[keyof GetPropertyInventoryLowStockD18Da1C347139391D1A8Fe29093122D6Responses];
+export type GetLowStockItemsResponse = GetLowStockItemsResponses[keyof GetLowStockItemsResponses];
 
-export type GetPropertyInventorySearch3Bf9D239Dfce889E0Ca4D7B357E9E7DbData = {
+export type SearchInventoryData = {
     body?: never;
     path: {
         /**
@@ -23315,7 +23407,7 @@ export type GetPropertyInventorySearch3Bf9D239Dfce889E0Ca4D7B357E9E7DbData = {
     url: '/property/inventory/search/{query}';
 };
 
-export type GetPropertyInventorySearch3Bf9D239Dfce889E0Ca4D7B357E9E7DbErrors = {
+export type SearchInventoryErrors = {
     /**
      * Bad Request
      */
@@ -23386,13 +23478,13 @@ export type GetPropertyInventorySearch3Bf9D239Dfce889E0Ca4D7B357E9E7DbErrors = {
     504: unknown;
 };
 
-export type GetPropertyInventorySearch3Bf9D239Dfce889E0Ca4D7B357E9E7DbResponses = {
+export type SearchInventoryResponses = {
     200: Array<InventoryItemResponse>;
 };
 
-export type GetPropertyInventorySearch3Bf9D239Dfce889E0Ca4D7B357E9E7DbResponse = GetPropertyInventorySearch3Bf9D239Dfce889E0Ca4D7B357E9E7DbResponses[keyof GetPropertyInventorySearch3Bf9D239Dfce889E0Ca4D7B357E9E7DbResponses];
+export type SearchInventoryResponse = SearchInventoryResponses[keyof SearchInventoryResponses];
 
-export type GetPropertyInventoryCategory1839Daad84F5657Fbaf61E458864D028Data = {
+export type GetInventoryByCategoryData = {
     body?: never;
     path: {
         /**
@@ -23404,7 +23496,7 @@ export type GetPropertyInventoryCategory1839Daad84F5657Fbaf61E458864D028Data = {
     url: '/property/inventory/category/{id}';
 };
 
-export type GetPropertyInventoryCategory1839Daad84F5657Fbaf61E458864D028Errors = {
+export type GetInventoryByCategoryErrors = {
     /**
      * Bad Request
      */
@@ -23475,13 +23567,13 @@ export type GetPropertyInventoryCategory1839Daad84F5657Fbaf61E458864D028Errors =
     504: unknown;
 };
 
-export type GetPropertyInventoryCategory1839Daad84F5657Fbaf61E458864D028Responses = {
+export type GetInventoryByCategoryResponses = {
     200: Array<InventoryItemResponse>;
 };
 
-export type GetPropertyInventoryCategory1839Daad84F5657Fbaf61E458864D028Response = GetPropertyInventoryCategory1839Daad84F5657Fbaf61E458864D028Responses[keyof GetPropertyInventoryCategory1839Daad84F5657Fbaf61E458864D028Responses];
+export type GetInventoryByCategoryResponse = GetInventoryByCategoryResponses[keyof GetInventoryByCategoryResponses];
 
-export type PatchPropertyInventoryCd390D33621E8Ddcdf430411Fdd0F596Data = {
+export type UpdateInventoryItemData = {
     body: UpdateInventoryItemRequest;
     path: {
         /**
@@ -23493,7 +23585,7 @@ export type PatchPropertyInventoryCd390D33621E8Ddcdf430411Fdd0F596Data = {
     url: '/property/inventory/{id}';
 };
 
-export type PatchPropertyInventoryCd390D33621E8Ddcdf430411Fdd0F596Errors = {
+export type UpdateInventoryItemErrors = {
     /**
      * Bad Request
      */
@@ -23564,13 +23656,13 @@ export type PatchPropertyInventoryCd390D33621E8Ddcdf430411Fdd0F596Errors = {
     504: unknown;
 };
 
-export type PatchPropertyInventoryCd390D33621E8Ddcdf430411Fdd0F596Responses = {
+export type UpdateInventoryItemResponses = {
     200: InventoryItemResponse;
 };
 
-export type PatchPropertyInventoryCd390D33621E8Ddcdf430411Fdd0F596Response = PatchPropertyInventoryCd390D33621E8Ddcdf430411Fdd0F596Responses[keyof PatchPropertyInventoryCd390D33621E8Ddcdf430411Fdd0F596Responses];
+export type UpdateInventoryItemResponse = UpdateInventoryItemResponses[keyof UpdateInventoryItemResponses];
 
-export type PatchPropertyInventory6Aa95Ec51B91Bdd0390Ba5488Ff7B8A7Data = {
+export type UpdateStockQuantityData = {
     body: UpdateStockRequest;
     path: {
         /**
@@ -23582,7 +23674,7 @@ export type PatchPropertyInventory6Aa95Ec51B91Bdd0390Ba5488Ff7B8A7Data = {
     url: '/property/inventory/{id}/stock';
 };
 
-export type PatchPropertyInventory6Aa95Ec51B91Bdd0390Ba5488Ff7B8A7Errors = {
+export type UpdateStockQuantityErrors = {
     /**
      * Bad Request
      */
@@ -23653,20 +23745,20 @@ export type PatchPropertyInventory6Aa95Ec51B91Bdd0390Ba5488Ff7B8A7Errors = {
     504: unknown;
 };
 
-export type PatchPropertyInventory6Aa95Ec51B91Bdd0390Ba5488Ff7B8A7Responses = {
+export type UpdateStockQuantityResponses = {
     200: InventoryItemResponse;
 };
 
-export type PatchPropertyInventory6Aa95Ec51B91Bdd0390Ba5488Ff7B8A7Response = PatchPropertyInventory6Aa95Ec51B91Bdd0390Ba5488Ff7B8A7Responses[keyof PatchPropertyInventory6Aa95Ec51B91Bdd0390Ba5488Ff7B8A7Responses];
+export type UpdateStockQuantityResponse = UpdateStockQuantityResponses[keyof UpdateStockQuantityResponses];
 
-export type GetPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Data = {
+export type GetUniformInventoryData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/property/uniforms';
 };
 
-export type GetPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Errors = {
+export type GetUniformInventoryErrors = {
     /**
      * Bad Request
      */
@@ -23737,20 +23829,20 @@ export type GetPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Errors = {
     504: unknown;
 };
 
-export type GetPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Responses = {
+export type GetUniformInventoryResponses = {
     200: Array<UniformItemResponse>;
 };
 
-export type GetPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Response = GetPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Responses[keyof GetPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Responses];
+export type GetUniformInventoryResponse = GetUniformInventoryResponses[keyof GetUniformInventoryResponses];
 
-export type PostPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Data = {
+export type CreateUniformItemData = {
     body: CreateUniformItemRequest;
     path?: never;
     query?: never;
     url: '/property/uniforms';
 };
 
-export type PostPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Errors = {
+export type CreateUniformItemErrors = {
     /**
      * Bad Request
      */
@@ -23821,20 +23913,20 @@ export type PostPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Errors = {
     504: unknown;
 };
 
-export type PostPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Responses = {
+export type CreateUniformItemResponses = {
     200: UniformItemResponse;
 };
 
-export type PostPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Response = PostPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Responses[keyof PostPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Responses];
+export type CreateUniformItemResponse = CreateUniformItemResponses[keyof CreateUniformItemResponses];
 
-export type PostPropertyUniformsIssueC7228E84E5466E623D2351E5632B25FeData = {
+export type IssueUniformData = {
     body: IssueUniformRequest;
     path?: never;
     query?: never;
     url: '/property/uniforms/issue';
 };
 
-export type PostPropertyUniformsIssueC7228E84E5466E623D2351E5632B25FeErrors = {
+export type IssueUniformErrors = {
     /**
      * Bad Request
      */
@@ -23905,13 +23997,13 @@ export type PostPropertyUniformsIssueC7228E84E5466E623D2351E5632B25FeErrors = {
     504: unknown;
 };
 
-export type PostPropertyUniformsIssueC7228E84E5466E623D2351E5632B25FeResponses = {
+export type IssueUniformResponses = {
     200: UniformIssueResponse;
 };
 
-export type PostPropertyUniformsIssueC7228E84E5466E623D2351E5632B25FeResponse = PostPropertyUniformsIssueC7228E84E5466E623D2351E5632B25FeResponses[keyof PostPropertyUniformsIssueC7228E84E5466E623D2351E5632B25FeResponses];
+export type IssueUniformResponse = IssueUniformResponses[keyof IssueUniformResponses];
 
-export type GetPropertyUniformsHistoryDd884Fdee6B0B79B1F889E504Bf6503dData = {
+export type GetUniformIssueHistoryData = {
     body?: never;
     path: {
         /**
@@ -23923,7 +24015,7 @@ export type GetPropertyUniformsHistoryDd884Fdee6B0B79B1F889E504Bf6503dData = {
     url: '/property/uniforms/history/{student_id}';
 };
 
-export type GetPropertyUniformsHistoryDd884Fdee6B0B79B1F889E504Bf6503dErrors = {
+export type GetUniformIssueHistoryErrors = {
     /**
      * Bad Request
      */
@@ -23994,20 +24086,20 @@ export type GetPropertyUniformsHistoryDd884Fdee6B0B79B1F889E504Bf6503dErrors = {
     504: unknown;
 };
 
-export type GetPropertyUniformsHistoryDd884Fdee6B0B79B1F889E504Bf6503dResponses = {
+export type GetUniformIssueHistoryResponses = {
     200: Array<UniformIssueResponse>;
 };
 
-export type GetPropertyUniformsHistoryDd884Fdee6B0B79B1F889E504Bf6503dResponse = GetPropertyUniformsHistoryDd884Fdee6B0B79B1F889E504Bf6503dResponses[keyof GetPropertyUniformsHistoryDd884Fdee6B0B79B1F889E504Bf6503dResponses];
+export type GetUniformIssueHistoryResponse = GetUniformIssueHistoryResponses[keyof GetUniformIssueHistoryResponses];
 
-export type PostPropertyAllocationsC47Fbc35Bebd03Eee2216Cfd3187119aData = {
+export type AllocateAssetData = {
     body: AllocateAssetRequest;
     path?: never;
     query?: never;
     url: '/property/allocations';
 };
 
-export type PostPropertyAllocationsC47Fbc35Bebd03Eee2216Cfd3187119aErrors = {
+export type AllocateAssetErrors = {
     /**
      * Bad Request
      */
@@ -24078,13 +24170,13 @@ export type PostPropertyAllocationsC47Fbc35Bebd03Eee2216Cfd3187119aErrors = {
     504: unknown;
 };
 
-export type PostPropertyAllocationsC47Fbc35Bebd03Eee2216Cfd3187119aResponses = {
+export type AllocateAssetResponses = {
     200: AssetAllocationResponse;
 };
 
-export type PostPropertyAllocationsC47Fbc35Bebd03Eee2216Cfd3187119aResponse = PostPropertyAllocationsC47Fbc35Bebd03Eee2216Cfd3187119aResponses[keyof PostPropertyAllocationsC47Fbc35Bebd03Eee2216Cfd3187119aResponses];
+export type AllocateAssetResponse = AllocateAssetResponses[keyof AllocateAssetResponses];
 
-export type GetPropertyAllocationsItem4F873D1740D38F0F1Ecb6Be514Ca4D0eData = {
+export type GetAllocationsByItemData = {
     body?: never;
     path: {
         /**
@@ -24096,7 +24188,7 @@ export type GetPropertyAllocationsItem4F873D1740D38F0F1Ecb6Be514Ca4D0eData = {
     url: '/property/allocations/item/{id}';
 };
 
-export type GetPropertyAllocationsItem4F873D1740D38F0F1Ecb6Be514Ca4D0eErrors = {
+export type GetAllocationsByItemErrors = {
     /**
      * Bad Request
      */
@@ -24167,13 +24259,13 @@ export type GetPropertyAllocationsItem4F873D1740D38F0F1Ecb6Be514Ca4D0eErrors = {
     504: unknown;
 };
 
-export type GetPropertyAllocationsItem4F873D1740D38F0F1Ecb6Be514Ca4D0eResponses = {
+export type GetAllocationsByItemResponses = {
     200: Array<AssetAllocationResponse>;
 };
 
-export type GetPropertyAllocationsItem4F873D1740D38F0F1Ecb6Be514Ca4D0eResponse = GetPropertyAllocationsItem4F873D1740D38F0F1Ecb6Be514Ca4D0eResponses[keyof GetPropertyAllocationsItem4F873D1740D38F0F1Ecb6Be514Ca4D0eResponses];
+export type GetAllocationsByItemResponse = GetAllocationsByItemResponses[keyof GetAllocationsByItemResponses];
 
-export type GetPropertyAllocationsAssignee9606D419A1Df7Bafa0C8E9B680Eb74F2Data = {
+export type GetAllocationsByAssigneeData = {
     body?: never;
     path: {
         /**
@@ -24185,7 +24277,7 @@ export type GetPropertyAllocationsAssignee9606D419A1Df7Bafa0C8E9B680Eb74F2Data =
     url: '/property/allocations/assignee/{id}';
 };
 
-export type GetPropertyAllocationsAssignee9606D419A1Df7Bafa0C8E9B680Eb74F2Errors = {
+export type GetAllocationsByAssigneeErrors = {
     /**
      * Bad Request
      */
@@ -24256,13 +24348,13 @@ export type GetPropertyAllocationsAssignee9606D419A1Df7Bafa0C8E9B680Eb74F2Errors
     504: unknown;
 };
 
-export type GetPropertyAllocationsAssignee9606D419A1Df7Bafa0C8E9B680Eb74F2Responses = {
+export type GetAllocationsByAssigneeResponses = {
     200: Array<AssetAllocationResponse>;
 };
 
-export type GetPropertyAllocationsAssignee9606D419A1Df7Bafa0C8E9B680Eb74F2Response = GetPropertyAllocationsAssignee9606D419A1Df7Bafa0C8E9B680Eb74F2Responses[keyof GetPropertyAllocationsAssignee9606D419A1Df7Bafa0C8E9B680Eb74F2Responses];
+export type GetAllocationsByAssigneeResponse = GetAllocationsByAssigneeResponses[keyof GetAllocationsByAssigneeResponses];
 
-export type PostPropertyAllocations3C1F61F7D106Da7D2F19E9B23Ad0Ace3Data = {
+export type ReturnAllocatedAssetData = {
     body: ReturnAssetRequest;
     path: {
         /**
@@ -24274,7 +24366,7 @@ export type PostPropertyAllocations3C1F61F7D106Da7D2F19E9B23Ad0Ace3Data = {
     url: '/property/allocations/{id}/return';
 };
 
-export type PostPropertyAllocations3C1F61F7D106Da7D2F19E9B23Ad0Ace3Errors = {
+export type ReturnAllocatedAssetErrors = {
     /**
      * Bad Request
      */
@@ -24345,20 +24437,20 @@ export type PostPropertyAllocations3C1F61F7D106Da7D2F19E9B23Ad0Ace3Errors = {
     504: unknown;
 };
 
-export type PostPropertyAllocations3C1F61F7D106Da7D2F19E9B23Ad0Ace3Responses = {
+export type ReturnAllocatedAssetResponses = {
     200: AssetAllocationResponse;
 };
 
-export type PostPropertyAllocations3C1F61F7D106Da7D2F19E9B23Ad0Ace3Response = PostPropertyAllocations3C1F61F7D106Da7D2F19E9B23Ad0Ace3Responses[keyof PostPropertyAllocations3C1F61F7D106Da7D2F19E9B23Ad0Ace3Responses];
+export type ReturnAllocatedAssetResponse = ReturnAllocatedAssetResponses[keyof ReturnAllocatedAssetResponses];
 
-export type PostPropertyMaintenance1Fa6D89C23208A2529367488E1Fd4084Data = {
+export type CreateMaintenanceRequestData = {
     body: CreateMaintenanceRequest;
     path?: never;
     query?: never;
     url: '/property/maintenance';
 };
 
-export type PostPropertyMaintenance1Fa6D89C23208A2529367488E1Fd4084Errors = {
+export type CreateMaintenanceRequestErrors = {
     /**
      * Bad Request
      */
@@ -24429,20 +24521,20 @@ export type PostPropertyMaintenance1Fa6D89C23208A2529367488E1Fd4084Errors = {
     504: unknown;
 };
 
-export type PostPropertyMaintenance1Fa6D89C23208A2529367488E1Fd4084Responses = {
+export type CreateMaintenanceRequestResponses = {
     200: MaintenanceRequestResponse;
 };
 
-export type PostPropertyMaintenance1Fa6D89C23208A2529367488E1Fd4084Response = PostPropertyMaintenance1Fa6D89C23208A2529367488E1Fd4084Responses[keyof PostPropertyMaintenance1Fa6D89C23208A2529367488E1Fd4084Responses];
+export type CreateMaintenanceRequestResponse = CreateMaintenanceRequestResponses[keyof CreateMaintenanceRequestResponses];
 
-export type GetPropertyMaintenancePendingC93E196A3B390E5Bf287A85Dae96160bData = {
+export type GetPendingMaintenanceData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/property/maintenance/pending';
 };
 
-export type GetPropertyMaintenancePendingC93E196A3B390E5Bf287A85Dae96160bErrors = {
+export type GetPendingMaintenanceErrors = {
     /**
      * Bad Request
      */
@@ -24513,13 +24605,13 @@ export type GetPropertyMaintenancePendingC93E196A3B390E5Bf287A85Dae96160bErrors 
     504: unknown;
 };
 
-export type GetPropertyMaintenancePendingC93E196A3B390E5Bf287A85Dae96160bResponses = {
+export type GetPendingMaintenanceResponses = {
     200: Array<MaintenanceRequestResponse>;
 };
 
-export type GetPropertyMaintenancePendingC93E196A3B390E5Bf287A85Dae96160bResponse = GetPropertyMaintenancePendingC93E196A3B390E5Bf287A85Dae96160bResponses[keyof GetPropertyMaintenancePendingC93E196A3B390E5Bf287A85Dae96160bResponses];
+export type GetPendingMaintenanceResponse = GetPendingMaintenanceResponses[keyof GetPendingMaintenanceResponses];
 
-export type PatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aData = {
+export type UpdateMaintenanceStatusData = {
     body: UpdateMaintenanceStatusRequest;
     path: {
         /**
@@ -24531,7 +24623,7 @@ export type PatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aData = {
     url: '/property/maintenance/{id}/status';
 };
 
-export type PatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aErrors = {
+export type UpdateMaintenanceStatusErrors = {
     /**
      * Bad Request
      */
@@ -24602,13 +24694,13 @@ export type PatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aErrors = {
     504: unknown;
 };
 
-export type PatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aResponses = {
+export type UpdateMaintenanceStatusResponses = {
     200: MaintenanceRequestResponse;
 };
 
-export type PatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aResponse = PatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aResponses[keyof PatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aResponses];
+export type UpdateMaintenanceStatusResponse = UpdateMaintenanceStatusResponses[keyof UpdateMaintenanceStatusResponses];
 
-export type GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Data = {
+export type GetAllBudgetCategoriesData = {
     body?: never;
     path?: never;
     query?: {
@@ -24621,7 +24713,7 @@ export type GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Data = {
     url: '/financial/budget-categories';
 };
 
-export type GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Errors = {
+export type GetAllBudgetCategoriesErrors = {
     /**
      * Bad Request
      */
@@ -24692,20 +24784,20 @@ export type GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Errors =
     504: unknown;
 };
 
-export type GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Responses = {
+export type GetAllBudgetCategoriesResponses = {
     200: PaginatedBudgetCategoryResponse;
 };
 
-export type GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Response = GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Responses[keyof GetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Responses];
+export type GetAllBudgetCategoriesResponse = GetAllBudgetCategoriesResponses[keyof GetAllBudgetCategoriesResponses];
 
-export type PostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Data = {
+export type CreateBudgetCategoryData = {
     body: CreateBudgetCategoryRequest;
     path?: never;
     query?: never;
     url: '/financial/budget-categories';
 };
 
-export type PostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Errors = {
+export type CreateBudgetCategoryErrors = {
     /**
      * Bad Request
      */
@@ -24776,20 +24868,20 @@ export type PostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Errors 
     504: unknown;
 };
 
-export type PostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Responses = {
+export type CreateBudgetCategoryResponses = {
     200: BudgetCategoryResponse;
 };
 
-export type PostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Response = PostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Responses[keyof PostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Responses];
+export type CreateBudgetCategoryResponse = CreateBudgetCategoryResponses[keyof CreateBudgetCategoryResponses];
 
-export type DeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Data = {
+export type BulkDeleteBudgetCategoriesData = {
     body: BulkDeleteBudgetCategoriesRequest;
     path?: never;
     query?: never;
     url: '/financial/budget-categories/bulk';
 };
 
-export type DeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Errors = {
+export type BulkDeleteBudgetCategoriesErrors = {
     /**
      * Bad Request
      */
@@ -24860,20 +24952,20 @@ export type DeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08E
     504: unknown;
 };
 
-export type DeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Responses = {
+export type BulkDeleteBudgetCategoriesResponses = {
     200: MessageResponse;
 };
 
-export type DeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Response = DeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Responses[keyof DeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Responses];
+export type BulkDeleteBudgetCategoriesResponse = BulkDeleteBudgetCategoriesResponses[keyof BulkDeleteBudgetCategoriesResponses];
 
-export type PatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Data = {
+export type BulkUpdateBudgetCategoriesData = {
     body: BulkUpdateBudgetCategoriesRequest;
     path?: never;
     query?: never;
     url: '/financial/budget-categories/bulk';
 };
 
-export type PatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Errors = {
+export type BulkUpdateBudgetCategoriesErrors = {
     /**
      * Bad Request
      */
@@ -24944,20 +25036,20 @@ export type PatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Er
     504: unknown;
 };
 
-export type PatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Responses = {
+export type BulkUpdateBudgetCategoriesResponses = {
     200: MessageResponse;
 };
 
-export type PatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Response = PatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Responses[keyof PatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Responses];
+export type BulkUpdateBudgetCategoriesResponse = BulkUpdateBudgetCategoriesResponses[keyof BulkUpdateBudgetCategoriesResponses];
 
-export type PostFinancialBudgetsBb1C79Ca05321C91C0Bab4F8C8D15109Data = {
+export type SetBudgetData = {
     body: SetBudgetRequest;
     path?: never;
     query?: never;
     url: '/financial/budgets';
 };
 
-export type PostFinancialBudgetsBb1C79Ca05321C91C0Bab4F8C8D15109Errors = {
+export type SetBudgetErrors = {
     /**
      * Bad Request
      */
@@ -25028,13 +25120,13 @@ export type PostFinancialBudgetsBb1C79Ca05321C91C0Bab4F8C8D15109Errors = {
     504: unknown;
 };
 
-export type PostFinancialBudgetsBb1C79Ca05321C91C0Bab4F8C8D15109Responses = {
+export type SetBudgetResponses = {
     200: BudgetResponse;
 };
 
-export type PostFinancialBudgetsBb1C79Ca05321C91C0Bab4F8C8D15109Response = PostFinancialBudgetsBb1C79Ca05321C91C0Bab4F8C8D15109Responses[keyof PostFinancialBudgetsBb1C79Ca05321C91C0Bab4F8C8D15109Responses];
+export type SetBudgetResponse = SetBudgetResponses[keyof SetBudgetResponses];
 
-export type PatchFinancialBudgetsA3Cd0C2Ad4418E5545E660Ff75431700Data = {
+export type UpdateBudgetAllocationData = {
     body: UpdateBudgetRequest;
     path: {
         /**
@@ -25046,7 +25138,7 @@ export type PatchFinancialBudgetsA3Cd0C2Ad4418E5545E660Ff75431700Data = {
     url: '/financial/budgets/{id}';
 };
 
-export type PatchFinancialBudgetsA3Cd0C2Ad4418E5545E660Ff75431700Errors = {
+export type UpdateBudgetAllocationErrors = {
     /**
      * Bad Request
      */
@@ -25117,13 +25209,13 @@ export type PatchFinancialBudgetsA3Cd0C2Ad4418E5545E660Ff75431700Errors = {
     504: unknown;
 };
 
-export type PatchFinancialBudgetsA3Cd0C2Ad4418E5545E660Ff75431700Responses = {
+export type UpdateBudgetAllocationResponses = {
     200: BudgetResponse;
 };
 
-export type PatchFinancialBudgetsA3Cd0C2Ad4418E5545E660Ff75431700Response = PatchFinancialBudgetsA3Cd0C2Ad4418E5545E660Ff75431700Responses[keyof PatchFinancialBudgetsA3Cd0C2Ad4418E5545E660Ff75431700Responses];
+export type UpdateBudgetAllocationResponse = UpdateBudgetAllocationResponses[keyof UpdateBudgetAllocationResponses];
 
-export type GetFinancialBudgetsSummary87C89Bbec0A3Ce4E6470Abd8387Abf81Data = {
+export type GetBudgetSummaryData = {
     body?: never;
     path: {
         /**
@@ -25135,7 +25227,7 @@ export type GetFinancialBudgetsSummary87C89Bbec0A3Ce4E6470Abd8387Abf81Data = {
     url: '/financial/budgets/summary/{year_id}';
 };
 
-export type GetFinancialBudgetsSummary87C89Bbec0A3Ce4E6470Abd8387Abf81Errors = {
+export type GetBudgetSummaryErrors = {
     /**
      * Bad Request
      */
@@ -25206,13 +25298,13 @@ export type GetFinancialBudgetsSummary87C89Bbec0A3Ce4E6470Abd8387Abf81Errors = {
     504: unknown;
 };
 
-export type GetFinancialBudgetsSummary87C89Bbec0A3Ce4E6470Abd8387Abf81Responses = {
+export type GetBudgetSummaryResponses = {
     200: Array<BudgetSummaryResponse>;
 };
 
-export type GetFinancialBudgetsSummary87C89Bbec0A3Ce4E6470Abd8387Abf81Response = GetFinancialBudgetsSummary87C89Bbec0A3Ce4E6470Abd8387Abf81Responses[keyof GetFinancialBudgetsSummary87C89Bbec0A3Ce4E6470Abd8387Abf81Responses];
+export type GetBudgetSummaryResponse = GetBudgetSummaryResponses[keyof GetBudgetSummaryResponses];
 
-export type GetFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Data = {
+export type GetBudgetComparisonData = {
     body?: never;
     path: {
         /**
@@ -25224,7 +25316,7 @@ export type GetFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Data = 
     url: '/financial/budgets/comparison/{year_id}';
 };
 
-export type GetFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Errors = {
+export type GetBudgetComparisonErrors = {
     /**
      * Bad Request
      */
@@ -25295,20 +25387,20 @@ export type GetFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Errors 
     504: unknown;
 };
 
-export type GetFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Responses = {
+export type GetBudgetComparisonResponses = {
     200: Array<BudgetComparisonResponse>;
 };
 
-export type GetFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Response = GetFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Responses[keyof GetFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Responses];
+export type GetBudgetComparisonResponse = GetBudgetComparisonResponses[keyof GetBudgetComparisonResponses];
 
-export type PostFinancialIncome779D6F3B0Bd226D5Fb623C870Ad8Ab47Data = {
+export type RecordIncomeData = {
     body: RecordIncomeRequest;
     path?: never;
     query?: never;
     url: '/financial/income';
 };
 
-export type PostFinancialIncome779D6F3B0Bd226D5Fb623C870Ad8Ab47Errors = {
+export type RecordIncomeErrors = {
     /**
      * Bad Request
      */
@@ -25379,13 +25471,13 @@ export type PostFinancialIncome779D6F3B0Bd226D5Fb623C870Ad8Ab47Errors = {
     504: unknown;
 };
 
-export type PostFinancialIncome779D6F3B0Bd226D5Fb623C870Ad8Ab47Responses = {
+export type RecordIncomeResponses = {
     200: IncomeTransactionResponse;
 };
 
-export type PostFinancialIncome779D6F3B0Bd226D5Fb623C870Ad8Ab47Response = PostFinancialIncome779D6F3B0Bd226D5Fb623C870Ad8Ab47Responses[keyof PostFinancialIncome779D6F3B0Bd226D5Fb623C870Ad8Ab47Responses];
+export type RecordIncomeResponse = RecordIncomeResponses[keyof RecordIncomeResponses];
 
-export type GetFinancialIncomeSourceA20B7948C5E8C96Ff18D20F3318474C7Data = {
+export type GetIncomeBySourceData = {
     body?: never;
     path: {
         /**
@@ -25397,7 +25489,7 @@ export type GetFinancialIncomeSourceA20B7948C5E8C96Ff18D20F3318474C7Data = {
     url: '/financial/income/source/{source_id}';
 };
 
-export type GetFinancialIncomeSourceA20B7948C5E8C96Ff18D20F3318474C7Errors = {
+export type GetIncomeBySourceErrors = {
     /**
      * Bad Request
      */
@@ -25468,13 +25560,13 @@ export type GetFinancialIncomeSourceA20B7948C5E8C96Ff18D20F3318474C7Errors = {
     504: unknown;
 };
 
-export type GetFinancialIncomeSourceA20B7948C5E8C96Ff18D20F3318474C7Responses = {
+export type GetIncomeBySourceResponses = {
     200: Array<IncomeTransactionResponse>;
 };
 
-export type GetFinancialIncomeSourceA20B7948C5E8C96Ff18D20F3318474C7Response = GetFinancialIncomeSourceA20B7948C5E8C96Ff18D20F3318474C7Responses[keyof GetFinancialIncomeSourceA20B7948C5E8C96Ff18D20F3318474C7Responses];
+export type GetIncomeBySourceResponse = GetIncomeBySourceResponses[keyof GetIncomeBySourceResponses];
 
-export type GetFinancialIncomeReport3Fbc17B43C84A7D024B5B732268A45F8Data = {
+export type GetIncomeReportData = {
     body?: never;
     path?: never;
     query: {
@@ -25484,7 +25576,7 @@ export type GetFinancialIncomeReport3Fbc17B43C84A7D024B5B732268A45F8Data = {
     url: '/financial/income/report';
 };
 
-export type GetFinancialIncomeReport3Fbc17B43C84A7D024B5B732268A45F8Errors = {
+export type GetIncomeReportErrors = {
     /**
      * Bad Request
      */
@@ -25555,20 +25647,20 @@ export type GetFinancialIncomeReport3Fbc17B43C84A7D024B5B732268A45F8Errors = {
     504: unknown;
 };
 
-export type GetFinancialIncomeReport3Fbc17B43C84A7D024B5B732268A45F8Responses = {
+export type GetIncomeReportResponses = {
     200: Array<IncomeTransactionResponse>;
 };
 
-export type GetFinancialIncomeReport3Fbc17B43C84A7D024B5B732268A45F8Response = GetFinancialIncomeReport3Fbc17B43C84A7D024B5B732268A45F8Responses[keyof GetFinancialIncomeReport3Fbc17B43C84A7D024B5B732268A45F8Responses];
+export type GetIncomeReportResponse = GetIncomeReportResponses[keyof GetIncomeReportResponses];
 
-export type PostFinancialExpense2D106Df39A52Bc7E25B21B949C430A09Data = {
+export type RecordExpenseData = {
     body: RecordExpenseRequest;
     path?: never;
     query?: never;
     url: '/financial/expense';
 };
 
-export type PostFinancialExpense2D106Df39A52Bc7E25B21B949C430A09Errors = {
+export type RecordExpenseErrors = {
     /**
      * Bad Request
      */
@@ -25639,13 +25731,13 @@ export type PostFinancialExpense2D106Df39A52Bc7E25B21B949C430A09Errors = {
     504: unknown;
 };
 
-export type PostFinancialExpense2D106Df39A52Bc7E25B21B949C430A09Responses = {
+export type RecordExpenseResponses = {
     200: ExpenseTransactionResponse;
 };
 
-export type PostFinancialExpense2D106Df39A52Bc7E25B21B949C430A09Response = PostFinancialExpense2D106Df39A52Bc7E25B21B949C430A09Responses[keyof PostFinancialExpense2D106Df39A52Bc7E25B21B949C430A09Responses];
+export type RecordExpenseResponse = RecordExpenseResponses[keyof RecordExpenseResponses];
 
-export type GetFinancialExpenseCategoryFbcababa7106F1823926E177980D3D92Data = {
+export type GetExpensesByCategoryData = {
     body?: never;
     path: {
         /**
@@ -25657,7 +25749,7 @@ export type GetFinancialExpenseCategoryFbcababa7106F1823926E177980D3D92Data = {
     url: '/financial/expense/category/{cat_id}';
 };
 
-export type GetFinancialExpenseCategoryFbcababa7106F1823926E177980D3D92Errors = {
+export type GetExpensesByCategoryErrors = {
     /**
      * Bad Request
      */
@@ -25728,13 +25820,13 @@ export type GetFinancialExpenseCategoryFbcababa7106F1823926E177980D3D92Errors = 
     504: unknown;
 };
 
-export type GetFinancialExpenseCategoryFbcababa7106F1823926E177980D3D92Responses = {
+export type GetExpensesByCategoryResponses = {
     200: Array<ExpenseTransactionResponse>;
 };
 
-export type GetFinancialExpenseCategoryFbcababa7106F1823926E177980D3D92Response = GetFinancialExpenseCategoryFbcababa7106F1823926E177980D3D92Responses[keyof GetFinancialExpenseCategoryFbcababa7106F1823926E177980D3D92Responses];
+export type GetExpensesByCategoryResponse = GetExpensesByCategoryResponses[keyof GetExpensesByCategoryResponses];
 
-export type GetFinancialExpenseReport6Adee6A58Ea01B15Bd6Bd92845Ce0FeaData = {
+export type GetExpenseReportData = {
     body?: never;
     path?: never;
     query: {
@@ -25744,7 +25836,7 @@ export type GetFinancialExpenseReport6Adee6A58Ea01B15Bd6Bd92845Ce0FeaData = {
     url: '/financial/expense/report';
 };
 
-export type GetFinancialExpenseReport6Adee6A58Ea01B15Bd6Bd92845Ce0FeaErrors = {
+export type GetExpenseReportErrors = {
     /**
      * Bad Request
      */
@@ -25815,20 +25907,20 @@ export type GetFinancialExpenseReport6Adee6A58Ea01B15Bd6Bd92845Ce0FeaErrors = {
     504: unknown;
 };
 
-export type GetFinancialExpenseReport6Adee6A58Ea01B15Bd6Bd92845Ce0FeaResponses = {
+export type GetExpenseReportResponses = {
     200: Array<ExpenseTransactionResponse>;
 };
 
-export type GetFinancialExpenseReport6Adee6A58Ea01B15Bd6Bd92845Ce0FeaResponse = GetFinancialExpenseReport6Adee6A58Ea01B15Bd6Bd92845Ce0FeaResponses[keyof GetFinancialExpenseReport6Adee6A58Ea01B15Bd6Bd92845Ce0FeaResponses];
+export type GetExpenseReportResponse = GetExpenseReportResponses[keyof GetExpenseReportResponses];
 
-export type PostFinancialPettyCash490B2136391Fac9C007Bf11618442245Data = {
+export type RecordPettyCashData = {
     body: RecordPettyCashRequest;
     path?: never;
     query?: never;
     url: '/financial/petty-cash';
 };
 
-export type PostFinancialPettyCash490B2136391Fac9C007Bf11618442245Errors = {
+export type RecordPettyCashErrors = {
     /**
      * Bad Request
      */
@@ -25899,20 +25991,20 @@ export type PostFinancialPettyCash490B2136391Fac9C007Bf11618442245Errors = {
     504: unknown;
 };
 
-export type PostFinancialPettyCash490B2136391Fac9C007Bf11618442245Responses = {
+export type RecordPettyCashResponses = {
     200: PettyCashTransactionResponse;
 };
 
-export type PostFinancialPettyCash490B2136391Fac9C007Bf11618442245Response = PostFinancialPettyCash490B2136391Fac9C007Bf11618442245Responses[keyof PostFinancialPettyCash490B2136391Fac9C007Bf11618442245Responses];
+export type RecordPettyCashResponse = RecordPettyCashResponses[keyof RecordPettyCashResponses];
 
-export type PostFinancialPettyCashReconcile75291Edb623388B2Bdfa0F714516A998Data = {
+export type ReconcilePettyCashData = {
     body: ReconcilePettyCashRequest;
     path?: never;
     query?: never;
     url: '/financial/petty-cash/reconcile';
 };
 
-export type PostFinancialPettyCashReconcile75291Edb623388B2Bdfa0F714516A998Errors = {
+export type ReconcilePettyCashErrors = {
     /**
      * Bad Request
      */
@@ -25983,20 +26075,20 @@ export type PostFinancialPettyCashReconcile75291Edb623388B2Bdfa0F714516A998Error
     504: unknown;
 };
 
-export type PostFinancialPettyCashReconcile75291Edb623388B2Bdfa0F714516A998Responses = {
+export type ReconcilePettyCashResponses = {
     200: PettyCashTransactionResponse;
 };
 
-export type PostFinancialPettyCashReconcile75291Edb623388B2Bdfa0F714516A998Response = PostFinancialPettyCashReconcile75291Edb623388B2Bdfa0F714516A998Responses[keyof PostFinancialPettyCashReconcile75291Edb623388B2Bdfa0F714516A998Responses];
+export type ReconcilePettyCashResponse = ReconcilePettyCashResponses[keyof ReconcilePettyCashResponses];
 
-export type GetFinancialPettyCashBalanceF44A130E136E92A7378597645Cca52D1Data = {
+export type GetPettyCashBalanceData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/financial/petty-cash/balance';
 };
 
-export type GetFinancialPettyCashBalanceF44A130E136E92A7378597645Cca52D1Errors = {
+export type GetPettyCashBalanceErrors = {
     /**
      * Bad Request
      */
@@ -26067,23 +26159,23 @@ export type GetFinancialPettyCashBalanceF44A130E136E92A7378597645Cca52D1Errors =
     504: unknown;
 };
 
-export type GetFinancialPettyCashBalanceF44A130E136E92A7378597645Cca52D1Responses = {
+export type GetPettyCashBalanceResponses = {
     /**
      * float
      */
     200: number;
 };
 
-export type GetFinancialPettyCashBalanceF44A130E136E92A7378597645Cca52D1Response = GetFinancialPettyCashBalanceF44A130E136E92A7378597645Cca52D1Responses[keyof GetFinancialPettyCashBalanceF44A130E136E92A7378597645Cca52D1Responses];
+export type GetPettyCashBalanceResponse = GetPettyCashBalanceResponses[keyof GetPettyCashBalanceResponses];
 
-export type PostFinancialSalaryComponents14A2Cfd53C08B413973B17158C3A4D0aData = {
+export type CreateSalaryComponentData = {
     body: CreateSalaryComponentRequest;
     path?: never;
     query?: never;
     url: '/financial/salary-components';
 };
 
-export type PostFinancialSalaryComponents14A2Cfd53C08B413973B17158C3A4D0aErrors = {
+export type CreateSalaryComponentErrors = {
     /**
      * Bad Request
      */
@@ -26154,20 +26246,20 @@ export type PostFinancialSalaryComponents14A2Cfd53C08B413973B17158C3A4D0aErrors 
     504: unknown;
 };
 
-export type PostFinancialSalaryComponents14A2Cfd53C08B413973B17158C3A4D0aResponses = {
+export type CreateSalaryComponentResponses = {
     200: SalaryComponentResponse;
 };
 
-export type PostFinancialSalaryComponents14A2Cfd53C08B413973B17158C3A4D0aResponse = PostFinancialSalaryComponents14A2Cfd53C08B413973B17158C3A4D0aResponses[keyof PostFinancialSalaryComponents14A2Cfd53C08B413973B17158C3A4D0aResponses];
+export type CreateSalaryComponentResponse = CreateSalaryComponentResponses[keyof CreateSalaryComponentResponses];
 
-export type PostFinancialStaffSalary593B02D1D0454C571B911Bf90897E741Data = {
+export type SetStaffSalaryData = {
     body: SetStaffSalaryRequest;
     path?: never;
     query?: never;
     url: '/financial/staff-salary';
 };
 
-export type PostFinancialStaffSalary593B02D1D0454C571B911Bf90897E741Errors = {
+export type SetStaffSalaryErrors = {
     /**
      * Bad Request
      */
@@ -26238,20 +26330,20 @@ export type PostFinancialStaffSalary593B02D1D0454C571B911Bf90897E741Errors = {
     504: unknown;
 };
 
-export type PostFinancialStaffSalary593B02D1D0454C571B911Bf90897E741Responses = {
+export type SetStaffSalaryResponses = {
     200: StaffSalaryResponse;
 };
 
-export type PostFinancialStaffSalary593B02D1D0454C571B911Bf90897E741Response = PostFinancialStaffSalary593B02D1D0454C571B911Bf90897E741Responses[keyof PostFinancialStaffSalary593B02D1D0454C571B911Bf90897E741Responses];
+export type SetStaffSalaryResponse = SetStaffSalaryResponses[keyof SetStaffSalaryResponses];
 
-export type PostFinancialSalaryPaymentsA1Dfd7Cafa5Dc485D328Dfcbb5A16753Data = {
+export type RecordSalaryPaymentData = {
     body: RecordSalaryPaymentRequest;
     path?: never;
     query?: never;
     url: '/financial/salary-payments';
 };
 
-export type PostFinancialSalaryPaymentsA1Dfd7Cafa5Dc485D328Dfcbb5A16753Errors = {
+export type RecordSalaryPaymentErrors = {
     /**
      * Bad Request
      */
@@ -26322,20 +26414,20 @@ export type PostFinancialSalaryPaymentsA1Dfd7Cafa5Dc485D328Dfcbb5A16753Errors = 
     504: unknown;
 };
 
-export type PostFinancialSalaryPaymentsA1Dfd7Cafa5Dc485D328Dfcbb5A16753Responses = {
+export type RecordSalaryPaymentResponses = {
     200: SalaryPaymentResponse;
 };
 
-export type PostFinancialSalaryPaymentsA1Dfd7Cafa5Dc485D328Dfcbb5A16753Response = PostFinancialSalaryPaymentsA1Dfd7Cafa5Dc485D328Dfcbb5A16753Responses[keyof PostFinancialSalaryPaymentsA1Dfd7Cafa5Dc485D328Dfcbb5A16753Responses];
+export type RecordSalaryPaymentResponse = RecordSalaryPaymentResponses[keyof RecordSalaryPaymentResponses];
 
-export type Get6666Cd76F96956469E7Be39D750Cc7D9Data = {
+export type HelloData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/';
 };
 
-export type Get6666Cd76F96956469E7Be39D750Cc7D9Errors = {
+export type HelloErrors = {
     /**
      * Bad Request
      */
@@ -26406,20 +26498,20 @@ export type Get6666Cd76F96956469E7Be39D750Cc7D9Errors = {
     504: unknown;
 };
 
-export type Get6666Cd76F96956469E7Be39D750Cc7D9Responses = {
+export type HelloResponses = {
     200: MessageResponse;
 };
 
-export type Get6666Cd76F96956469E7Be39D750Cc7D9Response = Get6666Cd76F96956469E7Be39D750Cc7D9Responses[keyof Get6666Cd76F96956469E7Be39D750Cc7D9Responses];
+export type HelloResponse = HelloResponses[keyof HelloResponses];
 
-export type GetError36004B7E6Ab7362189C684884261Ec70Data = {
+export type HelloErrorData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/error';
 };
 
-export type GetError36004B7E6Ab7362189C684884261Ec70Errors = {
+export type HelloErrorErrors = {
     /**
      * Bad Request
      */
@@ -26490,8 +26582,8 @@ export type GetError36004B7E6Ab7362189C684884261Ec70Errors = {
     504: unknown;
 };
 
-export type GetError36004B7E6Ab7362189C684884261Ec70Responses = {
+export type HelloErrorResponses = {
     200: MessageResponse;
 };
 
-export type GetError36004B7E6Ab7362189C684884261Ec70Response = GetError36004B7E6Ab7362189C684884261Ec70Responses[keyof GetError36004B7E6Ab7362189C684884261Ec70Responses];
+export type HelloErrorResponse = HelloErrorResponses[keyof HelloErrorResponses];

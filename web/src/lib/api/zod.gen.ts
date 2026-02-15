@@ -3542,47 +3542,47 @@ export const zUserStatsResponse = z.object({
     verified_users: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
 });
 
-export const zPostAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Data = z.object({
+export const zRegisterUserData = z.object({
     body: zRegisterRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostAuthRegisterD7296Dbacc4Fd751Aeb142Bbb8A63Fd9Response = zUserResponse;
+export const zRegisterUserResponse = zUserResponse;
 
-export const zPostAuthLogin9E9Be264D609C0E1A535693Ba4C389AaData = z.object({
+export const zLoginUserData = z.object({
     body: zLoginRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostAuthLogin9E9Be264D609C0E1A535693Ba4C389AaResponse = zTokenResponse;
+export const zLoginUserResponse = zTokenResponse;
 
-export const zPostAuthLogout5D5C18E2301F7F66A8222C30Cd9230A0Data = z.object({
+export const zLogoutUserData = z.object({
     body: zRefreshTokenRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostAuthLogout5D5C18E2301F7F66A8222C30Cd9230A0Response = zMessageResponse;
+export const zLogoutUserResponse = zMessageResponse;
 
-export const zPostAuthRefresh6Aadba1Bf11B4320428155Ff0462660dData = z.object({
+export const zRefreshTokenData = z.object({
     body: zRefreshTokenRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostAuthRefresh6Aadba1Bf11B4320428155Ff0462660dResponse = zTokenResponse;
+export const zRefreshTokenResponse = zTokenResponse;
 
-export const zPostAuthPasswordRequest958Dc1121F130A1Ad3C117E1Ec11B28bData = z.object({
+export const zRequestPasswordResetData = z.object({
     body: zPasswordResetRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostAuthPasswordRequest958Dc1121F130A1Ad3C117E1Ec11B28bResponse = zMessageResponse;
+export const zRequestPasswordResetResponse = zMessageResponse;
 
-export const zPostAuthPasswordReset3Ad21Be550006F0Cebd8Fe02554A472eData = z.object({
+export const zResetPasswordData = z.object({
     body: zPasswordReset,
     path: z.object({
         token: z.string()
@@ -3590,9 +3590,9 @@ export const zPostAuthPasswordReset3Ad21Be550006F0Cebd8Fe02554A472eData = z.obje
     query: z.optional(z.never())
 });
 
-export const zPostAuthPasswordReset3Ad21Be550006F0Cebd8Fe02554A472eResponse = zMessageResponse;
+export const zResetPasswordResponse = zMessageResponse;
 
-export const zGetAuthGoogleCallback458F2E13A81Ef174B7223B3112A3445fData = z.object({
+export const zGoogleCallbackData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
@@ -3600,9 +3600,9 @@ export const zGetAuthGoogleCallback458F2E13A81Ef174B7223B3112A3445fData = z.obje
     })
 });
 
-export const zGetAuthGoogleCallback458F2E13A81Ef174B7223B3112A3445fResponse = zTokenResponse;
+export const zGoogleCallbackResponse = zTokenResponse;
 
-export const zGetAuthGithubCallbackFd62426A52D82B58258Cd19C736C1912Data = z.object({
+export const zGithubCallbackData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
@@ -3610,9 +3610,9 @@ export const zGetAuthGithubCallbackFd62426A52D82B58258Cd19C736C1912Data = z.obje
     })
 });
 
-export const zGetAuthGithubCallbackFd62426A52D82B58258Cd19C736C1912Response = zTokenResponse;
+export const zGithubCallbackResponse = zTokenResponse;
 
-export const zGetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eData = z.object({
+export const zVerifyEmailData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         token: z.string()
@@ -3620,41 +3620,41 @@ export const zGetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eData = z.object(
     query: z.optional(z.never())
 });
 
-export const zGetAuthVerifyEmailE93Ef4A6Df34C70Bc155A0Ebde355F3eResponse = zMessageResponse;
+export const zVerifyEmailResponse = zMessageResponse;
 
-export const zGetProfileC838C8E7Da73Bfc08645A117E4Df91F3Data = z.object({
+export const zGetProfileData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetProfileC838C8E7Da73Bfc08645A117E4Df91F3Response = zUserProfileResponse;
+export const zGetProfileResponse = zUserProfileResponse;
 
-export const zPutProfileC838C8E7Da73Bfc08645A117E4Df91F3Data = z.object({
+export const zUpdateProfileData = z.object({
     body: zUpdateProfileRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPutProfileC838C8E7Da73Bfc08645A117E4Df91F3Response = zUserResponse;
+export const zUpdateProfileResponse = zUserResponse;
 
-export const zPostProfilePassword9037B3C985Aaf669A931670F06701375Data = z.object({
+export const zChangePasswordData = z.object({
     body: zChangePasswordRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostProfilePassword9037B3C985Aaf669A931670F06701375Response = zUserResponse;
+export const zChangePasswordResponse = zUserResponse;
 
-export const zPostProfileEmailC21C33Ced9E08E80742790Ae70717Ea5Data = z.object({
+export const zChangeEmailData = z.object({
     body: zChangeEmailRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostProfileEmailC21C33Ced9E08E80742790Ae70717Ea5Response = zUserResponse;
+export const zChangeEmailResponse = zUserResponse;
 
-export const zGetProfileLinkGoogle9A3D4362C5C946A2E95769Da6D37052eData = z.object({
+export const zLinkGoogleData = z.object({
     body: zUserId,
     path: z.optional(z.never()),
     query: z.object({
@@ -3662,9 +3662,9 @@ export const zGetProfileLinkGoogle9A3D4362C5C946A2E95769Da6D37052eData = z.objec
     })
 });
 
-export const zGetProfileLinkGoogle9A3D4362C5C946A2E95769Da6D37052eResponse = zUserResponse;
+export const zLinkGoogleResponse = zUserResponse;
 
-export const zGetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Data = z.object({
+export const zLinkGithubData = z.object({
     body: zUserId,
     path: z.optional(z.never()),
     query: z.object({
@@ -3672,25 +3672,25 @@ export const zGetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Data = z.objec
     })
 });
 
-export const zGetProfileLinkGithubF48B18B23B8E0Cc0219D90082518D4F7Response = zUserResponse;
+export const zLinkGithubResponse = zUserResponse;
 
-export const zGetUserSets7Fe720F86Ab0A3336B32F90857F962FbData = z.object({
+export const zGetAllPermissionSetsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetUserSets7Fe720F86Ab0A3336B32F90857F962FbResponse = z.array(zUserSet);
+export const zGetAllPermissionSetsResponse = z.array(zUserSet);
 
-export const zPostUserSets7Fe720F86Ab0A3336B32F90857F962FbData = z.object({
+export const zCreatePermissionSetData = z.object({
     body: zCreatePermissionSetRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostUserSets7Fe720F86Ab0A3336B32F90857F962FbResponse = zUserSet;
+export const zCreatePermissionSetResponse = zUserSet;
 
-export const zDeleteUserSets022A335C92B18Bef15F7F6B8Ee63DebeData = z.object({
+export const zDeletePermissionSetData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         permission_set_id: z.string()
@@ -3698,9 +3698,9 @@ export const zDeleteUserSets022A335C92B18Bef15F7F6B8Ee63DebeData = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteUserSets022A335C92B18Bef15F7F6B8Ee63DebeResponse = zMessageResponse;
+export const zDeletePermissionSetResponse = zMessageResponse;
 
-export const zPutUserSets022A335C92B18Bef15F7F6B8Ee63DebeData = z.object({
+export const zUpdatePermissionSetData = z.object({
     body: zUpdatePermissionSetRequest,
     path: z.object({
         permission_set_id: z.string()
@@ -3708,9 +3708,9 @@ export const zPutUserSets022A335C92B18Bef15F7F6B8Ee63DebeData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutUserSets022A335C92B18Bef15F7F6B8Ee63DebeResponse = zUserSet;
+export const zUpdatePermissionSetResponse = zUserSet;
 
-export const zGetUsers06Bdcf95Aafda840B1D04322636De293Data = z.object({
+export const zGetAllUsersData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -3753,17 +3753,17 @@ export const zGetUsers06Bdcf95Aafda840B1D04322636De293Data = z.object({
     }))
 });
 
-export const zGetUsers06Bdcf95Aafda840B1D04322636De293Response = zPaginatedUserResponse;
+export const zGetAllUsersResponse = zPaginatedUserResponse;
 
-export const zGetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaData = z.object({
+export const zGetUserStatisticsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetUsersStatsBf304B57E4A0115F8280C4Bed2Fd9FbaResponse = zUserStatsResponse;
+export const zGetUserStatisticsResponse = zUserStatsResponse;
 
-export const zDeleteUsers66Efee124008C43Eb5Cbf0B9F62F672dData = z.object({
+export const zUnassignPermissionFromUserData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         user_id: z.string(),
@@ -3772,9 +3772,9 @@ export const zDeleteUsers66Efee124008C43Eb5Cbf0B9F62F672dData = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteUsers66Efee124008C43Eb5Cbf0B9F62F672dResponse = zMessageResponse;
+export const zUnassignPermissionFromUserResponse = zMessageResponse;
 
-export const zPostUsers66Efee124008C43Eb5Cbf0B9F62F672dData = z.object({
+export const zAssignPermissionToUserData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         user_id: z.string(),
@@ -3783,9 +3783,22 @@ export const zPostUsers66Efee124008C43Eb5Cbf0B9F62F672dData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostUsers66Efee124008C43Eb5Cbf0B9F62F672dResponse = zMessageResponse;
+export const zAssignPermissionToUserResponse = zMessageResponse;
 
-export const zGetRoles093101418A291472A1Fd0321B44Ee588Data = z.object({
+export const zGetUserPermissionsData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        user_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+/**
+ * String
+ */
+export const zGetUserPermissionsResponse = z.string();
+
+export const zGetRolePermissionsData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         role_id: z.string()
@@ -3796,9 +3809,9 @@ export const zGetRoles093101418A291472A1Fd0321B44Ee588Data = z.object({
 /**
  * String
  */
-export const zGetRoles093101418A291472A1Fd0321B44Ee588Response = z.string();
+export const zGetRolePermissionsResponse = z.string();
 
-export const zDeleteRoles7A6218185E67924974Ea68847Babf449Data = z.object({
+export const zUnassignPermissionFromRoleData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         role_id: z.string(),
@@ -3807,9 +3820,9 @@ export const zDeleteRoles7A6218185E67924974Ea68847Babf449Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteRoles7A6218185E67924974Ea68847Babf449Response = zMessageResponse;
+export const zUnassignPermissionFromRoleResponse = zMessageResponse;
 
-export const zPostRoles7A6218185E67924974Ea68847Babf449Data = z.object({
+export const zAssignPermissionToRoleData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         role_id: z.string(),
@@ -3818,9 +3831,9 @@ export const zPostRoles7A6218185E67924974Ea68847Babf449Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostRoles7A6218185E67924974Ea68847Babf449Response = zMessageResponse;
+export const zAssignPermissionToRoleResponse = zMessageResponse;
 
-export const zGetUserSetsAc58050F7Cf71Cc1A1Fe712058C24D90Data = z.object({
+export const zGetUserSetPermissionsData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         user_set_id: z.string()
@@ -3831,9 +3844,9 @@ export const zGetUserSetsAc58050F7Cf71Cc1A1Fe712058C24D90Data = z.object({
 /**
  * String
  */
-export const zGetUserSetsAc58050F7Cf71Cc1A1Fe712058C24D90Response = z.string();
+export const zGetUserSetPermissionsResponse = z.string();
 
-export const zDeleteUserSetsD1C6Ed0Ce2809866159443869187F11fData = z.object({
+export const zUnassignPermissionFromUserSetData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         user_set_id: z.string(),
@@ -3842,9 +3855,9 @@ export const zDeleteUserSetsD1C6Ed0Ce2809866159443869187F11fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteUserSetsD1C6Ed0Ce2809866159443869187F11fResponse = zMessageResponse;
+export const zUnassignPermissionFromUserSetResponse = zMessageResponse;
 
-export const zPostUserSetsD1C6Ed0Ce2809866159443869187F11fData = z.object({
+export const zAssignPermissionToUserSetData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         user_set_id: z.string(),
@@ -3853,9 +3866,9 @@ export const zPostUserSetsD1C6Ed0Ce2809866159443869187F11fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostUserSetsD1C6Ed0Ce2809866159443869187F11fResponse = zMessageResponse;
+export const zAssignPermissionToUserSetResponse = zMessageResponse;
 
-export const zGetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data = z.object({
+export const zGetAllStaffData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -3898,17 +3911,17 @@ export const zGetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data = z.object({
     }))
 });
 
-export const zGetStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Response = zPaginatedStaffResponse;
+export const zGetAllStaffResponse = zPaginatedStaffResponse;
 
-export const zPostStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Data = z.object({
+export const zCreateStaffData = z.object({
     body: zCreateStaffRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostStaffDb2Ddf96Bd86Cfcd0342B203Ba78A857Response = zStaffResponse;
+export const zCreateStaffResponse = zStaffResponse;
 
-export const zDeleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Data = z.object({
+export const zDeleteStaffData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         staff_id: z.string()
@@ -3916,9 +3929,9 @@ export const zDeleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Response = zMessageResponse;
+export const zDeleteStaffResponse = zMessageResponse;
 
-export const zGetStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Data = z.object({
+export const zGetStaffByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         staff_id: z.string()
@@ -3926,9 +3939,9 @@ export const zGetStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Response = zStaffResponse;
+export const zGetStaffByIdResponse = zStaffResponse;
 
-export const zPutStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Data = z.object({
+export const zUpdateStaffData = z.object({
     body: zUpdateStaffRequest,
     path: z.object({
         staff_id: z.string()
@@ -3936,9 +3949,9 @@ export const zPutStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutStaffA2C17Fd0026652C749Fc88Fc4Fd7Fd58Response = zStaffResponse;
+export const zUpdateStaffResponse = zStaffResponse;
 
-export const zPostStaffE424D8D8De9D3Afdcc732A2A39439017Data = z.object({
+export const zUploadStaffPhotoData = z.object({
     body: z.unknown(),
     path: z.object({
         staff_id: z.string()
@@ -3946,9 +3959,9 @@ export const zPostStaffE424D8D8De9D3Afdcc732A2A39439017Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostStaffE424D8D8De9D3Afdcc732A2A39439017Response = zStaffResponse;
+export const zUploadStaffPhotoResponse = zStaffResponse;
 
-export const zPostStaff545C1F6Bb0D08A4E1Bf2707083425A0fData = z.object({
+export const zAssignClassToTeacherData = z.object({
     body: zAssignClassToTeacherRequest,
     path: z.object({
         teacher_id: z.string()
@@ -3956,9 +3969,9 @@ export const zPostStaff545C1F6Bb0D08A4E1Bf2707083425A0fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostStaff545C1F6Bb0D08A4E1Bf2707083425A0fResponse = zTeacherClassAssignmentResponse;
+export const zAssignClassToTeacherResponse = zTeacherClassAssignmentResponse;
 
-export const zPostStaffF4267B27A708Fcc75349Da3C1545Ffb7Data = z.object({
+export const zAssignSubjectToTeacherData = z.object({
     body: zAssignSubjectToTeacherRequest,
     path: z.object({
         teacher_id: z.string()
@@ -3966,9 +3979,9 @@ export const zPostStaffF4267B27A708Fcc75349Da3C1545Ffb7Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostStaffF4267B27A708Fcc75349Da3C1545Ffb7Response = zTeacherSubjectAssignmentResponse;
+export const zAssignSubjectToTeacherResponse = zTeacherSubjectAssignmentResponse;
 
-export const zGetStaff358D485E99Adcdd52664B3E4Ae247766Data = z.object({
+export const zGetTeacherWorkloadData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         teacher_id: z.string()
@@ -3976,9 +3989,9 @@ export const zGetStaff358D485E99Adcdd52664B3E4Ae247766Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetStaff358D485E99Adcdd52664B3E4Ae247766Response = zTeacherWorkloadResponse;
+export const zGetTeacherWorkloadResponse = zTeacherWorkloadResponse;
 
-export const zPostStaffFc78Cd9C98B981Beffc10Bed6C705417Data = z.object({
+export const zMarkStaffAttendanceDailyData = z.object({
     body: zMarkStaffAttendanceRequest,
     path: z.object({
         staff_id: z.string()
@@ -3986,17 +3999,17 @@ export const zPostStaffFc78Cd9C98B981Beffc10Bed6C705417Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostStaffFc78Cd9C98B981Beffc10Bed6C705417Response = zStaffAttendanceResponse;
+export const zMarkStaffAttendanceDailyResponse = zStaffAttendanceResponse;
 
-export const zPostStaffAttendanceBulk8F2A2Bc0B290E669419582F4B20549F7Data = z.object({
+export const zMarkBulkStaffAttendanceData = z.object({
     body: zBulkMarkStaffAttendanceRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostStaffAttendanceBulk8F2A2Bc0B290E669419582F4B20549F7Response = z.array(zStaffAttendanceResponse);
+export const zMarkBulkStaffAttendanceResponse = z.array(zStaffAttendanceResponse);
 
-export const zPutStaffAttendanceDb2F8533D2Be67Cf8725Bfeb7Eb137BbData = z.object({
+export const zUpdateStaffAttendanceData = z.object({
     body: zUpdateStaffAttendanceRequest,
     path: z.object({
         attendance_id: z.string()
@@ -4004,9 +4017,9 @@ export const zPutStaffAttendanceDb2F8533D2Be67Cf8725Bfeb7Eb137BbData = z.object(
     query: z.optional(z.never())
 });
 
-export const zPutStaffAttendanceDb2F8533D2Be67Cf8725Bfeb7Eb137BbResponse = zStaffAttendanceResponse;
+export const zUpdateStaffAttendanceResponse = zStaffAttendanceResponse;
 
-export const zGetStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Data = z.object({
+export const zGetStaffAttendanceByDateData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
@@ -4014,9 +4027,9 @@ export const zGetStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Data = z.obj
     })
 });
 
-export const zGetStaffAttendanceDateD0Fe5B3F1730787C38A30326Ac928B80Response = z.array(zStaffAttendanceResponse);
+export const zGetStaffAttendanceByDateResponse = z.array(zStaffAttendanceResponse);
 
-export const zGetStaffF1Fbe56Dc8A3080E09Ca2Fdbceebd71aData = z.object({
+export const zGetStaffAttendanceByStaffMemberData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         staff_id: z.string()
@@ -4033,9 +4046,9 @@ export const zGetStaffF1Fbe56Dc8A3080E09Ca2Fdbceebd71aData = z.object({
     }))
 });
 
-export const zGetStaffF1Fbe56Dc8A3080E09Ca2Fdbceebd71aResponse = z.array(zStaffAttendanceResponse);
+export const zGetStaffAttendanceByStaffMemberResponse = z.array(zStaffAttendanceResponse);
 
-export const zGetStaffF53343C2722B834F87526A02A22Dbc4eData = z.object({
+export const zCalculateMonthlyStaffAttendancePercentageData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         staff_id: z.string(),
@@ -4045,9 +4058,9 @@ export const zGetStaffF53343C2722B834F87526A02A22Dbc4eData = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetStaffF53343C2722B834F87526A02A22Dbc4eResponse = zMonthlyAttendancePercentageResponse;
+export const zCalculateMonthlyStaffAttendancePercentageResponse = zMonthlyAttendancePercentageResponse;
 
-export const zPostStaff735Aa508C9832Dea38A091Cae075B4C8Data = z.object({
+export const zApplyForLeaveData = z.object({
     body: zApplyLeaveRequest,
     path: z.object({
         staff_id: z.string()
@@ -4055,9 +4068,9 @@ export const zPostStaff735Aa508C9832Dea38A091Cae075B4C8Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostStaff735Aa508C9832Dea38A091Cae075B4C8Response = zStaffLeaveResponse;
+export const zApplyForLeaveResponse = zStaffLeaveResponse;
 
-export const zPutStaffLeaves808972A537Eb405D52C61E7Cdb120C37Data = z.object({
+export const zApproveRejectLeaveData = z.object({
     body: zApproveRejectLeaveRequest,
     path: z.object({
         leave_id: z.string()
@@ -4065,9 +4078,9 @@ export const zPutStaffLeaves808972A537Eb405D52C61E7Cdb120C37Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutStaffLeaves808972A537Eb405D52C61E7Cdb120C37Response = zStaffLeaveResponse;
+export const zApproveRejectLeaveResponse = zStaffLeaveResponse;
 
-export const zGetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Data = z.object({
+export const zViewLeaveBalanceData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         staff_id: z.string()
@@ -4075,9 +4088,9 @@ export const zGetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetStaffFb019C95728D6B8Bd8Afa16844E8C6B9Response = z.array(zLeaveBalanceResponse);
+export const zViewLeaveBalanceResponse = z.array(zLeaveBalanceResponse);
 
-export const zGetStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2Data = z.object({
+export const zGetStaffPermissionSetsData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         staff_id: z.string()
@@ -4085,9 +4098,9 @@ export const zGetStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetStaffE1362B25169Eeb0Bc1A99Fcbf3E97Eb2Response = z.array(zUserSet);
+export const zGetStaffPermissionSetsResponse = z.array(zUserSet);
 
-export const zDeleteStaff524Cd96166B0B1868B53A942A4154443Data = z.object({
+export const zUnassignPermissionSetFromStaffData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         staff_id: z.string(),
@@ -4096,9 +4109,9 @@ export const zDeleteStaff524Cd96166B0B1868B53A942A4154443Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteStaff524Cd96166B0B1868B53A942A4154443Response = zMessageResponse;
+export const zUnassignPermissionSetFromStaffResponse = zMessageResponse;
 
-export const zPostStaff524Cd96166B0B1868B53A942A4154443Data = z.object({
+export const zAssignPermissionSetToStaffData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         staff_id: z.string(),
@@ -4107,9 +4120,9 @@ export const zPostStaff524Cd96166B0B1868B53A942A4154443Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostStaff524Cd96166B0B1868B53A942A4154443Response = zMessageResponse;
+export const zAssignPermissionSetToStaffResponse = zMessageResponse;
 
-export const zGetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data = z.object({
+export const zGetAllStudentsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -4148,17 +4161,17 @@ export const zGetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data = z.object({
     }))
 });
 
-export const zGetStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Response = zPaginatedStudentResponse;
+export const zGetAllStudentsResponse = zPaginatedStudentResponse;
 
-export const zPostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Data = z.object({
+export const zCreateStudentData = z.object({
     body: zCreateStudentRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostStudents9Cfb76Aa83C6A83D99Db1D6755C24Ee1Response = zStudentResponse;
+export const zCreateStudentResponse = zStudentResponse;
 
-export const zDeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data = z.object({
+export const zDeleteStudentData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -4166,9 +4179,9 @@ export const zDeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response = zMessageResponse;
+export const zDeleteStudentResponse = zMessageResponse;
 
-export const zGetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data = z.object({
+export const zGetStudentByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -4176,9 +4189,9 @@ export const zGetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response = zStudentResponse;
+export const zGetStudentByIdResponse = zStudentResponse;
 
-export const zPutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data = z.object({
+export const zUpdateStudentData = z.object({
     body: zUpdateStudentRequest,
     path: z.object({
         student_id: z.string()
@@ -4186,9 +4199,9 @@ export const zPutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutStudents4D5Cba944Bd069Fdf2A0246F5Bac2855Response = zStudentResponse;
+export const zUpdateStudentResponse = zStudentResponse;
 
-export const zPostStudents87F142Fffc2984E3Ceb560Aac590Bf2aData = z.object({
+export const zUploadStudentPhotoData = z.object({
     body: z.unknown(),
     path: z.object({
         student_id: z.string()
@@ -4196,9 +4209,9 @@ export const zPostStudents87F142Fffc2984E3Ceb560Aac590Bf2aData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostStudents87F142Fffc2984E3Ceb560Aac590Bf2aResponse = zStudentResponse;
+export const zUploadStudentPhotoResponse = zStudentResponse;
 
-export const zGetStudentsC15Cedf000Afcf123D5F8Ff23792Fb9fData = z.object({
+export const zGetCurrentClassOfStudentData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -4206,9 +4219,9 @@ export const zGetStudentsC15Cedf000Afcf123D5F8Ff23792Fb9fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetStudentsC15Cedf000Afcf123D5F8Ff23792Fb9fResponse = zStudentClassAssignmentResponse;
+export const zGetCurrentClassOfStudentResponse = zStudentClassAssignmentResponse;
 
-export const zGetStudentsAf114410Bce31973Dedaa89Aceef423dData = z.object({
+export const zGetClassHistoryOfStudentData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -4216,9 +4229,9 @@ export const zGetStudentsAf114410Bce31973Dedaa89Aceef423dData = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetStudentsAf114410Bce31973Dedaa89Aceef423dResponse = z.array(zStudentClassAssignmentResponse);
+export const zGetClassHistoryOfStudentResponse = z.array(zStudentClassAssignmentResponse);
 
-export const zGetStudentsD35F79014D845Abd1Ee7B65E65376C0fData = z.object({
+export const zGetAllGuardiansForStudentData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -4226,9 +4239,9 @@ export const zGetStudentsD35F79014D845Abd1Ee7B65E65376C0fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetStudentsD35F79014D845Abd1Ee7B65E65376C0fResponse = z.array(zStudentGuardianResponse);
+export const zGetAllGuardiansForStudentResponse = z.array(zStudentGuardianResponse);
 
-export const zPostStudentsD35F79014D845Abd1Ee7B65E65376C0fData = z.object({
+export const zAddGuardianToStudentData = z.object({
     body: zCreateStudentGuardianRequest,
     path: z.object({
         student_id: z.string()
@@ -4236,9 +4249,9 @@ export const zPostStudentsD35F79014D845Abd1Ee7B65E65376C0fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostStudentsD35F79014D845Abd1Ee7B65E65376C0fResponse = zStudentGuardianResponse;
+export const zAddGuardianToStudentResponse = zStudentGuardianResponse;
 
-export const zDeleteStudents391Ed37E05683E98Ce0123A438Ee3D9fData = z.object({
+export const zRemoveGuardianFromStudentData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string(),
@@ -4247,9 +4260,9 @@ export const zDeleteStudents391Ed37E05683E98Ce0123A438Ee3D9fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteStudents391Ed37E05683E98Ce0123A438Ee3D9fResponse = zMessageResponse;
+export const zRemoveGuardianFromStudentResponse = zMessageResponse;
 
-export const zPutStudents391Ed37E05683E98Ce0123A438Ee3D9fData = z.object({
+export const zUpdateGuardianInformationData = z.object({
     body: zUpdateStudentGuardianRequest,
     path: z.object({
         student_id: z.string(),
@@ -4258,17 +4271,17 @@ export const zPutStudents391Ed37E05683E98Ce0123A438Ee3D9fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutStudents391Ed37E05683E98Ce0123A438Ee3D9fResponse = zStudentGuardianResponse;
+export const zUpdateGuardianInformationResponse = zStudentGuardianResponse;
 
-export const zPostStudentClassAssignments6972B923527Ded7D6401B6C9Dc99E367Data = z.object({
+export const zAssignStudentToClassData = z.object({
     body: zCreateStudentClassAssignmentRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostStudentClassAssignments6972B923527Ded7D6401B6C9Dc99E367Response = zStudentClassAssignmentResponse;
+export const zAssignStudentToClassResponse = zStudentClassAssignmentResponse;
 
-export const zPutStudentClassAssignmentsEd4A01E5E07C53634853Cefb56A17Cc3Data = z.object({
+export const zTransferStudentClassData = z.object({
     body: zCreateStudentClassAssignmentRequest,
     path: z.object({
         student_id: z.string(),
@@ -4277,41 +4290,41 @@ export const zPutStudentClassAssignmentsEd4A01E5E07C53634853Cefb56A17Cc3Data = z
     query: z.optional(z.never())
 });
 
-export const zPutStudentClassAssignmentsEd4A01E5E07C53634853Cefb56A17Cc3Response = zStudentClassAssignmentResponse;
+export const zTransferStudentClassResponse = zStudentClassAssignmentResponse;
 
-export const zPostStudentClassAssignmentsBulkB35977522C3F8831101945E6E38E3D58Data = z.object({
+export const zBulkAssignStudentsToClassesData = z.object({
     body: zBulkAssignStudentClassRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostStudentClassAssignmentsBulkB35977522C3F8831101945E6E38E3D58Response = z.array(zStudentClassAssignmentResponse);
+export const zBulkAssignStudentsToClassesResponse = z.array(zStudentClassAssignmentResponse);
 
-export const zPostStudentClassAssignmentsPromoteCb1C67C822F34340D3410829Aabca0E8Data = z.object({
+export const zPromoteStudentToNextGradeData = z.object({
     body: zPromoteStudentRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostStudentClassAssignmentsPromoteCb1C67C822F34340D3410829Aabca0E8Response = zStudentClassAssignmentResponse;
+export const zPromoteStudentToNextGradeResponse = zStudentClassAssignmentResponse;
 
-export const zPostStudentAttendanceBulkEe86115B6Fcc8B311828E782275Ec9F4Data = z.object({
+export const zBulkMarkStudentAttendanceData = z.object({
     body: zBulkMarkStudentAttendanceRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostStudentAttendanceBulkEe86115B6Fcc8B311828E782275Ec9F4Response = z.array(zStudentAttendanceResponse);
+export const zBulkMarkStudentAttendanceResponse = z.array(zStudentAttendanceResponse);
 
-export const zPostStudentAttendanceC9Cb294Af52Dc103975Dda37B912B0E6Data = z.object({
+export const zMarkIndividualStudentAttendanceData = z.object({
     body: zMarkStudentAttendanceRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostStudentAttendanceC9Cb294Af52Dc103975Dda37B912B0E6Response = zStudentAttendanceResponse;
+export const zMarkIndividualStudentAttendanceResponse = zStudentAttendanceResponse;
 
-export const zPutStudentAttendance8Ee593Dc2Eb175A5E213A7Cb2A5Fa69bData = z.object({
+export const zUpdateStudentAttendanceData = z.object({
     body: zUpdateStudentAttendanceRequest,
     path: z.object({
         attendance_id: z.string()
@@ -4319,9 +4332,9 @@ export const zPutStudentAttendance8Ee593Dc2Eb175A5E213A7Cb2A5Fa69bData = z.objec
     query: z.optional(z.never())
 });
 
-export const zPutStudentAttendance8Ee593Dc2Eb175A5E213A7Cb2A5Fa69bResponse = zStudentAttendanceResponse;
+export const zUpdateStudentAttendanceResponse = zStudentAttendanceResponse;
 
-export const zGetStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dData = z.object({
+export const zGetAttendanceByClassAndDateData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         class_id: z.string(),
@@ -4330,9 +4343,9 @@ export const zGetStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dData = z.
     query: z.optional(z.never())
 });
 
-export const zGetStudentAttendanceClass2Fec35217B2F2C3727031Ce26765D12dResponse = z.array(zStudentAttendanceResponse);
+export const zGetAttendanceByClassAndDateResponse = z.array(zStudentAttendanceResponse);
 
-export const zGetStudentAttendanceStudentCbbbd2605B69C552A30F213Bbed65251Data = z.object({
+export const zGetAttendanceByStudentData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -4349,9 +4362,9 @@ export const zGetStudentAttendanceStudentCbbbd2605B69C552A30F213Bbed65251Data = 
     }))
 });
 
-export const zGetStudentAttendanceStudentCbbbd2605B69C552A30F213Bbed65251Response = z.array(zStudentAttendanceResponse);
+export const zGetAttendanceByStudentResponse = z.array(zStudentAttendanceResponse);
 
-export const zGetStudentAttendanceStudentF7Ef3Dbb1F865A0Dcf802Dbe04103922Data = z.object({
+export const zCalculateStudentAttendancePercentageData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -4365,9 +4378,9 @@ export const zGetStudentAttendanceStudentF7Ef3Dbb1F865A0Dcf802Dbe04103922Data = 
 /**
  * double
  */
-export const zGetStudentAttendanceStudentF7Ef3Dbb1F865A0Dcf802Dbe04103922Response = z.number();
+export const zCalculateStudentAttendancePercentageResponse = z.number();
 
-export const zGetStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dData = z.object({
+export const zGenerateAttendanceReportData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
@@ -4377,9 +4390,9 @@ export const zGetStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dData = z
     })
 });
 
-export const zGetStudentAttendanceReport7382Fd100A69D43Ad28Ae81434Ab938dResponse = z.array(zStudentAttendanceReportResponse);
+export const zGenerateAttendanceReportResponse = z.array(zStudentAttendanceReportResponse);
 
-export const zGetStudentAttendanceLowAttendanceCc245019A776B2781C79E8Fba9D3CfceData = z.object({
+export const zGetStudentsWithLowAttendanceData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
@@ -4390,51 +4403,41 @@ export const zGetStudentAttendanceLowAttendanceCc245019A776B2781C79E8Fba9D3CfceD
     })
 });
 
-export const zGetStudentAttendanceLowAttendanceCc245019A776B2781C79E8Fba9D3CfceResponse = z.array(zStudentAttendanceReportResponse);
+export const zGetStudentsWithLowAttendanceResponse = z.array(zStudentAttendanceReportResponse);
 
-export const zPostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28486cData = z.object({
+export const zSendAbsenceNotificationsData = z.object({
     body: zSendAbsenceNotificationRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostStudentAttendanceNotificationsAbsentCc6834Bb918B7E4359892D84Cd28486cResponse = zMessageResponse;
+export const zSendAbsenceNotificationsResponse = zMessageResponse;
 
-export const zGetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfData = z.object({
+export const zGetAllStudentMarksData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponse = z.array(zStudentMarkResponse);
+export const zGetAllStudentMarksResponse = z.array(zStudentMarkResponse);
 
-export const zPostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfData = z.object({
+export const zCreateStudentMarkData = z.object({
     body: zUserId,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostStudentMarks2E1De56C5Eb4550F7Aa14E3F7D66A4AfResponse = zStudentMarkResponse;
+export const zCreateStudentMarkResponse = zStudentMarkResponse;
 
-export const zPostStudentMarksBulk93Bc791320C6081B960044154A039A2fData = z.object({
+export const zBulkCreateStudentMarksData = z.object({
     body: zUserId,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostStudentMarksBulk93Bc791320C6081B960044154A039A2fResponse = z.array(zStudentMarkResponse);
+export const zBulkCreateStudentMarksResponse = z.array(zStudentMarkResponse);
 
-export const zDeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zDeleteStudentMarks2Fd93F5A28De4E67508299C8813898A0Response = zMessageResponse;
-
-export const zGetStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = z.object({
+export const zDeleteStudentMarkData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -4442,9 +4445,19 @@ export const zGetStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetStudentMarks2Fd93F5A28De4E67508299C8813898A0Response = zStudentMarkResponse;
+export const zDeleteStudentMarkResponse = zMessageResponse;
 
-export const zPutStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = z.object({
+export const zGetStudentMarkByIdData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zGetStudentMarkByIdResponse = zStudentMarkResponse;
+
+export const zUpdateStudentMarkData = z.object({
     body: zUserId,
     path: z.object({
         id: z.string()
@@ -4452,9 +4465,9 @@ export const zPutStudentMarks2Fd93F5A28De4E67508299C8813898A0Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutStudentMarks2Fd93F5A28De4E67508299C8813898A0Response = zStudentMarkResponse;
+export const zUpdateStudentMarkResponse = zStudentMarkResponse;
 
-export const zGetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaData = z.object({
+export const zGetStudentMarksByStudentIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -4462,9 +4475,9 @@ export const zGetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaData = z.obj
     query: z.optional(z.never())
 });
 
-export const zGetStudentMarksStudent7D814E16Fc01E690A74E96D1D57920DaResponse = z.array(zStudentMarkResponse);
+export const zGetStudentMarksByStudentIdResponse = z.array(zStudentMarkResponse);
 
-export const zGetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Data = z.object({
+export const zGetStudentMarksByExamAndClassData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         exam_id: z.string(),
@@ -4473,9 +4486,9 @@ export const zGetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Data = z.object
     query: z.optional(z.never())
 });
 
-export const zGetStudentMarksExamD532A6Fc2185510Ee4C97F12264Ba508Response = z.array(zStudentMarkResponse);
+export const zGetStudentMarksByExamAndClassResponse = z.array(zStudentMarkResponse);
 
-export const zGetAcademicYearsFccd08769F5A31A4E619B146B8C92DceData = z.object({
+export const zGetAllAcademicYearsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -4506,17 +4519,17 @@ export const zGetAcademicYearsFccd08769F5A31A4E619B146B8C92DceData = z.object({
     }))
 });
 
-export const zGetAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponse = zPaginatedAcademicYearResponse;
+export const zGetAllAcademicYearsResponse = zPaginatedAcademicYearResponse;
 
-export const zPostAcademicYearsFccd08769F5A31A4E619B146B8C92DceData = z.object({
+export const zCreateAcademicYearData = z.object({
     body: zCreateAcademicYearRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostAcademicYearsFccd08769F5A31A4E619B146B8C92DceResponse = zAcademicYearResponse;
+export const zCreateAcademicYearResponse = zAcademicYearResponse;
 
-export const zDeleteAcademicYears9480326F1E5661955Af73085324B82C5Data = z.object({
+export const zDeleteAcademicYearData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -4524,9 +4537,9 @@ export const zDeleteAcademicYears9480326F1E5661955Af73085324B82C5Data = z.object
     query: z.optional(z.never())
 });
 
-export const zDeleteAcademicYears9480326F1E5661955Af73085324B82C5Response = zMessageResponse;
+export const zDeleteAcademicYearResponse = zMessageResponse;
 
-export const zGetAcademicYears9480326F1E5661955Af73085324B82C5Data = z.object({
+export const zGetAcademicYearByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -4534,9 +4547,9 @@ export const zGetAcademicYears9480326F1E5661955Af73085324B82C5Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetAcademicYears9480326F1E5661955Af73085324B82C5Response = zAcademicYearResponse;
+export const zGetAcademicYearByIdResponse = zAcademicYearResponse;
 
-export const zPutAcademicYears9480326F1E5661955Af73085324B82C5Data = z.object({
+export const zUpdateAcademicYearData = z.object({
     body: zUpdateAcademicYearRequest,
     path: z.object({
         id: z.string()
@@ -4544,9 +4557,9 @@ export const zPutAcademicYears9480326F1E5661955Af73085324B82C5Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutAcademicYears9480326F1E5661955Af73085324B82C5Response = zAcademicYearResponse;
+export const zUpdateAcademicYearResponse = zAcademicYearResponse;
 
-export const zPutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dData = z.object({
+export const zSetCurrentAcademicYearData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -4554,33 +4567,33 @@ export const zPutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutAcademicYears48Aab4657185Cc22D2D8170B6E178A5dResponse = zAcademicYearResponse;
+export const zSetCurrentAcademicYearResponse = zAcademicYearResponse;
 
-export const zDeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfData = z.object({
+export const zBulkDeleteAcademicYearsData = z.object({
     body: zBulkDeleteAcademicYearsRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zDeleteAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponse = zMessageResponse;
+export const zBulkDeleteAcademicYearsResponse = zMessageResponse;
 
-export const zPatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfData = z.object({
+export const zBulkUpdateAcademicYearsData = z.object({
     body: zBulkUpdateAcademicYearsRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPatchAcademicYearsBulkA610C2C4B84Dd7C12Fbedc3A729274BfResponse = zMessageResponse;
+export const zBulkUpdateAcademicYearsResponse = zMessageResponse;
 
-export const zPostTerms8B2745Aa317D6F207Aed05Ee27289127Data = z.object({
+export const zCreateTermData = z.object({
     body: zCreateTermRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostTerms8B2745Aa317D6F207Aed05Ee27289127Response = zTermResponse;
+export const zCreateTermResponse = zTermResponse;
 
-export const zGetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaData = z.object({
+export const zGetAllGradeLevelsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -4611,17 +4624,17 @@ export const zGetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaData = z.object({
     }))
 });
 
-export const zGetGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponse = zPaginatedGradeLevelResponse;
+export const zGetAllGradeLevelsResponse = zPaginatedGradeLevelResponse;
 
-export const zPostGradeLevels729E40Defc3E46608Ed6D9De3A002BdaData = z.object({
+export const zCreateGradeLevelData = z.object({
     body: zCreateGradeLevelRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostGradeLevels729E40Defc3E46608Ed6D9De3A002BdaResponse = zGradeLevelResponse;
+export const zCreateGradeLevelResponse = zGradeLevelResponse;
 
-export const zDeleteGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Data = z.object({
+export const zDeleteGradeLevelData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -4629,9 +4642,9 @@ export const zDeleteGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Response = zMessageResponse;
+export const zDeleteGradeLevelResponse = zMessageResponse;
 
-export const zGetGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Data = z.object({
+export const zGetGradeLevelByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -4639,9 +4652,9 @@ export const zGetGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Response = zGradeLevelResponse;
+export const zGetGradeLevelByIdResponse = zGradeLevelResponse;
 
-export const zPutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Data = z.object({
+export const zUpdateGradeLevelData = z.object({
     body: zUpdateGradeLevelRequest,
     path: z.object({
         id: z.string()
@@ -4649,25 +4662,25 @@ export const zPutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutGradeLevelsFb43715E69B0650D37B39C8Aaa52A3F0Response = zGradeLevelResponse;
+export const zUpdateGradeLevelResponse = zGradeLevelResponse;
 
-export const zDeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aData = z.object({
+export const zBulkDeleteGradeLevelsData = z.object({
     body: zBulkDeleteGradeLevelsRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zDeleteGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponse = zMessageResponse;
+export const zBulkDeleteGradeLevelsResponse = zMessageResponse;
 
-export const zPatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aData = z.object({
+export const zBulkUpdateGradeLevelsData = z.object({
     body: zBulkUpdateGradeLevelsRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPatchGradeLevelsBulk38981D1C079F0Fdde8F7E0Ec46356A2aResponse = zMessageResponse;
+export const zBulkUpdateGradeLevelsResponse = zMessageResponse;
 
-export const zGetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbData = z.object({
+export const zGetAllClassesData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -4702,17 +4715,17 @@ export const zGetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbData = z.object({
     }))
 });
 
-export const zGetClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponse = zPaginatedClassResponse;
+export const zGetAllClassesResponse = zPaginatedClassResponse;
 
-export const zPostClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbData = z.object({
+export const zCreateClassData = z.object({
     body: zCreateClassRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostClasses7A8C467E0Ba0893E8F4F0Bc9A21037BbResponse = zClassResponse;
+export const zCreateClassResponse = zClassResponse;
 
-export const zDeleteClasses5B39B6B14A966Fa2E82D150861B446D0Data = z.object({
+export const zDeleteClassData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -4720,9 +4733,9 @@ export const zDeleteClasses5B39B6B14A966Fa2E82D150861B446D0Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteClasses5B39B6B14A966Fa2E82D150861B446D0Response = zMessageResponse;
+export const zDeleteClassResponse = zMessageResponse;
 
-export const zGetClasses5B39B6B14A966Fa2E82D150861B446D0Data = z.object({
+export const zGetClassByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -4730,9 +4743,9 @@ export const zGetClasses5B39B6B14A966Fa2E82D150861B446D0Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetClasses5B39B6B14A966Fa2E82D150861B446D0Response = zClassResponse;
+export const zGetClassByIdResponse = zClassResponse;
 
-export const zPutClasses5B39B6B14A966Fa2E82D150861B446D0Data = z.object({
+export const zUpdateClassData = z.object({
     body: zUpdateClassRequest,
     path: z.object({
         id: z.string()
@@ -4740,9 +4753,9 @@ export const zPutClasses5B39B6B14A966Fa2E82D150861B446D0Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutClasses5B39B6B14A966Fa2E82D150861B446D0Response = zClassResponse;
+export const zUpdateClassResponse = zClassResponse;
 
-export const zGetClassesGrade695C16540Bee6079F14687Cf9Cd6644bData = z.object({
+export const zGetClassesByGradeData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -4750,25 +4763,25 @@ export const zGetClassesGrade695C16540Bee6079F14687Cf9Cd6644bData = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetClassesGrade695C16540Bee6079F14687Cf9Cd6644bResponse = z.array(zClassResponse);
+export const zGetClassesByGradeResponse = z.array(zClassResponse);
 
-export const zDeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Data = z.object({
+export const zBulkDeleteClassesData = z.object({
     body: zBulkDeleteClassesRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zDeleteClassesBulk8Ae9069A12Bec136Abe91993F07C4300Response = zMessageResponse;
+export const zBulkDeleteClassesResponse = zMessageResponse;
 
-export const zPatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Data = z.object({
+export const zBulkUpdateClassesData = z.object({
     body: zBulkUpdateClassesRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPatchClassesBulk8Ae9069A12Bec136Abe91993F07C4300Response = zMessageResponse;
+export const zBulkUpdateClassesResponse = zMessageResponse;
 
-export const zGetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Data = z.object({
+export const zGetAllSubjectsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -4807,17 +4820,17 @@ export const zGetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Data = z.object({
     }))
 });
 
-export const zGetSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Response = zPaginatedSubjectResponse;
+export const zGetAllSubjectsResponse = zPaginatedSubjectResponse;
 
-export const zPostSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Data = z.object({
+export const zCreateSubjectData = z.object({
     body: zCreateSubjectRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostSubjects92Cd8D8C2C637Fd39Fb09A97B95Ce8A1Response = zSubjectResponse;
+export const zCreateSubjectResponse = zSubjectResponse;
 
-export const zDeleteSubjectsEefb0F505181Abdae58893Ea73C80C9fData = z.object({
+export const zDeleteSubjectData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -4825,9 +4838,9 @@ export const zDeleteSubjectsEefb0F505181Abdae58893Ea73C80C9fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteSubjectsEefb0F505181Abdae58893Ea73C80C9fResponse = zMessageResponse;
+export const zDeleteSubjectResponse = zMessageResponse;
 
-export const zGetSubjectsEefb0F505181Abdae58893Ea73C80C9fData = z.object({
+export const zGetSubjectByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -4835,9 +4848,9 @@ export const zGetSubjectsEefb0F505181Abdae58893Ea73C80C9fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetSubjectsEefb0F505181Abdae58893Ea73C80C9fResponse = zSubjectResponse;
+export const zGetSubjectByIdResponse = zSubjectResponse;
 
-export const zPutSubjectsEefb0F505181Abdae58893Ea73C80C9fData = z.object({
+export const zUpdateSubjectData = z.object({
     body: zUpdateSubjectRequest,
     path: z.object({
         id: z.string()
@@ -4845,9 +4858,9 @@ export const zPutSubjectsEefb0F505181Abdae58893Ea73C80C9fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutSubjectsEefb0F505181Abdae58893Ea73C80C9fResponse = zSubjectResponse;
+export const zUpdateSubjectResponse = zSubjectResponse;
 
-export const zGetSubjectsGrade8A1Ee74C3Aee7880F3774Fbe1D955E1eData = z.object({
+export const zGetSubjectsByGradeData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         grade_id: z.string()
@@ -4855,9 +4868,9 @@ export const zGetSubjectsGrade8A1Ee74C3Aee7880F3774Fbe1D955E1eData = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetSubjectsGrade8A1Ee74C3Aee7880F3774Fbe1D955E1eResponse = z.array(zSubjectResponse);
+export const zGetSubjectsByGradeResponse = z.array(zSubjectResponse);
 
-export const zGetSubjectsStream4934B62F9A3Eec13022C7D1A63689427Data = z.object({
+export const zGetSubjectsByStreamData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         stream_id: z.string()
@@ -4865,49 +4878,49 @@ export const zGetSubjectsStream4934B62F9A3Eec13022C7D1A63689427Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetSubjectsStream4934B62F9A3Eec13022C7D1A63689427Response = z.array(zSubjectResponse);
+export const zGetSubjectsByStreamResponse = z.array(zSubjectResponse);
 
-export const zPostSubjectsAssignToGrade774F1D22C1059125C70F8E16261F7Db1Data = z.object({
+export const zAssignSubjectToGradeData = z.object({
     body: zAssignSubjectToGradeRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostSubjectsAssignToGrade774F1D22C1059125C70F8E16261F7Db1Response = zMessageResponse;
+export const zAssignSubjectToGradeResponse = zMessageResponse;
 
-export const zPostSubjectsAssignToStream06856089Edf81Ade0699Fd53Db5Aeab6Data = z.object({
+export const zAssignSubjectToStreamData = z.object({
     body: zAssignSubjectToStreamRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostSubjectsAssignToStream06856089Edf81Ade0699Fd53Db5Aeab6Response = zMessageResponse;
+export const zAssignSubjectToStreamResponse = zMessageResponse;
 
-export const zDeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Data = z.object({
+export const zBulkDeleteSubjectsData = z.object({
     body: zBulkDeleteSubjectsRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zDeleteSubjectsBulk068Fdccc032E210B35F3B27601895347Response = zMessageResponse;
+export const zBulkDeleteSubjectsResponse = zMessageResponse;
 
-export const zPatchSubjectsBulk068Fdccc032E210B35F3B27601895347Data = z.object({
+export const zBulkUpdateSubjectsData = z.object({
     body: zBulkUpdateSubjectsRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPatchSubjectsBulk068Fdccc032E210B35F3B27601895347Response = zMessageResponse;
+export const zBulkUpdateSubjectsResponse = zMessageResponse;
 
-export const zPostClassSubjectTeachers3A4Eb377F8Fa0158A544625F9Ebe2F73Data = z.object({
+export const zAssignSubjectTeacherToClassData = z.object({
     body: zCreateClassSubjectTeacherRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostClassSubjectTeachers3A4Eb377F8Fa0158A544625F9Ebe2F73Response = zClassSubjectTeacherResponse;
+export const zAssignSubjectTeacherToClassResponse = zClassSubjectTeacherResponse;
 
-export const zPutClassSubjectTeachers30F007F9700D63Eaffb9E2Cef7868661Data = z.object({
+export const zUpdateSubjectTeacherAssignmentData = z.object({
     body: zUpdateClassSubjectTeacherRequest,
     path: z.object({
         class_id: z.string(),
@@ -4917,9 +4930,9 @@ export const zPutClassSubjectTeachers30F007F9700D63Eaffb9E2Cef7868661Data = z.ob
     query: z.optional(z.never())
 });
 
-export const zPutClassSubjectTeachers30F007F9700D63Eaffb9E2Cef7868661Response = zClassSubjectTeacherResponse;
+export const zUpdateSubjectTeacherAssignmentResponse = zClassSubjectTeacherResponse;
 
-export const zDeleteClassSubjectTeachers8D4605708579450D816E27B0Db113EdbData = z.object({
+export const zRemoveSubjectTeacherAssignmentData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         class_id: z.string(),
@@ -4930,9 +4943,9 @@ export const zDeleteClassSubjectTeachers8D4605708579450D816E27B0Db113EdbData = z
     query: z.optional(z.never())
 });
 
-export const zDeleteClassSubjectTeachers8D4605708579450D816E27B0Db113EdbResponse = zMessageResponse;
+export const zRemoveSubjectTeacherAssignmentResponse = zMessageResponse;
 
-export const zGetClassSubjectTeachersClass6E0E6Bfe96F5114F4E78E916Ffd6D0D3Data = z.object({
+export const zGetSubjectsByClassData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         class_id: z.string(),
@@ -4941,9 +4954,9 @@ export const zGetClassSubjectTeachersClass6E0E6Bfe96F5114F4E78E916Ffd6D0D3Data =
     query: z.optional(z.never())
 });
 
-export const zGetClassSubjectTeachersClass6E0E6Bfe96F5114F4E78E916Ffd6D0D3Response = z.array(zSubjectResponse);
+export const zGetSubjectsByClassResponse = z.array(zSubjectResponse);
 
-export const zGetClassSubjectTeachersTeacherBd709B78E6394Acb697D3F07Dc82004fData = z.object({
+export const zGetClassesByTeacherData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         teacher_id: z.string(),
@@ -4952,17 +4965,17 @@ export const zGetClassSubjectTeachersTeacherBd709B78E6394Acb697D3F07Dc82004fData
     query: z.optional(z.never())
 });
 
-export const zGetClassSubjectTeachersTeacherBd709B78E6394Acb697D3F07Dc82004fResponse = z.array(zClassResponse);
+export const zGetClassesByTeacherResponse = z.array(zClassResponse);
 
-export const zPostTimetablesA60Ac438B0A6B7Be33E9Eaa32Dfaf6AbData = z.object({
+export const zCreateTimetableEntryData = z.object({
     body: zCreateTimetableRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostTimetablesA60Ac438B0A6B7Be33E9Eaa32Dfaf6AbResponse = zTimetableResponse;
+export const zCreateTimetableEntryResponse = zTimetableResponse;
 
-export const zDeleteTimetables8F6B15244Ef6Af89538A8D46Aeb50686Data = z.object({
+export const zDeleteTimetableEntryData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -4970,9 +4983,9 @@ export const zDeleteTimetables8F6B15244Ef6Af89538A8D46Aeb50686Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteTimetables8F6B15244Ef6Af89538A8D46Aeb50686Response = zMessageResponse;
+export const zDeleteTimetableEntryResponse = zMessageResponse;
 
-export const zGetTimetables8F6B15244Ef6Af89538A8D46Aeb50686Data = z.object({
+export const zGetTimetableEntryByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -4980,9 +4993,9 @@ export const zGetTimetables8F6B15244Ef6Af89538A8D46Aeb50686Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetTimetables8F6B15244Ef6Af89538A8D46Aeb50686Response = zTimetableResponse;
+export const zGetTimetableEntryByIdResponse = zTimetableResponse;
 
-export const zPutTimetables8F6B15244Ef6Af89538A8D46Aeb50686Data = z.object({
+export const zUpdateTimetableEntryData = z.object({
     body: zUpdateTimetableRequest,
     path: z.object({
         id: z.string()
@@ -4990,9 +5003,9 @@ export const zPutTimetables8F6B15244Ef6Af89538A8D46Aeb50686Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutTimetables8F6B15244Ef6Af89538A8D46Aeb50686Response = zTimetableResponse;
+export const zUpdateTimetableEntryResponse = zTimetableResponse;
 
-export const zGetTimetablesClass429Dfa8D9860D97656269395Fb268924Data = z.object({
+export const zGetTimetableByClassAndDayData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         class_id: z.string(),
@@ -5002,9 +5015,9 @@ export const zGetTimetablesClass429Dfa8D9860D97656269395Fb268924Data = z.object(
     query: z.optional(z.never())
 });
 
-export const zGetTimetablesClass429Dfa8D9860D97656269395Fb268924Response = z.array(zTimetableResponse);
+export const zGetTimetableByClassAndDayResponse = z.array(zTimetableResponse);
 
-export const zGetTimetablesTeacherDf5669087F5F2852Aa8B2007Eb13E808Data = z.object({
+export const zGetTimetableByTeacherData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         teacher_id: z.string(),
@@ -5013,9 +5026,9 @@ export const zGetTimetablesTeacherDf5669087F5F2852Aa8B2007Eb13E808Data = z.objec
     query: z.optional(z.never())
 });
 
-export const zGetTimetablesTeacherDf5669087F5F2852Aa8B2007Eb13E808Response = z.array(zTimetableResponse);
+export const zGetTimetableByTeacherResponse = z.array(zTimetableResponse);
 
-export const zGetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bData = z.object({
+export const zGetAllExamTypesData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -5042,17 +5055,17 @@ export const zGetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bData = z.object({
     }))
 });
 
-export const zGetExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponse = zPaginatedExamTypeResponse;
+export const zGetAllExamTypesResponse = zPaginatedExamTypeResponse;
 
-export const zPostExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bData = z.object({
+export const zCreateExamTypeData = z.object({
     body: zCreateExamTypeRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostExamTypes4D7A55822B8Bd1C6F2B48E48Dd0Cc28bResponse = zExamTypeResponse;
+export const zCreateExamTypeResponse = zExamTypeResponse;
 
-export const zDeleteExamTypes9126Da3723A75916Edd30E224C192A8fData = z.object({
+export const zDeleteExamTypeData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -5060,9 +5073,9 @@ export const zDeleteExamTypes9126Da3723A75916Edd30E224C192A8fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteExamTypes9126Da3723A75916Edd30E224C192A8fResponse = zMessageResponse;
+export const zDeleteExamTypeResponse = zMessageResponse;
 
-export const zGetExamTypes9126Da3723A75916Edd30E224C192A8fData = z.object({
+export const zGetExamTypeByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -5070,9 +5083,9 @@ export const zGetExamTypes9126Da3723A75916Edd30E224C192A8fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetExamTypes9126Da3723A75916Edd30E224C192A8fResponse = zExamTypeResponse;
+export const zGetExamTypeByIdResponse = zExamTypeResponse;
 
-export const zPutExamTypes9126Da3723A75916Edd30E224C192A8fData = z.object({
+export const zUpdateExamTypeData = z.object({
     body: zUpdateExamTypeRequest,
     path: z.object({
         id: z.string()
@@ -5080,25 +5093,25 @@ export const zPutExamTypes9126Da3723A75916Edd30E224C192A8fData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutExamTypes9126Da3723A75916Edd30E224C192A8fResponse = zExamTypeResponse;
+export const zUpdateExamTypeResponse = zExamTypeResponse;
 
-export const zDeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdData = z.object({
+export const zBulkDeleteExamTypesData = z.object({
     body: zBulkDeleteExamTypesRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zDeleteExamTypesBulk11Ebec7E83Add123E833C872820803CdResponse = zMessageResponse;
+export const zBulkDeleteExamTypesResponse = zMessageResponse;
 
-export const zPatchExamTypesBulk11Ebec7E83Add123E833C872820803CdData = z.object({
+export const zBulkUpdateExamTypesData = z.object({
     body: zBulkUpdateExamTypesRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPatchExamTypesBulk11Ebec7E83Add123E833C872820803CdResponse = zMessageResponse;
+export const zBulkUpdateExamTypesResponse = zMessageResponse;
 
-export const zGetExams2D53A11E6361124D0D26Bdae3906F4B5Data = z.object({
+export const zGetAllExamsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -5137,17 +5150,17 @@ export const zGetExams2D53A11E6361124D0D26Bdae3906F4B5Data = z.object({
     }))
 });
 
-export const zGetExams2D53A11E6361124D0D26Bdae3906F4B5Response = zPaginatedExamResponse;
+export const zGetAllExamsResponse = zPaginatedExamResponse;
 
-export const zPostExams2D53A11E6361124D0D26Bdae3906F4B5Data = z.object({
+export const zCreateExamData = z.object({
     body: zCreateExamRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostExams2D53A11E6361124D0D26Bdae3906F4B5Response = zExamResponse;
+export const zCreateExamResponse = zExamResponse;
 
-export const zDeleteExams35F92A1465B1D9202D8F4383749E2096Data = z.object({
+export const zDeleteExamData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -5155,9 +5168,9 @@ export const zDeleteExams35F92A1465B1D9202D8F4383749E2096Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteExams35F92A1465B1D9202D8F4383749E2096Response = zMessageResponse;
+export const zDeleteExamResponse = zMessageResponse;
 
-export const zGetExams35F92A1465B1D9202D8F4383749E2096Data = z.object({
+export const zGetExamByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -5165,9 +5178,9 @@ export const zGetExams35F92A1465B1D9202D8F4383749E2096Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetExams35F92A1465B1D9202D8F4383749E2096Response = zExamResponse;
+export const zGetExamByIdResponse = zExamResponse;
 
-export const zPutExams35F92A1465B1D9202D8F4383749E2096Data = z.object({
+export const zUpdateExamData = z.object({
     body: zUpdateExamRequest,
     path: z.object({
         id: z.string()
@@ -5175,9 +5188,9 @@ export const zPutExams35F92A1465B1D9202D8F4383749E2096Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutExams35F92A1465B1D9202D8F4383749E2096Response = zExamResponse;
+export const zUpdateExamResponse = zExamResponse;
 
-export const zGetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bData = z.object({
+export const zGetExamsByTermIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         term_id: z.string()
@@ -5185,41 +5198,41 @@ export const zGetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bData = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetExamsTerm0Ef1C5Bbcaccda564Afa1A1Ae2F9106bResponse = z.array(zExamResponse);
+export const zGetExamsByTermIdResponse = z.array(zExamResponse);
 
-export const zDeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcData = z.object({
+export const zBulkDeleteExamsData = z.object({
     body: zBulkDeleteExamsRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zDeleteExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponse = zMessageResponse;
+export const zBulkDeleteExamsResponse = zMessageResponse;
 
-export const zPatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcData = z.object({
+export const zBulkUpdateExamsData = z.object({
     body: zBulkUpdateExamsRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPatchExamsBulk944A36D0Ae41E90A03215E2102A9A8AcResponse = zMessageResponse;
+export const zBulkUpdateExamsResponse = zMessageResponse;
 
-export const zGetExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Data = z.object({
+export const zGetAllExamSubjectsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Response = z.array(zExamSubjectResponse);
+export const zGetAllExamSubjectsResponse = z.array(zExamSubjectResponse);
 
-export const zPostExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Data = z.object({
+export const zCreateExamSubjectData = z.object({
     body: zCreateExamSubjectRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostExamSubjectsBb5A580Dde9241B7E75Dc69894Daf0E0Response = zExamSubjectResponse;
+export const zCreateExamSubjectResponse = zExamSubjectResponse;
 
-export const zDeleteExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Data = z.object({
+export const zDeleteExamSubjectData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         exam_id: z.string(),
@@ -5228,9 +5241,9 @@ export const zDeleteExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Data = z.object(
     query: z.optional(z.never())
 });
 
-export const zDeleteExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Response = zMessageResponse;
+export const zDeleteExamSubjectResponse = zMessageResponse;
 
-export const zGetExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Data = z.object({
+export const zGetExamSubjectByIdsData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         exam_id: z.string(),
@@ -5239,9 +5252,9 @@ export const zGetExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Response = zExamSubjectResponse;
+export const zGetExamSubjectByIdsResponse = zExamSubjectResponse;
 
-export const zPutExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Data = z.object({
+export const zUpdateExamSubjectData = z.object({
     body: zUpdateExamSubjectRequest,
     path: z.object({
         exam_id: z.string(),
@@ -5250,9 +5263,9 @@ export const zPutExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutExamSubjects4B4Cf9235Bafb0408249Cc1D4Aec8075Response = zExamSubjectResponse;
+export const zUpdateExamSubjectResponse = zExamSubjectResponse;
 
-export const zGetExamSubjectsExam6Bc5E1214F89603399C945D9Cd18A766Data = z.object({
+export const zGetExamSubjectsByExamIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         exam_id: z.string()
@@ -5260,9 +5273,9 @@ export const zGetExamSubjectsExam6Bc5E1214F89603399C945D9Cd18A766Data = z.object
     query: z.optional(z.never())
 });
 
-export const zGetExamSubjectsExam6Bc5E1214F89603399C945D9Cd18A766Response = z.array(zExamSubjectResponse);
+export const zGetExamSubjectsByExamIdResponse = z.array(zExamSubjectResponse);
 
-export const zGetExamSubjectsSubject8A37005B88457Ff0498Bb92451Bc3DddData = z.object({
+export const zGetExamSubjectsBySubjectIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         subject_id: z.string()
@@ -5270,9 +5283,9 @@ export const zGetExamSubjectsSubject8A37005B88457Ff0498Bb92451Bc3DddData = z.obj
     query: z.optional(z.never())
 });
 
-export const zGetExamSubjectsSubject8A37005B88457Ff0498Bb92451Bc3DddResponse = z.array(zExamSubjectResponse);
+export const zGetExamSubjectsBySubjectIdResponse = z.array(zExamSubjectResponse);
 
-export const zGetExamSubjectsScheduleAcademicYearD454F3Be99F7004E419069C5Ec501F48Data = z.object({
+export const zGetExamScheduleData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         academic_year_id: z.string(),
@@ -5281,7 +5294,7 @@ export const zGetExamSubjectsScheduleAcademicYearD454F3Be99F7004E419069C5Ec501F4
     query: z.optional(z.never())
 });
 
-export const zGetExamSubjectsScheduleAcademicYearD454F3Be99F7004E419069C5Ec501F48Response = z.array(zExamSubjectResponse);
+export const zGetExamScheduleResponse = z.array(zExamSubjectResponse);
 
 export const zGetAllGradingSchemesData = z.object({
     body: z.optional(z.never()),
@@ -5388,23 +5401,23 @@ export const zGetGradingCriteriaBySchemeIdData = z.object({
 
 export const zGetGradingCriteriaBySchemeIdResponse = z.array(zGradingCriterion);
 
-export const zPostZscoresCalculateAa644B5C557600979Ad41617F0A37643Data = z.object({
+export const zCalculateZscoresData = z.object({
     body: zCalculateZScoreRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostZscoresCalculateAa644B5C557600979Ad41617F0A37643Response = zMessageResponse;
+export const zCalculateZscoresResponse = zMessageResponse;
 
-export const zPostSpecialExamsRegisterE2896F3F2Bd7Def90B824Df268659A65Data = z.object({
+export const zRegisterStudentSpecialExamData = z.object({
     body: zExamRegistrationRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostSpecialExamsRegisterE2896F3F2Bd7Def90B824Df268659A65Response = zMessageResponse;
+export const zRegisterStudentSpecialExamResponse = zMessageResponse;
 
-export const zPostReportCardsCb11F2Df03874Fd70F003Be0Cf56C617Data = z.object({
+export const zGenerateReportCardData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -5412,9 +5425,9 @@ export const zPostReportCardsCb11F2Df03874Fd70F003Be0Cf56C617Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostReportCardsCb11F2Df03874Fd70F003Be0Cf56C617Response = zMessageResponse;
+export const zGenerateReportCardResponse = zMessageResponse;
 
-export const zGetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Data = z.object({
+export const zGetAllFeeCategoriesData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -5445,17 +5458,17 @@ export const zGetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Data = z.object({
     }))
 });
 
-export const zGetFeesCategoriesD298A597Defddd820187Cae143Fd4E33Response = zPaginatedFeeCategoryResponse;
+export const zGetAllFeeCategoriesResponse = zPaginatedFeeCategoryResponse;
 
-export const zPostFeesCategoriesD298A597Defddd820187Cae143Fd4E33Data = z.object({
+export const zCreateFeeCategoryData = z.object({
     body: zCreateFeeCategoryRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFeesCategoriesD298A597Defddd820187Cae143Fd4E33Response = zFeeCategoryResponse;
+export const zCreateFeeCategoryResponse = zFeeCategoryResponse;
 
-export const zPutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Data = z.object({
+export const zUpdateFeeCategoryData = z.object({
     body: zUpdateFeeCategoryRequest,
     path: z.object({
         id: z.string()
@@ -5463,25 +5476,25 @@ export const zPutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutFeesCategoriesFb1241650330Dd7600C1A30985E1F434Response = zFeeCategoryResponse;
+export const zUpdateFeeCategoryResponse = zFeeCategoryResponse;
 
-export const zDeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Data = z.object({
+export const zBulkDeleteFeeCategoriesData = z.object({
     body: zBulkDeleteFeeCategoriesRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zDeleteFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Response = zMessageResponse;
+export const zBulkDeleteFeeCategoriesResponse = zMessageResponse;
 
-export const zPatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Data = z.object({
+export const zBulkUpdateFeeCategoriesData = z.object({
     body: zBulkUpdateFeeCategoriesRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPatchFeesCategoriesBulkF0E1Bef77494Dddeca2B2D38743Eb8D4Response = zMessageResponse;
+export const zBulkUpdateFeeCategoriesResponse = zMessageResponse;
 
-export const zGetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfData = z.object({
+export const zGetAllFeeStructuresData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -5524,17 +5537,17 @@ export const zGetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfData = z.object({
     }))
 });
 
-export const zGetFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponse = zPaginatedFeeStructureResponse;
+export const zGetAllFeeStructuresResponse = zPaginatedFeeStructureResponse;
 
-export const zPostFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfData = z.object({
+export const zCreateFeeStructureData = z.object({
     body: zCreateFeeStructureRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFeesStructures5846Eecf3789Bb9F4D8E322C9F1Bf7EfResponse = zFeeStructureResponse;
+export const zCreateFeeStructureResponse = zFeeStructureResponse;
 
-export const zPutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dData = z.object({
+export const zUpdateFeeStructureData = z.object({
     body: zUpdateFeeStructureRequest,
     path: z.object({
         id: z.string()
@@ -5542,25 +5555,25 @@ export const zPutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutFeesStructures22E9325D7D2Cad1072F732A0Ae48085dResponse = zFeeStructureResponse;
+export const zUpdateFeeStructureResponse = zFeeStructureResponse;
 
-export const zDeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Data = z.object({
+export const zBulkDeleteFeeStructuresData = z.object({
     body: zBulkDeleteFeeStructuresRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zDeleteFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Response = zMessageResponse;
+export const zBulkDeleteFeeStructuresResponse = zMessageResponse;
 
-export const zPatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Data = z.object({
+export const zBulkUpdateFeeStructuresData = z.object({
     body: zBulkUpdateFeeStructuresRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPatchFeesStructuresBulk2Df20Eee09B81754Be39F0E9A9C47625Response = zMessageResponse;
+export const zBulkUpdateFeeStructuresResponse = zMessageResponse;
 
-export const zGetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeData = z.object({
+export const zGetFeeStructuresByGradeData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         grade_id: z.string()
@@ -5568,25 +5581,25 @@ export const zGetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeData = z.obj
     query: z.optional(z.never())
 });
 
-export const zGetFeesStructuresGrade1Ab062D2D2B681E0Ed511F21A107C7DeResponse = z.array(zFeeStructureResponse);
+export const zGetFeeStructuresByGradeResponse = z.array(zFeeStructureResponse);
 
-export const zPostFeesAssignmentsBc032Dc6E75D287C09C64Ce88Db67898Data = z.object({
+export const zAssignFeeToStudentData = z.object({
     body: zAssignFeeToStudentRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFeesAssignmentsBc032Dc6E75D287C09C64Ce88Db67898Response = zStudentFeeResponse;
+export const zAssignFeeToStudentResponse = zStudentFeeResponse;
 
-export const zPostFeesAssignmentsBulkBff7D6A6B872De013Ae618F82064D83dData = z.object({
+export const zBulkAssignFeesData = z.object({
     body: zBulkAssignFeesRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFeesAssignmentsBulkBff7D6A6B872De013Ae618F82064D83dResponse = zMessageResponse;
+export const zBulkAssignFeesResponse = zMessageResponse;
 
-export const zGetFeesAssignmentsStudentE63A0211Fbb1A447Be51D679Ed7E4471Data = z.object({
+export const zGetStudentFeesData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -5594,9 +5607,9 @@ export const zGetFeesAssignmentsStudentE63A0211Fbb1A447Be51D679Ed7E4471Data = z.
     query: z.optional(z.never())
 });
 
-export const zGetFeesAssignmentsStudentE63A0211Fbb1A447Be51D679Ed7E4471Response = z.array(zStudentFeeResponse);
+export const zGetStudentFeesResponse = z.array(zStudentFeeResponse);
 
-export const zPutFeesAssignments312A6691Ada2Ce4640A5Ecd4E63Ca30dData = z.object({
+export const zUpdateStudentFeeData = z.object({
     body: zExemptFeeRequest,
     path: z.object({
         id: z.string()
@@ -5604,9 +5617,9 @@ export const zPutFeesAssignments312A6691Ada2Ce4640A5Ecd4E63Ca30dData = z.object(
     query: z.optional(z.never())
 });
 
-export const zPutFeesAssignments312A6691Ada2Ce4640A5Ecd4E63Ca30dResponse = zStudentFeeResponse;
+export const zUpdateStudentFeeResponse = zStudentFeeResponse;
 
-export const zPostFeesAssignments8C2034Ad304Fa96Eb1F89C3Ad5401235Data = z.object({
+export const zApplyFeeWaiverData = z.object({
     body: zApplyWaiverRequest,
     path: z.object({
         id: z.string()
@@ -5614,25 +5627,25 @@ export const zPostFeesAssignments8C2034Ad304Fa96Eb1F89C3Ad5401235Data = z.object
     query: z.optional(z.never())
 });
 
-export const zPostFeesAssignments8C2034Ad304Fa96Eb1F89C3Ad5401235Response = zStudentFeeResponse;
+export const zApplyFeeWaiverResponse = zStudentFeeResponse;
 
-export const zGetFeesAssignmentsExemptedC9Ca3C1A426C5Ec60D99582Ba996Dd52Data = z.object({
+export const zGetExemptedStudentsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetFeesAssignmentsExemptedC9Ca3C1A426C5Ec60D99582Ba996Dd52Response = z.array(zStudentFeeResponse);
+export const zGetExemptedStudentsResponse = z.array(zStudentFeeResponse);
 
-export const zPostFeesPayments9F342Bb2Eabe8B12A27B1D3B2B636831Data = z.object({
+export const zRecordFeePaymentData = z.object({
     body: zRecordFeePaymentRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFeesPayments9F342Bb2Eabe8B12A27B1D3B2B636831Response = zFeePaymentResponse;
+export const zRecordFeePaymentResponse = zFeePaymentResponse;
 
-export const zGetFeesPaymentsReport1D69Ac724D19A7Ccf66B9E628B96E4EfData = z.object({
+export const zGetPaymentsByDateRangeData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
@@ -5641,9 +5654,9 @@ export const zGetFeesPaymentsReport1D69Ac724D19A7Ccf66B9E628B96E4EfData = z.obje
     })
 });
 
-export const zGetFeesPaymentsReport1D69Ac724D19A7Ccf66B9E628B96E4EfResponse = z.array(zFeePaymentResponse);
+export const zGetPaymentsByDateRangeResponse = z.array(zFeePaymentResponse);
 
-export const zGetFeesPaymentsBde5B84Fcac5A8B447095F8349597A01Data = z.object({
+export const zGetFeeReceiptData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -5651,9 +5664,9 @@ export const zGetFeesPaymentsBde5B84Fcac5A8B447095F8349597A01Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetFeesPaymentsBde5B84Fcac5A8B447095F8349597A01Response = zFeeReceiptResponse;
+export const zGetFeeReceiptResponse = zFeeReceiptResponse;
 
-export const zGetFeesHistoryBa8Ecca797B476Aaa9D7062223B2E459Data = z.object({
+export const zGetStudentPaymentHistoryData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -5661,9 +5674,9 @@ export const zGetFeesHistoryBa8Ecca797B476Aaa9D7062223B2E459Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetFeesHistoryBa8Ecca797B476Aaa9D7062223B2E459Response = zFeePaymentHistoryResponse;
+export const zGetStudentPaymentHistoryResponse = zFeePaymentHistoryResponse;
 
-export const zGetFeesBalanceAcff369326673B3264564C75Df847D0dData = z.object({
+export const zGetStudentBalanceData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -5671,73 +5684,73 @@ export const zGetFeesBalanceAcff369326673B3264564C75Df847D0dData = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetFeesBalanceAcff369326673B3264564C75Df847D0dResponse = zStudentBalanceResponse;
+export const zGetStudentBalanceResponse = zStudentBalanceResponse;
 
-export const zGetFeesDefaulters733Db2E6Ff3D670Fdc3D7A60278FdecfData = z.object({
+export const zGetFeeDefaultersData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetFeesDefaulters733Db2E6Ff3D670Fdc3D7A60278FdecfResponse = z.array(zFeeDefaulterResponse);
+export const zGetFeeDefaultersResponse = z.array(zFeeDefaulterResponse);
 
-export const zGetFeesReportsCollection9Fa337D81Ca17817997Aa4A0217Fc5A4Data = z.object({
+export const zGetFeeCollectionReportData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetFeesReportsCollection9Fa337D81Ca17817997Aa4A0217Fc5A4Response = z.array(zFeeCollectionReport);
+export const zGetFeeCollectionReportResponse = z.array(zFeeCollectionReport);
 
-export const zGetFeesReportsGrade6B63Dde3E50B70B7C96Cd8B49Ad8Ee29Data = z.object({
+export const zGetGradeFeeCollectionReportData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetFeesReportsGrade6B63Dde3E50B70B7C96Cd8B49Ad8Ee29Response = z.array(zGradeFeeCollectionReport);
+export const zGetGradeFeeCollectionReportResponse = z.array(zGradeFeeCollectionReport);
 
-export const zGetFeesReportsExport04502F618F4D7B8700F8Ab316497757dData = z.object({
+export const zExportFeeReportsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetFeesReportsExport04502F618F4D7B8700F8Ab316497757dResponse = zExportReportResponse;
+export const zExportFeeReportsResponse = zExportReportResponse;
 
-export const zPostFeesRemindersC4054D5Edc68450D55D29B611Adabc25Data = z.object({
+export const zSendFeeRemindersData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFeesRemindersC4054D5Edc68450D55D29B611Adabc25Response = zSendRemindersResponse;
+export const zSendFeeRemindersResponse = zSendRemindersResponse;
 
-export const zGetCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Data = z.object({
+export const zGetAllSportsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Response = z.array(zSport);
+export const zGetAllSportsResponse = z.array(zSport);
 
-export const zPostCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Data = z.object({
+export const zCreateSportData = z.object({
     body: zCreateSportRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostCoCurricularSportsE59023Ce4Dd9C6E4A685Ca456Dd689C6Response = zSport;
+export const zCreateSportResponse = zSport;
 
-export const zPostCoCurricularSportsTeams957Febae3Fa5548Ef11301322C31Bb32Data = z.object({
+export const zCreateSportTeamData = z.object({
     body: zCreateSportTeamRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostCoCurricularSportsTeams957Febae3Fa5548Ef11301322C31Bb32Response = zSportTeam;
+export const zCreateSportTeamResponse = zSportTeam;
 
-export const zPostCoCurricularSportsTeams6Fa169E07Ed85A50822A8F6C9207B778Data = z.object({
+export const zAddSportTeamMemberData = z.object({
     body: zAddSportTeamMemberRequest,
     path: z.object({
         team_id: z.string()
@@ -5745,17 +5758,17 @@ export const zPostCoCurricularSportsTeams6Fa169E07Ed85A50822A8F6C9207B778Data = 
     query: z.optional(z.never())
 });
 
-export const zPostCoCurricularSportsTeams6Fa169E07Ed85A50822A8F6C9207B778Response = zSportTeamMember;
+export const zAddSportTeamMemberResponse = zSportTeamMember;
 
-export const zPostCoCurricularSportsEventsAebaf9D0A1Ac40F470A5F3F11Db4Bd6eData = z.object({
+export const zCreateSportEventData = z.object({
     body: zCreateSportEventRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostCoCurricularSportsEventsAebaf9D0A1Ac40F470A5F3F11Db4Bd6eResponse = zSportEvent;
+export const zCreateSportEventResponse = zSportEvent;
 
-export const zPostCoCurricularSportsEventsCae142036Ab7B7E1C2B104D89Bfa9A5fData = z.object({
+export const zRecordSportEventResultData = z.object({
     body: zRecordEventResultRequest,
     path: z.object({
         event_id: z.string()
@@ -5763,17 +5776,17 @@ export const zPostCoCurricularSportsEventsCae142036Ab7B7E1C2B104D89Bfa9A5fData =
     query: z.optional(z.never())
 });
 
-export const zPostCoCurricularSportsEventsCae142036Ab7B7E1C2B104D89Bfa9A5fResponse = zSportEventParticipant;
+export const zRecordSportEventResultResponse = zSportEventParticipant;
 
-export const zPostCoCurricularClubsD5F034D0Daab91E767092625De69E105Data = z.object({
+export const zCreateClubData = z.object({
     body: zCreateClubRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostCoCurricularClubsD5F034D0Daab91E767092625De69E105Response = zClub;
+export const zCreateClubResponse = zClub;
 
-export const zPostCoCurricularClubs0B41747093Aa16E2Ef0E22Ce714A6AcaData = z.object({
+export const zAddClubMemberData = z.object({
     body: zAddClubMemberRequest,
     path: z.object({
         club_id: z.string()
@@ -5781,25 +5794,25 @@ export const zPostCoCurricularClubs0B41747093Aa16E2Ef0E22Ce714A6AcaData = z.obje
     query: z.optional(z.never())
 });
 
-export const zPostCoCurricularClubs0B41747093Aa16E2Ef0E22Ce714A6AcaResponse = zClubMember;
+export const zAddClubMemberResponse = zClubMember;
 
-export const zPostCoCurricularClubsActivities9862279029D206E33A3F18A8514642EbData = z.object({
+export const zCreateClubActivityData = z.object({
     body: zCreateClubActivityRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostCoCurricularClubsActivities9862279029D206E33A3F18A8514642EbResponse = zClubActivity;
+export const zCreateClubActivityResponse = zClubActivity;
 
-export const zPostCoCurricularCompetitionsBe2C82Beb4896A37022Ad67De2274075Data = z.object({
+export const zCreateCompetitionData = z.object({
     body: zCreateCompetitionRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostCoCurricularCompetitionsBe2C82Beb4896A37022Ad67De2274075Response = zCompetition;
+export const zCreateCompetitionResponse = zCompetition;
 
-export const zPostCoCurricularCompetitions208A9B96533Fedfd2F432Ab4746E686eData = z.object({
+export const zAddCompetitionParticipantData = z.object({
     body: zAddCompetitionParticipantRequest,
     path: z.object({
         id: z.string()
@@ -5807,25 +5820,25 @@ export const zPostCoCurricularCompetitions208A9B96533Fedfd2F432Ab4746E686eData =
     query: z.optional(z.never())
 });
 
-export const zPostCoCurricularCompetitions208A9B96533Fedfd2F432Ab4746E686eResponse = zCompetitionParticipant;
+export const zAddCompetitionParticipantResponse = zCompetitionParticipant;
 
-export const zPostCoCurricularAchievementsEbfee1523F740Fdfa21B2F22D50BcdfbData = z.object({
+export const zCreateStudentAchievementData = z.object({
     body: zCreateStudentAchievementRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostCoCurricularAchievementsEbfee1523F740Fdfa21B2F22D50BcdfbResponse = zStudentAchievement;
+export const zCreateStudentAchievementResponse = zStudentAchievement;
 
-export const zPostCoCurricularCulturalEventsE7Faa7Dd3Fb138Efce63D60266Ef8433Data = z.object({
+export const zCreateCulturalEventData = z.object({
     body: zCreateCulturalEventRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostCoCurricularCulturalEventsE7Faa7Dd3Fb138Efce63D60266Ef8433Response = zCulturalEvent;
+export const zCreateCulturalEventResponse = zCulturalEvent;
 
-export const zPostCoCurricularCulturalEvents7C52B4A4Cfebb90Af784F5C7805D9Ab3Data = z.object({
+export const zAddCulturalEventParticipantData = z.object({
     body: zAddCulturalEventParticipantRequest,
     path: z.object({
         id: z.string()
@@ -5833,9 +5846,9 @@ export const zPostCoCurricularCulturalEvents7C52B4A4Cfebb90Af784F5C7805D9Ab3Data
     query: z.optional(z.never())
 });
 
-export const zPostCoCurricularCulturalEvents7C52B4A4Cfebb90Af784F5C7805D9Ab3Response = zCulturalEventParticipant;
+export const zAddCulturalEventParticipantResponse = zCulturalEventParticipant;
 
-export const zGetCoCurricularSummaryStudent769D6648F7E0672783Bf8A05466D8C4dData = z.object({
+export const zGetStudentCoCurricularSummaryData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -5843,9 +5856,9 @@ export const zGetCoCurricularSummaryStudent769D6648F7E0672783Bf8A05466D8C4dData 
     query: z.optional(z.never())
 });
 
-export const zGetCoCurricularSummaryStudent769D6648F7E0672783Bf8A05466D8C4dResponse = zStudentCoCurricularSummary;
+export const zGetStudentCoCurricularSummaryResponse = zStudentCoCurricularSummary;
 
-export const zGetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Data = z.object({
+export const zGetAllLibraryCategoriesData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -5872,33 +5885,33 @@ export const zGetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Data = z.objec
     }))
 });
 
-export const zGetLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Response = zPaginatedLibraryCategoryResponse;
+export const zGetAllLibraryCategoriesResponse = zPaginatedLibraryCategoryResponse;
 
-export const zPostLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Data = z.object({
+export const zCreateLibraryCategoryData = z.object({
     body: zCreateLibraryCategoryRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostLibraryCategories556E2Cf173Ea154E4Add5Be5410205C9Response = zLibraryCategory;
+export const zCreateLibraryCategoryResponse = zLibraryCategory;
 
-export const zDeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Data = z.object({
+export const zBulkDeleteLibraryCategoriesData = z.object({
     body: zBulkDeleteLibraryCategoriesRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zDeleteLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Response = zMessageResponse;
+export const zBulkDeleteLibraryCategoriesResponse = zMessageResponse;
 
-export const zPatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Data = z.object({
+export const zBulkUpdateLibraryCategoriesData = z.object({
     body: zBulkUpdateLibraryCategoriesRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPatchLibraryCategoriesBulk17C2C94Edfca3B772870Feb62E96B2C7Response = zMessageResponse;
+export const zBulkUpdateLibraryCategoriesResponse = zMessageResponse;
 
-export const zGetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbData = z.object({
+export const zGetAllLibraryBooksData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -5929,33 +5942,33 @@ export const zGetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbData = z.object({
     }))
 });
 
-export const zGetLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponse = zPaginatedLibraryBookResponse;
+export const zGetAllLibraryBooksResponse = zPaginatedLibraryBookResponse;
 
-export const zPostLibraryBooks1Ceba562D35D84E43760Aafbdad311AbData = z.object({
+export const zCreateLibraryBookData = z.object({
     body: zCreateLibraryBookRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostLibraryBooks1Ceba562D35D84E43760Aafbdad311AbResponse = zLibraryBookResponse;
+export const zCreateLibraryBookResponse = zLibraryBookResponse;
 
-export const zDeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Data = z.object({
+export const zBulkDeleteLibraryBooksData = z.object({
     body: zBulkDeleteLibraryBooksRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zDeleteLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Response = zMessageResponse;
+export const zBulkDeleteLibraryBooksResponse = zMessageResponse;
 
-export const zPatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Data = z.object({
+export const zBulkUpdateLibraryBooksData = z.object({
     body: zBulkUpdateLibraryBooksRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPatchLibraryBooksBulk75654689B55F43844B65D4F2E9A8C406Response = zMessageResponse;
+export const zBulkUpdateLibraryBooksResponse = zMessageResponse;
 
-export const zGetLibraryBooksSearch10595D409Fabb30860Ac34Da57666587Data = z.object({
+export const zSearchLibraryBooksData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -5963,9 +5976,9 @@ export const zGetLibraryBooksSearch10595D409Fabb30860Ac34Da57666587Data = z.obje
     }))
 });
 
-export const zGetLibraryBooksSearch10595D409Fabb30860Ac34Da57666587Response = z.array(zLibraryBookResponse);
+export const zSearchLibraryBooksResponse = z.array(zLibraryBookResponse);
 
-export const zDeleteLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Data = z.object({
+export const zDeleteLibraryBookData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         book_id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
@@ -5973,9 +5986,9 @@ export const zDeleteLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Data = z.object(
     query: z.optional(z.never())
 });
 
-export const zDeleteLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Response = zMessageResponse;
+export const zDeleteLibraryBookResponse = zMessageResponse;
 
-export const zGetLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Data = z.object({
+export const zGetLibraryBookByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         book_id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
@@ -5983,9 +5996,9 @@ export const zGetLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Response = zLibraryBookResponse;
+export const zGetLibraryBookByIdResponse = zLibraryBookResponse;
 
-export const zPutLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Data = z.object({
+export const zUpdateLibraryBookData = z.object({
     body: zUpdateLibraryBookRequest,
     path: z.object({
         book_id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
@@ -5993,9 +6006,9 @@ export const zPutLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zPutLibraryBooksC43872017Eeef4B428Add2Bd6D2D1768Response = zLibraryBookResponse;
+export const zUpdateLibraryBookResponse = zLibraryBookResponse;
 
-export const zGetLibraryBooksCategory5F00B784A047Bcc0Bdc4C5732A3Ece66Data = z.object({
+export const zGetLibraryBooksByCategoryData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         category_id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
@@ -6003,17 +6016,17 @@ export const zGetLibraryBooksCategory5F00B784A047Bcc0Bdc4C5732A3Ece66Data = z.ob
     query: z.optional(z.never())
 });
 
-export const zGetLibraryBooksCategory5F00B784A047Bcc0Bdc4C5732A3Ece66Response = z.array(zLibraryBookResponse);
+export const zGetLibraryBooksByCategoryResponse = z.array(zLibraryBookResponse);
 
-export const zPostLibraryIssuesFbe006Fa0Bcaaa326D27C0F91D2Bf749Data = z.object({
+export const zIssueLibraryBookData = z.object({
     body: zIssueBookRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostLibraryIssuesFbe006Fa0Bcaaa326D27C0F91D2Bf749Response = zLibraryIssueResponse;
+export const zIssueLibraryBookResponse = zLibraryIssueResponse;
 
-export const zGetLibraryIssuesB1De09091Dbda1B9B91C35Af06Fc7749Data = z.object({
+export const zGetLibraryIssueByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         issue_id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
@@ -6021,9 +6034,9 @@ export const zGetLibraryIssuesB1De09091Dbda1B9B91C35Af06Fc7749Data = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetLibraryIssuesB1De09091Dbda1B9B91C35Af06Fc7749Response = zLibraryIssueResponse;
+export const zGetLibraryIssueByIdResponse = zLibraryIssueResponse;
 
-export const zPostLibraryIssues793Edaa9Dcba90Caedb847B02F8117FaData = z.object({
+export const zReturnLibraryBookData = z.object({
     body: zReturnBookRequest,
     path: z.object({
         issue_id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
@@ -6031,9 +6044,9 @@ export const zPostLibraryIssues793Edaa9Dcba90Caedb847B02F8117FaData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostLibraryIssues793Edaa9Dcba90Caedb847B02F8117FaResponse = zLibraryIssueResponse;
+export const zReturnLibraryBookResponse = zLibraryIssueResponse;
 
-export const zGetLibraryIssuesStudent7C8258Ad543D4259B56C699Ea96Fdfe7Data = z.object({
+export const zGetLibraryIssuesByStudentData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -6041,9 +6054,9 @@ export const zGetLibraryIssuesStudent7C8258Ad543D4259B56C699Ea96Fdfe7Data = z.ob
     query: z.optional(z.never())
 });
 
-export const zGetLibraryIssuesStudent7C8258Ad543D4259B56C699Ea96Fdfe7Response = z.array(zLibraryIssueResponse);
+export const zGetLibraryIssuesByStudentResponse = z.array(zLibraryIssueResponse);
 
-export const zGetLibraryIssuesStaff655Aa6A4E13B3E1315Cf5D97Aa327632Data = z.object({
+export const zGetLibraryIssuesByStaffData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         staff_id: z.string()
@@ -6051,17 +6064,17 @@ export const zGetLibraryIssuesStaff655Aa6A4E13B3E1315Cf5D97Aa327632Data = z.obje
     query: z.optional(z.never())
 });
 
-export const zGetLibraryIssuesStaff655Aa6A4E13B3E1315Cf5D97Aa327632Response = z.array(zLibraryIssueResponse);
+export const zGetLibraryIssuesByStaffResponse = z.array(zLibraryIssueResponse);
 
-export const zGetLibraryIssuesOverdueC3951408A5Cfb1B86D4739Ed4B56B40dData = z.object({
+export const zGetOverdueLibraryBooksData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetLibraryIssuesOverdueC3951408A5Cfb1B86D4739Ed4B56B40dResponse = z.array(zLibraryIssueResponse);
+export const zGetOverdueLibraryBooksResponse = z.array(zLibraryIssueResponse);
 
-export const zPostLibraryFines2Eaeb120241A6E36986B8B297F1F61CeData = z.object({
+export const zPayLibraryFineData = z.object({
     body: zPayFineRequest,
     path: z.object({
         issue_id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
@@ -6069,9 +6082,9 @@ export const zPostLibraryFines2Eaeb120241A6E36986B8B297F1F61CeData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostLibraryFines2Eaeb120241A6E36986B8B297F1F61CeResponse = zLibraryIssueResponse;
+export const zPayLibraryFineResponse = zLibraryIssueResponse;
 
-export const zPostLibraryFinesAa3446C6Edb4008F0B8Aa7724De6Ec5cData = z.object({
+export const zWaiveLibraryFineData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         issue_id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
@@ -6079,73 +6092,73 @@ export const zPostLibraryFinesAa3446C6Edb4008F0B8Aa7724De6Ec5cData = z.object({
     query: z.optional(z.never())
 });
 
-export const zPostLibraryFinesAa3446C6Edb4008F0B8Aa7724De6Ec5cResponse = zLibraryIssueResponse;
+export const zWaiveLibraryFineResponse = zLibraryIssueResponse;
 
-export const zGetLibraryFinesHistoryA8D16Eb9F9Fbf751Cf4B610A3Db67099Data = z.object({
+export const zGetLibraryFineHistoryData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetLibraryFinesHistoryA8D16Eb9F9Fbf751Cf4B610A3Db67099Response = z.array(zLibraryIssueResponse);
+export const zGetLibraryFineHistoryResponse = z.array(zLibraryIssueResponse);
 
-export const zGetLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdData = z.object({
+export const zGetLibrarySettingsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdResponse = zLibrarySettings;
+export const zGetLibrarySettingsResponse = zLibrarySettings;
 
-export const zPutLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdData = z.object({
+export const zUpdateLibrarySettingsData = z.object({
     body: zUpdateLibrarySettingsRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPutLibrarySettings85E631A5F43Eafdfbc3Cf3736851B6EdResponse = zLibrarySettings;
+export const zUpdateLibrarySettingsResponse = zLibrarySettings;
 
-export const zGetLibraryStatsB35Deac7830F1F87D33B609B46Ee7F69Data = z.object({
+export const zGetLibraryStatsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetLibraryStatsB35Deac7830F1F87D33B609B46Ee7F69Response = zLibraryStatsResponse;
+export const zGetLibraryStatsResponse = zLibraryStatsResponse;
 
-export const zGetPropertyCategories88Ed84312B25823C8727757B37F4D83bData = z.object({
+export const zGetAssetCategoriesData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetPropertyCategories88Ed84312B25823C8727757B37F4D83bResponse = z.array(zAssetCategoryResponse);
+export const zGetAssetCategoriesResponse = z.array(zAssetCategoryResponse);
 
-export const zPostPropertyCategories88Ed84312B25823C8727757B37F4D83bData = z.object({
+export const zCreateAssetCategoryData = z.object({
     body: zCreateAssetCategoryRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostPropertyCategories88Ed84312B25823C8727757B37F4D83bResponse = zAssetCategoryResponse;
+export const zCreateAssetCategoryResponse = zAssetCategoryResponse;
 
-export const zPostPropertyInventory5Dbb938E80674548B251Fd9D87Af8704Data = z.object({
+export const zAddInventoryItemData = z.object({
     body: zCreateInventoryItemRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostPropertyInventory5Dbb938E80674548B251Fd9D87Af8704Response = zInventoryItemResponse;
+export const zAddInventoryItemResponse = zInventoryItemResponse;
 
-export const zGetPropertyInventoryLowStockD18Da1C347139391D1A8Fe29093122D6Data = z.object({
+export const zGetLowStockItemsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetPropertyInventoryLowStockD18Da1C347139391D1A8Fe29093122D6Response = z.array(zInventoryItemResponse);
+export const zGetLowStockItemsResponse = z.array(zInventoryItemResponse);
 
-export const zGetPropertyInventorySearch3Bf9D239Dfce889E0Ca4D7B357E9E7DbData = z.object({
+export const zSearchInventoryData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         query: z.string()
@@ -6153,9 +6166,9 @@ export const zGetPropertyInventorySearch3Bf9D239Dfce889E0Ca4D7B357E9E7DbData = z
     query: z.optional(z.never())
 });
 
-export const zGetPropertyInventorySearch3Bf9D239Dfce889E0Ca4D7B357E9E7DbResponse = z.array(zInventoryItemResponse);
+export const zSearchInventoryResponse = z.array(zInventoryItemResponse);
 
-export const zGetPropertyInventoryCategory1839Daad84F5657Fbaf61E458864D028Data = z.object({
+export const zGetInventoryByCategoryData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -6163,9 +6176,9 @@ export const zGetPropertyInventoryCategory1839Daad84F5657Fbaf61E458864D028Data =
     query: z.optional(z.never())
 });
 
-export const zGetPropertyInventoryCategory1839Daad84F5657Fbaf61E458864D028Response = z.array(zInventoryItemResponse);
+export const zGetInventoryByCategoryResponse = z.array(zInventoryItemResponse);
 
-export const zPatchPropertyInventoryCd390D33621E8Ddcdf430411Fdd0F596Data = z.object({
+export const zUpdateInventoryItemData = z.object({
     body: zUpdateInventoryItemRequest,
     path: z.object({
         id: z.string()
@@ -6173,9 +6186,9 @@ export const zPatchPropertyInventoryCd390D33621E8Ddcdf430411Fdd0F596Data = z.obj
     query: z.optional(z.never())
 });
 
-export const zPatchPropertyInventoryCd390D33621E8Ddcdf430411Fdd0F596Response = zInventoryItemResponse;
+export const zUpdateInventoryItemResponse = zInventoryItemResponse;
 
-export const zPatchPropertyInventory6Aa95Ec51B91Bdd0390Ba5488Ff7B8A7Data = z.object({
+export const zUpdateStockQuantityData = z.object({
     body: zUpdateStockRequest,
     path: z.object({
         id: z.string()
@@ -6183,33 +6196,33 @@ export const zPatchPropertyInventory6Aa95Ec51B91Bdd0390Ba5488Ff7B8A7Data = z.obj
     query: z.optional(z.never())
 });
 
-export const zPatchPropertyInventory6Aa95Ec51B91Bdd0390Ba5488Ff7B8A7Response = zInventoryItemResponse;
+export const zUpdateStockQuantityResponse = zInventoryItemResponse;
 
-export const zGetPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Data = z.object({
+export const zGetUniformInventoryData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Response = z.array(zUniformItemResponse);
+export const zGetUniformInventoryResponse = z.array(zUniformItemResponse);
 
-export const zPostPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Data = z.object({
+export const zCreateUniformItemData = z.object({
     body: zCreateUniformItemRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostPropertyUniformsEab0765585F7Cff0385Cb23Cb8922E88Response = zUniformItemResponse;
+export const zCreateUniformItemResponse = zUniformItemResponse;
 
-export const zPostPropertyUniformsIssueC7228E84E5466E623D2351E5632B25FeData = z.object({
+export const zIssueUniformData = z.object({
     body: zIssueUniformRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostPropertyUniformsIssueC7228E84E5466E623D2351E5632B25FeResponse = zUniformIssueResponse;
+export const zIssueUniformResponse = zUniformIssueResponse;
 
-export const zGetPropertyUniformsHistoryDd884Fdee6B0B79B1F889E504Bf6503dData = z.object({
+export const zGetUniformIssueHistoryData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
@@ -6217,17 +6230,17 @@ export const zGetPropertyUniformsHistoryDd884Fdee6B0B79B1F889E504Bf6503dData = z
     query: z.optional(z.never())
 });
 
-export const zGetPropertyUniformsHistoryDd884Fdee6B0B79B1F889E504Bf6503dResponse = z.array(zUniformIssueResponse);
+export const zGetUniformIssueHistoryResponse = z.array(zUniformIssueResponse);
 
-export const zPostPropertyAllocationsC47Fbc35Bebd03Eee2216Cfd3187119aData = z.object({
+export const zAllocateAssetData = z.object({
     body: zAllocateAssetRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostPropertyAllocationsC47Fbc35Bebd03Eee2216Cfd3187119aResponse = zAssetAllocationResponse;
+export const zAllocateAssetResponse = zAssetAllocationResponse;
 
-export const zGetPropertyAllocationsItem4F873D1740D38F0F1Ecb6Be514Ca4D0eData = z.object({
+export const zGetAllocationsByItemData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -6235,9 +6248,9 @@ export const zGetPropertyAllocationsItem4F873D1740D38F0F1Ecb6Be514Ca4D0eData = z
     query: z.optional(z.never())
 });
 
-export const zGetPropertyAllocationsItem4F873D1740D38F0F1Ecb6Be514Ca4D0eResponse = z.array(zAssetAllocationResponse);
+export const zGetAllocationsByItemResponse = z.array(zAssetAllocationResponse);
 
-export const zGetPropertyAllocationsAssignee9606D419A1Df7Bafa0C8E9B680Eb74F2Data = z.object({
+export const zGetAllocationsByAssigneeData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -6245,9 +6258,9 @@ export const zGetPropertyAllocationsAssignee9606D419A1Df7Bafa0C8E9B680Eb74F2Data
     query: z.optional(z.never())
 });
 
-export const zGetPropertyAllocationsAssignee9606D419A1Df7Bafa0C8E9B680Eb74F2Response = z.array(zAssetAllocationResponse);
+export const zGetAllocationsByAssigneeResponse = z.array(zAssetAllocationResponse);
 
-export const zPostPropertyAllocations3C1F61F7D106Da7D2F19E9B23Ad0Ace3Data = z.object({
+export const zReturnAllocatedAssetData = z.object({
     body: zReturnAssetRequest,
     path: z.object({
         id: z.string()
@@ -6255,25 +6268,25 @@ export const zPostPropertyAllocations3C1F61F7D106Da7D2F19E9B23Ad0Ace3Data = z.ob
     query: z.optional(z.never())
 });
 
-export const zPostPropertyAllocations3C1F61F7D106Da7D2F19E9B23Ad0Ace3Response = zAssetAllocationResponse;
+export const zReturnAllocatedAssetResponse = zAssetAllocationResponse;
 
-export const zPostPropertyMaintenance1Fa6D89C23208A2529367488E1Fd4084Data = z.object({
+export const zCreateMaintenanceRequestData = z.object({
     body: zCreateMaintenanceRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostPropertyMaintenance1Fa6D89C23208A2529367488E1Fd4084Response = zMaintenanceRequestResponse;
+export const zCreateMaintenanceRequestResponse = zMaintenanceRequestResponse;
 
-export const zGetPropertyMaintenancePendingC93E196A3B390E5Bf287A85Dae96160bData = z.object({
+export const zGetPendingMaintenanceData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetPropertyMaintenancePendingC93E196A3B390E5Bf287A85Dae96160bResponse = z.array(zMaintenanceRequestResponse);
+export const zGetPendingMaintenanceResponse = z.array(zMaintenanceRequestResponse);
 
-export const zPatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aData = z.object({
+export const zUpdateMaintenanceStatusData = z.object({
     body: zUpdateMaintenanceStatusRequest,
     path: z.object({
         id: z.string()
@@ -6281,9 +6294,9 @@ export const zPatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aData = z.o
     query: z.optional(z.never())
 });
 
-export const zPatchPropertyMaintenanceC861Fb9784Bb46D7D7B89C58B943160aResponse = zMaintenanceRequestResponse;
+export const zUpdateMaintenanceStatusResponse = zMaintenanceRequestResponse;
 
-export const zGetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Data = z.object({
+export const zGetAllBudgetCategoriesData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
@@ -6310,41 +6323,41 @@ export const zGetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Data =
     }))
 });
 
-export const zGetFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Response = zPaginatedBudgetCategoryResponse;
+export const zGetAllBudgetCategoriesResponse = zPaginatedBudgetCategoryResponse;
 
-export const zPostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Data = z.object({
+export const zCreateBudgetCategoryData = z.object({
     body: zCreateBudgetCategoryRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFinancialBudgetCategories9D90D9C478605A2434345E693Afbc046Response = zBudgetCategoryResponse;
+export const zCreateBudgetCategoryResponse = zBudgetCategoryResponse;
 
-export const zDeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Data = z.object({
+export const zBulkDeleteBudgetCategoriesData = z.object({
     body: zBulkDeleteBudgetCategoriesRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zDeleteFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Response = zMessageResponse;
+export const zBulkDeleteBudgetCategoriesResponse = zMessageResponse;
 
-export const zPatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Data = z.object({
+export const zBulkUpdateBudgetCategoriesData = z.object({
     body: zBulkUpdateBudgetCategoriesRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPatchFinancialBudgetCategoriesBulk1A4627Dcce46A1314147B0Bf22Df9E08Response = zMessageResponse;
+export const zBulkUpdateBudgetCategoriesResponse = zMessageResponse;
 
-export const zPostFinancialBudgetsBb1C79Ca05321C91C0Bab4F8C8D15109Data = z.object({
+export const zSetBudgetData = z.object({
     body: zSetBudgetRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFinancialBudgetsBb1C79Ca05321C91C0Bab4F8C8D15109Response = zBudgetResponse;
+export const zSetBudgetResponse = zBudgetResponse;
 
-export const zPatchFinancialBudgetsA3Cd0C2Ad4418E5545E660Ff75431700Data = z.object({
+export const zUpdateBudgetAllocationData = z.object({
     body: zUpdateBudgetRequest,
     path: z.object({
         id: z.string()
@@ -6352,9 +6365,9 @@ export const zPatchFinancialBudgetsA3Cd0C2Ad4418E5545E660Ff75431700Data = z.obje
     query: z.optional(z.never())
 });
 
-export const zPatchFinancialBudgetsA3Cd0C2Ad4418E5545E660Ff75431700Response = zBudgetResponse;
+export const zUpdateBudgetAllocationResponse = zBudgetResponse;
 
-export const zGetFinancialBudgetsSummary87C89Bbec0A3Ce4E6470Abd8387Abf81Data = z.object({
+export const zGetBudgetSummaryData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         year_id: z.string()
@@ -6362,9 +6375,9 @@ export const zGetFinancialBudgetsSummary87C89Bbec0A3Ce4E6470Abd8387Abf81Data = z
     query: z.optional(z.never())
 });
 
-export const zGetFinancialBudgetsSummary87C89Bbec0A3Ce4E6470Abd8387Abf81Response = z.array(zBudgetSummaryResponse);
+export const zGetBudgetSummaryResponse = z.array(zBudgetSummaryResponse);
 
-export const zGetFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Data = z.object({
+export const zGetBudgetComparisonData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         year_id: z.string()
@@ -6372,17 +6385,17 @@ export const zGetFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Data 
     query: z.optional(z.never())
 });
 
-export const zGetFinancialBudgetsComparison3F6316Da16993A5E1B80490503097A84Response = z.array(zBudgetComparisonResponse);
+export const zGetBudgetComparisonResponse = z.array(zBudgetComparisonResponse);
 
-export const zPostFinancialIncome779D6F3B0Bd226D5Fb623C870Ad8Ab47Data = z.object({
+export const zRecordIncomeData = z.object({
     body: zRecordIncomeRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFinancialIncome779D6F3B0Bd226D5Fb623C870Ad8Ab47Response = zIncomeTransactionResponse;
+export const zRecordIncomeResponse = zIncomeTransactionResponse;
 
-export const zGetFinancialIncomeSourceA20B7948C5E8C96Ff18D20F3318474C7Data = z.object({
+export const zGetIncomeBySourceData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         source_id: z.string()
@@ -6390,9 +6403,9 @@ export const zGetFinancialIncomeSourceA20B7948C5E8C96Ff18D20F3318474C7Data = z.o
     query: z.optional(z.never())
 });
 
-export const zGetFinancialIncomeSourceA20B7948C5E8C96Ff18D20F3318474C7Response = z.array(zIncomeTransactionResponse);
+export const zGetIncomeBySourceResponse = z.array(zIncomeTransactionResponse);
 
-export const zGetFinancialIncomeReport3Fbc17B43C84A7D024B5B732268A45F8Data = z.object({
+export const zGetIncomeReportData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
@@ -6401,17 +6414,17 @@ export const zGetFinancialIncomeReport3Fbc17B43C84A7D024B5B732268A45F8Data = z.o
     })
 });
 
-export const zGetFinancialIncomeReport3Fbc17B43C84A7D024B5B732268A45F8Response = z.array(zIncomeTransactionResponse);
+export const zGetIncomeReportResponse = z.array(zIncomeTransactionResponse);
 
-export const zPostFinancialExpense2D106Df39A52Bc7E25B21B949C430A09Data = z.object({
+export const zRecordExpenseData = z.object({
     body: zRecordExpenseRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFinancialExpense2D106Df39A52Bc7E25B21B949C430A09Response = zExpenseTransactionResponse;
+export const zRecordExpenseResponse = zExpenseTransactionResponse;
 
-export const zGetFinancialExpenseCategoryFbcababa7106F1823926E177980D3D92Data = z.object({
+export const zGetExpensesByCategoryData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         cat_id: z.string()
@@ -6419,9 +6432,9 @@ export const zGetFinancialExpenseCategoryFbcababa7106F1823926E177980D3D92Data = 
     query: z.optional(z.never())
 });
 
-export const zGetFinancialExpenseCategoryFbcababa7106F1823926E177980D3D92Response = z.array(zExpenseTransactionResponse);
+export const zGetExpensesByCategoryResponse = z.array(zExpenseTransactionResponse);
 
-export const zGetFinancialExpenseReport6Adee6A58Ea01B15Bd6Bd92845Ce0FeaData = z.object({
+export const zGetExpenseReportData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
@@ -6430,25 +6443,25 @@ export const zGetFinancialExpenseReport6Adee6A58Ea01B15Bd6Bd92845Ce0FeaData = z.
     })
 });
 
-export const zGetFinancialExpenseReport6Adee6A58Ea01B15Bd6Bd92845Ce0FeaResponse = z.array(zExpenseTransactionResponse);
+export const zGetExpenseReportResponse = z.array(zExpenseTransactionResponse);
 
-export const zPostFinancialPettyCash490B2136391Fac9C007Bf11618442245Data = z.object({
+export const zRecordPettyCashData = z.object({
     body: zRecordPettyCashRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFinancialPettyCash490B2136391Fac9C007Bf11618442245Response = zPettyCashTransactionResponse;
+export const zRecordPettyCashResponse = zPettyCashTransactionResponse;
 
-export const zPostFinancialPettyCashReconcile75291Edb623388B2Bdfa0F714516A998Data = z.object({
+export const zReconcilePettyCashData = z.object({
     body: zReconcilePettyCashRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFinancialPettyCashReconcile75291Edb623388B2Bdfa0F714516A998Response = zPettyCashTransactionResponse;
+export const zReconcilePettyCashResponse = zPettyCashTransactionResponse;
 
-export const zGetFinancialPettyCashBalanceF44A130E136E92A7378597645Cca52D1Data = z.object({
+export const zGetPettyCashBalanceData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
@@ -6457,44 +6470,44 @@ export const zGetFinancialPettyCashBalanceF44A130E136E92A7378597645Cca52D1Data =
 /**
  * float
  */
-export const zGetFinancialPettyCashBalanceF44A130E136E92A7378597645Cca52D1Response = z.number();
+export const zGetPettyCashBalanceResponse = z.number();
 
-export const zPostFinancialSalaryComponents14A2Cfd53C08B413973B17158C3A4D0aData = z.object({
+export const zCreateSalaryComponentData = z.object({
     body: zCreateSalaryComponentRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFinancialSalaryComponents14A2Cfd53C08B413973B17158C3A4D0aResponse = zSalaryComponentResponse;
+export const zCreateSalaryComponentResponse = zSalaryComponentResponse;
 
-export const zPostFinancialStaffSalary593B02D1D0454C571B911Bf90897E741Data = z.object({
+export const zSetStaffSalaryData = z.object({
     body: zSetStaffSalaryRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFinancialStaffSalary593B02D1D0454C571B911Bf90897E741Response = zStaffSalaryResponse;
+export const zSetStaffSalaryResponse = zStaffSalaryResponse;
 
-export const zPostFinancialSalaryPaymentsA1Dfd7Cafa5Dc485D328Dfcbb5A16753Data = z.object({
+export const zRecordSalaryPaymentData = z.object({
     body: zRecordSalaryPaymentRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zPostFinancialSalaryPaymentsA1Dfd7Cafa5Dc485D328Dfcbb5A16753Response = zSalaryPaymentResponse;
+export const zRecordSalaryPaymentResponse = zSalaryPaymentResponse;
 
-export const zGet6666Cd76F96956469E7Be39D750Cc7D9Data = z.object({
+export const zHelloData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGet6666Cd76F96956469E7Be39D750Cc7D9Response = zMessageResponse;
+export const zHelloResponse = zMessageResponse;
 
-export const zGetError36004B7E6Ab7362189C684884261Ec70Data = z.object({
+export const zHelloErrorData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetError36004B7E6Ab7362189C684884261Ec70Response = zMessageResponse;
+export const zHelloErrorResponse = zMessageResponse;

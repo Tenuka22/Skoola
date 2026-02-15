@@ -16,7 +16,8 @@ use crate::{
 #[api_operation(
     summary = "Assign a permission to a user",
     description = "Assigns a permission to a user by ID and Permission Enum.",
-    tag = "users"
+    tag = "users",
+    operation_id = "assign_permission_to_user"
 )]
 pub async fn assign_permission_to_user(
     data: web::Data<AppState>,
@@ -44,7 +45,8 @@ pub async fn assign_permission_to_user(
 #[api_operation(
     summary = "Unassign a permission from a user",
     description = "Unassigns a permission from a user by ID and Permission Enum.",
-    tag = "users"
+    tag = "users",
+    operation_id = "unassign_permission_from_user"
 )]
 pub async fn unassign_permission_from_user(
     data: web::Data<AppState>,
@@ -66,7 +68,8 @@ pub async fn unassign_permission_from_user(
 #[api_operation(
     summary = "Get user permissions",
     description = "Returns a list of all permissions assigned to a specific user (direct assignment).",
-    tag = "users"
+    tag = "users",
+    operation_id = "get_user_permissions"
 )]
 pub async fn get_user_permissions(
     data: web::Data<AppState>,

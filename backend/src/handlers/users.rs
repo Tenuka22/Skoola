@@ -91,7 +91,8 @@ pub struct DomainStat {
 #[api_operation(
     summary = "Get all users",
     description = "Returns a list of all users with pagination, fuzzy search, filtering and sorting.",
-    tag = "users"
+    tag = "users",
+    operation_id = "get_all_users"
 )]
 pub async fn get_all_users(
     data: web::Data<AppState>,
@@ -190,7 +191,8 @@ pub async fn get_all_users(
 #[api_operation(
     summary = "Get user statistics",
     description = "Returns global statistics about users.",
-    tag = "users"
+    tag = "users",
+    operation_id = "get_user_statistics"
 )]
 pub async fn get_user_stats(
     data: web::Data<AppState>,
@@ -279,7 +281,8 @@ pub async fn get_user_stats(
 #[api_operation(
     summary = "Delete a user",
     description = "Deletes a user by ID.",
-    tag = "users"
+    tag = "users",
+    operation_id = "delete_user"
 )]
 pub async fn delete_user(
     data: web::Data<AppState>,
@@ -295,7 +298,8 @@ pub async fn delete_user(
 #[api_operation(
     summary = "Bulk delete users",
     description = "Deletes multiple users by their IDs.",
-    tag = "users"
+    tag = "users",
+    operation_id = "bulk_delete_users"
 )]
 pub async fn bulk_delete_users(
     data: web::Data<AppState>,
@@ -311,7 +315,8 @@ pub async fn bulk_delete_users(
 #[api_operation(
     summary = "Update a user",
     description = "Updates user status (verification, lockout, role).",
-    tag = "users"
+    tag = "users",
+    operation_id = "update_user"
 )]
 pub async fn update_user(
     data: web::Data<AppState>,
@@ -356,7 +361,8 @@ pub async fn update_user(
 #[api_operation(
     summary = "Bulk update users",
     description = "Updates multiple users' status.",
-    tag = "users"
+    tag = "users",
+    operation_id = "bulk_update_users"
 )]
 pub async fn bulk_update_users(
     data: web::Data<AppState>,

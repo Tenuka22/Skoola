@@ -5,7 +5,12 @@ use actix_web::web::Json;
 use crate::errors::APIError;
 use crate::models::MessageResponse;
 
-#[api_operation(summary = "Calculate Z-Scores", tag = "zscore")]
+#[api_operation(
+    summary = "Calculate Z-Scores",
+    description = "Calculates Z-scores for student exam results.",
+    tag = "zscore",
+    operation_id = "calculate_zscores"
+)]
 pub async fn calculate_zscores(_req: actix_web::web::Json<CalculateZScoreRequest>) -> Result<Json<MessageResponse>, APIError> {
     // Placeholder logic
     Ok(Json(MessageResponse { message: "Z-Scores calculation started".to_string() }))

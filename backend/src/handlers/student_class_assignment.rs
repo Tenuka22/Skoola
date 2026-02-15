@@ -13,7 +13,8 @@ use crate::{
 #[api_operation(
     summary = "Assign a student to a class",
     description = "Assigns a student to a specific class for an academic year.",
-    tag = "student_class_assignments"
+    tag = "student_class_assignments",
+    operation_id = "assign_student_to_class"
 )]
 pub async fn assign_student_to_class(
     data: web::Data<AppState>,
@@ -26,7 +27,8 @@ pub async fn assign_student_to_class(
 #[api_operation(
     summary = "Transfer student to a different class",
     description = "Transfers a student from one class to another by ending the old assignment and creating a new one.",
-    tag = "student_class_assignments"
+    tag = "student_class_assignments",
+    operation_id = "transfer_student_class"
 )]
 pub async fn transfer_student_class(
     data: web::Data<AppState>,
@@ -47,7 +49,8 @@ pub async fn transfer_student_class(
 #[api_operation(
     summary = "Get current class of a student",
     description = "Retrieves the current active class assignment for a given student.",
-    tag = "student_class_assignments"
+    tag = "student_class_assignments",
+    operation_id = "get_current_class_of_student"
 )]
 pub async fn get_current_class_of_student(
     data: web::Data<AppState>,
@@ -61,7 +64,8 @@ pub async fn get_current_class_of_student(
 #[api_operation(
     summary = "Get class history of a student",
     description = "Retrieves a list of all past and current class assignments for a given student.",
-    tag = "student_class_assignments"
+    tag = "student_class_assignments",
+    operation_id = "get_class_history_of_student"
 )]
 pub async fn get_class_history_of_student(
     data: web::Data<AppState>,
@@ -75,7 +79,8 @@ pub async fn get_class_history_of_student(
 #[api_operation(
     summary = "Bulk assign students to classes",
     description = "Assigns multiple students to classes in a single request.",
-    tag = "student_class_assignments"
+    tag = "student_class_assignments",
+    operation_id = "bulk_assign_students_to_classes"
 )]
 pub async fn bulk_assign_students_to_classes(
     data: web::Data<AppState>,
@@ -88,7 +93,8 @@ pub async fn bulk_assign_students_to_classes(
 #[api_operation(
     summary = "Promote a student to the next grade",
     description = "Promotes a student to the next grade by ending their current assignment and creating a new one.",
-    tag = "student_class_assignments"
+    tag = "student_class_assignments",
+    operation_id = "promote_student_to_next_grade"
 )]
 pub async fn promote_student_to_next_grade(
     data: web::Data<AppState>,

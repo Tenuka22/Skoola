@@ -4,7 +4,12 @@ use actix_web::web::Json;
 use crate::errors::APIError;
 use crate::models::MessageResponse;
 
-#[api_operation(summary = "Generate Report Card", tag = "report-cards")]
+#[api_operation(
+    summary = "Generate Report Card",
+    description = "Generates a progress report card for a specific student.",
+    tag = "report-cards",
+    operation_id = "generate_report_card"
+)]
 pub async fn generate_report_card(_path: actix_web::web::Path<String>) -> Result<Json<MessageResponse>, APIError> {
     Ok(Json(MessageResponse { message: "Report Card Generated".to_string() }))
 }

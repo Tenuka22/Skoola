@@ -101,6 +101,10 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/{user_id}/permissions/{permission}",
                 web::delete().to(unassign_permission_from_user),
+            )
+            .route(
+                "/{user_id}/permissions",
+                web::get().to(get_user_permissions),
             ),
     )
     .service(

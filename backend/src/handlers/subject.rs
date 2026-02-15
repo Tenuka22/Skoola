@@ -51,7 +51,8 @@ pub struct BulkUpdateSubjectsRequest {
 #[api_operation(
     summary = "Create Subject",
     description = "Creates a new subject.",
-    tag = "subjects"
+    tag = "subjects",
+    operation_id = "create_subject"
 )]
 pub async fn create_subject(
     data: web::Data<AppState>,
@@ -64,7 +65,8 @@ pub async fn create_subject(
 #[api_operation(
     summary = "Get Subject by ID",
     description = "Retrieves a subject by its ID.",
-    tag = "subjects"
+    tag = "subjects",
+    operation_id = "get_subject_by_id"
 )]
 pub async fn get_subject_by_id(
     data: web::Data<AppState>,
@@ -78,7 +80,8 @@ pub async fn get_subject_by_id(
 #[api_operation(
     summary = "Get All Subjects",
     description = "Retrieves a paginated list of all subjects with search and filtering options.",
-    tag = "subjects"
+    tag = "subjects",
+    operation_id = "get_all_subjects"
 )]
 pub async fn get_all_subjects(
     data: web::Data<AppState>,
@@ -99,7 +102,8 @@ pub async fn get_all_subjects(
 #[api_operation(
     summary = "Bulk Delete Subjects",
     description = "Deletes multiple subjects by their IDs.",
-    tag = "subjects"
+    tag = "subjects",
+    operation_id = "bulk_delete_subjects"
 )]
 pub async fn bulk_delete_subjects(
     data: web::Data<AppState>,
@@ -112,7 +116,8 @@ pub async fn bulk_delete_subjects(
 #[api_operation(
     summary = "Bulk Update Subjects",
     description = "Updates multiple subjects' information.",
-    tag = "subjects"
+    tag = "subjects",
+    operation_id = "bulk_update_subjects"
 )]
 pub async fn bulk_update_subjects(
     data: web::Data<AppState>,
@@ -125,7 +130,8 @@ pub async fn bulk_update_subjects(
 #[api_operation(
     summary = "Update Subject",
     description = "Updates an existing subject.",
-    tag = "subjects"
+    tag = "subjects",
+    operation_id = "update_subject"
 )]
 pub async fn update_subject(
     data: web::Data<AppState>,
@@ -140,7 +146,8 @@ pub async fn update_subject(
 #[api_operation(
     summary = "Delete Subject",
     description = "Deletes a subject by its ID.",
-    tag = "subjects"
+    tag = "subjects",
+    operation_id = "delete_subject"
 )]
 pub async fn delete_subject(
     data: web::Data<AppState>,
@@ -154,7 +161,8 @@ pub async fn delete_subject(
 #[api_operation(
     summary = "Get Subjects by Grade",
     description = "Retrieves a list of subjects associated with a specific grade.",
-    tag = "subjects"
+    tag = "subjects",
+    operation_id = "get_subjects_by_grade"
 )]
 pub async fn get_subjects_by_grade_handler(
     data: web::Data<AppState>,
@@ -168,7 +176,8 @@ pub async fn get_subjects_by_grade_handler(
 #[api_operation(
     summary = "Get Subjects by Stream",
     description = "Retrieves a list of subjects associated with a specific stream.",
-    tag = "subjects"
+    tag = "subjects",
+    operation_id = "get_subjects_by_stream"
 )]
 pub async fn get_subjects_by_stream_handler(
     data: web::Data<AppState>,
@@ -182,7 +191,8 @@ pub async fn get_subjects_by_stream_handler(
 #[api_operation(
     summary = "Assign Subject to Grade",
     description = "Assigns a subject to a specific grade.",
-    tag = "subjects"
+    tag = "subjects",
+    operation_id = "assign_subject_to_grade"
 )]
 pub async fn assign_subject_to_grade_handler(
     data: web::Data<AppState>,
@@ -195,7 +205,8 @@ pub async fn assign_subject_to_grade_handler(
 #[api_operation(
     summary = "Assign Subject to Stream",
     description = "Assigns a subject to a specific stream.",
-    tag = "subjects"
+    tag = "subjects",
+    operation_id = "assign_subject_to_stream"
 )]
 pub async fn assign_subject_to_stream_handler(
     data: web::Data<AppState>,

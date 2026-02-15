@@ -48,7 +48,8 @@ pub struct BulkUpdateAcademicYearsRequest {
 #[api_operation(
     summary = "Create Academic Year",
     description = "Creates a new academic year.",
-    tag = "academic_years"
+    tag = "academic_years",
+    operation_id = "create_academic_year"
 )]
 pub async fn create_academic_year(
     data: web::Data<AppState>,
@@ -62,7 +63,8 @@ pub async fn create_academic_year(
 #[api_operation(
     summary = "Get Academic Year by ID",
     description = "Retrieves an academic year by its ID.",
-    tag = "academic_years"
+    tag = "academic_years",
+    operation_id = "get_academic_year_by_id"
 )]
 pub async fn get_academic_year_by_id(
     data: web::Data<AppState>,
@@ -77,7 +79,8 @@ pub async fn get_academic_year_by_id(
 #[api_operation(
     summary = "Get All Academic Years",
     description = "Retrieves a list of all academic years with pagination, search, and sorting.",
-    tag = "academic_years"
+    tag = "academic_years",
+    operation_id = "get_all_academic_years"
 )]
 pub async fn get_all_academic_years(
     data: web::Data<AppState>,
@@ -98,7 +101,8 @@ pub async fn get_all_academic_years(
 #[api_operation(
     summary = "Bulk Delete Academic Years",
     description = "Deletes multiple academic years by their IDs.",
-    tag = "academic_years"
+    tag = "academic_years",
+    operation_id = "bulk_delete_academic_years"
 )]
 pub async fn bulk_delete_academic_years(
     data: web::Data<AppState>,
@@ -111,7 +115,8 @@ pub async fn bulk_delete_academic_years(
 #[api_operation(
     summary = "Bulk Update Academic Years",
     description = "Updates multiple academic years' information.",
-    tag = "academic_years"
+    tag = "academic_years",
+    operation_id = "bulk_update_academic_years"
 )]
 pub async fn bulk_update_academic_years(
     data: web::Data<AppState>,
@@ -124,7 +129,8 @@ pub async fn bulk_update_academic_years(
 #[api_operation(
     summary = "Update Academic Year",
     description = "Updates an existing academic year.",
-    tag = "academic_years"
+    tag = "academic_years",
+    operation_id = "update_academic_year"
 )]
 pub async fn update_academic_year(
     data: web::Data<AppState>,
@@ -141,7 +147,8 @@ pub async fn update_academic_year(
 #[api_operation(
     summary = "Delete Academic Year",
     description = "Deletes an academic year by its ID.",
-    tag = "academic_years"
+    tag = "academic_years",
+    operation_id = "delete_academic_year"
 )]
 pub async fn delete_academic_year(
     data: web::Data<AppState>,
@@ -155,7 +162,8 @@ pub async fn delete_academic_year(
 #[api_operation(
     summary = "Set Current Academic Year",
     description = "Sets a specific academic year as the current one, unsetting all others.",
-    tag = "academic_years"
+    tag = "academic_years",
+    operation_id = "set_current_academic_year"
 )]
 pub async fn set_current_academic_year(
     data: web::Data<AppState>,

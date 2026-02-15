@@ -21,7 +21,8 @@ use crate::{
 #[api_operation(
     summary = "Bulk mark student attendance by class",
     description = "Marks attendance for multiple students in a class.",
-    tag = "student_attendance"
+    tag = "student_attendance",
+    operation_id = "bulk_mark_student_attendance"
 )]
 pub async fn bulk_mark_student_attendance(
     data: web::Data<AppState>,
@@ -34,7 +35,8 @@ pub async fn bulk_mark_student_attendance(
 #[api_operation(
     summary = "Mark individual student attendance",
     description = "Marks attendance for a single student.",
-    tag = "student_attendance"
+    tag = "student_attendance",
+    operation_id = "mark_individual_student_attendance"
 )]
 pub async fn mark_individual_student_attendance(
     data: web::Data<AppState>,
@@ -47,7 +49,8 @@ pub async fn mark_individual_student_attendance(
 #[api_operation(
     summary = "Update student attendance record",
     description = "Updates an existing student attendance record.",
-    tag = "student_attendance"
+    tag = "student_attendance",
+    operation_id = "update_student_attendance"
 )]
 pub async fn update_student_attendance(
     data: web::Data<AppState>,
@@ -62,7 +65,8 @@ pub async fn update_student_attendance(
 #[api_operation(
     summary = "Get attendance by class and date",
     description = "Retrieves attendance records for a specific class on a given date.",
-    tag = "student_attendance"
+    tag = "student_attendance",
+    operation_id = "get_attendance_by_class_and_date"
 )]
 pub async fn get_attendance_by_class_and_date(
     data: web::Data<AppState>,
@@ -82,7 +86,8 @@ pub struct GetAttendanceByStudentQuery {
 #[api_operation(
     summary = "Get attendance by student",
     description = "Retrieves attendance records for a specific student, optionally filtered by date range.",
-    tag = "student_attendance"
+    tag = "student_attendance",
+    operation_id = "get_attendance_by_student"
 )]
 pub async fn get_attendance_by_student(
     data: web::Data<AppState>,
@@ -109,7 +114,8 @@ pub struct CalculateAttendancePercentageQuery {
 #[api_operation(
     summary = "Calculate student attendance percentage",
     description = "Calculates the attendance percentage for a student within a specified date range.",
-    tag = "student_attendance"
+    tag = "student_attendance",
+    operation_id = "calculate_student_attendance_percentage"
 )]
 pub async fn calculate_student_attendance_percentage(
     data: web::Data<AppState>,
@@ -130,7 +136,8 @@ pub async fn calculate_student_attendance_percentage(
 #[api_operation(
     summary = "Generate attendance report for a class",
     description = "Generates a detailed attendance report for all students in a specific class within a date range.",
-    tag = "student_attendance"
+    tag = "student_attendance",
+    operation_id = "generate_attendance_report"
 )]
 pub async fn generate_attendance_report(
     data: web::Data<AppState>,
@@ -143,7 +150,8 @@ pub async fn generate_attendance_report(
 #[api_operation(
     summary = "Get students with low attendance",
     description = "Retrieves a list of students in a class with attendance percentage below a specified threshold.",
-    tag = "student_attendance"
+    tag = "student_attendance",
+    operation_id = "get_students_with_low_attendance"
 )]
 pub async fn get_students_with_low_attendance(
     data: web::Data<AppState>,
@@ -158,7 +166,8 @@ pub async fn get_students_with_low_attendance(
 #[api_operation(
     summary = "Send absence notifications to parents",
     description = "Sends email notifications to parents of absent students for a specific class on a given date.",
-    tag = "student_attendance"
+    tag = "student_attendance",
+    operation_id = "send_absence_notifications"
 )]
 pub async fn send_absence_notifications(
     data: web::Data<AppState>,

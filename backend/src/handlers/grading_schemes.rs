@@ -6,7 +6,12 @@ use crate::models::MessageResponse;
 use crate::services::grading_schemes;
 use actix_web::web::{self, Json};
 
-#[api_operation(tag = "Grading Schemes", operation_id = "create_grading_scheme")]
+#[api_operation(
+    summary = "Create Grading Scheme",
+    description = "Creates a new grading scheme.",
+    tag = "Grading Schemes",
+    operation_id = "create_grading_scheme"
+)]
 pub async fn create_grading_scheme_handler(
     pool: web::Data<AppState>,
     new_scheme_json: web::Json<NewGradingScheme>,
@@ -17,7 +22,12 @@ pub async fn create_grading_scheme_handler(
     Ok(Json(created_scheme))
 }
 
-#[api_operation(tag = "Grading Schemes", operation_id = "get_all_grading_schemes")]
+#[api_operation(
+    summary = "Get All Grading Schemes",
+    description = "Retrieves all available grading schemes.",
+    tag = "Grading Schemes",
+    operation_id = "get_all_grading_schemes"
+)]
 pub async fn get_all_grading_schemes_handler(
     pool: web::Data<AppState>,
 ) -> Result<Json<Vec<GradingScheme>>, APIError> {
@@ -26,7 +36,12 @@ pub async fn get_all_grading_schemes_handler(
     Ok(Json(schemes))
 }
 
-#[api_operation(tag = "Grading Schemes", operation_id = "get_grading_scheme_by_id")]
+#[api_operation(
+    summary = "Get Grading Scheme by ID",
+    description = "Retrieves a grading scheme by its ID.",
+    tag = "Grading Schemes",
+    operation_id = "get_grading_scheme_by_id"
+)]
 pub async fn get_grading_scheme_by_id_handler(
     pool: web::Data<AppState>,
     path: web::Path<String>,
@@ -37,7 +52,12 @@ pub async fn get_grading_scheme_by_id_handler(
     Ok(Json(scheme))
 }
 
-#[api_operation(tag = "Grading Schemes", operation_id = "update_grading_scheme")]
+#[api_operation(
+    summary = "Update Grading Scheme",
+    description = "Updates an existing grading scheme.",
+    tag = "Grading Schemes",
+    operation_id = "update_grading_scheme"
+)]
 pub async fn update_grading_scheme_handler(
     pool: web::Data<AppState>,
     path: web::Path<String>,
@@ -50,7 +70,12 @@ pub async fn update_grading_scheme_handler(
     Ok(Json(scheme))
 }
 
-#[api_operation(tag = "Grading Schemes", operation_id = "delete_grading_scheme")]
+#[api_operation(
+    summary = "Delete Grading Scheme",
+    description = "Deletes a grading scheme by its ID.",
+    tag = "Grading Schemes",
+    operation_id = "delete_grading_scheme"
+)]
 pub async fn delete_grading_scheme_handler(
     pool: web::Data<AppState>,
     path: web::Path<String>,
@@ -61,7 +86,12 @@ pub async fn delete_grading_scheme_handler(
     Ok(Json(MessageResponse { message: "Grading scheme deleted successfully".to_string() }))
 }
 
-#[api_operation(tag = "Grading Schemes", operation_id = "assign_grading_scheme_to_grade_level")]
+#[api_operation(
+    summary = "Assign Grading Scheme to Grade Level",
+    description = "Assigns a specific grading scheme to a grade level.",
+    tag = "Grading Schemes",
+    operation_id = "assign_grading_scheme_to_grade_level"
+)]
 pub async fn assign_grading_scheme_to_grade_level_handler(
     pool: web::Data<AppState>,
     path: web::Path<(String, String)>,

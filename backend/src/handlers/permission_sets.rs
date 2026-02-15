@@ -29,7 +29,8 @@ pub struct UpdatePermissionSetRequest {
 #[api_operation(
     summary = "Get all permission sets",
     description = "Returns a list of all permission sets.",
-    tag = "user_sets"
+    tag = "user_sets",
+    operation_id = "get_all_permission_sets"
 )]
 pub async fn get_all_permission_sets(
     data: web::Data<AppState>,
@@ -44,7 +45,8 @@ pub async fn get_all_permission_sets(
 #[api_operation(
     summary = "Create a new permission set",
     description = "Creates a new permission set.",
-    tag = "user_sets"
+    tag = "user_sets",
+    operation_id = "create_permission_set"
 )]
 pub async fn create_permission_set(
     data: web::Data<AppState>,
@@ -67,7 +69,8 @@ pub async fn create_permission_set(
 #[api_operation(
     summary = "Update a permission set",
     description = "Updates a permission set by its ID.",
-    tag = "user_sets"
+    tag = "user_sets",
+    operation_id = "update_permission_set"
 )]
 pub async fn update_permission_set(
     data: web::Data<AppState>,
@@ -96,7 +99,8 @@ pub async fn update_permission_set(
 #[api_operation(
     summary = "Delete a permission set",
     description = "Deletes a permission set by its ID.",
-    tag = "user_sets"
+    tag = "user_sets",
+    operation_id = "delete_permission_set"
 )]
 pub async fn delete_permission_set(
     data: web::Data<AppState>,
@@ -111,7 +115,8 @@ pub async fn delete_permission_set(
 #[api_operation(
     summary = "Get permission sets for a staff member",
     description = "Returns a list of permission sets assigned to a specific staff member.",
-    tag = "staff"
+    tag = "staff",
+    operation_id = "get_staff_permission_sets"
 )]
 pub async fn get_staff_permission_sets(
     data: web::Data<AppState>,
@@ -132,7 +137,8 @@ pub async fn get_staff_permission_sets(
 #[api_operation(
     summary = "Assign a permission set to a staff member",
     description = "Assigns a specified permission set to a staff member.",
-    tag = "staff"
+    tag = "staff",
+    operation_id = "assign_permission_set_to_staff"
 )]
 pub async fn assign_permission_set_to_staff(
     data: web::Data<AppState>,
@@ -156,7 +162,8 @@ pub async fn assign_permission_set_to_staff(
 #[api_operation(
     summary = "Unassign a permission set from a staff member",
     description = "Removes a specified permission set from a staff member.",
-    tag = "staff"
+    tag = "staff",
+    operation_id = "unassign_permission_set_from_staff"
 )]
 pub async fn unassign_permission_set_from_staff(
     data: web::Data<AppState>,

@@ -8,7 +8,12 @@ use crate::models::MessageResponse;
 use crate::services::grading_criteria;
 use actix_web::web::{self, Json};
 
-#[api_operation(tag = "Grading Criteria", operation_id = "create_grading_criterion")]
+#[api_operation(
+    summary = "Create Grading Criterion",
+    description = "Creates a new grading criterion for a grading scheme.",
+    tag = "Grading Criteria",
+    operation_id = "create_grading_criterion"
+)]
 pub async fn create_grading_criterion_handler(
     pool: web::Data<AppState>,
     new_criterion_json: web::Json<NewGradingCriterion>,
@@ -19,7 +24,12 @@ pub async fn create_grading_criterion_handler(
     Ok(Json(created_criterion))
 }
 
-#[api_operation(tag = "Grading Criteria", operation_id = "get_grading_criteria_by_scheme_id")]
+#[api_operation(
+    summary = "Get Grading Criteria by Scheme ID",
+    description = "Retrieves all grading criteria associated with a specific grading scheme.",
+    tag = "Grading Criteria",
+    operation_id = "get_grading_criteria_by_scheme_id"
+)]
 pub async fn get_grading_criteria_by_scheme_id_handler(
     pool: web::Data<AppState>,
     path: web::Path<String>,
@@ -30,7 +40,12 @@ pub async fn get_grading_criteria_by_scheme_id_handler(
     Ok(Json(criteria))
 }
 
-#[api_operation(tag = "Grading Criteria", operation_id = "get_grading_criterion_by_id")]
+#[api_operation(
+    summary = "Get Grading Criterion by ID",
+    description = "Retrieves a single grading criterion by its ID.",
+    tag = "Grading Criteria",
+    operation_id = "get_grading_criterion_by_id"
+)]
 pub async fn get_grading_criterion_by_id_handler(
     pool: web::Data<AppState>,
     path: web::Path<String>,
@@ -41,7 +56,12 @@ pub async fn get_grading_criterion_by_id_handler(
     Ok(Json(criterion))
 }
 
-#[api_operation(tag = "Grading Criteria", operation_id = "update_grading_criterion")]
+#[api_operation(
+    summary = "Update Grading Criterion",
+    description = "Updates an existing grading criterion.",
+    tag = "Grading Criteria",
+    operation_id = "update_grading_criterion"
+)]
 pub async fn update_grading_criterion_handler(
     pool: web::Data<AppState>,
     path: web::Path<String>,
@@ -55,7 +75,12 @@ pub async fn update_grading_criterion_handler(
     Ok(Json(criterion))
 }
 
-#[api_operation(tag = "Grading Criteria", operation_id = "delete_grading_criterion")]
+#[api_operation(
+    summary = "Delete Grading Criterion",
+    description = "Deletes a grading criterion by its ID.",
+    tag = "Grading Criteria",
+    operation_id = "delete_grading_criterion"
+)]
 pub async fn delete_grading_criterion_handler(
     pool: web::Data<AppState>,
     path: web::Path<String>,

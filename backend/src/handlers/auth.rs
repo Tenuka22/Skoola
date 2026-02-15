@@ -28,7 +28,8 @@ use crate::{
 #[api_operation(
     summary = "Register a new user",
     description = "Creates a new user account.",
-    tag = "auth"
+    tag = "auth",
+    operation_id = "register_user"
 )]
 pub async fn register(
     data: web::Data<AppState>,
@@ -103,7 +104,8 @@ pub async fn register(
 #[api_operation(
     summary = "User login",
     description = "Authenticates a user and returns a JWT.",
-    tag = "auth"
+    tag = "auth",
+    operation_id = "login_user"
 )]
 pub async fn login(
     data: web::Data<AppState>,
@@ -213,7 +215,8 @@ pub async fn login(
 #[api_operation(
     summary = "User logout",
     description = "Invalidates the user's session by deleting the refresh token.",
-    tag = "auth"
+    tag = "auth",
+    operation_id = "logout_user"
 )]
 pub async fn logout(
     data: web::Data<AppState>,
@@ -241,7 +244,8 @@ pub async fn logout(
 #[api_operation(
     summary = "Refresh JWT",
     description = "Provides a new JWT by using a refresh token.",
-    tag = "auth"
+    tag = "auth",
+    operation_id = "refresh_token"
 )]
 pub async fn refresh(
     data: web::Data<AppState>,
@@ -280,7 +284,8 @@ pub async fn refresh(
 #[api_operation(
     summary = "Request password reset",
     description = "Sends a password reset link to the user's email.",
-    tag = "auth"
+    tag = "auth",
+    operation_id = "request_password_reset"
 )]
 pub async fn request_password_reset(
     data: web::Data<AppState>,
@@ -320,7 +325,8 @@ pub async fn request_password_reset(
 #[api_operation(
     summary = "Reset password",
     description = "Resets the user's password using a token.",
-    tag = "auth"
+    tag = "auth",
+    operation_id = "reset_password"
 )]
 pub async fn reset_password(
     data: web::Data<AppState>,

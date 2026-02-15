@@ -49,7 +49,8 @@ pub struct BulkUpdateRolesRequest {
 #[api_operation(
     summary = "Get all roles",
     description = "Returns a paginated list of all roles.",
-    tag = "roles"
+    tag = "roles",
+    operation_id = "get_all_roles"
 )]
 pub async fn get_roles(
     data: web::Data<AppState>,
@@ -70,7 +71,8 @@ pub async fn get_roles(
 #[api_operation(
     summary = "Bulk delete roles",
     description = "Deletes multiple roles by their IDs.",
-    tag = "roles"
+    tag = "roles",
+    operation_id = "bulk_delete_roles"
 )]
 pub async fn bulk_delete_roles(
     data: web::Data<AppState>,
@@ -83,7 +85,8 @@ pub async fn bulk_delete_roles(
 #[api_operation(
     summary = "Bulk update roles",
     description = "Updates multiple roles' information.",
-    tag = "roles"
+    tag = "roles",
+    operation_id = "bulk_update_roles"
 )]
 pub async fn bulk_update_roles(
     data: web::Data<AppState>,
@@ -96,7 +99,8 @@ pub async fn bulk_update_roles(
 #[api_operation(
     summary = "Get a role by ID",
     description = "Returns a single role by its ID.",
-    tag = "roles"
+    tag = "roles",
+    operation_id = "get_role_by_id"
 )]
 pub async fn get_role(
     data: web::Data<AppState>,
@@ -113,7 +117,8 @@ pub async fn get_role(
 #[api_operation(
     summary = "Create a new role",
     description = "Creates a new role.",
-    tag = "roles"
+    tag = "roles",
+    operation_id = "create_role"
 )]
 pub async fn create_role(
     data: web::Data<AppState>,
@@ -134,7 +139,8 @@ pub async fn create_role(
 #[api_operation(
     summary = "Update a role",
     description = "Updates a role by its ID.",
-    tag = "roles"
+    tag = "roles",
+    operation_id = "update_role"
 )]
 pub async fn update_role(
     data: web::Data<AppState>,
@@ -161,7 +167,8 @@ pub async fn update_role(
 #[api_operation(
     summary = "Delete a role",
     description = "Deletes a role by its ID.",
-    tag = "roles"
+    tag = "roles",
+    operation_id = "delete_role"
 )]
 pub async fn delete_role(
     data: web::Data<AppState>,

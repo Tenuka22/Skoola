@@ -52,7 +52,8 @@ pub struct BulkUpdateClassesRequest {
 #[api_operation(
     summary = "Create Class",
     description = "Creates a new class.",
-    tag = "classes"
+    tag = "classes",
+    operation_id = "create_class"
 )]
 pub async fn create_class(
     data: web::Data<AppState>,
@@ -65,7 +66,8 @@ pub async fn create_class(
 #[api_operation(
     summary = "Get Class by ID",
     description = "Retrieves a class by its ID.",
-    tag = "classes"
+    tag = "classes",
+    operation_id = "get_class_by_id"
 )]
 pub async fn get_class_by_id(
     data: web::Data<AppState>,
@@ -79,7 +81,8 @@ pub async fn get_class_by_id(
 #[api_operation(
     summary = "Get All Classes",
     description = "Retrieves a paginated list of all classes with search and filtering options.",
-    tag = "classes"
+    tag = "classes",
+    operation_id = "get_all_classes"
 )]
 pub async fn get_all_classes(
     data: web::Data<AppState>,
@@ -100,7 +103,8 @@ pub async fn get_all_classes(
 #[api_operation(
     summary = "Bulk Delete Classes",
     description = "Deletes multiple classes by their IDs.",
-    tag = "classes"
+    tag = "classes",
+    operation_id = "bulk_delete_classes"
 )]
 pub async fn bulk_delete_classes(
     data: web::Data<AppState>,
@@ -113,7 +117,8 @@ pub async fn bulk_delete_classes(
 #[api_operation(
     summary = "Bulk Update Classes",
     description = "Updates multiple classes' information.",
-    tag = "classes"
+    tag = "classes",
+    operation_id = "bulk_update_classes"
 )]
 pub async fn bulk_update_classes(
     data: web::Data<AppState>,
@@ -126,7 +131,8 @@ pub async fn bulk_update_classes(
 #[api_operation(
     summary = "Update Class",
     description = "Updates an existing class.",
-    tag = "classes"
+    tag = "classes",
+    operation_id = "update_class"
 )]
 pub async fn update_class(
     data: web::Data<AppState>,
@@ -141,7 +147,8 @@ pub async fn update_class(
 #[api_operation(
     summary = "Delete Class",
     description = "Deletes a class by its ID.",
-    tag = "classes"
+    tag = "classes",
+    operation_id = "delete_class"
 )]
 pub async fn delete_class(
     data: web::Data<AppState>,
@@ -155,7 +162,8 @@ pub async fn delete_class(
 #[api_operation(
     summary = "Get Classes by Grade",
     description = "Retrieves a list of classes for a specific grade.",
-    tag = "classes"
+    tag = "classes",
+    operation_id = "get_classes_by_grade"
 )]
 pub async fn get_classes_by_grade(
     data: web::Data<AppState>,

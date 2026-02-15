@@ -25,7 +25,8 @@ pub struct OAuthQuery {
     summary = "Google OAuth2 callback",
     description = "Handles the callback from Google OAuth2.",
     tag = "auth",
-    tag = "oauth"
+    tag = "oauth",
+    operation_id = "google_callback"
 )]
 pub async fn google_callback(
     data: web::Data<AppState>,
@@ -118,7 +119,8 @@ pub async fn google_callback(
     summary = "GitHub OAuth2 callback",
     description = "Handles the callback from GitHub OAuth2.",
     tag = "auth",
-    tag = "oauth"
+    tag = "oauth",
+    operation_id = "github_callback"
 )]
 pub async fn github_callback(
     data: web::Data<AppState>,

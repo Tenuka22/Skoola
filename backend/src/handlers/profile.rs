@@ -24,7 +24,8 @@ use actix_web::HttpMessage;
 #[api_operation(
     summary = "Get user profile",
     description = "Retrieves the profile of the currently authenticated user.",
-    tag = "profile"
+    tag = "profile",
+    operation_id = "get_profile"
 )]
 pub async fn get_profile(
     data: web::Data<AppState>,
@@ -59,7 +60,8 @@ pub async fn get_profile(
 #[api_operation(
     summary = "Update user profile",
     description = "Updates the profile of the currently authenticated user.",
-    tag = "profile"
+    tag = "profile",
+    operation_id = "update_profile"
 )]
 pub async fn update_profile(
     data: web::Data<AppState>,
@@ -105,7 +107,8 @@ pub async fn update_profile(
 #[api_operation(
     summary = "Change password",
     description = "Changes the password of the currently authenticated user.",
-    tag = "profile"
+    tag = "profile",
+    operation_id = "change_password"
 )]
 pub async fn change_password(
     data: web::Data<AppState>,
@@ -170,7 +173,8 @@ pub async fn change_password(
 #[api_operation(
     summary = "Change email",
     description = "Changes the email of the currently authenticated user.",
-    tag = "profile"
+    tag = "profile",
+    operation_id = "change_email"
 )]
 pub async fn change_email(
     data: web::Data<AppState>,
@@ -234,7 +238,8 @@ pub async fn change_email(
     summary = "Link Google account",
     description = "Links a Google account to the currently authenticated user.",
     tag = "profile",
-    tag = "oauth"
+    tag = "oauth",
+    operation_id = "link_google"
 )]
 pub async fn link_google(
     data: web::Data<AppState>,
@@ -274,7 +279,8 @@ pub async fn link_google(
     summary = "Link GitHub account",
     description = "Links a GitHub account to the currently authenticated user.",
     tag = "profile",
-    tag = "oauth"
+    tag = "oauth",
+    operation_id = "link_github"
 )]
 pub async fn link_github(
     data: web::Data<AppState>,

@@ -47,7 +47,8 @@ pub struct BulkUpdateGradeLevelsRequest {
 #[api_operation(
     summary = "Create Grade Level",
     description = "Creates a new grade level.",
-    tag = "grade_levels"
+    tag = "grade_levels",
+    operation_id = "create_grade_level"
 )]
 pub async fn create_grade_level(
     data: web::Data<AppState>,
@@ -60,7 +61,8 @@ pub async fn create_grade_level(
 #[api_operation(
     summary = "Get Grade Level by ID",
     description = "Retrieves a grade level by its ID.",
-    tag = "grade_levels"
+    tag = "grade_levels",
+    operation_id = "get_grade_level_by_id"
 )]
 pub async fn get_grade_level_by_id(
     data: web::Data<AppState>,
@@ -74,7 +76,8 @@ pub async fn get_grade_level_by_id(
 #[api_operation(
     summary = "Get All Grade Levels",
     description = "Retrieves a paginated list of all grade levels with search and filtering options.",
-    tag = "grade_levels"
+    tag = "grade_levels",
+    operation_id = "get_all_grade_levels"
 )]
 pub async fn get_all_grade_levels(
     data: web::Data<AppState>,
@@ -95,7 +98,8 @@ pub async fn get_all_grade_levels(
 #[api_operation(
     summary = "Bulk Delete Grade Levels",
     description = "Deletes multiple grade levels by their IDs.",
-    tag = "grade_levels"
+    tag = "grade_levels",
+    operation_id = "bulk_delete_grade_levels"
 )]
 pub async fn bulk_delete_grade_levels(
     data: web::Data<AppState>,
@@ -108,7 +112,8 @@ pub async fn bulk_delete_grade_levels(
 #[api_operation(
     summary = "Bulk Update Grade Levels",
     description = "Updates multiple grade levels' information.",
-    tag = "grade_levels"
+    tag = "grade_levels",
+    operation_id = "bulk_update_grade_levels"
 )]
 pub async fn bulk_update_grade_levels(
     data: web::Data<AppState>,
@@ -121,7 +126,8 @@ pub async fn bulk_update_grade_levels(
 #[api_operation(
     summary = "Update Grade Level",
     description = "Updates an existing grade level.",
-    tag = "grade_levels"
+    tag = "grade_levels",
+    operation_id = "update_grade_level"
 )]
 pub async fn update_grade_level(
     data: web::Data<AppState>,
@@ -136,7 +142,8 @@ pub async fn update_grade_level(
 #[api_operation(
     summary = "Delete Grade Level",
     description = "Deletes a grade level by its ID.",
-    tag = "grade_levels"
+    tag = "grade_levels",
+    operation_id = "delete_grade_level"
 )]
 pub async fn delete_grade_level(
     data: web::Data<AppState>,

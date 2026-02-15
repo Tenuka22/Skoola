@@ -15,7 +15,8 @@ use crate::models::MessageResponse;
 #[api_operation(
     summary = "Verify user email",
     description = "Verifies a user's email address using a verification token.",
-    tag = "auth"
+    tag = "auth",
+    operation_id = "verify_email"
 )]
 pub async fn verify_email(
     data: web::Data<AppState>,
@@ -59,7 +60,8 @@ pub async fn verify_email(
 #[api_operation(
     summary = "Resend verification email",
     description = "Allows a user to request a new verification email after a one-minute cooldown.",
-    tag = "auth"
+    tag = "auth",
+    operation_id = "resend_verification_email"
 )]
 pub async fn resend_verification_email(
     data: web::Data<AppState>,

@@ -18,7 +18,8 @@ use crate::{
 #[api_operation(
     summary = "Apply for leave",
     description = "Allows a staff member to apply for leave.",
-    tag = "staff_leaves"
+    tag = "staff_leaves",
+    operation_id = "apply_for_leave"
 )]
 pub async fn apply_for_leave(
     data: web::Data<AppState>,
@@ -54,7 +55,8 @@ pub async fn apply_for_leave(
 #[api_operation(
     summary = "Approve or reject staff leave",
     description = "Approves or rejects a pending staff leave application.",
-    tag = "staff_leaves"
+    tag = "staff_leaves",
+    operation_id = "approve_reject_leave"
 )]
 pub async fn approve_reject_leave(
     data: web::Data<AppState>,
@@ -95,7 +97,8 @@ pub async fn approve_reject_leave(
 #[api_operation(
     summary = "View staff leave balance",
     description = "Retrieves the leave balance for a specific staff member.",
-    tag = "staff_leaves"
+    tag = "staff_leaves",
+    operation_id = "view_leave_balance"
 )]
 pub async fn view_leave_balance(
     data: web::Data<AppState>,

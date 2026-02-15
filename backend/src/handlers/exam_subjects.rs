@@ -13,7 +13,8 @@ use crate::{
 #[api_operation(
     summary = "Create Exam Subject",
     description = "Creates a new exam subject.",
-    tag = "exam_subjects"
+    tag = "exam_subjects",
+    operation_id = "create_exam_subject"
 )]
 pub async fn create_exam_subject(
     data: web::Data<AppState>,
@@ -26,7 +27,8 @@ pub async fn create_exam_subject(
 #[api_operation(
     summary = "Get Exam Subject by IDs",
     description = "Retrieves an exam subject by its exam ID and subject ID.",
-    tag = "exam_subjects"
+    tag = "exam_subjects",
+    operation_id = "get_exam_subject_by_ids"
 )]
 pub async fn get_exam_subject_by_ids(
     data: web::Data<AppState>,
@@ -40,7 +42,8 @@ pub async fn get_exam_subject_by_ids(
 #[api_operation(
     summary = "Get All Exam Subjects",
     description = "Retrieves a list of all exam subjects.",
-    tag = "exam_subjects"
+    tag = "exam_subjects",
+    operation_id = "get_all_exam_subjects"
 )]
 pub async fn get_all_exam_subjects(
     data: web::Data<AppState>,
@@ -52,7 +55,8 @@ pub async fn get_all_exam_subjects(
 #[api_operation(
     summary = "Get Exam Subjects by Exam ID",
     description = "Retrieves a list of exam subjects for a given exam ID.",
-    tag = "exam_subjects"
+    tag = "exam_subjects",
+    operation_id = "get_exam_subjects_by_exam_id"
 )]
 pub async fn get_exam_subjects_by_exam_id(
     data: web::Data<AppState>,
@@ -66,7 +70,8 @@ pub async fn get_exam_subjects_by_exam_id(
 #[api_operation(
     summary = "Get Exam Subjects by Subject ID",
     description = "Retrieves a list of exam subjects for a given subject ID.",
-    tag = "exam_subjects"
+    tag = "exam_subjects",
+    operation_id = "get_exam_subjects_by_subject_id"
 )]
 pub async fn get_exam_subjects_by_subject_id(
     data: web::Data<AppState>,
@@ -81,7 +86,8 @@ pub async fn get_exam_subjects_by_subject_id(
 #[api_operation(
     summary = "Update Exam Subject",
     description = "Updates an existing exam subject.",
-    tag = "exam_subjects"
+    tag = "exam_subjects",
+    operation_id = "update_exam_subject"
 )]
 pub async fn update_exam_subject(
     data: web::Data<AppState>,
@@ -96,7 +102,8 @@ pub async fn update_exam_subject(
 #[api_operation(
     summary = "Delete Exam Subject",
     description = "Deletes an exam subject by its exam ID and subject ID.",
-    tag = "exam_subjects"
+    tag = "exam_subjects",
+    operation_id = "delete_exam_subject"
 )]
 pub async fn delete_exam_subject(
     data: web::Data<AppState>,
@@ -110,7 +117,8 @@ pub async fn delete_exam_subject(
 #[api_operation(
     summary = "Get Exam Schedule",
     description = "Retrieves the exam schedule for a given academic year and term.",
-    tag = "exam_subjects"
+    tag = "exam_subjects",
+    operation_id = "get_exam_schedule"
 )]
 pub async fn get_exam_schedule(
     data: web::Data<AppState>,

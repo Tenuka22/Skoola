@@ -53,7 +53,8 @@ pub struct BulkUpdateExamsRequest {
 #[api_operation(
     summary = "Create Exam",
     description = "Creates a new exam.",
-    tag = "exams"
+    tag = "exams",
+    operation_id = "create_exam"
 )]
 pub async fn create_exam(
     data: web::Data<AppState>,
@@ -66,7 +67,8 @@ pub async fn create_exam(
 #[api_operation(
     summary = "Get Exam by ID",
     description = "Retrieves an exam by its ID.",
-    tag = "exams"
+    tag = "exams",
+    operation_id = "get_exam_by_id"
 )]
 pub async fn get_exam_by_id(
     data: web::Data<AppState>,
@@ -80,7 +82,8 @@ pub async fn get_exam_by_id(
 #[api_operation(
     summary = "Get All Exams",
     description = "Retrieves a paginated list of all exams with search and filtering options.",
-    tag = "exams"
+    tag = "exams",
+    operation_id = "get_all_exams"
 )]
 pub async fn get_all_exams(
     data: web::Data<AppState>,
@@ -101,7 +104,8 @@ pub async fn get_all_exams(
 #[api_operation(
     summary = "Bulk Delete Exams",
     description = "Deletes multiple exams by their IDs.",
-    tag = "exams"
+    tag = "exams",
+    operation_id = "bulk_delete_exams"
 )]
 pub async fn bulk_delete_exams(
     data: web::Data<AppState>,
@@ -114,7 +118,8 @@ pub async fn bulk_delete_exams(
 #[api_operation(
     summary = "Bulk Update Exams",
     description = "Updates multiple exams' information.",
-    tag = "exams"
+    tag = "exams",
+    operation_id = "bulk_update_exams"
 )]
 pub async fn bulk_update_exams(
     data: web::Data<AppState>,
@@ -127,7 +132,8 @@ pub async fn bulk_update_exams(
 #[api_operation(
     summary = "Get Exams by Term ID",
     description = "Retrieves a list of exams by term ID.",
-    tag = "exams"
+    tag = "exams",
+    operation_id = "get_exams_by_term_id"
 )]
 pub async fn get_exams_by_term_id(
     data: web::Data<AppState>,
@@ -141,7 +147,8 @@ pub async fn get_exams_by_term_id(
 #[api_operation(
     summary = "Update Exam",
     description = "Updates an existing exam.",
-    tag = "exams"
+    tag = "exams",
+    operation_id = "update_exam"
 )]
 pub async fn update_exam(
     data: web::Data<AppState>,
@@ -156,7 +163,8 @@ pub async fn update_exam(
 #[api_operation(
     summary = "Delete Exam",
     description = "Deletes an exam by its ID.",
-    tag = "exams"
+    tag = "exams",
+    operation_id = "delete_exam"
 )]
 pub async fn delete_exam(
     data: web::Data<AppState>,

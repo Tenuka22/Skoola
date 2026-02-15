@@ -16,7 +16,8 @@ use crate::{
 #[api_operation(
     summary = "Assign a role to a staff member",
     description = "Assigns a specified role to a staff member.",
-    tag = "staff_roles"
+    tag = "staff_roles",
+    operation_id = "assign_role_to_staff"
 )]
 pub async fn assign_role_to_staff(
     data: web::Data<AppState>,
@@ -54,7 +55,8 @@ pub async fn assign_role_to_staff(
 #[api_operation(
     summary = "Remove a role from a staff member",
     description = "Removes a specified role from a staff member.",
-    tag = "staff_roles"
+    tag = "staff_roles",
+    operation_id = "remove_role_from_staff"
 )]
 pub async fn remove_role_from_staff(
     data: web::Data<AppState>,
@@ -76,7 +78,8 @@ pub async fn remove_role_from_staff(
 #[api_operation(
     summary = "Get roles for a staff member",
     description = "Returns a list of roles assigned to a specific staff member.",
-    tag = "staff_roles"
+    tag = "staff_roles",
+    operation_id = "get_staff_roles"
 )]
 pub async fn get_staff_roles(
     data: web::Data<AppState>,

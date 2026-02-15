@@ -13,7 +13,8 @@ use crate::{
 #[api_operation(
     summary = "Create Timetable Entry",
     description = "Creates a new entry in the timetable.",
-    tag = "timetable"
+    tag = "timetable",
+    operation_id = "create_timetable_entry"
 )]
 pub async fn create_timetable_entry(
     data: web::Data<AppState>,
@@ -26,7 +27,8 @@ pub async fn create_timetable_entry(
 #[api_operation(
     summary = "Get Timetable Entry by ID",
     description = "Retrieves a single timetable entry by its ID.",
-    tag = "timetable"
+    tag = "timetable",
+    operation_id = "get_timetable_entry_by_id"
 )]
 pub async fn get_timetable_entry_by_id(
     data: web::Data<AppState>,
@@ -40,7 +42,8 @@ pub async fn get_timetable_entry_by_id(
 #[api_operation(
     summary = "Get Timetable by Class and Day",
     description = "Retrieves the timetable for a specific class on a given day.",
-    tag = "timetable"
+    tag = "timetable",
+    operation_id = "get_timetable_by_class_and_day"
 )]
 pub async fn get_timetable_by_class_and_day(
     data: web::Data<AppState>,
@@ -54,7 +57,8 @@ pub async fn get_timetable_by_class_and_day(
 #[api_operation(
     summary = "Get Timetable by Teacher",
     description = "Retrieves the timetable for a specific teacher.",
-    tag = "timetable"
+    tag = "timetable",
+    operation_id = "get_timetable_by_teacher"
 )]
 pub async fn get_timetable_by_teacher(
     data: web::Data<AppState>,
@@ -68,7 +72,8 @@ pub async fn get_timetable_by_teacher(
 #[api_operation(
     summary = "Update Timetable Entry",
     description = "Updates an existing timetable entry.",
-    tag = "timetable"
+    tag = "timetable",
+    operation_id = "update_timetable_entry"
 )]
 pub async fn update_timetable_entry(
     data: web::Data<AppState>,
@@ -83,7 +88,8 @@ pub async fn update_timetable_entry(
 #[api_operation(
     summary = "Delete Timetable Entry",
     description = "Deletes a timetable entry by its ID.",
-    tag = "timetable"
+    tag = "timetable",
+    operation_id = "delete_timetable_entry"
 )]
 pub async fn delete_timetable_entry(
     data: web::Data<AppState>,

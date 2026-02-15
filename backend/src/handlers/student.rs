@@ -33,7 +33,8 @@ pub struct StudentQuery {
 #[api_operation(
     summary = "Create a new student",
     description = "Registers a new student in the system.",
-    tag = "students"
+    tag = "students",
+    operation_id = "create_student"
 )]
 pub async fn create_student(
     data: web::Data<AppState>,
@@ -46,7 +47,8 @@ pub async fn create_student(
 #[api_operation(
     summary = "Update a student's profile",
     description = "Updates an existing student's profile information.",
-    tag = "students"
+    tag = "students",
+    operation_id = "update_student"
 )]
 pub async fn update_student(
     data: web::Data<AppState>,
@@ -61,7 +63,8 @@ pub async fn update_student(
 #[api_operation(
     summary = "Get a student by ID",
     description = "Retrieves a single student's profile by their ID.",
-    tag = "students"
+    tag = "students",
+    operation_id = "get_student_by_id"
 )]
 pub async fn get_student_by_id(
     data: web::Data<AppState>,
@@ -75,7 +78,8 @@ pub async fn get_student_by_id(
 #[api_operation(
     summary = "Get all students",
     description = "Returns a list of all students with pagination, fuzzy search, filtering and sorting.",
-    tag = "students"
+    tag = "students",
+    operation_id = "get_all_students"
 )]
 pub async fn get_all_students(
     data: web::Data<AppState>,
@@ -88,7 +92,8 @@ pub async fn get_all_students(
 #[api_operation(
     summary = "Delete (deactivate) a student",
     description = "Deactivates a student by setting their status to 'Withdrawn'.",
-    tag = "students"
+    tag = "students",
+    operation_id = "delete_student"
 )]
 pub async fn delete_student(
     data: web::Data<AppState>,
@@ -102,7 +107,8 @@ pub async fn delete_student(
 #[api_operation(
     summary = "Upload a student photo",
     description = "Uploads a photo for a student.",
-    tag = "students"
+    tag = "students",
+    operation_id = "upload_student_photo"
 )]
 pub async fn upload_student_photo(
     data: web::Data<AppState>,

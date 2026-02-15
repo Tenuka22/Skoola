@@ -86,7 +86,8 @@ pub struct BulkUpdateLibraryBooksRequest {
 #[api_operation(
     summary = "Get all library categories",
     description = "Retrieves all book categories in the library with pagination, search, and sorting.",
-    tag = "library"
+    tag = "library",
+    operation_id = "get_all_library_categories"
 )]
 pub async fn get_all_categories(
     pool: web::Data<DbPool>,
@@ -107,7 +108,8 @@ pub async fn get_all_categories(
 #[api_operation(
     summary = "Create a library category",
     description = "Creates a new book category.",
-    tag = "library"
+    tag = "library",
+    operation_id = "create_library_category"
 )]
 pub async fn create_category(pool: web::Data<DbPool>, req: web::Json<CreateLibraryCategoryRequest>) -> Result<Json<LibraryCategory>, APIError> {
     let category = library::create_category(&pool, req.into_inner())?;
@@ -117,7 +119,8 @@ pub async fn create_category(pool: web::Data<DbPool>, req: web::Json<CreateLibra
 #[api_operation(
     summary = "Bulk delete library categories",
     description = "Deletes multiple library categories by their IDs.",
-    tag = "library"
+    tag = "library",
+    operation_id = "bulk_delete_library_categories"
 )]
 pub async fn bulk_delete_library_categories(
     pool: web::Data<DbPool>,
@@ -130,7 +133,8 @@ pub async fn bulk_delete_library_categories(
 #[api_operation(
     summary = "Bulk update library categories",
     description = "Updates multiple library categories' information.",
-    tag = "library"
+    tag = "library",
+    operation_id = "bulk_update_library_categories"
 )]
 pub async fn bulk_update_library_categories(
     pool: web::Data<DbPool>,
@@ -145,7 +149,8 @@ pub async fn bulk_update_library_categories(
 #[api_operation(
     summary = "Get all books",
     description = "Retrieves all books with their categories with pagination, search, and sorting.",
-    tag = "library"
+    tag = "library",
+    operation_id = "get_all_library_books"
 )]
 pub async fn get_all_books(
     pool: web::Data<DbPool>,
@@ -166,7 +171,8 @@ pub async fn get_all_books(
 #[api_operation(
     summary = "Bulk delete library books",
     description = "Deletes multiple library books by their IDs.",
-    tag = "library"
+    tag = "library",
+    operation_id = "bulk_delete_library_books"
 )]
 pub async fn bulk_delete_library_books(
     pool: web::Data<DbPool>,
@@ -179,7 +185,8 @@ pub async fn bulk_delete_library_books(
 #[api_operation(
     summary = "Bulk update library books",
     description = "Updates multiple library books' information.",
-    tag = "library"
+    tag = "library",
+    operation_id = "bulk_update_library_books"
 )]
 pub async fn bulk_update_library_books(
     pool: web::Data<DbPool>,
@@ -192,7 +199,8 @@ pub async fn bulk_update_library_books(
 #[api_operation(
     summary = "Get book by ID",
     description = "Retrieves a book by its serial ID.",
-    tag = "library"
+    tag = "library",
+    operation_id = "get_library_book_by_id"
 )]
 pub async fn get_book_by_id(pool: web::Data<DbPool>, book_id: web::Path<i32>) -> Result<Json<LibraryBookResponse>, APIError> {
     let book = library::get_book_by_id(&pool, book_id.into_inner())?;
@@ -202,7 +210,8 @@ pub async fn get_book_by_id(pool: web::Data<DbPool>, book_id: web::Path<i32>) ->
 #[api_operation(
     summary = "Search books",
     description = "Search for books by title, author, or ISBN.",
-    tag = "library"
+    tag = "library",
+    operation_id = "search_library_books"
 )]
 pub async fn search_books(pool: web::Data<DbPool>, query: web::Query<std::collections::HashMap<String, String>>) -> Result<Json<Vec<LibraryBookResponse>>, APIError> {
     let search_query = query.get("q").ok_or_else(|| APIError::bad_request("Missing search query parameter 'q'"))?;
@@ -213,7 +222,8 @@ pub async fn search_books(pool: web::Data<DbPool>, query: web::Query<std::collec
 #[api_operation(
     summary = "Get books by category",
     description = "Retrieves all books in a specific category.",
-    tag = "library"
+    tag = "library",
+    operation_id = "get_library_books_by_category"
 )]
 pub async fn get_books_by_category(pool: web::Data<DbPool>, category_id: web::Path<i32>) -> Result<Json<Vec<LibraryBookResponse>>, APIError> {
     let books = library::get_books_by_category(&pool, category_id.into_inner())?;
@@ -223,7 +233,8 @@ pub async fn get_books_by_category(pool: web::Data<DbPool>, category_id: web::Pa
 #[api_operation(
     summary = "Add a book",
     description = "Adds a new book to the library.",
-    tag = "library"
+    tag = "library",
+    operation_id = "create_library_book"
 )]
 pub async fn create_book(pool: web::Data<DbPool>, req: web::Json<CreateLibraryBookRequest>) -> Result<Json<LibraryBookResponse>, APIError> {
     let book = library::create_book(&pool, req.into_inner())?;
@@ -233,7 +244,8 @@ pub async fn create_book(pool: web::Data<DbPool>, req: web::Json<CreateLibraryBo
 #[api_operation(
     summary = "Update a book",
     description = "Updates an existing book.",
-    tag = "library"
+    tag = "library",
+    operation_id = "update_library_book"
 )]
 pub async fn update_book(pool: web::Data<DbPool>, book_id: web::Path<i32>, req: web::Json<UpdateLibraryBookRequest>) -> Result<Json<LibraryBookResponse>, APIError> {
     let book = library::update_book(&pool, book_id.into_inner(), req.into_inner())?;
@@ -243,7 +255,8 @@ pub async fn update_book(pool: web::Data<DbPool>, book_id: web::Path<i32>, req: 
 #[api_operation(
     summary = "Delete a book",
     description = "Removes a book from the library.",
-    tag = "library"
+    tag = "library",
+    operation_id = "delete_library_book"
 )]
 pub async fn delete_book(pool: web::Data<DbPool>, book_id: web::Path<i32>) -> Result<Json<MessageResponse>, APIError> {
     library::delete_book(&pool, book_id.into_inner())?;
@@ -255,7 +268,8 @@ pub async fn delete_book(pool: web::Data<DbPool>, book_id: web::Path<i32>) -> Re
 #[api_operation(
     summary = "Issue a book",
     description = "Issues a book to a student or staff member.",
-    tag = "library"
+    tag = "library",
+    operation_id = "issue_library_book"
 )]
 pub async fn issue_book(pool: web::Data<DbPool>, req: web::Json<IssueBookRequest>) -> Result<Json<LibraryIssueResponse>, APIError> {
     // TODO: Get actual staff ID from authentication context
@@ -267,7 +281,8 @@ pub async fn issue_book(pool: web::Data<DbPool>, req: web::Json<IssueBookRequest
 #[api_operation(
     summary = "Return a book",
     description = "Records a book return and calculates fine if overdue.",
-    tag = "library"
+    tag = "library",
+    operation_id = "return_library_book"
 )]
 pub async fn return_book(pool: web::Data<DbPool>, issue_id: web::Path<i32>, req: web::Json<ReturnBookRequest>) -> Result<Json<LibraryIssueResponse>, APIError> {
     let issue = library::return_book(&pool, issue_id.into_inner(), req.into_inner())?;
@@ -277,7 +292,8 @@ pub async fn return_book(pool: web::Data<DbPool>, issue_id: web::Path<i32>, req:
 #[api_operation(
     summary = "Get issue record",
     description = "Retrieves a specific book issue record.",
-    tag = "library"
+    tag = "library",
+    operation_id = "get_library_issue_by_id"
 )]
 pub async fn get_issue_by_id(pool: web::Data<DbPool>, issue_id: web::Path<i32>) -> Result<Json<LibraryIssueResponse>, APIError> {
     let issue = library::get_issue_by_id(&pool, issue_id.into_inner())?;
@@ -287,7 +303,8 @@ pub async fn get_issue_by_id(pool: web::Data<DbPool>, issue_id: web::Path<i32>) 
 #[api_operation(
     summary = "Get student issues",
     description = "Retrieves all book issues for a specific student.",
-    tag = "library"
+    tag = "library",
+    operation_id = "get_library_issues_by_student"
 )]
 pub async fn get_issued_books_by_student(pool: web::Data<DbPool>, student_id: web::Path<String>) -> Result<Json<Vec<LibraryIssueResponse>>, APIError> {
     let issues = library::get_issued_books_by_student(&pool, student_id.into_inner())?;
@@ -297,7 +314,8 @@ pub async fn get_issued_books_by_student(pool: web::Data<DbPool>, student_id: we
 #[api_operation(
     summary = "Get staff issues",
     description = "Retrieves all book issues for a specific staff member.",
-    tag = "library"
+    tag = "library",
+    operation_id = "get_library_issues_by_staff"
 )]
 pub async fn get_issued_books_by_staff(pool: web::Data<DbPool>, staff_id: web::Path<String>) -> Result<Json<Vec<LibraryIssueResponse>>, APIError> {
     let issues = library::get_issued_books_by_staff(&pool, staff_id.into_inner())?;
@@ -307,7 +325,8 @@ pub async fn get_issued_books_by_staff(pool: web::Data<DbPool>, staff_id: web::P
 #[api_operation(
     summary = "Get overdue books",
     description = "Retrieves all books that are currently overdue.",
-    tag = "library"
+    tag = "library",
+    operation_id = "get_overdue_library_books"
 )]
 pub async fn get_overdue_books(pool: web::Data<DbPool>) -> Result<Json<Vec<LibraryIssueResponse>>, APIError> {
     let issues = library::get_overdue_books(&pool)?;
@@ -319,7 +338,8 @@ pub async fn get_overdue_books(pool: web::Data<DbPool>) -> Result<Json<Vec<Libra
 #[api_operation(
     summary = "Pay a fine",
     description = "Records a payment for a library fine.",
-    tag = "library"
+    tag = "library",
+    operation_id = "pay_library_fine"
 )]
 pub async fn pay_fine(pool: web::Data<DbPool>, issue_id: web::Path<i32>, req: web::Json<PayFineRequest>) -> Result<Json<LibraryIssueResponse>, APIError> {
     let issue = library::pay_fine(&pool, issue_id.into_inner(), req.into_inner())?;
@@ -329,7 +349,8 @@ pub async fn pay_fine(pool: web::Data<DbPool>, issue_id: web::Path<i32>, req: we
 #[api_operation(
     summary = "Waive a fine",
     description = "Waives a library fine for a specific issue.",
-    tag = "library"
+    tag = "library",
+    operation_id = "waive_library_fine"
 )]
 pub async fn waive_fine(pool: web::Data<DbPool>, issue_id: web::Path<i32>) -> Result<Json<LibraryIssueResponse>, APIError> {
     let issue = library::waive_fine(&pool, issue_id.into_inner())?;
@@ -339,7 +360,8 @@ pub async fn waive_fine(pool: web::Data<DbPool>, issue_id: web::Path<i32>) -> Re
 #[api_operation(
     summary = "Get fine history",
     description = "Retrieves all issues where a fine was recorded.",
-    tag = "library"
+    tag = "library",
+    operation_id = "get_library_fine_history"
 )]
 pub async fn get_fine_history(pool: web::Data<DbPool>) -> Result<Json<Vec<LibraryIssueResponse>>, APIError> {
     let issues = library::get_fine_history(&pool)?;
@@ -351,7 +373,8 @@ pub async fn get_fine_history(pool: web::Data<DbPool>) -> Result<Json<Vec<Librar
 #[api_operation(
     summary = "Get library settings",
     description = "Retrieves current library settings.",
-    tag = "library"
+    tag = "library",
+    operation_id = "get_library_settings"
 )]
 pub async fn get_library_settings(pool: web::Data<DbPool>) -> Result<Json<LibrarySettings>, APIError> {
     let settings = library::get_library_settings(&pool)?;
@@ -361,7 +384,8 @@ pub async fn get_library_settings(pool: web::Data<DbPool>) -> Result<Json<Librar
 #[api_operation(
     summary = "Update library settings",
     description = "Updates library settings.",
-    tag = "library"
+    tag = "library",
+    operation_id = "update_library_settings"
 )]
 pub async fn update_library_settings(pool: web::Data<DbPool>, req: web::Json<UpdateLibrarySettingsRequest>) -> Result<Json<LibrarySettings>, APIError> {
     let settings = library::update_library_settings(&pool, req.into_inner())?;
@@ -373,7 +397,8 @@ pub async fn update_library_settings(pool: web::Data<DbPool>, req: web::Json<Upd
 #[api_operation(
     summary = "Get library stats",
     description = "Retrieves library statistics.",
-    tag = "library"
+    tag = "library",
+    operation_id = "get_library_stats"
 )]
 pub async fn get_library_stats(pool: web::Data<DbPool>) -> Result<Json<LibraryStatsResponse>, APIError> {
     let stats = library::get_library_stats(&pool)?;

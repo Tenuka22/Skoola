@@ -87,7 +87,12 @@ pub struct BulkUpdateFeeStructuresRequest {
     pub frequency: Option<String>,
 }
 
-#[api_operation(summary = "Create fee category", tag = "fees")]
+#[api_operation(
+    summary = "Create fee category",
+    description = "Creates a new category for fees (e.g., Tuition, Sports).",
+    tag = "fees",
+    operation_id = "create_fee_category"
+)]
 pub async fn create_category(
     data: web::Data<AppState>,
     req: web::Json<CreateFeeCategoryRequest>,
@@ -97,7 +102,12 @@ pub async fn create_category(
     Ok(web::Json(FeeCategoryResponse::from(category)))
 }
 
-#[api_operation(summary = "Get all fee categories", tag = "fees")]
+#[api_operation(
+    summary = "Get all fee categories",
+    description = "Retrieves a paginated list of all fee categories with search and filtering.",
+    tag = "fees",
+    operation_id = "get_all_fee_categories"
+)]
 pub async fn get_all_categories(
     data: web::Data<AppState>,
     query: web::Query<FeeCategoryQuery>,
@@ -116,7 +126,12 @@ pub async fn get_all_categories(
     }))
 }
 
-#[api_operation(summary = "Bulk delete fee categories", tag = "fees")]
+#[api_operation(
+    summary = "Bulk delete fee categories",
+    description = "Deletes multiple fee categories by their IDs.",
+    tag = "fees",
+    operation_id = "bulk_delete_fee_categories"
+)]
 pub async fn bulk_delete_fee_categories(
     data: web::Data<AppState>,
     body: web::Json<BulkDeleteFeeCategoriesRequest>,
@@ -126,7 +141,12 @@ pub async fn bulk_delete_fee_categories(
     Ok(web::Json(MessageResponse { message: "Fee categories deleted successfully".to_string() }))
 }
 
-#[api_operation(summary = "Bulk update fee categories", tag = "fees")]
+#[api_operation(
+    summary = "Bulk update fee categories",
+    description = "Updates multiple fee categories' information.",
+    tag = "fees",
+    operation_id = "bulk_update_fee_categories"
+)]
 pub async fn bulk_update_fee_categories(
     data: web::Data<AppState>,
     body: web::Json<BulkUpdateFeeCategoriesRequest>,
@@ -136,7 +156,12 @@ pub async fn bulk_update_fee_categories(
     Ok(web::Json(MessageResponse { message: "Fee categories updated successfully".to_string() }))
 }
 
-#[api_operation(summary = "Update fee category", tag = "fees")]
+#[api_operation(
+    summary = "Update fee category",
+    description = "Updates an existing fee category's details.",
+    tag = "fees",
+    operation_id = "update_fee_category"
+)]
 pub async fn update_category(
     data: web::Data<AppState>,
     path: web::Path<String>,
@@ -148,7 +173,12 @@ pub async fn update_category(
     Ok(web::Json(FeeCategoryResponse::from(category)))
 }
 
-#[api_operation(summary = "Create fee structure", tag = "fees")]
+#[api_operation(
+    summary = "Create fee structure",
+    description = "Creates a new fee structure for a specific grade and academic year.",
+    tag = "fees",
+    operation_id = "create_fee_structure"
+)]
 pub async fn create_structure(
     data: web::Data<AppState>,
     req: web::Json<CreateFeeStructureRequest>,
@@ -158,7 +188,12 @@ pub async fn create_structure(
     Ok(web::Json(FeeStructureResponse::from(structure)))
 }
 
-#[api_operation(summary = "Update fee structure", tag = "fees")]
+#[api_operation(
+    summary = "Update fee structure",
+    description = "Updates an existing fee structure's details.",
+    tag = "fees",
+    operation_id = "update_fee_structure"
+)]
 pub async fn update_structure(
     data: web::Data<AppState>,
     path: web::Path<String>,
@@ -170,7 +205,12 @@ pub async fn update_structure(
     Ok(web::Json(FeeStructureResponse::from(structure)))
 }
 
-#[api_operation(summary = "Get fee structures by grade", tag = "fees")]
+#[api_operation(
+    summary = "Get fee structures by grade",
+    description = "Retrieves all fee structures defined for a specific grade.",
+    tag = "fees",
+    operation_id = "get_fee_structures_by_grade"
+)]
 pub async fn get_structures_by_grade(
     data: web::Data<AppState>,
     path: web::Path<String>,
@@ -182,7 +222,12 @@ pub async fn get_structures_by_grade(
     Ok(web::Json(responses))
 }
 
-#[api_operation(summary = "Get all fee structures", tag = "fees")]
+#[api_operation(
+    summary = "Get all fee structures",
+    description = "Retrieves a paginated list of all fee structures with filtering options.",
+    tag = "fees",
+    operation_id = "get_all_fee_structures"
+)]
 pub async fn get_all_fee_structures(
     data: web::Data<AppState>,
     query: web::Query<FeeStructureQuery>,
@@ -201,7 +246,12 @@ pub async fn get_all_fee_structures(
     }))
 }
 
-#[api_operation(summary = "Bulk delete fee structures", tag = "fees")]
+#[api_operation(
+    summary = "Bulk delete fee structures",
+    description = "Deletes multiple fee structures by their IDs.",
+    tag = "fees",
+    operation_id = "bulk_delete_fee_structures"
+)]
 pub async fn bulk_delete_fee_structures(
     data: web::Data<AppState>,
     body: web::Json<BulkDeleteFeeStructuresRequest>,
@@ -211,7 +261,12 @@ pub async fn bulk_delete_fee_structures(
     Ok(web::Json(MessageResponse { message: "Fee structures deleted successfully".to_string() }))
 }
 
-#[api_operation(summary = "Bulk update fee structures", tag = "fees")]
+#[api_operation(
+    summary = "Bulk update fee structures",
+    description = "Updates multiple fee structures' information.",
+    tag = "fees",
+    operation_id = "bulk_update_fee_structures"
+)]
 pub async fn bulk_update_fee_structures(
     data: web::Data<AppState>,
     body: web::Json<BulkUpdateFeeStructuresRequest>,
@@ -221,7 +276,12 @@ pub async fn bulk_update_fee_structures(
     Ok(web::Json(MessageResponse { message: "Fee structures updated successfully".to_string() }))
 }
 
-#[api_operation(summary = "Assign fee to student", tag = "fees")]
+#[api_operation(
+    summary = "Assign fee to student",
+    description = "Assigns a specific fee to a student.",
+    tag = "fees",
+    operation_id = "assign_fee_to_student"
+)]
 pub async fn assign_fee_to_student(
     data: web::Data<AppState>,
     req: web::Json<AssignFeeToStudentRequest>,
@@ -231,7 +291,12 @@ pub async fn assign_fee_to_student(
     Ok(web::Json(StudentFeeResponse::from(student_fee)))
 }
 
-#[api_operation(summary = "Update student fee (exemption/waiver)", tag = "fees")]
+#[api_operation(
+    summary = "Update student fee (exemption/waiver)",
+    description = "Updates a student's fee assignment, typically for exemptions or waivers.",
+    tag = "fees",
+    operation_id = "update_student_fee"
+)]
 pub async fn update_student_fee(
     data: web::Data<AppState>,
     path: web::Path<String>,
@@ -243,7 +308,12 @@ pub async fn update_student_fee(
     Ok(web::Json(StudentFeeResponse::from(student_fee)))
 }
 
-#[api_operation(summary = "Get fees assigned to student", tag = "fees")]
+#[api_operation(
+    summary = "Get fees assigned to student",
+    description = "Retrieves all fees currently assigned to a specific student.",
+    tag = "fees",
+    operation_id = "get_student_fees"
+)]
 pub async fn get_student_fees(
     data: web::Data<AppState>,
     path: web::Path<String>,
@@ -255,7 +325,12 @@ pub async fn get_student_fees(
     Ok(web::Json(responses))
 }
 
-#[api_operation(summary = "Get exempted students list", tag = "fees")]
+#[api_operation(
+    summary = "Get exempted students list",
+    description = "Retrieves a list of students who have fee exemptions.",
+    tag = "fees",
+    operation_id = "get_exempted_students"
+)]
 pub async fn get_exempted_students(
     data: web::Data<AppState>,
 ) -> Result<web::Json<Vec<StudentFeeResponse>>, APIError> {
@@ -264,7 +339,12 @@ pub async fn get_exempted_students(
     Ok(web::Json(fees))
 }
 
-#[api_operation(summary = "Record fee payment", tag = "fees")]
+#[api_operation(
+    summary = "Record fee payment",
+    description = "Records a new fee payment from a student.",
+    tag = "fees",
+    operation_id = "record_fee_payment"
+)]
 pub async fn record_payment(
     data: web::Data<AppState>,
     req: web::Json<RecordFeePaymentRequest>,
@@ -274,7 +354,12 @@ pub async fn record_payment(
     Ok(web::Json(FeePaymentResponse::from(payment)))
 }
 
-#[api_operation(summary = "Get student fee balance", tag = "fees")]
+#[api_operation(
+    summary = "Get student fee balance",
+    description = "Retrieves the total outstanding fee balance for a specific student.",
+    tag = "fees",
+    operation_id = "get_student_balance"
+)]
 pub async fn get_student_balance(
     data: web::Data<AppState>,
     path: web::Path<String>,
@@ -285,7 +370,12 @@ pub async fn get_student_balance(
     Ok(web::Json(StudentBalanceResponse { balance }))
 }
 
-#[api_operation(summary = "Get student payment history", tag = "fees")]
+#[api_operation(
+    summary = "Get student payment history",
+    description = "Retrieves a history of all fee payments made by a specific student.",
+    tag = "fees",
+    operation_id = "get_student_payment_history"
+)]
 pub async fn get_payment_history(
     data: web::Data<AppState>,
     path: web::Path<String>,
@@ -296,7 +386,12 @@ pub async fn get_payment_history(
     Ok(web::Json(history))
 }
 
-#[api_operation(summary = "Get fee defaulters", tag = "fees")]
+#[api_operation(
+    summary = "Get fee defaulters",
+    description = "Retrieves a list of students with outstanding fee balances.",
+    tag = "fees",
+    operation_id = "get_fee_defaulters"
+)]
 pub async fn get_defaulters(
     data: web::Data<AppState>,
 ) -> Result<web::Json<Vec<crate::models::fees::FeeDefaulterResponse>>, APIError> {
@@ -305,7 +400,12 @@ pub async fn get_defaulters(
     Ok(web::Json(defaulters))
 }
 
-#[api_operation(summary = "Get fee collection report", tag = "fees")]
+#[api_operation(
+    summary = "Get fee collection report",
+    description = "Retrieves a summary report of total fee collection.",
+    tag = "fees",
+    operation_id = "get_fee_collection_report"
+)]
 pub async fn get_collection_report(
     data: web::Data<AppState>,
 ) -> Result<web::Json<Vec<crate::models::fees::FeeCollectionReport>>, APIError> {
@@ -314,7 +414,12 @@ pub async fn get_collection_report(
     Ok(web::Json(report))
 }
 
-#[api_operation(summary = "Get fee collection report by grade", tag = "fees")]
+#[api_operation(
+    summary = "Get fee collection report by grade",
+    description = "Retrieves a fee collection report broken down by grade.",
+    tag = "fees",
+    operation_id = "get_grade_fee_collection_report"
+)]
 pub async fn get_grade_collection_report(
     data: web::Data<AppState>,
 ) -> Result<web::Json<Vec<GradeFeeCollectionReport>>, APIError> {
@@ -323,7 +428,12 @@ pub async fn get_grade_collection_report(
     Ok(web::Json(report))
 }
 
-#[api_operation(summary = "Send fee reminders", tag = "fees")]
+#[api_operation(
+    summary = "Send fee reminders",
+    description = "Sends automated email reminders to students with outstanding balances.",
+    tag = "fees",
+    operation_id = "send_fee_reminders"
+)]
 pub async fn send_reminders(
     data: web::Data<AppState>,
     email_service: web::Data<EmailService>,
@@ -350,7 +460,12 @@ pub async fn send_reminders(
     Ok(web::Json(SendRemindersResponse { reminders_sent: count as i32 }))
 }
 
-#[api_operation(summary = "Apply fee waiver/discount", tag = "fees")]
+#[api_operation(
+    summary = "Apply fee waiver/discount",
+    description = "Applies a specific waiver or discount to a student's assigned fee.",
+    tag = "fees",
+    operation_id = "apply_fee_waiver"
+)]
 pub async fn apply_waiver(
     data: web::Data<AppState>,
     path: web::Path<String>,
@@ -362,7 +477,12 @@ pub async fn apply_waiver(
     Ok(web::Json(StudentFeeResponse::from(student_fee)))
 }
 
-#[api_operation(summary = "Bulk assign fees to grade", tag = "fees")]
+#[api_operation(
+    summary = "Bulk assign fees to grade",
+    description = "Assigns specific fees to all students in a particular grade.",
+    tag = "fees",
+    operation_id = "bulk_assign_fees"
+)]
 pub async fn bulk_assign_fees(
     data: web::Data<AppState>,
     req: web::Json<BulkAssignFeesRequest>,
@@ -378,7 +498,12 @@ pub struct DateRangeQuery {
     pub end: NaiveDateTime,
 }
 
-#[api_operation(summary = "Get payments by date range", tag = "fees")]
+#[api_operation(
+    summary = "Get payments by date range",
+    description = "Retrieves all fee payments made within a specified start and end date.",
+    tag = "fees",
+    operation_id = "get_payments_by_date_range"
+)]
 pub async fn get_payments_by_date_range(
     data: web::Data<AppState>,
     query: web::Query<DateRangeQuery>,
@@ -389,7 +514,12 @@ pub async fn get_payments_by_date_range(
     Ok(web::Json(responses))
 }
 
-#[api_operation(summary = "Get fee receipt data", tag = "fees")]
+#[api_operation(
+    summary = "Get fee receipt data",
+    description = "Retrieves details for generating a receipt for a specific fee payment.",
+    tag = "fees",
+    operation_id = "get_fee_receipt"
+)]
 pub async fn get_receipt(
     data: web::Data<AppState>,
     path: web::Path<String>,
@@ -399,7 +529,12 @@ pub async fn get_receipt(
     Ok(web::Json(receipt))
 }
 
-#[api_operation(summary = "Export fee reports", tag = "fees")]
+#[api_operation(
+    summary = "Export fee reports",
+    description = "Generates and returns data for exporting fee-related reports.",
+    tag = "fees",
+    operation_id = "export_fee_reports"
+)]
 pub async fn export_reports(
     data: web::Data<AppState>,
 ) -> Result<web::Json<ExportReportResponse>, APIError> {

@@ -17,7 +17,8 @@ use crate::{
 #[api_operation(
     summary = "Assign a class to a teacher",
     description = "Assigns a specified class to a teacher for a given academic year.",
-    tag = "teacher_assignments"
+    tag = "teacher_assignments",
+    operation_id = "assign_class_to_teacher"
 )]
 pub async fn assign_class_to_teacher(
     data: web::Data<AppState>,
@@ -64,7 +65,8 @@ pub async fn assign_class_to_teacher(
 #[api_operation(
     summary = "Assign a subject to a teacher",
     description = "Assigns a specified subject to a teacher for a given academic year.",
-    tag = "teacher_assignments"
+    tag = "teacher_assignments",
+    operation_id = "assign_subject_to_teacher"
 )]
 pub async fn assign_subject_to_teacher(
     data: web::Data<AppState>,
@@ -111,7 +113,8 @@ pub async fn assign_subject_to_teacher(
 #[api_operation(
     summary = "View teacher workload",
     description = "Returns a summary of classes and subjects assigned to a teacher.",
-    tag = "teacher_assignments"
+    tag = "teacher_assignments",
+    operation_id = "get_teacher_workload"
 )]
 pub async fn get_teacher_workload(
     data: web::Data<AppState>,

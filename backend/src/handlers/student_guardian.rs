@@ -13,7 +13,8 @@ use crate::{
 #[api_operation(
     summary = "Add a guardian to a student",
     description = "Adds a new guardian record associated with a student.",
-    tag = "student_guardians"
+    tag = "student_guardians",
+    operation_id = "add_guardian_to_student"
 )]
 pub async fn add_guardian_to_student(
     data: web::Data<AppState>,
@@ -28,7 +29,8 @@ pub async fn add_guardian_to_student(
 #[api_operation(
     summary = "Update guardian information",
     description = "Updates an existing guardian's information for a specific student.",
-    tag = "student_guardians"
+    tag = "student_guardians",
+    operation_id = "update_guardian_information"
 )]
 pub async fn update_guardian_information(
     data: web::Data<AppState>,
@@ -49,7 +51,8 @@ pub async fn update_guardian_information(
 #[api_operation(
     summary = "Remove a guardian from a student",
     description = "Removes a guardian record associated with a student.",
-    tag = "student_guardians"
+    tag = "student_guardians",
+    operation_id = "remove_guardian_from_student"
 )]
 pub async fn remove_guardian_from_student(
     data: web::Data<AppState>,
@@ -63,7 +66,8 @@ pub async fn remove_guardian_from_student(
 #[api_operation(
     summary = "Get all guardians for a student",
     description = "Retrieves a list of all guardians associated with a specific student.",
-    tag = "student_guardians"
+    tag = "student_guardians",
+    operation_id = "get_all_guardians_for_student"
 )]
 pub async fn get_all_guardians_for_student(
     data: web::Data<AppState>,

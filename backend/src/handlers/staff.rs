@@ -45,7 +45,8 @@ pub struct BulkUpdateStaffRequest {
 #[api_operation(
     summary = "Upload a staff photo",
     description = "Uploads a photo for a staff member.",
-    tag = "staff"
+    tag = "staff",
+    operation_id = "upload_staff_photo"
 )]
 pub async fn upload_staff_photo(
     data: web::Data<AppState>,
@@ -102,7 +103,8 @@ pub async fn upload_staff_photo(
 #[api_operation(
     summary = "Get all staff members",
     description = "Returns a list of all staff members with pagination, search, and filtering.",
-    tag = "staff"
+    tag = "staff",
+    operation_id = "get_all_staff"
 )]
 pub async fn get_all_staff(
     data: web::Data<AppState>,
@@ -197,7 +199,8 @@ pub async fn get_all_staff(
 #[api_operation(
     summary = "Get staff member by ID",
     description = "Returns a single staff member by ID.",
-    tag = "staff"
+    tag = "staff",
+    operation_id = "get_staff_by_id"
 )]
 pub async fn get_staff_by_id(
     data: web::Data<AppState>,
@@ -215,7 +218,8 @@ pub async fn get_staff_by_id(
 #[api_operation(
     summary = "Create a new staff member",
     description = "Registers a new staff member in the system.",
-    tag = "staff"
+    tag = "staff",
+    operation_id = "create_staff"
 )]
 pub async fn create_staff(
     data: web::Data<AppState>,
@@ -272,7 +276,8 @@ pub async fn create_staff(
 #[api_operation(
     summary = "Update a staff member",
     description = "Updates an existing staff member's profile.",
-    tag = "staff"
+    tag = "staff",
+    operation_id = "update_staff"
 )]
 pub async fn update_staff(
     data: web::Data<AppState>,
@@ -349,7 +354,8 @@ pub async fn update_staff(
 #[api_operation(
     summary = "Delete a staff member",
     description = "Deletes a staff member by ID.",
-    tag = "staff"
+    tag = "staff",
+    operation_id = "delete_staff"
 )]
 pub async fn delete_staff(
     data: web::Data<AppState>,
@@ -364,7 +370,8 @@ pub async fn delete_staff(
 #[api_operation(
     summary = "Bulk delete staff members",
     description = "Deletes multiple staff members by their IDs.",
-    tag = "staff"
+    tag = "staff",
+    operation_id = "bulk_delete_staff"
 )]
 pub async fn bulk_delete_staff(
     data: web::Data<AppState>,
@@ -377,7 +384,8 @@ pub async fn bulk_delete_staff(
 #[api_operation(
     summary = "Bulk update staff members",
     description = "Updates multiple staff members' information.",
-    tag = "staff"
+    tag = "staff",
+    operation_id = "bulk_update_staff"
 )]
 pub async fn bulk_update_staff(
     data: web::Data<AppState>,
