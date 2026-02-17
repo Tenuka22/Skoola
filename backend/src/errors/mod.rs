@@ -25,6 +25,8 @@ use jsonwebtoken::errors::Error as JwtError;
 use std::num::ParseIntError;
 use std::env::VarError;
 
+pub mod iam;
+
 fn serialize_status_code_as_u16<S>(
     status_code: &StatusCode,
     serializer: S,

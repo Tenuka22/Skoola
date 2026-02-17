@@ -1,3 +1,4 @@
+pub mod logging;
 pub mod jwt;
 pub mod validation;
 pub mod security;
