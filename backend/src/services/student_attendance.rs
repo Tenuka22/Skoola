@@ -26,6 +26,7 @@ use crate::database::tables::{
     AttendanceDiscrepancy, StudentMedicalInfo, AttendanceAuditLog, Activity, ActivityParticipant,
     StudentPeriodAttendance, AttendanceExcuse as DbAttendanceExcuse,
 };
+use crate::services::email::send_email;
 
 pub struct ExcuseService;
 
@@ -852,7 +853,8 @@ pub async fn send_absence_notifications(
         );
 
         for guardian_email in guardians {
-            if let Err(e) = pool.email_service.send_email(
+            if let Err(e) = send_email(
+                &pool.config,
                 guardian_email,
                 subject.clone(),
                 body.clone(),
@@ -866,4 +868,3 @@ pub async fn send_absence_notifications(
 
     Ok(HttpResponse::Ok().body("Absence notifications sent successfully (check logs for failures)."))
 }
-

@@ -11,7 +11,7 @@ use tracing::{info, warn};
 
 use crate::config::AppState;
 use crate::errors::APIError;
-use crate::{database::enums::{PermissionEnum, RoleEnum}, services::auth::decode_jwt, services::user_permissions::get_all_user_permissions};
+use crate::{database::enums::{PermissionEnum, RoleEnum}, services::auth::decode_jwt, services::user_permissions::fetch_all_user_permissions};
 
 pub struct Authenticated;
 
@@ -74,8 +74,16 @@ where
                             .map(|r| r.parse::<RoleEnum>().unwrap_or(RoleEnum::Guest))
                             .collect();
                         
-                        // Fetch all permissions for the user
-                        let user_permissions = get_all_user_permissions(app_state.clone(), &user_id).await?;
+                        // Fetch all permissions for the user using web::block since it's synchronous
+                        let app_state_for_block = app_state.clone();
+                        let user_id_for_block = user_id.clone();
+                        
+                        let user_permissions = web::block(move || {
+                            let mut conn = app_state_for_block.db_pool.get()?;
+                            fetch_all_user_permissions(&mut conn, &user_id_for_block)
+                        }).await
+                        .map_err(|e| APIError::internal(&format!("Blocking error: {}", e)))?
+                        .map_err(APIError::from)?;
 
                         info!(
                             "ACTION: JWT decoded successfully | user_id: {} | roles: {:?} | permissions: {:?}",
