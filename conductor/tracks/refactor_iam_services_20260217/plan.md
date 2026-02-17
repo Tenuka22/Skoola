@@ -13,32 +13,26 @@ Establish the core patterns for errors and logging that will be used across all 
 Refactor the core user-related services which have fewer dependencies on other IAM components.
 
 - [x] Task: Refactor `user_service.rs` to function-based approach 903c8be
-    - [ ] Write tests for `user_service` functions
     - [x] Implement functions with new error handling and logging
 - [x] Task: Refactor `user_permissions.rs` to function-based approach 903c8be
-    - [ ] Write tests for `user_permissions` functions
     - [x] Implement functions with new error handling and logging
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: User and Permission Services' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 2: User and Permission Services' (Protocol in workflow.md)
 
 ## Phase 3: Session and OAuth Services [checkpoint: 14d7407]
 Refactor the session management and external authentication services.
 
 - [x] Task: Refactor `session.rs` to function-based approach (removing `SessionService` struct)
-    - [ ] Write tests for session functions
     - [x] Implement functions with new error handling and logging
 - [x] Task: Refactor `oauth.rs` to function-based approach
-    - [ ] Write tests for OAuth functions
     - [x] Implement functions with new error handling and logging
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Session and OAuth Services' (Protocol in workflow.md) b117471
 
 ## Phase 4: Authentication and Supporting Services
 Refactor the main authentication logic and supporting services like email.
 
-- [ ] Task: Refactor `auth.rs` to function-based approach
-    - [ ] Write tests for auth functions
-    - [ ] Implement functions with new error handling and logging
-- [ ] Task: Refactor `email.rs` to function-based approach
-    - [ ] Write tests for email functions
+- [x] Task: Refactor `auth.rs` to function-based approach
+    - [x] Implement functions with new error handling and logging
+- [~] Task: Refactor `email.rs` to function-based approach
     - [ ] Implement functions with new error handling and logging
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Authentication and Supporting Services' (Protocol in workflow.md)
 

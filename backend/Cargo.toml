@@ -40,9 +40,13 @@ r2d2 = "0.8"
 diesel = { version = "2.1.0", features = ["sqlite", "r2d2", "chrono", "uuid"] }
 diesel_migrations = "2.1.0"
 libsqlite3-sys = { version = "0.29.0", features = ["bundled"] }
-lettre = "0.11.19"
+lettre = { version = "0.11.19", default-features = false, features = ["builder", "tokio1", "tokio1-rustls", "smtp-transport", "pool", "tracing", "ring", "webpki-roots"] }
 regex = "1.10.3"
 validator = { version = "0.18.1", features = ["derive"] }
 sanitize-filename = "0.6.0"
 anyhow = "1.0"
 fake = "2.5.0"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+async-trait = "0.1"

@@ -1,6 +1,5 @@
 use crate::database::connection::DbPool;
 use crate::errors::APIError;
-use crate::services::email::EmailService;
 use std::env;
 
 #[derive(Debug, Clone)]
@@ -121,5 +120,4 @@ impl Config {
 pub struct AppState {
     pub config: Config,
     pub db_pool: DbPool,
-    pub email_service: EmailService,
 }

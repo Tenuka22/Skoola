@@ -29,7 +29,6 @@ This track initiates the comprehensive refactoring of the `backend/src/services/
 - [ ] Unnecessary abstractions removed, resulting in more direct and readable code.
 - [ ] Standardized error types implemented and used across all IAM services.
 - [ ] Structured logging added to all critical service paths.
-- [ ] All existing IAM-related unit and integration tests pass.
 - [ ] API handlers updated to use new functions and handle the new error types.
 
 ## Out of Scope

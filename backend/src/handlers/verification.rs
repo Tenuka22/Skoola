@@ -9,7 +9,7 @@ use crate::database::tables::User;
 use crate::models::auth::ResendVerificationEmailRequest;
 use chrono::{Duration, Utc};
 use rand::distributions::{Alphanumeric, DistString};
-use crate::services::email::EmailService;
+use crate::services::email::send_verification_email;
 use crate::models::MessageResponse;
 
 #[api_operation(
@@ -68,7 +68,6 @@ pub async fn resend_verification_email(
     body: web::Json<ResendVerificationEmailRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let email_service = EmailService::new(data.config.clone());
 
     let mut user: User = users::table
         .filter(users::email.eq(&body.email))
@@ -104,7 +103,7 @@ pub async fn resend_verification_email(
         ))
         .execute(&mut conn)?;
 
-    let email_sent = email_service.send_verification_email(&user.email, &verification_token).await?;
+    let email_sent = send_verification_email(&data.config, &user.email, &verification_token).await?;
 
     if email_sent {
         info!("ACTION: Verification email resent successfully | user_id: {} | email: {}", user.id, user.email);

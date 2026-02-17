@@ -20,8 +20,8 @@ use crate::{
     models::MessageResponse,
     schema::{users},
     services::auth::{create_token_pair, hash_password, refresh_jwt, verify_password},
-    services::email::EmailService,
-    services::session::SessionService,
+    services::email::{send_verification_email, send_password_reset_email},
+    services::session::{create_session, delete_session, find_session_by_refresh_token_hash, invalidate_sessions_for_user},
 
 };
 
@@ -77,17 +77,19 @@ pub async fn register(
         .values(&new_user)
         .execute(&mut conn)?;
 
-    let email_service = EmailService::new(data.config.clone());
-    email_service
-        .send_verification_email(&new_user.email, &verification_token)
-        .await
-        .unwrap_or_else(|e| {
+    let email_config = data.config.clone();
+    let email = new_user.email.clone();
+    let token = verification_token.clone();
+    
+    // Send verification email asynchronously
+    tokio::spawn(async move {
+        if let Err(e) = send_verification_email(&email_config, &email, &token).await {
             warn!(
                 "ACTION: Failed to send verification email to {} | error: {:?}",
-                new_user.email, e
+                email, e
             );
-            false
-        });
+        }
+    });
 
     let created_user: User = users::table
         .filter(users::email.eq(&body.email))
@@ -184,22 +186,19 @@ pub async fn login(
         .and_then(|v| v.to_str().ok())
         .map(|s| s.to_string());
 
-    let session_service = SessionService::new(data.db_pool.clone());
-
     let expires_at = Utc::now()
         .checked_add_signed(Duration::days(data.config.jwt_expiration as i64))
         .ok_or_else(|| APIError::internal("Failed to calculate session expiration"))?
         .naive_utc();
 
-    session_service
-        .create_session(
-            user.id.clone(),
-            hashed_refresh_token,
-            user_agent.clone(),
-            ip_address.clone(),
-            expires_at,
-        )
-        .await?;
+    create_session(
+        &mut conn,
+        &user.id,
+        &hashed_refresh_token,
+        user_agent.as_deref(),
+        ip_address.as_deref(),
+        expires_at,
+    ).map_err(APIError::from)?;
 
     info!(
         "ACTION: User logged in successfully | user_id: {} | email: {} | ip_address: {:?} | user_agent: {:?}",
@@ -222,14 +221,11 @@ pub async fn logout(
     data: web::Data<AppState>,
     body: web::Json<RefreshTokenRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
-    let session_service = SessionService::new(data.db_pool.clone());
+    let mut conn = data.db_pool.get()?;
     let hashed_refresh_token = hash_password(&body.refresh_token)?;
 
-    if let Some(session) = session_service
-        .find_session_by_refresh_token_hash(&hashed_refresh_token)
-        .await?
-    {
-        session_service.delete_session(&session.id).await?;
+    if let Some(session) = find_session_by_refresh_token_hash(&mut conn, &hashed_refresh_token).map_err(APIError::from)? {
+        delete_session(&mut conn, &session.id).map_err(APIError::from)?;
         info!(
             "ACTION: User logged out successfully | user_id: {} | session_id: {}",
             session.user_id, session.id
@@ -308,10 +304,18 @@ pub async fn request_password_reset(
             ))
             .execute(&mut conn)?;
 
-        let email_service = EmailService::new(data.config.clone());
-        email_service
-            .send_password_reset_email(&user.email, &token)
-            .await?;
+        let email_config = data.config.clone();
+        let email = user.email.clone();
+        let token_clone = token.clone();
+
+        tokio::spawn(async move {
+            if let Err(e) = send_password_reset_email(&email_config, &email, &token_clone).await {
+                warn!(
+                    "ACTION: Failed to send password reset email to {} | error: {:?}",
+                    email, e
+                );
+            }
+        });
     } else {
         warn!(
             "ACTION: Password reset request for non-existent user | email: {}",
@@ -363,8 +367,7 @@ pub async fn reset_password(
         ))
         .execute(&mut conn)?;
 
-    let session_service = SessionService::new(data.db_pool.clone());
-    session_service.invalidate_sessions_for_user(&user.id).await?;
+    invalidate_sessions_for_user(&mut conn, &user.id).map_err(APIError::from)?;
 
     info!(
         "ACTION: User password reset successfully | user_id: {}",

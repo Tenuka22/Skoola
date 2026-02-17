@@ -85,19 +85,3 @@ pub fn has_permission(
     }
     Ok(has)
 }
-
-// Legacy async wrapper for Actix-web integration
-pub async fn get_all_user_permissions(
-    pool: actix_web::web::Data<crate::config::AppState>,
-    user_id: &str,
-) -> Result<Vec<PermissionEnum>, crate::errors::APIError> {
-    let pool_clone = pool.clone();
-    let user_id_clone = user_id.to_string();
-
-    actix_web::web::block(move || {
-        let mut conn = pool_clone.db_pool.get()?;
-        fetch_all_user_permissions(&mut conn, &user_id_clone)
-    }).await
-    .map_err(|e| crate::errors::APIError::internal(&format!("Failed to get user permissions: {}", e)))?
-    .map_err(|e| crate::errors::APIError::from(e))
-}

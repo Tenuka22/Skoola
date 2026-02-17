@@ -7,7 +7,7 @@ use crate::models::fees::{
     GradeFeeCollectionReport, ApplyWaiverRequest, BulkAssignFeesRequest, FeeReceiptResponse, ExportReportResponse
 };
 use crate::services::fees::FeeService;
-use crate::services::email::EmailService;
+use crate::services::email::send_email;
 use actix_web::web; // Removed unused Data, Json, Path, Query imports
 use crate::models::MessageResponse;
 use apistos::{api_operation, ApiComponent};
@@ -436,7 +436,6 @@ pub async fn get_grade_collection_report(
 )]
 pub async fn send_reminders(
     data: web::Data<AppState>,
-    email_service: web::Data<EmailService>,
 ) -> Result<web::Json<SendRemindersResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let defaulters = FeeService::get_defaulters(&mut conn).await?;
@@ -451,7 +450,14 @@ pub async fn send_reminders(
                 let subject = "Fee Payment Reminder - Skoola".to_string();
                 let body = format!("Dear {},\n\nThis is a reminder that you have an outstanding balance of {} in your school fees. Please make the payment at your earliest convenience.\n\nThank you.", student.name_english, defaulter.balance);
                 
-                let _ = email_service.send_email(email, subject, body).await;
+                let config = data.config.clone();
+                let email_clone = email.clone();
+                let subject_clone = subject.clone();
+                let body_clone = body.clone();
+                
+                tokio::spawn(async move {
+                    let _ = send_email(&config, email_clone, subject_clone, body_clone).await;
+                });
                 count += 1;
             }
         }

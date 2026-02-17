@@ -2,7 +2,6 @@ use backend::config::{AppState, Config};
 use backend::database::connection::establish_connection;
 use backend::errors::APIError;
 use backend::services::cleanup::remove_unverified_users;
-use backend::services::email::EmailService;
 use backend::routes;
 use actix_cors::Cors;
 use actix_web::{
@@ -54,12 +53,9 @@ async fn main() -> Result<(), APIError> {
 
     let pool = establish_connection(&config.database_url)?;
 
-    let email_service = EmailService::new(config.clone()); // Initialize EmailService
-
     let app_data = Data::new(AppState {
         config: config.clone(),
         db_pool: pool.clone(),
-        email_service: email_service.clone(), // Pass EmailService to AppState
     });
 
     // Spawn background task for removing unverified users

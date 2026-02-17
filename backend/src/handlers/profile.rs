@@ -10,7 +10,7 @@ use crate::{
     services::{
         auth::{hash_password, verify_password},
         oauth::{get_github_user_info, get_google_user_info},
-        session::SessionService,
+        session::invalidate_sessions_for_user,
         user_service
     },
     utils::jwt::UserId,
@@ -145,10 +145,7 @@ pub async fn change_password(
         .execute(&mut conn)?;
 
     // Invalidate all sessions for this user after password change
-    let session_service = SessionService::new(data.db_pool.clone());
-    session_service
-        .invalidate_sessions_for_user(&user_id.0)
-        .await?;
+    invalidate_sessions_for_user(&mut conn, &user_id.0).map_err(APIError::from)?;
 
     let updated_user: User = users::table
         .find(&user_id.0)
@@ -209,10 +206,7 @@ pub async fn change_email(
         .execute(&mut conn)?;
 
     // Invalidate all sessions for this user after email change
-    let session_service = SessionService::new(data.db_pool.clone());
-    session_service
-        .invalidate_sessions_for_user(&user_id.0)
-        .await?;
+    invalidate_sessions_for_user(&mut conn, &user_id.0).map_err(APIError::from)?;
 
     let updated_user: User = users::table
         .find(&user_id.0)

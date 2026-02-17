@@ -8,7 +8,7 @@ use diesel::prelude::*;
 use tracing::{info, warn}; // Added warn for logging errors
 
 use crate::{AppState, database::tables::{User}, database::enums::RoleEnum, errors::APIError,
-    services::{auth::{create_token_pair, hash_password}, oauth::{get_github_user_info, get_google_user_info}, session::SessionService},
+    services::{auth::{create_token_pair, hash_password}, oauth::{get_github_user_info, get_google_user_info}, session::create_session},
     schema::{users},
 };
 
@@ -90,20 +90,20 @@ pub async fn google_callback(
     };
     let (token, refresh_token, _access_token_expiration) = create_token_pair(&user, &data.config, &data.db_pool)?;
     let hashed_refresh_token = hash_password(&refresh_token)?;
-    let session_service = SessionService::new(data.db_pool.clone());
 
     let expires_at = Utc::now()
         .checked_add_signed(Duration::days(data.config.jwt_expiration as i64))
         .ok_or_else(|| APIError::internal("Failed to calculate session expiration"))?
         .naive_utc();
 
-    session_service.create_session(
-        user.id.clone(),
-        hashed_refresh_token,
-        user_agent.clone(),
-        ip_address.clone(),
+    create_session(
+        &mut conn,
+        &user.id,
+        &hashed_refresh_token,
+        user_agent.as_deref(),
+        ip_address.as_deref(),
         expires_at,
-    ).await?;
+    ).map_err(APIError::from)?;
 
     info!(
         "ACTION: Google OAuth successful | user_id: {} | email: {} | ip_address: {:?} | user_agent: {:?}",
@@ -193,20 +193,19 @@ pub async fn github_callback(
     let (token, refresh_token, _access_token_expiration) = create_token_pair(&user, &data.config, &data.db_pool)?;
     let hashed_refresh_token = hash_password(&refresh_token)?;
 
-    let session_service = SessionService::new(data.db_pool.clone());
-
     let expires_at = Utc::now()
         .checked_add_signed(Duration::days(data.config.jwt_expiration as i64))
         .ok_or_else(|| APIError::internal("Failed to calculate session expiration"))?
         .naive_utc();
 
-    session_service.create_session(
-        user.id.clone(),
-        hashed_refresh_token,
-        user_agent.clone(),
-        ip_address.clone(),
+    create_session(
+        &mut conn,
+        &user.id,
+        &hashed_refresh_token,
+        user_agent.as_deref(),
+        ip_address.as_deref(),
         expires_at,
-    ).await?;
+    ).map_err(APIError::from)?;
 
     info!(
         "ACTION: GitHub OAuth successful | user_id: {} | email: {} | ip_address: {:?} | user_agent: {:?}",
