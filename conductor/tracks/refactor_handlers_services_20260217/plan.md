@@ -5,8 +5,8 @@
 - [x] Task: Conductor - User Manual Verification 'Preparation and Mapping' (Protocol in workflow.md) 64b064e
 
 ## Phase 2: Services Reorganization
-- [ ] Task: Create domain subdirectories in `backend/src/services/` (auth, academic, students, staff, exams, resources, system).
-- [ ] Task: Move existing service files into their respective domain subdirectories.
+- [x] Task: Create domain subdirectories in `backend/src/services/` (auth, academic, students, staff, exams, resources, system). aebe432
+- [x] Task: Move existing service files into their respective domain subdirectories. aebe432
 - [ ] Task: Create/update `mod.rs` files for each new service domain and update `backend/src/services/mod.rs`.
 - [ ] Task: Verify that all moved services follow the function-based approach and pass compilation.
 - [ ] Task: Conductor - User Manual Verification 'Services Reorganization' (Protocol in workflow.md)
