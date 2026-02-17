@@ -4,7 +4,7 @@ use crate::{
     AppState,
     errors::APIError,
     models::co_curricular::*,
-    services::co_curricular,
+    services::resources::co_curricular,
 };
 // use serde_json; // Removed unused import
 

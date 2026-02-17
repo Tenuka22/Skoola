@@ -7,7 +7,7 @@ use crate::{
     AppState,
     errors::APIError,
     models::student_class_assignment::{CreateStudentClassAssignmentRequest, BulkAssignStudentClassRequest, PromoteStudentRequest, StudentClassAssignmentResponse},
-    services::student_class_assignment,
+    services::students::student_class_assignment,
 };
 
 #[api_operation(

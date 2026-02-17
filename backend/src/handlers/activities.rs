@@ -8,7 +8,7 @@ use crate::{
     AppState,
     errors::APIError,
     models::activities::{CreateActivityRequest, ActivityResponse, EnrollParticipantRequest, CreateActivityTypeRequest, ActivityTypeResponse, MarkActivityAttendanceRequest},
-    services::activities,
+    services::system::activities,
     utils::{jwt::Authenticated, permission_verification::PermissionVerification, jwt::UserId},
     database::enums::PermissionEnum,
 };

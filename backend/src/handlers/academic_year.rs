@@ -9,7 +9,7 @@ use crate::{
     errors::APIError,
     models::academic_year::{CreateAcademicYearRequest, UpdateAcademicYearRequest, AcademicYearResponse},
     models::MessageResponse,
-    services::academic_year,
+    services::academic::academic_year,
 };
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
@@ -87,8 +87,8 @@ pub async fn get_all_academic_years(
     query: web::Query<AcademicYearQuery>,
 ) -> Result<Json<PaginatedAcademicYearResponse>, APIError> {
     let inner_query = query.into_inner();
-    let (academic_years, total_academic_years, total_pages) =
-        academic_year::get_all_academic_years(data.clone(), inner_query.clone()).await?; // Pass clone of inner_query
+    let (academic_years, total_academic_years, total_pages): (Vec<crate::models::academic_year::AcademicYearResponse>, i64, i64) =
+        academic_year::get_all_academic_years(data.clone(), inner_query.clone()).await?;
     Ok(Json(PaginatedAcademicYearResponse {
         data: academic_years.into_iter().map(AcademicYearResponse::from).collect(),
         total: total_academic_years,

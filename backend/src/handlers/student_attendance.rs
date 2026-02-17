@@ -17,8 +17,8 @@ use crate::{
     },
     models::attendance_v2::{MarkPeriodAttendanceRequest, SubmitExcuseRequest, AttendanceExcuseResponse},
     models::MessageResponse,
-    services::student_attendance::{self, EmergencyService, PreApprovedService, AttendanceService, ExcuseService},
-    services::attendance_policies::{PolicyService, ExitPassService},
+    services::students::student_attendance,
+    services::students::attendance_policies,
     utils::jwt::UserId,
 };
 
@@ -203,7 +203,7 @@ pub async fn send_absence_notifications(
         body: web::Json<InitiateEmergencyRollCallRequest>,
         user_id: UserId,
     ) -> Result<Json<String>, APIError> {
-        let roll_call_id = EmergencyService::initiate_emergency_roll_call(data, body.event_name.clone(), user_id.0).await?;
+        let roll_call_id = student_attendance::initiate_emergency_roll_call(data, body.event_name.clone(), user_id.0).await?;
         Ok(Json(roll_call_id))
     }
     
@@ -243,7 +243,7 @@ pub async fn send_absence_notifications(
     
         let (rc_id, u_id) = path.into_inner();
     
-        EmergencyService::update_emergency_entry(data, rc_id, u_id, body.status.clone(), body.location.clone()).await?;
+        student_attendance::update_emergency_entry(data, rc_id, u_id, body.status.clone(), body.location.clone()).await?;
     
         Ok(Json(MessageResponse { message: "Status updated".to_string() }))
     
@@ -271,7 +271,7 @@ pub async fn send_absence_notifications(
     
     ) -> Result<Json<MessageResponse>, APIError> {
     
-        EmergencyService::complete_emergency_roll_call(data, path.into_inner()).await?;
+        student_attendance::complete_emergency_roll_call(data, path.into_inner()).await?;
     
         Ok(Json(MessageResponse { message: "Roll call completed".to_string() }))
     
@@ -292,7 +292,7 @@ pub async fn send_absence_notifications(
         data: web::Data<AppState>,
         path: web::Path<DatePath>,
     ) -> Result<Json<i32>, APIError> {
-        let count = PreApprovedService::apply_pre_approved_absences(data, path.into_inner().date).await?;
+        let count: i32 = student_attendance::apply_pre_approved_absences(data, path.into_inner().date).await?;
         Ok(Json(count))
     }
     
@@ -306,7 +306,7 @@ pub async fn send_absence_notifications(
         data: web::Data<AppState>,
         path: web::Path<DatePath>,
     ) -> Result<Json<i32>, APIError> {
-        let count = student_attendance::sync_school_business(data, path.into_inner().date).await?;
+        let count: i32 = student_attendance::sync_school_business(data, path.into_inner().date).await?;
         Ok(Json(count))
     }
     
@@ -320,7 +320,7 @@ pub async fn send_absence_notifications(
         data: web::Data<AppState>,
         path: web::Path<DatePath>,
     ) -> Result<Json<i32>, APIError> {
-        let count = AttendanceService::run_discrepancy_check(data, path.into_inner().date).await?;
+        let count: i32 = student_attendance::run_discrepancy_check(data, path.into_inner().date).await?;
         Ok(Json(count))
     }
     
@@ -335,7 +335,7 @@ pub async fn send_absence_notifications(
         path: web::Path<EnrichedListPath>,
     ) -> Result<Json<Vec<student_attendance::EnrichedStudentAttendance>>, APIError> {
         let path_inner = path.into_inner();
-        let res = AttendanceService::get_enriched_student_list(data, path_inner.class_id, path_inner.date).await?;
+        let res: Vec<student_attendance::EnrichedStudentAttendance> = student_attendance::get_enriched_student_list(data, path_inner.class_id, path_inner.date).await?;
         Ok(Json(res))
     }
             #[api_operation(
@@ -349,7 +349,7 @@ pub async fn send_absence_notifications(
             body: web::Json<MarkPeriodAttendanceRequest>,
             user_id: UserId,
         ) -> Result<Json<MessageResponse>, APIError> {
-            AttendanceService::mark_period_attendance(data, body.into_inner(), user_id.0).await?;
+            student_attendance::mark_period_attendance(data, body.into_inner(), user_id.0).await?;
             Ok(Json(MessageResponse { message: "Period attendance marked successfully.".to_string() }))
         }
         
@@ -364,7 +364,7 @@ pub async fn send_absence_notifications(
             body: web::Json<IssueExitPassRequest>,
             user_id: UserId,
         ) -> Result<Json<ExitPassResponse>, APIError> {
-            let res = ExitPassService::issue_exit_pass(data, body.student_id.clone(), body.exit_time, body.reason.clone(), user_id.0).await?;
+            let res = attendance_policies::issue_exit_pass(data, body.student_id.clone(), body.exit_time, body.reason.clone(), user_id.0).await?;
             Ok(Json(ExitPassResponse {
                 id: res.id,
                 student_id: res.student_id,
@@ -387,7 +387,7 @@ pub async fn send_absence_notifications(
             data: web::Data<AppState>,
             path: web::Path<String>, // student_id
         ) -> Result<Json<i32>, APIError> {
-            let count = PolicyService::evaluate_policies(data, path.into_inner()).await?;
+            let count: i32 = attendance_policies::evaluate_policies(data, path.into_inner()).await?;
             Ok(Json(count))
         }
         
@@ -401,7 +401,7 @@ pub async fn send_absence_notifications(
             data: web::Data<AppState>,
             body: web::Json<SubmitExcuseRequest>,
         ) -> Result<Json<AttendanceExcuseResponse>, APIError> {
-            let res = ExcuseService::submit_excuse(data, body.into_inner()).await?;
+            let res = student_attendance::submit_excuse(data, body.into_inner()).await?;
             Ok(Json(AttendanceExcuseResponse {
                 id: res.id,
                 attendance_record_id: res.attendance_record_id,
@@ -421,7 +421,7 @@ pub async fn send_absence_notifications(
             path: web::Path<String>, // excuse_id
             verifier: UserId,
         ) -> Result<Json<MessageResponse>, APIError> {
-            ExcuseService::verify_excuse(data, path.into_inner(), verifier.0).await?;
+            student_attendance::verify_excuse(data, path.into_inner(), verifier.0).await?;
             Ok(Json(MessageResponse { message: "Excuse verified successfully.".to_string() }))
         }
         

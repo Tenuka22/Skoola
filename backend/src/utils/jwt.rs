@@ -11,7 +11,7 @@ use tracing::{info, warn};
 
 use crate::config::AppState;
 use crate::errors::APIError;
-use crate::{database::enums::{PermissionEnum, RoleEnum}, services::auth::decode_jwt, services::user_permissions::fetch_all_user_permissions};
+use crate::{database::enums::{PermissionEnum, RoleEnum}, services::auth::auth::decode_jwt, services::auth::user_permissions::fetch_all_user_permissions};
 
 pub struct Authenticated;
 
@@ -68,15 +68,17 @@ where
                 match decode_jwt(token, &config) {
                     Ok(claims) => {
                         let user_id = claims.sub.clone();
+                        let user_id_for_extensions = user_id.clone();
+                        let user_id_for_info = user_id.clone();
                         let user_roles: Vec<RoleEnum> = claims
                             .roles
                             .iter()
-                            .map(|r| r.parse::<RoleEnum>().unwrap_or(RoleEnum::Guest))
+                            .map(|r: &String| r.parse::<RoleEnum>().unwrap_or(RoleEnum::Guest))
                             .collect();
                         
                         // Fetch all permissions for the user using web::block since it's synchronous
                         let app_state_for_block = app_state.clone();
-                        let user_id_for_block = user_id.clone();
+                        let user_id_for_block = user_id;
                         
                         let user_permissions = web::block(move || {
                             let mut conn = app_state_for_block.db_pool.get()?;
@@ -87,9 +89,9 @@ where
 
                         info!(
                             "ACTION: JWT decoded successfully | user_id: {} | roles: {:?} | permissions: {:?}",
-                            user_id, user_roles, user_permissions
+                            user_id_for_info, user_roles, user_permissions
                         );
-                        req.extensions_mut().insert(UserId(user_id));
+                        req.extensions_mut().insert(UserId(user_id_for_extensions));
                         req.extensions_mut().insert(UserRoles(user_roles));
                         req.extensions_mut().insert(UserPermissions(user_permissions));
                         srv.call(req).await

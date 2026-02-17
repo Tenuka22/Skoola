@@ -5,7 +5,7 @@ use crate::models::grading_criteria::{
     GradingCriterion, NewGradingCriterion, UpdateGradingCriterion,
 };
 use crate::models::MessageResponse;
-use crate::services::grading_criteria;
+use crate::services::exams::grading_criteria;
 use actix_web::web::{self, Json};
 
 #[api_operation(

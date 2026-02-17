@@ -13,7 +13,7 @@ use actix_web::{web};
 use uuid::Uuid;
 use chrono::{Utc, NaiveDate, Datelike}; // Added Datelike
 use crate::schema::{staff_attendance, staff_leaves, staff, timetable, substitutions, school_calendar, lesson_progress};
-use crate::services::student_attendance::log_audit;
+use crate::services::students::student_attendance::log_audit;
 
 // NEW IMPORTS
 use crate::database::tables::{
@@ -21,53 +21,49 @@ use crate::database::tables::{
     LessonProgress as DbLessonProgress,
 };
 
-pub struct LessonProgressService;
+pub async fn record_progress(
+    pool: web::Data<AppState>,
+    req: crate::models::attendance_v2::CreateLessonProgressRequest,
+    teacher_id: String,
+) -> Result<DbLessonProgress, APIError> {
+    let mut conn = pool.db_pool.get()?;
+    let id = Uuid::new_v4().to_string();
 
-impl LessonProgressService {
-    pub async fn record_progress(
-        pool: web::Data<AppState>,
-        req: crate::models::attendance_v2::CreateLessonProgressRequest,
-        teacher_id: String,
-    ) -> Result<DbLessonProgress, APIError> {
-        let mut conn = pool.db_pool.get()?;
-        let id = Uuid::new_v4().to_string();
+    let new_progress = DbLessonProgress {
+        id: id.clone(),
+        class_id: req.class_id,
+        subject_id: req.subject_id,
+        teacher_id,
+        timetable_id: Some(req.timetable_id),
+        date: req.date,
+        topic_covered: req.topic_covered,
+        sub_topic: req.sub_topic,
+        homework_assigned: req.homework_assigned,
+        resources_used: req.resources_used,
+        progress_percentage: req.progress_percentage,
+        is_substitution: req.is_substitution,
+        created_at: Utc::now().naive_utc(),
+    };
 
-        let new_progress = DbLessonProgress {
-            id: id.clone(),
-            class_id: req.class_id,
-            subject_id: req.subject_id,
-            teacher_id,
-            timetable_id: req.timetable_id,
-            date: req.date,
-            topic_covered: req.topic_covered,
-            sub_topic: req.sub_topic,
-            homework_assigned: req.homework_assigned,
-            resources_used: req.resources_used,
-            progress_percentage: req.progress_percentage,
-            is_substitution: req.is_substitution,
-            created_at: Utc::now().naive_utc(),
-        };
+    diesel::insert_into(lesson_progress::table)
+        .values(&new_progress)
+        .execute(&mut conn)?;
 
-        diesel::insert_into(lesson_progress::table)
-            .values(&new_progress)
-            .execute(&mut conn)?;
+    Ok(new_progress)
+}
 
-        Ok(new_progress)
-    }
-
-    pub async fn get_progress_by_class(
-        pool: web::Data<AppState>,
-        class_id: String,
-        subject_id: String,
-    ) -> Result<Vec<DbLessonProgress>, APIError> {
-        let mut conn = pool.db_pool.get()?;
-        let list = lesson_progress::table
-            .filter(lesson_progress::class_id.eq(class_id))
-            .filter(lesson_progress::subject_id.eq(subject_id))
-            .order(lesson_progress::date.desc())
-            .load::<DbLessonProgress>(&mut conn)?;
-        Ok(list)
-    }
+pub async fn get_progress_by_class(
+    pool: web::Data<AppState>,
+    class_id: String,
+    subject_id: String,
+) -> Result<Vec<DbLessonProgress>, APIError> {
+    let mut conn = pool.db_pool.get()?;
+    let list = lesson_progress::table
+        .filter(lesson_progress::class_id.eq(class_id))
+        .filter(lesson_progress::subject_id.eq(subject_id))
+        .order(lesson_progress::date.desc())
+        .load::<DbLessonProgress>(&mut conn)?;
+    Ok(list)
 }
 
 pub async fn mark_daily_staff_attendance(
@@ -236,96 +232,92 @@ pub async fn sync_staff_leaves(pool: web::Data<AppState>, target_date: NaiveDate
     Ok(count)
 }
 
-pub struct SubstitutionService;
+pub async fn get_substitutions_by_teacher(
+    pool: web::Data<AppState>,
+    teacher_id: String,
+    date: NaiveDate,
+) -> Result<Vec<DbSubstitution>, APIError> {
+    let mut conn = pool.db_pool.get()?;
+    let list = substitutions::table
+        .filter(substitutions::substitute_teacher_id.eq(teacher_id))
+        .filter(substitutions::date.eq(date))
+        .load::<DbSubstitution>(&mut conn)?;
+    Ok(list)
+}
 
-impl SubstitutionService {
-    pub async fn get_substitutions_by_teacher(
-        pool: web::Data<AppState>,
-        teacher_id: String,
-        date: NaiveDate,
-    ) -> Result<Vec<DbSubstitution>, APIError> {
-        let mut conn = pool.db_pool.get()?;
-        let list = substitutions::table
-            .filter(substitutions::substitute_teacher_id.eq(teacher_id))
-            .filter(substitutions::date.eq(date))
-            .load::<DbSubstitution>(&mut conn)?;
-        Ok(list)
-    }
+pub async fn suggest_substitute(
+    pool: web::Data<AppState>,
+    t_id: String,
+    target_date: NaiveDate,
+) -> Result<Option<DbStaff>, APIError> { // Changed to DbStaff
+    let mut conn = pool.db_pool.get()?;
 
-    pub async fn suggest_substitute(
-        pool: web::Data<AppState>,
-        t_id: String,
-        target_date: NaiveDate,
-    ) -> Result<Option<DbStaff>, APIError> { // Changed to DbStaff
-        let mut conn = pool.db_pool.get()?;
+    let entry: Timetable = timetable::table
+        .find(&t_id)
+        .first(&mut conn)?;
 
-        let entry: Timetable = timetable::table
-            .find(&t_id)
-            .first(&mut conn)?;
+    let day_of_week = entry.day_of_week.clone();
+    let period = entry.period_number;
 
-        let day_of_week = entry.day_of_week.clone();
-        let period = entry.period_number;
+    let busy_teachers: Vec<String> = timetable::table
+        .filter(timetable::day_of_week.eq(day_of_week))
+        .filter(timetable::period_number.eq(period))
+        .select(timetable::teacher_id)
+        .load::<String>(&mut conn)?;
 
-        let busy_teachers: Vec<String> = timetable::table
-            .filter(timetable::day_of_week.eq(day_of_week))
-            .filter(timetable::period_number.eq(period))
-            .select(timetable::teacher_id)
-            .load::<String>(&mut conn)?;
+    let leave_teachers: Vec<String> = staff_leaves::table
+        .filter(staff_leaves::status.eq("Approved"))
+        .filter(staff_leaves::from_date.le(target_date))
+        .filter(staff_leaves::to_date.ge(target_date))
+        .select(staff_leaves::staff_id)
+        .load::<String>(&mut conn)?;
 
-        let leave_teachers: Vec<String> = staff_leaves::table
-            .filter(staff_leaves::status.eq("Approved"))
-            .filter(staff_leaves::from_date.le(target_date))
-            .filter(staff_leaves::to_date.ge(target_date))
-            .select(staff_leaves::staff_id)
-            .load::<String>(&mut conn)?;
+    // PRACTICAL LINK: Check if teacher is already a substitute for another class at this time
+    let already_subbing: Vec<String> = substitutions::table
+        .filter(substitutions::date.eq(target_date))
+        .filter(substitutions::timetable_id.eq(&t_id)) // Simplified: assumes timetable_id covers the slot
+        .filter(substitutions::status.eq_any(vec![SubstitutionStatus::Pending.to_string(), SubstitutionStatus::Confirmed.to_string()]))
+        .select(substitutions::substitute_teacher_id)
+        .load::<String>(&mut conn)?;
 
-        // PRACTICAL LINK: Check if teacher is already a substitute for another class at this time
-        let already_subbing: Vec<String> = substitutions::table
-            .filter(substitutions::date.eq(target_date))
-            .filter(substitutions::timetable_id.eq(&t_id)) // Simplified: assumes timetable_id covers the slot
-            .filter(substitutions::status.eq_any(vec![SubstitutionStatus::Pending.to_string(), SubstitutionStatus::Confirmed.to_string()]))
-            .select(substitutions::substitute_teacher_id)
-            .load::<String>(&mut conn)?;
+    let suggestion = staff::table
+        .filter(staff::id.ne_all(busy_teachers))
+        .filter(staff::id.ne_all(leave_teachers))
+        .filter(staff::id.ne_all(already_subbing))
+        .filter(staff::staff_type.eq("Teaching"))
+        .first::<DbStaff>(&mut conn)
+        .optional()?;
 
-        let suggestion = staff::table
-            .filter(staff::id.ne_all(busy_teachers))
-            .filter(staff::id.ne_all(leave_teachers))
-            .filter(staff::id.ne_all(already_subbing))
-            .filter(staff::staff_type.eq("Teaching"))
-            .first::<DbStaff>(&mut conn)
-            .optional()?;
+    Ok(suggestion)
+}
 
-        Ok(suggestion)
-    }
+pub async fn create_auto_substitution(
+    pool: web::Data<AppState>,
+    original_id: String,
+    t_id: String,
+    target_date: NaiveDate,
+) -> Result<DbSubstitution, APIError> { // Changed to DbSubstitution
+    let mut conn = pool.db_pool.get()?;
+    
+    let substitute = suggest_substitute(pool.clone(), t_id.clone(), target_date).await?
+        .ok_or_else(|| APIError::internal("No available substitute found"))?;
 
-    pub async fn create_auto_substitution(
-        pool: web::Data<AppState>,
-        original_id: String,
-        t_id: String,
-        target_date: NaiveDate,
-    ) -> Result<DbSubstitution, APIError> { // Changed to DbSubstitution
-        let mut conn = pool.db_pool.get()?;
-        
-        let substitute = Self::suggest_substitute(pool.clone(), t_id.clone(), target_date).await?
-            .ok_or_else(|| APIError::internal("No available substitute found"))?;
+    let new_sub = DbSubstitution { // Changed to DbSubstitution
+        id: Uuid::new_v4().to_string(),
+        original_teacher_id: original_id,
+        substitute_teacher_id: substitute.id,
+        timetable_id: t_id,
+        date: target_date,
+        status: SubstitutionStatus::Pending,
+        remarks: Some("Auto-generated due to teacher absence".to_string()),
+        created_at: Utc::now().naive_utc(),
+    };
 
-        let new_sub = DbSubstitution { // Changed to DbSubstitution
-            id: Uuid::new_v4().to_string(),
-            original_teacher_id: original_id,
-            substitute_teacher_id: substitute.id,
-            timetable_id: t_id,
-            date: target_date,
-            status: SubstitutionStatus::Pending,
-            remarks: Some("Auto-generated due to teacher absence".to_string()),
-            created_at: Utc::now().naive_utc(),
-        };
+    diesel::insert_into(substitutions::table)
+        .values(&new_sub)
+        .execute(&mut conn)?;
 
-        diesel::insert_into(substitutions::table)
-            .values(&new_sub)
-            .execute(&mut conn)?;
-
-         Ok(new_sub)
-    }
+     Ok(new_sub)
 }
 
 pub async fn get_attendance_by_date(

@@ -7,7 +7,7 @@ use crate::{
     errors::APIError,
     models::timetable::{CreateTimetableRequest, UpdateTimetableRequest, TimetableResponse},
     models::MessageResponse,
-    services::timetable,
+    services::academic::timetable,
 };
 
 #[api_operation(

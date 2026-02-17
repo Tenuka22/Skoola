@@ -9,7 +9,7 @@ use actix_web::web::Json;
 use crate::errors::APIError;
 use crate::models::library::*;
 use crate::models::MessageResponse;
-use crate::services::library;
+use crate::services::resources::library;
 
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 

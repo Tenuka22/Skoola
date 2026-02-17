@@ -105,6 +105,6 @@ pub async fn view_leave_balance(
     staff_id: web::Path<String>,
 ) -> Result<Json<Vec<LeaveBalanceResponse>>, APIError> {
     let staff_id_inner = staff_id.into_inner();
-    let leave_balances = crate::services::staff_leaves::get_staff_leave_balance(data.clone(), staff_id_inner).await?;
+    let leave_balances = crate::services::staff::staff_leaves::get_staff_leave_balance(data.clone(), staff_id_inner).await?;
     Ok(Json(leave_balances))
 }

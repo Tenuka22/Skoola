@@ -9,7 +9,7 @@ use crate::{
         SuggestSubstituteRequest, CreateSubstitutionRequest, SubstitutionResponse
     },
     models::attendance_v2::{CreateLessonProgressRequest, LessonProgressResponse},
-    services::staff_attendance::{self, SubstitutionService, LessonProgressService},
+    services::staff::staff_attendance,
     utils::jwt::UserId,
 };
 use chrono::NaiveDate; // Added NaiveDate explicitly and ParseError
@@ -118,7 +118,7 @@ pub async fn get_my_substitutions(
     query: web::Query<crate::models::staff_attendance::StaffAttendanceDateQuery>,
     user_id: UserId,
 ) -> Result<Json<Vec<SubstitutionResponse>>, APIError> {
-    let res = SubstitutionService::get_substitutions_by_teacher(data, user_id.0, query.date).await?;
+    let res: Vec<crate::database::tables::Substitution> = staff_attendance::get_substitutions_by_teacher(data, user_id.0, query.date).await?;
     Ok(Json(res.into_iter().map(|s| SubstitutionResponse {
         id: s.id,
         original_teacher_id: s.original_teacher_id,
@@ -156,7 +156,7 @@ pub async fn suggest_substitute(
     data: web::Data<AppState>,
     body: web::Json<SuggestSubstituteRequest>,
 ) -> Result<Json<Option<crate::models::staff::StaffResponse>>, APIError> {
-    let res = SubstitutionService::suggest_substitute(data, body.timetable_id.clone(), body.date).await?;
+    let res: Option<crate::database::tables::Staff> = staff_attendance::suggest_substitute(data, body.timetable_id.clone(), body.date).await?;
     Ok(Json(res.map(crate::models::staff::StaffResponse::from)))
 }
 
@@ -170,7 +170,7 @@ pub async fn create_substitution(
     data: web::Data<AppState>,
     body: web::Json<CreateSubstitutionRequest>,
 ) -> Result<Json<SubstitutionResponse>, APIError> {
-    let res = SubstitutionService::create_auto_substitution(data, body.original_teacher_id.clone(), body.timetable_id.clone(), body.date).await?;
+    let res = staff_attendance::create_auto_substitution(data, body.original_teacher_id.clone(), body.timetable_id.clone(), body.date).await?;
     Ok(Json(SubstitutionResponse {
         id: res.id,
         original_teacher_id: res.original_teacher_id,
@@ -193,7 +193,7 @@ pub async fn record_lesson_progress(
     body: web::Json<CreateLessonProgressRequest>,
     teacher_id: UserId,
 ) -> Result<Json<LessonProgressResponse>, APIError> {
-    let res = LessonProgressService::record_progress(data, body.into_inner(), teacher_id.0).await?;
+    let res = staff_attendance::record_progress(data, body.into_inner(), teacher_id.0).await?;
     Ok(Json(LessonProgressResponse {
         id: res.id,
         class_id: res.class_id,
@@ -216,7 +216,7 @@ pub async fn get_lesson_progress(
     path: web::Path<(String, String)>, // (class_id, subject_id)
 ) -> Result<Json<Vec<LessonProgressResponse>>, APIError> {
     let (class_id, subject_id) = path.into_inner();
-    let res = LessonProgressService::get_progress_by_class(data, class_id, subject_id).await?;
+    let res: Vec<crate::database::tables::LessonProgress> = staff_attendance::get_progress_by_class(data, class_id, subject_id).await?;
     Ok(Json(res.into_iter().map(|p| LessonProgressResponse {
         id: p.id,
         class_id: p.class_id,

@@ -9,7 +9,7 @@ use crate::{
     errors::APIError,
     models::exam_types::{CreateExamTypeRequest, UpdateExamTypeRequest, ExamTypeResponse},
     models::MessageResponse,
-    services::exam_types,
+    services::exams::exam_types,
 };
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
@@ -83,7 +83,7 @@ pub async fn get_all_exam_types(
     query: web::Query<ExamTypeQuery>,
 ) -> Result<Json<PaginatedExamTypeResponse>, APIError> {
     let inner_query = query.into_inner();
-    let (exam_types, total_exam_types, total_pages) =
+    let (exam_types, total_exam_types, total_pages): (Vec<crate::models::exam_types::ExamTypeResponse>, i64, i64) =
         exam_types::get_all_exam_types(data.clone(), inner_query.clone()).await?;
     Ok(Json(PaginatedExamTypeResponse {
         data: exam_types.into_iter().map(ExamTypeResponse::from).collect(),

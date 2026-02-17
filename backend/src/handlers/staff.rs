@@ -377,7 +377,7 @@ pub async fn bulk_delete_staff(
     data: web::Data<AppState>,
     body: web::Json<BulkDeleteStaffRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
-    crate::services::staff::bulk_delete_staff(data.clone(), body.into_inner().staff_ids).await?;
+    crate::services::staff::staff::bulk_delete_staff(data.clone(), body.into_inner().staff_ids).await?;
     Ok(Json(MessageResponse { message: "Staff members deleted successfully".to_string() }))
 }
 
@@ -391,6 +391,6 @@ pub async fn bulk_update_staff(
     data: web::Data<AppState>,
     body: web::Json<BulkUpdateStaffRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
-    crate::services::staff::bulk_update_staff(data.clone(), body.into_inner()).await?;
+    crate::services::staff::staff::bulk_update_staff(data.clone(), body.into_inner()).await?;
     Ok(Json(MessageResponse { message: "Staff members updated successfully".to_string() }))
 }

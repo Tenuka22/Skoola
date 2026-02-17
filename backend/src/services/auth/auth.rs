@@ -8,9 +8,9 @@ use crate::{
     database::{connection::DbPool, tables::User},
     errors::iam::IAMError,
     errors::APIError,
-    services::session,
+    services::auth::session,
     utils::logging::{log_auth_success, log_auth_failure, log_iam_error},
-    services::user_service,
+    services::auth::user_service,
 };
 
 pub use crate::utils::security::{hash_password, verify_password};

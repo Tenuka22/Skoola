@@ -9,7 +9,7 @@ use crate::{
     errors::APIError,
     models::grade_level::{CreateGradeLevelRequest, UpdateGradeLevelRequest, GradeLevelResponse},
     models::MessageResponse,
-    services::grade_level,
+    services::academic::grade_level,
 };
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]

@@ -9,7 +9,7 @@ use crate::{
     errors::APIError,
     models::class::{CreateClassRequest, UpdateClassRequest, ClassResponse},
     models::MessageResponse,
-    services::class,
+    services::academic::class,
 };
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
@@ -89,7 +89,7 @@ pub async fn get_all_classes(
     query: web::Query<ClassQuery>,
 ) -> Result<Json<PaginatedClassResponse>, APIError> {
     let inner_query = query.into_inner();
-    let (classes, total_classes, total_pages) =
+    let (classes, total_classes, total_pages): (Vec<crate::models::class::Class>, i64, i64) =
         class::get_all_classes(data.clone(), inner_query.clone()).await?;
     Ok(Json(PaginatedClassResponse {
         data: classes.into_iter().map(ClassResponse::from).collect(),
@@ -170,6 +170,6 @@ pub async fn get_classes_by_grade(
     path: web::Path<String>, // grade_id
 ) -> Result<Json<Vec<ClassResponse>>, APIError> {
     let grade_id = path.into_inner();
-    let classes = class::get_classes_by_grade(data.clone(), grade_id).await?;
+    let classes: Vec<crate::models::class::ClassResponse> = class::get_classes_by_grade(data.clone(), grade_id).await?;
     Ok(Json(classes.into_iter().map(ClassResponse::from).collect()))
 }

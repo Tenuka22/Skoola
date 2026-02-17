@@ -5,7 +5,7 @@ use crate::{
     AppState,
     errors::APIError,
     models::school_settings::{SchoolSettingResponse, UpdateSchoolSettingRequest},
-    services::school_settings,
+    services::system::school_settings,
     utils::{jwt::Authenticated, permission_verification::PermissionVerification},
     database::enums::PermissionEnum,
 };

@@ -9,7 +9,7 @@ use crate::database::tables::User;
 use crate::models::auth::ResendVerificationEmailRequest;
 use chrono::{Duration, Utc};
 use rand::distributions::{Alphanumeric, DistString};
-use crate::services::email::send_verification_email;
+use crate::services::system::email::send_verification_email;
 use crate::models::MessageResponse;
 
 #[api_operation(

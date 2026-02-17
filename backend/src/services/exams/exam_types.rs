@@ -56,7 +56,7 @@ pub async fn get_exam_type_by_id(
 pub async fn get_all_exam_types(
     pool: web::Data<AppState>,
     query: ExamTypeQuery,
-) -> Result<(Vec<ExamType>, i64, i64), APIError> {
+) -> Result<(Vec<ExamTypeResponse>, i64, i64), APIError> {
     let mut conn = pool.db_pool.get()?;
     let mut data_query = exam_types::table.into_boxed();
     let mut count_query = exam_types::table.into_boxed();
@@ -90,7 +90,7 @@ pub async fn get_all_exam_types(
         .offset(offset)
         .load::<ExamType>(&mut conn)?;
 
-    Ok((exam_types_list, total_exam_types, total_pages))
+    Ok((exam_types_list.into_iter().map(ExamTypeResponse::from).collect(), total_exam_types, total_pages))
 }
 
 // Service to update an existing ExamType

@@ -8,7 +8,7 @@
 - [x] Task: Create domain subdirectories in `backend/src/services/` (auth, academic, students, staff, exams, resources, system). aebe432
 - [x] Task: Move existing service files into their respective domain subdirectories. aebe432
 - [x] Task: Create/update `mod.rs` files for each new service domain and update `backend/src/services/mod.rs`. ecd14f5
-- [ ] Task: Verify that all moved services follow the function-based approach and pass compilation.
+- [x] Task: Verify that all moved services follow the function-based approach and pass compilation. 23369d7
 - [ ] Task: Conductor - User Manual Verification 'Services Reorganization' (Protocol in workflow.md)
 
 ## Phase 3: Handlers Reorganization

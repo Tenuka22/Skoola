@@ -9,7 +9,7 @@ use crate::{
     errors::APIError,
     models::subject::{CreateSubjectRequest, UpdateSubjectRequest, AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, SubjectResponse, EnrollStudentInSubjectRequest, SubjectEnrollmentResponse},
     models::MessageResponse,
-    services::subject,
+    services::academic::subject,
 };
 
 #[api_operation(

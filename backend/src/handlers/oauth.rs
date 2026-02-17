@@ -8,7 +8,7 @@ use diesel::prelude::*;
 use tracing::{info, warn}; // Added warn for logging errors
 
 use crate::{AppState, database::tables::{User}, database::enums::RoleEnum, errors::APIError,
-    services::{auth::{create_token_pair, hash_password}, oauth::{get_github_user_info, get_google_user_info}, session::create_session},
+    services::{auth::auth::{create_token_pair, hash_password}, auth::oauth::{get_github_user_info, get_google_user_info}, auth::session::create_session},
     schema::{users},
 };
 

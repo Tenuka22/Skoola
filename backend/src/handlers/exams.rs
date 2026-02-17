@@ -10,7 +10,7 @@ use crate::{
     errors::APIError,
     models::exams::{CreateExamRequest, UpdateExamRequest, ExamResponse},
     models::MessageResponse,
-    services::exams,
+    services::exams::exams,
 };
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]

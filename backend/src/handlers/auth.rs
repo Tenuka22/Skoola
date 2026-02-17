@@ -19,9 +19,9 @@ use crate::{
     },
     models::MessageResponse,
     schema::{users},
-    services::auth::{create_token_pair, hash_password, refresh_jwt, verify_password},
-    services::email::{send_verification_email, send_password_reset_email},
-    services::session::{create_session, delete_session, find_session_by_refresh_token_hash, invalidate_sessions_for_user},
+    services::auth::auth::{create_token_pair, hash_password, refresh_jwt, verify_password},
+    services::system::email::{send_verification_email, send_password_reset_email},
+    services::auth::session::{create_session, delete_session, find_session_by_refresh_token_hash, invalidate_sessions_for_user},
 
 };
 

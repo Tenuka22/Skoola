@@ -1,7 +1,7 @@
 use backend::config::{AppState, Config};
 use backend::database::connection::establish_connection;
 use backend::errors::APIError;
-use backend::services::cleanup::remove_unverified_users;
+use backend::services::system::cleanup::remove_unverified_users;
 use backend::routes;
 use actix_cors::Cors;
 use actix_web::{

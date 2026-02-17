@@ -7,7 +7,7 @@ use crate::{
     errors::APIError,
     models::exam_subjects::{CreateExamSubjectRequest, UpdateExamSubjectRequest, ExamSubjectResponse},
     models::MessageResponse,
-    services::exam_subjects,
+    services::exams::exam_subjects,
 };
 
 #[api_operation(

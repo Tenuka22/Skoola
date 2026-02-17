@@ -5,7 +5,7 @@ use crate::{
     AppState, // Changed from database::connection::DbPool
     errors::APIError,
     models::terms::{CreateTermRequest, TermResponse},
-    services::terms,
+    services::academic::terms,
 };
 
 #[api_operation(

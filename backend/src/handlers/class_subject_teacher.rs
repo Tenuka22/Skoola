@@ -8,7 +8,7 @@ use crate::models::class_subject_teacher::{CreateClassSubjectTeacherRequest, Upd
 use crate::models::class::ClassResponse;
 use crate::models::subject::SubjectResponse;
 use crate::models::MessageResponse;
-use crate::services::class_subject_teacher;
+use crate::services::academic::class_subject_teacher;
 
 #[api_operation(
     summary = "Assign Subject and Teacher to Class",

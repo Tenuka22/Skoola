@@ -7,7 +7,7 @@ use crate::{
     errors::APIError,
     models::student_guardian::{CreateStudentGuardianRequest, UpdateStudentGuardianRequest, StudentGuardianResponse},
     models::MessageResponse,
-    services::student_guardian,
+    services::students::student_guardian,
 };
 
 #[api_operation(

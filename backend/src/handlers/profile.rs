@@ -8,10 +8,10 @@ use crate::{
     models::profile::{ChangeEmailRequest, ChangePasswordRequest, UpdateProfileRequest},
     schema::{users},
     services::{
-        auth::{hash_password, verify_password},
-        oauth::{get_github_user_info, get_google_user_info},
-        session::invalidate_sessions_for_user,
-        user_service
+        auth::auth::{hash_password, verify_password},
+        auth::oauth::{get_github_user_info, get_google_user_info},
+        auth::session::invalidate_sessions_for_user,
+        auth::user_service
     },
     utils::jwt::UserId,
 };

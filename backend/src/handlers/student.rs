@@ -15,7 +15,7 @@ use crate::{
     errors::APIError,
     models::student::{CreateStudentRequest, UpdateStudentRequest, StudentResponse, Student, PaginatedStudentResponse},
     models::MessageResponse,
-    services::student,
+    services::students::student,
 };
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent)]

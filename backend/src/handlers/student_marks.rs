@@ -7,7 +7,7 @@ use crate::{
     errors::APIError,
     models::student_marks::{CreateStudentMarkRequest, UpdateStudentMarkRequest, BulkCreateStudentMarkRequest, StudentMarkResponse},
     models::MessageResponse,
-    services::student_marks,
+    services::students::student_marks,
     utils::jwt::UserId,
 };
 

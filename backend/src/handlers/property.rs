@@ -8,7 +8,7 @@ use crate::models::property::{
     AssetAllocationResponse, CreateMaintenanceRequest, UpdateMaintenanceStatusRequest,
     MaintenanceRequestResponse,
 };
-use crate::services::property::PropertyService;
+use crate::services::resources::property;
 use actix_web::web::{Data, Json, Path};
 use apistos::api_operation;
 use apistos::web;
@@ -21,7 +21,7 @@ use apistos::web;
 )]
 pub async fn create_category(data: Data<AppState>, req: Json<CreateAssetCategoryRequest>) -> Result<Json<AssetCategoryResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let cat = PropertyService::create_category(&mut conn, req.into_inner())?;
+    let cat = property::create_category(&mut conn, req.into_inner())?;
     Ok(Json(AssetCategoryResponse::from(cat)))
 }
 
@@ -33,7 +33,7 @@ pub async fn create_category(data: Data<AppState>, req: Json<CreateAssetCategory
 )]
 pub async fn get_categories(data: Data<AppState>) -> Result<Json<Vec<AssetCategoryResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let cats = PropertyService::get_categories(&mut conn)?;
+    let cats = property::get_categories(&mut conn)?;
     Ok(Json(cats.into_iter().map(AssetCategoryResponse::from).collect()))
 }
 
@@ -45,7 +45,7 @@ pub async fn get_categories(data: Data<AppState>) -> Result<Json<Vec<AssetCatego
 )]
 pub async fn add_inventory_item(data: Data<AppState>, req: Json<CreateInventoryItemRequest>) -> Result<Json<InventoryItemResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let item = PropertyService::create_inventory_item(&mut conn, req.into_inner())?;
+    let item = property::create_inventory_item(&mut conn, req.into_inner())?;
     Ok(Json(InventoryItemResponse::from(item)))
 }
 
@@ -57,7 +57,7 @@ pub async fn add_inventory_item(data: Data<AppState>, req: Json<CreateInventoryI
 )]
 pub async fn get_inventory_by_category(data: Data<AppState>, path: Path<String>) -> Result<Json<Vec<InventoryItemResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let items = PropertyService::get_inventory_by_category(&mut conn, &path.into_inner())?;
+    let items = property::get_inventory_by_category(&mut conn, &path.into_inner())?;
     Ok(Json(items.into_iter().map(InventoryItemResponse::from).collect()))
 }
 
@@ -69,7 +69,7 @@ pub async fn get_inventory_by_category(data: Data<AppState>, path: Path<String>)
 )]
 pub async fn create_uniform_item(data: Data<AppState>, req: Json<CreateUniformItemRequest>) -> Result<Json<UniformItemResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let item = PropertyService::create_uniform_item(&mut conn, req.into_inner())?;
+    let item = property::create_uniform_item(&mut conn, req.into_inner())?;
     Ok(Json(UniformItemResponse::from(item)))
 }
 
@@ -81,7 +81,7 @@ pub async fn create_uniform_item(data: Data<AppState>, req: Json<CreateUniformIt
 )]
 pub async fn issue_uniform(data: Data<AppState>, req: Json<IssueUniformRequest>) -> Result<Json<UniformIssueResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let issue = PropertyService::issue_uniform(&mut conn, req.into_inner())?;
+    let issue = property::issue_uniform(&mut conn, req.into_inner())?;
     Ok(Json(UniformIssueResponse::from(issue)))
 }
 
@@ -93,7 +93,7 @@ pub async fn issue_uniform(data: Data<AppState>, req: Json<IssueUniformRequest>)
 )]
 pub async fn allocate_asset(data: Data<AppState>, req: Json<AllocateAssetRequest>) -> Result<Json<AssetAllocationResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let alloc = PropertyService::allocate_asset(&mut conn, req.into_inner())?;
+    let alloc = property::allocate_asset(&mut conn, req.into_inner())?;
     Ok(Json(AssetAllocationResponse::from(alloc)))
 }
 
@@ -105,7 +105,7 @@ pub async fn allocate_asset(data: Data<AppState>, req: Json<AllocateAssetRequest
 )]
 pub async fn create_maintenance_request(data: Data<AppState>, req: Json<CreateMaintenanceRequest>) -> Result<Json<MaintenanceRequestResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let m_req = PropertyService::create_maintenance_request(&mut conn, req.into_inner())?;
+    let m_req = property::create_maintenance_request(&mut conn, req.into_inner())?;
     Ok(Json(MaintenanceRequestResponse::from(m_req)))
 }
 
@@ -117,7 +117,7 @@ pub async fn create_maintenance_request(data: Data<AppState>, req: Json<CreateMa
 )]
 pub async fn update_inventory_item(data: Data<AppState>, path: Path<String>, req: Json<UpdateInventoryItemRequest>) -> Result<Json<InventoryItemResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let item = PropertyService::update_inventory_item(&mut conn, &path.into_inner(), req.into_inner())?;
+    let item = property::update_inventory_item(&mut conn, &path.into_inner(), req.into_inner())?;
     Ok(Json(InventoryItemResponse::from(item)))
 }
 
@@ -129,7 +129,7 @@ pub async fn update_inventory_item(data: Data<AppState>, path: Path<String>, req
 )]
 pub async fn update_stock_quantity(data: Data<AppState>, path: Path<String>, req: Json<UpdateStockRequest>) -> Result<Json<InventoryItemResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let item = PropertyService::update_stock_quantity(&mut conn, &path.into_inner(), req.into_inner())?;
+    let item = property::update_stock_quantity(&mut conn, &path.into_inner(), req.into_inner())?;
     Ok(Json(InventoryItemResponse::from(item)))
 }
 
@@ -141,7 +141,7 @@ pub async fn update_stock_quantity(data: Data<AppState>, path: Path<String>, req
 )]
 pub async fn get_low_stock_items(data: Data<AppState>) -> Result<Json<Vec<InventoryItemResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let items = PropertyService::get_low_stock_items(&mut conn)?;
+    let items = property::get_low_stock_items(&mut conn)?;
     Ok(Json(items.into_iter().map(InventoryItemResponse::from).collect()))
 }
 
@@ -153,7 +153,7 @@ pub async fn get_low_stock_items(data: Data<AppState>) -> Result<Json<Vec<Invent
 )]
 pub async fn search_inventory(data: Data<AppState>, path: Path<String>) -> Result<Json<Vec<InventoryItemResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let items = PropertyService::search_inventory(&mut conn, &path.into_inner())?;
+    let items = property::search_inventory(&mut conn, &path.into_inner())?;
     Ok(Json(items.into_iter().map(InventoryItemResponse::from).collect()))
 }
 
@@ -165,7 +165,7 @@ pub async fn search_inventory(data: Data<AppState>, path: Path<String>) -> Resul
 )]
 pub async fn get_uniform_history(data: Data<AppState>, path: Path<String>) -> Result<Json<Vec<UniformIssueResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let items = PropertyService::get_uniform_issue_history(&mut conn, &path.into_inner())?;
+    let items = property::get_uniform_issue_history(&mut conn, &path.into_inner())?;
     Ok(Json(items.into_iter().map(UniformIssueResponse::from).collect()))
 }
 
@@ -177,7 +177,7 @@ pub async fn get_uniform_history(data: Data<AppState>, path: Path<String>) -> Re
 )]
 pub async fn get_uniform_inventory(data: Data<AppState>) -> Result<Json<Vec<UniformItemResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let items = PropertyService::get_uniform_inventory(&mut conn)?;
+    let items = property::get_uniform_inventory(&mut conn)?;
     Ok(Json(items.into_iter().map(UniformItemResponse::from).collect()))
 }
 
@@ -189,7 +189,7 @@ pub async fn get_uniform_inventory(data: Data<AppState>) -> Result<Json<Vec<Unif
 )]
 pub async fn return_asset(data: Data<AppState>, path: Path<String>, req: Json<ReturnAssetRequest>) -> Result<Json<AssetAllocationResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let alloc = PropertyService::return_asset(&mut conn, &path.into_inner(), req.into_inner())?;
+    let alloc = property::return_asset(&mut conn, &path.into_inner(), req.into_inner())?;
     Ok(Json(AssetAllocationResponse::from(alloc)))
 }
 
@@ -201,7 +201,7 @@ pub async fn return_asset(data: Data<AppState>, path: Path<String>, req: Json<Re
 )]
 pub async fn update_maintenance_status(data: Data<AppState>, path: Path<String>, req: Json<UpdateMaintenanceStatusRequest>) -> Result<Json<MaintenanceRequestResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let m_req = PropertyService::update_maintenance_status(&mut conn, &path.into_inner(), req.into_inner())?;
+    let m_req = property::update_maintenance_status(&mut conn, &path.into_inner(), req.into_inner())?;
     Ok(Json(MaintenanceRequestResponse::from(m_req)))
 }
 
@@ -213,7 +213,7 @@ pub async fn update_maintenance_status(data: Data<AppState>, path: Path<String>,
 )]
 pub async fn get_pending_maintenance(data: Data<AppState>) -> Result<Json<Vec<MaintenanceRequestResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let items = PropertyService::get_pending_maintenance(&mut conn)?;
+    let items = property::get_pending_maintenance(&mut conn)?;
     Ok(Json(items.into_iter().map(MaintenanceRequestResponse::from).collect()))
 }
 
@@ -225,7 +225,7 @@ pub async fn get_pending_maintenance(data: Data<AppState>) -> Result<Json<Vec<Ma
 )]
 pub async fn get_allocations_by_item(data: Data<AppState>, path: Path<String>) -> Result<Json<Vec<AssetAllocationResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let items = PropertyService::get_allocations_by_item(&mut conn, &path.into_inner())?;
+    let items = property::get_allocations_by_item(&mut conn, &path.into_inner())?;
     Ok(Json(items.into_iter().map(AssetAllocationResponse::from).collect()))
 }
 
@@ -237,7 +237,7 @@ pub async fn get_allocations_by_item(data: Data<AppState>, path: Path<String>) -
 )]
 pub async fn get_allocations_by_assignee(data: Data<AppState>, path: Path<String>) -> Result<Json<Vec<AssetAllocationResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let items = PropertyService::get_allocations_by_assignee(&mut conn, &path.into_inner())?;
+    let items = property::get_allocations_by_assignee(&mut conn, &path.into_inner())?;
     Ok(Json(items.into_iter().map(AssetAllocationResponse::from).collect()))
 }
 

@@ -61,7 +61,7 @@ pub async fn get_academic_year_by_id(
 pub async fn get_all_academic_years(
     pool: web::Data<AppState>,
     query: AcademicYearQuery,
-) -> Result<(Vec<AcademicYear>, i64, i64), APIError> {
+) -> Result<(Vec<AcademicYearResponse>, i64, i64), APIError> {
     let mut conn = pool.db_pool.get()?;
     let mut data_query = academic_years::table.into_boxed();
     let mut count_query = academic_years::table.into_boxed();
@@ -104,7 +104,7 @@ pub async fn get_all_academic_years(
         .offset(offset)
         .load::<AcademicYear>(&mut conn)?;
 
-    Ok((academic_years_list, total_academic_years, total_pages))
+    Ok((academic_years_list.into_iter().map(AcademicYearResponse::from).collect(), total_academic_years, total_pages))
 }
 
 pub async fn update_academic_year(
