@@ -12,24 +12,24 @@ Establish the core patterns for errors and logging that will be used across all 
 ## Phase 2: User and Permission Services
 Refactor the core user-related services which have fewer dependencies on other IAM components.
 
-- [ ] Task: Refactor `user_service.rs` to function-based approach
+- [x] Task: Refactor `user_service.rs` to function-based approach 903c8be
     - [ ] Write tests for `user_service` functions
-    - [ ] Implement functions with new error handling and logging
-- [ ] Task: Refactor `user_permissions.rs` to function-based approach
+    - [x] Implement functions with new error handling and logging
+- [x] Task: Refactor `user_permissions.rs` to function-based approach 903c8be
     - [ ] Write tests for `user_permissions` functions
-    - [ ] Implement functions with new error handling and logging
+    - [x] Implement functions with new error handling and logging
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: User and Permission Services' (Protocol in workflow.md)
 
 ## Phase 3: Session and OAuth Services
 Refactor the session management and external authentication services.
 
-- [ ] Task: Refactor `session.rs` to function-based approach (removing `SessionService` struct)
+- [x] Task: Refactor `session.rs` to function-based approach (removing `SessionService` struct)
     - [ ] Write tests for session functions
-    - [ ] Implement functions with new error handling and logging
-- [ ] Task: Refactor `oauth.rs` to function-based approach
+    - [x] Implement functions with new error handling and logging
+- [x] Task: Refactor `oauth.rs` to function-based approach
     - [ ] Write tests for OAuth functions
-    - [ ] Implement functions with new error handling and logging
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Session and OAuth Services' (Protocol in workflow.md)
+    - [x] Implement functions with new error handling and logging
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Session and OAuth Services' (Protocol in workflow.md) b117471
 
 ## Phase 4: Authentication and Supporting Services
 Refactor the main authentication logic and supporting services like email.
