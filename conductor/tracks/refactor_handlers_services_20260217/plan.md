@@ -12,8 +12,8 @@
 - [ ] Task: Conductor - User Manual Verification 'Services Reorganization' (Protocol in workflow.md)
 
 ## Phase 3: Handlers Reorganization
-- [ ] Task: Create domain subdirectories in `backend/src/handlers/` (auth, academic, students, staff, exams, resources, system).
-- [ ] Task: Move existing handler files into their respective domain subdirectories.
+- [x] Task: Create domain subdirectories in `backend/src/handlers/` (auth, academic, students, staff, exams, resources, system). b92d288
+- [x] Task: Move existing handler files into their respective domain subdirectories. b92d288
 - [ ] Task: Create/update `mod.rs` files for each new handler domain and update `backend/src/handlers/mod.rs`.
 - [ ] Task: Standardize dependency injection across all moved handlers using `web::Data<AppState>`.
 - [ ] Task: Conductor - User Manual Verification 'Handlers Reorganization' (Protocol in workflow.md)
