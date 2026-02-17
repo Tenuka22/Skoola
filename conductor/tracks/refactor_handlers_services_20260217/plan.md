@@ -1,6 +1,6 @@
 # Implementation Plan: Domain-Driven Refactor of Handlers and Services
 
-## Phase 1: Preparation and Mapping
+## Phase 1: Preparation and Mapping [checkpoint: 036b568]
 - [x] Task: Audit existing `handlers/` and `services/` files and create a final mapping to domain subdirectories. 182b628
 - [x] Task: Conductor - User Manual Verification 'Preparation and Mapping' (Protocol in workflow.md) 64b064e
 
