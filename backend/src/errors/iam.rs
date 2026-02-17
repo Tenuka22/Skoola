@@ -1,5 +1,4 @@
 use thiserror::Error;
-use actix_web::http::StatusCode;
 use crate::errors::APIError;
 
 #[derive(Debug, Error)]
@@ -34,8 +33,17 @@ pub enum IAMError {
     #[error("Internal IAM error: {message}")]
     Internal { message: String },
 
+    #[error("Google OAuth error: {0}")]
+    GoogleOAuthError(String),
+
+    #[error("GitHub OAuth error: {0}")]
+    GithubOAuthError(String),
+
     #[error("Database error: {0}")]
     DatabaseError(#[from] diesel::result::Error),
+
+    #[error("Database pool error: {0}")]
+    PoolError(#[from] r2d2::Error),
 
     #[error("Password hashing error: {0}")]
     BcryptError(#[from] bcrypt::BcryptError),
@@ -57,7 +65,10 @@ impl From<IAMError> for APIError {
             IAMError::Unauthorized { reason } => APIError::unauthorized(&reason),
             IAMError::Forbidden { resource, reason } => APIError::forbidden(&format!("{}: {}", resource, reason)),
             IAMError::Internal { message } => APIError::internal(&message),
+            IAMError::GoogleOAuthError(msg) => APIError::internal(&format!("Google OAuth failed: {}", msg)),
+            IAMError::GithubOAuthError(msg) => APIError::internal(&format!("GitHub OAuth failed: {}", msg)),
             IAMError::DatabaseError(e) => APIError::from(e),
+            IAMError::PoolError(e) => APIError::from(e),
             IAMError::BcryptError(_) => APIError::internal("Security operation failed"),
             IAMError::TokenError(e) => APIError::unauthorized(&format!("Invalid token: {}", e)),
         }
