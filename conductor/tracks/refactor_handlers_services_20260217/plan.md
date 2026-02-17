@@ -4,7 +4,7 @@
 - [x] Task: Audit existing `handlers/` and `services/` files and create a final mapping to domain subdirectories. 182b628
 - [x] Task: Conductor - User Manual Verification 'Preparation and Mapping' (Protocol in workflow.md) 64b064e
 
-## Phase 2: Services Reorganization
+## Phase 2: Services Reorganization [checkpoint: 83c7e68]
 - [x] Task: Create domain subdirectories in `backend/src/services/` (auth, academic, students, staff, exams, resources, system). aebe432
 - [x] Task: Move existing service files into their respective domain subdirectories. aebe432
 - [x] Task: Create/update `mod.rs` files for each new service domain and update `backend/src/services/mod.rs`. ecd14f5
