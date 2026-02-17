@@ -36,10 +36,10 @@ Refactor the main authentication logic and supporting services like email.
     - [x] Implement functions with new error handling and logging
 - [x] Task: Conductor - User Manual Verification 'Phase 4: Authentication and Supporting Services' (Protocol in workflow.md) ec1a2fd
 
-## Phase 5: Integration and Cleanup
+## Phase 5: Integration and Cleanup [checkpoint: a8c039e]
 Update API handlers to use the new service functions and clean up the legacy module structure.
 
 - [x] Task: Update IAM-related API handlers in `backend/src/handlers/` to use new functions ec1a2fd
 - [x] Task: Update `backend/src/services/mod.rs` and remove legacy struct exports ec1a2fd
-- [ ] Task: Final verification of all IAM flows (Login, Register, Session Refresh, Permissions)
-- [ ] Task: Conductor - User Manual Verification 'Phase 5: Integration and Cleanup' (Protocol in workflow.md)
+- [x] Task: Final verification of all IAM flows (Login, Register, Session Refresh, Permissions) a8c039e
+- [x] Task: Conductor - User Manual Verification 'Phase 5: Integration and Cleanup' (Protocol in workflow.md) a8c039e
