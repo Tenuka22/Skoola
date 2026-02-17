@@ -2,7 +2,7 @@
 
 This plan outlines the refactoring of the Identity & Access (IAM) services in `backend/src/services/` to a function-based architecture, with improved error handling, structured logging, and reduced abstractions.
 
-## Phase 1: Foundation & Standardization
+## Phase 1: Foundation & Standardization [checkpoint: 8bad5dc]
 Establish the core patterns for errors and logging that will be used across all refactored services.
 
 - [x] Task: Define standardized IAM error types in `backend/src/errors/iam.rs`
