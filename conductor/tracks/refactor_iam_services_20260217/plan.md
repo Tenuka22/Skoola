@@ -20,7 +20,7 @@ Refactor the core user-related services which have fewer dependencies on other I
     - [x] Implement functions with new error handling and logging
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: User and Permission Services' (Protocol in workflow.md)
 
-## Phase 3: Session and OAuth Services
+## Phase 3: Session and OAuth Services [checkpoint: 14d7407]
 Refactor the session management and external authentication services.
 
 - [x] Task: Refactor `session.rs` to function-based approach (removing `SessionService` struct)
