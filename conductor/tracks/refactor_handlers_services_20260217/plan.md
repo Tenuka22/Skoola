@@ -2,7 +2,7 @@
 
 ## Phase 1: Preparation and Mapping
 - [x] Task: Audit existing `handlers/` and `services/` files and create a final mapping to domain subdirectories. 182b628
-- [ ] Task: Conductor - User Manual Verification 'Preparation and Mapping' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Preparation and Mapping' (Protocol in workflow.md) 64b064e
 
 ## Phase 2: Services Reorganization
 - [ ] Task: Create domain subdirectories in `backend/src/services/` (auth, academic, students, staff, exams, resources, system).
