@@ -5,9 +5,9 @@ This plan outlines the refactoring of the Identity & Access (IAM) services in `b
 ## Phase 1: Foundation & Standardization
 Establish the core patterns for errors and logging that will be used across all refactored services.
 
-- [ ] Task: Define standardized IAM error types in `backend/src/errors/iam.rs`
-- [ ] Task: Set up structured logging patterns for IAM operations using `tracing`
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Foundation & Standardization' (Protocol in workflow.md)
+- [x] Task: Define standardized IAM error types in `backend/src/errors/iam.rs`
+- [x] Task: Set up structured logging patterns for IAM operations using `tracing`
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Foundation & Standardization' (Protocol in workflow.md) 903c8be
 
 ## Phase 2: User and Permission Services
 Refactor the core user-related services which have fewer dependencies on other IAM components.
