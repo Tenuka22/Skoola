@@ -10,10 +10,10 @@ This document outlines the core technologies and architectural patterns employed
     *   **Rationale:** Provides a safe, type-checked way to interact with the database in Rust, ensuring data integrity and developer productivity.
 *   **Database:** SQLite
     *   **Rationale:** Selected for its serverless, embedded nature, suitable for initial development and potentially for smaller deployments or local development. It offers ease of setup and management.
-*   **Architecture:** Layered API with Handlers, Services, and Models
-    *   **Rationale:** Promotes clear separation of concerns, modularity, and testability.
+*   **Architecture:** Modular, function-based API with Handlers, Services, and Models
+    *   **Rationale:** Promotes clear separation of concerns, modularity, and idiomatic Rust patterns by favoring standalone functions over class/struct-based service implementations.
         *   **Models:** Define the data structures and database schema.
-        *   **Services:** Encapsulate business logic and interact with repositories/models.
+        *   **Services:** Organize business logic into modular functions that interact with repositories/models.
         *   **Handlers:** Manage incoming requests, call services, and return responses.
 
 ## Frontend
