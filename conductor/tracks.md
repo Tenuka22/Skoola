@@ -7,5 +7,5 @@
 
 ---
 
-- [~] **Track: Refactor backend handlers and services to a domain-driven structure.**
+- [x] **Track: Refactor backend handlers and services to a domain-driven structure.**
 *Link: [./tracks/refactor_handlers_services_20260217/](./tracks/refactor_handlers_services_20260217/)*
