@@ -9,7 +9,7 @@ use actix_web::web;
 use uuid::Uuid;
 use chrono::Utc;
 use crate::schema::grade_levels;
-use crate::handlers::grade_level::{GradeLevelQuery, BulkUpdateGradeLevelsRequest};
+use crate::handlers::academic::grade_level::{GradeLevelQuery, BulkUpdateGradeLevelsRequest};
 
 pub async fn create_grade_level(
     pool: web::Data<AppState>,

@@ -3,7 +3,7 @@ use crate::{
     errors::APIError,
     AppState,
     models::student::{Student, CreateStudentRequest, StudentResponse, UpdateStudentRequest, PaginatedStudentResponse},
-    handlers::student::StudentQuery,
+    handlers::students::student::StudentQuery,
 };
 use actix_web::{web, HttpResponse};
 use uuid::Uuid;

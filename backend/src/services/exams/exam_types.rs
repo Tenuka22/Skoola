@@ -9,7 +9,7 @@ use actix_web::web;
 use uuid::Uuid;
 use chrono::Utc;
 use crate::schema::exam_types;
-use crate::handlers::exam_types::{ExamTypeQuery, BulkUpdateExamTypesRequest};
+use crate::handlers::exams::exam_types::{ExamTypeQuery, BulkUpdateExamTypesRequest};
 
 
 // Service to create a new ExamType

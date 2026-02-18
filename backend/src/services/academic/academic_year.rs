@@ -9,7 +9,7 @@ use actix_web::web;
 use uuid::Uuid;
 use chrono::Utc;
 use crate::schema::academic_years;
-use crate::handlers::academic_year::{AcademicYearQuery, BulkUpdateAcademicYearsRequest};
+use crate::handlers::academic::academic_year::{AcademicYearQuery, BulkUpdateAcademicYearsRequest};
 
 
 pub async fn create_academic_year(

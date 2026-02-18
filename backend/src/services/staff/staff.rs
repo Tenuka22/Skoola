@@ -7,7 +7,7 @@ use crate::{
 };
 use actix_web::web;
 use chrono::Utc;
-use crate::handlers::staff::{BulkUpdateStaffRequest};
+use crate::handlers::staff::staff::{BulkUpdateStaffRequest};
 
 pub async fn bulk_delete_staff(
     pool: web::Data<AppState>,

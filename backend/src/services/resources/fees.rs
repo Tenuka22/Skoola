@@ -52,7 +52,7 @@ pub async fn get_all_categories(
 
 pub async fn get_all_categories_paginated(
     conn: &mut SqliteConnection,
-    query: crate::handlers::fees::FeeCategoryQuery,
+    query: crate::handlers::resources::fees::FeeCategoryQuery,
 ) -> Result<(Vec<FeeCategory>, i64, i64), APIError> {
     use crate::schema::fee_categories::dsl::{fee_categories, name, is_mandatory};
 
@@ -106,7 +106,7 @@ pub async fn bulk_delete_fee_categories(
 
 pub async fn bulk_update_fee_categories(
     conn: &mut SqliteConnection,
-    req: crate::handlers::fees::BulkUpdateFeeCategoriesRequest,
+    req: crate::handlers::resources::fees::BulkUpdateFeeCategoriesRequest,
 ) -> Result<(), APIError> {
     use crate::schema::fee_categories::dsl::{fee_categories, id};
 
@@ -227,7 +227,7 @@ pub async fn get_structures_by_academic_year(
 
 pub async fn get_all_fee_structures_paginated(
     conn: &mut SqliteConnection,
-    query: crate::handlers::fees::FeeStructureQuery,
+    query: crate::handlers::resources::fees::FeeStructureQuery,
 ) -> Result<(Vec<FeeStructure>, i64, i64), APIError> {
     use crate::schema::fee_structures::dsl::{fee_structures, grade_id, academic_year_id, category_id, amount, due_date};
 
@@ -287,7 +287,7 @@ pub async fn bulk_delete_fee_structures(
 
 pub async fn bulk_update_fee_structures(
     conn: &mut SqliteConnection,
-    req: crate::handlers::fees::BulkUpdateFeeStructuresRequest,
+    req: crate::handlers::resources::fees::BulkUpdateFeeStructuresRequest,
 ) -> Result<(), APIError> {
     use crate::schema::fee_structures::dsl::{fee_structures, id};
 

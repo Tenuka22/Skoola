@@ -14,7 +14,7 @@ use diesel::SqliteConnection;
 use diesel::prelude::*;
 use diesel::{QueryDsl, RunQueryDsl};
 use uuid::Uuid;
-use crate::handlers::financial::{BudgetCategoryQuery, BulkUpdateBudgetCategoriesRequest};
+use crate::handlers::resources::financial::{BudgetCategoryQuery, BulkUpdateBudgetCategoriesRequest};
 
 pub fn create_budget_category(
     conn: &mut SqliteConnection,

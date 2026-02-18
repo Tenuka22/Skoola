@@ -1,6 +1,6 @@
 use backend::config::Config;
 use backend::database::connection::establish_connection;
-use backend::handlers::seed_runner::seed_data;
+use backend::handlers::system::seed_runner::seed_data;
 use std::thread;
 use std::time::Duration;
 use tracing::{info, error};

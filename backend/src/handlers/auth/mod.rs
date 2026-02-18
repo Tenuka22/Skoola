@@ -7,3 +7,10 @@ pub mod user_permissions;
 pub mod user_set_permissions;
 pub mod users;
 pub mod verification;
+
+pub use auth::login;
+pub use auth::logout;
+pub use auth::refresh;
+pub use auth::register;
+pub use auth::request_password_reset;
+pub use auth::reset_password;

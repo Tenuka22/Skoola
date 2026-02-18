@@ -9,7 +9,7 @@ use actix_web::web;
 use uuid::Uuid;
 use chrono::Utc;
 use crate::schema::{classes};
-use crate::handlers::class::{ClassQuery, BulkUpdateClassesRequest};
+use crate::handlers::academic::class::{ClassQuery, BulkUpdateClassesRequest};
 
 
 pub async fn create_class(

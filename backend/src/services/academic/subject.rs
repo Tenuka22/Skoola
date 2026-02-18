@@ -9,7 +9,7 @@ use actix_web::web;
 use uuid::Uuid;
 use chrono::Utc;
 use crate::schema::{subjects, grade_subjects, grade_levels, stream_subjects, streams, subject_enrollments};
-use crate::handlers::subject::{SubjectQuery, BulkUpdateSubjectsRequest};
+use crate::handlers::academic::subject::{SubjectQuery, BulkUpdateSubjectsRequest};
 
 // NEW IMPORTS
 use crate::database::tables::SubjectEnrollment;

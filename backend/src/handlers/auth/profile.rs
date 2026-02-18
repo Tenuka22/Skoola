@@ -4,7 +4,7 @@ use crate::{
     AppState,
     database::tables::{User},
     errors::APIError,
-    handlers::oauth::OAuthQuery,
+    handlers::auth::oauth::OAuthQuery,
     models::profile::{ChangeEmailRequest, ChangePasswordRequest, UpdateProfileRequest},
     schema::{users},
     services::{

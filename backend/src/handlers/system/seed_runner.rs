@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::errors::APIError;
-use crate::handlers::seed::{
+use crate::handlers::system::seed::{
     academic_structure, users_and_staff, students, exams_and_grading, financial, inventory_and_assets, library, co_curricular
 };
 use crate::schema::seeds;

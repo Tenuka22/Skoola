@@ -9,7 +9,7 @@ use crate::models::library::LibraryCategory;
 use crate::errors::APIError;
 use crate::models::library::*;
 use crate::schema::{library_books, library_categories, library_issues, library_settings, staff, students};
-use crate::handlers::library::{LibraryCategoryQuery, BulkUpdateLibraryCategoriesRequest, LibraryBookQuery, BulkUpdateLibraryBooksRequest};
+use crate::handlers::resources::library::{LibraryCategoryQuery, BulkUpdateLibraryCategoriesRequest, LibraryBookQuery, BulkUpdateLibraryBooksRequest};
 
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 

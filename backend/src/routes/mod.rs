@@ -1,51 +1,25 @@
 use crate::{
     database::enums::PermissionEnum,
     handlers::{
-        academic_year,
-        auth::{login, logout, refresh, register, request_password_reset, reset_password},
-        class, class_subject_teacher, exam_subjects, exam_types, exams, fees, grade_level,
-        grading_criteria, grading_schemes,
-        hello::{hello, hello_error},
-        oauth::{github_callback, google_callback},
-        permission_sets::{
-            create_permission_set, delete_permission_set, get_all_permission_sets,
-            get_user_set_members, update_permission_set,
+        academic::{
+            academic_year, class, class_subject_teacher, grade_level, subject, terms, timetable,
+            teacher_assignments,
         },
-        profile::{
-            change_email, change_password, get_profile, link_github, link_google, update_profile,
+        auth::{
+            login, logout, oauth, permission_sets, profile, refresh, register,
+            request_password_reset, reset_password, role_permissions,
+            user_set_permissions, verification,
         },
-        report_cards,
-        role_permissions::{
-            assign_permission_to_role, get_role_permissions, unassign_permission_from_role,
+        exams::{
+            exam_subjects, exam_types, exams, grading_criteria, grading_schemes, report_cards,
+            special_exams, zscore,
         },
-        special_exams,
-        staff::{
-            create_staff, delete_staff, get_all_staff, get_staff_by_id, update_staff,
-            upload_staff_photo,
+        resources::{co_curricular, fees, financial, library, property},
+        staff::{staff, staff_attendance, staff_leaves},
+        students::{
+            student, student_attendance, student_class_assignment, student_guardian, student_marks,
         },
-        staff_attendance::{
-            /*
-            27:             calculate_monthly_attendance_percentage, get_staff_attendance_by_date,
-            28:             get_staff_attendance_by_staff_member, mark_bulk_staff_attendance,
-            29: */
-            mark_staff_attendance_daily, update_staff_attendance, mark_bulk_staff_attendance,
-        },
-        staff_leaves::{apply_for_leave, approve_reject_leave, view_leave_balance},
-        student, student_attendance, student_class_assignment, student_guardian, student_marks,
-        subject,
-        teacher_assignments::{
-            assign_class_to_teacher, assign_subject_to_teacher, get_teacher_workload,
-        },
-        terms, timetable,
-        user_permissions::{
-            assign_permission_to_user, get_user_permissions, unassign_permission_from_user,
-        },
-        user_set_permissions::{
-            assign_permission_to_user_set, get_user_set_permissions,
-            unassign_permission_from_user_set,
-        },
-        verification::verify_email,
-        zscore,
+        system::{activities, hello, school_settings},
     },
     utils::{jwt::Authenticated, permission_verification::PermissionVerification},
 };
@@ -58,78 +32,59 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/login", web::post().to(login))
             .route("/logout", web::post().to(logout))
             .route("/refresh", web::post().to(refresh))
-            .route("/password/request", web::post().to(request_password_reset))
-            .route("/password/reset/{token}", web::post().to(reset_password))
-            .route("/google/callback", web::get().to(google_callback))
-            .route("/github/callback", web::get().to(github_callback))
-            .route("/verify-email/{token}", web::get().to(verify_email)),
+            .route(
+                "/password/request",
+                web::post().to(request_password_reset),
+            )
+            .route(
+                "/password/reset/{token}",
+                web::post().to(reset_password),
+            )
+            .route(
+                "/google/callback",
+                web::get().to(oauth::google_callback),
+            )
+            .route(
+                "/github/callback",
+                web::get().to(oauth::github_callback),
+            )
+            .route(
+                "/verify-email/{token}",
+                web::get().to(verification::verify_email),
+            ),
     )
     .service(
         web::scope("/profile")
             .wrap(Authenticated)
-            .route("", web::get().to(get_profile))
-            .route("", web::put().to(update_profile))
-            .route("/password", web::post().to(change_password))
-            .route("/email", web::post().to(change_email))
-            .route("/link/google", web::get().to(link_google))
-            .route("/link/github", web::get().to(link_github)),
+            .route("", web::get().to(profile::get_profile))
+            .route("", web::put().to(profile::update_profile))
+            .route("/password", web::post().to(profile::change_password))
+            .route("/email", web::post().to(profile::change_email))
+            .route("/link/google", web::get().to(profile::link_google))
+            .route("/link/github", web::get().to(profile::link_github)),
     )
     .service(
         apistos::web::scope("/user-sets")
             .wrap(Authenticated)
-            .route("/", apistos::web::get().to(get_all_permission_sets))
-            .route("/", apistos::web::post().to(create_permission_set))
             .route(
-                "/{permission_set_id}",
-                apistos::web::put().to(update_permission_set),
+                "/",
+                apistos::web::get().to(permission_sets::get_all_permission_sets),
+            )
+            .route(
+                "/",
+                apistos::web::post().to(permission_sets::create_permission_set),
             )
             .route(
                 "/{permission_set_id}",
-                apistos::web::delete().to(delete_permission_set),
+                apistos::web::put().to(permission_sets::update_permission_set),
+            )
+            .route(
+                "/{permission_set_id}",
+                apistos::web::delete().to(permission_sets::delete_permission_set),
             )
             .route(
                 "/{permission_set_id}/users",
-                apistos::web::get().to(get_user_set_members),
-            ),
-    )
-    .service(
-        web::scope("/users")
-            .wrap(PermissionVerification {
-                required_permission: PermissionEnum::UserManage,
-            })
-            .wrap(Authenticated)
-            .route("", web::get().to(crate::handlers::users::get_all_users))
-            .route(
-                "/stats",
-                web::get().to(crate::handlers::users::get_user_stats),
-            )
-            .route(
-                "/bulk",
-                web::delete().to(crate::handlers::users::bulk_delete_users),
-            )
-            .route(
-                "/bulk",
-                web::patch().to(crate::handlers::users::bulk_update_users),
-            )
-            .route(
-                "/{user_id}",
-                web::put().to(crate::handlers::users::update_user),
-            )
-            .route(
-                "/{user_id}",
-                web::delete().to(crate::handlers::users::delete_user),
-            )
-            .route(
-                "/{user_id}/permissions/{permission}",
-                web::post().to(assign_permission_to_user),
-            )
-            .route(
-                "/{user_id}/permissions/{permission}",
-                web::delete().to(unassign_permission_from_user),
-            )
-            .route(
-                "/{user_id}/permissions",
-                web::get().to(get_user_permissions),
+                apistos::web::get().to(permission_sets::get_user_set_members),
             ),
     )
     .service(
@@ -138,11 +93,17 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 required_permission: PermissionEnum::RoleAssignPermissions,
             })
             .wrap(Authenticated)
-            .route("", web::get().to(get_role_permissions))
-            .route("/{permission}", web::post().to(assign_permission_to_role))
+            .route(
+                "",
+                web::get().to(role_permissions::get_role_permissions),
+            )
             .route(
                 "/{permission}",
-                web::delete().to(unassign_permission_from_role),
+                web::post().to(role_permissions::assign_permission_to_role),
+            )
+            .route(
+                "/{permission}",
+                web::delete().to(role_permissions::unassign_permission_from_role),
             ),
     )
     .service(
@@ -151,14 +112,17 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 required_permission: PermissionEnum::PermissionSetManage, // Assuming this maps to user set permission management
             })
             .wrap(Authenticated)
-            .route("", web::get().to(get_user_set_permissions))
             .route(
-                "/{permission}",
-                web::post().to(assign_permission_to_user_set),
+                "",
+                web::get().to(user_set_permissions::get_user_set_permissions),
             )
             .route(
                 "/{permission}",
-                web::delete().to(unassign_permission_from_user_set),
+                web::post().to(user_set_permissions::assign_permission_to_user_set),
+            )
+            .route(
+                "/{permission}",
+                web::delete().to(user_set_permissions::unassign_permission_from_user_set),
             ),
     )
     .service(
@@ -167,93 +131,98 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 required_permission: PermissionEnum::StaffManage,
             })
             .wrap(Authenticated)
-            .route("", web::get().to(get_all_staff))
-            .route("/{staff_id}", web::get().to(get_staff_by_id))
-            .route("", web::post().to(create_staff))
-            .route("/{staff_id}", web::put().to(update_staff))
-            .route("/{staff_id}", web::delete().to(delete_staff))
-            .route("/{staff_id}/photo", web::post().to(upload_staff_photo))
+            .route("", web::get().to(staff::get_all_staff))
+            .route("/{staff_id}", web::get().to(staff::get_staff_by_id))
+            .route("", web::post().to(staff::create_staff))
+            .route("/{staff_id}", web::put().to(staff::update_staff))
+            .route("/{staff_id}", web::delete().to(staff::delete_staff))
+            .route(
+                "/{staff_id}/photo",
+                web::post().to(staff::upload_staff_photo),
+            )
             .route(
                 "/{teacher_id}/classes",
-                web::post().to(assign_class_to_teacher),
+                web::post().to(teacher_assignments::assign_class_to_teacher),
             )
             .route(
                 "/{teacher_id}/subjects",
-                web::post().to(assign_subject_to_teacher),
+                web::post().to(teacher_assignments::assign_subject_to_teacher),
             )
             .route(
                 "/{teacher_id}/workload",
-                web::get().to(get_teacher_workload),
+                web::get().to(teacher_assignments::get_teacher_workload),
             )
             .route(
                 "/{staff_id}/attendance",
-                web::post().to(mark_staff_attendance_daily),
+                web::post().to(staff_attendance::mark_staff_attendance_daily),
             )
             .route(
                 "/attendance/bulk",
-                web::post().to(mark_bulk_staff_attendance),
+                web::post().to(staff_attendance::mark_bulk_staff_attendance),
             )
             .route(
                 "/attendance/{attendance_id}",
-                web::put().to(update_staff_attendance),
+                web::put().to(staff_attendance::update_staff_attendance),
             )
             .route(
                 "/attendance/date/{date}",
-                web::get().to(crate::handlers::staff_attendance::get_staff_attendance_by_date),
+                web::get().to(staff_attendance::get_staff_attendance_by_date),
             )
             .route(
                 "/{staff_id}/attendance/member",
-                web::get().to(crate::handlers::staff_attendance::get_staff_attendance_by_staff_member),
+                web::get().to(staff_attendance::get_staff_attendance_by_staff_member),
             )
             .route(
                 "/{staff_id}/attendance/percentage/{year}/{month}",
-                web::get().to(crate::handlers::staff_attendance::calculate_monthly_attendance_percentage),
+                web::get().to(staff_attendance::calculate_monthly_attendance_percentage),
             )
             .route(
                 "/attendance/sync-leaves/{date}",
-                web::post().to(crate::handlers::staff_attendance::sync_leaves),
+                web::post().to(staff_attendance::sync_leaves),
             )
             .route(
                 "/substitute/suggest",
-                web::post().to(crate::handlers::staff_attendance::suggest_substitute),
+                web::post().to(staff_attendance::suggest_substitute),
             )
             .route(
                 "/substitute/create",
-                web::post().to(crate::handlers::staff_attendance::create_substitution),
+                web::post().to(staff_attendance::create_substitution),
             )
             .route(
                 "/substitute/my",
-                web::get().to(crate::handlers::staff_attendance::get_my_substitutions),
+                web::get().to(staff_attendance::get_my_substitutions),
             )
             .route(
                 "/lesson-progress",
-                web::post().to(crate::handlers::staff_attendance::record_lesson_progress),
+                web::post().to(staff_attendance::record_lesson_progress),
             )
             .route(
                 "/lesson-progress/{class_id}/{subject_id}",
-                web::get().to(crate::handlers::staff_attendance::get_lesson_progress),
+                web::get().to(staff_attendance::get_lesson_progress),
             )
-            .route("/{staff_id}/leaves", web::post().to(apply_for_leave))
+            .route(
+                "/{staff_id}/leaves",
+                web::post().to(staff_leaves::apply_for_leave),
+            )
             .route(
                 "/leaves/{leave_id}/status",
-                web::put().to(approve_reject_leave),
+                web::put().to(staff_leaves::approve_reject_leave),
             )
             .route(
                 "/{staff_id}/leaves/balance",
-                web::get().to(view_leave_balance),
+                web::get().to(staff_leaves::view_leave_balance),
             )
             .route(
                 "/{staff_id}/permission-sets",
-                web::get().to(crate::handlers::permission_sets::get_staff_permission_sets),
+                web::get().to(permission_sets::get_staff_permission_sets),
             )
             .route(
                 "/{staff_id}/permission-sets/{set_id}",
-                web::post().to(crate::handlers::permission_sets::assign_permission_set_to_staff),
+                web::post().to(permission_sets::assign_permission_set_to_staff),
             )
             .route(
                 "/{staff_id}/permission-sets/{set_id}",
-                web::delete()
-                    .to(crate::handlers::permission_sets::unassign_permission_set_from_staff),
+                web::delete().to(permission_sets::unassign_permission_set_from_staff),
             ),
     )
     .service(
@@ -423,8 +392,14 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 required_permission: PermissionEnum::StudentManageMarks,
             })
             .wrap(Authenticated)
-            .route("", web::post().to(student_marks::create_student_mark))
-            .route("", web::get().to(student_marks::get_all_student_marks))
+            .route(
+                "",
+                web::post().to(student_marks::create_student_mark),
+            )
+            .route(
+                "",
+                web::get().to(student_marks::get_all_student_marks),
+            )
             .route(
                 "/bulk",
                 web::post().to(student_marks::bulk_create_student_marks),
@@ -441,7 +416,10 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 "/exam/{exam_id}/class/{class_id}",
                 web::get().to(student_marks::get_student_marks_by_exam_and_class),
             )
-            .route("/{id}", web::put().to(student_marks::update_student_mark))
+            .route(
+                "/{id}",
+                web::put().to(student_marks::update_student_mark),
+            )
             .route(
                 "/{id}",
                 web::delete().to(student_marks::delete_student_mark),
@@ -453,13 +431,22 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 required_permission: PermissionEnum::AcademicYearManage,
             })
             .wrap(Authenticated)
-            .route("", web::post().to(academic_year::create_academic_year))
+            .route(
+                "",
+                web::post().to(academic_year::create_academic_year),
+            )
             .route(
                 "/{id}",
                 web::get().to(academic_year::get_academic_year_by_id),
             )
-            .route("", web::get().to(academic_year::get_all_academic_years))
-            .route("/{id}", web::put().to(academic_year::update_academic_year))
+            .route(
+                "",
+                web::get().to(academic_year::get_all_academic_years),
+            )
+            .route(
+                "/{id}",
+                web::put().to(academic_year::update_academic_year),
+            )
             .route(
                 "/{id}",
                 web::delete().to(academic_year::delete_academic_year),
@@ -492,10 +479,19 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             })
             .wrap(Authenticated)
             .route("", web::post().to(grade_level::create_grade_level))
-            .route("/{id}", web::get().to(grade_level::get_grade_level_by_id))
+            .route(
+                "/{id}",
+                web::get().to(grade_level::get_grade_level_by_id),
+            )
             .route("", web::get().to(grade_level::get_all_grade_levels))
-            .route("/{id}", web::put().to(grade_level::update_grade_level))
-            .route("/{id}", web::delete().to(grade_level::delete_grade_level))
+            .route(
+                "/{id}",
+                web::put().to(grade_level::update_grade_level),
+            )
+            .route(
+                "/{id}",
+                web::delete().to(grade_level::delete_grade_level),
+            )
             .route(
                 "/bulk",
                 web::delete().to(grade_level::bulk_delete_grade_levels),
@@ -516,9 +512,15 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(class::get_all_classes))
             .route("/{id}", web::put().to(class::update_class))
             .route("/{id}", web::delete().to(class::delete_class))
-            .route("/grade/{id}", web::get().to(class::get_classes_by_grade))
+            .route(
+                "/grade/{id}",
+                web::get().to(class::get_classes_by_grade),
+            )
             .route("/bulk", web::delete().to(class::bulk_delete_classes))
-            .route("/bulk", web::patch().to(class::bulk_update_classes)),
+            .route(
+                "/bulk",
+                web::patch().to(class::bulk_update_classes),
+            ),
     )
     .service(
         web::scope("/subjects")
@@ -555,8 +557,14 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 "/enrollments/{student_id}/{academic_year_id}",
                 web::get().to(subject::get_student_enrollments),
             )
-            .route("/bulk", web::delete().to(subject::bulk_delete_subjects))
-            .route("/bulk", web::patch().to(subject::bulk_update_subjects)),
+            .route(
+                "/bulk",
+                web::delete().to(subject::bulk_delete_subjects),
+            )
+            .route(
+                "/bulk",
+                web::patch().to(subject::bulk_update_subjects),
+            ),
     )
     .service(
         web::scope("/class-subject-teachers")
@@ -591,8 +599,14 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 required_permission: PermissionEnum::TimetableManage,
             })
             .wrap(Authenticated)
-            .route("", web::post().to(timetable::create_timetable_entry))
-            .route("/{id}", web::get().to(timetable::get_timetable_entry_by_id))
+            .route(
+                "",
+                web::post().to(timetable::create_timetable_entry),
+            )
+            .route(
+                "/{id}",
+                web::get().to(timetable::get_timetable_entry_by_id),
+            )
             .route(
                 "/class/{class_id}/day/{day_of_week}/academic-year/{academic_year_id}",
                 web::get().to(timetable::get_timetable_by_class_and_day),
@@ -601,8 +615,14 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 "/teacher/{teacher_id}/academic-year/{academic_year_id}",
                 web::get().to(timetable::get_timetable_by_teacher),
             )
-            .route("/{id}", web::put().to(timetable::update_timetable_entry))
-            .route("/{id}", web::delete().to(timetable::delete_timetable_entry)),
+            .route(
+                "/{id}",
+                web::put().to(timetable::update_timetable_entry),
+            )
+            .route(
+                "/{id}",
+                web::delete().to(timetable::delete_timetable_entry),
+            ),
     )
     .service(
         web::scope("/exam-types")
@@ -611,15 +631,27 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             })
             .wrap(Authenticated)
             .route("", web::post().to(exam_types::create_exam_type))
-            .route("/{id}", web::get().to(exam_types::get_exam_type_by_id))
+            .route(
+                "/{id}",
+                web::get().to(exam_types::get_exam_type_by_id),
+            )
             .route("", web::get().to(exam_types::get_all_exam_types))
-            .route("/{id}", web::put().to(exam_types::update_exam_type))
-            .route("/{id}", web::delete().to(exam_types::delete_exam_type))
+            .route(
+                "/{id}",
+                web::put().to(exam_types::update_exam_type),
+            )
+            .route(
+                "/{id}",
+                web::delete().to(exam_types::delete_exam_type),
+            )
             .route(
                 "/bulk",
                 web::delete().to(exam_types::bulk_delete_exam_types),
             )
-            .route("/bulk", web::patch().to(exam_types::bulk_update_exam_types)),
+            .route(
+                "/bulk",
+                web::patch().to(exam_types::bulk_update_exam_types),
+            ),
     )
     .service(
         web::scope("/exams")
@@ -636,8 +668,14 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             )
             .route("/{id}", web::put().to(exams::update_exam))
             .route("/{id}", web::delete().to(exams::delete_exam))
-            .route("/bulk", web::delete().to(exams::bulk_delete_exams))
-            .route("/bulk", web::patch().to(exams::bulk_update_exams)),
+            .route(
+                "/bulk",
+                web::delete().to(exams::bulk_delete_exams),
+            )
+            .route(
+                "/bulk",
+                web::patch().to(exams::bulk_update_exams),
+            ),
     )
     .service(
         web::scope("/exam-subjects")
@@ -645,12 +683,18 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 required_permission: PermissionEnum::ExamSubjectManage,
             })
             .wrap(Authenticated)
-            .route("", web::post().to(exam_subjects::create_exam_subject))
+            .route(
+                "",
+                web::post().to(exam_subjects::create_exam_subject),
+            )
             .route(
                 "/{exam_id}/{subject_id}",
                 web::get().to(exam_subjects::get_exam_subject_by_ids),
             )
-            .route("", web::get().to(exam_subjects::get_all_exam_subjects))
+            .route(
+                "",
+                web::get().to(exam_subjects::get_all_exam_subjects),
+            )
             .route(
                 "/exam/{exam_id}",
                 web::get().to(exam_subjects::get_exam_subjects_by_exam_id),
@@ -735,7 +779,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .wrap(Authenticated)
             .route(
                 "",
-                apistos::web::get().to(grading_criteria::get_grading_criteria_by_scheme_id_handler),
+                apistos::web::get()
+                    .to(grading_criteria::get_grading_criteria_by_scheme_id_handler),
             ),
     );
 
@@ -743,7 +788,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.configure(special_exams::config);
     cfg.configure(report_cards::config);
     cfg.configure(fees::config);
-    cfg.configure(crate::handlers::co_curricular::config);
+    cfg.configure(co_curricular::config);
 
     // Library Management Routes
     cfg.service(
@@ -755,116 +800,116 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             // Category routes
             .route(
                 "/categories",
-                apistos::web::get().to(crate::handlers::library::get_all_categories),
+                apistos::web::get().to(library::get_all_categories),
             )
             .route(
                 "/categories",
-                apistos::web::post().to(crate::handlers::library::create_category),
+                apistos::web::post().to(library::create_category),
             )
             .route(
                 "/categories/bulk",
-                apistos::web::delete().to(crate::handlers::library::bulk_delete_library_categories),
+                apistos::web::delete().to(library::bulk_delete_library_categories),
             )
             .route(
                 "/categories/bulk",
-                apistos::web::patch().to(crate::handlers::library::bulk_update_library_categories),
+                apistos::web::patch().to(library::bulk_update_library_categories),
             )
             // Book routes
             .route(
                 "/books",
-                apistos::web::get().to(crate::handlers::library::get_all_books),
+                apistos::web::get().to(library::get_all_books),
             )
             .route(
                 "/books/bulk",
-                apistos::web::delete().to(crate::handlers::library::bulk_delete_library_books),
+                apistos::web::delete().to(library::bulk_delete_library_books),
             )
             .route(
                 "/books/bulk",
-                apistos::web::patch().to(crate::handlers::library::bulk_update_library_books),
+                apistos::web::patch().to(library::bulk_update_library_books),
             )
             .route(
                 "/books/search",
-                apistos::web::get().to(crate::handlers::library::search_books),
+                apistos::web::get().to(library::search_books),
             )
             .route(
                 "/books/{book_id}",
-                apistos::web::get().to(crate::handlers::library::get_book_by_id),
+                apistos::web::get().to(library::get_book_by_id),
             )
             .route(
                 "/books",
-                apistos::web::post().to(crate::handlers::library::create_book),
+                apistos::web::post().to(library::create_book),
             )
             .route(
                 "/books/{book_id}",
-                apistos::web::put().to(crate::handlers::library::update_book),
+                apistos::web::put().to(library::update_book),
             )
             .route(
                 "/books/{book_id}",
-                apistos::web::delete().to(crate::handlers::library::delete_book),
+                apistos::web::delete().to(library::delete_book),
             )
             .route(
                 "/books/category/{category_id}",
-                apistos::web::get().to(crate::handlers::library::get_books_by_category),
+                apistos::web::get().to(library::get_books_by_category),
             )
             // Issue/Return routes
             .route(
                 "/issues",
-                apistos::web::post().to(crate::handlers::library::issue_book),
+                apistos::web::post().to(library::issue_book),
             )
             .route(
                 "/issues/{issue_id}",
-                apistos::web::get().to(crate::handlers::library::get_issue_by_id),
+                apistos::web::get().to(library::get_issue_by_id),
             )
             .route(
                 "/issues/{issue_id}/return",
-                apistos::web::post().to(crate::handlers::library::return_book),
+                apistos::web::post().to(library::return_book),
             )
             .route(
                 "/issues/student/{student_id}",
-                apistos::web::get().to(crate::handlers::library::get_issued_books_by_student),
+                apistos::web::get().to(library::get_issued_books_by_student),
             )
             .route(
                 "/issues/staff/{staff_id}",
-                apistos::web::get().to(crate::handlers::library::get_issued_books_by_staff),
+                apistos::web::get().to(library::get_issued_books_by_staff),
             )
             .route(
                 "/issues/overdue",
-                apistos::web::get().to(crate::handlers::library::get_overdue_books),
+                apistos::web::get().to(library::get_overdue_books),
             )
             // Fine routes
             .route(
                 "/fines/{issue_id}/pay",
-                apistos::web::post().to(crate::handlers::library::pay_fine),
+                apistos::web::post().to(library::pay_fine),
             )
             .route(
                 "/fines/{issue_id}/waive",
-                apistos::web::post().to(crate::handlers::library::waive_fine),
+                apistos::web::post().to(library::waive_fine),
             )
             .route(
                 "/fines/history",
-                apistos::web::get().to(crate::handlers::library::get_fine_history),
+                apistos::web::get().to(library::get_fine_history),
             )
             // Settings routes
             .route(
                 "/settings",
-                apistos::web::get().to(crate::handlers::library::get_library_settings),
+                apistos::web::get().to(library::get_library_settings),
             )
             .route(
                 "/settings",
-                apistos::web::put().to(crate::handlers::library::update_library_settings),
+                apistos::web::put().to(library::update_library_settings),
             )
             // Statistics routes
             .route(
                 "/stats",
-                apistos::web::get().to(crate::handlers::library::get_library_stats),
+                apistos::web::get().to(library::get_library_stats),
             ),
     );
 
-    cfg.configure(crate::handlers::property::config);
-    cfg.configure(crate::handlers::financial::config);
-    cfg.configure(|cfg_local| crate::handlers::activities::config(&mut *cfg_local));
-    cfg.configure(|cfg_local| crate::handlers::school_settings::config(&mut *cfg_local));
+    cfg.configure(property::config);
+    cfg.configure(financial::config);
+    cfg.configure(|cfg_local| activities::config(&mut *cfg_local));
+    cfg.configure(|cfg_local| school_settings::config(&mut *cfg_local));
 
-    cfg.route("/", apistos::web::get().to(hello));
-    cfg.route("/error", apistos::web::get().to(hello_error));
+    cfg.route("/", apistos::web::get().to(hello::hello));
+    cfg.route("/error", apistos::web::get().to(hello::hello_error));
 }

@@ -9,7 +9,7 @@ use actix_web::web;
 use uuid::Uuid;
 use chrono::Utc;
 use crate::schema::exams;
-use crate::handlers::exams::{ExamQuery, BulkUpdateExamsRequest};
+use crate::handlers::exams::exams::{ExamQuery, BulkUpdateExamsRequest};
 
 // Service to create a new Exam
 pub async fn create_exam(
