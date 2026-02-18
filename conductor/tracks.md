@@ -9,3 +9,48 @@
 
 - [x] **Track: Refactor backend handlers and services to a domain-driven structure.**
 *Link: [./tracks/refactor_handlers_services_20260217/](./tracks/refactor_handlers_services_20260217/)*
+
+---
+
+- [ ] **Track: Implement a richer user and profile data structure by creating a central 'profiles' table.**
+*Link: [./tracks/richer_user_profile_data_20260218/](./tracks/richer_user_profile_data_20260218/)*
+
+---
+
+- [ ] **Track: Implement granular financial tracking using double-entry accounting principles.**
+*Link: [./tracks/granular_financial_tracking_20260218/](./tracks/granular_financial_tracking_20260218/)*
+
+---
+
+- [ ] **Track: Refactor polymorphic relationships for activities and inventory to use junction tables for improved data integrity.**
+*Link: [./tracks/polymorphic_relationships_20260218/](./tracks/polymorphic_relationships_20260218/)*
+
+---
+
+- [ ] **Track: Implement a strategy for archiving historical data to improve query performance.**
+*Link: [./tracks/historical_data_archiving_20260218/](./tracks/historical_data_archiving_20260218/)*
+
+---
+
+- [ ] **Track: Create a new communications and messaging module for secure internal communication.**
+*Link: [./tracks/communications_messaging_module_20260218/](./tracks/communications_messaging_module_20260218/)*
+
+---
+
+- [ ] **Track: Implement advanced timetabling and resource management for booking rooms and equipment.**
+*Link: [./tracks/advanced_timetabling_resource_management_20260218/](./tracks/advanced_timetabling_resource_management_20260218/)*
+
+---
+
+- [ ] **Track: Implement curriculum and syllabus management to track what is supposed to be taught.**
+*Link: [./tracks/curriculum_syllabus_management_20260218/](./tracks/curriculum_syllabus_management_20260218/)*
+
+---
+
+- [ ] **Track: Implement student and staff behavior/conduct tracking to log and manage disciplinary issues.**
+*Link: [./tracks/student_staff_behavior_tracking_20260218/](./tracks/student_staff_behavior_tracking_20260218/)*
+
+---
+
+- [ ] **Track: Implement a generic audit trail for tracking changes to important data.**
+*Link: [./tracks/generic_audit_trail_20260218/](./tracks/generic_audit_trail_20260218/)*
