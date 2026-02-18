@@ -16,9 +16,9 @@
 - [x] Task: Move existing handler files into their respective domain subdirectories. b92d288
 - [x] Task: Create/update `mod.rs` files for each new handler domain and update `backend/src/handlers/mod.rs`. 5b58c7c
 - [x] Task: Standardize dependency injection across all moved handlers using `web::Data<AppState>`. 16b7570
-- [ ] Task: Conductor - User Manual Verification 'Handlers Reorganization' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Handlers Reorganization' (Protocol in workflow.md)
 
 ## Phase 4: Routing and Final Integration
-- [ ] Task: Update `backend/src/routes/mod.rs` to reflect the new handler module paths.
-- [ ] Task: Perform a final build using `cargo build` and resolve any remaining import or path issues.
-- [ ] Task: Conductor - User Manual Verification 'Routing and Final Integration' (Protocol in workflow.md)
+- [x] Task: Update `backend/src/routes/mod.rs` to reflect the new handler module paths.
+- [x] Task: Perform a final build using `cargo build` and resolve any remaining import or path issues.
+- [x] Task: Conductor - User Manual Verification 'Routing and Final Integration' (Protocol in workflow.md)
