@@ -7,7 +7,7 @@
 - [x] Task: Create a migration for the `general_ledger` table.
     - [x] Sub-task: Define the schema (`id`, `date`, `description`, `debit_account_id`, `credit_account_id`, `amount`).
 - [x] Task: Apply the migrations to the database.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
 
 ## Phase 2: Backend Logic
 
