@@ -9,8 +9,8 @@
 - [x] Task: Create a new migration to add `profile_id` to `students` and `staff` tables. [27b1d97]
     - [x] Sub-task: Add `profile_id` foreign key to the `staff` table.
     - [x] Sub-task: Add `profile_id` foreign key to the `students` table.
-- [ ] Task: Create a new migration to add `user_id` to the `student_guardians` table.
-    - [ ] Sub-task: Add `user_id` foreign key to the `student_guardians` table.
+- [x] Task: Create a new migration to add `user_id` to the `student_guardians` table. [cc0e2d8]
+    - [x] Sub-task: Add `user_id` foreign key to the `student_guardians` table.
 - [ ] Task: Apply all new migrations to the database.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema Changes' (Protocol in workflow.md)
 
