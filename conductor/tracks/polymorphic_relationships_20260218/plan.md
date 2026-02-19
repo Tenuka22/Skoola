@@ -5,7 +5,7 @@
 - [x] Task: Create a migration for `asset_allocations_staff` and `asset_allocations_students` junction tables.
 - [x] Task: Create a migration to remove `allocated_to_type` and `allocated_to_id` from `asset_allocations`.
 - [x] Task: Apply the migrations for asset allocations.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema for Asset Allocations' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Database Schema for Asset Allocations' (Protocol in workflow.md)
 
 ## Phase 2: Data Migration for Asset Allocations
 
