@@ -16,7 +16,7 @@
 
 ## Phase 2: Data Migration
 
-- [ ] Task: Write a script to migrate existing `staff` data to the `profiles` table.
+- [x] Task: Write a script to migrate existing `staff` data to the `profiles` table. [c4e1594]
     - [ ] Sub-task: Create a new profile for each existing staff member.
     - [ ] Sub-task: Update the `staff` table to link to the new profiles.
     - [ ] Sub-task: Create a `user_profiles` entry for each staff member.
