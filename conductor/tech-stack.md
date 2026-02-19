@@ -14,6 +14,8 @@ This document outlines the core technologies and architectural patterns employed
     *   **Rationale:** Promotes clear separation of concerns, modularity, and idiomatic Rust patterns by favoring standalone functions over class/struct-based service implementations.
         *   **Models:** Define the data structures and database schema.
         *   **Services:** Organize business logic into modular functions that interact with repositories/models.
+        *   **Profiles:** A central table to store common demographic data for users, staff, and students, enabling a flexible user model.
+        *   **User_Profiles:** A junction table linking users to one or more profiles, supporting multiple roles for a single user account.
         *   **Handlers:** Manage incoming requests, call services, and return responses.
 
 ## Frontend

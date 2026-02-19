@@ -9,7 +9,8 @@ To be the leading comprehensive Learning Management System and School Management
 ## Target Users
 *   **Students:** To access learning materials, submit assignments, track grades, monitor attendance, participate in co-curricular activities, and manage personal academic records.
 *   **Teachers:** To manage courses, create and grade assignments, track student progress and attendance, handle substitutions, manage library resources, and communicate effectively with students, parents, and administrators.
-*   **School Administrators:** To oversee school-wide academic processes, manage student and staff data, streamline administrative tasks, manage finances, property, library, and co-curricular activities, enforce attendance policies, and generate comprehensive reports for informed decision-making.
+*   **Parents/Guardians:** To log in, view their child's progress, attendance, and communicate with teachers and administrators.
+*   **School Administrators:** To oversee school-wide academic processes, manage student, staff, and guardian data, streamline administrative tasks, manage finances, property, library, and co-curricular activities, enforce attendance policies, and generate comprehensive reports for informed decision-making.
 
 ## Core Features & Objectives
 Skoola is designed to provide extensive functionalities to manage a full-fledged school, with a strong focus on real-life school management facilities. Its primary goals and objectives are to:
