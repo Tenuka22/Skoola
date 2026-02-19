@@ -2,7 +2,7 @@ use actix_web::web;
 use apistos::{api_operation, ApiComponent};
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::{Utc, NaiveDateTime}; // Added NaiveDateTime
+use chrono::{Utc, NaiveDateTime};
 use actix_multipart::Multipart;
 use futures_util::stream::{StreamExt, TryStreamExt};
 use std::io::Write;
@@ -16,8 +16,8 @@ use crate::{
     database::tables::{Staff},
     errors::APIError,
     models::staff::staff::{CreateStaffRequest, StaffChangeset, UpdateStaffRequest, StaffResponse, StaffQuery, PaginatedStaffResponse},
-    models::MessageResponse,
-    schema::staff,
+    models::{MessageResponse, Profile, NewProfile, UserProfile, NewUserProfile, auth_user::User}, // Added Profile, NewProfile, UserProfile, NewUserProfile, User
+    schema::{staff, profiles, user_profiles, users}, // Added profiles, user_profiles, users
     utils::validation::{is_valid_email, is_valid_nic, is_valid_phone},
 };
 
@@ -249,8 +249,25 @@ pub async fn create_staff(
         return Err(APIError::conflict("Staff with this employee ID or email already exists"));
     }
 
+    let new_staff_id = Uuid::new_v4().to_string(); // Generate staff ID here
+
+    // Create a new Profile record for the staff member
+    let new_profile_id = Uuid::new_v4().to_string();
+    let new_profile = NewProfile {
+        id: new_profile_id.clone(),
+        name: body.name.clone(),
+        address: Some(body.address.clone()),
+        phone: Some(body.phone.clone()),
+        photo_url: None, // Assuming photo_url is not part of initial creation or comes from other source
+        created_at: Utc::now().naive_utc(),
+        updated_at: Utc::now().naive_utc(),
+    };
+    diesel::insert_into(profiles::table)
+        .values(&new_profile)
+        .execute(&mut conn)?;
+
     let new_staff = Staff {
-        id: Uuid::new_v4().to_string(),
+        id: new_staff_id.clone(), // Use the generated staff ID
         employee_id: body.employee_id.clone(),
         name: body.name.clone(),
         nic: body.nic.clone(),
@@ -264,11 +281,32 @@ pub async fn create_staff(
         staff_type: body.staff_type.clone(),
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
+        profile_id: Some(new_profile_id.clone()), // Link to the new profile
     };
 
     diesel::insert_into(staff::table)
         .values(&new_staff)
         .execute(&mut conn)?;
+
+    // Create a UserProfile entry linking the new Profile to an existing User if email matches
+    let matching_user: Option<User> = users::table
+        .filter(users::email.eq(body.email.clone()))
+        .select(User::as_select())
+        .first(&mut conn)
+        .optional()?;
+
+    if let Some(user) = matching_user {
+        let new_user_profile = NewUserProfile {
+            user_id: user.id,
+            profile_id: new_profile_id.clone(),
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
+        };
+        diesel::insert_into(user_profiles::table)
+            .values(&new_user_profile)
+            .execute(&mut conn)?;
+    }
+
 
     Ok(Json(StaffResponse::from(new_staff)))
 }
