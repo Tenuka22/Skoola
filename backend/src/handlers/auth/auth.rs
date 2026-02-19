@@ -14,8 +14,8 @@ use crate::{
     database::enums::RoleEnum,
     errors::APIError,
     models::auth::user::{LoginRequest, PasswordReset, PasswordResetRequest, RefreshTokenRequest, RegisterRequest, TokenResponse, UserResponse},
-    models::MessageResponse,
-    schema::{users},
+    models::{MessageResponse, Profile, NewProfile, UserProfile, NewUserProfile},
+    schema::{users, profiles, user_profiles},
     services::auth::auth::{create_token_pair, hash_password, refresh_jwt, verify_password},
     services::system::email::{send_verification_email, send_password_reset_email},
     services::auth::session::{create_session, delete_session, find_session_by_refresh_token_hash, invalidate_sessions_for_user},
@@ -52,8 +52,10 @@ pub async fn register(
 
     let verification_token: String = Alphanumeric.sample_string(&mut rand::thread_rng(), 30);
 
+    let new_user_id = Uuid::new_v4().to_string(); // Generate user ID here
+
     let new_user = User {
-        id: Uuid::new_v4().to_string(),
+        id: new_user_id.clone(), // Use the generated user ID
         email: body.email.clone(),
         password_hash,
         role: RoleEnum::Guest,
@@ -72,6 +74,32 @@ pub async fn register(
 
     diesel::insert_into(users::table)
         .values(&new_user)
+        .execute(&mut conn)?;
+
+    // Create a new Profile record for the user
+    let new_profile_id = Uuid::new_v4().to_string();
+    let new_profile = NewProfile {
+        id: new_profile_id.clone(),
+        name: new_user.email.clone(), // Using email as a default name for now
+        address: None,
+        phone: None,
+        photo_url: None,
+        created_at: Utc::now().naive_utc(),
+        updated_at: Utc::now().naive_utc(),
+    };
+    diesel::insert_into(profiles::table)
+        .values(&new_profile)
+        .execute(&mut conn)?;
+
+    // Create a UserProfile entry linking the User to the new Profile
+    let new_user_profile = NewUserProfile {
+        user_id: new_user_id.clone(),
+        profile_id: new_profile_id.clone(),
+        created_at: Utc::now().naive_utc(),
+        updated_at: Utc::now().naive_utc(),
+    };
+    diesel::insert_into(user_profiles::table)
+        .values(&new_user_profile)
         .execute(&mut conn)?;
 
     let email_config = data.config.clone();
