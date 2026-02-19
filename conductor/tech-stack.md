@@ -15,6 +15,8 @@ This document outlines the core technologies and architectural patterns employed
         *   **Models:** Define the data structures and database schema.
         *   **Services:** Organize business logic into modular functions that interact with repositories/models.
         *   **Profiles:** A central table to store common demographic data for users, staff, and students, enabling a flexible user model.
+        *   **Chart of Accounts:** A foundational list of all financial accounts used in the system for granular financial tracking.
+        *   **General Ledger:** The central repository for all financial transactions, recording debits and credits for every event.
         *   **User_Profiles:** A junction table linking users to one or more profiles, supporting multiple roles for a single user account.
         *   **Handlers:** Manage incoming requests, call services, and return responses.
 

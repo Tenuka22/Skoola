@@ -13,13 +13,19 @@ To be the leading comprehensive Learning Management System and School Management
 *   **School Administrators:** To oversee school-wide academic processes, manage student, staff, and guardian data, streamline administrative tasks, manage finances, property, library, and co-curricular activities, enforce attendance policies, and generate comprehensive reports for informed decision-making.
 
 ## Core Features & Objectives
+
 Skoola is designed to provide extensive functionalities to manage a full-fledged school, with a strong focus on real-life school management facilities. Its primary goals and objectives are to:
 
 1.  **Comprehensive Academic Management:** Facilitate online learning, assignment management, grade tracking, and detailed reporting for all academic activities. This includes managing academic years, classes, subjects, timetables, exams, and grading schemes.
+
 2.  **Streamlined Administrative Operations:** Automate and simplify various school administrative processes, including student enrollment, staff management (qualifications, employment history, departments, leaves, attendance), attendance tracking (student, staff, period-based, with policies, discrepancies, excuses), and detailed user and access management.
-3.  **Robust Financial Management:** Provide tools for managing fee structures, fee payments, income, expenses, budgets, and staff salaries, ensuring transparent and efficient financial operations.
+
+3.  **Robust Financial Management:** Implement a double-entry accounting system to provide granular and auditable financial tracking, including managing fee structures, fee payments, income, expenses, budgets, and staff salaries, ensuring transparent and efficient financial operations and enabling comprehensive financial reporting.
+
 4.  **Integrated Resource Management:** Enable effective management of library resources (books, issues, settings), and school properties/assets (inventory, allocations, maintenance requests).
+
 5.  **Holistic Co-curricular & Discipline Management:** Support the organization and tracking of clubs, sports, cultural events, and competitions. Incorporate advanced discipline features like exit passes, pre-approved absences, and detention balances.
+
 6.  **Progress Tracking and Reporting:** Offer comprehensive tracking of lesson progress, teacher substitutions, and generation of detailed report cards and other analytical reports to monitor and evaluate overall school performance and individual progress.
 
 ## Key Principles
