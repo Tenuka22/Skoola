@@ -1,6 +1,6 @@
 # Implementation Plan: Richer User & Profile Data
 
-## Phase 1: Database Schema Changes
+## Phase 1: Database Schema Changes [checkpoint: 17c1d8e]
 
 - [x] Task: Create a new migration for the `profiles` table. [0487c14]
     - [x] Sub-task: Define the schema for the `profiles` table (`id`, `name`, `address`, `phone`, `photo_url`).
