@@ -35,6 +35,6 @@
 - [x] Task: Update the user creation logic to create a corresponding profile. [47eb5d4]
 - [x] Task: Update the staff creation logic to create a corresponding profile. [5d5abbb]
 - [x] Task: Update the student creation logic to create a corresponding profile. [fb13f47]
-- [ ] Task: Update the guardian creation logic to create or link a user account and profile.
+- [x] Task: Update the guardian creation logic to create or link a user account and profile. [3e73268]
 - [ ] Task: Update all relevant handlers and services to use the new `profiles` table.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Backend Logic Updates' (Protocol in workflow.md)
