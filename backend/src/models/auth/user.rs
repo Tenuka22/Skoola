@@ -117,6 +117,12 @@ pub struct UserProfileResponse {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub roles: Vec<RoleEnum>,
+    // Profile related fields
+    pub profile_id: Option<String>,
+    pub name: Option<String>,
+    pub address: Option<String>,
+    pub phone: Option<String>,
+    pub photo_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]

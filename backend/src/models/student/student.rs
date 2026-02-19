@@ -12,104 +12,66 @@ use apistos::ApiComponent;
 pub struct Student {
     pub id: String,
     pub admission_number: String,
-    pub name_english: String,
-    pub name_sinhala: Option<String>,
-    pub name_tamil: Option<String>,
     pub nic_or_birth_certificate: String,
     pub dob: NaiveDate,
     pub gender: Gender,
-    pub address: String,
-    pub phone: String,
-    pub email: Option<String>,
     pub religion: Option<Religion>,
     pub ethnicity: Option<Ethnicity>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub status: StudentStatus,
-    pub photo_url: Option<String>,
-    pub profile_id: Option<String>, // Added this line
+    pub profile_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct CreateStudentRequest {
     pub admission_number: String,
-    pub name_english: String,
-    pub name_sinhala: Option<String>,
-    pub name_tamil: Option<String>,
+    pub name_english: String, // Still needed for profile creation
+    pub name_sinhala: Option<String>, // Still needed for profile creation
+    pub name_tamil: Option<String>, // Still needed for profile creation
     pub nic_or_birth_certificate: String,
     pub dob: NaiveDate,
     pub gender: Gender,
-    pub address: String,
-    pub phone: String,
-    pub email: Option<String>,
+    pub address: String, // Still needed for profile creation
+    pub phone: String, // Still needed for profile creation
+    pub email: Option<String>, // Still needed for user creation
     pub religion: Option<Religion>,
     pub ethnicity: Option<Ethnicity>,
     pub status: Option<StudentStatus>,
-    pub photo_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = students)]
 pub struct UpdateStudentRequest {
-    pub name_english: Option<String>,
-    pub name_sinhala: Option<String>,
-    pub name_tamil: Option<String>,
     pub nic_or_birth_certificate: Option<String>,
     pub dob: Option<NaiveDate>,
     pub gender: Option<Gender>,
-    pub address: Option<String>,
-    pub phone: Option<String>,
-    pub email: Option<String>,
     pub religion: Option<Religion>,
     pub ethnicity: Option<Ethnicity>,
     pub status: Option<StudentStatus>,
-    pub photo_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct StudentResponse {
     pub id: String,
     pub admission_number: String,
-    pub name_english: String,
-    pub name_sinhala: Option<String>,
-    pub name_tamil: Option<String>,
     pub nic_or_birth_certificate: String,
     pub dob: NaiveDate,
     pub gender: Gender,
-    pub address: String,
-    pub phone: String,
-    pub email: Option<String>,
     pub religion: Option<Religion>,
     pub ethnicity: Option<Ethnicity>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub status: StudentStatus,
-    pub photo_url: Option<String>,
+    pub profile_id: Option<String>,
+    pub profile_name: Option<String>,
+    pub profile_address: Option<String>,
+    pub profile_phone: Option<String>,
+    pub profile_photo_url: Option<String>,
+    pub user_email: Option<String>,
 }
 
-impl From<Student> for StudentResponse {
-    fn from(student: Student) -> Self {
-        StudentResponse {
-            id: student.id,
-            admission_number: student.admission_number,
-            name_english: student.name_english,
-            name_sinhala: student.name_sinhala,
-            name_tamil: student.name_tamil,
-            nic_or_birth_certificate: student.nic_or_birth_certificate,
-            dob: student.dob,
-            gender: student.gender,
-            address: student.address,
-            phone: student.phone,
-            email: student.email,
-            religion: student.religion,
-            ethnicity: student.ethnicity,
-            created_at: student.created_at,
-            updated_at: student.updated_at,
-            status: student.status,
-            photo_url: student.photo_url,
-        }
-    }
-}
+
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct PaginatedStudentResponse {

@@ -118,11 +118,13 @@ pub async fn upload_student_photo(
     let student_id_inner = student_id.into_inner();
     let mut conn = data.db_pool.get()?;
 
-    // Check if student exists
-    let _student_member: Student = students::table
+    // Check if student exists and get its profile_id
+    let existing_student: Student = students::table
         .find(&student_id_inner)
         .select(Student::as_select())
         .first(&mut conn)?;
+
+    let profile_id = existing_student.profile_id.ok_or_else(|| APIError::not_found("Profile not found for student"))?;
 
     // Create uploads/students directory if it doesn't exist
     create_dir_all("./uploads/students")?;
@@ -147,16 +149,41 @@ pub async fn upload_student_photo(
     }
 
     if let Some(filepath) = file_path {
-        diesel::update(students::table.find(&student_id_inner))
-            .set(students::photo_url.eq(&filepath))
+        use crate::schema::profiles;
+        diesel::update(profiles::table.find(&profile_id))
+            .set(profiles::photo_url.eq(&filepath))
             .execute(&mut conn)?;
 
-        let updated_student = students::table
+        // Fetch updated student, profile, and user info to construct StudentResponse
+        use crate::models::{Profile, User, UserProfile};
+        use crate::schema::{user_profiles, users};
+        
+        let (updated_student, profile, user_profile): (Student, Profile, Option<User>) = students::table
             .find(&student_id_inner)
-            .select(Student::as_select())
+            .inner_join(profiles::table)
+            .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
+            .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+            .select((Student::as_select(), Profile::as_select(), Option::<User>::as_select()))
             .first(&mut conn)?;
 
-        Ok(Json(StudentResponse::from(updated_student)))
+        Ok(Json(StudentResponse {
+            id: updated_student.id,
+            admission_number: updated_student.admission_number,
+            nic_or_birth_certificate: updated_student.nic_or_birth_certificate,
+            dob: updated_student.dob,
+            gender: updated_student.gender,
+            religion: updated_student.religion,
+            ethnicity: updated_student.ethnicity,
+            status: updated_student.status,
+            created_at: updated_student.created_at,
+            updated_at: updated_student.updated_at,
+            profile_id: updated_student.profile_id,
+            profile_name: Some(profile.name),
+            profile_address: profile.address,
+            profile_phone: profile.phone,
+            profile_photo_url: profile.photo_url,
+            user_email: user_profile.map(|u| u.email),
+        }))
     } else {
         Err(APIError::bad_request("No file was uploaded"))
     }

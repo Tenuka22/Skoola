@@ -155,8 +155,39 @@ pub async fn suggest_substitute(
     data: Data<AppState>,
     body: Json<SuggestSubstituteRequest>,
 ) -> Result<Json<Option<crate::models::staff::staff::StaffResponse>>, APIError> {
-    let res = staff_attendance::suggest_substitute(data, body.timetable_id.clone(), body.date).await?;
-    Ok(Json(res.map(crate::models::staff::staff::StaffResponse::from)))
+    let res: Option<crate::database::tables::Staff> = staff_attendance::suggest_substitute(data.clone(), body.timetable_id.clone(), body.date).await?;
+    
+    if let Some(staff_member) = res {
+        let mut conn = data.db_pool.get()?;
+        use crate::schema::{profiles, user_profiles, users};
+
+        let (profile, user_profile): (crate::models::Profile, Option<crate::models::auth_user::User>) = profiles::table
+            .find(staff_member.profile_id.clone().ok_or_else(|| APIError::not_found("Profile not found for staff member"))?)
+            .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
+            .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+            .select((crate::models::Profile::as_select(), Option::<crate::models::auth_user::User>::as_select()))
+            .first(&mut conn)?;
+
+        Ok(Json(Some(crate::models::staff::staff::StaffResponse {
+            id: staff_member.id,
+            employee_id: staff_member.employee_id,
+            nic: staff_member.nic,
+            dob: staff_member.dob,
+            gender: staff_member.gender,
+            employment_status: staff_member.employment_status,
+            staff_type: staff_member.staff_type,
+            created_at: staff_member.created_at,
+            updated_at: staff_member.updated_at,
+            profile_id: staff_member.profile_id,
+            profile_name: Some(profile.name),
+            profile_address: profile.address,
+            profile_phone: profile.phone,
+            profile_photo_url: profile.photo_url,
+            user_email: user_profile.map(|u| u.email),
+        })))
+    } else {
+        Ok(Json(None))
+    }
 }
 
 #[api_operation(

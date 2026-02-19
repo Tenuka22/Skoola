@@ -52,20 +52,8 @@ pub struct StudentGuardianResponse {
     pub address: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub user_id: Option<String>,
+    pub user_email: Option<String>,
 }
 
-impl From<StudentGuardian> for StudentGuardianResponse {
-    fn from(guardian: StudentGuardian) -> Self {
-        StudentGuardianResponse {
-            id: guardian.id,
-            student_id: guardian.student_id,
-            name: guardian.name,
-            relationship: guardian.relationship,
-            phone: guardian.phone,
-            email: guardian.email,
-            address: guardian.address,
-            created_at: guardian.created_at,
-            updated_at: guardian.updated_at,
-        }
-    }
-}
+

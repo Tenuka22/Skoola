@@ -87,7 +87,29 @@ pub async fn add_guardian_to_student(
         .values(&new_guardian)
         .execute(&mut conn)?;
 
-    Ok(StudentGuardianResponse::from(new_guardian))
+    let user_email_str: Option<String> = if let Some(u_id) = new_guardian.user_id.clone() {
+        users::table
+            .filter(users::id.eq(u_id))
+            .select(users::email)
+            .first(&mut conn)
+            .optional()?
+    } else {
+        None
+    };
+
+    Ok(StudentGuardianResponse {
+        id: new_guardian.id,
+        student_id: new_guardian.student_id,
+        name: new_guardian.name,
+        relationship: new_guardian.relationship,
+        phone: new_guardian.phone,
+        email: new_guardian.email,
+        address: new_guardian.address,
+        created_at: new_guardian.created_at,
+        updated_at: new_guardian.updated_at,
+        user_id: new_guardian.user_id,
+        user_email: user_email_str,
+    })
 }
 
 pub async fn update_guardian_info(
@@ -118,7 +140,29 @@ pub async fn update_guardian_info(
         .select(StudentGuardian::as_select())
         .first(&mut conn)?;
 
-    Ok(StudentGuardianResponse::from(updated_guardian))
+    let user_email_str: Option<String> = if let Some(u_id) = updated_guardian.user_id.clone() {
+        users::table
+            .filter(users::id.eq(u_id))
+            .select(users::email)
+            .first(&mut conn)
+            .optional()?
+    } else {
+        None
+    };
+
+    Ok(StudentGuardianResponse {
+        id: updated_guardian.id,
+        student_id: updated_guardian.student_id,
+        name: updated_guardian.name,
+        relationship: updated_guardian.relationship,
+        phone: updated_guardian.phone,
+        email: updated_guardian.email,
+        address: updated_guardian.address,
+        created_at: updated_guardian.created_at,
+        updated_at: updated_guardian.updated_at,
+        user_id: updated_guardian.user_id,
+        user_email: user_email_str,
+    })
 }
 
 pub async fn remove_guardian_from_student(
@@ -151,14 +195,27 @@ pub async fn get_all_guardians_for_student(
 ) -> Result<Vec<StudentGuardianResponse>, APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    let guardians: Vec<StudentGuardian> = student_guardians::table
+    let guardians_with_users: Vec<(StudentGuardian, Option<User>)> = student_guardians::table
         .filter(student_guardians::student_id.eq(&student_id))
-        .select(StudentGuardian::as_select())
-        .load(&mut conn)?;
+        .left_join(users::table.on(student_guardians::user_id.eq(users::id)))
+        .select((StudentGuardian::as_select(), Option::<User>::as_select()))
+        .load::<(StudentGuardian, Option<User>)>(&mut conn)?;
 
-    let guardian_responses: Vec<StudentGuardianResponse> = guardians
+    let guardian_responses: Vec<StudentGuardianResponse> = guardians_with_users
         .into_iter()
-        .map(StudentGuardianResponse::from)
+        .map(|(guardian, user)| StudentGuardianResponse {
+            id: guardian.id,
+            student_id: guardian.student_id,
+            name: guardian.name,
+            relationship: guardian.relationship,
+            phone: guardian.phone,
+            email: guardian.email,
+            address: guardian.address,
+            created_at: guardian.created_at,
+            updated_at: guardian.updated_at,
+            user_id: guardian.user_id,
+            user_email: user.map(|u| u.email),
+        })
         .collect();
 
     Ok(guardian_responses)
