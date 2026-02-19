@@ -4,11 +4,12 @@ use crate::{
     AppState,
     models::student::student::{Student, CreateStudentRequest, StudentResponse, UpdateStudentRequest, PaginatedStudentResponse},
     handlers::students::student::StudentQuery,
+    models::{Profile, NewProfile}, // Added Profile, NewProfile
 };
 use actix_web::{web, HttpResponse};
 use uuid::Uuid;
 use chrono::{NaiveDateTime, Utc};
-use crate::schema::students;
+use crate::schema::{students, profiles}; // Added profiles
 use crate::database::enums::StudentStatus;
 
 pub async fn create_student(
@@ -18,6 +19,21 @@ pub async fn create_student(
     let mut conn = pool.db_pool.get()?;
 
     let student_id = Uuid::new_v4().to_string();
+
+    // Create a new Profile record for the student
+    let new_profile_id = Uuid::new_v4().to_string();
+    let new_profile = NewProfile {
+        id: new_profile_id.clone(),
+        name: new_student_request.name_english.clone(),
+        address: Some(new_student_request.address.clone()),
+        phone: Some(new_student_request.phone.clone()),
+        photo_url: new_student_request.photo_url.clone(),
+        created_at: Utc::now().naive_utc(),
+        updated_at: Utc::now().naive_utc(),
+    };
+    diesel::insert_into(profiles::table)
+        .values(&new_profile)
+        .execute(&mut conn)?;
 
     let new_student = Student {
         id: student_id,
@@ -35,7 +51,7 @@ pub async fn create_student(
         ethnicity: new_student_request.ethnicity,
         status: new_student_request.status.unwrap_or(StudentStatus::Active),
         photo_url: new_student_request.photo_url,
-        profile_id: None, // Added this line
+        profile_id: Some(new_profile_id.clone()), // Link to the new profile
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     };
