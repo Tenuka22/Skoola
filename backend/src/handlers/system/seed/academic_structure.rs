@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::database::enums::{EducationLevel, Medium};
-use crate::database::tables::Staff;
+
 use crate::errors::APIError;
 use crate::faker::CustomFaker;
 use crate::models::academic::{GradeStream, GradeSubject, Stream, StreamSubject};
@@ -263,7 +263,8 @@ pub fn seed_all(
     // Get existing staff (teachers) for class_subject_teachers
     let teachers = staff::table
         .filter(staff::staff_type.eq("Teaching"))
-        .load::<Staff>(conn)?;
+        .select(crate::models::staff::Staff::as_select())
+        .load(conn)?;
     let teacher_ids: Vec<String> = teachers.into_iter().map(|s| s.id).collect();
 
     // 9. Seed Class Subject Teachers

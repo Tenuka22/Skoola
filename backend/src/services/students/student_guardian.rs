@@ -26,6 +26,7 @@ pub async fn add_guardian_to_student(
         phone: new_guardian_request.phone,
         email: new_guardian_request.email,
         address: new_guardian_request.address,
+        user_id: None, // Added this line
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     };
@@ -62,6 +63,7 @@ pub async fn update_guardian_info(
 
     let updated_guardian: StudentGuardian = student_guardians::table
         .filter(student_guardians::id.eq(&guardian_id))
+        .select(StudentGuardian::as_select())
         .first(&mut conn)?;
 
     Ok(StudentGuardianResponse::from(updated_guardian))
@@ -99,7 +101,8 @@ pub async fn get_all_guardians_for_student(
 
     let guardians: Vec<StudentGuardian> = student_guardians::table
         .filter(student_guardians::student_id.eq(&student_id))
-        .load::<StudentGuardian>(&mut conn)?;
+        .select(StudentGuardian::as_select())
+        .load(&mut conn)?;
 
     let guardian_responses: Vec<StudentGuardianResponse> = guardians
         .into_iter()

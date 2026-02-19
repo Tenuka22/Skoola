@@ -23,6 +23,10 @@ pub use auth::session as auth_session;
 pub use auth::permission as auth_permission;
 pub use auth::profile as auth_profile;
 pub use auth::role as auth_role;
+pub use auth::Profile;
+pub use auth::NewProfile;
+pub use auth::UserProfile;
+pub use auth::NewUserProfile;
 
 pub use exams::exam;
 pub use exams::exam_type;

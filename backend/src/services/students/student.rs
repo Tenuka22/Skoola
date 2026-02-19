@@ -35,6 +35,7 @@ pub async fn create_student(
         ethnicity: new_student_request.ethnicity,
         status: new_student_request.status.unwrap_or(StudentStatus::Active),
         photo_url: new_student_request.photo_url,
+        profile_id: None, // Added this line
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     };

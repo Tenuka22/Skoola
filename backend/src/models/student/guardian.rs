@@ -18,6 +18,7 @@ pub struct StudentGuardian {
     pub address: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub user_id: Option<String>, // Added this line
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]

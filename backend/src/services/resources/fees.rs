@@ -439,7 +439,8 @@ pub async fn get_defaulters(
     conn: &mut SqliteConnection,
 ) -> Result<Vec<crate::models::finance::FeeDefaulterResponse>, APIError> {
     let all_students = students::table
-        .load::<crate::database::tables::Student>(conn)
+        .select(crate::models::student::Student::as_select())
+        .load(conn)
         .map_err(|e| APIError::internal(&format!("Failed to load all students for defaulters: {}", e)))?;
 
     let mut defaulters = Vec::new();
@@ -660,7 +661,7 @@ pub async fn get_receipt_data(
         .map_err(|e| APIError::internal(&format!("Failed to find payment for receipt: {}", e)))?;
     let student_fee = student_fees::table.find(&payment.student_fee_id).first::<StudentFee>(conn)
         .map_err(|e| APIError::internal(&format!("Failed to find student fee for receipt: {}", e)))?;
-    let student = students::table.find(&student_fee.student_id).first::<crate::database::tables::Student>(conn)
+    let student = students::table.find(&student_fee.student_id).select(crate::models::student::Student::as_select()).first(conn)
         .map_err(|e| APIError::internal(&format!("Failed to find student for receipt: {}", e)))?;
     
     let balance = get_student_balance(conn, &student.id).await?;

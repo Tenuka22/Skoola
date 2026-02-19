@@ -36,6 +36,7 @@ pub struct Staff {
     pub employment_status: EmploymentStatus,
     pub staff_type: StaffType,
     pub photo_url: Option<String>,
+    pub profile_id: Option<String>,
 }
 
 #[derive(

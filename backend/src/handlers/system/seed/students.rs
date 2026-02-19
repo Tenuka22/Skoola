@@ -67,6 +67,7 @@ pub fn seed_all(
             updated_at: CustomFaker::date_time_between(two_years_ago, now),
             status: StudentStatus::Active,
             photo_url: None,
+            profile_id: None, // Added this line
         };
         students_to_insert.push(new_student);
         seeded_student_ids.push(student_id);

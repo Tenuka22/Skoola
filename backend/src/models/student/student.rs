@@ -27,6 +27,7 @@ pub struct Student {
     pub updated_at: NaiveDateTime,
     pub status: StudentStatus,
     pub photo_url: Option<String>,
+    pub profile_id: Option<String>, // Added this line
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
