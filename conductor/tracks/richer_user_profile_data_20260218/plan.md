@@ -27,7 +27,7 @@
     - [ ] Sub-task: For each guardian, check if a user with the same email exists.
     - [ ] Sub-task: If a user exists, link the guardian to that user.
     - [ ] Sub-task: If no user exists, create a new user and link the guardian.
-- [ ] Task: Run all data migration scripts.
+- [x] Task: Run all data migration scripts.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Data Migration' (Protocol in workflow.md)
 
 ## Phase 3: Backend Logic Updates
