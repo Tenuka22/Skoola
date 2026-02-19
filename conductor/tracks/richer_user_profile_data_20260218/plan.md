@@ -6,9 +6,9 @@
     - [x] Sub-task: Define the schema for the `profiles` table (`id`, `name`, `address`, `phone`, `photo_url`).
 - [x] Task: Create a new migration for the `user_profiles` junction table. [760acfe]
     - [x] Sub-task: Define the schema for the `user_profiles` table (`user_id`, `profile_id`).
-- [ ] Task: Create a new migration to add `profile_id` to `students` and `staff` tables.
-    - [ ] Sub-task: Add `profile_id` foreign key to the `staff` table.
-    - [ ] Sub-task: Add `profile_id` foreign key to the `students` table.
+- [x] Task: Create a new migration to add `profile_id` to `students` and `staff` tables. [27b1d97]
+    - [x] Sub-task: Add `profile_id` foreign key to the `staff` table.
+    - [x] Sub-task: Add `profile_id` foreign key to the `students` table.
 - [ ] Task: Create a new migration to add `user_id` to the `student_guardians` table.
     - [ ] Sub-task: Add `user_id` foreign key to the `student_guardians` table.
 - [ ] Task: Apply all new migrations to the database.
