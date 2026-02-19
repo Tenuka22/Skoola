@@ -12,7 +12,7 @@
 
 ---
 
-- [~] **Track: Implement a richer user and profile data structure by creating a central 'profiles' table.**
+- [x] **Track: Implement a richer user and profile data structure by creating a central 'profiles' table.**
 *Link: [./tracks/richer_user_profile_data_20260218/](./tracks/richer_user_profile_data_20260218/)*
 
 ---
