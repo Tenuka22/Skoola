@@ -1,8 +1,10 @@
 use diesel::prelude::*;
+use std::collections::HashMap; // Added
 use crate::{
     errors::APIError,
     AppState,
     models::finance::ledger::{GeneralLedgerEntry, NewGeneralLedgerEntry},
+    models::finance::account::ChartOfAccount, // Added
 };
 use actix_web::web;
 use uuid::Uuid;
@@ -49,4 +51,29 @@ pub async fn record_transaction(
     Ok(crate::schema::general_ledger::table
         .find(&id)
         .first(&mut conn)?)
+}
+
+pub async fn generate_trial_balance(
+    pool: web::Data<AppState>,
+) -> Result<HashMap<String, f32>, APIError> {
+    let mut conn = pool.db_pool.get()?;
+    
+    let all_accounts = crate::schema::chart_of_accounts::table
+        .load::<ChartOfAccount>(&mut conn)?;
+
+    let all_ledger_entries = crate::schema::general_ledger::table
+        .load::<GeneralLedgerEntry>(&mut conn)?;
+
+    let mut balances: HashMap<String, f32> = HashMap::new();
+
+    for account in all_accounts {
+        balances.insert(account.id.clone(), 0.0);
+    }
+
+    for entry in all_ledger_entries {
+        *balances.entry(entry.debit_account_id).or_insert(0.0) += entry.amount;
+        *balances.entry(entry.credit_account_id).or_insert(0.0) -= entry.amount;
+    }
+
+    Ok(balances)
 }

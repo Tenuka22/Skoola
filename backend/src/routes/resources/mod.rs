@@ -4,6 +4,8 @@ use crate::utils::jwt::Authenticated;
 use crate::utils::permission_verification::PermissionVerification;
 use crate::database::enums::PermissionEnum;
 
+pub mod financial_reports; // Added
+
 pub fn configure(cfg: &mut web::ServiceConfig) {
     // Library Management Routes
     cfg.service(
@@ -41,4 +43,4 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.configure(financial::config);
     cfg.configure(fees::config);
     cfg.configure(co_curricular::config);
-}
+    cfg.configure(financial_reports::configure); // Added

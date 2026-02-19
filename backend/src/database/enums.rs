@@ -1596,6 +1596,9 @@ pub enum PermissionEnum {
     // Activity & Co-curricular Permissions
     CoCurricularManage,
 
+    // Financial Reports Permissions
+    ViewFinancialReports, // Added
+
     // System Permissions
     SystemAdmin,
 
@@ -1656,6 +1659,7 @@ impl Display for PermissionEnum {
             PermissionEnum::GradingCriterionManage => write!(f, "GradingCriterionManage"),
             PermissionEnum::LibraryManage => write!(f, "LibraryManage"),
             PermissionEnum::CoCurricularManage => write!(f, "CoCurricularManage"),
+            PermissionEnum::ViewFinancialReports => write!(f, "ViewFinancialReports"), // Added
             PermissionEnum::SystemAdmin => write!(f, "SystemAdmin"),
             PermissionEnum::UserUpdateMedium => write!(f, "UserUpdateMedium"),
             PermissionEnum::UserDeleteSevere => write!(f, "UserDeleteSevere"),
@@ -1710,7 +1714,8 @@ impl PermissionEnum {
             PermissionEnum::RoleRead |
             PermissionEnum::PermissionRead |
             PermissionEnum::StaffRead |
-            PermissionEnum::StudentRead => PermissionSeverity::Low,
+            PermissionEnum::StudentRead |
+            PermissionEnum::ViewFinancialReports => PermissionSeverity::Low, // Added
 
             // Default others to Medium if not specified
             _ => PermissionSeverity::Medium,
@@ -1772,6 +1777,7 @@ impl std::str::FromStr for PermissionEnum {
             "GradingCriterionManage" => Ok(PermissionEnum::GradingCriterionManage),
             "LibraryManage" => Ok(PermissionEnum::LibraryManage),
             "CoCurricularManage" => Ok(PermissionEnum::CoCurricularManage),
+            "ViewFinancialReports" => Ok(PermissionEnum::ViewFinancialReports), // Added
             "SystemAdmin" => Ok(PermissionEnum::SystemAdmin),
             "UserUpdateMedium" => Ok(PermissionEnum::UserUpdateMedium),
             "UserDeleteSevere" => Ok(PermissionEnum::UserDeleteSevere),
@@ -1845,6 +1851,7 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for PermissionEnum {
             "GradingCriterionManage" => Ok(PermissionEnum::GradingCriterionManage),
             "LibraryManage" => Ok(PermissionEnum::LibraryManage),
             "CoCurricularManage" => Ok(PermissionEnum::CoCurricularManage),
+            "ViewFinancialReports" => Ok(PermissionEnum::ViewFinancialReports), // Added
             "SystemAdmin" => Ok(PermissionEnum::SystemAdmin),
             "UserUpdateMedium" => Ok(PermissionEnum::UserUpdateMedium),
             "UserDeleteSevere" => Ok(PermissionEnum::UserDeleteSevere),
