@@ -2,11 +2,11 @@
 
 ## Phase 1: Database Schema
 
-- [ ] Task: Create a migration for the `chart_of_accounts` table.
-    - [ ] Sub-task: Define the schema (`id`, `account_name`, `account_type`, etc.).
-- [ ] Task: Create a migration for the `general_ledger` table.
-    - [ ] Sub-task: Define the schema (`id`, `date`, `description`, `debit_account_id`, `credit_account_id`, `amount`).
-- [ ] Task: Apply the migrations to the database.
+- [x] Task: Create a migration for the `chart_of_accounts` table.
+    - [x] Sub-task: Define the schema (`id`, `account_name`, `account_type`, etc.).
+- [x] Task: Create a migration for the `general_ledger` table.
+    - [x] Sub-task: Define the schema (`id`, `date`, `description`, `debit_account_id`, `credit_account_id`, `amount`).
+- [x] Task: Apply the migrations to the database.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
 
 ## Phase 2: Backend Logic
