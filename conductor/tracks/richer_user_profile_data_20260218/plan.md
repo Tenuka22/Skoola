@@ -2,8 +2,8 @@
 
 ## Phase 1: Database Schema Changes
 
-- [ ] Task: Create a new migration for the `profiles` table.
-    - [ ] Sub-task: Define the schema for the `profiles` table (`id`, `name`, `address`, `phone`, `photo_url`).
+- [x] Task: Create a new migration for the `profiles` table. [0487c14]
+    - [x] Sub-task: Define the schema for the `profiles` table (`id`, `name`, `address`, `phone`, `photo_url`).
 - [ ] Task: Create a new migration for the `user_profiles` junction table.
     - [ ] Sub-task: Define the schema for the `user_profiles` table (`user_id`, `profile_id`).
 - [ ] Task: Create a new migration to add `profile_id` to `students` and `staff` tables.
