@@ -20,7 +20,7 @@
     - [ ] Sub-task: Create a new profile for each existing staff member.
     - [ ] Sub-task: Update the `staff` table to link to the new profiles.
     - [ ] Sub-task: Create a `user_profiles` entry for each staff member.
-- [ ] Task: Write a script to migrate existing `students` data to the `profiles` table.
+- [x] Task: Write a script to migrate existing `students` data to the `profiles` table. [bb6a3b8]
     - [ ] Sub-task: Create a new profile for each existing student.
     - [ ] Sub-task: Update the `students` table to link to the new profiles.
 - [ ] Task: Write a script to associate guardians with user accounts.
