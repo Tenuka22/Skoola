@@ -331,6 +331,7 @@ pub async fn assign_fee_to_student(
 }
 
 pub async fn record_payment(
+    pool: web::Data<AppState>,
     conn: &mut SqliteConnection,
     req: RecordFeePaymentRequest,
 ) -> Result<FeePayment, APIError> {
@@ -361,6 +362,38 @@ pub async fn record_payment(
         .values(&new_payment)
         .execute(conn)
         .map_err(|e| APIError::internal(&format!("Failed to record payment: {}", e)))?;
+
+    // Integrate with General Ledger
+    let student_fee = student_fees::table
+        .find(&new_payment.student_fee_id)
+        .first::<StudentFee>(conn)
+        .map_err(|e| APIError::internal(&format!("Failed to retrieve student fee for ledger entry: {}", e)))?;
+
+    let student = students::table
+        .find(&student_fee.student_id)
+        .select(crate::models::student::student::Student::as_select())
+        .first(conn)
+        .map_err(|e| APIError::internal(&format!("Failed to retrieve student for ledger entry: {}", e)))?;
+    
+    // Placeholder Account IDs (these should ideally be configurable or fetched dynamically)
+    let debit_account_id = "CASH_BANK_ACCOUNT_ID".to_string(); // Example: Asset account
+    let credit_account_id = "TUITION_FEE_INCOME_ACCOUNT_ID".to_string(); // Example: Revenue account
+
+    let transaction_description = format!(
+        "Fee payment by student {} ({}) for fee structure {}",
+        student.profile_name.unwrap_or_else(|| student.admission_number.clone()), // Use profile name if available
+        student.admission_number,
+        student_fee.fee_structure_id
+    );
+
+    crate::services::finance::ledger::record_transaction(
+        pool, // Pass the pool data
+        new_payment.payment_date.date(),
+        Some(transaction_description),
+        debit_account_id,
+        credit_account_id,
+        new_payment.amount_paid,
+    ).await?;
 
     Ok(new_payment)
 }

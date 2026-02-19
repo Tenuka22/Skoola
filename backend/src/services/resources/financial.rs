@@ -140,6 +140,7 @@ pub fn record_income(
 }
 
 pub fn record_expense(
+    pool: web::Data<AppState>,
     conn: &mut SqliteConnection,
     req: RecordExpenseRequest,
 ) -> Result<ExpenseTransaction, APIError> {
@@ -162,10 +163,10 @@ pub fn record_expense(
 
     let new_trans = ExpenseTransaction {
         id: Uuid::new_v4().to_string(),
-        category_id: req.category_id,
+        category_id: req.category_id.clone(),
         amount: req.amount,
         date: req.date.unwrap_or_else(|| Utc::now().naive_utc()),
-        description: req.description,
+        description: req.description.clone(),
         vendor: req.vendor,
         payment_method: req.payment_method,
         approved_by: req.approved_by,
@@ -176,6 +177,35 @@ pub fn record_expense(
     diesel::insert_into(expense_transactions::table)
         .values(&new_trans)
         .execute(conn)?;
+
+    // Integrate with General Ledger
+    // Placeholder Account IDs (these should ideally be configurable or fetched dynamically)
+    let debit_account_id = format!("EXPENSE_ACCOUNT_{}", req.category_id); // Example: Expense account based on category
+    let credit_account_id = "CASH_BANK_ACCOUNT_ID".to_string(); // Example: Asset account
+
+    let transaction_description = format!(
+        "Expense: {} for category {}",
+        req.description.unwrap_or_else(|| "N/A".to_string()),
+        req.category_id
+    );
+
+    // Call the ledger service with the correct AppState
+    let pool_clone = pool.clone();
+    let record_result = tokio::task::block_in_place(move || {
+        let mut conn_for_ledger = pool_clone.db_pool.get().map_err(APIError::db_connection_error)?;
+        crate::services::finance::ledger::record_transaction(
+            pool_clone, // Pass the cloned pool
+            new_trans.date.date(),
+            Some(transaction_description),
+            debit_account_id,
+            credit_account_id,
+            new_trans.amount,
+        )
+    });
+    // Handle the result of the block_in_place call
+    record_result?;
+
+
     Ok(new_trans)
 }
 

@@ -11,14 +11,14 @@
 
 ## Phase 2: Backend Logic
 
-- [ ] Task: Create services to manage the `chart_of_accounts`.
-    - [ ] Sub-task: Implement functions to create, read, update, and delete accounts.
-- [ ] Task: Create a service to record transactions in the `general_ledger`.
-    - [ ] Sub-task: Implement a function that takes transaction details and creates the corresponding debit and credit entries.
-- [ ] Task: Integrate the new ledger service with the existing `fee_payments` logic.
-    - [ ] Sub-task: When a fee payment is successfully processed, call the ledger service to record the transaction.
-- [ ] Task: Integrate the new ledger service with the existing `expense_transactions` logic.
-    - [ ] Sub-task: When an expense is recorded, call the ledger service to record the transaction.
+- [x] Task: Create services to manage the `chart_of_accounts`.
+    - [x] Sub-task: Implement functions to create, read, update, and delete accounts.
+- [x] Task: Create a service to record transactions in the `general_ledger`.
+    - [x] Sub-task: Implement a function that takes transaction details and creates the corresponding debit and credit entries.
+- [x] Task: Integrate the new ledger service with the existing `fee_payments` logic.
+    - [x] Sub-task: When a fee payment is successfully processed, call the ledger service to record the transaction.
+- [x] Task: Integrate the new ledger service with the existing `expense_transactions` logic.
+    - [x] Sub-task: When an expense is recorded, call the ledger service to record the transaction.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Backend Logic' (Protocol in workflow.md)
 
 ## Phase 3: Reporting (Basic)

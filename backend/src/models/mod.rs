@@ -42,6 +42,8 @@ pub use finance::fees;
 pub use finance::budget;
 pub use finance::transaction;
 pub use finance::salary;
+pub use finance::account; // Added
+pub use finance::ledger; // Added
 
 pub use resources::library;
 pub use resources::inventory;
