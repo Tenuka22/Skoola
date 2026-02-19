@@ -32,7 +32,7 @@
 
 ## Phase 3: Backend Logic Updates
 
-- [ ] Task: Update the user creation logic to create a corresponding profile.
+- [x] Task: Update the user creation logic to create a corresponding profile. [47eb5d4]
 - [ ] Task: Update the staff creation logic to create a corresponding profile.
 - [ ] Task: Update the student creation logic to create a corresponding profile.
 - [ ] Task: Update the guardian creation logic to create or link a user account and profile.
