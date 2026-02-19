@@ -23,7 +23,7 @@
 - [x] Task: Write a script to migrate existing `students` data to the `profiles` table. [bb6a3b8]
     - [ ] Sub-task: Create a new profile for each existing student.
     - [ ] Sub-task: Update the `students` table to link to the new profiles.
-- [ ] Task: Write a script to associate guardians with user accounts.
+- [x] Task: Write a script to associate guardians with user accounts. [1756bf7]
     - [ ] Sub-task: For each guardian, check if a user with the same email exists.
     - [ ] Sub-task: If a user exists, link the guardian to that user.
     - [ ] Sub-task: If no user exists, create a new user and link the guardian.
