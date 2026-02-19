@@ -10,7 +10,7 @@ use crate::{
     AppState,
     database::tables::StaffLeave,
     errors::APIError,
-    models::staff_leaves::{ApplyLeaveRequest, ApproveRejectLeaveRequest, StaffLeaveResponse, StaffLeaveChangeset, LeaveBalanceResponse},
+    models::staff::leave::{ApplyLeaveRequest, ApproveRejectLeaveRequest, StaffLeaveResponse, StaffLeaveChangeset, LeaveBalanceResponse},
     schema::staff_leaves,
     database::enums::LeaveStatus,
 };

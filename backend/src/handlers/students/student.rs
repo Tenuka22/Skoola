@@ -13,7 +13,7 @@ use serde::Deserialize;
 use crate::{
     AppState,
     errors::APIError,
-    models::student::{CreateStudentRequest, UpdateStudentRequest, StudentResponse, Student, PaginatedStudentResponse},
+    models::student::student::{CreateStudentRequest, UpdateStudentRequest, StudentResponse, Student, PaginatedStudentResponse},
     models::MessageResponse,
     services::students::student,
 };

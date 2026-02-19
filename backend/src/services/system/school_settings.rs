@@ -3,7 +3,7 @@ use diesel::upsert::excluded;
 use crate::{
     errors::APIError,
     AppState,
-    models::school_settings::{SchoolSettingResponse, UpdateSchoolSettingRequest},
+    models::system::setting::{SchoolSettingResponse, UpdateSchoolSettingRequest},
     database::tables::SchoolSetting,
 };
 use actix_web::web;

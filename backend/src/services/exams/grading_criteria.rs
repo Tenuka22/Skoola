@@ -2,7 +2,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 use crate::schema::grading_criteria;
 use crate::models::{
-    grading_criteria::{GradingCriterion, NewGradingCriterion, UpdateGradingCriterion},
+    grading_criterion::{GradingCriterion, NewGradingCriterion, UpdateGradingCriterion},
 };
 use crate::AppState; // Changed from DbPool
 use crate::errors::APIError;

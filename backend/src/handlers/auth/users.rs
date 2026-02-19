@@ -9,7 +9,7 @@ use std::collections::HashMap;
 
 use crate::{
     AppState, database::enums::RoleEnum, database::tables::User, errors::APIError,
-    models::MessageResponse, models::auth::UserResponse, schema::users,
+    models::MessageResponse, models::auth::user::UserResponse, schema::users,
     utils::serde_helpers::deserialize_option_option,
 };
 

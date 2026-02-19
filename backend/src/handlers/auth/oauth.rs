@@ -14,7 +14,7 @@ use crate::{AppState, database::tables::{User}, database::enums::RoleEnum, error
 
 use apistos::ApiComponent;
 use actix_web::web::Json; // Added Json here
-use crate::models::auth::TokenResponse; // Added TokenResponse here
+use crate::models::auth::user::TokenResponse; // Added TokenResponse here
 
 #[derive(serde::Deserialize, ApiComponent, JsonSchema)]
 pub struct OAuthQuery {

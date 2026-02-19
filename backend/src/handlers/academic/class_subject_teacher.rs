@@ -2,13 +2,15 @@ use actix_web::web;
 use apistos::api_operation;
 use actix_web::web::Json;
 
-use crate::AppState;
-use crate::errors::APIError;
-use crate::models::class_subject_teacher::{CreateClassSubjectTeacherRequest, UpdateClassSubjectTeacherRequest, ClassSubjectTeacherResponse};
-use crate::models::class::ClassResponse;
-use crate::models::subject::SubjectResponse;
-use crate::models::MessageResponse;
-use crate::services::academic::class_subject_teacher;
+use crate::{
+    AppState,
+    errors::APIError,
+    models::academic::class_subject_teacher::{CreateClassSubjectTeacherRequest, UpdateClassSubjectTeacherRequest, ClassSubjectTeacherResponse},
+    models::academic::class::ClassResponse,
+    models::academic::subject::SubjectResponse,
+    models::MessageResponse,
+    services::academic::class_subject_teacher,
+};
 
 #[api_operation(
     summary = "Assign Subject and Teacher to Class",

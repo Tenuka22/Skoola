@@ -9,13 +9,13 @@ use actix_web::web::Json;
 use crate::{
     AppState,
     errors::APIError,
-    models::student_attendance::{
+    models::student::attendance::{
         BulkMarkStudentAttendanceRequest, MarkStudentAttendanceRequest, UpdateStudentAttendanceRequest,
         GetAttendanceByClassAndDatePath, GetAttendanceByStudentPath, GenerateAttendanceReportRequest,
         LowAttendanceStudentQuery, SendAbsenceNotificationRequest, StudentAttendanceResponse, StudentAttendanceReportResponse,
-        InitiateEmergencyRollCallRequest, IssueExitPassRequest, ExitPassResponse
+        InitiateEmergencyRollCallRequest, IssueExitPassRequest, ExitPassResponse,
+        MarkPeriodAttendanceRequest, SubmitExcuseRequest, AttendanceExcuseResponse
     },
-    models::attendance_v2::{MarkPeriodAttendanceRequest, SubmitExcuseRequest, AttendanceExcuseResponse},
     models::MessageResponse,
     services::students::student_attendance,
     services::students::attendance_policies,
@@ -333,7 +333,7 @@ pub async fn send_absence_notifications(
     pub async fn get_enriched_student_list(
         data: web::Data<AppState>,
         path: web::Path<EnrichedListPath>,
-    ) -> Result<Json<Vec<student_attendance::EnrichedStudentAttendance>>, APIError> {
+    ) -> Result<Json<Vec<crate::services::students::student_attendance::EnrichedStudentAttendance>>, APIError> {
         let path_inner = path.into_inner();
         let res: Vec<student_attendance::EnrichedStudentAttendance> = student_attendance::get_enriched_student_list(data, path_inner.class_id, path_inner.date).await?;
         Ok(Json(res))

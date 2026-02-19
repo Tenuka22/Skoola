@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     AppState,
     errors::APIError,
-    models::subject::{CreateSubjectRequest, UpdateSubjectRequest, AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, SubjectResponse, EnrollStudentInSubjectRequest, SubjectEnrollmentResponse},
+    models::academic::subject::{CreateSubjectRequest, UpdateSubjectRequest, AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, SubjectResponse, EnrollStudentInSubjectRequest, SubjectEnrollmentResponse},
     models::MessageResponse,
     services::academic::subject,
 };

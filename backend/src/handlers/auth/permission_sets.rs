@@ -10,7 +10,8 @@ use crate::{
     AppState,
     database::tables::{UserSet, UserSetUser, User},
     errors::APIError,
-    models::{MessageResponse, auth::UserResponse},
+    models::MessageResponse,
+    models::auth::user::UserResponse,
     schema::{user_sets, user_set_users, users},
 };
 

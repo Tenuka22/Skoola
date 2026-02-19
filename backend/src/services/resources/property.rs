@@ -1,6 +1,6 @@
-use crate::database::tables::{AssetCategory, InventoryItem, UniformItem, UniformIssue, AssetAllocation, MaintenanceRequest};
+use crate::models::resources::inventory::{AssetCategory, InventoryItem, UniformItem, UniformIssue, AssetAllocation, MaintenanceRequest};
 use crate::errors::APIError;
-use crate::models::property::*;
+use crate::models::resources::inventory::*;
 use crate::schema::{asset_categories, inventory_items, uniform_items, uniform_issues, asset_allocations, maintenance_requests};
 use crate::database::enums::MaintenanceStatus;
 use diesel::prelude::*;

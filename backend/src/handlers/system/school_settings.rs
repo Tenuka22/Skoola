@@ -4,7 +4,7 @@ use actix_web::web::Json;
 use crate::{
     AppState,
     errors::APIError,
-    models::school_settings::{SchoolSettingResponse, UpdateSchoolSettingRequest},
+    models::system::setting::{SchoolSettingResponse, UpdateSchoolSettingRequest},
     services::system::school_settings,
     utils::{jwt::Authenticated, permission_verification::PermissionVerification},
     database::enums::PermissionEnum,

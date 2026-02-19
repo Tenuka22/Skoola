@@ -3,7 +3,7 @@ use apistos::{api_operation, web};
 use crate::{
     AppState,
     errors::APIError,
-    models::co_curricular::*,
+    models::resources::co_curricular::{*},
     services::resources::co_curricular,
 };
 // use serde_json; // Removed unused import

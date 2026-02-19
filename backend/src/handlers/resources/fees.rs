@@ -1,14 +1,15 @@
 use crate::AppState;
 use crate::errors::APIError;
-use crate::models::fees::{
+use crate::models::finance::fees::{
     CreateFeeCategoryRequest, UpdateFeeCategoryRequest, CreateFeeStructureRequest, UpdateFeeStructureRequest, 
     AssignFeeToStudentRequest, RecordFeePaymentRequest, ExemptFeeRequest, FeeCategoryResponse, FeeStructureResponse, 
     StudentFeeResponse, FeePaymentResponse, StudentBalanceResponse, SendRemindersResponse, FeePaymentHistoryResponse, 
-    GradeFeeCollectionReport, ApplyWaiverRequest, BulkAssignFeesRequest, FeeReceiptResponse, ExportReportResponse
+    ApplyWaiverRequest, BulkAssignFeesRequest, FeeReceiptResponse, ExportReportResponse,
+    FeePayment
 };
 use crate::services::resources::fees;
 use crate::services::system::email::send_email;
-use actix_web::web; // Removed unused Data, Json, Path, Query imports
+use actix_web::web; 
 use crate::models::MessageResponse;
 use apistos::{api_operation, ApiComponent};
 use apistos::web as api_web;
@@ -114,7 +115,7 @@ pub async fn get_all_categories(
 ) -> Result<web::Json<PaginatedFeeCategoryResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let inner_query = query.into_inner();
-    let (categories, total_categories, total_pages): (Vec<crate::database::tables::FeeCategory>, i64, i64) =
+    let (categories, total_categories, total_pages): (Vec<crate::models::finance::fees::FeeCategory>, i64, i64) =
         fees::get_all_categories_paginated(&mut conn, inner_query.clone()).await?;
     let responses: Vec<FeeCategoryResponse> = categories.into_iter().map(FeeCategoryResponse::from).collect();
     Ok(web::Json(PaginatedFeeCategoryResponse {
@@ -217,7 +218,7 @@ pub async fn get_structures_by_grade(
 ) -> Result<web::Json<Vec<FeeStructureResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let grade_id = path.into_inner();
-    let structures: Vec<crate::database::tables::FeeStructure> = fees::get_structures_by_grade(&mut conn, &grade_id).await?;
+    let structures: Vec<crate::models::finance::fees::FeeStructure> = fees::get_structures_by_grade(&mut conn, &grade_id).await?;
     let responses: Vec<FeeStructureResponse> = structures.into_iter().map(FeeStructureResponse::from).collect();
     Ok(web::Json(responses))
 }
@@ -234,7 +235,7 @@ pub async fn get_all_fee_structures(
 ) -> Result<web::Json<PaginatedFeeStructureResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let inner_query = query.into_inner();
-    let (structures, total_structures, total_pages): (Vec<crate::database::tables::FeeStructure>, i64, i64) =
+    let (structures, total_structures, total_pages): (Vec<crate::models::finance::fees::FeeStructure>, i64, i64) =
         fees::get_all_fee_structures_paginated(&mut conn, inner_query.clone()).await?;
     let responses: Vec<FeeStructureResponse> = structures.into_iter().map(FeeStructureResponse::from).collect();
     Ok(web::Json(PaginatedFeeStructureResponse {
@@ -320,7 +321,7 @@ pub async fn get_student_fees(
 ) -> Result<web::Json<Vec<StudentFeeResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let student_id = path.into_inner();
-    let student_fees_list: Vec<crate::database::tables::StudentFee> = fees::get_fees_by_student(&mut conn, &student_id).await?;
+    let student_fees_list: Vec<crate::models::finance::fees::StudentFee> = fees::get_fees_by_student(&mut conn, &student_id).await?;
     let responses: Vec<StudentFeeResponse> = student_fees_list.into_iter().map(StudentFeeResponse::from).collect();
     Ok(web::Json(responses))
 }
@@ -394,7 +395,7 @@ pub async fn get_payment_history(
 )]
 pub async fn get_defaulters(
     data: web::Data<AppState>,
-) -> Result<web::Json<Vec<crate::models::fees::FeeDefaulterResponse>>, APIError> {
+) -> Result<web::Json<Vec<crate::models::finance::fees::FeeDefaulterResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let defaulters = fees::get_defaulters(&mut conn).await?;
     Ok(web::Json(defaulters))
@@ -408,7 +409,7 @@ pub async fn get_defaulters(
 )]
 pub async fn get_collection_report(
     data: web::Data<AppState>,
-) -> Result<web::Json<Vec<crate::models::fees::FeeCollectionReport>>, APIError> {
+) -> Result<web::Json<Vec<crate::models::finance::fees::FeeCollectionReport>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let report = fees::get_collection_report(&mut conn).await?;
     Ok(web::Json(report))
@@ -422,7 +423,7 @@ pub async fn get_collection_report(
 )]
 pub async fn get_grade_collection_report(
     data: web::Data<AppState>,
-) -> Result<web::Json<Vec<GradeFeeCollectionReport>>, APIError> {
+) -> Result<web::Json<Vec<crate::models::finance::fees::GradeFeeCollectionReport>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let report = fees::get_grade_collection_report(&mut conn).await?;
     Ok(web::Json(report))
@@ -444,7 +445,7 @@ pub async fn send_reminders(
     for defaulter in defaulters {
         if let Ok(student) = crate::schema::students::table
             .filter(crate::schema::students::id.eq(&defaulter.student_id))
-            .first::<crate::database::tables::Student>(&mut conn) {
+            .first::<crate::models::student::student::Student>(&mut conn) {
             
             if let Some(email) = student.email {
                 let subject = "Fee Payment Reminder - Skoola".to_string();
@@ -515,7 +516,7 @@ pub async fn get_payments_by_date_range(
     query: web::Query<DateRangeQuery>,
 ) -> Result<web::Json<Vec<FeePaymentResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let payments: Vec<crate::database::tables::FeePayment> = fees::get_payments_by_date_range(&mut conn, query.start, query.end).await?;
+    let payments: Vec<FeePayment> = fees::get_payments_by_date_range(&mut conn, query.start, query.end).await?;
     let responses: Vec<FeePaymentResponse> = payments.into_iter().map(FeePaymentResponse::from).collect();
     Ok(web::Json(responses))
 }

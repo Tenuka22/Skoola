@@ -2,11 +2,37 @@ use apistos::ApiComponent;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use chrono::{NaiveDate, NaiveDateTime};
-
+use diesel::prelude::*;
 use crate::database::enums::LeaveStatus;
-use crate::database::tables::StaffLeave;
-use diesel::AsChangeset;
 use crate::schema::staff_leaves;
+use crate::models::staff::staff::Staff;
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent
+)]
+#[diesel(table_name = staff_leaves)]
+#[diesel(belongs_to(Staff))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct StaffLeave {
+    pub id: String,
+    pub staff_id: String,
+    pub leave_type: String,
+    pub from_date: NaiveDate,
+    pub to_date: NaiveDate,
+    pub reason: String,
+    pub status: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct ApplyLeaveRequest {
@@ -64,3 +90,18 @@ impl From<StaffLeave> for StaffLeaveResponse {
     }
 }
 
+impl From<crate::database::tables::StaffLeave> for StaffLeaveResponse {
+    fn from(staff_leave: crate::database::tables::StaffLeave) -> Self {
+        StaffLeaveResponse {
+            id: staff_leave.id,
+            staff_id: staff_leave.staff_id,
+            leave_type: staff_leave.leave_type,
+            from_date: staff_leave.from_date,
+            to_date: staff_leave.to_date,
+            reason: staff_leave.reason,
+            status: staff_leave.status.parse().unwrap_or(LeaveStatus::Pending),
+            created_at: staff_leave.created_at,
+            updated_at: staff_leave.updated_at,
+        }
+    }
+}

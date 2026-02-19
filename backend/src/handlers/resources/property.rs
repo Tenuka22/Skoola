@@ -1,6 +1,6 @@
 use crate::AppState;
 use crate::errors::APIError;
-use crate::models::property::{
+use crate::models::resources::inventory::{
     AssetCategoryResponse, CreateAssetCategoryRequest, CreateInventoryItemRequest,
     InventoryItemResponse, UpdateInventoryItemRequest, UpdateStockRequest,
     CreateUniformItemRequest, UniformItemResponse, IssueUniformRequest,

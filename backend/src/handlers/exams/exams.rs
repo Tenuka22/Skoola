@@ -8,7 +8,7 @@ use chrono::NaiveDateTime;
 use crate::{
     AppState,
     errors::APIError,
-    models::exams::{CreateExamRequest, UpdateExamRequest, ExamResponse},
+    models::exams::exam::{CreateExamRequest, UpdateExamRequest, ExamResponse},
     models::MessageResponse,
     services::exams::exams,
 };

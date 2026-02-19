@@ -1,11 +1,107 @@
 use crate::database::enums::{FeeFrequency, PaymentMethod};
-use crate::database::tables::{FeeCategory, FeeStructure, StudentFee, FeePayment};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use chrono::{NaiveDate, NaiveDateTime};
 use apistos::ApiComponent;
-use diesel::Insertable;
-use diesel::AsChangeset;
+use diesel::prelude::*;
+use crate::schema::{fee_categories, fee_structures, student_fees, fee_payments};
+use crate::models::student::student::Student;
+use crate::models::staff::staff::Staff;
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[diesel(table_name = fee_categories)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct FeeCategory {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub is_mandatory: bool,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent
+)]
+#[diesel(table_name = fee_structures)]
+#[diesel(belongs_to(FeeCategory, foreign_key = category_id))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct FeeStructure {
+    pub id: String,
+    pub grade_id: String,
+    pub academic_year_id: String,
+    pub category_id: String,
+    pub amount: f32,
+    pub due_date: NaiveDate,
+    pub frequency: FeeFrequency,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent
+)]
+#[diesel(table_name = student_fees)]
+#[diesel(belongs_to(Student))]
+#[diesel(belongs_to(FeeStructure))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct StudentFee {
+    pub id: String,
+    pub student_id: String,
+    pub fee_structure_id: String,
+    pub amount: f32,
+    pub is_exempted: bool,
+    pub exemption_reason: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent
+)]
+#[diesel(table_name = fee_payments)]
+#[diesel(belongs_to(StudentFee))]
+#[diesel(belongs_to(Staff, foreign_key = collected_by))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct FeePayment {
+    pub id: String,
+    pub student_fee_id: String,
+    pub amount_paid: f32,
+    pub payment_date: NaiveDateTime,
+    pub payment_method: PaymentMethod,
+    pub receipt_number: String,
+    pub collected_by: String,
+    pub remarks: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct CreateFeeCategoryRequest {

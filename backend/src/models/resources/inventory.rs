@@ -1,9 +1,153 @@
 use crate::database::enums::{AllocationType, MaintenanceStatus};
-use crate::database::tables::{AssetCategory, InventoryItem, UniformItem, UniformIssue, AssetAllocation, MaintenanceRequest};
+use crate::schema::{asset_categories, inventory_items, uniform_items, uniform_issues, asset_allocations, maintenance_requests};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime;
 use apistos::ApiComponent;
+use diesel::prelude::*;
+use crate::models::student::student::Student;
+use crate::models::staff::staff::Staff;
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[diesel(table_name = asset_categories)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct AssetCategory {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent
+)]
+#[diesel(table_name = inventory_items)]
+#[diesel(belongs_to(AssetCategory, foreign_key = category_id))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct InventoryItem {
+    pub id: String,
+    pub category_id: String,
+    pub item_name: String,
+    pub description: Option<String>,
+    pub unit: String,
+    pub quantity: i32,
+    pub reorder_level: i32,
+    pub unit_price: f32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[diesel(table_name = uniform_items)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct UniformItem {
+    pub id: String,
+    pub item_name: String,
+    pub size: String,
+    pub gender: String,
+    pub grade_level: Option<String>,
+    pub price: f32,
+    pub quantity: i32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent
+)]
+#[diesel(table_name = uniform_issues)]
+#[diesel(belongs_to(Student))]
+#[diesel(belongs_to(UniformItem))]
+#[diesel(belongs_to(Staff, foreign_key = issued_by))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct UniformIssue {
+    pub id: String,
+    pub student_id: String,
+    pub uniform_item_id: String,
+    pub quantity: i32,
+    pub issue_date: NaiveDateTime,
+    pub issued_by: String,
+    pub amount_collected: f32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent
+)]
+#[diesel(table_name = asset_allocations)]
+#[diesel(belongs_to(InventoryItem, foreign_key = item_id))]
+#[diesel(belongs_to(Staff, foreign_key = allocated_by))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct AssetAllocation {
+    pub id: String,
+    pub item_id: String,
+    pub allocated_to_type: AllocationType,
+    pub allocated_to_id: String,
+    pub quantity: i32,
+    pub allocation_date: NaiveDateTime,
+    pub return_date: Option<NaiveDateTime>,
+    pub allocated_by: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent
+)]
+#[diesel(table_name = maintenance_requests)]
+#[diesel(belongs_to(InventoryItem, foreign_key = item_id))]
+#[diesel(belongs_to(Staff, foreign_key = reported_by))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct MaintenanceRequest {
+    pub id: String,
+    pub item_id: String,
+    pub issue_description: String,
+    pub reported_by: String,
+    pub reported_date: NaiveDateTime,
+    pub status: MaintenanceStatus,
+    pub assigned_to: Option<String>,
+    pub resolved_date: Option<NaiveDateTime>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct CreateAssetCategoryRequest {

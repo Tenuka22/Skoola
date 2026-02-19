@@ -1,4 +1,4 @@
-use crate::models::special_exams::ExamRegistrationRequest;
+use crate::models::exams::special_exam::ExamRegistrationRequest;
 use apistos::api_operation;
 use apistos::web as api_web;
 use actix_web::web::Json;

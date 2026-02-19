@@ -1,11 +1,11 @@
-use crate::models::auth::{UserResponse, UserProfileResponse};
+use crate::models::auth::user::{UserResponse, UserProfileResponse};
 use crate::schema::users::dsl::*;
 use crate::{
     AppState,
     database::tables::{User},
     errors::APIError,
     handlers::auth::oauth::OAuthQuery,
-    models::profile::{ChangeEmailRequest, ChangePasswordRequest, UpdateProfileRequest},
+    models::auth::profile::{ChangeEmailRequest, ChangePasswordRequest, UpdateProfileRequest},
     schema::{users},
     services::{
         auth::auth::{hash_password, verify_password},

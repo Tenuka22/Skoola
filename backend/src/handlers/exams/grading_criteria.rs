@@ -1,7 +1,7 @@
 use apistos::api_operation;
 use crate::AppState;
 use crate::errors::APIError;
-use crate::models::grading_criteria::{
+use crate::models::exams::grading_criterion::{
     GradingCriterion, NewGradingCriterion, UpdateGradingCriterion,
 };
 use crate::models::MessageResponse;

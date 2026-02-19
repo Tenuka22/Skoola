@@ -5,7 +5,7 @@ use actix_web::web::Json;
 use crate::{
     AppState,
     errors::APIError,
-    models::exam_subjects::{CreateExamSubjectRequest, UpdateExamSubjectRequest, ExamSubjectResponse},
+    models::exams::exam_subject::{CreateExamSubjectRequest, UpdateExamSubjectRequest, ExamSubjectResponse},
     models::MessageResponse,
     services::exams::exam_subjects,
 };

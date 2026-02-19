@@ -6,7 +6,7 @@ use actix_web::web::Json;
 
 use crate::{AppState, errors::APIError, schema::users};
 use crate::database::tables::User;
-use crate::models::auth::ResendVerificationEmailRequest;
+use crate::models::auth::user::ResendVerificationEmailRequest;
 use chrono::{Duration, Utc};
 use rand::distributions::{Alphanumeric, DistString};
 use crate::services::system::email::send_verification_email;

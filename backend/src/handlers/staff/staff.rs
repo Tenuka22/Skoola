@@ -15,7 +15,7 @@ use crate::{
     AppState,
     database::tables::{Staff},
     errors::APIError,
-    models::staff::{CreateStaffRequest, StaffChangeset, UpdateStaffRequest, StaffResponse, StaffQuery, PaginatedStaffResponse},
+    models::staff::staff::{CreateStaffRequest, StaffChangeset, UpdateStaffRequest, StaffResponse, StaffQuery, PaginatedStaffResponse},
     models::MessageResponse,
     schema::staff,
     utils::validation::{is_valid_email, is_valid_nic, is_valid_phone},

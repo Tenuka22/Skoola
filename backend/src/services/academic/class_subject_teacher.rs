@@ -120,7 +120,7 @@ pub async fn get_subjects_by_class(
         .filter(class_subject_teachers::class_id.eq(&class_id))
         .filter(class_subject_teachers::academic_year_id.eq(&academic_year_id))
         .select(subjects::all_columns)
-        .load::<crate::models::subject::Subject>(&mut conn)?
+        .load::<crate::models::academic::Subject>(&mut conn)?
         .into_iter()
         .map(SubjectResponse::from)
         .collect();
@@ -140,7 +140,7 @@ pub async fn get_classes_by_teacher(
         .filter(class_subject_teachers::teacher_id.eq(&teacher_id))
         .filter(class_subject_teachers::academic_year_id.eq(&academic_year_id))
         .select(classes::all_columns)
-        .load::<crate::models::class::Class>(&mut conn)?
+        .load::<crate::models::academic::Class>(&mut conn)?
         .into_iter()
         .map(ClassResponse::from)
         .collect();

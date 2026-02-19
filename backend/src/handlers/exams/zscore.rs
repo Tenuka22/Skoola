@@ -1,4 +1,4 @@
-use crate::models::zscore::CalculateZScoreRequest;
+use crate::models::exams::zscore::CalculateZScoreRequest;
 use apistos::api_operation;
 use apistos::web as api_web;
 use actix_web::web::Json;

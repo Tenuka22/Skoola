@@ -1,15 +1,15 @@
-use diesel::prelude::*;
-use diesel::{QueryDsl, RunQueryDsl};
 use crate::{
     errors::APIError,
     AppState,
-    models::exam_types::{ExamType, ExamTypeResponse, CreateExamTypeRequest, UpdateExamTypeRequest},
+    models::exams::exam_type::{ExamType, ExamTypeResponse, CreateExamTypeRequest, UpdateExamTypeRequest},
 };
 use actix_web::web;
 use uuid::Uuid;
 use chrono::Utc;
 use crate::schema::exam_types;
 use crate::handlers::exams::exam_types::{ExamTypeQuery, BulkUpdateExamTypesRequest};
+use diesel::prelude::*;
+use diesel::{QueryDsl, RunQueryDsl, Connection};
 
 
 // Service to create a new ExamType

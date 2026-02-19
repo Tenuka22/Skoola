@@ -2,11 +2,62 @@ use apistos::ApiComponent;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use chrono::{NaiveDate, NaiveDateTime};
-use diesel::prelude::AsChangeset;
+use diesel::prelude::*;
 
 use crate::database::enums::{EmploymentStatus, StaffType};
-pub use crate::database::tables::Staff;
-use crate::schema::staff;
+use crate::schema::{staff, staff_subjects};
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    Queryable,
+    Selectable,
+    Insertable,
+    AsChangeset,
+    Clone,
+)]
+#[diesel(table_name = staff)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct Staff {
+    pub id: String,
+    pub employee_id: String,
+    pub name: String,
+    pub nic: String,
+    pub dob: NaiveDate,
+    pub gender: String,
+    pub address: String,
+    pub phone: String,
+    pub email: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub employment_status: EmploymentStatus,
+    pub staff_type: StaffType,
+    pub photo_url: Option<String>,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent
+)]
+#[diesel(table_name = staff_subjects)]
+#[diesel(belongs_to(Staff))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+#[diesel(primary_key(staff_id, subject_id))]
+pub struct StaffSubject {
+    pub staff_id: String,
+    pub subject_id: String,
+}
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct StaffQuery {
@@ -80,6 +131,27 @@ pub struct StaffResponse {
 
 impl From<Staff> for StaffResponse {
     fn from(staff: Staff) -> Self {
+        StaffResponse {
+            id: staff.id,
+            employee_id: staff.employee_id,
+            name: staff.name,
+            nic: staff.nic,
+            dob: staff.dob,
+            gender: staff.gender,
+            address: staff.address,
+            phone: staff.phone,
+            email: staff.email,
+            photo_url: staff.photo_url,
+            employment_status: staff.employment_status,
+            staff_type: staff.staff_type,
+            created_at: staff.created_at,
+            updated_at: staff.updated_at,
+        }
+    }
+}
+
+impl From<crate::database::tables::Staff> for StaffResponse {
+    fn from(staff: crate::database::tables::Staff) -> Self {
         StaffResponse {
             id: staff.id,
             employee_id: staff.employee_id,

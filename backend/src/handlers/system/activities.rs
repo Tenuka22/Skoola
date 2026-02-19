@@ -7,7 +7,7 @@ use apistos::ApiComponent;
 use crate::{
     AppState,
     errors::APIError,
-    models::activities::{CreateActivityRequest, ActivityResponse, EnrollParticipantRequest, CreateActivityTypeRequest, ActivityTypeResponse, MarkActivityAttendanceRequest},
+    models::system::activity::{CreateActivityRequest, ActivityResponse, EnrollParticipantRequest, CreateActivityTypeRequest, ActivityTypeResponse, MarkActivityAttendanceRequest},
     services::system::activities,
     utils::{jwt::Authenticated, permission_verification::PermissionVerification, jwt::UserId},
     database::enums::PermissionEnum,

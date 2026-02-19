@@ -2,28 +2,26 @@ use diesel::prelude::*;
 use crate::{
     errors::APIError,
     AppState,
-    models::staff_attendance::{
+    models::staff::attendance::{
         BulkMarkStaffAttendanceRequest, StaffAttendanceResponse,
-        UpdateStaffAttendanceRequest
+        UpdateStaffAttendanceRequest, StaffAttendance as DbStaffAttendance,
+        Substitution as DbSubstitution, LessonProgress as DbLessonProgress
     },
-     database::enums::{AttendanceStatus, SubstitutionStatus, DayType}, // Added DayType
-    models::timetable::Timetable,
+    models::staff::leave::StaffLeave as DbStaffLeave,
+    models::system::calendar::SchoolCalendar as DbSchoolCalendar,
+    models::staff::staff::Staff as DbStaff,
+    models::academic::timetable::Timetable,
+    database::enums::{AttendanceStatus, SubstitutionStatus, DayType},
 };
-use actix_web::{web};
+use actix_web::web;
 use uuid::Uuid;
-use chrono::{Utc, NaiveDate, Datelike}; // Added Datelike
+use chrono::{Utc, NaiveDate, Datelike};
 use crate::schema::{staff_attendance, staff_leaves, staff, timetable, substitutions, school_calendar, lesson_progress};
 use crate::services::students::student_attendance::log_audit;
 
-// NEW IMPORTS
-use crate::database::tables::{
-    StaffAttendance as DbStaffAttendance, StaffLeave as DbStaffLeave, Substitution as DbSubstitution, SchoolCalendar as DbSchoolCalendar, Staff as DbStaff,
-    LessonProgress as DbLessonProgress,
-};
-
 pub async fn record_progress(
     pool: web::Data<AppState>,
-    req: crate::models::attendance_v2::CreateLessonProgressRequest,
+    req: crate::models::staff::attendance::CreateLessonProgressRequest,
     teacher_id: String,
 ) -> Result<DbLessonProgress, APIError> {
     let mut conn = pool.db_pool.get()?;
@@ -69,7 +67,7 @@ pub async fn get_progress_by_class(
 pub async fn mark_daily_staff_attendance(
     pool: web::Data<AppState>,
     staff_id: String,
-    body: crate::models::staff_attendance::MarkStaffAttendanceRequest,
+    body: crate::models::staff::attendance::MarkStaffAttendanceRequest,
 ) -> Result<StaffAttendanceResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
 
@@ -80,7 +78,7 @@ pub async fn mark_daily_staff_attendance(
     let existing: Option<DbStaffAttendance> = staff_attendance::table
         .filter(staff_attendance::staff_id.eq(&staff_id))
         .filter(staff_attendance::date.eq(&body.date))
-        .select(DbStaffAttendance::as_select()) // Add this line
+        .select(DbStaffAttendance::as_select())
         .first(&mut conn).optional()?;
 
     if existing.is_some() {
@@ -97,6 +95,8 @@ pub async fn mark_daily_staff_attendance(
         remarks: body.remarks,
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
+        is_locked: false,
+        marked_by: None,
     };
 
     diesel::insert_into(staff_attendance::table)
@@ -109,15 +109,13 @@ pub async fn mark_daily_staff_attendance(
 pub async fn bulk_mark_staff_attendance(
     pool: web::Data<AppState>,
     bulk_request: BulkMarkStaffAttendanceRequest,
-    _marker_user_id: String, // Mark as unused to silence warning if not used yet
+    _marker_user_id: String,
 ) -> Result<Vec<StaffAttendanceResponse>, APIError> {
     let mut conn = pool.db_pool.get()?;
     let mut marked_attendance_records = Vec::new();
 
-    if let Some(_first) = bulk_request.attendance_records.first() { // Mark as unused
-        if !is_working_day(&mut conn, bulk_request.date).await? {
-            return Err(APIError::bad_request("Cannot mark attendance on a non-working day"));
-        }
+    if !is_working_day(&mut conn, bulk_request.date).await? {
+        return Err(APIError::bad_request("Cannot mark attendance on a non-working day"));
     }
 
     for record_request in bulk_request.attendance_records {
@@ -129,7 +127,7 @@ pub async fn bulk_mark_staff_attendance(
 
         if existing.is_some() {
             marked_attendance_records.push(StaffAttendanceResponse::from(existing.unwrap()));
-            continue; // Skip if already marked
+            continue;
         }
 
         let new_attendance = DbStaffAttendance {
@@ -142,6 +140,8 @@ pub async fn bulk_mark_staff_attendance(
             remarks: record_request.remarks,
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
+            is_locked: false,
+            marked_by: None,
         };
 
         diesel::insert_into(staff_attendance::table)
@@ -164,11 +164,11 @@ pub async fn update_staff_attendance(
 
     let old_record: DbStaffAttendance = staff_attendance::table
         .find(&attendance_id)
-        .select(DbStaffAttendance::as_select()) // Add this line
+        .select(DbStaffAttendance::as_select())
         .first(&mut conn)
         .map_err(|_| APIError::not_found("Attendance record not found"))?;
 
-    let changeset = crate::models::staff_attendance::StaffAttendanceChangeset {
+    let changeset = crate::models::staff::attendance::StaffAttendanceChangeset {
         status: body.status.as_ref().map(|s| s.to_string()),
         time_in: body.time_in,
         time_out: body.time_out,
@@ -210,7 +210,7 @@ pub async fn sync_staff_leaves(pool: web::Data<AppState>, target_date: NaiveDate
         let existing: Option<DbStaffAttendance> = staff_attendance::table
                     .filter(staff_attendance::staff_id.eq(&leave.staff_id))
                     .filter(staff_attendance::date.eq(target_date))
-                    .select(DbStaffAttendance::as_select()) // Add this line
+                    .select(DbStaffAttendance::as_select())
                     .first(&mut conn)
                     .optional()?;
         if existing.is_none() {
@@ -224,6 +224,8 @@ pub async fn sync_staff_leaves(pool: web::Data<AppState>, target_date: NaiveDate
                 remarks: Some(format!("Auto-synced from Leave: {}", leave.leave_type)),
                 created_at: Utc::now().naive_utc(),
                 updated_at: Utc::now().naive_utc(),
+                is_locked: false,
+                marked_by: None,
             };
             diesel::insert_into(staff_attendance::table).values(&new_att).execute(&mut conn)?;
             count += 1;
@@ -249,7 +251,7 @@ pub async fn suggest_substitute(
     pool: web::Data<AppState>,
     t_id: String,
     target_date: NaiveDate,
-) -> Result<Option<DbStaff>, APIError> { // Changed to DbStaff
+) -> Result<Option<DbStaff>, APIError> {
     let mut conn = pool.db_pool.get()?;
 
     let entry: Timetable = timetable::table
@@ -272,10 +274,9 @@ pub async fn suggest_substitute(
         .select(staff_leaves::staff_id)
         .load::<String>(&mut conn)?;
 
-    // PRACTICAL LINK: Check if teacher is already a substitute for another class at this time
     let already_subbing: Vec<String> = substitutions::table
         .filter(substitutions::date.eq(target_date))
-        .filter(substitutions::timetable_id.eq(&t_id)) // Simplified: assumes timetable_id covers the slot
+        .filter(substitutions::timetable_id.eq(&t_id))
         .filter(substitutions::status.eq_any(vec![SubstitutionStatus::Pending.to_string(), SubstitutionStatus::Confirmed.to_string()]))
         .select(substitutions::substitute_teacher_id)
         .load::<String>(&mut conn)?;
@@ -296,13 +297,13 @@ pub async fn create_auto_substitution(
     original_id: String,
     t_id: String,
     target_date: NaiveDate,
-) -> Result<DbSubstitution, APIError> { // Changed to DbSubstitution
+) -> Result<DbSubstitution, APIError> {
     let mut conn = pool.db_pool.get()?;
     
     let substitute = suggest_substitute(pool.clone(), t_id.clone(), target_date).await?
         .ok_or_else(|| APIError::internal("No available substitute found"))?;
 
-    let new_sub = DbSubstitution { // Changed to DbSubstitution
+    let new_sub = DbSubstitution {
         id: Uuid::new_v4().to_string(),
         original_teacher_id: original_id,
         substitute_teacher_id: substitute.id,
@@ -361,7 +362,7 @@ pub async fn calculate_monthly_percentage(
     staff_id: String,
     year: i32,
     month: u32,
-) -> Result<crate::models::staff_attendance::MonthlyAttendancePercentageResponse, APIError> {
+) -> Result<crate::models::staff::attendance::MonthlyAttendancePercentageResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
     let start_of_month = NaiveDate::from_ymd_opt(year, month, 1)
         .ok_or_else(|| APIError::bad_request("Invalid month or year"))?;
@@ -389,7 +390,7 @@ pub async fn calculate_monthly_percentage(
         0.0
     };
 
-    Ok(crate::models::staff_attendance::MonthlyAttendancePercentageResponse {
+    Ok(crate::models::staff::attendance::MonthlyAttendancePercentageResponse {
         staff_id,
         month,
         year,
@@ -401,7 +402,7 @@ pub async fn calculate_monthly_percentage(
 
 pub async fn is_working_day(conn: &mut SqliteConnection, check_date: NaiveDate) -> Result<bool, APIError> {
     let day_info: Option<DbSchoolCalendar> = school_calendar::table
-        .filter(school_calendar::date.eq(check_date)) // Changed .find to .filter and .eq
+        .filter(school_calendar::date.eq(check_date))
         .first(conn)
         .optional()?;
 
@@ -413,4 +414,3 @@ pub async fn is_working_day(conn: &mut SqliteConnection, check_date: NaiveDate) 
         }
     }
 }
-

@@ -6,7 +6,7 @@ use crate::{
     AppState,
     models::{
         student_marks::{StudentMark, StudentMarkResponse, CreateStudentMarkRequest, UpdateStudentMarkRequest, BulkCreateStudentMarkRequest},
-        exam_subjects::ExamSubject,
+        exams::exam_subject::ExamSubject,
     },
 };
 use actix_web::{web, HttpResponse};

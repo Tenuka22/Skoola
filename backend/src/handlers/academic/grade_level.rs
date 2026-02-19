@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     AppState,
     errors::APIError,
-    models::grade_level::{CreateGradeLevelRequest, UpdateGradeLevelRequest, GradeLevelResponse},
+    models::academic::grade_level::{CreateGradeLevelRequest, UpdateGradeLevelRequest, GradeLevelResponse},
     models::MessageResponse,
     services::academic::grade_level,
 };

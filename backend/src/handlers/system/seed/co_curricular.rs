@@ -1,7 +1,7 @@
 use crate::config::Config;
 use crate::errors::APIError;
 use crate::faker::CustomFaker;
-use crate::models::co_curricular::{
+use crate::models::resources::{
     Club, ClubMember, Competition, Sport, SportTeam, StudentAchievement,
 };
 use crate::models::staff::Staff;

@@ -3,7 +3,7 @@ use diesel::{QueryDsl, RunQueryDsl};
 use crate::{
     errors::APIError,
     AppState,
-    models::subject::{Subject, SubjectResponse, CreateSubjectRequest, UpdateSubjectRequest, AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, EnrollStudentInSubjectRequest, SubjectEnrollmentResponse},
+    models::academic::subject::{Subject, SubjectResponse, CreateSubjectRequest, UpdateSubjectRequest, AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, EnrollStudentInSubjectRequest, SubjectEnrollmentResponse},
 };
 use actix_web::web;
 use uuid::Uuid;

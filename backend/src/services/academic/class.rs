@@ -3,7 +3,7 @@ use diesel::{QueryDsl, RunQueryDsl};
 use crate::{
     errors::APIError,
     AppState,
-    models::class::{Class, ClassResponse, CreateClassRequest, UpdateClassRequest},
+    models::academic::class::{Class, ClassResponse, CreateClassRequest, UpdateClassRequest},
 };
 use actix_web::web;
 use uuid::Uuid;

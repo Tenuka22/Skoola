@@ -1,10 +1,10 @@
 use diesel::prelude::*;
 use crate::{
-    database::tables::StaffLeave,
+    models::staff::leave::StaffLeave,
     schema::staff_leaves,
     errors::APIError,
     AppState,
-    models::staff_leaves::LeaveBalanceResponse,
+    models::staff::leave::LeaveBalanceResponse,
     database::enums::LeaveStatus,
 };
 use actix_web::web;

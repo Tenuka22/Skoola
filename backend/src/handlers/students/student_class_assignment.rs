@@ -6,7 +6,7 @@ use actix_web::web::Json;
 use crate::{
     AppState,
     errors::APIError,
-    models::student_class_assignment::{CreateStudentClassAssignmentRequest, BulkAssignStudentClassRequest, PromoteStudentRequest, StudentClassAssignmentResponse},
+    models::student::enrollment::{CreateStudentClassAssignmentRequest, BulkAssignStudentClassRequest, PromoteStudentRequest, StudentClassAssignmentResponse},
     services::students::student_class_assignment,
 };
 

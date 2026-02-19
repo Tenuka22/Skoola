@@ -1,6 +1,6 @@
-use crate::database::tables::{FeeCategory, FeeStructure, StudentFee, FeePayment};
+use crate::models::finance::fees::{FeeCategory, FeeStructure, StudentFee, FeePayment};
 use crate::errors::APIError;
-use crate::models::fees::{
+use crate::models::finance::fees::{
     CreateFeeCategoryRequest, UpdateFeeCategoryRequest, CreateFeeStructureRequest, 
     AssignFeeToStudentRequest, RecordFeePaymentRequest, ApplyWaiverRequest, BulkAssignFeesRequest,
     FeeReceiptResponse, ExportReportResponse, UpdateFeeCategoryChangeset
@@ -189,7 +189,7 @@ pub async fn get_structures_by_grade(
 pub async fn update_structure(
     conn: &mut SqliteConnection,
     structure_id: &str,
-    req: crate::models::fees::UpdateFeeStructureRequest,
+    req: crate::models::finance::UpdateFeeStructureRequest,
 ) -> Result<FeeStructure, APIError> {
     let mut target = fee_structures::table
         .filter(fee_structures::id.eq(structure_id))
@@ -291,7 +291,7 @@ pub async fn bulk_update_fee_structures(
 ) -> Result<(), APIError> {
     use crate::schema::fee_structures::dsl::{fee_structures, id};
 
-    let changeset = crate::models::fees::UpdateFeeStructure {
+    let changeset = crate::models::finance::UpdateFeeStructure {
         grade_id: req.grade_id,
         academic_year_id: req.academic_year_id,
         category_id: req.category_id,
@@ -368,7 +368,7 @@ pub async fn record_payment(
 pub async fn update_student_fee(
     conn: &mut SqliteConnection,
     fee_id: &str,
-    req: crate::models::fees::ExemptFeeRequest,
+    req: crate::models::finance::ExemptFeeRequest,
 ) -> Result<StudentFee, APIError> {
     let mut target = student_fees::table
         .filter(student_fees::id.eq(fee_id))
@@ -403,14 +403,14 @@ pub async fn get_fees_by_student(
 
 pub async fn get_exempted_students(
     conn: &mut SqliteConnection,
-) -> Result<Vec<crate::models::fees::StudentFeeResponse>, APIError> {
+) -> Result<Vec<crate::models::finance::StudentFeeResponse>, APIError> {
     let fees = student_fees::table
         .filter(student_fees::is_exempted.eq(true))
         .select(StudentFee::as_select())
         .load(conn)
         .map_err(|e| APIError::internal(&format!("Failed to load exempted students: {}", e)))?;
 
-    Ok(fees.into_iter().map(crate::models::fees::StudentFeeResponse::from).collect())
+    Ok(fees.into_iter().map(crate::models::finance::StudentFeeResponse::from).collect())
 }
 
 pub async fn get_student_balance(
@@ -437,7 +437,7 @@ pub async fn get_student_balance(
 
 pub async fn get_defaulters(
     conn: &mut SqliteConnection,
-) -> Result<Vec<crate::models::fees::FeeDefaulterResponse>, APIError> {
+) -> Result<Vec<crate::models::finance::FeeDefaulterResponse>, APIError> {
     let all_students = students::table
         .load::<crate::database::tables::Student>(conn)
         .map_err(|e| APIError::internal(&format!("Failed to load all students for defaulters: {}", e)))?;
@@ -447,7 +447,7 @@ pub async fn get_defaulters(
     for student in all_students {
         let balance = get_student_balance(conn, &student.id).await?;
         if balance > 0.0 {
-            defaulters.push(crate::models::fees::FeeDefaulterResponse {
+            defaulters.push(crate::models::finance::FeeDefaulterResponse {
                 student_id: student.id,
                 admission_number: student.admission_number,
                 student_name: student.name_english,
@@ -463,7 +463,7 @@ pub async fn get_defaulters(
 
 pub async fn get_collection_report(
     conn: &mut SqliteConnection,
-) -> Result<Vec<crate::models::fees::FeeCollectionReport>, APIError> {
+) -> Result<Vec<crate::models::finance::FeeCollectionReport>, APIError> {
     let categories = fee_categories::table
         .load::<FeeCategory>(conn)
         .map_err(|e| APIError::internal(&format!("Failed to load fee categories for report: {}", e)))?;
@@ -495,7 +495,7 @@ pub async fn get_collection_report(
         
         let percentage = if total_expected > 0.0 { (total_collected / total_expected) * 100.0 } else { 0.0 };
 
-        report.push(crate::models::fees::FeeCollectionReport {
+        report.push(crate::models::finance::FeeCollectionReport {
             category_name: category.name,
             total_collected,
             total_expected,
@@ -509,7 +509,7 @@ pub async fn get_collection_report(
 pub async fn get_payment_history_by_student(
     conn: &mut SqliteConnection,
     student_id: &str,
-) -> Result<crate::models::fees::FeePaymentHistoryResponse, APIError> {
+) -> Result<crate::models::finance::FeePaymentHistoryResponse, APIError> {
     let fees = student_fees::table
         .filter(student_fees::student_id.eq(student_id))
         .load::<StudentFee>(conn)
@@ -526,8 +526,8 @@ pub async fn get_payment_history_by_student(
     let total_paid: f32 = payments.iter().map(|p| p.amount_paid).sum();
     let balance = total_due - total_paid;
 
-    Ok(crate::models::fees::FeePaymentHistoryResponse {
-        payments: payments.into_iter().map(crate::models::fees::FeePaymentResponse::from).collect(),
+    Ok(crate::models::finance::FeePaymentHistoryResponse {
+        payments: payments.into_iter().map(crate::models::finance::FeePaymentResponse::from).collect(),
         total_paid,
         balance,
     })
@@ -535,9 +535,9 @@ pub async fn get_payment_history_by_student(
 
 pub async fn get_grade_collection_report(
     conn: &mut SqliteConnection,
-) -> Result<Vec<crate::models::fees::GradeFeeCollectionReport>, APIError> {
+) -> Result<Vec<crate::models::finance::GradeFeeCollectionReport>, APIError> {
     let all_grades = grade_levels::table
-        .load::<crate::models::grade_level::GradeLevel>(conn)
+        .load::<crate::models::academic::GradeLevel>(conn)
         .map_err(|e| APIError::internal(&format!("Failed to load grade levels for report: {}", e)))?;
 
     let mut report = Vec::new();
@@ -565,7 +565,7 @@ pub async fn get_grade_collection_report(
 
         let total_collected: f32 = payments.iter().map(|p| p.amount_paid).sum();
 
-        report.push(crate::models::fees::GradeFeeCollectionReport {
+        report.push(crate::models::finance::GradeFeeCollectionReport {
             grade_id: grade.id,
             grade_name: grade.grade_name,
             total_collected,

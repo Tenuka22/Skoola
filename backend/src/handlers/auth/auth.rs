@@ -13,10 +13,7 @@ use crate::{
     database::tables::{User},
     database::enums::RoleEnum,
     errors::APIError,
-    models::auth::{
-        LoginRequest, PasswordReset, PasswordResetRequest, RefreshTokenRequest, RegisterRequest,
-        TokenResponse, UserResponse,
-    },
+    models::auth::user::{LoginRequest, PasswordReset, PasswordResetRequest, RefreshTokenRequest, RegisterRequest, TokenResponse, UserResponse},
     models::MessageResponse,
     schema::{users},
     services::auth::auth::{create_token_pair, hash_password, refresh_jwt, verify_password},

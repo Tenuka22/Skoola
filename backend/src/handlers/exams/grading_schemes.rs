@@ -1,7 +1,7 @@
 use apistos::api_operation;
 use crate::AppState;
 use crate::errors::APIError;
-use crate::models::grading_schemes::{GradingScheme, NewGradingScheme, UpdateGradingScheme};
+use crate::models::exams::grading_scheme::{GradingScheme, NewGradingScheme, UpdateGradingScheme};
 use crate::models::MessageResponse;
 use crate::services::exams::grading_schemes;
 use actix_web::web::{self, Json};

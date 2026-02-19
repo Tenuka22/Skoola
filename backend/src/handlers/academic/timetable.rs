@@ -5,7 +5,7 @@ use actix_web::web::Json;
 use crate::{
     AppState,
     errors::APIError,
-    models::timetable::{CreateTimetableRequest, UpdateTimetableRequest, TimetableResponse},
+    models::academic::timetable::{CreateTimetableRequest, UpdateTimetableRequest, TimetableResponse},
     models::MessageResponse,
     services::academic::timetable,
 };

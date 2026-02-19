@@ -1,13 +1,16 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 use actix_web::web;
-use apistos::{api_operation, ApiComponent};
-use diesel::r2d2::{ConnectionManager, Pool};
-use diesel::SqliteConnection;
 use actix_web::web::Json;
+use serde::{Deserialize, Serialize};
+use schemars::JsonSchema;
+use apistos::ApiComponent;
+use apistos::api_operation;
+use diesel::r2d2::Pool;
+use diesel::r2d2::ConnectionManager;
+use diesel::SqliteConnection;
 
+use crate::models::resources::library::LibraryCategory;
 use crate::errors::APIError;
-use crate::models::library::*;
+use crate::models::resources::library::*;
 use crate::models::MessageResponse;
 use crate::services::resources::library;
 

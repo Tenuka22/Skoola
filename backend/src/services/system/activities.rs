@@ -2,7 +2,7 @@ use diesel::prelude::*;
 use crate::{
     errors::APIError,
     AppState,
-    models::activities::{CreateActivityRequest, ActivityResponse, EnrollParticipantRequest, CreateActivityTypeRequest, ActivityTypeResponse},
+    models::system::activity::{CreateActivityRequest, ActivityResponse, EnrollParticipantRequest, CreateActivityTypeRequest, ActivityTypeResponse},
     database::tables::{Activity, ActivityParticipant, ActivityAttendance, ActivityType},
     database::enums::{AttendanceStatus, ParticipantType},
 };

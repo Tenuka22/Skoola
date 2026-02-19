@@ -2,9 +2,9 @@ use actix_web::web;
 use apistos::api_operation; // Added
 use actix_web::web::Json;
 use crate::{
-    AppState, // Changed from database::connection::DbPool
+    AppState,
     errors::APIError,
-    models::terms::{CreateTermRequest, TermResponse},
+    models::academic::terms::{CreateTermRequest, TermResponse},
     services::academic::terms,
 };
 

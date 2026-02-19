@@ -5,7 +5,7 @@ use actix_web::web::Json;
 use crate::{
     AppState,
     errors::APIError,
-    models::student_guardian::{CreateStudentGuardianRequest, UpdateStudentGuardianRequest, StudentGuardianResponse},
+    models::student::guardian::{CreateStudentGuardianRequest, UpdateStudentGuardianRequest, StudentGuardianResponse},
     models::MessageResponse,
     services::students::student_guardian,
 };

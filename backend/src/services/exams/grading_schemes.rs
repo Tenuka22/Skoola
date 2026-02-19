@@ -1,8 +1,8 @@
 use diesel::prelude::*;
 use uuid::Uuid;
 use crate::schema::grading_schemes;
-use crate::models::{grading_schemes::{GradingScheme, NewGradingScheme, UpdateGradingScheme},
-    grade_level::GradeLevel,
+use crate::models::{grading_scheme::{GradingScheme, NewGradingScheme, UpdateGradingScheme},
+    academic::grade_level::GradeLevel,
 };
 use crate::AppState; // Changed from DbPool
 use crate::errors::APIError;

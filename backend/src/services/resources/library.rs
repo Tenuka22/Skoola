@@ -4,10 +4,11 @@ use diesel::{QueryDsl, RunQueryDsl};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
 
-use crate::database::tables::{Staff, Student};
-use crate::models::library::LibraryCategory;
+use crate::models::student::student::Student;
+use crate::models::staff::staff::Staff;
+use crate::models::resources::library::LibraryCategory;
 use crate::errors::APIError;
-use crate::models::library::*;
+use crate::models::resources::library::*;
 use crate::schema::{library_books, library_categories, library_issues, library_settings, staff, students};
 use crate::handlers::resources::library::{LibraryCategoryQuery, BulkUpdateLibraryCategoriesRequest, LibraryBookQuery, BulkUpdateLibraryBooksRequest};
 

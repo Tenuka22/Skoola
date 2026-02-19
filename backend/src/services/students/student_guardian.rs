@@ -2,7 +2,7 @@ use diesel::prelude::*;
 use crate::{
     errors::APIError,
     AppState,
-    models::student_guardian::{StudentGuardian, CreateStudentGuardianRequest, StudentGuardianResponse, UpdateStudentGuardianRequest},
+    models::student::guardian::{StudentGuardian, CreateStudentGuardianRequest, StudentGuardianResponse, UpdateStudentGuardianRequest},
 };
 use actix_web::{web, HttpResponse};
 use uuid::Uuid;

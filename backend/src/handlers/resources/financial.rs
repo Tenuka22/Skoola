@@ -1,21 +1,28 @@
+use apistos::api_operation;
 use crate::AppState;
-use crate::errors::APIError;
-use crate::models::financial::{
+
+use crate::models::finance::salary::{
+    CreateSalaryComponentRequest, SalaryComponentResponse,
+    SetStaffSalaryRequest, StaffSalaryResponse, RecordSalaryPaymentRequest, SalaryPaymentResponse,
+};
+use crate::models::finance::budget::{
     CreateBudgetCategoryRequest, BudgetCategoryResponse, SetBudgetRequest, BudgetResponse,
+    UpdateBudgetRequest, BudgetSummaryResponse, BudgetComparisonResponse,
+};
+use crate::models::finance::transaction::{
     RecordIncomeRequest, IncomeTransactionResponse, RecordExpenseRequest, ExpenseTransactionResponse,
-    RecordPettyCashRequest, PettyCashTransactionResponse, CreateSalaryComponentRequest, SalaryComponentResponse,
-    SetStaffSalaryRequest, StaffSalaryResponse, UpdateBudgetRequest, BudgetSummaryResponse,
-    BudgetComparisonResponse, RecordSalaryPaymentRequest, SalaryPaymentResponse, ReconcilePettyCashRequest,
+    RecordPettyCashRequest, PettyCashTransactionResponse, ReconcilePettyCashRequest,
 };
 use crate::models::MessageResponse;
 use crate::services::resources::financial;
 use actix_web::web::{Data, Json, Path, Query};
-use apistos::{api_operation, web, ApiComponent};
+use apistos::{web, ApiComponent};
 use chrono::NaiveDateTime;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use crate::errors::APIError;
 
-// New Query, Paginated Response, and Bulk Request/Update structs for Budget Categories
+// Budget Category structs
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
 pub struct BudgetCategoryQuery {
     pub search: Option<String>,
@@ -70,7 +77,7 @@ pub async fn get_all_budget_categories(
 ) -> Result<Json<PaginatedBudgetCategoryResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let inner_query = query.into_inner();
-    let (categories, total_categories, total_pages): (Vec<crate::database::tables::BudgetCategory>, i64, i64) =
+    let (categories, total_categories, total_pages): (Vec<crate::models::finance::budget::BudgetCategory>, i64, i64) =
         financial::get_all_budget_categories(&mut conn, inner_query.clone()).await?;
     Ok(Json(PaginatedBudgetCategoryResponse {
         data: categories.into_iter().map(BudgetCategoryResponse::from).collect(),

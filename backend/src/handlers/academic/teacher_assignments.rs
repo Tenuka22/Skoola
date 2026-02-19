@@ -10,7 +10,7 @@ use crate::{
     AppState,
     database::tables::{TeacherClassAssignment, TeacherSubjectAssignment},
     errors::APIError,
-    models::teacher_assignments::{AssignClassToTeacherRequest, AssignSubjectToTeacherRequest, TeacherClassAssignmentResponse, TeacherSubjectAssignmentResponse, TeacherWorkloadResponse},
+    models::staff::assignment::{AssignClassToTeacherRequest, AssignSubjectToTeacherRequest, TeacherClassAssignmentResponse, TeacherSubjectAssignmentResponse, TeacherWorkloadResponse},
     schema::{teacher_class_assignments, teacher_subject_assignments},
 };
 

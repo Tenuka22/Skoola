@@ -1,12 +1,13 @@
-use diesel::prelude::*;
 use crate::{
     errors::APIError,
     AppState,
-    models::exam_subjects::{ExamSubject, ExamSubjectResponse, CreateExamSubjectRequest, UpdateExamSubjectRequest},
+    models::exams::exam_subject::{ExamSubject, ExamSubjectResponse, CreateExamSubjectRequest, UpdateExamSubjectRequest},
 };
 use actix_web::{web, HttpResponse};
 use chrono::Utc;
 use crate::schema::{exam_subjects, exams::dsl::*};
+use diesel::prelude::*;
+use diesel::{QueryDsl, RunQueryDsl};
 
 // Service to create a new ExamSubject
 pub async fn create_exam_subject(

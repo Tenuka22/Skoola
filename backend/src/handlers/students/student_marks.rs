@@ -5,7 +5,7 @@ use actix_web::web::Json;
 use crate::{
     AppState,
     errors::APIError,
-    models::student_marks::{CreateStudentMarkRequest, UpdateStudentMarkRequest, BulkCreateStudentMarkRequest, StudentMarkResponse},
+    models::exams::student_marks::{CreateStudentMarkRequest, UpdateStudentMarkRequest, BulkCreateStudentMarkRequest, StudentMarkResponse},
     models::MessageResponse,
     services::students::student_marks,
     utils::jwt::UserId,

@@ -3,7 +3,7 @@ use crate::database::enums::FeeFrequency;
 use crate::database::tables::{FeeCategory, FeeStructure};
 use crate::errors::APIError;
 use crate::faker::CustomFaker;
-pub use crate::models::financial::IncomeSource;
+pub use crate::models::finance::IncomeSource;
 use crate::models::student::Student;
 use crate::schema::{fee_categories, fee_structures, income_sources, students};
 use chrono::{Duration, Utc};

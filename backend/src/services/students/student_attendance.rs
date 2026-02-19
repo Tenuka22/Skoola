@@ -2,35 +2,34 @@ use diesel::prelude::*;
 use crate::{
     errors::APIError,
     AppState,
-     models::student_attendance::{
+    models::student::attendance::{
         StudentAttendance, MarkStudentAttendanceRequest, StudentAttendanceResponse,
         BulkMarkStudentAttendanceRequest, UpdateStudentAttendanceRequest,
-        GenerateAttendanceReportRequest, StudentAttendanceReportResponse, LowAttendanceStudentQuery
+        GenerateAttendanceReportRequest, StudentAttendanceReportResponse, LowAttendanceStudentQuery,
+        EmergencyRollCall, EmergencyRollCallEntry, PreApprovedAbsence,
+        AttendanceDiscrepancy, AttendanceAuditLog, StudentPeriodAttendance,
+        AttendanceExcuse as DbAttendanceExcuse, MarkPeriodAttendanceRequest, SubmitExcuseRequest
     },
-    models::student_class_assignment::StudentClassAssignment,
-    models::student::Student,
-     database::enums::{AttendanceStatus, DayType, SuspicionFlag, EmergencyStatus},
-    models::timetable::Timetable,
+    models::student::enrollment::StudentClassAssignment,
+    models::student::student::Student,
+    models::student::medical::StudentMedicalInfo,
+    models::system::calendar::SchoolCalendar,
+    models::system::activity::{Activity, ActivityParticipant},
+    database::enums::{AttendanceStatus, DayType, SuspicionFlag, EmergencyStatus},
+    models::academic::timetable::Timetable,
 };
 use actix_web::{web, HttpResponse};
 use uuid::Uuid;
-use chrono::{Utc, NaiveDate, Datelike, NaiveTime}; // Added Datelike
+use chrono::{Utc, NaiveDate, Datelike, NaiveTime};
 use schemars::JsonSchema;
 use apistos::ApiComponent;
 use serde::Serialize;
 use crate::schema::{student_attendance, student_period_attendance, students, student_guardians, school_calendar, activities, activity_participants, attendance_audit_log, student_class_assignments, attendance_discrepancies, student_medical_info, pre_approved_absences, emergency_roll_calls, emergency_roll_call_entries, timetable, attendance_excuses};
-
-// NEW IMPORTS
-use crate::database::tables::{
-    EmergencyRollCall, EmergencyRollCallEntry, PreApprovedAbsence, SchoolCalendar,
-    AttendanceDiscrepancy, StudentMedicalInfo, AttendanceAuditLog, Activity, ActivityParticipant,
-    StudentPeriodAttendance, AttendanceExcuse as DbAttendanceExcuse,
-};
 use crate::services::system::email::send_email;
 
 pub async fn submit_excuse(
     pool: web::Data<AppState>,
-    req: crate::models::attendance_v2::SubmitExcuseRequest,
+    req: SubmitExcuseRequest,
 ) -> Result<DbAttendanceExcuse, APIError> {
     let mut conn = pool.db_pool.get()?;
     let id = Uuid::new_v4().to_string();
@@ -71,10 +70,9 @@ pub async fn verify_excuse(
         ))
         .execute(&mut conn)?;
 
-    // Automatically mark the attendance record as Excused
     diesel::update(student_attendance::table.find(&excuse.attendance_record_id))
         .set(student_attendance::status.eq(AttendanceStatus::Excused))
-        .execute(&mut conn).ok(); // It might be a period attendance instead
+        .execute(&mut conn).ok();
 
     diesel::update(student_period_attendance::table.find(&excuse.attendance_record_id))
         .set(student_period_attendance::status.eq(AttendanceStatus::Excused))
@@ -215,7 +213,6 @@ pub async fn calculate_precise_late_minutes(
         .find(&t_id)
         .first(conn)?;
 
-    // Check global morning cutoff if this is the first period
     let cutoff_str: Option<String> = crate::schema::school_settings::table
         .filter(crate::schema::school_settings::setting_key.eq("morning_cutoff_time"))
         .select(crate::schema::school_settings::setting_value)
@@ -241,7 +238,7 @@ pub async fn calculate_precise_late_minutes(
 
 pub async fn is_working_day(conn: &mut SqliteConnection, check_date: NaiveDate) -> Result<bool, APIError> {
     let day_info: Option<SchoolCalendar> = school_calendar::table
-        .filter(school_calendar::date.eq(check_date)) // Changed .find to .filter and .eq
+        .filter(school_calendar::date.eq(check_date))
         .first(conn)
         .optional()?;
 
@@ -315,12 +312,12 @@ pub async fn check_consecutive_absences(pool: web::Data<AppState>, student_id: S
 pub async fn get_enriched_student_list(pool: web::Data<AppState>, class_id: String, date: NaiveDate) -> Result<Vec<EnrichedStudentAttendance>, APIError> {
     let mut conn = pool.db_pool.get()?;
     
-    let students_data: Vec<(crate::database::tables::Student, Option<StudentMedicalInfo>)> = students::table
+    let students_data: Vec<(Student, Option<StudentMedicalInfo>)> = students::table
         .inner_join(student_class_assignments::table.on(students::id.eq(student_class_assignments::student_id)))
         .left_join(student_medical_info::table.on(students::id.eq(student_medical_info::student_id)))
         .filter(student_class_assignments::class_id.eq(&class_id))
         .filter(student_class_assignments::to_date.is_null())
-        .select((crate::database::tables::Student::as_select(), Option::<StudentMedicalInfo>::as_select()))
+        .select((Student::as_select(), Option::<StudentMedicalInfo>::as_select()))
         .load(&mut conn)?;
 
     let mut enriched = Vec::new();
@@ -344,7 +341,7 @@ pub async fn get_enriched_student_list(pool: web::Data<AppState>, class_id: Stri
 
 pub async fn mark_period_attendance(
     pool: web::Data<AppState>,
-    req: crate::models::attendance_v2::MarkPeriodAttendanceRequest,
+    req: MarkPeriodAttendanceRequest,
     marker_id: String,
 ) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
@@ -658,10 +655,10 @@ pub async fn generate_attendance_report(
     }
 
     let students_in_class: Vec<Student> = students::table
-        .inner_join(crate::schema::student_class_assignments::table.on(students::id.eq(crate::schema::student_class_assignments::student_id)))
-        .filter(crate::schema::student_class_assignments::class_id.eq(&report_request.class_id))
-        .filter(crate::schema::student_class_assignments::from_date.le(report_request.to_date))
-        .filter(crate::schema::student_class_assignments::to_date.is_null().or(crate::schema::student_class_assignments::to_date.ge(report_request.from_date)))
+        .inner_join(student_class_assignments::table.on(students::id.eq(student_class_assignments::student_id)))
+        .filter(student_class_assignments::class_id.eq(&report_request.class_id))
+        .filter(student_class_assignments::from_date.le(report_request.to_date))
+        .filter(student_class_assignments::to_date.is_null().or(student_class_assignments::to_date.ge(report_request.from_date)))
         .select(Student::as_select())
         .group_by(students::id)
         .load::<Student>(&mut conn)?;
@@ -729,10 +726,10 @@ pub async fn get_students_with_low_attendance(
     }
 
     let students_in_class: Vec<Student> = students::table
-        .inner_join(crate::schema::student_class_assignments::table.on(students::id.eq(crate::schema::student_class_assignments::student_id)))
-        .filter(crate::schema::student_class_assignments::class_id.eq(&low_attendance_query.class_id))
-        .filter(crate::schema::student_class_assignments::from_date.le(low_attendance_query.to_date))
-        .filter(crate::schema::student_class_assignments::to_date.is_null().or(crate::schema::student_class_assignments::to_date.ge(low_attendance_query.from_date)))
+        .inner_join(student_class_assignments::table.on(students::id.eq(student_class_assignments::student_id)))
+        .filter(student_class_assignments::class_id.eq(&low_attendance_query.class_id))
+        .filter(student_class_assignments::from_date.le(low_attendance_query.to_date))
+        .filter(student_class_assignments::to_date.is_null().or(student_class_assignments::to_date.ge(low_attendance_query.from_date)))
         .select(Student::as_select())
         .group_by(students::id)
         .load::<Student>(&mut conn)?;
