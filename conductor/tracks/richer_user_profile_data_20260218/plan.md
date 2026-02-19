@@ -12,7 +12,7 @@
 - [x] Task: Create a new migration to add `user_id` to the `student_guardians` table. [cc0e2d8]
     - [x] Sub-task: Add `user_id` foreign key to the `student_guardians` table.
 - [x] Task: Apply all new migrations to the database. [9a8a7d4]
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema Changes' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Database Schema Changes' (Protocol in workflow.md)
 
 ## Phase 2: Data Migration [checkpoint: 90ab8cf]
 
@@ -28,7 +28,7 @@
     - [ ] Sub-task: If a user exists, link the guardian to that user.
     - [ ] Sub-task: If no user exists, create a new user and link the guardian.
 - [x] Task: Run all data migration scripts. [c247241]
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Data Migration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Data Migration' (Protocol in workflow.md)
 
 ## Phase 3: Backend Logic Updates
 
@@ -36,5 +36,5 @@
 - [x] Task: Update the staff creation logic to create a corresponding profile. [5d5abbb]
 - [x] Task: Update the student creation logic to create a corresponding profile. [fb13f47]
 - [x] Task: Update the guardian creation logic to create or link a user account and profile. [3e73268]
-- [ ] Task: Update all relevant handlers and services to use the new `profiles` table.
+- [~] Task: Update all relevant handlers and services to use the new `profiles` table.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Backend Logic Updates' (Protocol in workflow.md)
