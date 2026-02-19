@@ -1,11 +1,9 @@
 CREATE TABLE profiles (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id TEXT PRIMARY KEY NOT NULL, -- UUIDs will be stored as TEXT
     name VARCHAR NOT NULL,
     address VARCHAR,
     phone VARCHAR,
     photo_url VARCHAR,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
-
-SELECT diesel_manage_updated_at('profiles');

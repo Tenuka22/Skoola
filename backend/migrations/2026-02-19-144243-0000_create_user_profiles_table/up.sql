@@ -1,11 +1,9 @@
 CREATE TABLE user_profiles (
-    user_id UUID NOT NULL,
-    profile_id UUID NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    user_id TEXT NOT NULL, -- UUIDs will be stored as TEXT
+    profile_id TEXT NOT NULL, -- UUIDs will be stored as TEXT
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (user_id, profile_id),
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (profile_id) REFERENCES profiles (id) ON DELETE CASCADE
 );
-
-SELECT diesel_manage_updated_at('user_profiles');

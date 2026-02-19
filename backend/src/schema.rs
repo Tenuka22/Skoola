@@ -666,6 +666,18 @@ diesel::table! {
 }
 
 diesel::table! {
+    profiles (id) {
+        id -> Text,
+        name -> Text,
+        address -> Nullable<Text>,
+        phone -> Nullable<Text>,
+        photo_url -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     report_card_marks (id) {
         id -> Text,
         report_card_id -> Text,
@@ -871,6 +883,7 @@ diesel::table! {
         employment_status -> Text,
         staff_type -> Text,
         photo_url -> Nullable<Text>,
+        profile_id -> Nullable<Text>,
     }
 }
 
@@ -1055,6 +1068,7 @@ diesel::table! {
         address -> Text,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        user_id -> Nullable<Text>,
     }
 }
 
@@ -1148,6 +1162,7 @@ diesel::table! {
         updated_at -> Timestamp,
         status -> Text,
         photo_url -> Nullable<Text>,
+        profile_id -> Nullable<Text>,
     }
 }
 
@@ -1270,6 +1285,15 @@ diesel::table! {
     user_permissions (user_id, permission) {
         user_id -> Text,
         permission -> Text,
+    }
+}
+
+diesel::table! {
+    user_profiles (user_id, profile_id) {
+        user_id -> Text,
+        profile_id -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -1455,6 +1479,8 @@ diesel::joinable!(uniform_issues -> staff (issued_by));
 diesel::joinable!(uniform_issues -> students (student_id));
 diesel::joinable!(uniform_issues -> uniform_items (uniform_item_id));
 diesel::joinable!(user_permissions -> users (user_id));
+diesel::joinable!(user_profiles -> profiles (profile_id));
+diesel::joinable!(user_profiles -> users (user_id));
 diesel::joinable!(user_set_permissions -> user_sets (user_set_id));
 diesel::joinable!(user_set_users -> user_sets (user_set_id));
 diesel::joinable!(user_set_users -> users (user_id));
@@ -1512,6 +1538,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     ol_exams,
     petty_cash_transactions,
     pre_approved_absences,
+    profiles,
     report_card_marks,
     report_cards,
     role_permissions,
@@ -1561,6 +1588,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     uniform_issues,
     uniform_items,
     user_permissions,
+    user_profiles,
     user_set_permissions,
     user_set_users,
     user_sets,
