@@ -37,4 +37,4 @@
 - [x] Task: Update the student creation logic to create a corresponding profile. [fb13f47]
 - [x] Task: Update the guardian creation logic to create or link a user account and profile. [3e73268]
 - [x] Task: Update all relevant handlers and services to use the new `profiles` table.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Backend Logic Updates' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Backend Logic Updates' (Protocol in workflow.md)
