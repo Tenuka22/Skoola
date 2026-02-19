@@ -3,11 +3,15 @@ use crate::{
     errors::APIError,
     AppState,
     models::student::guardian::{StudentGuardian, CreateStudentGuardianRequest, StudentGuardianResponse, UpdateStudentGuardianRequest},
+    models::auth_user::{User, NewUser}, // Added User, NewUser
+    database::enums::RoleEnum, // Added RoleEnum
 };
 use actix_web::{web, HttpResponse};
 use uuid::Uuid;
 use chrono::Utc;
-use crate::schema::student_guardians;
+use crate::schema::{student_guardians, users}; // Added users
+use bcrypt::{hash, DEFAULT_COST}; // Added bcrypt for hashing passwords
+
 
 pub async fn add_guardian_to_student(
     pool: web::Data<AppState>,
@@ -18,6 +22,54 @@ pub async fn add_guardian_to_student(
 
     let guardian_id = Uuid::new_v4().to_string();
 
+    let user_id_for_guardian: Option<String> = if let Some(guardian_email) = new_guardian_request.email.clone() {
+        // 1. Look up a user by the guardian's email
+        let matching_user: Option<User> = users::table
+            .filter(users::email.eq(guardian_email.clone()))
+            .select(backend::models::auth_user::User::as_select())
+            .first(&mut conn)
+            .optional()?;
+
+        if let Some(user) = matching_user {
+            // 2. If a user exists, link the guardian to that user
+            Some(user.id)
+        } else {
+            // 3. If no user exists, create a new user and link the guardian
+            println!("Creating new user for guardian with email: {}", guardian_email);
+            let new_user_id = Uuid::new_v4().to_string();
+            let password = Uuid::new_v4().to_string(); // Generate a random temporary password
+            let hashed_password = hash(password.as_bytes(), DEFAULT_COST)
+                .map_err(|e| APIError::internal(&format!("Failed to hash password: {}", e)))?;
+
+            let new_user = NewUser {
+                id: new_user_id.clone(),
+                email: guardian_email.clone(),
+                password_hash: hashed_password,
+                google_id: None,
+                github_id: None,
+                is_verified: true,
+                verification_token: None,
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+                verification_sent_at: None,
+                password_reset_token: None,
+                password_reset_sent_at: None,
+                failed_login_attempts: 0,
+                lockout_until: None,
+                role: RoleEnum::Parent, // Assign Parent role
+            };
+
+            diesel::insert_into(users::table)
+                .values(&new_user)
+                .execute(&mut conn)?;
+            
+            println!("User created for {} with ID {}. Temporary password: {}. Please ensure a password reset mechanism is in place.", guardian_email, new_user_id, password);
+            Some(new_user_id)
+        }
+    } else {
+        None
+    };
+
     let new_guardian = StudentGuardian {
         id: guardian_id,
         student_id,
@@ -26,7 +78,7 @@ pub async fn add_guardian_to_student(
         phone: new_guardian_request.phone,
         email: new_guardian_request.email,
         address: new_guardian_request.address,
-        user_id: None, // Added this line
+        user_id: user_id_for_guardian, // Link to the user
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     };
