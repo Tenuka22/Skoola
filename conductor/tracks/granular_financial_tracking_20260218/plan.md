@@ -19,7 +19,7 @@
     - [x] Sub-task: When a fee payment is successfully processed, call the ledger service to record the transaction.
 - [x] Task: Integrate the new ledger service with the existing `expense_transactions` logic.
     - [x] Sub-task: When an expense is recorded, call the ledger service to record the transaction.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Backend Logic' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Backend Logic' (Protocol in workflow.md)
 
 ## Phase 3: Reporting (Basic)
 
