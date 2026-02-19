@@ -1,5 +1,5 @@
 use apistos::web;
-use crate::handlers::resources::{co_curricular, fees, financial, library, property};
+use crate::handlers::resources::{co_curricular, fees, financial, library, property, financial_reports}; // Added financial_reports
 use crate::utils::jwt::Authenticated;
 use crate::utils::permission_verification::PermissionVerification;
 use crate::database::enums::PermissionEnum;
@@ -43,4 +43,5 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.configure(financial::config);
     cfg.configure(fees::config);
     cfg.configure(co_curricular::config);
+    cfg.configure(financial_reports::configure);
     cfg.configure(financial_reports::configure); // Added
