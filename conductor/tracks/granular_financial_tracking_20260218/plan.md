@@ -26,4 +26,4 @@
 - [x] Task: Create a service to generate a basic trial balance.
     - [x] Sub-task: Implement a function that queries the `general_ledger` and returns the balance of each account.
 - [x] Task: Expose the trial balance via a new API endpoint.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Reporting (Basic)' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Reporting (Basic)' (Protocol in workflow.md)
