@@ -14,7 +14,7 @@
 - [x] Task: Apply all new migrations to the database. [9a8a7d4]
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema Changes' (Protocol in workflow.md)
 
-## Phase 2: Data Migration
+## Phase 2: Data Migration [checkpoint: 90ab8cf]
 
 - [x] Task: Write a script to migrate existing `staff` data to the `profiles` table. [c4e1594]
     - [ ] Sub-task: Create a new profile for each existing staff member.
