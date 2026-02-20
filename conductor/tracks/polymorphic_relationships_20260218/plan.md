@@ -17,12 +17,12 @@
 - [x] Task: Update backend services to use the new junction tables for asset allocations. [15dba14]
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Backend Logic for Asset Allocations' (Protocol in workflow.md) [15dba14]
 
-## Phase 4: Database Schema for Activity Participants [checkpoint: b14a51d]
+## Phase 4: Database Schema for Activity Participants
 
-- [x] Task: Create a migration for `activity_participants_staff` and `activity_participants_students` junction tables. [344d0bf]
-- [x] Task: Create a migration to remove polymorphic columns from the `activity_participants` table. [a1b3337]
-- [x] Task: Apply the migrations for activity participants.
-- [x] Task: Conductor - User Manual Verification 'Phase 4: Database Schema for Activity Participants' (Protocol in workflow.md) [cbd2038]
+- [ ] Task: Create a migration for `activity_participants_staff` and `activity_participants_students` junction tables.
+- [ ] Task: Create a migration to remove polymorphic columns from the `activity_participants` table.
+- [ ] Task: Apply the migrations for activity participants.
+- [ ] Task: Conductor - User Manual Verification 'Phase 4: Database Schema for Activity Participants' (Protocol in workflow.md)
 
 ## Phase 5: Data Migration for Activity Participants
 
