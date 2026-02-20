@@ -14,8 +14,8 @@
 
 ## Phase 3: Backend Logic for Asset Allocations
 
-- [x] Task: Update backend services to use the new junction tables for asset allocations. [c135d04]
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Backend Logic for Asset Allocations' (Protocol in workflow.md)
+- [x] Task: Update backend services to use the new junction tables for asset allocations. [15dba14]
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Backend Logic for Asset Allocations' (Protocol in workflow.md) [15dba14]
 
 ## Phase 4: Database Schema for Activity Participants
 
