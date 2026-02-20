@@ -55,6 +55,26 @@ diesel::table! {
 }
 
 diesel::table! {
+    activity_participants_staff (activity_id, staff_id) {
+        activity_id -> Text,
+        staff_id -> Text,
+        participant_type -> Text,
+        enrollment_reason -> Nullable<Text>,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    activity_participants_students (activity_id, student_id) {
+        activity_id -> Text,
+        student_id -> Text,
+        participant_type -> Text,
+        enrollment_reason -> Nullable<Text>,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     activity_types (id) {
         id -> Text,
         name -> Text,
@@ -70,7 +90,7 @@ diesel::table! {
         exam_year -> Integer,
         index_number -> Nullable<Text>,
         stream_id -> Nullable<Text>,
-        z_score -> Nullable<Double>,
+        z_score -> Nullable<Float>,
         district_rank -> Nullable<Integer>,
         island_rank -> Nullable<Integer>,
         general_test_marks -> Nullable<Integer>,
@@ -92,6 +112,20 @@ diesel::table! {
         allocated_by -> Text,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    asset_allocations_staff (asset_allocation_id, staff_id) {
+        asset_allocation_id -> Text,
+        staff_id -> Text,
+    }
+}
+
+diesel::table! {
+    asset_allocations_students (asset_allocation_id, student_id) {
+        asset_allocation_id -> Text,
+        student_id -> Text,
     }
 }
 
@@ -218,34 +252,12 @@ diesel::table! {
 }
 
 diesel::table! {
-    club_members (club_id, student_id) {
-        club_id -> Text,
-        student_id -> Text,
-        role -> Text,
-        joined_date -> Date,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
     clubs (id) {
         id -> Text,
         club_name -> Text,
         description -> Nullable<Text>,
         teacher_in_charge_id -> Text,
         meeting_schedule -> Nullable<Text>,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    competition_participants (competition_id, student_id) {
-        competition_id -> Text,
-        student_id -> Text,
-        position -> Nullable<Text>,
-        award -> Nullable<Text>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -552,7 +564,7 @@ diesel::table! {
 
 diesel::table! {
     library_books (id) {
-        id -> Integer,
+        id -> Nullable<Integer>,
         isbn -> Nullable<Text>,
         title -> Text,
         author -> Text,
@@ -569,7 +581,7 @@ diesel::table! {
 
 diesel::table! {
     library_categories (id) {
-        id -> Integer,
+        id -> Nullable<Integer>,
         category_name -> Text,
         description -> Nullable<Text>,
         created_at -> Timestamp,
@@ -579,7 +591,7 @@ diesel::table! {
 
 diesel::table! {
     library_issues (id) {
-        id -> Integer,
+        id -> Nullable<Integer>,
         book_id -> Integer,
         student_id -> Nullable<Text>,
         staff_id -> Nullable<Text>,
@@ -598,7 +610,7 @@ diesel::table! {
 
 diesel::table! {
     library_settings (id) {
-        id -> Integer,
+        id -> Nullable<Integer>,
         max_books_per_student -> Integer,
         max_books_per_staff -> Integer,
         issue_duration_days_student -> Integer,
@@ -769,7 +781,7 @@ diesel::table! {
 
 diesel::table! {
     school_calendar (date) {
-        date -> Nullable<Date>,
+        date -> Date,
         day_type -> Text,
         name -> Nullable<Text>,
         is_academic_day -> Bool,
@@ -1139,7 +1151,7 @@ diesel::table! {
         student_id -> Text,
         exam_id -> Text,
         subject_id -> Text,
-        zscore -> Double,
+        zscore -> Float,
     }
 }
 
@@ -1343,8 +1355,8 @@ diesel::table! {
     zscore_calculations (exam_id, subject_id) {
         exam_id -> Text,
         subject_id -> Text,
-        mean -> Double,
-        std_deviation -> Double,
+        mean -> Float,
+        std_deviation -> Float,
         calculated_at -> Timestamp,
     }
 }
@@ -1355,10 +1367,18 @@ diesel::joinable!(activities -> users (created_by));
 diesel::joinable!(activity_attendance -> activities (activity_id));
 diesel::joinable!(activity_participants -> activities (activity_id));
 diesel::joinable!(activity_participants -> users (user_id));
+diesel::joinable!(activity_participants_staff -> activities (activity_id));
+diesel::joinable!(activity_participants_staff -> staff (staff_id));
+diesel::joinable!(activity_participants_students -> activities (activity_id));
+diesel::joinable!(activity_participants_students -> students (student_id));
 diesel::joinable!(al_exams -> streams (stream_id));
 diesel::joinable!(al_exams -> students (student_id));
 diesel::joinable!(asset_allocations -> inventory_items (item_id));
-diesel::joinable!(asset_allocations -> staff (allocated_by));
+diesel::joinable!(asset_allocations -> users (allocated_by));
+diesel::joinable!(asset_allocations_staff -> asset_allocations (asset_allocation_id));
+diesel::joinable!(asset_allocations_staff -> staff (staff_id));
+diesel::joinable!(asset_allocations_students -> asset_allocations (asset_allocation_id));
+diesel::joinable!(asset_allocations_students -> students (student_id));
 diesel::joinable!(attendance_audit_log -> users (changed_by));
 diesel::joinable!(attendance_discrepancies -> students (student_id));
 diesel::joinable!(attendance_discrepancies -> users (resolved_by));
@@ -1373,11 +1393,7 @@ diesel::joinable!(classes -> academic_years (academic_year_id));
 diesel::joinable!(classes -> grade_levels (grade_id));
 diesel::joinable!(classes -> staff (class_teacher_id));
 diesel::joinable!(club_activities -> clubs (club_id));
-diesel::joinable!(club_members -> clubs (club_id));
-diesel::joinable!(club_members -> students (student_id));
 diesel::joinable!(clubs -> staff (teacher_in_charge_id));
-diesel::joinable!(competition_participants -> competitions (competition_id));
-diesel::joinable!(competition_participants -> students (student_id));
 diesel::joinable!(cultural_event_participants -> cultural_events (event_id));
 diesel::joinable!(cultural_event_participants -> students (student_id));
 diesel::joinable!(detention_balances -> students (student_id));
@@ -1412,8 +1428,11 @@ diesel::joinable!(lesson_progress -> subjects (subject_id));
 diesel::joinable!(lesson_progress -> timetable (timetable_id));
 diesel::joinable!(library_books -> library_categories (category_id));
 diesel::joinable!(library_issues -> library_books (book_id));
+diesel::joinable!(library_issues -> staff (staff_id));
 diesel::joinable!(library_issues -> students (student_id));
 diesel::joinable!(maintenance_requests -> inventory_items (item_id));
+diesel::joinable!(maintenance_requests -> staff (assigned_to));
+diesel::joinable!(maintenance_requests -> users (reported_by));
 diesel::joinable!(ol_exams -> students (student_id));
 diesel::joinable!(petty_cash_transactions -> staff (handled_by));
 diesel::joinable!(pre_approved_absences -> students (student_id));
@@ -1436,6 +1455,7 @@ diesel::joinable!(sport_team_members -> sport_teams (team_id));
 diesel::joinable!(sport_team_members -> students (student_id));
 diesel::joinable!(sport_teams -> sports (sport_id));
 diesel::joinable!(sport_teams -> staff (coach_id));
+diesel::joinable!(staff -> profiles (profile_id));
 diesel::joinable!(staff_attendance -> staff (staff_id));
 diesel::joinable!(staff_attendance -> users (marked_by));
 diesel::joinable!(staff_employment_history -> staff (staff_id));
@@ -1448,18 +1468,31 @@ diesel::joinable!(staff_subjects -> subjects (subject_id));
 diesel::joinable!(stream_subjects -> streams (stream_id));
 diesel::joinable!(stream_subjects -> subjects (subject_id));
 diesel::joinable!(student_achievements -> students (student_id));
+diesel::joinable!(student_attendance -> classes (class_id));
+diesel::joinable!(student_attendance -> students (student_id));
+diesel::joinable!(student_attendance -> users (marked_by));
+diesel::joinable!(student_class_assignments -> academic_years (academic_year_id));
+diesel::joinable!(student_class_assignments -> classes (class_id));
+diesel::joinable!(student_class_assignments -> grade_levels (grade_id));
+diesel::joinable!(student_class_assignments -> students (student_id));
 diesel::joinable!(student_emergency_contacts -> students (student_id));
 diesel::joinable!(student_fees -> fee_structures (fee_structure_id));
 diesel::joinable!(student_fees -> students (student_id));
 diesel::joinable!(student_guardians -> students (student_id));
+diesel::joinable!(student_guardians -> users (user_id));
+diesel::joinable!(student_marks -> exams (exam_id));
 diesel::joinable!(student_marks -> students (student_id));
+diesel::joinable!(student_marks -> subjects (subject_id));
 diesel::joinable!(student_medical_info -> students (student_id));
 diesel::joinable!(student_period_attendance -> classes (class_id));
 diesel::joinable!(student_period_attendance -> students (student_id));
 diesel::joinable!(student_period_attendance -> timetable (timetable_id));
 diesel::joinable!(student_period_attendance -> users (marked_by));
 diesel::joinable!(student_previous_schools -> students (student_id));
+diesel::joinable!(student_zscores -> exams (exam_id));
 diesel::joinable!(student_zscores -> students (student_id));
+diesel::joinable!(student_zscores -> subjects (subject_id));
+diesel::joinable!(students -> profiles (profile_id));
 diesel::joinable!(subject_enrollments -> academic_years (academic_year_id));
 diesel::joinable!(subject_enrollments -> students (student_id));
 diesel::joinable!(subject_enrollments -> subjects (subject_id));
@@ -1484,15 +1517,21 @@ diesel::joinable!(user_profiles -> users (user_id));
 diesel::joinable!(user_set_permissions -> user_sets (user_set_id));
 diesel::joinable!(user_set_users -> user_sets (user_set_id));
 diesel::joinable!(user_set_users -> users (user_id));
+diesel::joinable!(zscore_calculations -> exams (exam_id));
+diesel::joinable!(zscore_calculations -> subjects (subject_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     academic_years,
     activities,
     activity_attendance,
     activity_participants,
+    activity_participants_staff,
+    activity_participants_students,
     activity_types,
     al_exams,
     asset_allocations,
+    asset_allocations_staff,
+    asset_allocations_students,
     asset_categories,
     attendance_audit_log,
     attendance_discrepancies,
@@ -1503,9 +1542,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     class_subject_teachers,
     classes,
     club_activities,
-    club_members,
     clubs,
-    competition_participants,
     competitions,
     cultural_event_participants,
     cultural_events,
