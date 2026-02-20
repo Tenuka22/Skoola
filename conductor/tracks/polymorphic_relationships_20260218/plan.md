@@ -9,7 +9,7 @@
 
 ## Phase 2: Data Migration for Asset Allocations
 
-- [ ] Task: Write and run a script to migrate existing `asset_allocations` data to the new junction tables.
+- [x] Task: Write and run a script to migrate existing `asset_allocations` data to the new junction tables. [1dbdcf6]
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Data Migration for Asset Allocations' (Protocol in workflow.md)
 
 ## Phase 3: Backend Logic for Asset Allocations
