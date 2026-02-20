@@ -7,7 +7,7 @@
 - [x] Task: Apply the migrations for asset allocations.
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Database Schema for Asset Allocations' (Protocol in workflow.md)
 
-## Phase 2: Data Migration for Asset Allocations
+## Phase 2: Data Migration for Asset Allocations [checkpoint: d06b7f9]
 
 - [x] Task: Write and run a script to migrate existing `asset_allocations` data to the new junction tables. [1dbdcf6]
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Data Migration for Asset Allocations' (Protocol in workflow.md)
