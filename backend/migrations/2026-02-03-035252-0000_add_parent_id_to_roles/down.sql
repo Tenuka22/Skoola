@@ -1,1 +1,0 @@
-ALTER TABLE roles DROP COLUMN parent_id;

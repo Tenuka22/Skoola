@@ -1,9 +1,0 @@
-CREATE TABLE profiles (
-    id TEXT PRIMARY KEY NOT NULL, -- UUIDs will be stored as TEXT
-    name VARCHAR NOT NULL,
-    address VARCHAR,
-    phone VARCHAR,
-    photo_url VARCHAR,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
-);

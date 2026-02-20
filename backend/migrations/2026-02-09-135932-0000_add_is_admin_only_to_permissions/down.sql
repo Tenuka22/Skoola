@@ -1,1 +1,0 @@
-ALTER TABLE permissions DROP COLUMN is_admin_only;

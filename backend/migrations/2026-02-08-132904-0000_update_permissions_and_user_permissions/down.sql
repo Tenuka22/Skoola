@@ -1,2 +1,0 @@
--- This migration is intentionally left empty.
--- The changes were moved to 2026-02-08-133209-0000_create_permission_system.

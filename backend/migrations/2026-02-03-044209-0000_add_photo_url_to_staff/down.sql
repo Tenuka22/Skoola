@@ -1,1 +1,0 @@
-ALTER TABLE staff DROP COLUMN photo_url;

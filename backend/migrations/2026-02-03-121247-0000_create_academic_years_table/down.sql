@@ -1,1 +1,0 @@
-DROP TABLE academic_years;

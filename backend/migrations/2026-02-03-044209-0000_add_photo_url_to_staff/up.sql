@@ -1,1 +1,0 @@
-ALTER TABLE staff ADD COLUMN photo_url TEXT;

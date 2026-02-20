@@ -1,1 +1,0 @@
-DROP TABLE teacher_class_assignments;

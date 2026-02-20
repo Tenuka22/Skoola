@@ -1,1 +1,0 @@
-DROP TABLE stream_subjects;
