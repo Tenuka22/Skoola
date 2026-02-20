@@ -21,7 +21,7 @@
 
 - [x] Task: Create a migration for `activity_participants_staff` and `activity_participants_students` junction tables. [344d0bf]
 - [x] Task: Create a migration to remove polymorphic columns from the `activity_participants` table. [a1b3337]
-- [ ] Task: Apply the migrations for activity participants.
+- [x] Task: Apply the migrations for activity participants.
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Database Schema for Activity Participants' (Protocol in workflow.md)
 
 ## Phase 5: Data Migration for Activity Participants
