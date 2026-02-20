@@ -5,3 +5,5 @@ ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'Guest';
 DROP TABLE IF EXISTS user_roles;
 DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS staff_roles;
+DROP TABLE IF EXISTS role_set_roles;
+DROP TABLE IF EXISTS role_permission_sets;
