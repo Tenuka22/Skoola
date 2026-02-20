@@ -1,4 +1,4 @@
-use crate::database::enums::{AllocationType, MaintenanceStatus};
+use crate::database::enums::MaintenanceStatus;
 use crate::schema::{asset_categories, inventory_items, uniform_items, uniform_issues, asset_allocations, maintenance_requests};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -110,8 +110,6 @@ pub struct UniformIssue {
 pub struct AssetAllocation {
     pub id: String,
     pub item_id: String,
-    pub allocated_to_type: AllocationType,
-    pub allocated_to_id: String,
     pub quantity: i32,
     pub allocation_date: NaiveDateTime,
     pub return_date: Option<NaiveDateTime>,
@@ -309,13 +307,16 @@ impl From<UniformIssue> for UniformIssueResponse {
     }
 }
 
+use crate::models::staff::staff::StaffResponse;
+use crate::models::student::student::StudentResponse;
+
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct AllocateAssetRequest {
     pub item_id: String,
-    pub allocated_to_type: AllocationType,
-    pub allocated_to_id: String,
     pub quantity: i32,
     pub allocated_by: String,
+    pub staff_id: Option<String>,
+    pub student_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
@@ -327,8 +328,6 @@ pub struct ReturnAssetRequest {
 pub struct AssetAllocationResponse {
     pub id: String,
     pub item_id: String,
-    pub allocated_to_type: AllocationType,
-    pub allocated_to_id: String,
     pub quantity: i32,
     pub allocation_date: NaiveDateTime,
     pub return_date: Option<NaiveDateTime>,
@@ -342,8 +341,6 @@ impl From<AssetAllocation> for AssetAllocationResponse {
         Self {
             id: alloc.id,
             item_id: alloc.item_id,
-            allocated_to_type: alloc.allocated_to_type,
-            allocated_to_id: alloc.allocated_to_id,
             quantity: alloc.quantity,
             allocation_date: alloc.allocation_date,
             return_date: alloc.return_date,
@@ -352,6 +349,14 @@ impl From<AssetAllocation> for AssetAllocationResponse {
             updated_at: alloc.updated_at,
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
+pub struct DetailedAssetAllocationResponse {
+    #[serde(flatten)]
+    pub allocation: AssetAllocationResponse,
+    pub allocated_to_staff: Option<StaffResponse>,
+    pub allocated_to_student: Option<StudentResponse>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
