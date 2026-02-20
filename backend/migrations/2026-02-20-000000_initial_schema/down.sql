@@ -2,12 +2,6 @@
 
 -- Drop indices
 DROP INDEX IF EXISTS idx_users_email;
-DROP INDEX IF EXISTS idx_sports_sport_name;
-DROP INDEX IF EXISTS idx_sport_team_members_team_id;
-DROP INDEX IF EXISTS idx_sport_event_participants_event_id;
-DROP INDEX IF EXISTS idx_sport_events_sport_id;
-DROP INDEX IF EXISTS idx_sport_teams_sport_id;
-DROP INDEX IF EXISTS idx_cultural_event_participants_event_id;
 DROP INDEX IF EXISTS idx_user_set_permissions_user_set_id;
 DROP INDEX IF EXISTS idx_user_permissions_user_id;
 DROP INDEX IF EXISTS idx_user_profiles_user_id;
@@ -58,40 +52,40 @@ DROP INDEX IF EXISTS idx_activity_attendance_status;
 DROP INDEX IF EXISTS idx_activities_name;
 DROP INDEX IF EXISTS idx_academic_years_name;
 
--- Drop tables in reverse order of creation or dependency
+-- Drop Special Tables
+DROP TABLE IF EXISTS activity_participants_students;
+DROP TABLE IF EXISTS activity_participants_staff;
+DROP TABLE IF EXISTS asset_allocations_students;
+DROP TABLE IF EXISTS asset_allocations_staff;
+
+-- Drop Level 4 Dependency Tables
 DROP TABLE IF EXISTS uniform_issues;
-DROP TABLE IF EXISTS uniform_items;
 DROP TABLE IF EXISTS substitutions;
 DROP TABLE IF EXISTS student_period_attendance;
 DROP TABLE IF EXISTS lesson_progress;
+
+-- Drop Level 3 Dependency Tables
 DROP TABLE IF EXISTS fee_payments;
 DROP TABLE IF EXISTS timetable;
-DROP TABLE IF EXISTS competition_participants;
-DROP TABLE IF EXISTS club_activities;
-DROP TABLE IF EXISTS club_members;
 DROP TABLE IF EXISTS teacher_subject_assignments;
 DROP TABLE IF EXISTS teacher_class_assignments;
 DROP TABLE IF EXISTS class_subject_teachers;
 DROP TABLE IF EXISTS student_fees;
 DROP TABLE IF EXISTS student_class_assignments;
 DROP TABLE IF EXISTS student_attendance;
-DROP TABLE IF EXISTS asset_allocations_students;
-DROP TABLE IF EXISTS asset_allocations_staff;
+
+-- Drop Level 2 Dependency Tables
 DROP TABLE IF EXISTS cultural_event_participants;
 DROP TABLE IF EXISTS sport_team_members;
 DROP TABLE IF EXISTS sport_event_participants;
-DROP TABLE IF EXISTS sport_events;
-DROP TABLE IF EXISTS sport_teams;
 DROP TABLE IF EXISTS report_card_marks;
 DROP TABLE IF EXISTS report_cards;
 DROP TABLE IF EXISTS zscore_calculations;
 DROP TABLE IF EXISTS student_zscores;
 DROP TABLE IF EXISTS student_marks;
 DROP TABLE IF EXISTS exam_subjects;
-DROP TABLE IF EXISTS exams;
-DROP TABLE IF EXISTS emergency_roll_call_entries;
 DROP TABLE IF EXISTS library_issues;
-DROP TABLE IF EXISTS library_books;
+DROP TABLE IF EXISTS classes;
 DROP TABLE IF EXISTS clubs;
 DROP TABLE IF EXISTS petty_cash_transactions;
 DROP TABLE IF EXISTS expense_transactions;
@@ -101,6 +95,33 @@ DROP TABLE IF EXISTS fee_structures;
 DROP TABLE IF EXISTS scholarship_exams;
 DROP TABLE IF EXISTS al_exams;
 DROP TABLE IF EXISTS ol_exams;
+DROP TABLE IF EXISTS exams;
+DROP TABLE IF EXISTS emergency_roll_calls;
+DROP TABLE IF EXISTS library_books;
+DROP TABLE IF EXISTS stream_subjects;
+DROP TABLE IF EXISTS grade_subjects;
+DROP TABLE IF EXISTS grade_streams;
+DROP TABLE IF EXISTS budgets;
+DROP TABLE IF EXISTS inventory_items;
+DROP TABLE IF EXISTS activities;
+DROP TABLE IF EXISTS terms;
+DROP TABLE IF EXISTS grading_criteria;
+DROP TABLE IF EXISTS attendance_audit_log;
+DROP TABLE IF EXISTS role_permissions;
+DROP TABLE IF EXISTS role_set_roles;
+DROP TABLE IF EXISTS user_set_permissions;
+DROP TABLE IF EXISTS user_set_users;
+DROP TABLE IF EXISTS user_permissions;
+DROP TABLE IF EXISTS user_profiles;
+DROP TABLE IF EXISTS students;
+DROP TABLE IF EXISTS staff;
+DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS maintenance_requests;
+DROP TABLE IF EXISTS asset_allocations;
+DROP TABLE IF EXISTS activity_participants;
+DROP TABLE IF EXISTS activity_attendance;
+DROP TABLE IF EXISTS sport_events;
+DROP TABLE IF EXISTS sport_teams;
 DROP TABLE IF EXISTS pre_approved_absences;
 DROP TABLE IF EXISTS exit_passes;
 DROP TABLE IF EXISTS detention_balances;
@@ -115,27 +136,11 @@ DROP TABLE IF EXISTS staff_qualifications;
 DROP TABLE IF EXISTS staff_leaves;
 DROP TABLE IF EXISTS staff_employment_history;
 DROP TABLE IF EXISTS staff_attendance;
-DROP TABLE IF EXISTS classes;
-DROP TABLE IF EXISTS attendance_excuses;
-DROP TABLE IF EXISTS attendance_discrepancies;
-DROP TABLE IF EXISTS maintenance_requests;
-DROP TABLE IF EXISTS asset_allocations;
-DROP TABLE IF EXISTS inventory_items;
-DROP TABLE IF EXISTS activity_attendance;
-DROP TABLE IF EXISTS activity_participants;
-DROP TABLE IF EXISTS activities;
-DROP TABLE IF EXISTS terms;
-DROP TABLE IF EXISTS grading_criteria;
-DROP TABLE IF EXISTS attendance_audit_log;
-DROP TABLE IF EXISTS role_permissions;
-DROP TABLE IF EXISTS role_set_roles;
-DROP TABLE IF EXISTS user_set_permissions;
-DROP TABLE IF EXISTS user_set_users;
-DROP TABLE IF EXISTS user_permissions;
-DROP TABLE IF EXISTS user_profiles;
-DROP TABLE IF EXISTS students;
-DROP TABLE IF EXISTS staff;
-DROP TABLE IF EXISTS sessions;
+
+-- Drop Base Tables
+DROP TABLE IF EXISTS uniform_items;
+DROP TABLE IF EXISTS cultural_events;
+DROP TABLE IF EXISTS competitions;
 DROP TABLE IF EXISTS seeds;
 DROP TABLE IF EXISTS exam_types;
 DROP TABLE IF EXISTS school_calendar;
@@ -161,5 +166,3 @@ DROP TABLE IF EXISTS activity_types;
 DROP TABLE IF EXISTS academic_years;
 DROP TABLE IF EXISTS profiles;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS users_amended;
-DROP TABLE IF EXISTS __diesel_schema_migrations;
