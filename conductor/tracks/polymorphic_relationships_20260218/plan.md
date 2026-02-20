@@ -12,7 +12,7 @@
 - [x] Task: Write and run a script to migrate existing `asset_allocations` data to the new junction tables. [1dbdcf6]
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Data Migration for Asset Allocations' (Protocol in workflow.md) [83fd753]
 
-## Phase 3: Backend Logic for Asset Allocations
+## Phase 3: Backend Logic for Asset Allocations [checkpoint: 6b51375]
 
 - [x] Task: Update backend services to use the new junction tables for asset allocations. [15dba14]
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Backend Logic for Asset Allocations' (Protocol in workflow.md) [15dba14]
