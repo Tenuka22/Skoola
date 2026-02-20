@@ -19,7 +19,7 @@
 
 ## Phase 4: Database Schema for Activity Participants
 
-- [ ] Task: Create a migration for `activity_participants_staff` and `activity_participants_students` junction tables.
+- [x] Task: Create a migration for `activity_participants_staff` and `activity_participants_students` junction tables. [f09793f]
 - [ ] Task: Create a migration to remove polymorphic columns from the `activity_participants` table.
 - [ ] Task: Apply the migrations for activity participants.
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Database Schema for Activity Participants' (Protocol in workflow.md)
