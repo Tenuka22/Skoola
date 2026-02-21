@@ -3,7 +3,7 @@
 ## Phase 1: Database Schema
 
 - [x] Task: Create a migration for the `audit_log` table. [fc91a2d]
-- [ ] Task: Apply the migration.
+- [x] Task: Apply the migration.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
 
 ## Phase 2: Backend Logic
