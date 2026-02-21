@@ -12,8 +12,12 @@ use chrono::{NaiveDateTime, Utc};
 use crate::schema::{students, profiles}; // Added profiles
 use crate::database::enums::StudentStatus;
 
+use crate::models::auth::user::CurrentUser;
+use crate::services::system::audit::log_action;
+
 pub async fn create_student(
     pool: web::Data<AppState>,
+    current_user: CurrentUser,
     new_student_request: CreateStudentRequest,
 ) -> Result<StudentResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
@@ -79,6 +83,16 @@ pub async fn create_student(
         }
     }
 
+    log_action(
+        &mut conn,
+        current_user.id,
+        "CREATE".to_string(),
+        "students".to_string(),
+        new_student.id.clone(),
+        None::<&Student>,
+        Some(&new_student),
+    ).map_err(|e| APIError::internal(&e.to_string()))?;
+
     Ok(StudentResponse {
         id: new_student.id,
         admission_number: new_student.admission_number,
@@ -101,6 +115,7 @@ pub async fn create_student(
 
 pub async fn update_student(
     pool: web::Data<AppState>,
+    current_user: CurrentUser,
     student_id: String,
     update_request: UpdateStudentRequest,
 ) -> Result<StudentResponse, APIError> {
@@ -155,6 +170,16 @@ pub async fn update_student(
         .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
         .select((Student::as_select(), Profile::as_select(), Option::<User>::as_select()))
         .first(&mut conn)?;
+
+    log_action(
+        &mut conn,
+        current_user.id,
+        "UPDATE".to_string(),
+        "students".to_string(),
+        updated_student.id.clone(),
+        Some(&existing_student),
+        Some(&updated_student),
+    ).map_err(|e| APIError::internal(&e.to_string()))?;
 
     Ok(StudentResponse {
         id: updated_student.id,
@@ -334,9 +359,15 @@ pub async fn get_all_students(
 
 pub async fn delete_student(
     pool: web::Data<AppState>,
+    current_user: CurrentUser,
     student_id: String,
 ) -> Result<HttpResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
+
+    let existing_student: Student = students::table
+        .find(&student_id)
+        .select(Student::as_select())
+        .first(&mut conn)?;
 
     let target = students::table.filter(students::id.eq(&student_id));
 
@@ -347,6 +378,21 @@ pub async fn delete_student(
     if updated_count == 0 {
         return Err(APIError::not_found(&format!("Student with ID {} not found", student_id)));
     }
+
+    let updated_student: Student = students::table
+        .find(&student_id)
+        .select(Student::as_select())
+        .first(&mut conn)?;
+
+    log_action(
+        &mut conn,
+        current_user.id,
+        "DELETE".to_string(),
+        "students".to_string(),
+        student_id,
+        Some(&existing_student),
+        Some(&updated_student),
+    ).map_err(|e| APIError::internal(&e.to_string()))?;
 
     Ok(HttpResponse::NoContent().finish())
 }

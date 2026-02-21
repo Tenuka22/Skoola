@@ -30,6 +30,8 @@ pub struct StudentQuery {
     pub limit: Option<i64>,
 }
 
+use crate::models::auth::user::CurrentUser;
+
 #[api_operation(
     summary = "Create a new student",
     description = "Registers a new student in the system.",
@@ -38,9 +40,10 @@ pub struct StudentQuery {
 )]
 pub async fn create_student(
     data: web::Data<AppState>,
+    current_user: CurrentUser,
     body: web::Json<CreateStudentRequest>,
 ) -> Result<Json<StudentResponse>, APIError> {
-    let new_student = student::create_student(data.clone(), body.into_inner()).await?;
+    let new_student = student::create_student(data.clone(), current_user, body.into_inner()).await?;
     Ok(Json(new_student))
 }
 
@@ -52,11 +55,12 @@ pub async fn create_student(
 )]
 pub async fn update_student(
     data: web::Data<AppState>,
+    current_user: CurrentUser,
     path: web::Path<String>,
     body: web::Json<UpdateStudentRequest>,
 ) -> Result<Json<StudentResponse>, APIError> {
     let student_id = path.into_inner();
-    let updated_student = student::update_student(data.clone(), student_id, body.into_inner()).await?;
+    let updated_student = student::update_student(data.clone(), current_user, student_id, body.into_inner()).await?;
     Ok(Json(updated_student))
 }
 
@@ -97,10 +101,11 @@ pub async fn get_all_students(
 )]
 pub async fn delete_student(
     data: web::Data<AppState>,
+    current_user: CurrentUser,
     path: web::Path<String>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let student_id = path.into_inner();
-    student::delete_student(data.clone(), student_id).await?;
+    student::delete_student(data.clone(), current_user, student_id).await?;
     Ok(Json(MessageResponse { message: "Student deactivated successfully".to_string() }))
 }
 
