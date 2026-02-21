@@ -41,6 +41,7 @@ pub async fn record_progress(
         progress_percentage: req.progress_percentage,
         is_substitution: req.is_substitution,
         created_at: Utc::now().naive_utc(),
+        syllabus_id: req.syllabus_id,
     };
 
     diesel::insert_into(lesson_progress::table)

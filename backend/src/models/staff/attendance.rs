@@ -56,6 +56,7 @@ pub struct LessonProgress {
     pub progress_percentage: Option<i32>,
     pub is_substitution: bool,
     pub created_at: NaiveDateTime,
+    pub syllabus_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -186,6 +187,7 @@ pub struct CreateLessonProgressRequest {
     pub resources_used: Option<String>,
     pub progress_percentage: Option<i32>,
     pub is_substitution: bool,
+    pub syllabus_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
