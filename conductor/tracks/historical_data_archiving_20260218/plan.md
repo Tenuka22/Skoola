@@ -15,5 +15,5 @@
     - [ ] Sub-task: Implement logic to select data from a specific academic year.
     - [ ] Sub-task: Implement logic to insert the selected data into the `_history` tables.
     - [ ] Sub-task: Implement logic to delete the archived data from the primary tables.
-- [ ] Task: Test the script on a staging environment.
+- [x] Task: Test the script on a staging environment. [ef38b74]
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Archiving Script' (Protocol in workflow.md)
