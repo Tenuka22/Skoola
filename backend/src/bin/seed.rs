@@ -17,4 +17,9 @@ fn main() {
     let args = Args::parse();
     println!("Seeding the database with args: {:?}", args);
     println!("Database connection established.");
+    if let Some(password) = &config.seed_user_password {
+        println!("Seed user password: {}", password);
+    } else {
+        println!("Seed user password not found in config.");
+    }
 }

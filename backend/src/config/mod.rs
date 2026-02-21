@@ -26,7 +26,7 @@ pub struct Config {
     pub smtp_sender_email: Option<String>,
     pub email_verification_base_url: String,
     pub password_reset_base_url: String,
-    pub test_user_password: Option<String>,
+    pub seed_user_password: Option<String>,
     pub send_emails: bool,
 }
 
@@ -72,7 +72,7 @@ impl Config {
             .unwrap_or_else(|_| "http://localhost:8080/auth/verify-email".to_string());
         let password_reset_base_url = env::var("PASSWORD_RESET_BASE_URL")
             .unwrap_or_else(|_| "http://localhost:8080/auth/reset-password".to_string());
-        let test_user_password = env::var("TEST_USER_PASSWORD").ok();
+        let seed_user_password = env::var("SEED_USER_PASSWORD").ok();
 
         Ok(Config {
             host,
@@ -97,7 +97,7 @@ impl Config {
             smtp_sender_email: smtp_sender_email.clone(),
             email_verification_base_url,
             password_reset_base_url,
-            test_user_password,
+            seed_user_password,
             send_emails: smtp_host.as_deref().is_some_and(|s| !s.is_empty())
                 && smtp_sender_email.as_deref().is_some_and(|s| !s.is_empty()),
         })
