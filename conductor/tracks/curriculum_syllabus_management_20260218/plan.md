@@ -7,7 +7,7 @@
 - [x] Task: Apply the migrations. [be51091]
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
 
-## Phase 2: Backend Services
+## Phase 2: Backend Services [checkpoint: cef76f7]
 
 - [x] Task: Implement a service to manage curriculum standards. [c9be404]
 - [x] Task: Implement a service to manage syllabi. [c9be404]
