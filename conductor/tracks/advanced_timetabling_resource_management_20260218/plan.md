@@ -1,6 +1,6 @@
 # Implementation Plan: Advanced Timetabling & Resource Management
 
-## Phase 1: Database Schema
+## Phase 1: Database Schema [checkpoint: dd464a6]
 
 - [x] Task: Create a migration for the `resources` and `resource_bookings` tables. [97a6f0e]
 - [ ] Task: Apply the migrations.
