@@ -1,6 +1,6 @@
 # Implementation Plan: Communications & Messaging Module
 
-## Phase 1: Database Schema
+## Phase 1: Database Schema [checkpoint: 289672a]
 
 - [x] Task: Create a migration for the `conversations`, `conversation_participants`, and `messages` tables. [15e7eaf]
 - [ ] Task: Apply the migrations.
