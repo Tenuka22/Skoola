@@ -22,7 +22,7 @@ Skoola is designed to provide extensive functionalities to manage a full-fledged
 
 3.  **Robust Financial Management:** Implement a double-entry accounting system to provide granular and auditable financial tracking, including managing fee structures, fee payments, income, expenses, budgets, and staff salaries, ensuring transparent and efficient financial operations and enabling comprehensive financial reporting.
 
-4.  **Integrated Resource Management:** Enable effective management of library resources (books, issues, settings), and school properties/assets (inventory, allocations, maintenance requests).
+4.  **Integrated Resource Management:** Enable effective management of library resources (books, issues, settings), school properties/assets (inventory, allocations, maintenance requests), and advanced timetabling for booking rooms and equipment.
 
 5.  **Holistic Co-curricular & Discipline Management:** Support the organization and tracking of clubs, sports, cultural events, and competitions. Incorporate advanced discipline features like exit passes, pre-approved absences, and detention balances.
 
