@@ -11,7 +11,7 @@
 
 ## Phase 2: Archiving Script
 
-- [ ] Task: Create a new script for archiving data.
+- [x] Task: Create a new script for archiving data. [e7b01b1]
     - [ ] Sub-task: Implement logic to select data from a specific academic year.
     - [ ] Sub-task: Implement logic to insert the selected data into the `_history` tables.
     - [ ] Sub-task: Implement logic to delete the archived data from the primary tables.
