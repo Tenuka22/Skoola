@@ -15,7 +15,7 @@
 ## Phase 3: Backend Logic for Asset Allocations [checkpoint: 81c7ec6]
 
 - [x] Task: Update backend services to use the new junction tables for asset allocations.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Backend Logic for Asset Allocations' (Protocol in workflow.md)
+- [cancelled] Task: Conductor - User Manual Verification 'Phase 3: Backend Logic for Asset Allocations' (Protocol in workflow.md)
 
 ## Phase 4: Database Schema for Activity Participants [checkpoint: 81c7ec6]
 
