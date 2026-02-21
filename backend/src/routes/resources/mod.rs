@@ -36,7 +36,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/fines/history", web::get().to(library::get_fine_history))
             .route("/settings", web::get().to(library::get_library_settings))
             .route("/settings", web::put().to(library::update_library_settings))
-            .route("/stats", web::get().to(library::get_library_stats)),
+            .route("/stats", web::get().to(library::get_library_stats));
     );
 
     cfg.configure(property::config);
@@ -44,4 +44,3 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.configure(fees::config);
     cfg.configure(co_curricular::config);
     cfg.configure(financial_reports::configure);
-    cfg.configure(financial_reports::configure); // Added
