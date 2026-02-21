@@ -6,7 +6,7 @@
 -   [x] Task: Add `faker-rs` and any other necessary dependencies to the `Cargo.toml`. (b56897f)
 -   [x] Task: Implement the basic command-line structure using `clap` to handle potential future arguments. (f5b555d)
 -   [x] Task: Establish a database connection within the `seed.rs` binary. (5c02f27)
--   [ ] Task: Implement a function to read password and other sensitive data from the application's configuration.
+-   [x] Task: Implement a function to read password and other sensitive data from the application's configuration. (d2fe489)
 -   [ ] Task: Conductor - User Manual Verification 'Setup and Foundation' (Protocol in workflow.md)
 
 ## Phase 2: Data-Purging Logic
