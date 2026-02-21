@@ -1,0 +1,16 @@
+# Implementation Plan: Curriculum & Syllabus Management
+
+## Phase 1: Database Schema [checkpoint: b7ead58]
+
+- [x] Task: Create a migration for the `curriculum_standards` and `syllabus` tables. [a0dfef2]
+- [x] Task: Create a migration to add `syllabus_id` to the `lesson_progress` table. [b30b2a9]
+- [x] Task: Apply the migrations. [be51091]
+- [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
+
+## Phase 2: Backend Services [checkpoint: cef76f7]
+
+- [x] Task: Implement a service to manage curriculum standards. [c9be404]
+- [x] Task: Implement a service to manage syllabi. [c9be404]
+- [x] Task: Update the `lesson_progress` service to support linking to a syllabus. [6033a5b]
+- [x] Task: Expose the new services via API endpoints. [3e467e2]
+- [ ] Task: Conductor - User Manual Verification 'Phase 2: Backend Services' (Protocol in workflow.md)
