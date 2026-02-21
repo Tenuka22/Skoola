@@ -3,7 +3,7 @@
 ## Phase 1: Database Schema
 
 - [x] Task: Create a migration for the `behavior_incident_types` and `behavior_incidents` tables. [7e7dbf1]
-- [ ] Task: Apply the migrations.
+- [x] Task: Apply the migrations.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
 
 ## Phase 2: Backend Services
