@@ -8,10 +8,10 @@
 
 ## Phase 2: Backend Services
 
-- [ ] Task: Implement a service to manage conversations.
+- [x] Task: Implement a service to manage conversations. [c1fb389]
     - [ ] Sub-task: Create a function to start a new conversation.
     - [ ] Sub-task: Create a function to get all conversations for a user.
-- [ ] Task: Implement a service to manage messages.
+- [x] Task: Implement a service to manage messages. [c1fb389]
     - [ ] Sub-task: Create a function to send a message.
     - [ ] Sub-task: Create a function to get all messages in a conversation.
     - [ ] Sub-task: Create a function to mark a message as read.
