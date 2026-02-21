@@ -28,6 +28,8 @@ Skoola is designed to provide extensive functionalities to manage a full-fledged
 
 6.  **Progress Tracking and Reporting:** Offer comprehensive tracking of lesson progress, teacher substitutions, and generation of detailed report cards and other analytical reports to monitor and evaluate overall school performance and individual progress.
 
+7.  **Secure Internal Communication:** Provide a dedicated messaging module for secure, internal communication between students, teachers, parents, and administrators, fostering better collaboration and information exchange.
+
 ## Key Principles
 *   **All-in-One Solution:** Offer a single, integrated platform to manage diverse school functions, eliminating the need for multiple disparate systems.
 *   **User-Centric Design:** Prioritize ease of use and accessibility for all user roles, ensuring an intuitive and engaging experience across all modules.
