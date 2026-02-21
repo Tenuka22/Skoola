@@ -22,17 +22,17 @@
 
 ---
 
-- [ ] **Track: Refactor polymorphic relationships for activities and inventory to use junction tables for improved data integrity.**
+- [~] **Track: Refactor polymorphic relationships for activities and inventory to use junction tables for improved data integrity.**
 *Link: [./tracks/polymorphic_relationships_20260218/](./tracks/polymorphic_relationships_20260218/)*
 
 ---
 
-- [ ] **Track: Implement a strategy for archiving historical data to improve query performance.**
+- [~] **Track: Implement a strategy for archiving historical data to improve query performance.**
 *Link: [./tracks/historical_data_archiving_20260218/](./tracks/historical_data_archiving_20260218/)*
 
 ---
 
-- [ ] **Track: Create a new communications and messaging module for secure internal communication.**
+- [~] **Track: Create a new communications and messaging module for secure internal communication.**
 *Link: [./tracks/communications_messaging_module_20260218/](./tracks/communications_messaging_module_20260218/)*
 
 ---
