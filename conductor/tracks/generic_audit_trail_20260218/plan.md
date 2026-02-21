@@ -8,7 +8,7 @@
 
 ## Phase 2: Backend Logic
 
-- [ ] Task: Create a generic service for writing to the `audit_log` table.
+- [x] Task: Create a generic service for writing to the `audit_log` table. [c1d52c0]
 - [ ] Task: Identify key services that require audit logging.
 - [ ] Task: Integrate the audit log service into the identified key services.
     - [ ] Sub-task: Add logging to the student management service.
