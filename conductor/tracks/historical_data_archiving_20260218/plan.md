@@ -9,7 +9,7 @@
 - [ ] Task: Apply the migrations.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
 
-## Phase 2: Archiving Script
+## Phase 2: Archiving Script [checkpoint: f09608d]
 
 - [x] Task: Create a new script for archiving data. [e7b01b1]
     - [ ] Sub-task: Implement logic to select data from a specific academic year.
