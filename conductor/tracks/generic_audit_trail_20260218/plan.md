@@ -1,6 +1,6 @@
 # Implementation Plan: Generic Audit Trail
 
-## Phase 1: Database Schema
+## Phase 1: Database Schema [checkpoint: d469bee]
 
 - [x] Task: Create a migration for the `audit_log` table. [fc91a2d]
 - [x] Task: Apply the migration. [fe9c2d9]
