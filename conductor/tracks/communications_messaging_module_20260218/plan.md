@@ -15,5 +15,5 @@
     - [ ] Sub-task: Create a function to send a message.
     - [ ] Sub-task: Create a function to get all messages in a conversation.
     - [ ] Sub-task: Create a function to mark a message as read.
-- [ ] Task: Expose the services via new API endpoints.
+- [x] Task: Expose the services via new API endpoints. [99dd136]
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Backend Services' (Protocol in workflow.md)
