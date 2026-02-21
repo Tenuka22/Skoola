@@ -2,7 +2,7 @@
 
 ## Phase 1: Database Schema
 
-- [ ] Task: Create a migration for the `resources` and `resource_bookings` tables.
+- [x] Task: Create a migration for the `resources` and `resource_bookings` tables. [97a6f0e]
 - [ ] Task: Apply the migrations.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
 
