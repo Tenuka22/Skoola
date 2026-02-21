@@ -6,6 +6,7 @@ pub mod resources;
 pub mod staff;
 pub mod student;
 pub mod system;
+pub mod messaging;
 
 // Unambiguous re-exports can be added here if needed, 
 // but it's often clearer to use the full path.
