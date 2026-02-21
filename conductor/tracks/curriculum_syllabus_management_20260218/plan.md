@@ -3,7 +3,7 @@
 ## Phase 1: Database Schema
 
 - [x] Task: Create a migration for the `curriculum_standards` and `syllabus` tables. [a0dfef2]
-- [ ] Task: Create a migration to add `syllabus_id` to the `lesson_progress` table.
+- [x] Task: Create a migration to add `syllabus_id` to the `lesson_progress` table. [b30b2a9]
 - [ ] Task: Apply the migrations.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
 
