@@ -3,7 +3,7 @@
 ## Phase 1: Setup and Foundation
 
 -   [x] Task: Create a new binary file `backend/src/bin/seed.rs` and configure `Cargo.toml` to recognize it. (4878477)
--   [ ] Task: Add `faker-rs` and any other necessary dependencies to the `Cargo.toml`.
+-   [x] Task: Add `faker-rs` and any other necessary dependencies to the `Cargo.toml`. (b56897f)
 -   [ ] Task: Implement the basic command-line structure using `clap` to handle potential future arguments.
 -   [ ] Task: Establish a database connection within the `seed.rs` binary.
 -   [ ] Task: Implement a function to read password and other sensitive data from the application's configuration.
