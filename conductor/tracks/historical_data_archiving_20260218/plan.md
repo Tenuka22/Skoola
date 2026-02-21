@@ -1,6 +1,6 @@
 # Implementation Plan: Historical Data Archiving
 
-## Phase 1: Database Schema
+## Phase 1: Database Schema [checkpoint: af86564]
 
 - [x] Task: Create migrations for the `_history` tables. [d6ede42]
     - [ ] Sub-task: Create `student_class_assignments_history`.
