@@ -1,6 +1,6 @@
 # Implementation Plan: Student & Staff Behavior/Conduct Tracking
 
-## Phase 1: Database Schema
+## Phase 1: Database Schema [checkpoint: 30c5874]
 
 - [x] Task: Create a migration for the `behavior_incident_types` and `behavior_incidents` tables. [7e7dbf1]
 - [x] Task: Apply the migrations. [e3cb066]
