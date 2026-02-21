@@ -27,7 +27,7 @@
 
 ---
 
-- [~] **Track: Implement a strategy for archiving historical data to improve query performance.**
+- [x] **Track: Implement a strategy for archiving historical data to improve query performance.**
 *Link: [./tracks/historical_data_archiving_20260218/](./tracks/historical_data_archiving_20260218/)*
 
 ---
