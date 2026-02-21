@@ -7,6 +7,7 @@ pub mod students;
 pub mod system;
 pub mod messaging;
 pub mod resource_management;
+pub mod curriculum_management;
 
 use apistos::web;
 
@@ -20,4 +21,5 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.configure(system::configure);
     cfg.configure(messaging::configure);
     cfg.configure(resource_management::configure);
+    cfg.configure(curriculum_management::configure);
 }

@@ -7,3 +7,4 @@ pub mod students;
 pub mod system;
 pub mod messaging;
 pub mod resource_management;
+pub mod curriculum_management;
