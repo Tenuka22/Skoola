@@ -2,7 +2,7 @@
 
 ## Phase 1: Database Schema
 
-- [ ] Task: Create migrations for the `_history` tables.
+- [x] Task: Create migrations for the `_history` tables. [d6ede42]
     - [ ] Sub-task: Create `student_class_assignments_history`.
     - [ ] Sub-task: Create `student_marks_history`.
     - [ ] Sub-task: Create any other identified history tables.
