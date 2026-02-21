@@ -16,7 +16,7 @@ To be the leading comprehensive Learning Management System and School Management
 
 Skoola is designed to provide extensive functionalities to manage a full-fledged school, with a strong focus on real-life school management facilities. Its primary goals and objectives are to:
 
-1.  **Comprehensive Academic Management:** Facilitate online learning, assignment management, grade tracking, and detailed reporting for all academic activities. This includes managing academic years, classes, subjects, timetables, exams, and grading schemes.
+1.  **Comprehensive Academic Management:** Facilitate online learning, assignment management, grade tracking, and detailed reporting for all academic activities. This includes managing academic years, classes, subjects, timetables, exams, grading schemes, and curriculum and syllabus management to track what is taught and measure lesson progress.
 
 2.  **Streamlined Administrative Operations:** Automate and simplify various school administrative processes, including student enrollment, staff management (qualifications, employment history, departments, leaves, attendance), attendance tracking (student, staff, period-based, with policies, discrepancies, excuses), and detailed user and access management.
 
