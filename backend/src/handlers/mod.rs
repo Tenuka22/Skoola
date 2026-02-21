@@ -5,3 +5,4 @@ pub mod resources;
 pub mod staff;
 pub mod students;
 pub mod system;
+pub mod messaging;

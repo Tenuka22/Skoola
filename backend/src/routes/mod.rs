@@ -5,6 +5,7 @@ pub mod resources;
 pub mod staff;
 pub mod students;
 pub mod system;
+pub mod messaging;
 
 use apistos::web;
 
@@ -16,4 +17,5 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.configure(staff::configure);
     cfg.configure(students::configure);
     cfg.configure(system::configure);
+    cfg.configure(messaging::configure);
 }
