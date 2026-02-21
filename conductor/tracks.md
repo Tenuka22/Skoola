@@ -33,7 +33,7 @@
 
 ---
 
-- [~] **Track: Implement curriculum and syllabus management to track what is supposed to be taught.**
+- [x] **Track: Implement curriculum and syllabus management to track what is supposed to be taught.**
 *Link: [./tracks/curriculum_syllabus_management_20260218/](./tracks/curriculum_syllabus_management_20260218/)*
 
 ---
