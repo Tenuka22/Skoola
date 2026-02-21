@@ -6,7 +6,7 @@
 - [ ] Task: Apply the migrations.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
 
-## Phase 2: Backend Services
+## Phase 2: Backend Services [checkpoint: d5910e4]
 
 - [x] Task: Implement a service to manage conversations. [c1fb389]
     - [ ] Sub-task: Create a function to start a new conversation.
