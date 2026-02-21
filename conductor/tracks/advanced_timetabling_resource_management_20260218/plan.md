@@ -6,7 +6,7 @@
 - [ ] Task: Apply the migrations.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
 
-## Phase 2: Backend Services
+## Phase 2: Backend Services [checkpoint: fee5d42]
 
 - [x] Task: Implement a service to manage resources. [78163f4]
     - [ ] Sub-task: Create functions for creating, reading, updating, and deleting resources.
