@@ -6,7 +6,7 @@
 - [x] Task: Apply the migrations. [e3cb066]
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
 
-## Phase 2: Backend Services
+## Phase 2: Backend Services [checkpoint: 05522d0]
 
 - [x] Task: Implement a service to manage incident types. [5de0682]
 - [x] Task: Implement a service to record and retrieve behavior incidents. [5de0682]
