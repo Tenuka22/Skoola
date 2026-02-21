@@ -30,6 +30,8 @@ Skoola is designed to provide extensive functionalities to manage a full-fledged
 
 7.  **Secure Internal Communication:** Provide a dedicated messaging module for secure, internal communication between students, teachers, parents, and administrators, fostering better collaboration and information exchange.
 
+8.  **System-wide Audit Trail:** Maintain a generic, comprehensive audit log of all significant changes to important data (e.g., student and staff records, financial transactions), ensuring accountability and enhancing system security.
+
 ## Key Principles
 *   **All-in-One Solution:** Offer a single, integrated platform to manage diverse school functions, eliminating the need for multiple disparate systems.
 *   **User-Centric Design:** Prioritize ease of use and accessibility for all user roles, ensuring an intuitive and engaging experience across all modules.
