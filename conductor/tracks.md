@@ -25,10 +25,7 @@
 - [x] **Track: Refactor polymorphic relationships for activities and inventory to use junction tables for improved data integrity.**
 *Link: [./tracks/polymorphic_relationships_20260218/](./tracks/polymorphic_relationships_20260218/)*
 
----
 
-- [x] **Track: Implement a strategy for archiving historical data to improve query performance.**
-*Link: [./tracks/historical_data_archiving_20260218/](./tracks/historical_data_archiving_20260218/)*
 
 ---
 
