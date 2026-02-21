@@ -29,10 +29,7 @@
 
 
 
----
 
-- [x] **Track: Implement advanced timetabling and resource management for booking rooms and equipment.**
-*Link: [./tracks/advanced_timetabling_resource_management_20260218/](./tracks/advanced_timetabling_resource_management_20260218/)*
 
 ---
 
