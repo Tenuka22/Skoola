@@ -8,6 +8,8 @@ This document outlines the core technologies and architectural patterns employed
     *   **Rationale:** Chosen for its performance, memory safety, and concurrency, making it ideal for building a robust and scalable backend API.
 *   **ORM (Object-Relational Mapper):** Diesel
     *   **Rationale:** Provides a safe, type-checked way to interact with the database in Rust, ensuring data integrity and developer productivity.
+*   **CLI Argument Parser:** Clap
+    *   **Rationale:** A powerful and flexible command-line argument parser for Rust, used for creating the data archiving script.
 *   **Database:** SQLite
     *   **Rationale:** Selected for its serverless, embedded nature, suitable for initial development and potentially for smaller deployments or local development. It offers ease of setup and management.
 *   **Architecture:** Modular, function-based API with Handlers, Services, and Models
