@@ -12,5 +12,5 @@
 - [x] Task: Implement a service to manage curriculum standards. [c9be404]
 - [x] Task: Implement a service to manage syllabi. [c9be404]
 - [x] Task: Update the `lesson_progress` service to support linking to a syllabus. [6033a5b]
-- [ ] Task: Expose the new services via API endpoints.
+- [x] Task: Expose the new services via API endpoints. [3e467e2]
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Backend Services' (Protocol in workflow.md)
