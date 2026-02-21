@@ -9,3 +9,4 @@ pub mod system;
 pub mod messaging;
 pub mod resource_management;
 pub mod curriculum_management;
+pub mod behavior_management;
