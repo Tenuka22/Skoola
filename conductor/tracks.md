@@ -37,5 +37,5 @@
 
 ---
 
-- [~] **Track: Implement a generic audit trail for tracking changes to important data.**
+- [x] **Track: Implement a generic audit trail for tracking changes to important data.**
 *Link: [./tracks/generic_audit_trail_20260218/](./tracks/generic_audit_trail_20260218/)*
