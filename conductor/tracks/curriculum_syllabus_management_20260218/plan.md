@@ -1,6 +1,6 @@
 # Implementation Plan: Curriculum & Syllabus Management
 
-## Phase 1: Database Schema
+## Phase 1: Database Schema [checkpoint: b7ead58]
 
 - [x] Task: Create a migration for the `curriculum_standards` and `syllabus` tables. [a0dfef2]
 - [x] Task: Create a migration to add `syllabus_id` to the `lesson_progress` table. [b30b2a9]
