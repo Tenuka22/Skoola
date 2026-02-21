@@ -6,7 +6,7 @@
 - [x] Task: Apply the migration. [fe9c2d9]
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
 
-## Phase 2: Backend Logic
+## Phase 2: Backend Logic [checkpoint: edfd740]
 
 - [x] Task: Create a generic service for writing to the `audit_log` table. [c1d52c0]
 - [x] Task: Identify key services that require audit logging. [1b709b7]
