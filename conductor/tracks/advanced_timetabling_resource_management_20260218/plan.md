@@ -8,9 +8,9 @@
 
 ## Phase 2: Backend Services
 
-- [ ] Task: Implement a service to manage resources.
+- [x] Task: Implement a service to manage resources. [78163f4]
     - [ ] Sub-task: Create functions for creating, reading, updating, and deleting resources.
-- [ ] Task: Implement a service to manage resource bookings.
+- [x] Task: Implement a service to manage resource bookings. [78163f4]
     - [ ] Sub-task: Create a function to book a resource.
     - [ ] Sub-task: Implement logic to check for booking conflicts.
     - [ ] Sub-task: Create a function to get all bookings for a resource.
