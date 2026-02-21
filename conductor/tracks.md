@@ -33,10 +33,7 @@
 
 
 
----
 
-- [x] **Track: Implement student and staff behavior/conduct tracking to log and manage disciplinary issues.**
-*Link: [./tracks/student_staff_behavior_tracking_20260218/](./tracks/student_staff_behavior_tracking_20260218/)*
 
 ---
 
