@@ -2,7 +2,7 @@
 
 ## Phase 1: Database Schema
 
-- [ ] Task: Create a migration for the `conversations`, `conversation_participants`, and `messages` tables.
+- [x] Task: Create a migration for the `conversations`, `conversation_participants`, and `messages` tables. [15e7eaf]
 - [ ] Task: Apply the migrations.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Database Schema' (Protocol in workflow.md)
 
