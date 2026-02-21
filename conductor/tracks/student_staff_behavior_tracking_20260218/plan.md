@@ -10,5 +10,5 @@
 
 - [x] Task: Implement a service to manage incident types. [5de0682]
 - [x] Task: Implement a service to record and retrieve behavior incidents. [5de0682]
-- [ ] Task: Expose the services via new API endpoints.
+- [x] Task: Expose the services via new API endpoints. [c6f9ee9]
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Backend Services' (Protocol in workflow.md)
