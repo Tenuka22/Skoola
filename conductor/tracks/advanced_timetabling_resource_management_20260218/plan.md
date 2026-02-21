@@ -14,5 +14,5 @@
     - [ ] Sub-task: Create a function to book a resource.
     - [ ] Sub-task: Implement logic to check for booking conflicts.
     - [ ] Sub-task: Create a function to get all bookings for a resource.
-- [ ] Task: Expose the services via new API endpoints.
+- [x] Task: Expose the services via new API endpoints. [245f57c]
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Backend Services' (Protocol in workflow.md)
