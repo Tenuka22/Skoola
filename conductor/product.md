@@ -24,7 +24,7 @@ Skoola is designed to provide extensive functionalities to manage a full-fledged
 
 4.  **Integrated Resource Management:** Enable effective management of library resources (books, issues, settings), school properties/assets (inventory, allocations, maintenance requests), and advanced timetabling for booking rooms and equipment.
 
-5.  **Holistic Co-curricular & Discipline Management:** Support the organization and tracking of clubs, sports, cultural events, and competitions. Incorporate advanced discipline features like exit passes, pre-approved absences, and detention balances.
+5.  **Holistic Co-curricular & Discipline Management:** Support the organization and tracking of clubs, sports, cultural events, and competitions. Incorporate advanced discipline features like exit passes, pre-approved absences, detention balances, and behavior and conduct tracking to log and manage disciplinary issues and positive reinforcement.
 
 6.  **Progress Tracking and Reporting:** Offer comprehensive tracking of lesson progress, teacher substitutions, and generation of detailed report cards and other analytical reports to monitor and evaluate overall school performance and individual progress.
 
