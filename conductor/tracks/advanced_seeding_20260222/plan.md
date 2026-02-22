@@ -273,7 +273,7 @@ This phase involves refactoring and extending the core seeding framework to supp
     - [x] Leverage the `fake` crate for realistic data where applicable. (Implemented in `backend/src/bin/seed_modules/utils.rs`)
 - [x] Task: Implement dynamic seed password retrieval from `Config`. [c722796]
     - [ ] Replace hardcoded/default password logic with dynamic retrieval.
-- [x] Task: Develop a robust foreign key resolution system.
+- [x] Task: Develop a robust foreign key resolution system. [5abda92]
     - [x] Ensure that data created for related tables can be correctly linked. (By introducing `SeederContext`)
     - [x] Handle cases where parent records must exist before child records. (By introducing `SeederContext` and ensuring seeding order)
 - [ ] Task: Conductor - User Manual Verification 'Core Seeding Framework Enhancement' (Protocol in workflow.md)
