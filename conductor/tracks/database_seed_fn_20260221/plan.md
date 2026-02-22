@@ -17,7 +17,7 @@
 
 ## Phase 3: Data-Generation and Seeding
 
--   [ ] Task: Implement data generation functions for each required model (Users, Students, Teachers, Guardians, Staff, Classes, Subjects, etc.) using `faker-rs`.
+-   [x] Task: Implement data generation functions for each required model (Users, Students, Teachers, Guardians, Staff, Classes, Subjects, etc.) using `faker-rs`.
 -   [ ] Task: Create a main seeding function that orchestrates the data generation and insertion.
 -   [ ] Task: Seed a few hundred instances of each core entity (Students, Teachers, etc.).
 -   [ ] Task: Implement logic to create relationships between entities (e.g., enrolling students in classes, assigning teachers to subjects).
