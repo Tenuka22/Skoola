@@ -30,8 +30,10 @@ pub struct Student {
     pub profile_id: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent, Insertable)]
+#[diesel(table_name = students)]
 pub struct CreateStudentRequest {
+    pub id: String,
     pub admission_number: String,
     pub name_english: String, // Still needed for profile creation
     pub name_sinhala: Option<String>, // Still needed for profile creation

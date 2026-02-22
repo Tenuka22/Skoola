@@ -73,8 +73,10 @@ pub struct StaffQuery {
     pub limit: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema, Insertable)]
+#[diesel(table_name = staff)]
 pub struct CreateStaffRequest {
+    pub id: String,
     pub employee_id: String,
     pub name: String,
     pub nic: String,

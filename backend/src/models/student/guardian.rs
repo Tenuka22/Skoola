@@ -21,8 +21,10 @@ pub struct StudentGuardian {
     pub user_id: Option<String>, // Added this line
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent, Insertable)]
+#[diesel(table_name = student_guardians)]
 pub struct CreateStudentGuardianRequest {
+    pub id: String,
     pub student_id: String,
     pub name: String,
     pub relationship: String,
