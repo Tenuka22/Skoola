@@ -8,6 +8,7 @@ use super::seed_modules::resource_management::ResourceManagementSeeder; // New i
 use super::seed_modules::curriculum_management::CurriculumManagementSeeder; // New import
 use super::seed_modules::behavior_management::BehaviorManagementSeeder; // New import
 use super::seed_modules::audit_log::AuditLogSeeder; // New import
+use super::seed_modules::exams::ExamsSeeder; // New import
 
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use clap::Parser; // Keep for Args
@@ -117,7 +118,8 @@ fn main() -> Result<()> {
         Box::new(ResourceManagementSeeder::new()),
         Box::new(CurriculumManagementSeeder::new()),
         Box::new(BehaviorManagementSeeder::new()),
-        Box::new(AuditLogSeeder::new()), // Add other seeders here
+        Box::new(AuditLogSeeder::new()),
+        Box::new(ExamsSeeder::new()), // Add other seeders here
     ];
 
     for seeder in seeders {

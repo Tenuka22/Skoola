@@ -7,6 +7,10 @@ pub mod student_marks;
 pub mod report_card;
 pub mod zscore;
 pub mod special_exam;
+pub mod report_card_mark; // New
+pub mod al_exam; // New
+pub mod ol_exam; // New
+pub mod scholarship_exam; // New
 
 pub use exam::*;
 pub use exam_type::*;
@@ -17,3 +21,7 @@ pub use student_marks::*;
 pub use report_card::*;
 pub use zscore::*;
 pub use special_exam::*;
+pub use report_card_mark::*; // New
+pub use al_exam::*; // New
+pub use ol_exam::*; // New
+pub use scholarship_exam::*; // New

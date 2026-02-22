@@ -9,6 +9,7 @@ pub mod resource_management;
 pub mod curriculum_management;
 pub mod behavior_management;
 pub mod audit_log;
+pub mod exams;
 
 pub struct SeederContext {
     // Vectors to hold IDs of seeded entities
@@ -27,6 +28,11 @@ pub struct SeederContext {
     pub curriculum_standard_ids: Vec<String>,
     pub syllabus_ids: Vec<String>,
     pub behavior_incident_type_ids: Vec<String>,
+    pub exam_type_ids: Vec<String>,
+    pub grading_scheme_ids: Vec<String>,
+    pub exam_ids: Vec<String>,
+    pub term_ids: Vec<String>,
+    pub report_card_ids: Vec<String>,
     // Add more as needed
 }
 
