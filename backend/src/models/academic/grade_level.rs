@@ -21,6 +21,7 @@ pub struct GradeLevel {
 #[derive(Debug, Serialize, Deserialize, Clone, Insertable, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = grade_levels)]
 pub struct CreateGradeLevelRequest {
+    pub id: String,
     pub grade_number: i32,
     pub grade_name: String,
     pub education_level: EducationLevel,

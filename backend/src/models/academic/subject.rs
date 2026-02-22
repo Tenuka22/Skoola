@@ -22,6 +22,7 @@ pub struct Subject {
 #[derive(Debug, Serialize, Deserialize, Clone, Insertable, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = subjects)]
 pub struct CreateSubjectRequest {
+    pub id: String,
     pub subject_code: String,
     pub subject_name_en: String,
     pub subject_name_si: Option<String>,

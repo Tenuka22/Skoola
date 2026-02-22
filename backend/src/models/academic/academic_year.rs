@@ -21,6 +21,7 @@ pub struct AcademicYear {
 #[derive(Debug, Serialize, Deserialize, Clone, Insertable, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = academic_years)]
 pub struct CreateAcademicYearRequest {
+    pub id: String,
     pub year_start: i32,
     pub year_end: i32,
     pub name: String,

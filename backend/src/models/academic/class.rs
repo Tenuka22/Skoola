@@ -25,6 +25,7 @@ pub struct Class {
 #[derive(Debug, Serialize, Deserialize, Clone, Insertable, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = classes)]
 pub struct CreateClassRequest {
+    pub id: String,
     pub grade_id: String,
     pub section_name: String,
     pub academic_year_id: String,
