@@ -4,6 +4,7 @@ use std::collections::HashSet;
 use crate::Config; // Import Config from the main crate (seed.rs)
 
 pub mod utils;
+pub mod message_seeder; // New
 
 pub struct SeederContext {
     // Vectors to hold IDs of seeded entities

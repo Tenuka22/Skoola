@@ -3,6 +3,7 @@ use backend::database::connection::establish_connection;
 use backend::utils::security::hash_password; // Still needed for password hashing in modules
 use anyhow::Result;
 use super::seed_modules::SeedModule;
+use super::seed_modules::message_seeder::MessageSeeder; // New import
 
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use clap::Parser; // Keep for Args
@@ -107,19 +108,14 @@ fn main() -> Result<()> {
     println!("Database migrations complete.");
 
     // Orchestrate seeding modules here
-    // In future steps, individual seeding functions will be moved into modules
-    // and added to this vector.
+    let seeders: Vec<Box<dyn SeedModule>> = vec![
+        Box::new(MessageSeeder::new()),
+        // Add other seeders here
+    ];
 
-    // Example placeholder for future modules:
-    // let seeders: Vec<Box<dyn SeedModule>> = vec![
-    //     Box::new(AcademicYearSeeder::new()),
-    //     Box::new(GradeLevelSeeder::new()),
-    //     // ... other seeders
-    // ];
-
-    // for seeder in seeders {
-    //     seeder.seed(&mut connection, &config, &default_password_hash, &mut used_emails, &mut seeder_context)?;
-    // }
+    for seeder in seeders {
+        seeder.seed(&mut connection, &config, &default_password_hash, &mut used_emails, &mut seeder_context)?;
+    }
 
     println!("Database seeding complete!");
 
