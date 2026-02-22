@@ -9,7 +9,7 @@
 -   [x] Task: Implement a function to read password and other sensitive data from the application's configuration. (d2fe489)
 -   [x] Task: Conductor - User Manual Verification 'Setup and Foundation' (Protocol in workflow.md)
 
-## Phase 2: Data-Purging Logic
+## Phase 2: Data-Purging Logic [checkpoint: 79ba38f]
 
 -   [x] Task: Implement functions to delete all existing data from the relevant tables. (6224498)
 -   [x] Task: Ensure the deletion logic is executed in the correct order to respect foreign key constraints. (6224498)
