@@ -15,14 +15,14 @@
 -   [x] Task: Ensure the deletion logic is executed in the correct order to respect foreign key constraints. (6224498)
 -   [x] Task: Conductor - User Manual Verification 'Data-Purging Logic' (Protocol in workflow.md)
 
-## Phase 3: Data-Generation and Seeding [checkpoint: 89e7f13]
+## Phase 3: Data-Generation and Seeding [checkpoint: 5e74719]
 
 -   [x] Task: Implement data generation functions for each required model (Users, Students, Teachers, Guardians, Staff, Classes, Subjects, etc.) using `faker-rs`. (a70b677)
 -   [x] Task: Create a main seeding function that orchestrates the data generation and insertion.
 -   [x] Task: Seed a few hundred instances of each core entity (Students, Teachers, etc.).
 -   [x] Task: Implement logic to create relationships between entities (e.g., enrolling students in classes, assigning teachers to subjects). (c022ef4)
 -   [x] Task: Ensure all users are created with a secure password sourced from the configuration.
--   [ ] Task: Conductor - User Manual Verification 'Data-Generation and Seeding' (Protocol in workflow.md)
+-   [x] Task: Conductor - User Manual Verification 'Data-Generation and Seeding' (Protocol in workflow.md)
 
 ## Phase 4: Finalization and Validation
 
