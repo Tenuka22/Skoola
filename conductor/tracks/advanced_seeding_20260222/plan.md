@@ -281,8 +281,8 @@ This phase involves refactoring and extending the core seeding framework to supp
 ## Phase 3: Implement Seeding Modules for Uncovered Tables
 This phase focuses on creating dedicated seeding modules for each of the tables identified as not currently covered by the existing `seed.rs`.
 
-- [x] Task: Create seeding module for Messaging tables (e.g., `messages`, `conversations`).
-- [ ] Task: Create seeding module for Resource Management tables (e.g., `resources`, `bookings`).
+- [x] Task: Create seeding module for Messaging tables (e.g., `messages`, `conversations`). [e965625]
+- [x] Task: Create seeding module for Resource Management tables (e.g., `resources`, `bookings`). [4a94fbb]
 - [ ] Task: Create seeding module for Curriculum/Syllabus tables (e.g., `syllabuses`, `lessons`).
 - [ ] Task: Create seeding module for Behavior Tracking tables (e.g., `behavior_incidents`, `student_behaviors`).
 - [ ] Task: Create seeding module for Audit Log table (e.g., `audit_logs`).
