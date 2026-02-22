@@ -10,6 +10,10 @@ This document outlines the core technologies and architectural patterns employed
     *   **Rationale:** Provides a safe, type-checked way to interact with the database in Rust, ensuring data integrity and developer productivity.
 *   **CLI Argument Parser:** Clap
     *   **Rationale:** A powerful and flexible command-line argument parser for Rust, used for creating the data archiving script.
+*   **Data Faking:** `faker-rs`
+    *   **Rationale:** Used for generating realistic, large-scale fake data for database seeding purposes.
+*   **Database Migrations:** `diesel_migrations`
+    *   **Rationale:** Provides tools for managing database schema changes and applying migrations programmatically.
 *   **Database:** SQLite
     *   **Rationale:** Selected for its serverless, embedded nature, suitable for initial development and potentially for smaller deployments or local development. It offers ease of setup and management.
 *   **Architecture:** Modular, function-based API with Handlers, Services, and Models
