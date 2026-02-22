@@ -295,7 +295,7 @@ This final phase involves integrating all new seeding modules and thoroughly val
 
 - [x] Task: Integrate all new seeding modules into the main seeding orchestration.
     - [ ] Ensure proper execution order to respect foreign key dependencies.
-- [ ] Task: Update data purging mechanism (e.g., `delete_all_tables`).
+- [x] Task: Update data purging mechanism (e.g., `delete_all_tables`).
     - [ ] Potentially replace `DROP TABLE` with `TRUNCATE` or provide options.
     - [ ] Ensure `PRAGMA foreign_keys = OFF/ON` is handled correctly around purging and migrations.
 - [ ] Task: Implement comprehensive validation for seeded data.
