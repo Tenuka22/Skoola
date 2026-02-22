@@ -8,7 +8,7 @@ use backend::models::auth::{NewProfile, NewUser, NewUserProfile, Profile, User, 
 use backend::models::staff::{NewStaff, Staff};
 use backend::models::student::{NewStudent, NewStudentGuardian, Student, StudentGuardian};
 use backend::utils::security::hash_password;
-use chrono::{NaiveDate, NaiveDateTime, Utc};
+use chrono::{NaiveDate, NaiveDateTime, Utc, Datelike};
 use clap::Parser;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
@@ -560,6 +560,143 @@ fn seed_students(
     Ok((generated_students, generated_guardians, generated_users, generated_profiles))
 }
 
+// Dummy model for NewStudentClassAssignment to allow insertion into student_class_assignments
+#[derive(Debug, Insertable)]
+#[diesel(table_name = student_class_assignments)]
+struct NewStudentClassAssignment {
+    id: String,
+    student_id: String,
+    academic_year_id: String,
+    grade_id: String,
+    class_id: String,
+    from_date: NaiveDate,
+    to_date: Option<NaiveDate>,
+    created_at: NaiveDateTime,
+    updated_at: NaiveDateTime,
+}
+
+fn assign_students_to_classes(
+    conn: &mut SqliteConnection,
+    students: &[Student],
+    academic_years: &[AcademicYear],
+    classes: &[Class],
+) -> Result<(), Box<dyn std::error::Error>> {
+    use crate::schema::student_class_assignments::dsl::*;
+    let mut rng = rand::thread_rng();
+    let current_academic_year = academic_years.iter().find(|ay| ay.current).ok_or("No current academic year found")?;
+    let classes_in_current_year: Vec<&Class> = classes
+        .iter()
+        .filter(|c| c.academic_year_id == current_academic_year.id)
+        .collect();
+
+    for student in students {
+        if let Some(class_to_assign) = classes_in_current_year.choose(&mut rng) {
+            let now = Utc::now().naive_utc();
+            let new_assignment = NewStudentClassAssignment {
+                id: generate_uuid(),
+                student_id: student.id.clone(),
+                academic_year_id: current_academic_year.id.clone(),
+                grade_id: class_to_assign.grade_id.clone(),
+                class_id: class_to_assign.id.clone(),
+                from_date: NaiveDate::from_ymd_opt(current_academic_year.year_start, 9, 1).unwrap(), // Assuming school year starts in September
+                to_date: None,
+                created_at: now,
+                updated_at: now,
+            };
+            diesel::insert_into(student_class_assignments)
+                .values(&new_assignment)
+                .execute(conn)?;
+        }
+    }
+    Ok(())
+}
+
+// Dummy model for NewTeacherSubjectAssignment to allow insertion into teacher_subject_assignments
+#[derive(Debug, Insertable)]
+#[diesel(table_name = teacher_subject_assignments)]
+struct NewTeacherSubjectAssignment {
+    id: String,
+    teacher_id: String,
+    subject_id: String,
+    academic_year_id: String,
+    created_at: NaiveDateTime,
+    updated_at: NaiveDateTime,
+}
+
+fn assign_teachers_to_subjects(
+    conn: &mut SqliteConnection,
+    teachers: &[Staff],
+    subjects: &[Subject],
+    academic_years: &[AcademicYear],
+) -> Result<(), Box<dyn std::error::Error>> {
+    use crate::schema::teacher_subject_assignments::dsl::*;
+    let mut rng = rand::thread_rng();
+    let current_academic_year = academic_years.iter().find(|ay| ay.current).ok_or("No current academic year found")?;
+
+    let teaching_staff: Vec<&Staff> = teachers.iter().filter(|s| s.staff_type == StaffType::Teaching).collect();
+
+    for teacher in teaching_staff {
+        // Assign each teacher to 1-3 random subjects
+        let num_subjects = rng.gen_range(1..=3);
+        let assigned_subjects: Vec<&Subject> = subjects.choose_multiple(&mut rng, num_subjects).collect();
+
+        for subject in assigned_subjects {
+            let now = Utc::now().naive_utc();
+            let new_assignment = NewTeacherSubjectAssignment {
+                id: generate_uuid(),
+                teacher_id: teacher.id.clone(),
+                subject_id: subject.id.clone(),
+                academic_year_id: current_academic_year.id.clone(),
+                created_at: now,
+                updated_at: now,
+            };
+            diesel::insert_into(teacher_subject_assignments)
+                .values(&new_assignment)
+                .execute(conn)?;
+        }
+    }
+    Ok(())
+}
+
+// Dummy model for ClassChangeSet to allow updating class_teacher_id
+#[derive(Debug, AsChangeset)]
+#[diesel(table_name = classes)]
+struct ClassChangeSet {
+    class_teacher_id: Option<String>,
+    updated_at: NaiveDateTime,
+}
+
+fn assign_teachers_to_classes(
+    conn: &mut SqliteConnection,
+    teachers: &[Staff],
+    classes_vec: &mut Vec<Class>, // Use classes_vec as name to avoid conflict with `classes` in `use` statement
+) -> Result<(), Box<dyn std::error::Error>> {
+    use crate::schema::classes::dsl::*;
+    let mut rng = rand::thread_rng();
+
+    let teaching_staff: Vec<&Staff> = teachers.iter().filter(|s| s.staff_type == StaffType::Teaching).collect();
+
+    // Make sure we have enough teachers for classes
+    if teaching_staff.is_empty() {
+        return Err("No teaching staff found to assign to classes.".into());
+    }
+
+    for class_obj in classes_vec.iter_mut() {
+        if let Some(teacher_to_assign) = teaching_staff.choose(&mut rng) {
+            let now = Utc::now().naive_utc();
+            let changes = ClassChangeSet {
+                class_teacher_id: Some(teacher_to_assign.id.clone()),
+                updated_at: now,
+            };
+            diesel::update(classes.filter(id.eq(class_obj.id.clone())))
+                .set(&changes)
+                .execute(conn)?;
+            class_obj.class_teacher_id = Some(teacher_to_assign.id.clone()); // Update in local vec as well
+        }
+    }
+    Ok(())
+}
+
 fn main() {
     dotenvy::dotenv().ok();
 
@@ -671,6 +808,30 @@ fn main() {
     initial_users.extend(student_users);
     initial_profiles.extend(student_profiles);
     println!("Students and guardians seeding complete.");
+
+    // Assign students to classes
+    println!("Assigning students to classes...");
+    if let Err(e) = assign_students_to_classes(&mut connection, &students, &academic_years, &classes) {
+        eprintln!("Error assigning students to classes: {}", e);
+        std::process::exit(1);
+    }
+    println!("Students assigned to classes.");
+
+    // Assign teachers to subjects
+    println!("Assigning teachers to subjects...");
+    if let Err(e) = assign_teachers_to_subjects(&mut connection, &staff_members, &subjects, &academic_years) {
+        eprintln!("Error assigning teachers to subjects: {}", e);
+        std::process::exit(1);
+    }
+    println!("Teachers assigned to subjects.");
+
+    // Assign teachers to classes as class teachers
+    println!("Assigning class teachers to classes...");
+    if let Err(e) = assign_teachers_to_classes(&mut connection, &staff_members, &mut classes) {
+        eprintln!("Error assigning class teachers to classes: {}", e);
+        std::process::exit(1);
+    }
+    println!("Class teachers assigned to classes.");
 
     println!("Database seeding complete!");
 }
