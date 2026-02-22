@@ -21,7 +21,7 @@ pub fn seed_all(
     let now = Utc::now().naive_utc();
     let two_years_ago = now - Duration::days(730);
 
-    let students_data = students::table.load::<Student>(conn)?;
+    let students_data = students::table.select(Student::as_select()).load::<Student>(conn)?;
     let student_ids: Vec<String> = students_data.iter().map(|s| s.id.clone()).collect();
 
     if student_ids.is_empty() || staff_ids.is_empty() {

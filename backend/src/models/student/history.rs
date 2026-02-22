@@ -1,8 +1,23 @@
-use crate::schema::student_previous_schools;
+use crate::schema::{student_previous_schools, student_class_assignments_history};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
 use chrono::{NaiveDate, NaiveDateTime};
+
+#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema)]
+#[diesel(table_name = student_class_assignments_history)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct StudentClassAssignmentHistory {
+    pub id: String,
+    pub student_id: String,
+    pub academic_year_id: String,
+    pub grade_id: String,
+    pub class_id: String,
+    pub from_date: NaiveDate,
+    pub to_date: Option<NaiveDate>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema)]
 #[diesel(table_name = student_previous_schools)]

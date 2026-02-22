@@ -14,7 +14,7 @@ use crate::{
     database::enums::RoleEnum,
     errors::APIError,
     models::auth::user::{LoginRequest, PasswordReset, PasswordResetRequest, RefreshTokenRequest, RegisterRequest, TokenResponse, UserResponse},
-    models::{MessageResponse, Profile, NewProfile, UserProfile, NewUserProfile},
+    models::{MessageResponse, NewProfile, NewUserProfile},
     schema::{users, profiles, user_profiles},
     services::auth::auth::{create_token_pair, hash_password, refresh_jwt, verify_password},
     services::system::email::{send_verification_email, send_password_reset_email},

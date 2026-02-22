@@ -2,21 +2,15 @@ use diesel::prelude::*;
 use crate::database::tables::User;
 use crate::models::auth::UserProfileResponse;
 use crate::errors::iam::IAMError;
-use crate::schema::users;
-
-use diesel::prelude::*;
-use crate::database::tables::User;
-use crate::models::auth::UserProfileResponse;
-use crate::errors::iam::IAMError;
 use crate::schema::{users, profiles, user_profiles};
 use crate::models::Profile;
 
 /// Converts a User database model to a UserProfileResponse.
 pub fn user_to_user_profile_response(conn: &mut SqliteConnection, user: User) -> Result<UserProfileResponse, IAMError> {
-    let (profile, user_profile_entry): (Profile, Option<crate::models::auth_user::UserProfile>) = user_profiles::table
+    let (profile, user_profile_entry): (Profile, Option<crate::models::UserProfile>) = user_profiles::table
         .filter(user_profiles::user_id.eq(&user.id))
         .inner_join(profiles::table)
-        .select((Profile::as_select(), Option::<crate::models::auth_user::UserProfile>::as_select()))
+        .select((Profile::as_select(), Option::<crate::models::UserProfile>::as_select()))
         .first(conn)
         .optional()?
         .unwrap_or_else(|| (

@@ -12,6 +12,11 @@ use crate::services::staff::staff_attendance;
 use crate::utils::jwt::UserId;
 use chrono::NaiveDate;
 use apistos::api_operation;
+use diesel::QueryDsl;
+use diesel::RunQueryDsl;
+use diesel::JoinOnDsl;
+use diesel::ExpressionMethods;
+use diesel::SelectableHelper;
 
 #[api_operation(
     summary = "Mark daily staff attendance",
@@ -155,7 +160,7 @@ pub async fn suggest_substitute(
     data: Data<AppState>,
     body: Json<SuggestSubstituteRequest>,
 ) -> Result<Json<Option<crate::models::staff::staff::StaffResponse>>, APIError> {
-    let res: Option<crate::database::tables::Staff> = staff_attendance::suggest_substitute(data.clone(), body.timetable_id.clone(), body.date).await?;
+    let res: Option<crate::models::staff::staff::Staff> = staff_attendance::suggest_substitute(data.clone(), body.timetable_id.clone(), body.date).await?;
     
     if let Some(staff_member) = res {
         let mut conn = data.db_pool.get()?;
@@ -171,6 +176,11 @@ pub async fn suggest_substitute(
         Ok(Json(Some(crate::models::staff::staff::StaffResponse {
             id: staff_member.id,
             employee_id: staff_member.employee_id,
+            name: staff_member.name,
+            address: staff_member.address,
+            phone: staff_member.phone,
+            email: staff_member.email,
+            photo_url: staff_member.photo_url,
             nic: staff_member.nic,
             dob: staff_member.dob,
             gender: staff_member.gender,

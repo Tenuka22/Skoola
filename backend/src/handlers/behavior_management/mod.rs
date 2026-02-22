@@ -1,21 +1,16 @@
-use actix_web::{web, HttpResponse, Responder};
-use diesel::r2d2::{ConnectionManager, PooledConnection};
-use diesel::SqliteConnection;
+use actix_web::{web, HttpResponse};
+use actix_web::web::Json;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use validator::Validate;
 
+use crate::AppState;
+use crate::APIError;
 use crate::services::behavior_management;
 use crate::models::behavior_management::{BehaviorIncidentType, BehaviorIncident};
-use crate::models::auth::user::CurrentUser;
-use crate::errors::iam::IamError;
-use crate::util::permission_verification::has_permission;
 
 use schemars::JsonSchema;
-use apistos::ApiComponent;
+use apistos::{ApiComponent, api_operation};
 use chrono::NaiveDateTime;
-
-pub type Pool = web::Data<r2d2::Pool<ConnectionManager<SqliteConnection>>>;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct BehaviorIncidentTypeResponse {
@@ -79,7 +74,6 @@ pub struct CreateBehaviorIncidentTypeRequest {
 
 #[derive(Debug, Deserialize, Validate, JsonSchema, ApiComponent)]
 pub struct UpdateBehaviorIncidentTypeRequest {
-    #[validate(length(min = 1, message = "Type name cannot be empty"), custom(function = "crate::util::validation::validate_optional_string_not_empty"))]
     pub type_name: Option<String>,
     pub default_points: Option<i32>,
     pub description: Option<String>,
@@ -99,252 +93,173 @@ pub struct RecordBehaviorIncidentRequest {
 
 #[derive(Debug, Deserialize, Validate, JsonSchema, ApiComponent)]
 pub struct UpdateBehaviorIncidentRequest {
-    #[validate(length(min = 1, message = "Student ID cannot be empty"), custom(function = "crate::util::validation::validate_optional_string_not_empty"))]
     pub student_id: Option<String>,
-    #[validate(length(min = 1, message = "Reported by user ID cannot be empty"), custom(function = "crate::util::validation::validate_optional_string_not_empty"))]
     pub reported_by_user_id: Option<String>,
-    #[validate(length(min = 1, message = "Incident type ID cannot be empty"), custom(function = "crate::util::validation::validate_optional_string_not_empty"))]
     pub incident_type_id: Option<String>,
-    #[validate(length(min = 1, message = "Description cannot be empty"), custom(function = "crate::util::validation::validate_optional_string_not_empty"))]
     pub description: Option<String>,
     pub incident_date: Option<NaiveDateTime>,
     pub points_awarded: Option<i32>,
 }
 
-#[apistos::web("/behavior-incident-types", post, 
-    operation_id = "create_behavior_incident_type", 
-    tag = "Behavior Management", 
-    request_body(content = "CreateBehaviorIncidentTypeRequest", description = "Create behavior incident type request"), 
-    responses( (status = 201, description = "Behavior incident type created", content = "BehaviorIncidentTypeResponse") ) 
+#[api_operation(
+    summary = "Create Behavior Incident Type",
+    description = "Creates a new behavior incident type.",
+    tag = "Behavior Management",
+    operation_id = "create_behavior_incident_type"
 )]
-pub async fn create_behavior_incident_type(pool: Pool, current_user: CurrentUser, req: web::Json<CreateBehaviorIncidentTypeRequest>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "behavior:incident_type:create")?;
-
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let incident_type = web::block(move || {
-        behavior_management::create_behavior_incident_type(&mut conn, req.type_name.clone(), req.default_points, req.description.clone())
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    Ok(HttpResponse::Created().json(BehaviorIncidentTypeResponse::from(incident_type)))
+pub async fn create_behavior_incident_type(
+    data: web::Data<AppState>,
+    body: web::Json<CreateBehaviorIncidentTypeRequest>,
+) -> Result<Json<BehaviorIncidentTypeResponse>, APIError> {
+    let new_incident_type =
+        behavior_management::create_behavior_incident_type(data.clone(), body.into_inner()).await?;
+    Ok(Json(BehaviorIncidentTypeResponse::from(new_incident_type)))
 }
 
-#[apistos::web("/behavior-incident-types/{type_id}", get, 
-    operation_id = "get_behavior_incident_type_by_id", 
-    tag = "Behavior Management", 
-    responses( (status = 200, description = "Behavior incident type retrieved", content = "BehaviorIncidentTypeResponse"), (status = 404, description = "Behavior incident type not found") ) 
+#[api_operation(
+    summary = "Get Behavior Incident Type by ID",
+    description = "Retrieves a behavior incident type by its ID.",
+    tag = "Behavior Management",
+    operation_id = "get_behavior_incident_type_by_id"
 )]
-pub async fn get_behavior_incident_type_by_id(pool: Pool, current_user: CurrentUser, path: web::Path<String>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "behavior:incident_type:view")?;
-
+pub async fn get_behavior_incident_type_by_id(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+) -> Result<Json<BehaviorIncidentTypeResponse>, APIError> {
     let type_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let incident_type = web::block(move || {
-        behavior_management::get_behavior_incident_type_by_id(&mut conn, &type_id)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    match incident_type {
-        Some(t) => Ok(HttpResponse::Ok().json(BehaviorIncidentTypeResponse::from(t))),
-        None => Err(IamError::NotFound("Behavior incident type not found".to_string())),
-    }
+    let incident_type = behavior_management::get_behavior_incident_type_by_id(data.clone(), type_id).await?;
+    Ok(Json(BehaviorIncidentTypeResponse::from(incident_type)))
 }
 
-#[apistos::web("/behavior-incident-types", get, 
-    operation_id = "get_all_behavior_incident_types", 
-    tag = "Behavior Management", 
-    responses( (status = 200, description = "Behavior incident types retrieved", content = "Vec<BehaviorIncidentTypeResponse>") ) 
+#[api_operation(
+    summary = "Get All Behavior Incident Types",
+    description = "Retrieves all behavior incident types.",
+    tag = "Behavior Management",
+    operation_id = "get_all_behavior_incident_types"
 )]
-pub async fn get_all_behavior_incident_types(pool: Pool, current_user: CurrentUser) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "behavior:incident_type:view")?;
-
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let incident_types = web::block(move || {
-        behavior_management::get_all_behavior_incident_types(&mut conn)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    Ok(HttpResponse::Ok().json(incident_types.into_iter().map(BehaviorIncidentTypeResponse::from).collect::<Vec<_>>()))
+pub async fn get_all_behavior_incident_types(
+    data: web::Data<AppState>,
+) -> Result<Json<Vec<BehaviorIncidentTypeResponse>>, APIError> {
+    let incident_types = behavior_management::get_all_behavior_incident_types(data.clone()).await?;
+    Ok(Json(incident_types.into_iter().map(BehaviorIncidentTypeResponse::from).collect()))
 }
 
-#[apistos::web("/behavior-incident-types/{type_id}", put, 
-    operation_id = "update_behavior_incident_type", 
-    tag = "Behavior Management", 
-    request_body(content = "UpdateBehaviorIncidentTypeRequest", description = "Update behavior incident type request"), 
-    responses( (status = 200, description = "Behavior incident type updated", content = "BehaviorIncidentTypeResponse"), (status = 404, description = "Behavior incident type not found") ) 
+#[api_operation(
+    summary = "Update Behavior Incident Type",
+    description = "Updates a behavior incident type by its ID.",
+    tag = "Behavior Management",
+    operation_id = "update_behavior_incident_type"
 )]
-pub async fn update_behavior_incident_type(pool: Pool, current_user: CurrentUser, path: web::Path<String>, req: web::Json<UpdateBehaviorIncidentTypeRequest>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "behavior:incident_type:update")?;
-
+pub async fn update_behavior_incident_type(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+    body: web::Json<UpdateBehaviorIncidentTypeRequest>,
+) -> Result<Json<BehaviorIncidentTypeResponse>, APIError> {
     let type_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let updated_type = web::block(move || {
-        behavior_management::update_behavior_incident_type(&mut conn, &type_id, req.type_name.clone(), req.default_points, req.description.clone())
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    match updated_type {
-        Some(t) => Ok(HttpResponse::Ok().json(BehaviorIncidentTypeResponse::from(t))),
-        None => Err(IamError::NotFound("Behavior incident type not found".to_string())),
-    }
+    let updated_type = behavior_management::update_behavior_incident_type(
+        data.clone(),
+        type_id,
+        body.into_inner(),
+    )
+    .await?;
+    Ok(Json(BehaviorIncidentTypeResponse::from(updated_type)))
 }
 
-#[apistos::web("/behavior-incident-types/{type_id}", delete, 
-    operation_id = "delete_behavior_incident_type", 
-    tag = "Behavior Management", 
-    responses( (status = 204, description = "Behavior incident type deleted"), (status = 404, description = "Behavior incident type not found") ) 
+#[api_operation(
+    summary = "Delete Behavior Incident Type",
+    description = "Deletes a behavior incident type by its ID.",
+    tag = "Behavior Management",
+    operation_id = "delete_behavior_incident_type"
 )]
-pub async fn delete_behavior_incident_type(pool: Pool, current_user: CurrentUser, path: web::Path<String>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "behavior:incident_type:delete")?;
-
+pub async fn delete_behavior_incident_type(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+) -> Result<HttpResponse, APIError> {
     let type_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let num_deleted = web::block(move || {
-        behavior_management::delete_behavior_incident_type(&mut conn, &type_id)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    if num_deleted > 0 {
-        Ok(HttpResponse::NoContent().finish())
-    } else {
-        Err(IamError::NotFound("Behavior incident type not found".to_string()))
-    }
+    behavior_management::delete_behavior_incident_type(data.clone(), type_id).await?;
+    Ok(HttpResponse::NoContent().finish())
 }
 
-#[apistos::web("/behavior-incidents", post, 
-    operation_id = "record_behavior_incident", 
-    tag = "Behavior Management", 
-    request_body(content = "RecordBehaviorIncidentRequest", description = "Record behavior incident request"), 
-    responses( (status = 201, description = "Behavior incident recorded", content = "BehaviorIncidentResponse") ) 
+use crate::models::auth::CurrentUser;
+
+#[api_operation(
+    summary = "Record Behavior Incident",
+    description = "Records a new behavior incident.",
+    tag = "Behavior Management",
+    operation_id = "record_behavior_incident"
 )]
-pub async fn record_behavior_incident(pool: Pool, current_user: CurrentUser, req: web::Json<RecordBehaviorIncidentRequest>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "behavior:incident:record")?;
-
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let incident = web::block(move || {
-        behavior_management::record_behavior_incident(
-            &mut conn,
-            req.student_id.clone(),
-            current_user.id.clone(),
-            req.incident_type_id.clone(),
-            req.description.clone(),
-            req.incident_date,
-            req.points_awarded,
-        )
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    Ok(HttpResponse::Created().json(BehaviorIncidentResponse::from(incident)))
+pub async fn record_behavior_incident(
+    data: web::Data<AppState>,
+    current_user: CurrentUser,
+    body: web::Json<RecordBehaviorIncidentRequest>,
+) -> Result<Json<BehaviorIncidentResponse>, APIError> {
+    let incident =
+        behavior_management::record_behavior_incident(data.clone(), current_user.id, body.into_inner()).await?;
+    Ok(Json(BehaviorIncidentResponse::from(incident)))
 }
 
-#[apistos::web("/students/{student_id}/behavior-incidents", get, 
-    operation_id = "get_student_behavior_incidents", 
-    tag = "Behavior Management", 
-    responses( (status = 200, description = "Student behavior incidents retrieved", content = "Vec<BehaviorIncidentResponse>") ) 
+#[api_operation(
+    summary = "Get Student Behavior Incidents",
+    description = "Retrieves all behavior incidents for a specific student.",
+    tag = "Behavior Management",
+    operation_id = "get_student_behavior_incidents"
 )]
-pub async fn get_student_behavior_incidents(pool: Pool, current_user: CurrentUser, path: web::Path<String>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "behavior:incident:view")?;
-
+pub async fn get_student_behavior_incidents(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+) -> Result<Json<Vec<BehaviorIncidentResponse>>, APIError> {
     let student_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let incidents = web::block(move || {
-        behavior_management::get_student_behavior_incidents(&mut conn, &student_id)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    Ok(HttpResponse::Ok().json(incidents.into_iter().map(BehaviorIncidentResponse::from).collect::<Vec<_>>()))
+    let incidents = behavior_management::get_student_behavior_incidents(data.clone(), student_id).await?;
+    Ok(Json(incidents.into_iter().map(BehaviorIncidentResponse::from).collect()))
 }
 
-#[apistos::web("/behavior-incidents/{incident_id}", get, 
-    operation_id = "get_behavior_incident_by_id", 
-    tag = "Behavior Management", 
-    responses( (status = 200, description = "Behavior incident retrieved", content = "BehaviorIncidentResponse"), (status = 404, description = "Behavior incident not found") ) 
+#[api_operation(
+    summary = "Get Behavior Incident by ID",
+    description = "Retrieves a behavior incident by its ID.",
+    tag = "Behavior Management",
+    operation_id = "get_behavior_incident_by_id"
 )]
-pub async fn get_behavior_incident_by_id(pool: Pool, current_user: CurrentUser, path: web::Path<String>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "behavior:incident:view")?;
-
+pub async fn get_behavior_incident_by_id(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+) -> Result<Json<BehaviorIncidentResponse>, APIError> {
     let incident_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let incident = web::block(move || {
-        behavior_management::get_behavior_incident_by_id(&mut conn, &incident_id)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    match incident {
-        Some(i) => Ok(HttpResponse::Ok().json(BehaviorIncidentResponse::from(i))),
-        None => Err(IamError::NotFound("Behavior incident not found".to_string())),
-    }
+    let incident = behavior_management::get_behavior_incident_by_id(data.clone(), incident_id).await?;
+    Ok(Json(BehaviorIncidentResponse::from(incident)))
 }
 
-#[apistos::web("/behavior-incidents/{incident_id}", put, 
-    operation_id = "update_behavior_incident", 
-    tag = "Behavior Management", 
-    request_body(content = "UpdateBehaviorIncidentRequest", description = "Update behavior incident request"), 
-    responses( (status = 200, description = "Behavior incident updated", content = "BehaviorIncidentResponse"), (status = 404, description = "Behavior incident not found") ) 
+#[api_operation(
+    summary = "Update Behavior Incident",
+    description = "Updates a behavior incident by its ID.",
+    tag = "Behavior Management",
+    operation_id = "update_behavior_incident"
 )]
-pub async fn update_behavior_incident(pool: Pool, current_user: CurrentUser, path: web::Path<String>, req: web::Json<UpdateBehaviorIncidentRequest>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "behavior:incident:update")?;
-
+pub async fn update_behavior_incident(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+    body: web::Json<UpdateBehaviorIncidentRequest>,
+) -> Result<Json<BehaviorIncidentResponse>, APIError> {
     let incident_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let updated_incident = web::block(move || {
-        behavior_management::update_behavior_incident(
-            &mut conn,
-            &incident_id,
-            req.student_id.clone(),
-            req.reported_by_user_id.clone(),
-            req.incident_type_id.clone(),
-            req.description.clone(),
-            req.incident_date,
-            req.points_awarded,
-        )
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    match updated_incident {
-        Some(i) => Ok(HttpResponse::Ok().json(BehaviorIncidentResponse::from(i))),
-        None => Err(IamError::NotFound("Behavior incident not found".to_string())),
-    }
+    let updated_incident = behavior_management::update_behavior_incident(
+        data.clone(),
+        incident_id,
+        body.into_inner(),
+    )
+    .await?;
+    Ok(Json(BehaviorIncidentResponse::from(updated_incident)))
 }
 
-#[apistos::web("/behavior-incidents/{incident_id}", delete, 
-    operation_id = "delete_behavior_incident", 
-    tag = "Behavior Management", 
-    responses( (status = 204, description = "Behavior incident deleted"), (status = 404, description = "Behavior incident not found") ) 
+#[api_operation(
+    summary = "Delete Behavior Incident",
+    description = "Deletes a behavior incident by its ID.",
+    tag = "Behavior Management",
+    operation_id = "delete_behavior_incident"
 )]
-pub async fn delete_behavior_incident(pool: Pool, current_user: CurrentUser, path: web::Path<String>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "behavior:incident:delete")?;
-
+pub async fn delete_behavior_incident(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+) -> Result<HttpResponse, APIError> {
     let incident_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let num_deleted = web::block(move || {
-        behavior_management::delete_behavior_incident(&mut conn, &incident_id)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    if num_deleted > 0 {
-        Ok(HttpResponse::NoContent().finish())
-    } else {
-        Err(IamError::NotFound("Behavior incident not found".to_string()))
-    }
+    behavior_management::delete_behavior_incident(data.clone(), incident_id).await?;
+    Ok(HttpResponse::NoContent().finish())
 }

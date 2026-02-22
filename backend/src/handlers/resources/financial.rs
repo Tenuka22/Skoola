@@ -152,7 +152,7 @@ pub async fn record_income(data: Data<AppState>, req: Json<RecordIncomeRequest>)
 )]
 pub async fn record_expense(data: Data<AppState>, req: Json<RecordExpenseRequest>) -> Result<Json<ExpenseTransactionResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let trans = financial::record_expense(&mut conn, req.into_inner())?;
+    let trans = financial::record_expense(data.clone(), &mut conn, req.into_inner()).await?;
     Ok(Json(ExpenseTransactionResponse::from(trans)))
 }
 

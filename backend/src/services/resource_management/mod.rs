@@ -1,142 +1,163 @@
 use diesel::prelude::*;
-use diesel::connection::AnsiConnection;
 use uuid::Uuid;
-use anyhow::Result;
-use chrono::NaiveDateTime;
+use chrono::Utc;
+use actix_web::web::Data;
 
+use crate::AppState;
+use crate::errors::APIError;
 use crate::models::resource_management::{Resource, NewResource, ResourceBooking, NewResourceBooking};
 use crate::schema::{resources, resource_bookings};
+use crate::handlers::resource_management::{CreateResourceRequest, UpdateResourceRequest, BookResourceRequest};
 
 // Service to create a new resource
-pub fn create_resource(
-    conn: &mut impl AnsiConnection,
-    resource_name: String,
-    resource_type: String,
-    description: Option<String>,
-) -> Result<Resource> {
+pub async fn create_resource(
+    data: Data<AppState>,
+    req: CreateResourceRequest,
+) -> Result<Resource, APIError> {
+    let mut conn = data.db_pool.get()?;
     let new_resource_id = Uuid::new_v4().to_string();
     let new_resource = NewResource {
-        id: new_resource_id,
-        resource_name,
-        resource_type,
-        description,
+        id: new_resource_id.clone(),
+        resource_name: req.resource_name,
+        resource_type: req.resource_type,
+        description: req.description,
     };
 
-    let resource = diesel::insert_into(resources::table)
+    diesel::insert_into(resources::table)
         .values(&new_resource)
-        .get_result::<Resource>(conn)?;
+        .execute(&mut conn)?;
+
+    let resource = resources::table
+        .find(&new_resource_id)
+        .first::<Resource>(&mut conn)?;
 
     Ok(resource)
 }
 
 // Service to get a resource by ID
-pub fn get_resource_by_id(
-    conn: &mut impl AnsiConnection,
-    resource_id: &str,
-) -> Result<Option<Resource>> {
+pub async fn get_resource_by_id(
+    data: Data<AppState>,
+    resource_id: String,
+) -> Result<Resource, APIError> {
+    let mut conn = data.db_pool.get()?;
     let resource = resources::table
-        .filter(resources::id.eq(resource_id))
-        .first::<Resource>(conn)
+        .filter(resources::id.eq(resource_id.clone()))
+        .first::<Resource>(&mut conn)
         .optional()?;
 
-    Ok(resource)
+    match resource {
+        Some(r) => Ok(r),
+        None => Err(APIError::not_found(&format!("Resource with ID {} not found", resource_id))),
+    }
 }
 
 // Service to get all resources
-pub fn get_all_resources(
-    conn: &mut impl AnsiConnection,
-) -> Result<Vec<Resource>> {
+pub async fn get_all_resources(
+    data: Data<AppState>,
+) -> Result<Vec<Resource>, APIError> {
+    let mut conn = data.db_pool.get()?;
     let all_resources = resources::table
-        .load::<Resource>(conn)?;
+        .load::<Resource>(&mut conn)?;
 
     Ok(all_resources)
 }
 
 // Service to update a resource
-pub fn update_resource(
-    conn: &mut impl AnsiConnection,
-    resource_id: &str,
-    resource_name: Option<String>,
-    resource_type: Option<String>,
-    description: Option<String>,
-) -> Result<Option<Resource>> {
-    let target = resources::table.filter(resources::id.eq(resource_id));
+pub async fn update_resource(
+    data: Data<AppState>,
+    resource_id: String,
+    req: UpdateResourceRequest,
+) -> Result<Resource, APIError> {
+    let mut conn = data.db_pool.get()?;
+    let target = resources::table.filter(resources::id.eq(&resource_id));
 
-    let mut changes = Vec::new();
-    if let Some(name) = resource_name { changes.push(resources::resource_name.eq(name)); }
-    if let Some(resource_type) = resource_type { changes.push(resources::resource_type.eq(resource_type)); }
-    if let Some(description) = description { changes.push(resources::description.eq(description)); }
+    let updated_count = diesel::update(target)
+        .set((
+            req.resource_name.map(|n| resources::resource_name.eq(n)),
+            req.resource_type.map(|t| resources::resource_type.eq(t)),
+            req.description.map(|d| resources::description.eq(d)),
+            resources::updated_at.eq(Utc::now().naive_utc()),
+        ))
+        .execute(&mut conn)?;
 
-    if changes.is_empty() {
-        return get_resource_by_id(conn, resource_id);
+    if updated_count == 0 {
+        return Err(APIError::not_found(&format!("Resource with ID {} not found", resource_id)));
     }
 
-    let updated_resource = diesel::update(target)
-        .set(changes)
-        .get_result::<Resource>(conn)
-        .optional()?;
+    let updated_resource = resources::table
+        .filter(resources::id.eq(resource_id))
+        .first::<Resource>(&mut conn)?;
 
     Ok(updated_resource)
 }
 
 // Service to delete a resource
-pub fn delete_resource(
-    conn: &mut impl AnsiConnection,
-    resource_id: &str,
-) -> Result<usize> {
-    let num_deleted = diesel::delete(resources::table.filter(resources::id.eq(resource_id)))
-        .execute(conn)?;
+pub async fn delete_resource(
+    data: Data<AppState>,
+    resource_id: String,
+) -> Result<(), APIError> {
+    let mut conn = data.db_pool.get()?;
+    let num_deleted = diesel::delete(resources::table.filter(resources::id.eq(&resource_id)))
+        .execute(&mut conn)?;
 
-    Ok(num_deleted)
+    if num_deleted == 0 {
+        return Err(APIError::not_found(&format!("Resource with ID {} not found", resource_id)));
+    }
+
+    Ok(())
 }
 
 // Service to book a resource
-pub fn book_resource(
-    conn: &mut impl AnsiConnection,
-    resource_id: String,
+pub async fn book_resource(
+    data: Data<AppState>,
     booked_by_user_id: String,
-    start_time: NaiveDateTime,
-    end_time: NaiveDateTime,
-    related_event_id: Option<String>,
-) -> Result<ResourceBooking> {
+    req: BookResourceRequest,
+) -> Result<ResourceBooking, APIError> {
+    let mut conn = data.db_pool.get()?;
+
     // Check for booking conflicts
     let existing_bookings = resource_bookings::table
-        .filter(resource_bookings::resource_id.eq(&resource_id))
-        .filter(resource_bookings::start_time.lt(end_time))
-        .filter(resource_bookings::end_time.gt(start_time))
+        .filter(resource_bookings::resource_id.eq(&req.resource_id))
+        .filter(resource_bookings::start_time.lt(req.end_time))
+        .filter(resource_bookings::end_time.gt(req.start_time))
         .count()
-        .get_result::<i64>(conn)?;
+        .get_result::<i64>(&mut conn)?;
 
     if existing_bookings > 0 {
-        return Err(anyhow::anyhow!("Resource is already booked for the requested time slot."));
+        return Err(APIError::conflict("Resource is already booked for the requested time slot."));
     }
 
     let new_booking_id = Uuid::new_v4().to_string();
     let new_booking = NewResourceBooking {
-        id: new_booking_id,
-        resource_id,
+        id: new_booking_id.clone(),
+        resource_id: req.resource_id,
         booked_by_user_id,
-        start_time,
-        end_time,
-        related_event_id,
+        start_time: req.start_time,
+        end_time: req.end_time,
+        related_event_id: req.related_event_id,
     };
 
-    let booking = diesel::insert_into(resource_bookings::table)
+    diesel::insert_into(resource_bookings::table)
         .values(&new_booking)
-        .get_result::<ResourceBooking>(conn)?;
+        .execute(&mut conn)?;
+
+    let booking = resource_bookings::table
+        .find(&new_booking_id)
+        .first::<ResourceBooking>(&mut conn)?;
 
     Ok(booking)
 }
 
 // Service to get all bookings for a resource
-pub fn get_resource_bookings(
-    conn: &mut impl AnsiConnection,
-    resource_id: &str,
-) -> Result<Vec<ResourceBooking>> {
+pub async fn get_resource_bookings(
+    data: Data<AppState>,
+    resource_id: String,
+) -> Result<Vec<ResourceBooking>, APIError> {
+    let mut conn = data.db_pool.get()?;
     let bookings = resource_bookings::table
         .filter(resource_bookings::resource_id.eq(resource_id))
         .order(resource_bookings::start_time.asc())
-        .load::<ResourceBooking>(conn)?;
+        .load::<ResourceBooking>(&mut conn)?;
 
     Ok(bookings)
 }

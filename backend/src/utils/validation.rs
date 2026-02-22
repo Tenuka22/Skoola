@@ -37,3 +37,12 @@ pub fn is_valid_ethnicity(ethnicity: &str) -> bool {
     // Basic check for non-empty ethnicity string.
     !ethnicity.is_empty()
 }
+
+pub fn validate_optional_string_not_empty(s: &Option<String>) -> Result<(), validator::ValidationError> {
+    if let Some(val) = s {
+        if val.trim().is_empty() {
+            return Err(validator::ValidationError::new("cannot_be_empty"));
+        }
+    }
+    Ok(())
+}

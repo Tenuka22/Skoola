@@ -13,9 +13,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState,
-    database::tables::{Staff},
+    database::tables::{Staff as DbStaff},
     errors::APIError,
-    models::staff::staff::{CreateStaffRequest, StaffChangeset, UpdateStaffRequest, StaffResponse, StaffQuery, PaginatedStaffResponse},
+    models::staff::staff::{CreateStaffRequest, UpdateStaffRequest, StaffResponse, StaffQuery, PaginatedStaffResponse},
     models::{MessageResponse, Profile, NewProfile, UserProfile, NewUserProfile, auth_user::User}, // Added Profile, NewProfile, UserProfile, NewUserProfile, User
     schema::{staff, profiles, user_profiles, users}, // Added profiles, user_profiles, users
     utils::validation::{is_valid_email, is_valid_nic, is_valid_phone},
@@ -56,9 +56,9 @@ pub async fn upload_staff_photo(
     let mut conn = data.db_pool.get()?;
 
     // Check if staff exists and get its profile_id
-    let existing_staff: Staff = staff::table
+    let existing_staff: DbStaff = staff::table
         .find(&staff_id_inner)
-        .select(Staff::as_select())
+        .select(DbStaff::as_select())
         .first(&mut conn)?;
 
     let profile_id = existing_staff.profile_id.ok_or_else(|| APIError::not_found("Profile not found for staff member"))?;
@@ -92,17 +92,22 @@ pub async fn upload_staff_photo(
             .execute(&mut conn)?;
 
         // Fetch updated staff, profile, and user info to construct StaffResponse
-        let (updated_staff, profile, user_profile): (Staff, Profile, Option<User>) = staff::table
+        let (updated_staff, profile, user_profile): (DbStaff, Profile, Option<User>) = staff::table
             .find(&staff_id_inner)
             .inner_join(profiles::table)
             .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
             .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
-            .select((Staff::as_select(), Profile::as_select(), Option::<User>::as_select()))
+            .select((DbStaff::as_select(), Profile::as_select(), Option::<User>::as_select()))
             .first(&mut conn)?;
 
         Ok(Json(StaffResponse {
             id: updated_staff.id,
             employee_id: updated_staff.employee_id,
+            name: profile.name.clone(),
+            address: profile.address.clone().unwrap_or_default(),
+            phone: profile.phone.clone().unwrap_or_default(),
+            email: user_profile.clone().map(|u| u.email).unwrap_or_default(),
+            photo_url: profile.photo_url.clone(),
             nic: updated_staff.nic,
             dob: updated_staff.dob,
             gender: updated_staff.gender,
@@ -213,16 +218,21 @@ pub async fn get_all_staff(
         _ => base_query.order(staff::created_at.desc()),
     };
 
-    let staff_list_data: Vec<(Staff, Profile, Option<User>)> = base_query
-        .select((Staff::as_select(), Profile::as_select(), Option::<User>::as_select()))
+    let staff_list_data: Vec<(DbStaff, Profile, Option<User>)> = base_query
+        .select((DbStaff::as_select(), Profile::as_select(), Option::<User>::as_select()))
         .limit(limit)
         .offset(offset)
-        .load::<(Staff, Profile, Option<User>)>(&mut conn)?;
+        .load::<(DbStaff, Profile, Option<User>)>(&mut conn)?;
 
     let staff_responses: Vec<StaffResponse> = staff_list_data.into_iter().map(|(staff, profile, user)| {
         StaffResponse {
             id: staff.id,
             employee_id: staff.employee_id,
+            name: profile.name.clone(),
+            address: profile.address.clone().unwrap_or_default(),
+            phone: profile.phone.clone().unwrap_or_default(),
+            email: user.clone().map(|u| u.email).unwrap_or_default(),
+            photo_url: profile.photo_url.clone(),
             nic: staff.nic,
             dob: staff.dob,
             gender: staff.gender,
@@ -265,17 +275,22 @@ pub async fn get_staff_by_id(
 
     use crate::schema::{profiles, user_profiles, users};
 
-    let (staff_member, profile, user_profile): (Staff, Profile, Option<User>) = staff::table
+    let (staff_member, profile, user_profile): (DbStaff, Profile, Option<User>) = staff::table
         .find(&staff_id_inner)
         .inner_join(profiles::table)
         .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
         .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
-        .select((Staff::as_select(), Profile::as_select(), Option::<User>::as_select()))
+        .select((DbStaff::as_select(), Profile::as_select(), Option::<User>::as_select()))
         .first(&mut conn)?;
 
     Ok(Json(StaffResponse {
         id: staff_member.id,
         employee_id: staff_member.employee_id,
+        name: profile.name.clone(),
+        address: profile.address.clone().unwrap_or_default(),
+        phone: profile.phone.clone().unwrap_or_default(),
+        email: user_profile.clone().map(|u| u.email).unwrap_or_default(),
+        photo_url: profile.photo_url.clone(),
         nic: staff_member.nic,
         dob: staff_member.dob,
         gender: staff_member.gender,
@@ -315,9 +330,9 @@ pub async fn create_staff(
     let mut conn = data.db_pool.get()?;
 
     // Check for existing employee_id
-    let existing_staff: Option<Staff> = staff::table
+    let existing_staff: Option<DbStaff> = staff::table
         .filter(staff::employee_id.eq(&body.employee_id))
-        .select(Staff::as_select())
+        .select(DbStaff::as_select())
         .first(&mut conn)
         .optional()?;
 
@@ -354,14 +369,19 @@ pub async fn create_staff(
         .values(&new_profile)
         .execute(&mut conn)?;
 
-    let new_staff_record = Staff {
+    let new_staff_record = DbStaff {
         id: new_staff_id.clone(),
         employee_id: body.employee_id.clone(),
+        name: body.name.clone(),
         nic: body.nic.clone(),
         dob: body.dob,
         gender: body.gender.clone(),
+        address: body.address.clone(),
+        phone: body.phone.clone(),
+        email: body.email.clone(),
         employment_status: body.employment_status.clone(),
         staff_type: body.staff_type.clone(),
+        photo_url: body.photo_url.clone(),
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
         profile_id: Some(new_profile_id.clone()),
@@ -397,6 +417,11 @@ pub async fn create_staff(
     Ok(Json(StaffResponse {
         id: new_staff_record.id,
         employee_id: new_staff_record.employee_id,
+        name: new_staff_record.name,
+        address: new_staff_record.address,
+        phone: new_staff_record.phone,
+        email: new_staff_record.email,
+        photo_url: new_staff_record.photo_url,
         nic: new_staff_record.nic,
         dob: new_staff_record.dob,
         gender: new_staff_record.gender,
@@ -428,10 +453,10 @@ pub async fn update_staff(
 
     // Check if the new NIC already exists for another staff member
     if let Some(ref nic) = body.nic {
-        let existing_staff: Option<Staff> = staff::table
+        let existing_staff: Option<DbStaff> = staff::table
             .filter(staff::nic.eq(nic))
             .filter(staff::id.ne(&staff_id_inner))
-            .select(Staff::as_select())
+            .select(DbStaff::as_select())
             .first(&mut conn)
             .optional()?;
         if existing_staff.is_some() {
@@ -439,9 +464,9 @@ pub async fn update_staff(
         }
     }
 
-    let existing_staff: Staff = staff::table
+    let existing_staff: DbStaff = staff::table
         .find(&staff_id_inner)
-        .select(Staff::as_select())
+        .select(DbStaff::as_select())
         .first(&mut conn)?;
 
     let profile_id = existing_staff.profile_id.ok_or_else(|| APIError::not_found("Profile not found for staff member"))?;
@@ -450,9 +475,9 @@ pub async fn update_staff(
     use crate::schema::profiles;
     diesel::update(profiles::table.find(&profile_id))
         .set((
-            body.name.map(|n| profiles::name.eq(n)),
-            body.address.map(|a| profiles::address.eq(a)),
-            body.phone.map(|p| profiles::phone.eq(p)),
+            body.name.as_ref().map(|n| profiles::name.eq(n)),
+            body.address.as_ref().map(|a| profiles::address.eq(a)),
+            body.phone.as_ref().map(|p| profiles::phone.eq(p)),
             profiles::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
@@ -460,20 +485,43 @@ pub async fn update_staff(
     // Update staff-specific fields in the staff table
     diesel::update(staff::table.find(&staff_id_inner))
         .set((
-            body.nic.map(|nic| staff::nic.eq(nic)),
-            body.dob.map(|dob| staff::dob.eq(dob)),
-            body.gender.map(|g| staff::gender.eq(g)),
+            body.nic.as_ref().map(|nic| staff::nic.eq(nic)),
+            body.dob.map(|dob| staff::dob.eq(dob)), // NaiveDate doesn't need as_ref
+            body.gender.as_ref().map(|g| staff::gender.eq(g)),
             staff::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
 
-    let updated_staff = staff::table
+    let (final_staff, final_profile, final_user_profile): (DbStaff, Profile, Option<User>) = staff::table
         .find(&staff_id_inner)
-        .select(Staff::as_select())
-        .first::<Staff>(&mut conn)?;
+        .inner_join(profiles::table)
+        .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
+        .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+        .select((DbStaff::as_select(), Profile::as_select(), Option::<User>::as_select()))
+        .first(&mut conn)?;
 
-
-    Ok(Json(StaffResponse::from(updated_staff)))
+    Ok(Json(StaffResponse {
+        id: final_staff.id,
+        employee_id: final_staff.employee_id,
+        name: final_profile.name.clone(),
+        address: final_profile.address.clone().unwrap_or_default(),
+        phone: final_profile.phone.clone().unwrap_or_default(),
+        email: final_user_profile.clone().map(|u| u.email).unwrap_or_default(),
+        photo_url: final_profile.photo_url.clone(),
+        nic: final_staff.nic,
+        dob: final_staff.dob,
+        gender: final_staff.gender,
+        employment_status: final_staff.employment_status,
+        staff_type: final_staff.staff_type,
+        created_at: final_staff.created_at,
+        updated_at: final_staff.updated_at,
+        profile_id: final_staff.profile_id,
+        profile_name: Some(final_profile.name),
+        profile_address: final_profile.address,
+        profile_phone: final_profile.phone,
+        profile_photo_url: final_profile.photo_url,
+        user_email: final_user_profile.map(|u| u.email),
+    }))
 }
 
 #[api_operation(

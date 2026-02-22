@@ -51,7 +51,7 @@ pub async fn get_profile(
             APIError::not_found("User not found")
         })?;
 
-    let user_profile_response = user_service::user_to_user_profile_response(user)?;
+    let user_profile_response = user_service::user_to_user_profile_response(&mut conn, user)?;
 
     info!("ACTION: User profile fetched | user_id: {}", user_id.0);
     Ok(Json(user_profile_response))

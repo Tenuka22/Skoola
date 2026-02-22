@@ -351,7 +351,7 @@ pub async fn record_payment(
     req: web::Json<RecordFeePaymentRequest>,
 ) -> Result<web::Json<FeePaymentResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let payment = fees::record_payment(&mut conn, req.into_inner()).await?;
+    let payment = fees::record_payment(data.clone(), &mut conn, req.into_inner()).await?;
     Ok(web::Json(FeePaymentResponse::from(payment)))
 }
 
@@ -445,6 +445,7 @@ pub async fn send_reminders(
     for defaulter in defaulters {
         if let Ok(student) = crate::schema::students::table
             .filter(crate::schema::students::id.eq(&defaulter.student_id))
+            .select(crate::models::student::student::Student::as_select())
             .first::<crate::models::student::student::Student>(&mut conn) {
             
             if let Some(email) = student.email {

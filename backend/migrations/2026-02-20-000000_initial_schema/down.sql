@@ -166,3 +166,4 @@ DROP TABLE IF EXISTS activity_types;
 DROP TABLE IF EXISTS academic_years;
 DROP TABLE IF EXISTS profiles;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS competition_participants;

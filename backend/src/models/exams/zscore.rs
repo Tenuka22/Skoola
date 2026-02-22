@@ -10,8 +10,8 @@ use serde::{Deserialize, Serialize};
 pub struct ZScoreCalculation {
     pub exam_id: String,
     pub subject_id: String,
-    pub mean: f64,
-    pub std_deviation: f64,
+    pub mean: f32,
+    pub std_deviation: f32,
     pub calculated_at: NaiveDateTime,
 }
 
@@ -20,8 +20,8 @@ pub struct ZScoreCalculation {
 pub struct CreateZScoreCalculation {
     pub exam_id: String,
     pub subject_id: String,
-    pub mean: f64,
-    pub std_deviation: f64,
+    pub mean: f32,
+    pub std_deviation: f32,
 }
 
 #[derive(
@@ -40,7 +40,7 @@ pub struct StudentZScore {
     pub student_id: String,
     pub exam_id: String,
     pub subject_id: String,
-    pub zscore: f64,
+    pub zscore: f32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ApiComponent, JsonSchema)]

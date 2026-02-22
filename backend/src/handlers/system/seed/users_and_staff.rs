@@ -137,7 +137,7 @@ pub fn seed_all(
         RoleEnum::Accountant,
     ];
 
-    let test_user_password = app_config.test_user_password.as_deref().unwrap_or("password123");
+    let test_user_password = app_config.seed_user_password.as_deref().unwrap_or("password123");
     let hashed_test_pw = hash_password(test_user_password)?;
 
     let mut users_to_insert = Vec::new();
@@ -191,6 +191,7 @@ pub fn seed_all(
                 StaffType::Administrative
             },
             photo_url: None,
+            profile_id: None,
             created_at: now,
             updated_at: now,
         };

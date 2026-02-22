@@ -1,21 +1,15 @@
-use actix_web::{web, HttpResponse, Responder};
-use diesel::r2d2::{ConnectionManager, PooledConnection};
-use diesel::SqliteConnection;
+use actix_web::{web, HttpResponse};
+use actix_web::web::Json;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use validator::Validate;
 
+use crate::{AppState, APIError};
 use crate::services::curriculum_management;
 use crate::models::curriculum_management::{CurriculumStandard, Syllabus};
-use crate::models::auth::user::CurrentUser;
-use crate::errors::iam::IamError;
-use crate::util::permission_verification::has_permission;
 
 use schemars::JsonSchema;
-use apistos::ApiComponent;
+use apistos::{api_operation, ApiComponent};
 use chrono::NaiveDateTime;
-
-pub type Pool = web::Data<r2d2::Pool<ConnectionManager<SqliteConnection>>>;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct CurriculumStandardResponse {
@@ -80,11 +74,8 @@ pub struct CreateCurriculumStandardRequest {
 
 #[derive(Debug, Deserialize, Validate, JsonSchema, ApiComponent)]
 pub struct UpdateCurriculumStandardRequest {
-    #[validate(length(min = 1, message = "Subject ID cannot be empty"), custom(function = "crate::util::validation::validate_optional_string_not_empty"))]
     pub subject_id: Option<String>,
-    #[validate(length(min = 1, message = "Grade Level ID cannot be empty"), custom(function = "crate::util::validation::validate_optional_string_not_empty"))]
     pub grade_level_id: Option<String>,
-    #[validate(length(min = 1, message = "Standard code cannot be empty"), custom(function = "crate::util::validation::validate_optional_string_not_empty"))]
     pub standard_code: Option<String>,
     pub description: Option<String>,
 }
@@ -101,229 +92,167 @@ pub struct CreateSyllabusRequest {
 
 #[derive(Debug, Deserialize, Validate, JsonSchema, ApiComponent)]
 pub struct UpdateSyllabusRequest {
-    #[validate(length(min = 1, message = "Topic name cannot be empty"), custom(function = "crate::util::validation::validate_optional_string_not_empty"))]
     pub topic_name: Option<String>,
     pub suggested_duration_hours: Option<i32>,
     pub description: Option<String>,
 }
 
-#[apistos::web("/curriculum-standards", post, 
-    operation_id = "create_curriculum_standard", 
-    tag = "Curriculum Management", 
-    request_body(content = "CreateCurriculumStandardRequest", description = "Create curriculum standard request"), 
-    responses( (status = 201, description = "Curriculum standard created", content = "CurriculumStandardResponse") ) 
+#[api_operation(
+    summary = "Create Curriculum Standard",
+    description = "Creates a new curriculum standard.",
+    tag = "Curriculum Management",
+    operation_id = "create_curriculum_standard"
 )]
-pub async fn create_curriculum_standard(pool: Pool, current_user: CurrentUser, req: web::Json<CreateCurriculumStandardRequest>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "curriculum:create")?;
-
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let standard = web::block(move || {
-        curriculum_management::create_curriculum_standard(&mut conn, req.subject_id.clone(), req.grade_level_id.clone(), req.standard_code.clone(), req.description.clone())
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    Ok(HttpResponse::Created().json(CurriculumStandardResponse::from(standard)))
+pub async fn create_curriculum_standard(
+    data: web::Data<AppState>,
+    body: web::Json<CreateCurriculumStandardRequest>,
+) -> Result<Json<CurriculumStandardResponse>, APIError> {
+    let standard =
+        curriculum_management::create_curriculum_standard(data.clone(), body.into_inner()).await?;
+    Ok(Json(CurriculumStandardResponse::from(standard)))
 }
 
-#[apistos::web("/curriculum-standards/{standard_id}", get, 
-    operation_id = "get_curriculum_standard_by_id", 
-    tag = "Curriculum Management", 
-    responses( (status = 200, description = "Curriculum standard retrieved", content = "CurriculumStandardResponse"), (status = 404, description = "Curriculum standard not found") ) 
+#[api_operation(
+    summary = "Get Curriculum Standard by ID",
+    description = "Retrieves a curriculum standard by its ID.",
+    tag = "Curriculum Management",
+    operation_id = "get_curriculum_standard_by_id"
 )]
-pub async fn get_curriculum_standard_by_id(pool: Pool, current_user: CurrentUser, path: web::Path<String>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "curriculum:view")?;
-
+pub async fn get_curriculum_standard_by_id(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+) -> Result<Json<CurriculumStandardResponse>, APIError> {
     let standard_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let standard = web::block(move || {
-        curriculum_management::get_curriculum_standard_by_id(&mut conn, &standard_id)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    match standard {
-        Some(s) => Ok(HttpResponse::Ok().json(CurriculumStandardResponse::from(s))),
-        None => Err(IamError::NotFound("Curriculum standard not found".to_string())),
-    }
+    let standard = curriculum_management::get_curriculum_standard_by_id(data.clone(), standard_id).await?;
+    Ok(Json(CurriculumStandardResponse::from(standard)))
 }
 
-#[apistos::web("/curriculum-standards", get, 
-    operation_id = "get_all_curriculum_standards", 
-    tag = "Curriculum Management", 
-    responses( (status = 200, description = "Curriculum standards retrieved", content = "Vec<CurriculumStandardResponse>") ) 
+#[api_operation(
+    summary = "Get All Curriculum Standards",
+    description = "Retrieves all curriculum standards.",
+    tag = "Curriculum Management",
+    operation_id = "get_all_curriculum_standards"
 )]
-pub async fn get_all_curriculum_standards(pool: Pool, current_user: CurrentUser) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "curriculum:view")?;
-
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let standards = web::block(move || {
-        curriculum_management::get_all_curriculum_standards(&mut conn)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    Ok(HttpResponse::Ok().json(standards.into_iter().map(CurriculumStandardResponse::from).collect::<Vec<_>>()))
+pub async fn get_all_curriculum_standards(
+    data: web::Data<AppState>,
+) -> Result<Json<Vec<CurriculumStandardResponse>>, APIError> {
+    let standards = curriculum_management::get_all_curriculum_standards(data.clone()).await?;
+    Ok(Json(standards.into_iter().map(CurriculumStandardResponse::from).collect()))
 }
 
-#[apistos::web("/curriculum-standards/{standard_id}", put, 
-    operation_id = "update_curriculum_standard", 
-    tag = "Curriculum Management", 
-    request_body(content = "UpdateCurriculumStandardRequest", description = "Update curriculum standard request"), 
-    responses( (status = 200, description = "Curriculum standard updated", content = "CurriculumStandardResponse"), (status = 404, description = "Curriculum standard not found") ) 
+#[api_operation(
+    summary = "Update Curriculum Standard",
+    description = "Updates a curriculum standard by its ID.",
+    tag = "Curriculum Management",
+    operation_id = "update_curriculum_standard"
 )]
-pub async fn update_curriculum_standard(pool: Pool, current_user: CurrentUser, path: web::Path<String>, req: web::Json<UpdateCurriculumStandardRequest>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "curriculum:update")?;
-
+pub async fn update_curriculum_standard(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+    body: web::Json<UpdateCurriculumStandardRequest>,
+) -> Result<Json<CurriculumStandardResponse>, APIError> {
     let standard_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let updated_standard = web::block(move || {
-        curriculum_management::update_curriculum_standard(&mut conn, &standard_id, req.subject_id.clone(), req.grade_level_id.clone(), req.standard_code.clone(), req.description.clone())
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    match updated_standard {
-        Some(s) => Ok(HttpResponse::Ok().json(CurriculumStandardResponse::from(s))),
-        None => Err(IamError::NotFound("Curriculum standard not found".to_string())),
-    }
+    let updated_standard = curriculum_management::update_curriculum_standard(
+        data.clone(),
+        standard_id,
+        body.into_inner(),
+    )
+    .await?;
+    Ok(Json(CurriculumStandardResponse::from(updated_standard)))
 }
 
-#[apistos::web("/curriculum-standards/{standard_id}", delete, 
-    operation_id = "delete_curriculum_standard", 
-    tag = "Curriculum Management", 
-    responses( (status = 204, description = "Curriculum standard deleted"), (status = 404, description = "Curriculum standard not found") ) 
+#[api_operation(
+    summary = "Delete Curriculum Standard",
+    description = "Deletes a curriculum standard by its ID.",
+    tag = "Curriculum Management",
+    operation_id = "delete_curriculum_standard"
 )]
-pub async fn delete_curriculum_standard(pool: Pool, current_user: CurrentUser, path: web::Path<String>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "curriculum:delete")?;
-
+pub async fn delete_curriculum_standard(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+) -> Result<HttpResponse, APIError> {
     let standard_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let num_deleted = web::block(move || {
-        curriculum_management::delete_curriculum_standard(&mut conn, &standard_id)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    if num_deleted > 0 {
-        Ok(HttpResponse::NoContent().finish())
-    } else {
-        Err(IamError::NotFound("Curriculum standard not found".to_string()))
-    }
+    curriculum_management::delete_curriculum_standard(data.clone(), standard_id).await?;
+    Ok(HttpResponse::NoContent().finish())
 }
 
-#[apistos::web("/syllabus", post, 
-    operation_id = "create_syllabus_topic", 
-    tag = "Curriculum Management", 
-    request_body(content = "CreateSyllabusRequest", description = "Create syllabus topic request"), 
-    responses( (status = 201, description = "Syllabus topic created", content = "SyllabusResponse") ) 
+#[api_operation(
+    summary = "Create Syllabus Topic",
+    description = "Creates a new syllabus topic.",
+    tag = "Curriculum Management",
+    operation_id = "create_syllabus_topic"
 )]
-pub async fn create_syllabus_topic(pool: Pool, current_user: CurrentUser, req: web::Json<CreateSyllabusRequest>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "syllabus:create")?;
-
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let syllabus_topic = web::block(move || {
-        curriculum_management::create_syllabus_topic(&mut conn, req.curriculum_standard_id.clone(), req.topic_name.clone(), req.suggested_duration_hours, req.description.clone())
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    Ok(HttpResponse::Created().json(SyllabusResponse::from(syllabus_topic)))
+pub async fn create_syllabus_topic(
+    data: web::Data<AppState>,
+    body: web::Json<CreateSyllabusRequest>,
+) -> Result<Json<SyllabusResponse>, APIError> {
+    let syllabus_topic =
+        curriculum_management::create_syllabus_topic(data.clone(), body.into_inner()).await?;
+    Ok(Json(SyllabusResponse::from(syllabus_topic)))
 }
 
-#[apistos::web("/syllabus/{syllabus_id}", get, 
-    operation_id = "get_syllabus_topic_by_id", 
-    tag = "Curriculum Management", 
-    responses( (status = 200, description = "Syllabus topic retrieved", content = "SyllabusResponse"), (status = 404, description = "Syllabus topic not found") ) 
+#[api_operation(
+    summary = "Get Syllabus Topic by ID",
+    description = "Retrieves a syllabus topic by its ID.",
+    tag = "Curriculum Management",
+    operation_id = "get_syllabus_topic_by_id"
 )]
-pub async fn get_syllabus_topic_by_id(pool: Pool, current_user: CurrentUser, path: web::Path<String>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "syllabus:view")?;
-
+pub async fn get_syllabus_topic_by_id(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+) -> Result<Json<SyllabusResponse>, APIError> {
     let syllabus_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let syllabus_topic = web::block(move || {
-        curriculum_management::get_syllabus_topic_by_id(&mut conn, &syllabus_id)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    match syllabus_topic {
-        Some(s) => Ok(HttpResponse::Ok().json(SyllabusResponse::from(s))),
-        None => Err(IamError::NotFound("Syllabus topic not found".to_string())),
-    }
+    let syllabus_topic = curriculum_management::get_syllabus_topic_by_id(data.clone(), syllabus_id).await?;
+    Ok(Json(SyllabusResponse::from(syllabus_topic)))
 }
 
-#[apistos::web("/curriculum-standards/{standard_id}/syllabus", get, 
-    operation_id = "get_syllabus_topics_for_standard", 
-    tag = "Curriculum Management", 
-    responses( (status = 200, description = "Syllabus topics retrieved", content = "Vec<SyllabusResponse>") ) 
+#[api_operation(
+    summary = "Get Syllabus Topics for Standard",
+    description = "Retrieves all syllabus topics for a specific curriculum standard.",
+    tag = "Curriculum Management",
+    operation_id = "get_syllabus_topics_for_standard"
 )]
-pub async fn get_syllabus_topics_for_standard(pool: Pool, current_user: CurrentUser, path: web::Path<String>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "syllabus:view")?;
-
+pub async fn get_syllabus_topics_for_standard(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+) -> Result<Json<Vec<SyllabusResponse>>, APIError> {
     let standard_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let syllabus_topics = web::block(move || {
-        curriculum_management::get_syllabus_topics_for_standard(&mut conn, &standard_id)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    Ok(HttpResponse::Ok().json(syllabus_topics.into_iter().map(SyllabusResponse::from).collect::<Vec<_>>()))
+    let syllabus_topics = curriculum_management::get_syllabus_topics_for_standard(data.clone(), standard_id).await?;
+    Ok(Json(syllabus_topics.into_iter().map(SyllabusResponse::from).collect()))
 }
 
-#[apistos::web("/syllabus/{syllabus_id}", put, 
-    operation_id = "update_syllabus_topic", 
-    tag = "Curriculum Management", 
-    request_body(content = "UpdateSyllabusRequest", description = "Update syllabus topic request"), 
-    responses( (status = 200, description = "Syllabus topic updated", content = "SyllabusResponse"), (status = 404, description = "Syllabus topic not found") ) 
+#[api_operation(
+    summary = "Update Syllabus Topic",
+    description = "Updates a syllabus topic by its ID.",
+    tag = "Curriculum Management",
+    operation_id = "update_syllabus_topic"
 )]
-pub async fn update_syllabus_topic(pool: Pool, current_user: CurrentUser, path: web::Path<String>, req: web::Json<UpdateSyllabusRequest>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "syllabus:update")?;
-
+pub async fn update_syllabus_topic(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+    body: web::Json<UpdateSyllabusRequest>,
+) -> Result<Json<SyllabusResponse>, APIError> {
     let syllabus_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let updated_syllabus_topic = web::block(move || {
-        curriculum_management::update_syllabus_topic(&mut conn, &syllabus_id, req.topic_name.clone(), req.suggested_duration_hours, req.description.clone())
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    match updated_syllabus_topic {
-        Some(s) => Ok(HttpResponse::Ok().json(SyllabusResponse::from(s))),
-        None => Err(IamError::NotFound("Syllabus topic not found".to_string())),
-    }
+    let updated_syllabus_topic = curriculum_management::update_syllabus_topic(
+        data.clone(),
+        syllabus_id,
+        body.into_inner(),
+    )
+    .await?;
+    Ok(Json(SyllabusResponse::from(updated_syllabus_topic)))
 }
 
-#[apistos::web("/syllabus/{syllabus_id}", delete, 
-    operation_id = "delete_syllabus_topic", 
-    tag = "Curriculum Management", 
-    responses( (status = 204, description = "Syllabus topic deleted"), (status = 404, description = "Syllabus topic not found") ) 
+#[api_operation(
+    summary = "Delete Syllabus Topic",
+    description = "Deletes a syllabus topic by its ID.",
+    tag = "Curriculum Management",
+    operation_id = "delete_syllabus_topic"
 )]
-pub async fn delete_syllabus_topic(pool: Pool, current_user: CurrentUser, path: web::Path<String>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "syllabus:delete")?;
-
+pub async fn delete_syllabus_topic(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+) -> Result<HttpResponse, APIError> {
     let syllabus_id = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let num_deleted = web::block(move || {
-        curriculum_management::delete_syllabus_topic(&mut conn, &syllabus_id)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    if num_deleted > 0 {
-        Ok(HttpResponse::NoContent().finish())
-    } else {
-        Err(IamError::NotFound("Syllabus topic not found".to_string()))
-    }
+    curriculum_management::delete_syllabus_topic(data.clone(), syllabus_id).await?;
+    Ok(HttpResponse::NoContent().finish())
 }

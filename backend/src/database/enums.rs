@@ -1596,6 +1596,48 @@ pub enum PermissionEnum {
     // Activity & Co-curricular Permissions
     CoCurricularManage,
 
+    // Resource Management Permissions
+    ResourceCreate,
+    ResourceRead,
+    ResourceUpdate,
+    ResourceDelete,
+    ResourceBook,
+    ResourceViewBookings,
+
+    // Curriculum Management Permissions
+    CurriculumCreate,
+    CurriculumRead,
+    CurriculumUpdate,
+    CurriculumDelete,
+    CurriculumManage,
+
+    // Syllabus Management Permissions
+    SyllabusCreate,
+    SyllabusRead,
+    SyllabusUpdate,
+    SyllabusDelete,
+    SyllabusManage,
+
+    // Messaging Permissions
+    MessagingCreate,
+    MessagingRead,
+    MessagingUpdate,
+    MessagingDelete,
+    MessagingSend,
+    MessagingManage,
+
+    // Behavior Incident Type Permissions
+    BehaviorIncidentTypeCreate,
+    BehaviorIncidentTypeRead,
+    BehaviorIncidentTypeUpdate,
+    BehaviorIncidentTypeDelete,
+
+    // Behavior Incident Permissions
+    BehaviorIncidentRecord,
+    BehaviorIncidentRead,
+    BehaviorIncidentUpdate,
+    BehaviorIncidentDelete,
+
     // Financial Reports Permissions
     ViewFinancialReports, // Added
 
@@ -1659,6 +1701,42 @@ impl Display for PermissionEnum {
             PermissionEnum::GradingCriterionManage => write!(f, "GradingCriterionManage"),
             PermissionEnum::LibraryManage => write!(f, "LibraryManage"),
             PermissionEnum::CoCurricularManage => write!(f, "CoCurricularManage"),
+            // Resource Management Permissions
+            PermissionEnum::ResourceCreate => write!(f, "ResourceCreate"),
+            PermissionEnum::ResourceRead => write!(f, "ResourceRead"),
+            PermissionEnum::ResourceUpdate => write!(f, "ResourceUpdate"),
+            PermissionEnum::ResourceDelete => write!(f, "ResourceDelete"),
+            PermissionEnum::ResourceBook => write!(f, "ResourceBook"),
+            PermissionEnum::ResourceViewBookings => write!(f, "ResourceViewBookings"),
+            // Curriculum Management Permissions
+            PermissionEnum::CurriculumCreate => write!(f, "CurriculumCreate"),
+            PermissionEnum::CurriculumRead => write!(f, "CurriculumRead"),
+            PermissionEnum::CurriculumUpdate => write!(f, "CurriculumUpdate"),
+            PermissionEnum::CurriculumDelete => write!(f, "CurriculumDelete"),
+            PermissionEnum::CurriculumManage => write!(f, "CurriculumManage"),
+            // Syllabus Management Permissions
+            PermissionEnum::SyllabusCreate => write!(f, "SyllabusCreate"),
+            PermissionEnum::SyllabusRead => write!(f, "SyllabusRead"),
+            PermissionEnum::SyllabusUpdate => write!(f, "SyllabusUpdate"),
+            PermissionEnum::SyllabusDelete => write!(f, "SyllabusDelete"),
+            PermissionEnum::SyllabusManage => write!(f, "SyllabusManage"),
+            // Messaging Permissions
+            PermissionEnum::MessagingCreate => write!(f, "MessagingCreate"),
+            PermissionEnum::MessagingRead => write!(f, "MessagingRead"),
+            PermissionEnum::MessagingUpdate => write!(f, "MessagingUpdate"),
+            PermissionEnum::MessagingDelete => write!(f, "MessagingDelete"),
+            PermissionEnum::MessagingSend => write!(f, "MessagingSend"),
+            PermissionEnum::MessagingManage => write!(f, "MessagingManage"),
+            // Behavior Incident Type Permissions
+            PermissionEnum::BehaviorIncidentTypeCreate => write!(f, "BehaviorIncidentTypeCreate"),
+            PermissionEnum::BehaviorIncidentTypeRead => write!(f, "BehaviorIncidentTypeRead"),
+            PermissionEnum::BehaviorIncidentTypeUpdate => write!(f, "BehaviorIncidentTypeUpdate"),
+            PermissionEnum::BehaviorIncidentTypeDelete => write!(f, "BehaviorIncidentTypeDelete"),
+            // Behavior Incident Permissions
+            PermissionEnum::BehaviorIncidentRecord => write!(f, "BehaviorIncidentRecord"),
+            PermissionEnum::BehaviorIncidentRead => write!(f, "BehaviorIncidentRead"),
+            PermissionEnum::BehaviorIncidentUpdate => write!(f, "BehaviorIncidentUpdate"),
+            PermissionEnum::BehaviorIncidentDelete => write!(f, "BehaviorIncidentDelete"),
             PermissionEnum::ViewFinancialReports => write!(f, "ViewFinancialReports"), // Added
             PermissionEnum::SystemAdmin => write!(f, "SystemAdmin"),
             PermissionEnum::UserUpdateMedium => write!(f, "UserUpdateMedium"),
@@ -1676,6 +1754,12 @@ impl PermissionEnum {
             PermissionEnum::PermissionDelete |
             PermissionEnum::StaffDelete |
             PermissionEnum::StudentDelete |
+            PermissionEnum::ResourceDelete | // Added
+            PermissionEnum::CurriculumDelete | // Added
+            PermissionEnum::SyllabusDelete | // Added
+            PermissionEnum::MessagingDelete | // Added
+            PermissionEnum::BehaviorIncidentTypeDelete | // Added
+            PermissionEnum::BehaviorIncidentDelete | // Added
             PermissionEnum::UserDeleteSevere => PermissionSeverity::Severe,
 
             // Medium Severity
@@ -1707,7 +1791,20 @@ impl PermissionEnum {
             PermissionEnum::StudentManageGuardians |
             PermissionEnum::StudentManageEnrollment |
             PermissionEnum::StudentManageAttendance |
-            PermissionEnum::StudentManageMarks => PermissionSeverity::Medium,
+            PermissionEnum::StudentManageMarks |
+            PermissionEnum::ResourceUpdate | // Added
+            PermissionEnum::ResourceBook | // Added
+            PermissionEnum::ResourceViewBookings | // Added
+            PermissionEnum::CurriculumUpdate | // Added
+            PermissionEnum::CurriculumManage | // Added
+            PermissionEnum::SyllabusUpdate | // Added
+            PermissionEnum::SyllabusManage | // Added
+            PermissionEnum::MessagingUpdate | // Added
+            PermissionEnum::MessagingSend | // Added
+            PermissionEnum::MessagingManage | // Added
+            PermissionEnum::BehaviorIncidentTypeUpdate | // Added
+            PermissionEnum::BehaviorIncidentRecord | // Added
+            PermissionEnum::BehaviorIncidentUpdate => PermissionSeverity::Medium, // Added
 
             // Low Severity (Read/Create usually lower risk than Delete/Update, but Create can be Medium. Let's say Read is Low, Create is Medium)
             PermissionEnum::UserRead |
@@ -1715,6 +1812,17 @@ impl PermissionEnum {
             PermissionEnum::PermissionRead |
             PermissionEnum::StaffRead |
             PermissionEnum::StudentRead |
+            PermissionEnum::ResourceCreate |
+            PermissionEnum::ResourceRead |
+            PermissionEnum::CurriculumCreate | // Added
+            PermissionEnum::CurriculumRead | // Added
+            PermissionEnum::SyllabusCreate | // Added
+            PermissionEnum::SyllabusRead |
+            PermissionEnum::MessagingCreate | // Added
+            PermissionEnum::MessagingRead |
+            PermissionEnum::BehaviorIncidentTypeCreate | // Added
+            PermissionEnum::BehaviorIncidentTypeRead | // Added
+            PermissionEnum::BehaviorIncidentRead |
             PermissionEnum::ViewFinancialReports => PermissionSeverity::Low, // Added
 
             // Default others to Medium if not specified
@@ -1777,6 +1885,42 @@ impl std::str::FromStr for PermissionEnum {
             "GradingCriterionManage" => Ok(PermissionEnum::GradingCriterionManage),
             "LibraryManage" => Ok(PermissionEnum::LibraryManage),
             "CoCurricularManage" => Ok(PermissionEnum::CoCurricularManage),
+            // Resource Management Permissions
+            "ResourceCreate" => Ok(PermissionEnum::ResourceCreate),
+            "ResourceRead" => Ok(PermissionEnum::ResourceRead),
+            "ResourceUpdate" => Ok(PermissionEnum::ResourceUpdate),
+            "ResourceDelete" => Ok(PermissionEnum::ResourceDelete),
+            "ResourceBook" => Ok(PermissionEnum::ResourceBook),
+            "ResourceViewBookings" => Ok(PermissionEnum::ResourceViewBookings),
+            // Curriculum Management Permissions
+            "CurriculumCreate" => Ok(PermissionEnum::CurriculumCreate),
+            "CurriculumRead" => Ok(PermissionEnum::CurriculumRead),
+            "CurriculumUpdate" => Ok(PermissionEnum::CurriculumUpdate),
+            "CurriculumDelete" => Ok(PermissionEnum::CurriculumDelete),
+            "CurriculumManage" => Ok(PermissionEnum::CurriculumManage),
+            // Syllabus Management Permissions
+            "SyllabusCreate" => Ok(PermissionEnum::SyllabusCreate),
+            "SyllabusRead" => Ok(PermissionEnum::SyllabusRead),
+            "SyllabusUpdate" => Ok(PermissionEnum::SyllabusUpdate),
+            "SyllabusDelete" => Ok(PermissionEnum::SyllabusDelete),
+            "SyllabusManage" => Ok(PermissionEnum::SyllabusManage),
+            // Messaging Permissions
+            "MessagingCreate" => Ok(PermissionEnum::MessagingCreate),
+            "MessagingRead" => Ok(PermissionEnum::MessagingRead),
+            "MessagingUpdate" => Ok(PermissionEnum::MessagingUpdate),
+            "MessagingDelete" => Ok(PermissionEnum::MessagingDelete),
+            "MessagingSend" => Ok(PermissionEnum::MessagingSend),
+            "MessagingManage" => Ok(PermissionEnum::MessagingManage),
+            // Behavior Incident Type Permissions
+            "BehaviorIncidentTypeCreate" => Ok(PermissionEnum::BehaviorIncidentTypeCreate),
+            "BehaviorIncidentTypeRead" => Ok(PermissionEnum::BehaviorIncidentTypeRead),
+            "BehaviorIncidentTypeUpdate" => Ok(PermissionEnum::BehaviorIncidentTypeUpdate),
+            "BehaviorIncidentTypeDelete" => Ok(PermissionEnum::BehaviorIncidentTypeDelete),
+            // Behavior Incident Permissions
+            "BehaviorIncidentRecord" => Ok(PermissionEnum::BehaviorIncidentRecord),
+            "BehaviorIncidentRead" => Ok(PermissionEnum::BehaviorIncidentRead),
+            "BehaviorIncidentUpdate" => Ok(PermissionEnum::BehaviorIncidentUpdate),
+            "BehaviorIncidentDelete" => Ok(PermissionEnum::BehaviorIncidentDelete),
             "ViewFinancialReports" => Ok(PermissionEnum::ViewFinancialReports), // Added
             "SystemAdmin" => Ok(PermissionEnum::SystemAdmin),
             "UserUpdateMedium" => Ok(PermissionEnum::UserUpdateMedium),
@@ -1851,6 +1995,42 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for PermissionEnum {
             "GradingCriterionManage" => Ok(PermissionEnum::GradingCriterionManage),
             "LibraryManage" => Ok(PermissionEnum::LibraryManage),
             "CoCurricularManage" => Ok(PermissionEnum::CoCurricularManage),
+            // Resource Management Permissions
+            "ResourceCreate" => Ok(PermissionEnum::ResourceCreate),
+            "ResourceRead" => Ok(PermissionEnum::ResourceRead),
+            "ResourceUpdate" => Ok(PermissionEnum::ResourceUpdate),
+            "ResourceDelete" => Ok(PermissionEnum::ResourceDelete),
+            "ResourceBook" => Ok(PermissionEnum::ResourceBook),
+            "ResourceViewBookings" => Ok(PermissionEnum::ResourceViewBookings),
+            // Curriculum Management Permissions
+            "CurriculumCreate" => Ok(PermissionEnum::CurriculumCreate),
+            "CurriculumRead" => Ok(PermissionEnum::CurriculumRead),
+            "CurriculumUpdate" => Ok(PermissionEnum::CurriculumUpdate),
+            "CurriculumDelete" => Ok(PermissionEnum::CurriculumDelete),
+            "CurriculumManage" => Ok(PermissionEnum::CurriculumManage),
+            // Syllabus Management Permissions
+            "SyllabusCreate" => Ok(PermissionEnum::SyllabusCreate),
+            "SyllabusRead" => Ok(PermissionEnum::SyllabusRead),
+            "SyllabusUpdate" => Ok(PermissionEnum::SyllabusUpdate),
+            "SyllabusDelete" => Ok(PermissionEnum::SyllabusDelete),
+            "SyllabusManage" => Ok(PermissionEnum::SyllabusManage),
+            // Messaging Permissions
+            "MessagingCreate" => Ok(PermissionEnum::MessagingCreate),
+            "MessagingRead" => Ok(PermissionEnum::MessagingRead),
+            "MessagingUpdate" => Ok(PermissionEnum::MessagingUpdate),
+            "MessagingDelete" => Ok(PermissionEnum::MessagingDelete),
+            "MessagingSend" => Ok(PermissionEnum::MessagingSend),
+            "MessagingManage" => Ok(PermissionEnum::MessagingManage),
+            // Behavior Incident Type Permissions
+            "BehaviorIncidentTypeCreate" => Ok(PermissionEnum::BehaviorIncidentTypeCreate),
+            "BehaviorIncidentTypeRead" => Ok(PermissionEnum::BehaviorIncidentTypeRead),
+            "BehaviorIncidentTypeUpdate" => Ok(PermissionEnum::BehaviorIncidentTypeUpdate),
+            "BehaviorIncidentTypeDelete" => Ok(PermissionEnum::BehaviorIncidentTypeDelete),
+            // Behavior Incident Permissions
+            "BehaviorIncidentRecord" => Ok(PermissionEnum::BehaviorIncidentRecord),
+            "BehaviorIncidentRead" => Ok(PermissionEnum::BehaviorIncidentRead),
+            "BehaviorIncidentUpdate" => Ok(PermissionEnum::BehaviorIncidentUpdate),
+            "BehaviorIncidentDelete" => Ok(PermissionEnum::BehaviorIncidentDelete),
             "ViewFinancialReports" => Ok(PermissionEnum::ViewFinancialReports), // Added
             "SystemAdmin" => Ok(PermissionEnum::SystemAdmin),
             "UserUpdateMedium" => Ok(PermissionEnum::UserUpdateMedium),

@@ -94,7 +94,7 @@ pub async fn issue_uniform(data: Data<AppState>, req: Json<IssueUniformRequest>)
 pub async fn allocate_asset(data: Data<AppState>, req: Json<AllocateAssetRequest>) -> Result<Json<AssetAllocationResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let alloc = property::allocate_asset(&mut conn, req.into_inner())?;
-    Ok(Json(AssetAllocationResponse::from(alloc)))
+    Ok(Json(AssetAllocationResponse::from(alloc.allocation)))
 }
 
 #[api_operation(
@@ -190,7 +190,7 @@ pub async fn get_uniform_inventory(data: Data<AppState>) -> Result<Json<Vec<Unif
 pub async fn return_asset(data: Data<AppState>, path: Path<String>, req: Json<ReturnAssetRequest>) -> Result<Json<AssetAllocationResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let alloc = property::return_asset(&mut conn, &path.into_inner(), req.into_inner())?;
-    Ok(Json(AssetAllocationResponse::from(alloc)))
+    Ok(Json(AssetAllocationResponse::from(alloc.allocation)))
 }
 
 #[api_operation(
@@ -235,10 +235,10 @@ pub async fn get_allocations_by_item(data: Data<AppState>, path: Path<String>) -
     tag = "property",
     operation_id = "get_allocations_by_assignee"
 )]
-pub async fn get_allocations_by_assignee(data: Data<AppState>, path: Path<String>) -> Result<Json<Vec<AssetAllocationResponse>>, APIError> {
+pub async fn get_allocations_by_assignee(data: Data<AppState>, path: Path<String>) -> Result<Json<Vec<crate::models::resources::inventory::DetailedAssetAllocationResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let items = property::get_allocations_by_assignee(&mut conn, &path.into_inner())?;
-    Ok(Json(items.into_iter().map(AssetAllocationResponse::from).collect()))
+    let items = property::get_detailed_allocations_by_assignee(&mut conn, &path.into_inner())?;
+    Ok(Json(items))
 }
 
 pub fn config(cfg: &mut web::ServiceConfig) {

@@ -1,5 +1,5 @@
 use apistos::web;
-use crate::handlers::resources::{co_curricular, fees, financial, library, property, financial_reports}; // Added financial_reports
+use crate::handlers::resources::{co_curricular, fees, financial, library, property};
 use crate::utils::jwt::Authenticated;
 use crate::utils::permission_verification::PermissionVerification;
 use crate::database::enums::PermissionEnum;
@@ -36,11 +36,12 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/fines/history", web::get().to(library::get_fine_history))
             .route("/settings", web::get().to(library::get_library_settings))
             .route("/settings", web::put().to(library::update_library_settings))
-            .route("/stats", web::get().to(library::get_library_stats));
+            .route("/stats", web::get().to(library::get_library_stats))
     );
 
-    cfg.configure(property::config);
-    cfg.configure(financial::config);
-    cfg.configure(fees::config);
-    cfg.configure(co_curricular::config);
-    cfg.configure(financial_reports::configure);
+    cfg.configure(|cfg_local| property::config(cfg_local));
+    cfg.configure(|cfg_local| financial::config(cfg_local));
+    cfg.configure(|cfg_local| fees::config(cfg_local));
+    cfg.configure(|cfg_local| co_curricular::config(cfg_local));
+    cfg.configure(|cfg_local| financial_reports::configure(cfg_local));
+}

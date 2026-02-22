@@ -1,5 +1,4 @@
-use crate::models::resources::inventory::{AssetCategory, InventoryItem, UniformItem, UniformIssue, AssetAllocation, MaintenanceRequest, AllocateAssetRequest, DetailedAssetAllocationResponse, AssetAllocationResponse, ReturnAssetRequest, CreateMaintenanceRequest, UpdateMaintenanceStatusRequest, CreateAssetCategoryRequest, CreateInventoryItemRequest, CreateUniformItemRequest, IssueUniformRequest, UpdateInventoryItemRequest, UpdateStockRequest};
-use crate::models::resources::junctions::{AssetAllocationsStaff, NewAssetAllocationsStaff, AssetAllocationsStudents, NewAssetAllocationsStudents};
+use crate::models::resources::inventory::{AssetCategory, InventoryItem, UniformItem, UniformIssue, AssetAllocation, MaintenanceRequest, AllocateAssetRequest, DetailedAssetAllocationResponse, AssetAllocationResponse, ReturnAssetRequest, CreateMaintenanceRequest, UpdateMaintenanceStatusRequest, CreateAssetCategoryRequest, CreateInventoryItemRequest, CreateUniformItemRequest, IssueUniformRequest, UpdateInventoryItemRequest, UpdateStockRequest, AssetAllocationsStaff, NewAssetAllocationsStaff, AssetAllocationsStudents, NewAssetAllocationsStudents};
 use crate::models::staff::staff::{Staff, StaffResponse};
 use crate::models::student::student::{Student, StudentResponse};
 use crate::errors::APIError;
@@ -88,18 +87,23 @@ pub fn issue_uniform(conn: &mut SqliteConnection, req: IssueUniformRequest) -> R
 
 pub fn allocate_asset(conn: &mut SqliteConnection, req: AllocateAssetRequest) -> Result<DetailedAssetAllocationResponse, APIError> {
     if req.staff_id.is_some() && req.student_id.is_some() {
-        return Err(APIError::BadRequest("Cannot allocate to both staff and student.".to_string()));
+        return Err(APIError::bad_request("Cannot allocate to both staff and student."));
     }
     if req.staff_id.is_none() && req.student_id.is_none() {
-        return Err(APIError::BadRequest("Must allocate to either staff or student.".to_string()));
+        return Err(APIError::bad_request("Must allocate to either staff or student."));
     }
 
     let now = Utc::now().naive_utc();
     let new_alloc_id = Uuid::new_v4().to_string();
 
+    let allocated_to_type = if req.staff_id.is_some() { "STAFF".to_string() } else { "STUDENT".to_string() };
+    let allocated_to_id = req.staff_id.clone().or(req.student_id.clone()).unwrap();
+
     let new_alloc = AssetAllocation {
         id: new_alloc_id.clone(),
         item_id: req.item_id.clone(),
+        allocated_to_type,
+        allocated_to_id,
         quantity: req.quantity,
         allocation_date: now,
         return_date: None,
@@ -125,7 +129,7 @@ pub fn allocate_asset(conn: &mut SqliteConnection, req: AllocateAssetRequest) ->
             .values(&new_junction)
             .execute(conn)?;
         
-        let staff_obj: Staff = staff::table.find(staff_id).first(conn)?;
+        let staff_obj: Staff = staff::table.find(staff_id).select(Staff::as_select()).first(conn)?;
         allocated_to_staff = Some(staff_obj.into()); // Assuming into() converts Staff to StaffResponse
     } else if let Some(student_id) = req.student_id {
         let new_junction = NewAssetAllocationsStudents {
@@ -137,7 +141,7 @@ pub fn allocate_asset(conn: &mut SqliteConnection, req: AllocateAssetRequest) ->
             .values(&new_junction)
             .execute(conn)?;
         
-        let student_obj: Student = students::table.find(student_id).first(conn)?;
+        let student_obj: Student = students::table.find(student_id).select(Student::as_select()).first(conn)?;
         allocated_to_student = Some(student_obj.into()); // Assuming into() converts Student to StudentResponse
     }
 
@@ -249,10 +253,10 @@ pub fn return_asset(conn: &mut SqliteConnection, id: &str, req: ReturnAssetReque
     let mut allocated_to_student: Option<StudentResponse> = None;
 
     if let Ok(junction) = asset_allocations_staff::table.filter(asset_allocations_staff::asset_allocation_id.eq(&alloc.id)).first::<AssetAllocationsStaff>(conn) {
-        let staff_obj: Staff = staff::table.find(&junction.staff_id).first(conn)?;
+        let staff_obj: Staff = staff::table.find(&junction.staff_id).select(Staff::as_select()).first(conn)?;
         allocated_to_staff = Some(staff_obj.into());
     } else if let Ok(junction) = asset_allocations_students::table.filter(asset_allocations_students::asset_allocation_id.eq(&alloc.id)).first::<AssetAllocationsStudents>(conn) {
-        let student_obj: Student = students::table.find(&junction.student_id).first(conn)?;
+        let student_obj: Student = students::table.find(&junction.student_id).select(Student::as_select()).first(conn)?;
         allocated_to_student = Some(student_obj.into());
     }
 
@@ -279,7 +283,7 @@ pub fn get_detailed_allocations_by_assignee(conn: &mut SqliteConnection, assigne
     
     for junction in staff_junctions {
         let alloc: AssetAllocation = asset_allocations::table.find(&junction.asset_allocation_id).first(conn)?;
-        let staff_obj: Staff = staff::table.find(&junction.staff_id).first(conn)?;
+        let staff_obj: Staff = staff::table.find(&junction.staff_id).select(Staff::as_select()).first(conn)?;
         
         detailed_allocations.push(DetailedAssetAllocationResponse {
             allocation: AssetAllocationResponse::from(alloc),
@@ -295,7 +299,7 @@ pub fn get_detailed_allocations_by_assignee(conn: &mut SqliteConnection, assigne
 
     for junction in student_junctions {
         let alloc: AssetAllocation = asset_allocations::table.find(&junction.asset_allocation_id).first(conn)?;
-        let student_obj: Student = students::table.find(&junction.student_id).first(conn)?;
+        let student_obj: Student = students::table.find(&junction.student_id).select(Student::as_select()).first(conn)?;
 
         detailed_allocations.push(DetailedAssetAllocationResponse {
             allocation: AssetAllocationResponse::from(alloc),

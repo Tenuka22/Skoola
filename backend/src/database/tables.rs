@@ -1,7 +1,7 @@
 use crate::database::enums::{
     AllocationType, AttendanceStatus, ComponentType, DayType, DetailedStatus, EmergencyStatus,
     Ethnicity, ExcuseType, ExitReason, FeeFrequency, Gender, MaintenanceStatus, ParticipantType,
-    PaymentMethod, PolicyRuleType, PreApprovedReason, Religion, RoleEnum, SubstitutionStatus,
+    PaymentMethod, PolicyRuleType, PreApprovedReason, Religion, RoleEnum, StudentStatus, SubstitutionStatus,
     SuspicionFlag, TransactionType,
 };
 use crate::schema::{
@@ -190,7 +190,7 @@ pub struct AttendanceExcuse {
 #[diesel(table_name = school_calendar)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct SchoolCalendar {
-    pub date: Option<NaiveDate>,
+    pub date: NaiveDate,
     pub day_type: DayType,
     pub name: Option<String>,
     pub is_academic_day: bool,
@@ -478,6 +478,7 @@ pub struct Staff {
     pub employment_status: crate::database::enums::EmploymentStatus,
     pub staff_type: crate::database::enums::StaffType,
     pub photo_url: Option<String>,
+    pub profile_id: Option<String>,
 }
 
 #[derive(
@@ -700,8 +701,9 @@ pub struct Student {
     pub ethnicity: Option<Ethnicity>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub status: String,
+    pub status: StudentStatus,
     pub photo_url: Option<String>,
+    pub profile_id: Option<String>,
 }
 
 #[derive(

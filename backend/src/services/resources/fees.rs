@@ -1,5 +1,7 @@
 use crate::models::finance::fees::{FeeCategory, FeeStructure, StudentFee, FeePayment};
 use crate::errors::APIError;
+use crate::AppState;
+use actix_web::web;
 use crate::models::finance::fees::{
     CreateFeeCategoryRequest, UpdateFeeCategoryRequest, CreateFeeStructureRequest, 
     AssignFeeToStudentRequest, RecordFeePaymentRequest, ApplyWaiverRequest, BulkAssignFeesRequest,
@@ -381,7 +383,7 @@ pub async fn record_payment(
 
     let transaction_description = format!(
         "Fee payment by student {} ({}) for fee structure {}",
-        student.profile_name.unwrap_or_else(|| student.admission_number.clone()), // Use profile name if available
+        student.profile_id.clone().unwrap_or_else(|| student.admission_number.clone()), // Use profile ID if available
         student.admission_number,
         student_fee.fee_structure_id
     );

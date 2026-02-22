@@ -27,3 +27,7 @@ db-ui:
 
 db-seed:
     cd backend; cargo run --bin seed
+
+db-migrate:
+    cd backend; diesel migration run
+    cd backend; diesel print-schema > src/schema.rs

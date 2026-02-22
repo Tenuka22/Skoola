@@ -2,6 +2,8 @@ use crate::models::finance::salary::{StaffSalary, SalaryComponent, SalaryPayment
 use crate::models::finance::budget::{Budget, BudgetCategory, BudgetSummaryResponse, BudgetComparisonResponse};
 use crate::models::finance::transaction::{IncomeTransaction, ExpenseTransaction, PettyCashTransaction};
 use crate::errors::APIError;
+use crate::AppState;
+use actix_web::web;
 use crate::models::finance::budget::{CreateBudgetCategoryRequest, SetBudgetRequest, UpdateBudgetRequest};
 use crate::models::finance::transaction::{RecordIncomeRequest, RecordExpenseRequest, ReconcilePettyCashRequest, RecordPettyCashRequest};
 use crate::models::finance::salary::{CreateSalaryComponentRequest, SetStaffSalaryRequest, RecordSalaryPaymentRequest};
@@ -139,7 +141,7 @@ pub fn record_income(
     Ok(new_trans)
 }
 
-pub fn record_expense(
+pub async fn record_expense(
     pool: web::Data<AppState>,
     conn: &mut SqliteConnection,
     req: RecordExpenseRequest,
@@ -191,17 +193,14 @@ pub fn record_expense(
 
     // Call the ledger service with the correct AppState
     let pool_clone = pool.clone();
-    let record_result = tokio::task::block_in_place(move || {
-        let mut conn_for_ledger = pool_clone.db_pool.get().map_err(APIError::db_connection_error)?;
-        crate::services::finance::ledger::record_transaction(
-            pool_clone, // Pass the cloned pool
-            new_trans.date.date(),
-            Some(transaction_description),
-            debit_account_id,
-            credit_account_id,
-            new_trans.amount,
-        )
-    });
+    let record_result = crate::services::finance::ledger::record_transaction(
+        pool_clone, // Pass the cloned pool
+        new_trans.date.date(),
+        Some(transaction_description),
+        debit_account_id,
+        credit_account_id,
+        new_trans.amount,
+    ).await;
     // Handle the result of the block_in_place call
     record_result?;
 

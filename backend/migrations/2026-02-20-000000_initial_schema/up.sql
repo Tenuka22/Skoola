@@ -120,7 +120,7 @@ CREATE TABLE expense_categories (
 );
 
 CREATE TABLE library_categories (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     category_name TEXT NOT NULL,
     description TEXT,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -128,7 +128,7 @@ CREATE TABLE library_categories (
 );
 
 CREATE TABLE library_settings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     max_books_per_student INTEGER NOT NULL,
     max_books_per_staff INTEGER NOT NULL,
     issue_duration_days_student INTEGER NOT NULL,
@@ -473,7 +473,7 @@ CREATE TABLE stream_subjects (
 );
 
 CREATE TABLE library_books (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     isbn TEXT UNIQUE,
     title TEXT NOT NULL,
     author TEXT NOT NULL,
@@ -954,7 +954,7 @@ CREATE TABLE classes (
 );
 
 CREATE TABLE library_issues (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     book_id INTEGER NOT NULL,
     student_id TEXT,
     staff_id TEXT,
@@ -1320,6 +1320,7 @@ CREATE TABLE uniform_issues (
 CREATE TABLE asset_allocations_staff (
     asset_allocation_id TEXT NOT NULL,
     staff_id TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (asset_allocation_id, staff_id),
     FOREIGN KEY (asset_allocation_id) REFERENCES asset_allocations(id) ON DELETE CASCADE,
     FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE
@@ -1328,6 +1329,7 @@ CREATE TABLE asset_allocations_staff (
 CREATE TABLE asset_allocations_students (
     asset_allocation_id TEXT NOT NULL,
     student_id TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (asset_allocation_id, student_id),
     FOREIGN KEY (asset_allocation_id) REFERENCES asset_allocations(id) ON DELETE CASCADE,
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
@@ -1409,3 +1411,7 @@ CREATE INDEX idx_user_profiles_user_id ON user_profiles(user_id);
 CREATE INDEX idx_user_permissions_user_id ON user_permissions(user_id);
 CREATE INDEX idx_user_set_permissions_user_set_id ON user_set_permissions(user_set_id);
 CREATE INDEX idx_users_email ON users(email);
+CREATE TABLE club_members (club_id TEXT NOT NULL, student_id TEXT NOT NULL, role TEXT NOT NULL, joined_date DATE NOT NULL, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (club_id, student_id), FOREIGN KEY (club_id) REFERENCES clubs(id) ON DELETE CASCADE, FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE);
+CREATE TABLE chart_of_accounts (id TEXT PRIMARY KEY NOT NULL, account_code TEXT NOT NULL UNIQUE, account_name TEXT NOT NULL, account_type TEXT NOT NULL, normal_balance TEXT NOT NULL DEFAULT 'Debit', description TEXT, parent_account_id TEXT, is_active BOOLEAN NOT NULL DEFAULT 1, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (parent_account_id) REFERENCES chart_of_accounts(id) ON DELETE SET NULL);
+CREATE TABLE general_ledger (id TEXT PRIMARY KEY NOT NULL, transaction_date DATE NOT NULL, description TEXT, debit_account_id TEXT NOT NULL, credit_account_id TEXT NOT NULL, amount REAL NOT NULL, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (debit_account_id) REFERENCES chart_of_accounts(id) ON DELETE RESTRICT, FOREIGN KEY (credit_account_id) REFERENCES chart_of_accounts(id) ON DELETE RESTRICT);
+CREATE TABLE competition_participants (competition_id TEXT NOT NULL, student_id TEXT NOT NULL, position TEXT, award TEXT, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (competition_id, student_id), FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE, FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE);

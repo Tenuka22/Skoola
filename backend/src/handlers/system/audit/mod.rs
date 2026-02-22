@@ -1,19 +1,14 @@
-use actix_web::{web, HttpResponse, Responder};
-use diesel::r2d2::{ConnectionManager, PooledConnection};
-use diesel::SqliteConnection;
+use actix_web::web;
+use actix_web::web::Json;
 use serde::{Deserialize, Serialize};
 
+use crate::{AppState, APIError};
 use crate::services::system::audit;
 use crate::models::system::audit::AuditLog;
-use crate::models::auth::user::CurrentUser;
-use crate::errors::iam::IamError;
-use crate::util::permission_verification::has_permission;
 
 use schemars::JsonSchema;
-use apistos::ApiComponent;
+use apistos::{api_operation, ApiComponent};
 use chrono::NaiveDateTime;
-
-pub type Pool = web::Data<r2d2::Pool<ConnectionManager<SqliteConnection>>>;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct AuditLogResponse {
@@ -42,41 +37,30 @@ impl From<AuditLog> for AuditLogResponse {
     }
 }
 
-#[apistos::web("/audit-logs", get, 
-    operation_id = "get_all_audit_logs", 
-    tag = "System Management", 
-    responses( (status = 200, description = "Audit logs retrieved", content = "Vec<AuditLogResponse>") ) 
+#[api_operation(
+    summary = "Get All Audit Logs",
+    description = "Retrieves all audit logs.",
+    tag = "System Management",
+    operation_id = "get_all_audit_logs"
 )]
-pub async fn get_all_audit_logs(pool: Pool, current_user: CurrentUser) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "system:audit:view")?;
-
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let logs = web::block(move || {
-        audit::get_all_audit_logs(&mut conn)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    Ok(HttpResponse::Ok().json(logs.into_iter().map(AuditLogResponse::from).collect::<Vec<_>>()))
+pub async fn get_all_audit_logs(
+    data: web::Data<AppState>,
+) -> Result<Json<Vec<AuditLogResponse>>, APIError> {
+    let logs = audit::get_all_audit_logs(data.clone()).await?;
+    Ok(Json(logs.into_iter().map(AuditLogResponse::from).collect()))
 }
 
-#[apistos::web("/audit-logs/{table_name}/{record_pk}", get, 
-    operation_id = "get_record_audit_logs", 
-    tag = "System Management", 
-    responses( (status = 200, description = "Record audit logs retrieved", content = "Vec<AuditLogResponse>") ) 
+#[api_operation(
+    summary = "Get Record Audit Logs",
+    description = "Retrieves audit logs for a specific record in a table.",
+    tag = "System Management",
+    operation_id = "get_record_audit_logs"
 )]
-pub async fn get_record_audit_logs(pool: Pool, current_user: CurrentUser, path: web::Path<(String, String)>) -> Result<impl Responder, IamError> {
-    has_permission(&current_user, "system:audit:view")?;
-
+pub async fn get_record_audit_logs(
+    data: web::Data<AppState>,
+    path: web::Path<(String, String)>,
+) -> Result<Json<Vec<AuditLogResponse>>, APIError> {
     let (table_name, record_pk) = path.into_inner();
-    let mut conn = pool.get().map_err(IamError::PoolError)?;
-
-    let logs = web::block(move || {
-        audit::get_record_audit_logs(&mut conn, &table_name, &record_pk)
-    })
-    .await?
-    .map_err(IamError::ServiceError)?;
-
-    Ok(HttpResponse::Ok().json(logs.into_iter().map(AuditLogResponse::from).collect::<Vec<_>>()))
+    let logs = audit::get_record_audit_logs(data.clone(), table_name, record_pk).await?;
+    Ok(Json(logs.into_iter().map(AuditLogResponse::from).collect()))
 }

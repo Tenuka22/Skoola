@@ -1,11 +1,9 @@
 use backend::config::Config;
 use backend::database::connection::establish_connection;
 use diesel::prelude::*;
-use diesel::connection::AnsiConnection;
 use tracing::{info, error, instrument};
 use tracing_subscriber::FmtSubscriber;
 use clap::Parser;
-use chrono::NaiveDate;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -15,11 +13,11 @@ struct Args {
     academic_year: i32,
 }
 
-#[instrument(name = "archive_academic_year", skip(conn, year_id, config), fields(academic_year_id = %year_id))]
+#[instrument(name = "archive_academic_year", skip(conn, year_id, _config), fields(academic_year_id = %year_id))]
 pub fn archive_academic_year_data(
-    conn: &mut impl AnsiConnection,
+    conn: &mut SqliteConnection,
     year_id: &str,
-    config: &Config,
+    _config: &Config,
 ) -> Result<(), anyhow::Error> {
     info!("Archiving data for academic year: {}", year_id);
 
@@ -27,29 +25,36 @@ pub fn archive_academic_year_data(
         // Archive student_class_assignments
         use backend::schema::student_class_assignments::dsl as sca_dsl;
         use backend::schema::student_class_assignments_history::dsl as scah_dsl;
+        use backend::models::student::enrollment::StudentClassAssignment;
+        use backend::models::student::history::StudentClassAssignmentHistory;
 
         info!("Archiving student_class_assignments for academic year: {}", year_id);
 
         let archived_assignments = sca_dsl::student_class_assignments
             .filter(sca_dsl::academic_year_id.eq(year_id))
-            .load::<(
-                String,
-                String,
-                String,
-                String,
-                String,
-                NaiveDate,
-                Option<NaiveDate>,
-                chrono::NaiveDateTime,
-                chrono::NaiveDateTime,
-            )>(conn)?;
+            .select(StudentClassAssignment::as_select())
+            .load::<StudentClassAssignment>(conn)?;
 
         let num_archived_assignments = archived_assignments.len();
 
         if num_archived_assignments > 0 {
+            let history_rows: Vec<StudentClassAssignmentHistory> = archived_assignments.into_iter().map(|a| {
+                StudentClassAssignmentHistory {
+                    id: a.id,
+                    student_id: a.student_id,
+                    academic_year_id: a.academic_year_id,
+                    grade_id: a.grade_id,
+                    class_id: a.class_id,
+                    from_date: a.from_date,
+                    to_date: a.to_date,
+                    created_at: a.created_at,
+                    updated_at: a.updated_at,
+                }
+            }).collect();
+
             // Bulk insert into history table
             diesel::insert_into(scah_dsl::student_class_assignments_history)
-                .values(&archived_assignments)
+                .values(&history_rows)
                 .execute(conn)?;
 
             // Delete from primary table
@@ -63,35 +68,47 @@ pub fn archive_academic_year_data(
         // Archive student_marks
         use backend::schema::student_marks::dsl as sm_dsl;
         use backend::schema::student_marks_history::dsl as smh_dsl;
+        use backend::schema::exams::dsl as e_dsl;
+        use backend::models::exams::student_marks::{StudentMark, StudentMarkHistory};
 
         info!("Archiving student_marks for academic year: {}", year_id);
 
         let archived_marks = sm_dsl::student_marks
-            .filter(sm_dsl::academic_year_id.eq(year_id))
-            .load::<(
-                String,
-                String,
-                String,
-                String,
-                i32,
-                bool,
-                Option<String>,
-                String,
-                chrono::NaiveDateTime,
-                Option<String>,
-                chrono::NaiveDateTime,
-            )>(conn)?;
+            .inner_join(e_dsl::exams.on(sm_dsl::exam_id.eq(e_dsl::id)))
+            .filter(e_dsl::academic_year_id.eq(year_id))
+            .select(StudentMark::as_select())
+            .load::<StudentMark>(conn)?;
 
         let num_archived_marks = archived_marks.len();
 
         if num_archived_marks > 0 {
+            let history_rows: Vec<StudentMarkHistory> = archived_marks.into_iter().map(|m| {
+                StudentMarkHistory {
+                    id: m.id,
+                    student_id: m.student_id,
+                    exam_id: m.exam_id,
+                    subject_id: m.subject_id,
+                    marks_obtained: m.marks_obtained,
+                    is_absent: m.is_absent,
+                    remarks: m.remarks,
+                    entered_by: m.entered_by,
+                    entered_at: m.entered_at,
+                    updated_by: m.updated_by,
+                    updated_at: m.updated_at,
+                }
+            }).collect();
+
             // Bulk insert into history table
             diesel::insert_into(smh_dsl::student_marks_history)
-                .values(&archived_marks)
+                .values(&history_rows)
                 .execute(conn)?;
 
             // Delete from primary table
-            diesel::delete(sm_dsl::student_marks.filter(sm_dsl::academic_year_id.eq(year_id)))
+            let subquery = e_dsl::exams
+                .filter(e_dsl::academic_year_id.eq(year_id))
+                .select(e_dsl::id);
+                
+            diesel::delete(sm_dsl::student_marks.filter(sm_dsl::exam_id.eq_any(subquery)))
                 .execute(conn)?;
             info!("Archived {} student_marks.", num_archived_marks);
         } else {

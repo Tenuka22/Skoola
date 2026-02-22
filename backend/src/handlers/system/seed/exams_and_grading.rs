@@ -44,10 +44,10 @@ pub fn seed_all(
     let now = Utc::now().naive_utc();
     let two_years_ago = now - Duration::days(730);
 
-    let students = students::table.load::<Student>(conn)?;
+    let students = students::table.select(Student::as_select()).load::<Student>(conn)?;
     let _student_ids: Vec<String> = students.iter().map(|s| s.id.clone()).collect();
 
-    let academic_years = academic_years::table.load::<AcademicYear>(conn)?;
+    let academic_years = academic_years::table.select(AcademicYear::as_select()).load::<AcademicYear>(conn)?;
 
     // 1. Seed Exam Types
     let exam_type_data = vec![

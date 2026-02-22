@@ -70,7 +70,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(grading_criteria::get_grading_criteria_by_scheme_id_handler)),
     );
 
-    cfg.configure(zscore::config);
-    cfg.configure(special_exams::config);
-    cfg.configure(report_cards::config);
+    cfg.configure(|cfg_local| zscore::config(cfg_local));
+    cfg.configure(|cfg_local| special_exams::config(cfg_local));
+    cfg.configure(|cfg_local| report_cards::config(cfg_local));
 }

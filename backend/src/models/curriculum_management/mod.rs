@@ -1,5 +1,5 @@
 use crate::schema::{curriculum_standards, syllabus};
-use diesel::{Queryable, Insertable};
+use diesel::{Queryable, Insertable, Selectable};
 use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime;
 use schemars::JsonSchema;

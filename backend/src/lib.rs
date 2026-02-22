@@ -11,3 +11,5 @@ pub mod utils;
 
 pub use config::AppState;
 pub use errors::APIError;
+pub use utils::permission_checker::HasPermission;
+pub use database::enums::PermissionEnum;

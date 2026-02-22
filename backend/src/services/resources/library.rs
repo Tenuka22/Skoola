@@ -510,7 +510,7 @@ pub fn return_book(pool: &DbPool, issue_id: i32, req: ReturnBookRequest) -> Resu
             .select(LibrarySettings::as_select())
             .first(&mut conn)?;
 
-        let overdue_days = (return_date - issue.due_date).num_days();
+        let overdue_days = return_date.signed_duration_since(issue.due_date).num_days();
         fine_amount = overdue_days as f32 * settings.fine_per_day;
         status = "returned_with_fine".to_string();
     }
@@ -616,7 +616,7 @@ pub fn get_issued_books_by_staff(pool: &DbPool, staff_id: String) -> Result<Vec<
     let issues = library_issues::table
         .filter(library_issues::staff_id.eq(&staff_id))
         .order(library_issues::issue_date.desc())
-        .load::<LibraryIssue>(&mut conn)?;
+        .select(LibraryIssue::as_select()).load::<LibraryIssue>(&mut conn)?;
 
     issues.into_iter().map(|issue| get_issue_by_id(pool, issue.id)).collect::<Result<Vec<_>, _>>()
 }
@@ -630,7 +630,7 @@ pub fn get_overdue_books(pool: &DbPool) -> Result<Vec<LibraryIssueResponse>, API
         .filter(library_issues::return_date.is_null())
         .filter(library_issues::due_date.lt(today))
         .order(library_issues::due_date.asc())
-        .load::<LibraryIssue>(&mut conn)?;
+        .select(LibraryIssue::as_select()).load::<LibraryIssue>(&mut conn)?;
 
     issues.into_iter().map(|issue| get_issue_by_id(pool, issue.id)).collect::<Result<Vec<_>, _>>()
 }
@@ -640,7 +640,7 @@ pub fn pay_fine(pool: &DbPool, issue_id: i32, _req: PayFineRequest) -> Result<Li
 
     let issue = library_issues::table
         .find(issue_id)
-        .first::<LibraryIssue>(&mut conn)
+        .select(LibraryIssue::as_select()).first::<LibraryIssue>(&mut conn)
         ?;
 
     if issue.fine_amount.unwrap_or(0.0) == 0.0 {
@@ -751,7 +751,7 @@ pub fn get_fine_history(pool: &DbPool) -> Result<Vec<LibraryIssueResponse>, APIE
         .filter(library_issues::fine_amount.is_not_null())
         .filter(library_issues::fine_amount.gt(0.0))
         .order(library_issues::return_date.desc())
-        .load::<LibraryIssue>(&mut conn)?;
+        .select(LibraryIssue::as_select()).load::<LibraryIssue>(&mut conn)?;
 
     issues.into_iter().map(|issue| get_issue_by_id(pool, issue.id)).collect::<Result<Vec<_>, _>>()
 

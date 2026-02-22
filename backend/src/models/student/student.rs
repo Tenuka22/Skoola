@@ -12,14 +12,21 @@ use apistos::ApiComponent;
 pub struct Student {
     pub id: String,
     pub admission_number: String,
+    pub name_english: String,
+    pub name_sinhala: Option<String>,
+    pub name_tamil: Option<String>,
     pub nic_or_birth_certificate: String,
     pub dob: NaiveDate,
     pub gender: Gender,
+    pub address: String,
+    pub phone: String,
+    pub email: Option<String>,
     pub religion: Option<Religion>,
     pub ethnicity: Option<Ethnicity>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub status: StudentStatus,
+    pub photo_url: Option<String>,
     pub profile_id: Option<String>,
 }
 
@@ -55,9 +62,11 @@ pub struct UpdateStudentRequest {
 pub struct StudentResponse {
     pub id: String,
     pub admission_number: String,
+    pub name_english: String,
     pub nic_or_birth_certificate: String,
     pub dob: NaiveDate,
     pub gender: Gender,
+    pub email: Option<String>,
     pub religion: Option<Religion>,
     pub ethnicity: Option<Ethnicity>,
     pub created_at: NaiveDateTime,
@@ -80,4 +89,29 @@ pub struct PaginatedStudentResponse {
     pub page: i64,
     pub limit: i64,
     pub total_pages: i64,
+}
+
+impl From<Student> for StudentResponse {
+    fn from(student: Student) -> Self {
+        Self {
+            id: student.id,
+            admission_number: student.admission_number,
+            name_english: student.name_english,
+            nic_or_birth_certificate: student.nic_or_birth_certificate,
+            dob: student.dob,
+            gender: student.gender,
+            email: student.email,
+            religion: student.religion,
+            ethnicity: student.ethnicity,
+            created_at: student.created_at,
+            updated_at: student.updated_at,
+            status: student.status,
+            profile_id: student.profile_id,
+            profile_name: None,
+            profile_address: None,
+            profile_phone: None,
+            profile_photo_url: None,
+            user_email: None,
+        }
+    }
 }

@@ -12,7 +12,7 @@ use chrono::{NaiveDateTime, Utc};
 use crate::schema::{students, profiles}; // Added profiles
 use crate::database::enums::StudentStatus;
 
-use crate::models::auth::user::CurrentUser;
+use crate::models::auth::CurrentUser;
 use crate::services::system::audit::log_action;
 
 pub async fn create_student(
@@ -42,13 +42,20 @@ pub async fn create_student(
     let new_student = Student {
         id: student_id.clone(),
         admission_number: new_student_request.admission_number,
+        name_english: new_student_request.name_english,
+        name_sinhala: new_student_request.name_sinhala,
+        name_tamil: new_student_request.name_tamil,
         nic_or_birth_certificate: new_student_request.nic_or_birth_certificate,
         dob: new_student_request.dob,
         gender: new_student_request.gender,
+        address: new_student_request.address,
+        phone: new_student_request.phone,
+        email: new_student_request.email.clone(),
         religion: new_student_request.religion,
         ethnicity: new_student_request.ethnicity,
         status: new_student_request.status.unwrap_or(StudentStatus::Active),
         profile_id: Some(new_profile_id.clone()), // Link to the new profile
+        photo_url: None,
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     };
@@ -60,7 +67,8 @@ pub async fn create_student(
     let mut user_email: Option<String> = None;
     // Create a UserProfile entry linking the new Profile to an existing User if email matches
     if let Some(email) = new_student_request.email {
-        use crate::models::{User, NewUserProfile};
+        use crate::database::tables::User;
+use crate::models::NewUserProfile;
         use crate::schema::{user_profiles, users};
         
         let matching_user: Option<User> = users::table
@@ -84,21 +92,23 @@ pub async fn create_student(
     }
 
     log_action(
-        &mut conn,
+        pool.clone(),
         current_user.id,
         "CREATE".to_string(),
         "students".to_string(),
         new_student.id.clone(),
         None::<&Student>,
         Some(&new_student),
-    ).map_err(|e| APIError::internal(&e.to_string()))?;
+    ).await?;
 
     Ok(StudentResponse {
         id: new_student.id,
         admission_number: new_student.admission_number,
+        name_english: new_student.name_english,
         nic_or_birth_certificate: new_student.nic_or_birth_certificate,
         dob: new_student.dob,
         gender: new_student.gender,
+        email: new_student.email,
         religion: new_student.religion,
         ethnicity: new_student.ethnicity,
         created_at: new_student.created_at,
@@ -126,7 +136,7 @@ pub async fn update_student(
         .select(Student::as_select())
         .first(&mut conn)?;
 
-    let profile_id = existing_student.profile_id.ok_or_else(|| APIError::not_found("Profile not found for student"))?;
+    let profile_id = existing_student.profile_id.as_ref().ok_or_else(|| APIError::not_found("Profile not found for student"))?;
 
     // Update student-specific fields in the students table
     diesel::update(students::table.find(&student_id))
@@ -160,7 +170,8 @@ pub async fn update_student(
     }
     
     // Fetch updated student, profile, and user info to construct StudentResponse
-    use crate::models::{Profile, User, UserProfile};
+    use crate::database::tables::User;
+    
     use crate::schema::{user_profiles, users};
     
     let (updated_student, profile, user_profile): (Student, Profile, Option<User>) = students::table
@@ -172,21 +183,23 @@ pub async fn update_student(
         .first(&mut conn)?;
 
     log_action(
-        &mut conn,
+        pool.clone(),
         current_user.id,
         "UPDATE".to_string(),
         "students".to_string(),
         updated_student.id.clone(),
         Some(&existing_student),
         Some(&updated_student),
-    ).map_err(|e| APIError::internal(&e.to_string()))?;
+    ).await?;
 
     Ok(StudentResponse {
         id: updated_student.id,
         admission_number: updated_student.admission_number,
+        name_english: updated_student.name_english,
         nic_or_birth_certificate: updated_student.nic_or_birth_certificate,
         dob: updated_student.dob,
         gender: updated_student.gender,
+        email: updated_student.email,
         religion: updated_student.religion,
         ethnicity: updated_student.ethnicity,
         created_at: updated_student.created_at,
@@ -207,7 +220,7 @@ pub async fn get_student_by_id(
 ) -> Result<StudentResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    use crate::models::{Profile, User, UserProfile};
+    use crate::models::{Profile, auth::User};
     use crate::schema::{profiles, user_profiles, users};
 
     let (student, profile, user_profile): (Student, Profile, Option<User>) = students::table
@@ -221,9 +234,11 @@ pub async fn get_student_by_id(
     Ok(StudentResponse {
         id: student.id,
         admission_number: student.admission_number,
+        name_english: student.name_english,
         nic_or_birth_certificate: student.nic_or_birth_certificate,
         dob: student.dob,
         gender: student.gender,
+        email: student.email,
         religion: student.religion,
         ethnicity: student.ethnicity,
         created_at: student.created_at,
@@ -243,6 +258,7 @@ pub async fn get_all_students(
     query: StudentQuery,
 ) -> Result<PaginatedStudentResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
+    use crate::database::tables::User;
     use crate::schema::{profiles, user_profiles, users};
 
     let mut base_query = students::table
@@ -329,9 +345,11 @@ pub async fn get_all_students(
         StudentResponse {
             id: student.id,
             admission_number: student.admission_number,
+            name_english: student.name_english,
             nic_or_birth_certificate: student.nic_or_birth_certificate,
             dob: student.dob,
             gender: student.gender,
+            email: student.email,
             religion: student.religion,
             ethnicity: student.ethnicity,
             created_at: student.created_at,
@@ -385,14 +403,14 @@ pub async fn delete_student(
         .first(&mut conn)?;
 
     log_action(
-        &mut conn,
+        pool.clone(),
         current_user.id,
         "DELETE".to_string(),
         "students".to_string(),
         student_id,
         Some(&existing_student),
         Some(&updated_student),
-    ).map_err(|e| APIError::internal(&e.to_string()))?;
+    ).await?;
 
     Ok(HttpResponse::NoContent().finish())
 }

@@ -119,6 +119,7 @@ diesel::table! {
     asset_allocations_staff (asset_allocation_id, staff_id) {
         asset_allocation_id -> Text,
         staff_id -> Text,
+        created_at -> Timestamp,
     }
 }
 
@@ -126,6 +127,7 @@ diesel::table! {
     asset_allocations_students (asset_allocation_id, student_id) {
         asset_allocation_id -> Text,
         student_id -> Text,
+        created_at -> Timestamp,
     }
 }
 
@@ -251,6 +253,21 @@ diesel::table! {
 }
 
 diesel::table! {
+    chart_of_accounts (id) {
+        id -> Text,
+        account_code -> Text,
+        account_name -> Text,
+        account_type -> Text,
+        normal_balance -> Text,
+        description -> Nullable<Text>,
+        parent_account_id -> Nullable<Text>,
+        is_active -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     class_subject_teachers (class_id, subject_id, teacher_id, academic_year_id) {
         class_id -> Text,
         subject_id -> Text,
@@ -290,12 +307,34 @@ diesel::table! {
 }
 
 diesel::table! {
+    club_members (club_id, student_id) {
+        club_id -> Text,
+        student_id -> Text,
+        role -> Text,
+        joined_date -> Date,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     clubs (id) {
         id -> Text,
         club_name -> Text,
         description -> Nullable<Text>,
         teacher_in_charge_id -> Text,
         meeting_schedule -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    competition_participants (competition_id, student_id) {
+        competition_id -> Text,
+        student_id -> Text,
+        position -> Nullable<Text>,
+        award -> Nullable<Text>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -517,6 +556,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    general_ledger (id) {
+        id -> Text,
+        transaction_date -> Date,
+        description -> Nullable<Text>,
+        debit_account_id -> Text,
+        credit_account_id -> Text,
+        amount -> Float,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     grade_levels (id) {
         id -> Text,
         grade_number -> Integer,
@@ -630,7 +682,7 @@ diesel::table! {
 
 diesel::table! {
     library_books (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         isbn -> Nullable<Text>,
         title -> Text,
         author -> Text,
@@ -647,7 +699,7 @@ diesel::table! {
 
 diesel::table! {
     library_categories (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         category_name -> Text,
         description -> Nullable<Text>,
         created_at -> Timestamp,
@@ -657,7 +709,7 @@ diesel::table! {
 
 diesel::table! {
     library_issues (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         book_id -> Integer,
         student_id -> Nullable<Text>,
         staff_id -> Nullable<Text>,
@@ -676,7 +728,7 @@ diesel::table! {
 
 diesel::table! {
     library_settings (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         max_books_per_student -> Integer,
         max_books_per_staff -> Integer,
         issue_duration_days_student -> Integer,
@@ -1540,7 +1592,11 @@ diesel::joinable!(classes -> academic_years (academic_year_id));
 diesel::joinable!(classes -> grade_levels (grade_id));
 diesel::joinable!(classes -> staff (class_teacher_id));
 diesel::joinable!(club_activities -> clubs (club_id));
+diesel::joinable!(club_members -> clubs (club_id));
+diesel::joinable!(club_members -> students (student_id));
 diesel::joinable!(clubs -> staff (teacher_in_charge_id));
+diesel::joinable!(competition_participants -> competitions (competition_id));
+diesel::joinable!(competition_participants -> students (student_id));
 diesel::joinable!(conversation_participants -> conversations (conversation_id));
 diesel::joinable!(conversation_participants -> users (user_id));
 diesel::joinable!(cultural_event_participants -> cultural_events (event_id));
@@ -1699,10 +1755,13 @@ diesel::allow_tables_to_appear_in_same_query!(
     behavior_incidents,
     budget_categories,
     budgets,
+    chart_of_accounts,
     class_subject_teachers,
     classes,
     club_activities,
+    club_members,
     clubs,
+    competition_participants,
     competitions,
     conversation_participants,
     conversations,
@@ -1721,6 +1780,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     fee_categories,
     fee_payments,
     fee_structures,
+    general_ledger,
     grade_levels,
     grade_streams,
     grade_subjects,

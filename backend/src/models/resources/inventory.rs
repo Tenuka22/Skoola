@@ -110,6 +110,8 @@ pub struct UniformIssue {
 pub struct AssetAllocation {
     pub id: String,
     pub item_id: String,
+    pub allocated_to_type: String,
+    pub allocated_to_id: String,
     pub quantity: i32,
     pub allocation_date: NaiveDateTime,
     pub return_date: Option<NaiveDateTime>,
@@ -402,4 +404,42 @@ impl From<MaintenanceRequest> for MaintenanceRequestResponse {
             updated_at: req.updated_at,
         }
     }
+}
+
+use crate::schema::{asset_allocations_staff, asset_allocations_students};
+
+#[derive(Debug, Queryable, Selectable, Insertable, Associations, Clone)]
+#[diesel(table_name = asset_allocations_staff)]
+#[diesel(belongs_to(AssetAllocation))]
+#[diesel(belongs_to(Staff))]
+pub struct AssetAllocationsStaff {
+    pub asset_allocation_id: String,
+    pub staff_id: String,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = asset_allocations_staff)]
+pub struct NewAssetAllocationsStaff {
+    pub asset_allocation_id: String,
+    pub staff_id: String,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Queryable, Selectable, Insertable, Associations, Clone)]
+#[diesel(table_name = asset_allocations_students)]
+#[diesel(belongs_to(AssetAllocation))]
+#[diesel(belongs_to(Student))]
+pub struct AssetAllocationsStudents {
+    pub asset_allocation_id: String,
+    pub student_id: String,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = asset_allocations_students)]
+pub struct NewAssetAllocationsStudents {
+    pub asset_allocation_id: String,
+    pub student_id: String,
+    pub created_at: NaiveDateTime,
 }

@@ -1,9 +1,11 @@
 use diesel::prelude::*;
+use diesel::SelectableHelper;
+use diesel::NullableExpressionMethods;
 use crate::{
     errors::APIError,
     AppState,
     models::student::guardian::{StudentGuardian, CreateStudentGuardianRequest, StudentGuardianResponse, UpdateStudentGuardianRequest},
-    models::auth_user::{User, NewUser}, // Added User, NewUser
+    database::tables::{User, NewUser}, // Added User, NewUser
     database::enums::RoleEnum, // Added RoleEnum
 };
 use actix_web::{web, HttpResponse};
@@ -26,7 +28,7 @@ pub async fn add_guardian_to_student(
         // 1. Look up a user by the guardian's email
         let matching_user: Option<User> = users::table
             .filter(users::email.eq(guardian_email.clone()))
-            .select(backend::models::auth_user::User::as_select())
+            .select(User::as_select())
             .first(&mut conn)
             .optional()?;
 
@@ -197,8 +199,7 @@ pub async fn get_all_guardians_for_student(
 
     let guardians_with_users: Vec<(StudentGuardian, Option<User>)> = student_guardians::table
         .filter(student_guardians::student_id.eq(&student_id))
-        .left_join(users::table.on(student_guardians::user_id.eq(users::id)))
-        .select((StudentGuardian::as_select(), Option::<User>::as_select()))
+        .left_join(users::table.on(student_guardians::user_id.eq(users::id.nullable())))
         .load::<(StudentGuardian, Option<User>)>(&mut conn)?;
 
     let guardian_responses: Vec<StudentGuardianResponse> = guardians_with_users

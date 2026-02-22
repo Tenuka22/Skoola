@@ -1,5 +1,5 @@
 use crate::schema::{conversations, conversation_participants, messages};
-use diesel::{Queryable, Insertable};
+use diesel::{Queryable, Insertable, Selectable};
 use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime;
 use schemars::JsonSchema;

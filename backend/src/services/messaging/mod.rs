@@ -1,27 +1,40 @@
 use diesel::prelude::*;
-use diesel::connection::AnsiConnection;
 use uuid::Uuid;
-use anyhow::Result;
 use chrono::Utc;
+use actix_web::web::Data;
 
-use crate::models::messaging::{Conversation, NewConversation, ConversationParticipant, NewConversationParticipant, Message, NewMessage};
+use crate::AppState;
+use crate::errors::APIError;
+use crate::models::messaging::{Conversation, NewConversation, NewConversationParticipant, Message, NewMessage};
 use crate::schema::{conversations, conversation_participants, messages};
+use crate::handlers::messaging::CreateConversationRequest;
 
 // Service to start a new conversation
-pub fn start_new_conversation(
-    conn: &mut impl AnsiConnection,
-    subject: String,
-    participant_ids: Vec<String>,
-) -> Result<Conversation> {
+pub async fn start_new_conversation(
+    data: Data<AppState>,
+    current_user_id: String,
+    req: CreateConversationRequest,
+) -> Result<Conversation, APIError> {
+    let mut conn = data.db_pool.get()?;
+    
+    let mut participant_ids = req.participant_ids;
+    if !participant_ids.contains(&current_user_id) {
+        participant_ids.push(current_user_id);
+    }
+
     let new_conversation_id = Uuid::new_v4().to_string();
     let new_conversation = NewConversation {
         id: new_conversation_id.clone(),
-        subject,
+        subject: req.subject,
     };
 
-    let conversation = diesel::insert_into(conversations::table)
+    diesel::insert_into(conversations::table)
         .values(&new_conversation)
-        .get_result::<Conversation>(conn)?;
+        .execute(&mut conn)?;
+
+    let conversation = conversations::table
+        .find(&new_conversation_id)
+        .first::<Conversation>(&mut conn)?;
 
     let new_participants: Vec<NewConversationParticipant> = participant_ids
         .into_iter()
@@ -33,32 +46,47 @@ pub fn start_new_conversation(
 
     diesel::insert_into(conversation_participants::table)
         .values(&new_participants)
-        .execute(conn)?;
+        .execute(&mut conn)?;
 
     Ok(conversation)
 }
 
 // Service to get all conversations for a user
-pub fn get_user_conversations(
-    conn: &mut impl AnsiConnection,
-    user_id: &str,
-) -> Result<Vec<Conversation>> {
+pub async fn get_user_conversations(
+    data: Data<AppState>,
+    user_id: String,
+) -> Result<Vec<Conversation>, APIError> {
+    let mut conn = data.db_pool.get()?;
+
     let user_conversations = conversation_participants::table
         .filter(conversation_participants::user_id.eq(user_id))
         .inner_join(conversations::table)
         .select(conversations::all_columns)
-        .load::<Conversation>(conn)?;
+        .load::<Conversation>(&mut conn)?;
 
     Ok(user_conversations)
 }
 
 // Service to send a message in a conversation
-pub fn send_message(
-    conn: &mut impl AnsiConnection,
-    conversation_id: String,
+pub async fn send_message(
+    data: Data<AppState>,
     sender_user_id: String,
+    conversation_id: String,
     content: String,
-) -> Result<Message> {
+) -> Result<Message, APIError> {
+    let mut conn = data.db_pool.get()?;
+
+    // Verify if the user is a participant of the conversation
+    let is_participant = conversation_participants::table
+        .filter(conversation_participants::conversation_id.eq(&conversation_id))
+        .filter(conversation_participants::user_id.eq(&sender_user_id))
+        .count()
+        .get_result::<i64>(&mut conn)? > 0;
+
+    if !is_participant {
+        return Err(APIError::forbidden("User is not a participant of this conversation"));
+    }
+
     let new_message_id = Uuid::new_v4().to_string();
     let new_message = NewMessage {
         id: new_message_id.clone(),
@@ -67,39 +95,73 @@ pub fn send_message(
         content,
     };
 
-    let message = diesel::insert_into(messages::table)
+    diesel::insert_into(messages::table)
         .values(&new_message)
-        .get_result::<Message>(conn)?;
+        .execute(&mut conn)?;
+
+    let message = messages::table
+        .find(&new_message_id)
+        .first::<Message>(&mut conn)?;
 
     Ok(message)
 }
 
 // Service to get all messages in a conversation
-pub fn get_conversation_messages(
-    conn: &mut impl AnsiConnection,
-    conversation_id: &str,
-) -> Result<Vec<Message>> {
+pub async fn get_conversation_messages(
+    data: Data<AppState>,
+    user_id: String,
+    conversation_id: String,
+) -> Result<Vec<Message>, APIError> {
+    let mut conn = data.db_pool.get()?;
+
+    // Verify if the user is a participant of the conversation
+    let is_participant = conversation_participants::table
+        .filter(conversation_participants::conversation_id.eq(&conversation_id))
+        .filter(conversation_participants::user_id.eq(&user_id))
+        .count()
+        .get_result::<i64>(&mut conn)? > 0;
+
+    if !is_participant {
+        return Err(APIError::forbidden("User is not a participant of this conversation"));
+    }
+
     let conversation_messages = messages::table
         .filter(messages::conversation_id.eq(conversation_id))
         .order(messages::sent_at.asc())
-        .load::<Message>(conn)?;
+        .load::<Message>(&mut conn)?;
 
     Ok(conversation_messages)
 }
 
 // Service to mark a message as read
-pub fn mark_message_as_read(
-    conn: &mut impl AnsiConnection,
-    message_id: &str,
-    user_id: &str,
-) -> Result<usize> {
-    // In a real application, you might want to verify if the user is a participant
-    // of the conversation before marking the message as read.
-    // For this basic implementation, we'll assume the user has access.
+pub async fn mark_message_as_read(
+    data: Data<AppState>,
+    user_id: String,
+    message_id: String,
+) -> Result<usize, APIError> {
+    let mut conn = data.db_pool.get()?;
+
+    // Find the message to get its conversation_id
+    let message: Message = messages::table
+        .filter(messages::id.eq(&message_id))
+        .first::<Message>(&mut conn)
+        .optional()?
+        .ok_or_else(|| APIError::not_found("Message not found"))?;
+
+    // Verify if the user is a participant of the conversation
+    let is_participant = conversation_participants::table
+        .filter(conversation_participants::conversation_id.eq(&message.conversation_id))
+        .filter(conversation_participants::user_id.eq(&user_id))
+        .count()
+        .get_result::<i64>(&mut conn)? > 0;
+
+    if !is_participant {
+        return Err(APIError::forbidden("User is not a participant of this conversation"));
+    }
 
     let updated_rows = diesel::update(messages::table.filter(messages::id.eq(message_id)))
         .set(messages::read_at.eq(Some(Utc::now().naive_utc())))
-        .execute(conn)?;
+        .execute(&mut conn)?;
 
     Ok(updated_rows)
 }

@@ -7,10 +7,11 @@ use schemars::JsonSchema;
 use apistos::ApiComponent;
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
-#[diesel(table_name = school_calendar)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+#[diesel(table_name = school_calendar,
+    check_for_backend(diesel::sqlite::Sqlite)
+)]
 pub struct SchoolCalendar {
-    pub date: Option<NaiveDate>,
+    pub date: NaiveDate,
     pub day_type: DayType,
     pub name: Option<String>,
     pub is_academic_day: bool,

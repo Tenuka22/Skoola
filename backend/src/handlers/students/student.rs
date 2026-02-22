@@ -30,7 +30,7 @@ pub struct StudentQuery {
     pub limit: Option<i64>,
 }
 
-use crate::models::auth::user::CurrentUser;
+use crate::models::auth::CurrentUser;
 
 #[api_operation(
     summary = "Create a new student",
@@ -160,7 +160,7 @@ pub async fn upload_student_photo(
             .execute(&mut conn)?;
 
         // Fetch updated student, profile, and user info to construct StudentResponse
-        use crate::models::{Profile, User, UserProfile};
+        use crate::models::{Profile, auth::User};
         use crate::schema::{user_profiles, users};
         
         let (updated_student, profile, user_profile): (Student, Profile, Option<User>) = students::table
@@ -174,14 +174,16 @@ pub async fn upload_student_photo(
         Ok(Json(StudentResponse {
             id: updated_student.id,
             admission_number: updated_student.admission_number,
+            name_english: profile.name.clone(),
             nic_or_birth_certificate: updated_student.nic_or_birth_certificate,
             dob: updated_student.dob,
             gender: updated_student.gender,
+            email: user_profile.clone().map(|u| u.email),
             religion: updated_student.religion,
             ethnicity: updated_student.ethnicity,
-            status: updated_student.status,
             created_at: updated_student.created_at,
             updated_at: updated_student.updated_at,
+            status: updated_student.status,
             profile_id: updated_student.profile_id,
             profile_name: Some(profile.name),
             profile_address: profile.address,
@@ -189,6 +191,7 @@ pub async fn upload_student_photo(
             profile_photo_url: profile.photo_url,
             user_email: user_profile.map(|u| u.email),
         }))
+
     } else {
         Err(APIError::bad_request("No file was uploaded"))
     }
