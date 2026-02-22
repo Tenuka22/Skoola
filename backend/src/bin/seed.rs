@@ -85,6 +85,7 @@ fn main() -> Result<()> {
     let mut connection = pool.get().expect("Failed to get connection from pool");
     let mut used_emails: HashSet<String> = HashSet::new();
     let default_password_hash = hash_password(config.seed_user_password.as_deref().unwrap_or("password123"))?;
+    let mut seeder_context = super::seed_modules::SeederContext::new(); // Initialize SeederContext
 
     let args = Args::parse();
     println!("Seeding the database with args: {:?}", args);
@@ -117,7 +118,7 @@ fn main() -> Result<()> {
     // ];
 
     // for seeder in seeders {
-    //     seeder.seed(&mut connection, &config, &default_password_hash, &mut used_emails)?;
+    //     seeder.seed(&mut connection, &config, &default_password_hash, &mut used_emails, &mut seeder_context)?;
     // }
 
     println!("Database seeding complete!");
