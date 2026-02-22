@@ -286,7 +286,7 @@ This phase focuses on creating dedicated seeding modules for each of the tables 
 - [x] Task: Create seeding module for Curriculum/Syllabus tables (e.g., `syllabuses`, `lessons`). [9701c66]
 - [x] Task: Create seeding module for Behavior Tracking tables (e.g., `behavior_incidents`, `student_behaviors`). [1384ae2]
 - [x] Task: Create seeding module for Audit Log table (e.g., `audit_logs`). [9458ce9]
-- [ ] Task: Create seeding module for Exams tables (e.g., `exams`, `exam_results`).
+- [x] Task: Create seeding module for Exams tables (e.g., `exams`, `exam_results`). [9a543f8]
 - [ ] Task: Create seeding module for Finance tables (e.g., `invoices`, `payments`).
 - [ ] Task: Conductor - User Manual Verification 'Implement Seeding Modules for Uncovered Tables' (Protocol in workflow.md)
 
