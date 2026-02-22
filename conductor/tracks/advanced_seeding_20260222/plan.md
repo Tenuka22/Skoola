@@ -265,7 +265,7 @@ This phase focuses on understanding the existing seeding script and systematical
 ## Phase 2: Core Seeding Framework Enhancement
 This phase involves refactoring and extending the core seeding framework to support a more modular, extensible, and robust advanced seeding process.
 
-- [x] Task: Refactor `backend/src/bin/seed.rs` to support extensible seeding modules.
+- [x] Task: Refactor `backend/src/bin/seed.rs` to support extensible seeding modules. [e55c335]
     - [x] Create an interface or trait for seeding modules. (Defined `SeedModule` trait in `backend/src/bin/seed_modules/mod.rs`) [639f149]
     - [x] Structure the main `seed.rs` to orchestrate execution of these modules. (Refactored `backend/src/bin/seed.rs` to use `SeedModule` trait)
 - [ ] Task: Implement a generic data generation utility.
