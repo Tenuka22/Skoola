@@ -83,7 +83,8 @@ fn main() -> Result<()> {
     let config = Config::from_env().expect("Failed to load config");
     let pool = establish_connection(&config.database_url).expect("Failed to establish connection");
     let mut connection = pool.get().expect("Failed to get connection from pool");
-    let mut used_emails: HashSet<String> = HashSet::new(); // Will eventually be passed to seeders
+    let mut used_emails: HashSet<String> = HashSet::new();
+    let default_password_hash = hash_password(config.seed_user_password.as_deref().unwrap_or("password123"))?;
 
     let args = Args::parse();
     println!("Seeding the database with args: {:?}", args);
@@ -116,7 +117,7 @@ fn main() -> Result<()> {
     // ];
 
     // for seeder in seeders {
-    //     seeder.seed(&mut connection)?;
+    //     seeder.seed(&mut connection, &config, &default_password_hash, &mut used_emails)?;
     // }
 
     println!("Database seeding complete!");

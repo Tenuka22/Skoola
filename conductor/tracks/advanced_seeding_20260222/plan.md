@@ -271,7 +271,7 @@ This phase involves refactoring and extending the core seeding framework to supp
 - [x] Task: Implement a generic data generation utility. [8d7b1d9]
     - [x] Create helper functions for common data types (strings, numbers, dates). (Implemented in `backend/src/bin/seed_modules/utils.rs`)
     - [x] Leverage the `fake` crate for realistic data where applicable. (Implemented in `backend/src/bin/seed_modules/utils.rs`)
-- [ ] Task: Implement dynamic seed password retrieval from `Config`.
+- [x] Task: Implement dynamic seed password retrieval from `Config`.
     - [ ] Replace hardcoded/default password logic with dynamic retrieval.
 - [ ] Task: Develop a robust foreign key resolution system.
     - [ ] Ensure that data created for related tables can be correctly linked.
