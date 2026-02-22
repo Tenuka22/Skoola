@@ -138,8 +138,36 @@ This phase focuses on understanding the existing seeding script and systematical
         - `users`
         - `zscore_calculations`
 
-- [ ] Task: Identify tables not currently seeded by `backend/src/bin/seed.rs`.
-    - [ ] Compare discovered schema tables with currently seeded tables.
+- [x] Task: Identify tables not currently seeded by `backend/src/bin/seed.rs`.
+    - [x] Compared discovered schema tables with currently seeded tables.
+    - [x] Identified unseeded tables:
+        - `activities`, `activity_attendance`, `activity_participants`, `activity_participants_staff`, `activity_participants_students`, `activity_types`
+        - `al_exams`, `asset_allocations`, `asset_allocations_staff`, `asset_allocations_students`, `asset_categories`
+        - `attendance_audit_log`, `attendance_discrepancies`, `attendance_excuses`, `attendance_policies`
+        - `audit_log`
+        - `behavior_incident_types`, `behavior_incidents`
+        - `budget_categories`, `budgets`
+        - `chart_of_accounts`, `class_subject_teachers`, `club_activities`, `club_members`, `clubs`, `competition_participants`, `competitions`, `conversation_participants`, `conversations`, `cultural_event_participants`, `cultural_events`, `curriculum_standards`
+        - `detention_balances`
+        - `emergency_roll_call_entries`, `emergency_roll_calls`
+        - `exam_subjects`, `exam_types`, `exams`, `exit_passes`
+        - `expense_categories`, `expense_transactions`
+        - `fee_categories`, `fee_payments`, `fee_structures`
+        - `general_ledger`, `grade_streams`, `grade_subjects`, `grading_criteria`, `grading_schemes`
+        - `income_sources`, `income_transactions`, `inventory_items`
+        - `lesson_progress`, `library_books`, `library_categories`, `library_issues`, `library_settings`
+        - `maintenance_requests`, `messages`
+        - `ol_exams`
+        - `petty_cash_transactions`, `pre_approved_absences`
+        - `report_card_marks`, `report_cards`, `resource_bookings`, `resources`, `role_permissions`, `role_set_roles`, `role_sets`
+        - `salary_components`, `salary_payments`, `scholarship_exams`, `school_calendar`, `school_settings`, `seeds`, `sessions`, `sport_event_participants`, `sport_events`, `sport_team_members`, `sport_teams`, `sports`
+        - `staff_attendance`, `staff_departments`, `staff_employment_history`, `staff_leaves`, `staff_qualifications`, `staff_salaries`, `staff_subjects`
+        - `stream_subjects`, `streams`
+        - `student_achievements`, `student_attendance`, `student_class_assignments_history`, `student_emergency_contacts`, `student_fees`, `student_marks`, `student_marks_history`, `student_medical_info`, `student_period_attendance`, `student_previous_schools`, `student_zscores`
+        - `subject_enrollments`, `substitutions`, `syllabus`
+        - `teacher_class_assignments`, `terms`, `timetable`
+        - `uniform_issues`, `uniform_items`, `user_permissions`, `user_set_permissions`, `user_set_users`, `user_sets`
+        - `zscore_calculations`
 - [ ] Task: Map table relationships (foreign keys) from `@backend/src/schema.rs`.
     - [ ] Extract foreign key constraints and their corresponding tables/columns.
 - [ ] Task: Conductor - User Manual Verification 'Analysis and Schema Discovery' (Protocol in workflow.md)
