@@ -11,7 +11,7 @@
 
 ## Phase 2: Data-Purging Logic
 
--   [ ] Task: Implement functions to delete all existing data from the relevant tables.
+-   [x] Task: Implement functions to delete all existing data from the relevant tables. (6224498)
 -   [ ] Task: Ensure the deletion logic is executed in the correct order to respect foreign key constraints.
 -   [ ] Task: Conductor - User Manual Verification 'Data-Purging Logic' (Protocol in workflow.md)
 
