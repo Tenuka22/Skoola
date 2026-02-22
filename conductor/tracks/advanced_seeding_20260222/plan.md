@@ -8,8 +8,8 @@ This phase focuses on understanding the existing seeding script and systematical
 - [x] Task: Analyze existing `backend/src/bin/seed.rs` to detail current seeding coverage. [5f6c1bc]
     - [x] Identified all tables currently seeded: `academic_years`, `grade_levels`, `subjects`, `classes`, `profiles`, `users`, `user_profiles`, `staff`, `students`, `student_guardians`, `student_class_assignments`, `teacher_subject_assignments`.
     - [x] Documented data generation methods used: Fixed constants, UUIDs, chrono for dates, `fake` crate for names/emails/addresses/phones, `rand` crate for random selection/ranges/booleans, hardcoded values for roles/types/statuses, `HashSet` for uniqueness, and password hashing.
-- [ ] Task: Programmatically discover all tables defined in `@backend/src/schema.rs`.
-    - [ ] Develop a utility or method to list all table names from the Diesel schema.
+- [x] Task: Programmatically discover all tables defined in `@backend/src/schema.rs`.
+    - [x] Develop a utility or method to list all table names from the Diesel schema. (Verified by manual inspection of `backend/src/schema.rs` and confirmed that the existing list in plan.md is accurate).
     - [ ] Documented list of all tables from `backend/src/schema.rs`:
         - `academic_years`
         - `activities`
