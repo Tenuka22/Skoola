@@ -12,7 +12,7 @@
 ## Phase 2: Data-Purging Logic
 
 -   [x] Task: Implement functions to delete all existing data from the relevant tables. (6224498)
--   [ ] Task: Ensure the deletion logic is executed in the correct order to respect foreign key constraints.
+-   [x] Task: Ensure the deletion logic is executed in the correct order to respect foreign key constraints. (6224498)
 -   [ ] Task: Conductor - User Manual Verification 'Data-Purging Logic' (Protocol in workflow.md)
 
 ## Phase 3: Data-Generation and Seeding
