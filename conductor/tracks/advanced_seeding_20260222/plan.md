@@ -138,7 +138,7 @@ This phase focuses on understanding the existing seeding script and systematical
         - `users`
         - `zscore_calculations`
 
-- [x] Task: Identify tables not currently seeded by `backend/src/bin/seed.rs`.
+- [x] Task: Identify tables not currently seeded by `backend/src/bin/seed.rs`. [b6a7593]
     - [x] Compared discovered schema tables with currently seeded tables.
     - [x] Identified unseeded tables:
         - `activities`, `activity_attendance`, `activity_participants`, `activity_participants_staff`, `activity_participants_students`, `activity_types`
