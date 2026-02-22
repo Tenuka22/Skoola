@@ -3,22 +3,22 @@ use backend::database::connection::establish_connection;
 use backend::database::enums::{
     EmploymentStatus, Ethnicity, Gender, Medium, Religion, RoleEnum, StaffType, StudentStatus,
 };
-use backend::models::academic::{AcademicYear, Class, NewAcademicYear, NewClass, NewSubject, Subject};
-use backend::models::auth::{NewProfile, NewUser, NewUserProfile, Profile, User, UserProfile};
-use backend::models::staff::{NewStaff, Staff};
-use backend::models::student::{NewStudent, NewStudentGuardian, Student, StudentGuardian};
+use backend::models::academic::{AcademicYear, Class, CreateAcademicYearRequest, CreateClassRequest, CreateSubjectRequest, Subject};
+use backend::models::auth::{NewProfile, NewUser, NewUserProfile, Profile, User}; // Removed UserProfile import
+use backend::models::staff::{CreateStaffRequest, Staff};
+use backend::models::student::{CreateStudentRequest, CreateStudentGuardianRequest, Student, StudentGuardian};
+use backend::schema::{academic_years, classes, profiles, staff, student_class_assignments, student_guardians, students, subjects, teacher_subject_assignments, user_profiles, users}; // Corrected `crate::schema` to `backend::schema`
 use backend::utils::security::hash_password;
-use chrono::{NaiveDate, NaiveDateTime, Utc, Datelike};
+use chrono::{NaiveDate, NaiveDateTime, Utc, Datelike, DateTime}; // Removed unused Duration, Added DateTime
 use clap::Parser;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
 use diesel::{sql_query, RunQueryDsl};
 use diesel::sql_types::Text;
 use fake::faker::internet::en::SafeEmail;
-use fake::faker::name::en::{FirstName, LastName, Name};
-use fake::faker::address::en::{Address, City, State, StreetName};
+use fake::faker::name::en::Name; // Removed FirstName, LastName
+use fake::faker::address::en::{StreetName, City, State}; // Removed Address, City, State import. Added them as explicit `use` for their direct call.
 use fake::faker::phone_number::en::PhoneNumber;
-use fake::locales::En;
 use fake::Fake;
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -82,16 +82,25 @@ fn generate_uuid() -> String {
 fn random_datetime_in_past(years: u32) -> NaiveDateTime {
     let mut rng = rand::thread_rng();
     let now = Utc::now().naive_utc();
-    let years_ago = now.checked_sub_years(chrono::Duration::from_years(years as i64)).unwrap_or(now);
+    // Use year manipulation for NaiveDateTime
+    let years_ago_date = NaiveDate::from_ymd_opt(now.year() - years as i32, now.month(), now.day()).unwrap_or(now.date());
+    let years_ago_datetime = NaiveDateTime::new(years_ago_date, now.time());
     
-    let start_timestamp = years_ago.timestamp();
-    let end_timestamp = now.timestamp();
+    let start_timestamp = years_ago_datetime.and_utc().timestamp();
+    let end_timestamp = now.and_utc().timestamp();
     let random_timestamp = rng.gen_range(start_timestamp..=end_timestamp);
-    NaiveDateTime::from_timestamp_opt(random_timestamp, 0).unwrap_or(now)
+    DateTime::from_timestamp(random_timestamp, 0).unwrap().naive_utc()
 }
 
 fn random_date_in_past(years: u32) -> NaiveDate {
-    random_datetime_in_past(years).date()
+    let mut rng = rand::thread_rng();
+    let now = Utc::now().naive_utc().date();
+    let years_ago = NaiveDate::from_ymd_opt(now.year() - years as i32, now.month(), now.day()).unwrap_or(now);
+
+    let start_timestamp = years_ago.and_hms_opt(0, 0, 0).unwrap().and_utc().timestamp();
+    let end_timestamp = now.and_hms_opt(23, 59, 59).unwrap().and_utc().timestamp();
+    let random_timestamp = rng.gen_range(start_timestamp..=end_timestamp);
+    DateTime::from_timestamp(random_timestamp, 0).unwrap().date_naive()
 }
 
 fn generate_profile(name: String, email: String) -> NewProfile {
@@ -99,8 +108,8 @@ fn generate_profile(name: String, email: String) -> NewProfile {
     NewProfile {
         id: generate_uuid(),
         name,
-        address: Some(format!("{} {} {}", StreetName(En).fake::<String>(), City(En).fake::<String>(), State(En).fake::<String>())),
-        phone: Some(PhoneNumber(En).fake::<String>()),
+        address: Some(format!("{} {} {}", StreetName().fake::<String>(), City().fake::<String>(), State().fake::<String>())),
+        phone: Some(PhoneNumber().fake::<String>()),
         photo_url: Some(format!("https://i.pravatar.cc/150?u={}", email)),
         created_at: now,
         updated_at: now,
@@ -148,10 +157,6 @@ fn seed_profiles_and_users(
     conn: &mut SqliteConnection,
     config: &Config,
 ) -> Result<(Vec<Profile>, Vec<User>), Box<dyn std::error::Error>> {
-    use crate::schema::profiles::dsl::*;
-    use crate::schema::users::dsl::*;
-    use crate::schema::user_profiles::dsl::*;
-
     let mut generated_profiles: Vec<Profile> = Vec::new();
     let mut generated_users: Vec<User> = Vec::new();
 
@@ -159,12 +164,12 @@ fn seed_profiles_and_users(
 
     // Seed Admin Users
     for _ in 0..NUM_ADMIN_STAFF {
-        let email_str: String = SafeEmail(En).fake();
-        let name_str: String = Name(En).fake();
+        let email_str: String = SafeEmail().fake();
+        let name_str: String = Name().fake();
         let new_profile = generate_profile(name_str, email_str.clone());
         let profile_id = new_profile.id.clone();
         
-        let profile_record: Profile = diesel::insert_into(profiles)
+        let profile_record: Profile = diesel::insert_into(profiles::table)
             .values(&new_profile)
             .get_result(conn)?;
         generated_profiles.push(profile_record);
@@ -175,13 +180,13 @@ fn seed_profiles_and_users(
             RoleEnum::Admin,
             Some(profile_id),
         );
-        let user_record: User = diesel::insert_into(users)
+        let user_record: User = diesel::insert_into(users::table)
             .values(&new_user)
             .get_result(conn)?;
         generated_users.push(user_record);
 
         if let Some(up) = new_user_profile {
-            diesel::insert_into(user_profiles)
+            diesel::insert_into(user_profiles::table)
                 .values(&up)
                 .execute(conn)?;
         }
@@ -189,12 +194,12 @@ fn seed_profiles_and_users(
 
     // Seed Teacher Users and Profiles
     for _ in 0..NUM_TEACHERS {
-        let email_str: String = SafeEmail(En).fake();
-        let name_str: String = Name(En).fake();
+        let email_str: String = SafeEmail().fake();
+        let name_str: String = Name().fake();
         let new_profile = generate_profile(name_str, email_str.clone());
         let profile_id = new_profile.id.clone();
         
-        let profile_record: Profile = diesel::insert_into(profiles)
+        let profile_record: Profile = diesel::insert_into(profiles::table)
             .values(&new_profile)
             .get_result(conn)?;
         generated_profiles.push(profile_record);
@@ -205,13 +210,13 @@ fn seed_profiles_and_users(
             RoleEnum::Teacher,
             Some(profile_id),
         );
-        let user_record: User = diesel::insert_into(users)
+        let user_record: User = diesel::insert_into(users::table)
             .values(&new_user)
             .get_result(conn)?;
         generated_users.push(user_record);
 
         if let Some(up) = new_user_profile {
-            diesel::insert_into(user_profiles)
+            diesel::insert_into(user_profiles::table)
                 .values(&up)
                 .execute(conn)?;
         }
@@ -219,12 +224,12 @@ fn seed_profiles_and_users(
 
     // Seed Guardian Users and Profiles
     for _ in 0..NUM_GUARDIANS {
-        let email_str: String = SafeEmail(En).fake();
-        let name_str: String = Name(En).fake();
+        let email_str: String = SafeEmail().fake();
+        let name_str: String = Name().fake();
         let new_profile = generate_profile(name_str, email_str.clone());
         let profile_id = new_profile.id.clone();
         
-        let profile_record: Profile = diesel::insert_into(profiles)
+        let profile_record: Profile = diesel::insert_into(profiles::table)
             .values(&new_profile)
             .get_result(conn)?;
         generated_profiles.push(profile_record);
@@ -232,16 +237,16 @@ fn seed_profiles_and_users(
         let (new_user, new_user_profile) = generate_user(
             email_str,
             default_password_hash.clone(),
-            RoleEnum::Guardian,
+            RoleEnum::Parent, // Changed from Guardian to Parent
             Some(profile_id),
         );
-        let user_record: User = diesel::insert_into(users)
+        let user_record: User = diesel::insert_into(users::table)
             .values(&new_user)
             .get_result(conn)?;
         generated_users.push(user_record);
 
         if let Some(up) = new_user_profile {
-            diesel::insert_into(user_profiles)
+            diesel::insert_into(user_profiles::table)
                 .values(&up)
                 .execute(conn)?;
         }
@@ -255,7 +260,7 @@ fn seed_profiles_and_users(
 fn seed_academic_years(
     conn: &mut SqliteConnection,
 ) -> Result<Vec<AcademicYear>, Box<dyn std::error::Error>> {
-    use crate::schema::academic_years::dsl::*;
+
     let mut academic_years_list = Vec::new();
     let current_year = Utc::now().naive_utc().year();
 
@@ -264,14 +269,14 @@ fn seed_academic_years(
         let year_end = year_start + 1;
         let is_current = i == NUM_ACADEMIC_YEARS - 1;
 
-        let new_academic_year = NewAcademicYear {
+        let new_academic_year = CreateAcademicYearRequest {
             year_start,
             year_end,
             name: format!("{}-{}", year_start, year_end),
             current: Some(is_current),
         };
 
-        let academic_year_record: AcademicYear = diesel::insert_into(academic_years)
+        let academic_year_record: AcademicYear = diesel::insert_into(academic_years::table)
             .values(&new_academic_year)
             .get_result(conn)?;
         academic_years_list.push(academic_year_record);
@@ -282,7 +287,7 @@ fn seed_academic_years(
 fn seed_subjects(
     conn: &mut SqliteConnection,
 ) -> Result<Vec<Subject>, Box<dyn std::error::Error>> {
-    use crate::schema::subjects::dsl::*;
+
     let mut subjects_list = Vec::new();
 
     let subject_names = vec![
@@ -293,14 +298,14 @@ fn seed_subjects(
     ];
 
     for name in subject_names.iter().take(NUM_SUBJECTS as usize) {
-        let new_subject = NewSubject {
+        let new_subject = CreateSubjectRequest {
             subject_code: format!("{}-{}", name.chars().next().unwrap(), generate_uuid()[0..4].to_string()).to_uppercase(),
             subject_name_en: name.to_string(),
             subject_name_si: None,
             subject_name_ta: None,
             is_core: Some(rand::thread_rng().gen_bool(0.5)), // 50% chance to be core
         };
-        let subject_record: Subject = diesel::insert_into(subjects)
+        let subject_record: Subject = diesel::insert_into(subjects::table)
             .values(&new_subject)
             .get_result(conn)?;
         subjects_list.push(subject_record);
@@ -312,7 +317,6 @@ fn seed_classes(
     conn: &mut SqliteConnection,
     academic_years: &[AcademicYear],
 ) -> Result<Vec<Class>, Box<dyn std::error::Error>> {
-    use crate::schema::classes::dsl::*;
     let mut classes_list = Vec::new();
     let sections = vec!["A", "B", "C", "D", "E"];
 
@@ -326,7 +330,7 @@ fn seed_classes(
                     Medium::Sinhala
                 };
                 
-                let new_class = NewClass {
+                let new_class = CreateClassRequest {
                     grade_id: grade_num.to_string(), // Assuming grade_id corresponds to grade number
                     section_name: format!("{} {}", grade_num, section_name),
                     academic_year_id: academic_year.id.clone(),
@@ -335,7 +339,7 @@ fn seed_classes(
                     room_number: Some(format!("RM-{}", rand::thread_rng().gen_range(101..=300))),
                     max_capacity: 30,
                 };
-                let class_record: Class = diesel::insert_into(classes)
+                let class_record: Class = diesel::insert_into(classes::table)
                     .values(&new_class)
                     .get_result(conn)?;
                 classes_list.push(class_record);
@@ -349,11 +353,6 @@ fn seed_staff_members(
     conn: &mut SqliteConnection,
     config: &Config,
 ) -> Result<(Vec<Staff>, Vec<User>, Vec<Profile>), Box<dyn std::error::Error>> {
-    use crate::schema::staff::dsl::*;
-    use crate::schema::users::dsl::*;
-    use crate::schema::profiles::dsl::*;
-    use crate::schema::user_profiles::dsl::*;
-
     let mut generated_staff: Vec<Staff> = Vec::new();
     let mut generated_users: Vec<User> = Vec::new();
     let mut generated_profiles: Vec<Profile> = Vec::new();
@@ -361,17 +360,17 @@ fn seed_staff_members(
     let default_password_hash = hash_password(config.seed_user_password.as_deref().unwrap_or("password123"))?;
 
     for i in 0..NUM_STAFF_MEMBERS {
-        let email_str: String = SafeEmail(En).fake();
-        let name_str: String = Name(En).fake();
+        let email_str: String = SafeEmail().fake();
+        let name_str: String = Name().fake();
         let new_profile = generate_profile(name_str.clone(), email_str.clone());
         let profile_id = new_profile.id.clone();
         
-        let profile_record: Profile = diesel::insert_into(profiles)
+        let profile_record: Profile = diesel::insert_into(profiles::table)
             .values(&new_profile)
             .get_result(conn)?;
         generated_profiles.push(profile_record);
 
-        let staff_type = if i < NUM_ADMIN_STAFF as usize {
+        let staff_type = if (i as u32) < NUM_ADMIN_STAFF { // Cast i to u32 for comparison
             StaffType::Administrative
         } else {
             StaffType::Teaching
@@ -388,19 +387,18 @@ fn seed_staff_members(
             role,
             Some(profile_id.clone()),
         );
-        let user_record: User = diesel::insert_into(users)
+        let user_record: User = diesel::insert_into(users::table)
             .values(&new_user)
             .get_result(conn)?;
         generated_users.push(user_record);
 
         if let Some(up) = new_user_profile {
-            diesel::insert_into(user_profiles)
+            diesel::insert_into(user_profiles::table)
                 .values(&up)
                 .execute(conn)?;
         }
 
-        let new_staff = NewStaff {
-            id: generate_uuid(),
+        let new_staff = CreateStaffRequest {
             employee_id: format!("EMP-{}", rand::thread_rng().gen_range(1000..=9999)),
             name: name_str.clone(),
             nic: format!("{:09}V", rand::thread_rng().gen_range(100000000..=999999999)),
@@ -409,15 +407,12 @@ fn seed_staff_members(
             address: profile_record.address.clone().unwrap(),
             phone: profile_record.phone.clone().unwrap(),
             email: email_str.clone(),
-            created_at: Utc::now().naive_utc(),
-            updated_at: Utc::now().naive_utc(),
+            photo_url: profile_record.photo_url.clone(),
             employment_status: EmploymentStatus::Permanent,
             staff_type,
-            photo_url: profile_record.photo_url.clone(),
-            profile_id: Some(profile_id.clone()),
         };
 
-        let staff_record: Staff = diesel::insert_into(staff)
+        let staff_record: Staff = diesel::insert_into(staff::table)
             .values(&new_staff)
             .get_result(conn)?;
         generated_staff.push(staff_record);
@@ -431,12 +426,6 @@ fn seed_students(
     academic_years: &[AcademicYear],
     classes: &[Class],
 ) -> Result<(Vec<Student>, Vec<StudentGuardian>, Vec<User>, Vec<Profile>), Box<dyn std::error::Error>> {
-    use crate::schema::students::dsl::*;
-    use crate::schema::student_guardians::dsl::*;
-    use crate::schema::users::dsl::*;
-    use crate::schema::profiles::dsl::*;
-    use crate::schema::user_profiles::dsl::*;
-
     let mut generated_students: Vec<Student> = Vec::new();
     let mut generated_guardians: Vec<StudentGuardian> = Vec::new();
     let mut generated_users: Vec<User> = Vec::new();
@@ -445,19 +434,19 @@ fn seed_students(
     let default_password_hash = hash_password(config.seed_user_password.as_deref().unwrap_or("password123"))?;
 
     for i in 0..NUM_STUDENTS {
-        let name_english: String = Name(En).fake();
-        let email_str: String = SafeEmail(En).fake();
+        let name_english: String = Name().fake();
+        let email_str: String = SafeEmail().fake();
         let admission_number = format!("ADM-{}", rand::thread_rng().gen_range(10000..=99999));
         let nic_or_birth_certificate = format!("{:09}V", rand::thread_rng().gen_range(100000000..=999999999));
         let dob = random_date_in_past(rand::thread_rng().gen_range(5..=18));
         let gender = if rand::thread_rng().gen_bool(0.5) { Gender::Male } else { Gender::Female };
-        let address_str: String = format!("{} {} {}", StreetName(En).fake::<String>(), City(En).fake::<String>(), State(En).fake::<String>());
-        let phone_str: String = PhoneNumber(En).fake();
+        let address_str: String = format!("{} {} {}", StreetName().fake::<String>(), City().fake::<String>(), State().fake::<String>());
+        let phone_str: String = PhoneNumber().fake();
 
         // Create profile for student
         let new_profile = generate_profile(name_english.clone(), email_str.clone());
         let profile_id = new_profile.id.clone();
-        let profile_record: Profile = diesel::insert_into(profiles)
+        let profile_record: Profile = diesel::insert_into(profiles::table)
             .values(&new_profile)
             .get_result(conn)?;
         generated_profiles.push(profile_record);
@@ -469,20 +458,19 @@ fn seed_students(
             RoleEnum::Student,
             Some(profile_id.clone()),
         );
-        let user_record: User = diesel::insert_into(users)
+        let user_record: User = diesel::insert_into(users::table)
             .values(&new_user)
             .get_result(conn)?;
         generated_users.push(user_record);
 
         if let Some(up) = new_user_profile {
-            diesel::insert_into(user_profiles)
+            diesel::insert_into(user_profiles::table)
                 .values(&up)
                 .execute(conn)?;
         }
 
 
-        let new_student = NewStudent {
-            id: generate_uuid(),
+        let new_student = CreateStudentRequest {
             admission_number,
             name_english: name_english.clone(),
             name_sinhala: None,
@@ -493,31 +481,27 @@ fn seed_students(
             address: address_str.clone(),
             phone: phone_str.clone(),
             email: Some(email_str.clone()),
-            religion: Some(Religion::Buddhist),
+            religion: Some(Religion::Buddhism), // Changed from Buddhist to Buddhism
             ethnicity: Some(Ethnicity::Sinhala),
-            created_at: Utc::now().naive_utc(),
-            updated_at: Utc::now().naive_utc(),
-            status: StudentStatus::Active,
-            photo_url: profile_record.photo_url.clone(),
-            profile_id: Some(profile_id.clone()),
+            status: Some(StudentStatus::Active), // Wrapped in Some()
         };
 
-        let student_record: Student = diesel::insert_into(students)
+        let student_record: Student = diesel::insert_into(students::table)
             .values(&new_student)
             .get_result(conn)?;
         generated_students.push(student_record.clone());
 
         // Create guardians for student
         if i % 2 == 0 { // Assign a guardian to roughly half the students for now
-            let guardian_name: String = Name(En).fake();
-            let guardian_email: String = SafeEmail(En).fake();
-            let guardian_phone: String = PhoneNumber(En).fake();
-            let guardian_address: String = format!("{} {} {}", StreetName(En).fake::<String>(), City(En).fake::<String>(), State(En).fake::<String>());
+            let guardian_name: String = Name().fake();
+            let guardian_email: String = SafeEmail().fake();
+            let guardian_phone: String = PhoneNumber().fake();
+            let guardian_address: String = format!("{} {} {}", StreetName().fake::<String>(), City().fake::<String>(), State().fake::<String>());
             
             // Create user and profile for guardian if not already done in seed_profiles_and_users
             let guardian_profile = generate_profile(guardian_name.clone(), guardian_email.clone());
             let g_profile_id = guardian_profile.id.clone();
-            let profile_record_g: Profile = diesel::insert_into(profiles)
+            let profile_record_g: Profile = diesel::insert_into(profiles::table)
                 .values(&guardian_profile)
                 .get_result(conn)?;
             generated_profiles.push(profile_record_g);
@@ -525,33 +509,29 @@ fn seed_students(
             let (new_guardian_user, new_guardian_user_profile) = generate_user(
                 guardian_email.clone(),
                 default_password_hash.clone(),
-                RoleEnum::Guardian,
+                RoleEnum::Parent, // Changed from Guardian to Parent
                 Some(g_profile_id.clone()),
             );
-            let guardian_user_record: User = diesel::insert_into(users)
+            let guardian_user_record: User = diesel::insert_into(users::table)
                 .values(&new_guardian_user)
                 .get_result(conn)?;
             generated_users.push(guardian_user_record);
 
             if let Some(up) = new_guardian_user_profile {
-                diesel::insert_into(user_profiles)
+                diesel::insert_into(user_profiles::table)
                     .values(&up)
                     .execute(conn)?;
             }
             
-            let new_guardian = NewStudentGuardian {
-                id: generate_uuid(),
+            let new_guardian = CreateStudentGuardianRequest {
                 student_id: student_record.id.clone(),
                 name: guardian_name,
                 relationship: "Parent".to_string(),
                 phone: guardian_phone,
                 email: Some(guardian_email),
                 address: guardian_address,
-                created_at: Utc::now().naive_utc(),
-                updated_at: Utc::now().naive_utc(),
-                user_id: Some(guardian_user_record.id.clone()),
             };
-            let guardian_record: StudentGuardian = diesel::insert_into(student_guardians)
+            let guardian_record: StudentGuardian = diesel::insert_into(student_guardians::table)
                 .values(&new_guardian)
                 .get_result(conn)?;
             generated_guardians.push(guardian_record);
@@ -581,7 +561,6 @@ fn assign_students_to_classes(
     academic_years: &[AcademicYear],
     classes: &[Class],
 ) -> Result<(), Box<dyn std::error::Error>> {
-    use crate::schema::student_class_assignments::dsl::*;
     let mut rng = rand::thread_rng();
     let current_academic_year = academic_years.iter().find(|ay| ay.current).ok_or("No current academic year found")?;
     let classes_in_current_year: Vec<&Class> = classes
@@ -603,7 +582,7 @@ fn assign_students_to_classes(
                 created_at: now,
                 updated_at: now,
             };
-            diesel::insert_into(student_class_assignments)
+            diesel::insert_into(student_class_assignments::table)
                 .values(&new_assignment)
                 .execute(conn)?;
         }
@@ -629,7 +608,6 @@ fn assign_teachers_to_subjects(
     subjects: &[Subject],
     academic_years: &[AcademicYear],
 ) -> Result<(), Box<dyn std::error::Error>> {
-    use crate::schema::teacher_subject_assignments::dsl::*;
     let mut rng = rand::thread_rng();
     let current_academic_year = academic_years.iter().find(|ay| ay.current).ok_or("No current academic year found")?;
 
@@ -650,7 +628,7 @@ fn assign_teachers_to_subjects(
                 created_at: now,
                 updated_at: now,
             };
-            diesel::insert_into(teacher_subject_assignments)
+            diesel::insert_into(teacher_subject_assignments::table)
                 .values(&new_assignment)
                 .execute(conn)?;
         }
@@ -671,7 +649,6 @@ fn assign_teachers_to_classes(
     teachers: &[Staff],
     classes_vec: &mut Vec<Class>, // Use classes_vec as name to avoid conflict with `classes` in `use` statement
 ) -> Result<(), Box<dyn std::error::Error>> {
-    use crate::schema::classes::dsl::*;
     let mut rng = rand::thread_rng();
 
     let teaching_staff: Vec<&Staff> = teachers.iter().filter(|s| s.staff_type == StaffType::Teaching).collect();
@@ -688,7 +665,7 @@ fn assign_teachers_to_classes(
                 class_teacher_id: Some(teacher_to_assign.id.clone()),
                 updated_at: now,
             };
-            diesel::update(classes.filter(id.eq(class_obj.id.clone())))
+            diesel::update(classes::table.filter(classes::id.eq(class_obj.id.clone())))
                 .set(&changes)
                 .execute(conn)?;
             class_obj.class_teacher_id = Some(teacher_to_assign.id.clone()); // Update in local vec as well
@@ -804,34 +781,11 @@ fn main() {
             eprintln!("Error seeding students and guardians: {}", e);
             std::process::exit(1);
         }
+        
     };
     initial_users.extend(student_users);
     initial_profiles.extend(student_profiles);
     println!("Students and guardians seeding complete.");
-
-    // Assign students to classes
-    println!("Assigning students to classes...");
-    if let Err(e) = assign_students_to_classes(&mut connection, &students, &academic_years, &classes) {
-        eprintln!("Error assigning students to classes: {}", e);
-        std::process::exit(1);
-    }
-    println!("Students assigned to classes.");
-
-    // Assign teachers to subjects
-    println!("Assigning teachers to subjects...");
-    if let Err(e) = assign_teachers_to_subjects(&mut connection, &staff_members, &subjects, &academic_years) {
-        eprintln!("Error assigning teachers to subjects: {}", e);
-        std::process::exit(1);
-    }
-    println!("Teachers assigned to subjects.");
-
-    // Assign teachers to classes as class teachers
-    println!("Assigning class teachers to classes...");
-    if let Err(e) = assign_teachers_to_classes(&mut connection, &staff_members, &mut classes) {
-        eprintln!("Error assigning class teachers to classes: {}", e);
-        std::process::exit(1);
-    }
-    println!("Class teachers assigned to classes.");
 
     // Assign students to classes
     println!("Assigning students to classes...");
