@@ -15,7 +15,7 @@
 -   [x] Task: Ensure the deletion logic is executed in the correct order to respect foreign key constraints. (6224498)
 -   [ ] Task: Conductor - User Manual Verification 'Data-Purging Logic' (Protocol in workflow.md)
 
-## Phase 3: Data-Generation and Seeding
+## Phase 3: Data-Generation and Seeding [checkpoint: 89e7f13]
 
 -   [x] Task: Implement data generation functions for each required model (Users, Students, Teachers, Guardians, Staff, Classes, Subjects, etc.) using `faker-rs`. (a70b677)
 -   [x] Task: Create a main seeding function that orchestrates the data generation and insertion.
