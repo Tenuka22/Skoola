@@ -751,7 +751,7 @@ fn main() {
 
     // Seed Classes
     println!("Seeding classes...");
-    let classes = match seed_classes(&mut connection, &academic_years) {
+    let mut classes = match seed_classes(&mut connection, &academic_years) {
         Ok(c) => {
             println!("Seeded {} classes.", c.len());
             c
@@ -808,6 +808,30 @@ fn main() {
     initial_users.extend(student_users);
     initial_profiles.extend(student_profiles);
     println!("Students and guardians seeding complete.");
+
+    // Assign students to classes
+    println!("Assigning students to classes...");
+    if let Err(e) = assign_students_to_classes(&mut connection, &students, &academic_years, &classes) {
+        eprintln!("Error assigning students to classes: {}", e);
+        std::process::exit(1);
+    }
+    println!("Students assigned to classes.");
+
+    // Assign teachers to subjects
+    println!("Assigning teachers to subjects...");
+    if let Err(e) = assign_teachers_to_subjects(&mut connection, &staff_members, &subjects, &academic_years) {
+        eprintln!("Error assigning teachers to subjects: {}", e);
+        std::process::exit(1);
+    }
+    println!("Teachers assigned to subjects.");
+
+    // Assign teachers to classes as class teachers
+    println!("Assigning class teachers to classes...");
+    if let Err(e) = assign_teachers_to_classes(&mut connection, &staff_members, &mut classes) {
+        eprintln!("Error assigning class teachers to classes: {}", e);
+        std::process::exit(1);
+    }
+    println!("Class teachers assigned to classes.");
 
     // Assign students to classes
     println!("Assigning students to classes...");
