@@ -168,7 +168,7 @@ This phase focuses on understanding the existing seeding script and systematical
         - `teacher_class_assignments`, `terms`, `timetable`
         - `uniform_issues`, `uniform_items`, `user_permissions`, `user_set_permissions`, `user_set_users`, `user_sets`
         - `zscore_calculations`
-- [x] Task: Map table relationships (foreign keys) from `@backend/src/schema.rs`.
+- [x] Task: Map table relationships (foreign keys) from `@backend/src/schema.rs`. [d6fa96d]
     - [x] Extracted foreign key constraints and their corresponding tables/columns:
         - `activities` (academic_year_id -> `academic_years`, activity_type_id -> `activity_types`, created_by -> `users`)
         - `activity_attendance` (activity_id -> `activities`)
