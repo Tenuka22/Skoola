@@ -298,7 +298,7 @@ This final phase involves integrating all new seeding modules and thoroughly val
 - [x] Task: Update data purging mechanism (e.g., `delete_all_tables`).
     - [ ] Potentially replace `DROP TABLE` with `TRUNCATE` or provide options.
     - [ ] Ensure `PRAGMA foreign_keys = OFF/ON` is handled correctly around purging and migrations.
-- [ ] Task: Implement comprehensive validation for seeded data.
+- [x] Task: Implement comprehensive validation for seeded data. [cb37e4c]
     - [ ] Verify count of records in each table.
     - [ ] Spot-check referential integrity and data realism.
 - [ ] Task: Test the full advanced seeding process.
