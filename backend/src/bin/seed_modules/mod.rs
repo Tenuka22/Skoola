@@ -6,6 +6,7 @@ use crate::Config; // Import Config from the main crate (seed.rs)
 pub mod utils;
 pub mod message_seeder; // New
 pub mod resource_management;
+pub mod curriculum_management;
 
 pub struct SeederContext {
     // Vectors to hold IDs of seeded entities
@@ -21,6 +22,8 @@ pub struct SeederContext {
     pub inventory_item_ids: Vec<String>,
     pub resource_ids: Vec<String>,
     pub asset_allocation_ids: Vec<String>,
+    pub curriculum_standard_ids: Vec<String>,
+    pub syllabus_ids: Vec<String>,
     // Add more as needed
 }
 

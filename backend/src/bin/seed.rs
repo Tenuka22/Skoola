@@ -5,6 +5,7 @@ use anyhow::Result;
 use super::seed_modules::SeedModule;
 use super::seed_modules::message_seeder::MessageSeeder; // New import
 use super::seed_modules::resource_management::ResourceManagementSeeder; // New import
+use super::seed_modules::curriculum_management::CurriculumManagementSeeder; // New import
 
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use clap::Parser; // Keep for Args
@@ -111,7 +112,8 @@ fn main() -> Result<()> {
     // Orchestrate seeding modules here
     let seeders: Vec<Box<dyn SeedModule>> = vec![
         Box::new(MessageSeeder::new()),
-        Box::new(ResourceManagementSeeder::new()), // Add other seeders here
+        Box::new(ResourceManagementSeeder::new()),
+        Box::new(CurriculumManagementSeeder::new()), // Add other seeders here
     ];
 
     for seeder in seeders {
