@@ -283,7 +283,7 @@ This phase focuses on creating dedicated seeding modules for each of the tables 
 
 - [x] Task: Create seeding module for Messaging tables (e.g., `messages`, `conversations`). [e965625]
 - [x] Task: Create seeding module for Resource Management tables (e.g., `resources`, `bookings`). [4a94fbb]
-- [ ] Task: Create seeding module for Curriculum/Syllabus tables (e.g., `syllabuses`, `lessons`).
+- [x] Task: Create seeding module for Curriculum/Syllabus tables (e.g., `syllabuses`, `lessons`). [9701c66]
 - [ ] Task: Create seeding module for Behavior Tracking tables (e.g., `behavior_incidents`, `student_behaviors`).
 - [ ] Task: Create seeding module for Audit Log table (e.g., `audit_logs`).
 - [ ] Task: Create seeding module for Exams tables (e.g., `exams`, `exam_results`).
