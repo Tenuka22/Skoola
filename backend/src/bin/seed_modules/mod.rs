@@ -8,6 +8,7 @@ pub mod message_seeder; // New
 pub mod resource_management;
 pub mod curriculum_management;
 pub mod behavior_management;
+pub mod audit_log;
 
 pub struct SeederContext {
     // Vectors to hold IDs of seeded entities
