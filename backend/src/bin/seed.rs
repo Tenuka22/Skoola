@@ -51,7 +51,8 @@ fn main() {
     dotenvy::dotenv().ok();
 
     let config = Config::from_env().expect("Failed to load config");
-    let mut connection = establish_connection(&config.database_url).expect("Failed to establish connection");
+    let pool = establish_connection(&config.database_url).expect("Failed to establish connection");
+    let mut connection = pool.get().expect("Failed to get connection from pool");
 
     let args = Args::parse();
     println!("Seeding the database with args: {:?}", args);
