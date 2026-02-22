@@ -10,6 +10,7 @@ use super::seed_modules::behavior_management::BehaviorManagementSeeder; // New i
 use super::seed_modules::audit_log::AuditLogSeeder; // New import
 use super::seed_modules::exams::ExamsSeeder; // New import
 use super::seed_modules::finance::FinanceSeeder; // New import
+use super::seed_modules::seeder_verifier::SeederVerifier; // New import
 
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use clap::Parser; // Keep for Args
@@ -121,7 +122,8 @@ fn main() -> Result<()> {
         Box::new(BehaviorManagementSeeder::new()),
         Box::new(AuditLogSeeder::new()),
         Box::new(ExamsSeeder::new()),
-        Box::new(FinanceSeeder::new()), // Add other seeders here
+        Box::new(FinanceSeeder::new()),
+        Box::new(SeederVerifier::new()), // Add other seeders here
     ];
 
     for seeder in seeders {

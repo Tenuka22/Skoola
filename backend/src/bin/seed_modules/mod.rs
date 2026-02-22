@@ -11,6 +11,7 @@ pub mod behavior_management;
 pub mod audit_log;
 pub mod exams;
 pub mod finance;
+pub mod seeder_verifier;
 
 pub struct SeederContext {
     // Vectors to hold IDs of seeded entities
