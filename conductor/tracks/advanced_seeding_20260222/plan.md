@@ -268,9 +268,9 @@ This phase involves refactoring and extending the core seeding framework to supp
 - [x] Task: Refactor `backend/src/bin/seed.rs` to support extensible seeding modules. [e55c335]
     - [x] Create an interface or trait for seeding modules. (Defined `SeedModule` trait in `backend/src/bin/seed_modules/mod.rs`) [639f149]
     - [x] Structure the main `seed.rs` to orchestrate execution of these modules. (Refactored `backend/src/bin/seed.rs` to use `SeedModule` trait)
-- [ ] Task: Implement a generic data generation utility.
-    - [ ] Create helper functions for common data types (strings, numbers, dates).
-    - [ ] Leverage the `fake` crate for realistic data where applicable.
+- [x] Task: Implement a generic data generation utility.
+    - [x] Create helper functions for common data types (strings, numbers, dates). (Implemented in `backend/src/bin/seed_modules/utils.rs`)
+    - [x] Leverage the `fake` crate for realistic data where applicable. (Implemented in `backend/src/bin/seed_modules/utils.rs`)
 - [ ] Task: Implement dynamic seed password retrieval from `Config`.
     - [ ] Replace hardcoded/default password logic with dynamic retrieval.
 - [ ] Task: Develop a robust foreign key resolution system.
