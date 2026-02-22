@@ -278,7 +278,7 @@ This phase involves refactoring and extending the core seeding framework to supp
     - [x] Handle cases where parent records must exist before child records. (By introducing `SeederContext` and ensuring seeding order)
 - [ ] Task: Conductor - User Manual Verification 'Core Seeding Framework Enhancement' (Protocol in workflow.md)
 
-## Phase 3: Implement Seeding Modules for Uncovered Tables
+## Phase 3: Implement Seeding Modules for Uncovered Tables [checkpoint: 41214d6]
 This phase focuses on creating dedicated seeding modules for each of the tables identified as not currently covered by the existing `seed.rs`.
 
 - [x] Task: Create seeding module for Messaging tables (e.g., `messages`, `conversations`). [e965625]
