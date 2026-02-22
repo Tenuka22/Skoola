@@ -11,7 +11,7 @@ pub mod resource_management;
 pub mod curriculum_management;
 pub mod behavior_management;
 
-// Unambiguous re-exports can be added here if needed, 
+// Unambiguous re-exports can be added here if needed,
 // but it's often clearer to use the full path.
 pub use academic::academic_year;
 pub use academic::terms;
@@ -73,6 +73,9 @@ pub use system::activity;
 pub use system::setting;
 pub use system::calendar;
 pub use system::seed;
+
+// Add this line to re-export resource_management models
+pub use resource_management::*;
 
 use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;

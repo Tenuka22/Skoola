@@ -1,52 +1,17 @@
-use crate::schema::{resources, resource_bookings};
-use diesel::{Queryable, Insertable, Selectable};
-use serde::{Deserialize, Serialize};
-use chrono::NaiveDateTime;
-use schemars::JsonSchema;
-use apistos::ApiComponent;
+pub mod asset_category;
+pub mod inventory_item;
+pub mod resource;
+pub mod asset_allocation;
+pub mod maintenance_request;
+pub mod resource_booking;
+pub mod asset_allocation_staff;
+pub mod asset_allocation_student;
 
-#[derive(Debug, Clone, PartialEq, Queryable, Selectable, Insertable, Serialize, Deserialize, JsonSchema, ApiComponent)]
-#[diesel(table_name = resources)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct Resource {
-    pub id: String,
-    pub resource_name: String,
-    pub resource_type: String,
-    pub description: Option<String>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
-
-#[derive(Debug, Clone, PartialEq, Queryable, Selectable, Insertable, Serialize, Deserialize, JsonSchema, ApiComponent)]
-#[diesel(table_name = resource_bookings)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct ResourceBooking {
-    pub id: String,
-    pub resource_id: String,
-    pub booked_by_user_id: String,
-    pub start_time: NaiveDateTime,
-    pub end_time: NaiveDateTime,
-    pub related_event_id: Option<String>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
-
-#[derive(Debug, Clone, PartialEq, Insertable, Serialize, Deserialize, JsonSchema, ApiComponent)]
-#[diesel(table_name = resources)]
-pub struct NewResource {
-    pub id: String,
-    pub resource_name: String,
-    pub resource_type: String,
-    pub description: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Insertable, Serialize, Deserialize, JsonSchema, ApiComponent)]
-#[diesel(table_name = resource_bookings)]
-pub struct NewResourceBooking {
-    pub id: String,
-    pub resource_id: String,
-    pub booked_by_user_id: String,
-    pub start_time: NaiveDateTime,
-    pub end_time: NaiveDateTime,
-    pub related_event_id: Option<String>,
-}
+pub use asset_category::*;
+pub use inventory_item::*;
+pub use resource::*;
+pub use asset_allocation::*;
+pub use maintenance_request::*;
+pub use resource_booking::*;
+pub use asset_allocation_staff::*;
+pub use asset_allocation_student::*;

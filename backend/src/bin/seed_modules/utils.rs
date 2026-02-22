@@ -29,6 +29,7 @@ pub fn generate_random_phone_number() -> String {
 
 // Re-exporting from seed.rs for now, until we move common utilities
 pub use crate::{generate_uuid, random_date_in_past, random_datetime_in_past};
+use rand::seq::SliceRandom;
 
 pub fn generate_random_number_range(min: u32, max: u32) -> u32 {
     rand::thread_rng().gen_range(min..=max)
@@ -36,6 +37,13 @@ pub fn generate_random_number_range(min: u32, max: u32) -> u32 {
 
 pub fn generate_random_bool() -> bool {
     rand::thread_rng().gen_bool(0.5)
+}
+
+pub fn get_random_id(ids: &[String]) -> String {
+    if ids.is_empty() {
+        panic!("Attempted to get a random ID from an empty list. Check seeding order.");
+    }
+    ids.choose(&mut rand::thread_rng()).unwrap().clone()
 }
 
 // Add more generic data generation utilities as needed
