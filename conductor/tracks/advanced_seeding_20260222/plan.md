@@ -262,7 +262,7 @@ This phase focuses on understanding the existing seeding script and systematical
         - `zscore_calculations` (exam_id -> `exams`, subject_id -> `subjects`)
 - [ ] Task: Conductor - User Manual Verification 'Analysis and Schema Discovery' (Protocol in workflow.md)
 
-## Phase 2: Core Seeding Framework Enhancement
+## Phase 2: Core Seeding Framework Enhancement [checkpoint: d53d7f2]
 This phase involves refactoring and extending the core seeding framework to support a more modular, extensible, and robust advanced seeding process.
 
 - [x] Task: Refactor `backend/src/bin/seed.rs` to support extensible seeding modules. [e55c335]
