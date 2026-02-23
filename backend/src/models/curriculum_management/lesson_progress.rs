@@ -4,7 +4,7 @@ use chrono::{NaiveDate, NaiveDateTime};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 #[diesel(table_name = crate::schema::lesson_progress)]
-#[diesel(treat_compound_current_type_as_possible_option_type = "true")]
+
 pub struct LessonProgress {
     pub id: String,
     pub class_id: String,
@@ -18,6 +18,6 @@ pub struct LessonProgress {
     pub resources_used: Option<String>,
     pub progress_percentage: Option<i32>,
     pub is_substitution: bool,
-    pub created_at: Option<NaiveDateTime>,
+    pub created_at: NaiveDateTime,
     pub syllabus_id: Option<String>,
 }

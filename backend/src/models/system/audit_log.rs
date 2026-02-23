@@ -4,7 +4,7 @@ use chrono::NaiveDateTime;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 #[diesel(table_name = crate::schema::audit_log)]
-#[diesel(treat_compound_current_type_as_possible_option_type = "true")]
+
 pub struct AuditLog {
     pub id: String,
     pub user_id: String,

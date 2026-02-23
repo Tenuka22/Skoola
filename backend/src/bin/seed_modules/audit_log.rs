@@ -1,14 +1,12 @@
 use diesel::prelude::*;
 use diesel::insert_into;
 use anyhow::Result;
-use crate::schema::*;
-use crate::Config;
+use backend::schema::*;
+use backend::config::Config;
 use std::collections::HashSet;
-use crate::bin::seed_modules::utils::*;
-use crate::bin::seed_modules::{SeedModule, SeederContext};
-use crate::models::{
-    AuditLog,
-};
+use super::utils::*;
+use super::{SeedModule, SeederContext};
+use backend::models::system::AuditLog;
 use rand::Rng;
 
 pub struct AuditLogSeeder;
@@ -27,6 +25,7 @@ impl SeedModule for AuditLogSeeder {
         _password_hash: &str,
         _used_emails: &mut HashSet<String>,
         context: &mut SeederContext,
+        seed_count_config: &crate::SeedCountConfig, // Add SeedCountConfig here
     ) -> Result<()> {
         println!("Seeding Audit Log module...");
 
@@ -34,7 +33,7 @@ impl SeedModule for AuditLogSeeder {
         if context.user_ids.is_empty() {
             println!("Skipping AuditLog seeding: user_ids are empty. Ensure relevant seeders run first.");
         } else {
-            let audit_logs_data = (1..=50).map(|i| {
+            let audit_logs_data = (0..seed_count_config.audit_log_entries).map(|i| {
                 AuditLog {
                     id: generate_uuid(),
                     user_id: get_random_id(&context.user_ids),

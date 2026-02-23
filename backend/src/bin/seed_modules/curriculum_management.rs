@@ -1,16 +1,14 @@
 use diesel::prelude::*;
 use diesel::insert_into;
 use anyhow::Result;
-use crate::schema::*;
-use crate::Config;
+use backend::schema::*;
+use backend::config::Config;
 use std::collections::HashSet;
-use crate::bin::seed_modules::utils::*;
-use crate::bin::seed_modules::{SeedModule, SeederContext};
-use crate::models::{
-    CurriculumStandard,
-    Syllabus,
-    LessonProgress,
-};
+use super::utils::*;
+use super::{SeedModule, SeederContext};
+use backend::models::curriculum_management::CurriculumStandard;
+use backend::models::curriculum_management::Syllabus;
+use backend::models::curriculum_management::LessonProgress;
 use rand::Rng;
 
 pub struct CurriculumManagementSeeder;
@@ -29,22 +27,25 @@ impl SeedModule for CurriculumManagementSeeder {
         _password_hash: &str,
         _used_emails: &mut HashSet<String>,
         context: &mut SeederContext,
+        seed_count_config: &crate::SeedCountConfig, // Add SeedCountConfig here
     ) -> Result<()> {
         println!("Seeding Curriculum Management module...");
+
+        let mut rng = rand::thread_rng();
 
         // Seed Curriculum Standards
         if context.subject_ids.is_empty() || context.grade_level_ids.is_empty() {
             println!("Skipping CurriculumStandard seeding: subject_ids or grade_level_ids are empty. Ensure relevant seeders run first.");
         } else {
-            let curriculum_standards_data = (1..=10).map(|i| {
+            let curriculum_standards_data = (0..seed_count_config.curriculum_standards).map(|i| {
                 CurriculumStandard {
                     id: generate_uuid(),
                     subject_id: get_random_id(&context.subject_ids),
                     grade_level_id: get_random_id(&context.grade_level_ids),
-                    standard_code: format!("STD-{}", i),
-                    description: Some(format!("Description for Standard {}", i)),
-                    created_at: Some(random_datetime_in_past(2)),
-                    updated_at: Some(random_datetime_in_past(1)),
+                    standard_code: format!("STD-{}", i + 1),
+                    description: Some(format!("Description for Standard {}", i + 1)),
+                    created_at: random_datetime_in_past(2),
+                    updated_at: random_datetime_in_past(1),
                 }
             }).collect::<Vec<CurriculumStandard>>();
 
@@ -60,15 +61,15 @@ impl SeedModule for CurriculumManagementSeeder {
         if context.curriculum_standard_ids.is_empty() {
             println!("Skipping Syllabus seeding: curriculum_standard_ids are empty. Ensure relevant seeders run first.");
         } else {
-            let syllabus_data = (1..=20).map(|i| {
+            let syllabus_data = (0..seed_count_config.syllabi).map(|i| {
                 Syllabus {
                     id: generate_uuid(),
                     curriculum_standard_id: get_random_id(&context.curriculum_standard_ids),
-                    topic_name: format!("Topic {}", i),
-                    suggested_duration_hours: Some(rand::thread_rng().gen_range(1..=10)),
-                    description: Some(format!("Description for Topic {}", i)),
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    topic_name: format!("Topic {}", i + 1),
+                    suggested_duration_hours: Some(rng.gen_range(1..=10)),
+                    description: Some(format!("Description for Topic {}", i + 1)),
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<Syllabus>>();
 
@@ -84,21 +85,21 @@ impl SeedModule for CurriculumManagementSeeder {
         if context.class_ids.is_empty() || context.subject_ids.is_empty() || context.staff_ids.is_empty() || context.syllabus_ids.is_empty() {
             println!("Skipping LessonProgress seeding: class_ids, subject_ids, staff_ids, or syllabus_ids are empty. Ensure relevant seeders run first.");
         } else {
-            let lesson_progress_data = (1..=30).map(|i| {
+            let lesson_progress_data = (0..seed_count_config.lesson_progress_entries).map(|i| {
                 LessonProgress {
                     id: generate_uuid(),
                     class_id: get_random_id(&context.class_ids),
                     subject_id: get_random_id(&context.subject_ids),
                     teacher_id: get_random_id(&context.staff_ids),
-                    timetable_id: if rand::thread_rng().gen_bool(0.7) { Some(generate_uuid()) } else { None }, // Dummy timetable ID
+                    timetable_id: None, // FK to timetable table, set to None as timetable isn't seeded yet
                     date: random_date_in_past(1),
-                    topic_covered: format!("Covered Topic {}", i),
-                    sub_topic: Some(format!("Sub-topic {}", i)),
-                    homework_assigned: if rand::thread_rng().gen_bool(0.5) { Some(format!("Homework for Topic {}", i)) } else { None },
-                    resources_used: if rand::thread_rng().gen_bool(0.5) { Some(format!("Resources {}", i)) } else { None },
-                    progress_percentage: Some(rand::thread_rng().gen_range(50..=100)),
-                    is_substitution: rand::thread_rng().gen_bool(0.1),
-                    created_at: Some(random_datetime_in_past(1)),
+                    topic_covered: format!("Covered Topic {}", i + 1),
+                    sub_topic: Some(format!("Sub-topic {}", i + 1)),
+                    homework_assigned: if rng.gen_bool(0.5) { Some(format!("Homework for Topic {}", i + 1)) } else { None },
+                    resources_used: if rng.gen_bool(0.5) { Some(format!("Resources {}", i + 1)) } else { None },
+                    progress_percentage: Some(rng.gen_range(50..=100)),
+                    is_substitution: rng.gen_bool(0.1),
+                    created_at: random_datetime_in_past(1),
                     syllabus_id: Some(get_random_id(&context.syllabus_ids)),
                 }
             }).collect::<Vec<LessonProgress>>();

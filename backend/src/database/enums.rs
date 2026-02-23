@@ -563,6 +563,7 @@ pub enum PreApprovedReason {
     Bereavement,
     Religious,
     Other,
+    Medical,
 }
 
 impl Display for PreApprovedReason {
@@ -574,6 +575,7 @@ impl Display for PreApprovedReason {
             PreApprovedReason::Bereavement => write!(f, "Bereavement"),
             PreApprovedReason::Religious => write!(f, "Religious"),
             PreApprovedReason::Other => write!(f, "Other"),
+            PreApprovedReason::Medical => write!(f, "Medical"),
         }
     }
 }
@@ -597,6 +599,7 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for PreApprovedReason {
             "Bereavement" => Ok(PreApprovedReason::Bereavement),
             "Religious" => Ok(PreApprovedReason::Religious),
             "Other" => Ok(PreApprovedReason::Other),
+            "Medical" => Ok(PreApprovedReason::Medical),
             _ => Err("Unrecognized enum variant".into()),
         }
     }
@@ -651,6 +654,8 @@ pub enum ExitReason {
     Personal,
     Disciplinary,
     Dismissal,
+    FamilyEvent,
+    Other,
 }
 
 impl Display for ExitReason {
@@ -660,6 +665,8 @@ impl Display for ExitReason {
             ExitReason::Personal => write!(f, "Personal"),
             ExitReason::Disciplinary => write!(f, "Disciplinary"),
             ExitReason::Dismissal => write!(f, "Dismissal"),
+            ExitReason::FamilyEvent => write!(f, "FamilyEvent"),
+            ExitReason::Other => write!(f, "Other"),
         }
     }
 }
@@ -681,6 +688,10 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for ExitReason {
             "Personal" => Ok(ExitReason::Personal),
             "Disciplinary" => Ok(ExitReason::Disciplinary),
             "Dismissal" => Ok(ExitReason::Dismissal),
+            "FamilyEvent" => Ok(ExitReason::FamilyEvent),
+            "Other" => Ok(ExitReason::Other),
+            "FamilyEvent" => Ok(ExitReason::FamilyEvent),
+            "Other" => Ok(ExitReason::Other),
             _ => Err("Unrecognized enum variant".into()),
         }
     }
@@ -1402,6 +1413,7 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for TransactionType {
 pub enum ComponentType {
     Allowance,
     Deduction,
+    Bonus,
 }
 
 impl Display for ComponentType {
@@ -1409,6 +1421,7 @@ impl Display for ComponentType {
         match self {
             ComponentType::Allowance => write!(f, "Allowance"),
             ComponentType::Deduction => write!(f, "Deduction"),
+            ComponentType::Bonus => write!(f, "Bonus"),
         }
     }
 }
@@ -1420,6 +1433,7 @@ impl std::str::FromStr for ComponentType {
         match s {
             "Allowance" => Ok(ComponentType::Allowance),
             "Deduction" => Ok(ComponentType::Deduction),
+            "Bonus" => Ok(ComponentType::Bonus),
             _ => Err("Invalid ComponentType"),
         }
     }
@@ -1440,6 +1454,7 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for ComponentType {
         match s.as_str() {
             "Allowance" => Ok(ComponentType::Allowance),
             "Deduction" => Ok(ComponentType::Deduction),
+            "Bonus" => Ok(ComponentType::Bonus),
             _ => Err("Unrecognized enum variant".into()),
         }
     }

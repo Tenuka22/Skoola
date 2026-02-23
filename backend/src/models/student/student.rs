@@ -30,6 +30,30 @@ pub struct Student {
     pub profile_id: Option<String>,
 }
 
+#[derive(Debug, Insertable, Clone)]
+#[diesel(table_name = students)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct NewStudent {
+    pub id: String,
+    pub admission_number: String,
+    pub name_english: String,
+    pub name_sinhala: Option<String>,
+    pub name_tamil: Option<String>,
+    pub nic_or_birth_certificate: String,
+    pub dob: NaiveDate,
+    pub gender: Gender,
+    pub address: String,
+    pub phone: String,
+    pub email: Option<String>,
+    pub religion: Option<Religion>,
+    pub ethnicity: Option<Ethnicity>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub status: StudentStatus,
+    pub photo_url: Option<String>,
+    pub profile_id: Option<String>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent, Insertable)]
 #[diesel(table_name = students)]
 pub struct CreateStudentRequest {

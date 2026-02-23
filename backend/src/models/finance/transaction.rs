@@ -1,21 +1,10 @@
 use crate::database::enums::{PaymentMethod, TransactionType};
-use crate::schema::{income_sources, income_transactions, expense_categories, expense_transactions, petty_cash_transactions};
+use crate::schema::{income_transactions, expense_transactions};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime;
 use schemars::JsonSchema;
 use apistos::ApiComponent;
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
-#[diesel(table_name = income_sources)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct IncomeSource {
-    pub id: String,
-    pub name: String,
-    pub description: Option<String>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
 #[diesel(table_name = income_transactions)]
@@ -28,17 +17,6 @@ pub struct IncomeTransaction {
     pub description: Option<String>,
     pub received_by: String,
     pub receipt_number: String,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
-#[diesel(table_name = expense_categories)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct ExpenseCategory {
-    pub id: String,
-    pub name: String,
-    pub description: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -58,47 +36,6 @@ pub struct ExpenseTransaction {
     pub receipt_url: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
-#[diesel(table_name = petty_cash_transactions)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct PettyCashTransaction {
-    pub id: String,
-    pub amount: f32,
-    pub transaction_type: TransactionType,
-    pub date: NaiveDateTime,
-    pub description: Option<String>,
-    pub handled_by: String,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
-pub struct CreateIncomeSourceRequest {
-    pub name: String,
-    pub description: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
-pub struct IncomeSourceResponse {
-    pub id: String,
-    pub name: String,
-    pub description: Option<String>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
-
-impl From<IncomeSource> for IncomeSourceResponse {
-    fn from(s: IncomeSource) -> Self {
-        Self {
-            id: s.id,
-            name: s.name,
-            description: s.description,
-            created_at: s.created_at,
-            updated_at: s.updated_at,
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
@@ -140,32 +77,7 @@ impl From<IncomeTransaction> for IncomeTransactionResponse {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
-pub struct CreateExpenseCategoryRequest {
-    pub name: String,
-    pub description: Option<String>,
-}
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
-pub struct ExpenseCategoryResponse {
-    pub id: String,
-    pub name: String,
-    pub description: Option<String>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
-
-impl From<ExpenseCategory> for ExpenseCategoryResponse {
-    fn from(cat: ExpenseCategory) -> Self {
-        Self {
-            id: cat.id,
-            name: cat.name,
-            description: cat.description,
-            created_at: cat.created_at,
-            updated_at: cat.updated_at,
-        }
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct RecordExpenseRequest {
@@ -212,41 +124,7 @@ impl From<ExpenseTransaction> for ExpenseTransactionResponse {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
-pub struct RecordPettyCashRequest {
-    pub amount: f32,
-    pub transaction_type: TransactionType,
-    pub date: Option<NaiveDateTime>,
-    pub description: Option<String>,
-    pub handled_by: String,
-}
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
-pub struct PettyCashTransactionResponse {
-    pub id: String,
-    pub amount: f32,
-    pub transaction_type: TransactionType,
-    pub date: NaiveDateTime,
-    pub description: Option<String>,
-    pub handled_by: String,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
-
-impl From<PettyCashTransaction> for PettyCashTransactionResponse {
-    fn from(t: PettyCashTransaction) -> Self {
-        Self {
-            id: t.id,
-            amount: t.amount,
-            transaction_type: t.transaction_type,
-            date: t.date,
-            description: t.description,
-            handled_by: t.handled_by,
-            created_at: t.created_at,
-            updated_at: t.updated_at,
-        }
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct ReconcilePettyCashRequest {

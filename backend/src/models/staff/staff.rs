@@ -39,6 +39,27 @@ pub struct Staff {
     pub profile_id: Option<String>,
 }
 
+#[derive(Debug, Insertable, Clone)]
+#[diesel(table_name = staff)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct NewStaff {
+    pub id: String,
+    pub employee_id: String,
+    pub name: String,
+    pub nic: String,
+    pub dob: NaiveDate,
+    pub gender: String,
+    pub address: String,
+    pub phone: String,
+    pub email: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub employment_status: EmploymentStatus,
+    pub staff_type: StaffType,
+    pub photo_url: Option<String>,
+    pub profile_id: Option<String>,
+}
+
 #[derive(
     Debug,
     Serialize,

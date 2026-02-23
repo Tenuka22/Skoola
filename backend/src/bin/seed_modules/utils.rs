@@ -30,6 +30,7 @@ pub fn generate_random_phone_number() -> String {
 // Re-exporting from seed.rs for now, until we move common utilities
 pub use crate::{generate_uuid, random_date_in_past, random_datetime_in_past};
 use rand::seq::SliceRandom;
+use std::collections::HashSet;
 
 pub fn generate_random_number_range(min: u32, max: u32) -> u32 {
     rand::thread_rng().gen_range(min..=max)
@@ -46,4 +47,21 @@ pub fn get_random_id(ids: &[String]) -> String {
     ids.choose(&mut rand::thread_rng()).unwrap().clone()
 }
 
-// Add more generic data generation utilities as needed
+pub fn generate_random_email_unique(used_emails: &mut HashSet<String>, prefix: &str) -> String {
+    let mut email_local_part = prefix.to_string();
+    let mut counter = 1;
+    let mut email = format!("{}{}@example.com", email_local_part, if counter == 1 { "".to_string() } else { counter.to_string() });
+
+    while used_emails.contains(&email) {
+        counter += 1;
+        email = format!("{}{}@example.com", email_local_part, counter);
+    }
+    used_emails.insert(email.clone());
+    email
+}
+
+pub fn generate_random_email_prefix() -> String {
+    use fake::faker::internet::en::FreeEmailProvider;
+    let email: String = FreeEmailProvider().fake();
+    email.split('@').next().unwrap_or("user").to_string()
+}

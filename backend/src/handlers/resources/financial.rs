@@ -11,8 +11,9 @@ use crate::models::finance::budget::{
 };
 use crate::models::finance::transaction::{
     RecordIncomeRequest, IncomeTransactionResponse, RecordExpenseRequest, ExpenseTransactionResponse,
-    RecordPettyCashRequest, PettyCashTransactionResponse, ReconcilePettyCashRequest,
+    ReconcilePettyCashRequest,
 };
+use crate::models::finance::petty_cash_transaction::{RecordPettyCashRequest, PettyCashTransactionResponse};
 use crate::models::MessageResponse;
 use crate::services::resources::financial;
 use actix_web::web::{Data, Json, Path, Query};

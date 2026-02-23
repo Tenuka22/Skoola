@@ -35,6 +35,7 @@ impl SeedModule for SeederVerifier {
         _password_hash: &str,
         _used_emails: &mut HashSet<String>,
         _context: &mut SeederContext,
+        _seed_count_config: &crate::SeedCountConfig,
     ) -> Result<()> {
         println!("Verifying seeded data counts...");
 
