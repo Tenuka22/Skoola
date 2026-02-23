@@ -16,6 +16,8 @@ This document outlines the core technologies and architectural patterns employed
     *   **Rationale:** Provides tools for managing database schema changes and applying migrations programmatically.
 *   **Database:** SQLite
     *   **Rationale:** Selected for its serverless, embedded nature, suitable for initial development and potentially for smaller deployments or local development. It offers ease of setup and management.
+*   **Advanced Seeding Mechanism:** Custom Rust implementation
+    *   **Rationale:** Provides comprehensive, realistic, and relationally-aware data generation for all database tables, crucial for robust development, testing, and demonstration. Utilizes a modular, code-based configuration for maximum flexibility and type safety.
 *   **Architecture:** Modular, function-based API with Handlers, Services, and Models
     *   **Rationale:** Promotes clear separation of concerns, modularity, and idiomatic Rust patterns by favoring standalone functions over class/struct-based service implementations.
         *   **Models:** Define the data structures and database schema.
