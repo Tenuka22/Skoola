@@ -7,6 +7,6 @@
 
 ---
 
-- [ ] **Track: I've simple seeding in @backend/src/bin/seed.rs but i want advanced seeding that seeds @backend/src/schema.rs all the tables.**
+- [x] **Track: I've simple seeding in @backend/src/bin/seed.rs but i want advanced seeding that seeds @backend/src/schema.rs all the tables.**
 *Link: [./tracks/advanced_seeding_20260222/](./tracks/advanced_seeding_20260222/)*
 
