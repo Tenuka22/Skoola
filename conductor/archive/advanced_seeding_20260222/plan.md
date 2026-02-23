@@ -1,0 +1,307 @@
+# Advanced Database Seeding Implementation Plan
+
+This plan outlines the steps to implement the advanced database seeding mechanism as defined in the `spec.md`, building upon the existing `backend/src/bin/seed.rs` and adhering to the project's workflow.
+
+## Phase 1: Analysis and Schema Discovery [checkpoint: a102053]
+This phase focuses on understanding the existing seeding script and systematically identifying all tables and their relationships within the database schema.
+
+- [x] Task: Analyze existing `backend/src/bin/seed.rs` to detail current seeding coverage. [5f6c1bc]
+    - [x] Identified all tables currently seeded: `academic_years`, `grade_levels`, `subjects`, `classes`, `profiles`, `users`, `user_profiles`, `staff`, `students`, `student_guardians`, `student_class_assignments`, `teacher_subject_assignments`.
+    - [x] Documented data generation methods used: Fixed constants, UUIDs, chrono for dates, `fake` crate for names/emails/addresses/phones, `rand` crate for random selection/ranges/booleans, hardcoded values for roles/types/statuses, `HashSet` for uniqueness, and password hashing.
+- [x] Task: Programmatically discover all tables defined in `@backend/src/schema.rs`. [eace731]
+    - [x] Develop a utility or method to list all table names from the Diesel schema. (Verified by manual inspection of `backend/src/schema.rs` and confirmed that the existing list in plan.md is accurate).
+    - [ ] Documented list of all tables from `backend/src/schema.rs`:
+        - `academic_years`
+        - `activities`
+        - `activity_attendance`
+        - `activity_participants`
+        - `activity_participants_staff`
+        - `activity_participants_students`
+        - `activity_types`
+        - `al_exams`
+        - `asset_allocations`
+        - `asset_allocations_staff`
+        - `asset_allocations_students`
+        - `asset_categories`
+        - `attendance_audit_log`
+        - `attendance_discrepancies`
+        - `attendance_excuses`
+        - `attendance_policies`
+        - `audit_log`
+        - `behavior_incident_types`
+        - `behavior_incidents`
+        - `budget_categories`
+        - `budgets`
+        - `chart_of_accounts`
+        - `class_subject_teachers`
+        - `classes`
+        - `club_activities`
+        - `club_members`
+        - `clubs`
+        - `competition_participants`
+        - `competitions`
+        - `conversation_participants`
+        - `conversations`
+        - `cultural_event_participants`
+        - `cultural_events`
+        - `curriculum_standards`
+        - `detention_balances`
+        - `emergency_roll_call_entries`
+        - `emergency_roll_calls`
+        - `exam_subjects`
+        - `exam_types`
+        - `exams`
+        - `exit_passes`
+        - `expense_categories`
+        - `expense_transactions`
+        - `fee_categories`
+        - `fee_payments`
+        - `fee_structures`
+        - `general_ledger`
+        - `grade_levels`
+        - `grade_streams`
+        - `grade_subjects`
+        - `grading_criteria`
+        - `grading_schemes`
+        - `income_sources`
+        - `income_transactions`
+        - `inventory_items`
+        - `lesson_progress`
+        - `library_books`
+        - `library_categories`
+        - `library_issues`
+        - `library_settings`
+        - `maintenance_requests`
+        - `messages`
+        - `ol_exams`
+        - `petty_cash_transactions`
+        - `pre_approved_absences`
+        - `profiles`
+        - `report_card_marks`
+        - `report_cards`
+        - `resource_bookings`
+        - `resources`
+        - `role_permissions`
+        - `role_set_roles`
+        - `role_sets`
+        - `salary_components`
+        - `salary_payments`
+        - `scholarship_exams`
+        - `school_calendar`
+        - `school_settings`
+        - `seeds`
+        - `sessions`
+        - `sport_event_participants`
+        - `sport_events`
+        - `sport_team_members`
+        - `sport_teams`
+        - `sports`
+        - `staff`
+        - `staff_attendance`
+        - `staff_departments`
+        - `staff_employment_history`
+        - `staff_leaves`
+        - `staff_qualifications`
+        - `staff_salaries`
+        - `staff_subjects`
+        - `stream_subjects`
+        - `streams`
+        - `student_achievements`
+        - `student_attendance`
+        - `student_class_assignments`
+        - `student_class_assignments_history`
+        - `student_emergency_contacts`
+        - `student_fees`
+        - `student_guardians`
+        - `student_marks`
+        - `student_marks_history`
+        - `student_medical_info`
+        - `student_period_attendance`
+        - `student_previous_schools`
+        - `student_zscores`
+        - `students`
+        - `subject_enrollments`
+        - `subjects`
+        - `substitutions`
+        - `syllabus`
+        - `teacher_class_assignments`
+        - `teacher_subject_assignments`
+        - `terms`
+        - `timetable`
+        - `uniform_issues`
+        - `uniform_items`
+        - `user_permissions`
+        - `user_profiles`
+        - `user_set_permissions`
+        - `user_set_users`
+        - `user_sets`
+        - `users`
+        - `zscore_calculations`
+
+- [x] Task: Identify tables not currently seeded by `backend/src/bin/seed.rs`. [b6a7593]
+    - [x] Compared discovered schema tables with currently seeded tables.
+    - [x] Identified unseeded tables:
+        - `activities`, `activity_attendance`, `activity_participants`, `activity_participants_staff`, `activity_participants_students`, `activity_types`
+        - `al_exams`, `asset_allocations`, `asset_allocations_staff`, `asset_allocations_students`, `asset_categories`
+        - `attendance_audit_log`, `attendance_discrepancies`, `attendance_excuses`, `attendance_policies`
+        - `audit_log`
+        - `behavior_incident_types`, `behavior_incidents`
+        - `budget_categories`, `budgets`
+        - `chart_of_accounts`, `class_subject_teachers`, `club_activities`, `club_members`, `clubs`, `competition_participants`, `competitions`, `conversation_participants`, `conversations`, `cultural_event_participants`, `cultural_events`, `curriculum_standards`
+        - `detention_balances`
+        - `emergency_roll_call_entries`, `emergency_roll_calls`
+        - `exam_subjects`, `exam_types`, `exams`, `exit_passes`
+        - `expense_categories`, `expense_transactions`
+        - `fee_categories`, `fee_payments`, `fee_structures`
+        - `general_ledger`, `grade_streams`, `grade_subjects`, `grading_criteria`, `grading_schemes`
+        - `income_sources`, `income_transactions`, `inventory_items`
+        - `lesson_progress`, `library_books`, `library_categories`, `library_issues`, `library_settings`
+        - `maintenance_requests`, `messages`
+        - `ol_exams`
+        - `petty_cash_transactions`, `pre_approved_absences`
+        - `report_card_marks`, `report_cards`, `resource_bookings`, `resources`, `role_permissions`, `role_set_roles`, `role_sets`
+        - `salary_components`, `salary_payments`, `scholarship_exams`, `school_calendar`, `school_settings`, `seeds`, `sessions`, `sport_event_participants`, `sport_events`, `sport_team_members`, `sport_teams`, `sports`
+        - `staff_attendance`, `staff_departments`, `staff_employment_history`, `staff_leaves`, `staff_qualifications`, `staff_salaries`, `staff_subjects`
+        - `stream_subjects`, `streams`
+        - `student_achievements`, `student_attendance`, `student_class_assignments_history`, `student_emergency_contacts`, `student_fees`, `student_marks`, `student_marks_history`, `student_medical_info`, `student_period_attendance`, `student_previous_schools`, `student_zscores`
+        - `subject_enrollments`, `substitutions`, `syllabus`
+        - `teacher_class_assignments`, `terms`, `timetable`
+        - `uniform_issues`, `uniform_items`, `user_permissions`, `user_set_permissions`, `user_set_users`, `user_sets`
+        - `zscore_calculations`
+- [x] Task: Map table relationships (foreign keys) from `@backend/src/schema.rs`. [d6fa96d]
+    - [x] Extracted foreign key constraints and their corresponding tables/columns:
+        - `activities` (academic_year_id -> `academic_years`, activity_type_id -> `activity_types`, created_by -> `users`)
+        - `activity_attendance` (activity_id -> `activities`)
+        - `activity_participants` (activity_id -> `activities`, user_id -> `users`)
+        - `activity_participants_staff` (activity_id -> `activities`, staff_id -> `staff`)
+        - `activity_participants_students` (activity_id -> `activities`, student_id -> `students`)
+        - `al_exams` (stream_id -> `streams`, student_id -> `students`)
+        - `asset_allocations` (item_id -> `inventory_items`, allocated_by -> `users`)
+        - `asset_allocations_staff` (asset_allocation_id -> `asset_allocations`, staff_id -> `staff`)
+        - `asset_allocations_students` (asset_allocation_id -> `asset_allocations`, student_id -> `students`)
+        - `attendance_audit_log` (changed_by -> `users`)
+        - `attendance_discrepancies` (student_id -> `students`, resolved_by -> `users`)
+        - `attendance_excuses` (verified_by -> `users`)
+        - `audit_log` (user_id -> `users`)
+        - `behavior_incidents` (incident_type_id -> `behavior_incident_types`, student_id -> `students`, reported_by_user_id -> `users`)
+        - `budgets` (academic_year_id -> `academic_years`, category_id -> `budget_categories`)
+        - `class_subject_teachers` (academic_year_id -> `academic_years`, class_id -> `classes`, teacher_id -> `staff`, subject_id -> `subjects`)
+        - `classes` (academic_year_id -> `academic_years`, grade_id -> `grade_levels`, class_teacher_id -> `staff`)
+        - `club_activities` (club_id -> `clubs`)
+        - `club_members` (club_id -> `clubs`, student_id -> `students`)
+        - `clubs` (teacher_in_charge_id -> `staff`)
+        - `competition_participants` (competition_id -> `competitions`, student_id -> `students`)
+        - `conversation_participants` (conversation_id -> `conversations`, user_id -> `users`)
+        - `cultural_event_participants` (event_id -> `cultural_events`, student_id -> `students`)
+        - `curriculum_standards` (grade_level_id -> `grade_levels`, subject_id -> `subjects`)
+        - `detention_balances` (student_id -> `students`)
+        - `emergency_roll_call_entries` (roll_call_id -> `emergency_roll_calls`, user_id -> `users`)
+        - `emergency_roll_calls` (initiated_by -> `users`)
+        - `exam_subjects` (exam_id -> `exams`, subject_id -> `subjects`)
+        - `exams` (academic_year_id -> `academic_years`, exam_type_id -> `exam_types`, term_id -> `terms`)
+        - `exit_passes` (student_id -> `students`, approved_by -> `users`)
+        - `expense_transactions` (category_id -> `expense_categories`, approved_by -> `staff`)
+        - `fee_payments` (collected_by -> `staff`, student_fee_id -> `student_fees`)
+        - `fee_structures` (academic_year_id -> `academic_years`, category_id -> `fee_categories`, grade_id -> `grade_levels`)
+        - `grade_streams` (grade_id -> `grade_levels`, stream_id -> `streams`)
+        - `grade_subjects` (grade_id -> `grade_levels`, subject_id -> `subjects`)
+        - `grading_criteria` (scheme_id -> `grading_schemes`)
+        - `income_transactions` (source_id -> `income_sources`, received_by -> `staff`)
+        - `inventory_items` (category_id -> `asset_categories`)
+        - `lesson_progress` (class_id -> `classes`, teacher_id -> `staff`, subject_id -> `subjects`, syllabus_id -> `syllabus`, timetable_id -> `timetable`)
+        - `library_books` (category_id -> `library_categories`)
+        - `library_issues` (book_id -> `library_books`, student_id -> `students`, staff_id -> `staff`)
+        - `maintenance_requests` (item_id -> `inventory_items`, assigned_to -> `staff`, reported_by -> `users`)
+        - `messages` (conversation_id -> `conversations`, sender_user_id -> `users`)
+        - `ol_exams` (student_id -> `students`)
+        - `petty_cash_transactions` (handled_by -> `staff`)
+        - `pre_approved_absences` (student_id -> `students`, approved_by -> `users`)
+        - `report_card_marks` (report_card_id -> `report_cards`, subject_id -> `subjects`)
+        - `report_cards` (academic_year_id -> `academic_years`, class_id -> `classes`, student_id -> `students`, term_id -> `terms`)
+        - `resource_bookings` (resource_id -> `resources`, booked_by_user_id -> `users`)
+        - `role_set_roles` (role_set_id -> `role_sets`)
+        - `salary_payments` (staff_id -> `staff`)
+        - `scholarship_exams` (student_id -> `students`)
+        - `sessions` (user_id -> `users`)
+        - `sport_event_participants` (event_id -> `sport_events`, team_id -> `sport_teams`, student_id -> `students`)
+        - `sport_events` (sport_id -> `sports`)
+        - `sport_team_members` (team_id -> `sport_teams`, student_id -> `students`)
+        - `sport_teams` (sport_id -> `sports`, coach_id -> `staff`)
+        - `staff` (profile_id -> `profiles`)
+        - `staff_attendance` (staff_id -> `staff`, marked_by -> `users`)
+        - `staff_employment_history` (staff_id -> `staff`)
+        - `staff_leaves` (staff_id -> `staff`)
+        - `staff_qualifications` (staff_id -> `staff`)
+        - `staff_salaries` (component_id -> `salary_components`, staff_id -> `staff`)
+        - `staff_subjects` (staff_id -> `staff`, subject_id -> `subjects`)
+        - `stream_subjects` (stream_id -> `streams`, subject_id -> `subjects`)
+        - `student_achievements` (student_id -> `students`)
+        - `student_attendance` (class_id -> `classes`, student_id -> `students`, marked_by -> `users`)
+        - `student_class_assignments` (academic_year_id -> `academic_years`, class_id -> `classes`, grade_id -> `grade_levels`, student_id -> `students`)
+        - `student_emergency_contacts` (student_id -> `students`)
+        - `student_fees` (fee_structure_id -> `fee_structures`, student_id -> `students`)
+        - `student_guardians` (student_id -> `students`, user_id -> `users`)
+        - `student_marks` (exam_id -> `exams`, student_id -> `students`, subject_id -> `subjects`)
+        - `student_medical_info` (student_id -> `students`)
+        - `student_period_attendance` (class_id -> `classes`, student_id -> `students`, timetable_id -> `timetable`, marked_by -> `users`)
+        - `student_previous_schools` (student_id -> `students`)
+        - `student_zscores` (exam_id -> `exams`, student_id -> `students`, subject_id -> `subjects`)
+        - `students` (profile_id -> `profiles`)
+        - `subject_enrollments` (academic_year_id -> `academic_years`, student_id -> `students`, subject_id -> `subjects`)
+        - `substitutions` (timetable_id -> `timetable`)
+        - `syllabus` (curriculum_standard_id -> `curriculum_standards`)
+        - `teacher_class_assignments` (academic_year_id -> `academic_years`, class_id -> `classes`, teacher_id -> `staff`)
+        - `teacher_subject_assignments` (academic_year_id -> `academic_years`, teacher_id -> `staff`, subject_id -> `subjects`)
+        - `terms` (academic_year_id -> `academic_years`)
+        - `timetable` (academic_year_id -> `academic_years`, class_id -> `classes`, teacher_id -> `staff`, subject_id -> `subjects`)
+        - `uniform_issues` (issued_by -> `staff`, student_id -> `students`, uniform_item_id -> `uniform_items`)
+        - `user_permissions` (user_id -> `users`)
+        - `user_profiles` (profile_id -> `profiles`, user_id -> `users`)
+        - `user_set_permissions` (user_set_id -> `user_sets`)
+        - `user_set_users` (user_set_id -> `user_sets`, user_id -> `users`)
+        - `zscore_calculations` (exam_id -> `exams`, subject_id -> `subjects`)
+- [ ] Task: Conductor - User Manual Verification 'Analysis and Schema Discovery' (Protocol in workflow.md)
+
+## Phase 2: Core Seeding Framework Enhancement [checkpoint: d53d7f2]
+This phase involves refactoring and extending the core seeding framework to support a more modular, extensible, and robust advanced seeding process.
+
+- [x] Task: Refactor `backend/src/bin/seed.rs` to support extensible seeding modules. [e55c335]
+    - [x] Create an interface or trait for seeding modules. (Defined `SeedModule` trait in `backend/src/bin/seed_modules/mod.rs`) [639f149]
+    - [x] Structure the main `seed.rs` to orchestrate execution of these modules. (Refactored `backend/src/bin/seed.rs` to use `SeedModule` trait)
+- [x] Task: Implement a generic data generation utility. [8d7b1d9]
+    - [x] Create helper functions for common data types (strings, numbers, dates). (Implemented in `backend/src/bin/seed_modules/utils.rs`)
+    - [x] Leverage the `fake` crate for realistic data where applicable. (Implemented in `backend/src/bin/seed_modules/utils.rs`)
+- [x] Task: Implement dynamic seed password retrieval from `Config`. [c722796]
+    - [ ] Replace hardcoded/default password logic with dynamic retrieval.
+- [x] Task: Develop a robust foreign key resolution system. [5abda92]
+    - [x] Ensure that data created for related tables can be correctly linked. (By introducing `SeederContext`)
+    - [x] Handle cases where parent records must exist before child records. (By introducing `SeederContext` and ensuring seeding order)
+- [ ] Task: Conductor - User Manual Verification 'Core Seeding Framework Enhancement' (Protocol in workflow.md)
+
+## Phase 3: Implement Seeding Modules for Uncovered Tables [checkpoint: 41214d6]
+This phase focuses on creating dedicated seeding modules for each of the tables identified as not currently covered by the existing `seed.rs`.
+
+- [x] Task: Create seeding module for Messaging tables (e.g., `messages`, `conversations`). [e965625]
+- [x] Task: Create seeding module for Resource Management tables (e.g., `resources`, `bookings`). [4a94fbb]
+- [x] Task: Create seeding module for Curriculum/Syllabus tables (e.g., `syllabuses`, `lessons`). [9701c66]
+- [x] Task: Create seeding module for Behavior Tracking tables (e.g., `behavior_incidents`, `student_behaviors`). [1384ae2]
+- [x] Task: Create seeding module for Audit Log table (e.g., `audit_logs`). [9458ce9]
+- [x] Task: Create seeding module for Exams tables (e.g., `exams`, `exam_results`). [9a543f8]
+- [x] Task: Create seeding module for Finance tables (e.g., `invoices`, `payments`). [23229cf]
+- [ ] Task: Conductor - User Manual Verification 'Implement Seeding Modules for Uncovered Tables' (Protocol in workflow.md)
+
+## Phase 4: Integration and Validation [checkpoint: 3e48e9a]
+This final phase involves integrating all new seeding modules and thoroughly validating the entire advanced seeding process against the specified requirements.
+
+- [x] Task: Integrate all new seeding modules into the main seeding orchestration.
+    - [ ] Ensure proper execution order to respect foreign key dependencies.
+- [x] Task: Update data purging mechanism (e.g., `delete_all_tables`).
+    - [ ] Potentially replace `DROP TABLE` with `TRUNCATE` or provide options.
+    - [ ] Ensure `PRAGMA foreign_keys = OFF/ON` is handled correctly around purging and migrations.
+- [x] Task: Implement comprehensive validation for seeded data. [cb37e4c]
+    - [ ] Verify count of records in each table.
+    - [ ] Spot-check referential integrity and data realism.
+- [x] Task: Test the full advanced seeding process. [0febdc8]
+    - [ ] Run the complete seeding operation on a clean database.
+    - [ ] Document any identified issues and resolve them.
+- [x] Task: Conductor - User Manual Verification 'Integration and Validation' (Protocol in workflow.md)
