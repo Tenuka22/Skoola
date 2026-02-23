@@ -1,25 +1,23 @@
 use diesel::prelude::*;
 use diesel::insert_into;
 use anyhow::Result;
-use crate::schema::*;
-use crate::Config;
+use backend::schema::*;
+use backend::config::Config;
 use std::collections::HashSet;
-use crate::bin::seed_modules::utils::*;
-use crate::bin::seed_modules::{SeedModule, SeederContext};
-use crate::models::{
-    ExamType,
-    Exam,
-    ExamSubject,
-    GradingScheme,
-    GradingCriterion,
-    StudentMarks,
-    ReportCard,
-    ReportCardMark,
-    AlExam,
-    OlExam,
-    ScholarshipExam,
-    ZscoreCalculation,
-};
+use super::utils::*;
+use super::{SeedModule, SeederContext};
+use backend::models::exams::exam_type::ExamType;
+use backend::models::exams::exam::Exam;
+use backend::models::exams::exam_subject::ExamSubject;
+use backend::models::exams::grading_scheme::GradingScheme;
+use backend::models::exams::grading_criterion::GradingCriterion;
+use backend::models::exams::student_marks::StudentMark;
+use backend::models::exams::report_card::ReportCard;
+use backend::models::exams::report_card_mark::ReportCardMark;
+use backend::models::exams::al_exam::AlExam;
+use backend::models::exams::ol_exam::OlExam;
+use backend::models::exams::scholarship_exam::ScholarshipExam;
+use backend::models::exams::zscore::ZScoreCalculation;
 use rand::Rng;
 
 pub struct ExamsSeeder;
@@ -47,9 +45,9 @@ impl SeedModule for ExamsSeeder {
                 id: generate_uuid(),
                 name: format!("Exam Type {}", i),
                 description: Some(format!("Description for Exam Type {}", i)),
-                weightage: (i as f64) * 10.0,
-                created_at: Some(random_datetime_in_past(2)),
-                updated_at: Some(random_datetime_in_past(1)),
+                weightage: (i as f32) * 10.0, // Changed to f32
+                created_at: random_datetime_in_past(2),
+                updated_at: random_datetime_in_past(1),
             }
         }).collect::<Vec<ExamType>>();
 
@@ -62,15 +60,13 @@ impl SeedModule for ExamsSeeder {
 
         // Seed Grading Schemes
         let grading_schemes_data = (1..=2).map(|i| {
-            GradingScheme {
+            backend::models::exams::grading_scheme::NewGradingScheme {
                 id: generate_uuid(),
                 name: format!("Grading Scheme {}", i),
                 grade_level: format!("Grade {}", i*5),
                 description: Some(format!("Scheme for Grade {}", i*5)),
-                created_at: Some(random_datetime_in_past(2)),
-                updated_at: Some(random_datetime_in_past(1)),
             }
-        }).collect::<Vec<GradingScheme>>();
+        }).collect::<Vec<backend::models::exams::grading_scheme::NewGradingScheme>>();
 
         insert_into(grading_schemes::table)
             .values(&grading_schemes_data)
@@ -84,7 +80,7 @@ impl SeedModule for ExamsSeeder {
             println!("Skipping GradingCriterion seeding: grading_scheme_ids are empty. Ensure relevant seeders run first.");
         } else {
             let grading_criteria_data = (1..=10).map(|i| {
-                GradingCriterion {
+                backend::models::exams::grading_criterion::NewGradingCriterion { // Changed to NewGradingCriterion with full path
                     id: generate_uuid(),
                     scheme_id: get_random_id(&context.grading_scheme_ids),
                     min_marks: i * 10,
@@ -98,12 +94,10 @@ impl SeedModule for ExamsSeeder {
                         6 => "A".to_string(),
                         _ => "A+".to_string(),
                     },
-                    grade_point: Some(i as f64 * 0.5),
+                    grade_point: Some(i as f32 * 0.5), // Changed to f32
                     description: Some(format!("Criterion for Grade {}", i)),
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
                 }
-            }).collect::<Vec<GradingCriterion>>();
+            }).collect::<Vec<backend::models::exams::grading_criterion::NewGradingCriterion>>(); // Changed to NewGradingCriterion
 
             insert_into(grading_criteria::table)
                 .values(&grading_criteria_data)
@@ -126,8 +120,8 @@ impl SeedModule for ExamsSeeder {
                     term_id: get_random_id(&context.term_ids),
                     start_date,
                     end_date,
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<Exam>>();
 
@@ -153,8 +147,8 @@ impl SeedModule for ExamsSeeder {
                     duration: rand::thread_rng().gen_range(60..=180),
                     max_marks: 100,
                     pass_marks: 35,
-                    created_at: Some(random_datetime_in_past(0)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(0),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<ExamSubject>>();
 
@@ -166,10 +160,10 @@ impl SeedModule for ExamsSeeder {
 
         // Seed Student Marks
         if context.exam_ids.is_empty() || context.student_ids.is_empty() || context.subject_ids.is_empty() || context.user_ids.is_empty() {
-            println!("Skipping StudentMarks seeding: exam_ids, student_ids, subject_ids, or user_ids are empty. Ensure relevant seeders run first.");
+            println!("Skipping StudentMark seeding: exam_ids, student_ids, subject_ids, or user_ids are empty. Ensure relevant seeders run first.");
         } else {
             let student_marks_data = (1..=50).map(|i| {
-                StudentMarks {
+                StudentMark { // Corrected to StudentMark
                     id: generate_uuid(),
                     student_id: get_random_id(&context.student_ids),
                     exam_id: get_random_id(&context.exam_ids),
@@ -182,7 +176,7 @@ impl SeedModule for ExamsSeeder {
                     updated_by: if rand::thread_rng().gen_bool(0.2) { Some(get_random_id(&context.user_ids)) } else { None },
                     updated_at: random_datetime_in_past(0),
                 }
-            }).collect::<Vec<StudentMarks>>();
+            }).collect::<Vec<StudentMark>>(); // Corrected to StudentMark
 
             insert_into(student_marks::table)
                 .values(&student_marks_data)
@@ -262,8 +256,8 @@ impl SeedModule for ExamsSeeder {
                     island_rank: Some(rand::thread_rng().gen_range(1..=1000)),
                     general_test_marks: Some(rand::thread_rng().gen_range(50..=100)),
                     results_summary: Some(format!("AL results summary for student {}", i)),
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<AlExam>>();
 
@@ -285,8 +279,8 @@ impl SeedModule for ExamsSeeder {
                     index_number: Some(format!("OL-IND-{}", i)),
                     medium: Some(if rand::thread_rng().gen_bool(0.5) { "English".to_string() } else { "Sinhala".to_string() }),
                     results_summary: Some(format!("OL results summary for student {}", i)),
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<OlExam>>();
 
@@ -309,8 +303,8 @@ impl SeedModule for ExamsSeeder {
                     marks: Some(rand::thread_rng().gen_range(100..=200)),
                     district_rank: Some(rand::thread_rng().gen_range(1..=50)),
                     island_rank: Some(rand::thread_rng().gen_range(1..=500)),
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<ScholarshipExam>>();
 
@@ -325,19 +319,18 @@ impl SeedModule for ExamsSeeder {
             println!("Skipping ZscoreCalculation seeding: exam_ids or subject_ids are empty. Ensure relevant seeders run first.");
         } else {
             let zscore_calculations_data = (1..=10).map(|i| {
-                ZscoreCalculation {
+                backend::models::exams::zscore::CreateZScoreCalculation { // Changed to CreateZScoreCalculation with full path
                     exam_id: get_random_id(&context.exam_ids),
                     subject_id: get_random_id(&context.subject_ids),
                     mean: rand::thread_rng().gen_range(40.0..=70.0),
                     std_deviation: rand::thread_rng().gen_range(5.0..=15.0),
-                    calculated_at: random_datetime_in_past(0),
                 }
-            }).collect::<Vec<ZscoreCalculation>>();
+            }).collect::<Vec<backend::models::exams::zscore::CreateZScoreCalculation>>(); // Changed to CreateZScoreCalculation
 
             // Filter out potential duplicates for composite primary key (exam_id, subject_id)
-            let unique_zscore_calculations: Vec<ZscoreCalculation> = zscore_calculations_data.into_iter()
-                .fold(Vec::new(), |mut acc, item| {
-                    if !acc.iter().any(|zc: &ZscoreCalculation| zc.exam_id == item.exam_id && zc.subject_id == item.subject_id) {
+            let unique_zscore_calculations: Vec<backend::models::exams::zscore::CreateZScoreCalculation> = zscore_calculations_data.into_iter()
+                .fold(Vec::<backend::models::exams::zscore::CreateZScoreCalculation>::new(), |mut acc, item| {
+                    if !acc.iter().any(|zc| zc.exam_id == item.exam_id && zc.subject_id == item.subject_id) { // Simplified comparison
                         acc.push(item);
                     }
                     acc

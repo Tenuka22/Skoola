@@ -1,21 +1,19 @@
 use diesel::prelude::*;
 use diesel::insert_into;
 use anyhow::Result;
-use crate::schema::*;
-use crate::Config;
+use backend::schema::*;
+use backend::config::Config;
 use std::collections::HashSet;
-use crate::bin::seed_modules::utils::*;
-use crate::bin::seed_modules::{SeedModule, SeederContext};
-use crate::models::{
-    AssetCategory,
-    InventoryItem,
-    Resource,
-    AssetAllocation,
-    MaintenanceRequest,
-    ResourceBooking,
-    AssetAllocationStaff,
-    AssetAllocationStudent,
-};
+use super::utils::*;
+use super::{SeedModule, SeederContext};
+use backend::models::resource_management::asset_category::AssetCategory;
+use backend::models::resource_management::inventory_item::InventoryItem;
+use backend::models::resource_management::resource::Resource;
+use backend::models::resource_management::asset_allocation::AssetAllocation;
+use backend::models::resource_management::maintenance_request::MaintenanceRequest;
+use backend::models::resource_management::resource_booking::ResourceBooking;
+use backend::models::resource_management::asset_allocation_staff::AssetAllocationStaff;
+use backend::models::resource_management::asset_allocation_student::AssetAllocationStudent;
 use rand::Rng; // For rand::random
 
 pub struct ResourceManagementSeeder;
@@ -43,8 +41,8 @@ impl SeedModule for ResourceManagementSeeder {
                 id: generate_uuid(),
                 name: format!("Category {}", i),
                 description: Some(format!("Description for Category {}", i)),
-                created_at: Some(random_datetime_in_past(2)),
-                updated_at: Some(random_datetime_in_past(1)),
+                created_at: random_datetime_in_past(2),
+                updated_at: random_datetime_in_past(1),
             }
         }).collect::<Vec<AssetCategory>>();
 
@@ -66,8 +64,8 @@ impl SeedModule for ResourceManagementSeeder {
                 quantity: rand::thread_rng().gen_range(1..=100),
                 reorder_level: rand::thread_rng().gen_range(5..=20),
                 unit_price: rand::thread_rng().gen_range(10.0..=1000.0),
-                created_at: Some(random_datetime_in_past(2)),
-                updated_at: Some(random_datetime_in_past(1)),
+                created_at: random_datetime_in_past(2),
+                updated_at: random_datetime_in_past(1),
             }
         }).collect::<Vec<InventoryItem>>();
 
@@ -84,13 +82,13 @@ impl SeedModule for ResourceManagementSeeder {
                 id: generate_uuid(),
                 resource_name: format!("Resource {}", i),
                 resource_type: match i % 3 {
-                    0 => "Room".to_string(),
+                    0 => "Venue".to_string(), // Changed from "Room" to "Venue"
                     1 => "Vehicle".to_string(),
                     _ => "Equipment".to_string(),
                 },
                 description: Some(format!("Description for Resource {}", i)),
-                created_at: Some(random_datetime_in_past(2)),
-                updated_at: Some(random_datetime_in_past(1)),
+                created_at: random_datetime_in_past(2),
+                updated_at: random_datetime_in_past(1),
             }
         }).collect::<Vec<Resource>>();
 
@@ -124,8 +122,8 @@ impl SeedModule for ResourceManagementSeeder {
                     allocation_date: random_datetime_in_past(1),
                     return_date: Some(random_datetime_in_past(0)),
                     allocated_by: get_random_id(&context.user_ids),
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<AssetAllocation>>();
 
@@ -154,8 +152,8 @@ impl SeedModule for ResourceManagementSeeder {
                     },
                     assigned_to: Some(get_random_id(&context.staff_ids)),
                     resolved_date: Some(random_datetime_in_past(0)),
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                     issue_description: format!("Issue with item {}: {:?}", i, generate_uuid()),
                 }
             }).collect::<Vec<MaintenanceRequest>>();
@@ -181,8 +179,8 @@ impl SeedModule for ResourceManagementSeeder {
                     start_time,
                     end_time,
                     related_event_id: if i % 2 == 0 { Some(generate_uuid()) } else { None }, // Dummy event ID
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<ResourceBooking>>();
 
@@ -214,7 +212,7 @@ impl SeedModule for ResourceManagementSeeder {
                     Some(AssetAllocationStaff {
                         asset_allocation_id,
                         staff_id,
-                        created_at: Some(random_datetime_in_past(1)),
+                        created_at: random_datetime_in_past(1),
                     })
                 }
             }).collect::<Vec<AssetAllocationStaff>>();
@@ -248,7 +246,7 @@ impl SeedModule for ResourceManagementSeeder {
                     Some(AssetAllocationStudent {
                         asset_allocation_id,
                         student_id,
-                        created_at: Some(random_datetime_in_past(1)),
+                        created_at: random_datetime_in_past(1),
                     })
                 }
             }).collect::<Vec<AssetAllocationStudent>>();

@@ -1,29 +1,27 @@
 use diesel::prelude::*;
 use diesel::insert_into;
 use anyhow::Result;
-use crate::schema::*;
-use crate::Config;
+use backend::schema::*;
+use backend::config::Config;
 use std::collections::HashSet;
-use crate::bin::seed_modules::utils::*;
-use crate::bin::seed_modules::{SeedModule, SeederContext};
-use crate::models::{
-    ChartOfAccounts,
-    GeneralLedger,
-    BudgetCategory,
-    Budget,
-    IncomeSource,
-    IncomeTransaction,
-    ExpenseCategory,
-    ExpenseTransaction,
-    FeeCategory,
-    FeeStructure,
-    StudentFee,
-    FeePayment,
-    SalaryComponent,
-    StaffSalary,
-    SalaryPayment,
-    PettyCashTransaction,
-};
+use super::utils::*;
+use super::{SeedModule, SeederContext};
+use backend::models::finance::account::ChartOfAccount;
+use backend::models::finance::ledger::GeneralLedgerEntry; // Corrected import
+use backend::models::finance::budget_category::BudgetCategory;
+use backend::models::finance::budget::Budget;
+use backend::models::finance::income_source::IncomeSource;
+use backend::models::finance::transaction::IncomeTransaction;
+use backend::models::finance::expense_category::ExpenseCategory;
+use backend::models::finance::transaction::ExpenseTransaction;
+use backend::models::finance::fees::FeeCategory;
+use backend::models::finance::fees::FeeStructure;
+use backend::models::finance::fees::StudentFee;
+use backend::models::finance::fees::FeePayment;
+use backend::models::finance::salary::SalaryComponent;
+use backend::models::finance::salary::StaffSalary;
+use backend::models::finance::salary::SalaryPayment;
+use backend::models::finance::petty_cash_transaction::PettyCashTransaction;
 use rand::Rng;
 use chrono::NaiveTime;
 
@@ -48,11 +46,11 @@ impl SeedModule for FinanceSeeder {
 
         // Seed Chart of Accounts (base accounts)
         let chart_of_accounts_data = vec![
-            ChartOfAccounts { id: generate_uuid(), account_code: "1000".to_string(), account_name: "Cash".to_string(), account_type: "Asset".to_string(), normal_balance: "Debit".to_string(), description: None, parent_account_id: None, is_active: true, created_at: Some(random_datetime_in_past(3)), updated_at: Some(random_datetime_in_past(2)) },
-            ChartOfAccounts { id: generate_uuid(), account_code: "1010".to_string(), account_name: "Bank".to_string(), account_type: "Asset".to_string(), normal_balance: "Debit".to_string(), description: None, parent_account_id: None, is_active: true, created_at: Some(random_datetime_in_past(3)), updated_at: Some(random_datetime_in_past(2)) },
-            ChartOfAccounts { id: generate_uuid(), account_code: "2000".to_string(), account_name: "Accounts Payable".to_string(), account_type: "Liability".to_string(), normal_balance: "Credit".to_string(), description: None, parent_account_id: None, is_active: true, created_at: Some(random_datetime_in_past(3)), updated_at: Some(random_datetime_in_past(2)) },
-            ChartOfAccounts { id: generate_uuid(), account_code: "3000".to_string(), account_name: "Revenue".to_string(), account_type: "Income".to_string(), normal_balance: "Credit".to_string(), description: None, parent_account_id: None, is_active: true, created_at: Some(random_datetime_in_past(3)), updated_at: Some(random_datetime_in_past(2)) },
-            ChartOfAccounts { id: generate_uuid(), account_code: "4000".to_string(), account_name: "Expenses".to_string(), account_type: "Expense".to_string(), normal_balance: "Debit".to_string(), description: None, parent_account_id: None, is_active: true, created_at: Some(random_datetime_in_past(3)), updated_at: Some(random_datetime_in_past(2)) },
+            ChartOfAccount { id: generate_uuid(), account_code: "1000".to_string(), account_name: "Cash".to_string(), account_type: "Asset".to_string(), normal_balance: "Debit".to_string(), description: None, parent_account_id: None, is_active: true, created_at: random_datetime_in_past(3), updated_at: random_datetime_in_past(2) },
+            ChartOfAccount { id: generate_uuid(), account_code: "1010".to_string(), account_name: "Bank".to_string(), account_type: "Asset".to_string(), normal_balance: "Debit".to_string(), description: None, parent_account_id: None, is_active: true, created_at: random_datetime_in_past(3), updated_at: random_datetime_in_past(2) },
+            ChartOfAccount { id: generate_uuid(), account_code: "2000".to_string(), account_name: "Accounts Payable".to_string(), account_type: "Liability".to_string(), normal_balance: "Credit".to_string(), description: None, parent_account_id: None, is_active: true, created_at: random_datetime_in_past(3), updated_at: random_datetime_in_past(2) },
+            ChartOfAccount { id: generate_uuid(), account_code: "3000".to_string(), account_name: "Revenue".to_string(), account_type: "Income".to_string(), normal_balance: "Credit".to_string(), description: None, parent_account_id: None, is_active: true, created_at: random_datetime_in_past(3), updated_at: random_datetime_in_past(2) },
+            ChartOfAccount { id: generate_uuid(), account_code: "4000".to_string(), account_name: "Expenses".to_string(), account_type: "Expense".to_string(), normal_balance: "Debit".to_string(), description: None, parent_account_id: None, is_active: true, created_at: random_datetime_in_past(3), updated_at: random_datetime_in_past(2) },
         ];
         
         insert_into(chart_of_accounts::table)
@@ -67,8 +65,8 @@ impl SeedModule for FinanceSeeder {
                 id: generate_uuid(),
                 name: format!("Budget Category {}", i),
                 description: Some(format!("Description for Budget Category {}", i)),
-                created_at: Some(random_datetime_in_past(2)),
-                updated_at: Some(random_datetime_in_past(1)),
+                created_at: random_datetime_in_past(2),
+                updated_at: random_datetime_in_past(1),
             }
         }).collect::<Vec<BudgetCategory>>();
 
@@ -89,8 +87,8 @@ impl SeedModule for FinanceSeeder {
                     category_id: get_random_id(&context.budget_category_ids),
                     allocated_amount: rand::thread_rng().gen_range(1000.0..=10000.0),
                     spent_amount: rand::thread_rng().gen_range(0.0..=5000.0),
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<Budget>>();
 
@@ -106,8 +104,8 @@ impl SeedModule for FinanceSeeder {
                 id: generate_uuid(),
                 name: format!("Income Source {}", i),
                 description: Some(format!("Description for Income Source {}", i)),
-                created_at: Some(random_datetime_in_past(2)),
-                updated_at: Some(random_datetime_in_past(1)),
+                created_at: random_datetime_in_past(2),
+                updated_at: random_datetime_in_past(1),
             }
         }).collect::<Vec<IncomeSource>>();
 
@@ -130,8 +128,8 @@ impl SeedModule for FinanceSeeder {
                     description: Some(format!("Income transaction {}", i)),
                     received_by: get_random_id(&context.staff_ids),
                     receipt_number: format!("INC-REC-{}", i),
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<IncomeTransaction>>();
 
@@ -147,8 +145,8 @@ impl SeedModule for FinanceSeeder {
                 id: generate_uuid(),
                 name: format!("Expense Category {}", i),
                 description: Some(format!("Description for Expense Category {}", i)),
-                created_at: Some(random_datetime_in_past(2)),
-                updated_at: Some(random_datetime_in_past(1)),
+                created_at: random_datetime_in_past(2),
+                updated_at: random_datetime_in_past(1),
             }
         }).collect::<Vec<ExpenseCategory>>();
 
@@ -170,11 +168,11 @@ impl SeedModule for FinanceSeeder {
                     date: random_datetime_in_past(1),
                     description: Some(format!("Expense transaction {}", i)),
                     vendor: Some(format!("Vendor {}", i)),
-                    payment_method: "Cash".to_string(), // TODO: Use enum
+                    payment_method: backend::database::enums::PaymentMethod::Cash, // Corrected to enum
                     approved_by: Some(get_random_id(&context.staff_ids)),
                     receipt_url: if rand::thread_rng().gen_bool(0.5) { Some(format!("http://example.com/receipts/{}.pdf", i)) } else { None },
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<ExpenseTransaction>>();
 
@@ -191,8 +189,8 @@ impl SeedModule for FinanceSeeder {
                 name: format!("Fee Category {}", i),
                 description: Some(format!("Description for Fee Category {}", i)),
                 is_mandatory: rand::thread_rng().gen_bool(0.8),
-                created_at: Some(random_datetime_in_past(2)),
-                updated_at: Some(random_datetime_in_past(1)),
+                created_at: random_datetime_in_past(2),
+                updated_at: random_datetime_in_past(1),
             }
         }).collect::<Vec<FeeCategory>>();
 
@@ -214,9 +212,9 @@ impl SeedModule for FinanceSeeder {
                     category_id: get_random_id(&context.fee_category_ids),
                     amount: rand::thread_rng().gen_range(5000.0..=20000.0),
                     due_date: random_date_in_past(0),
-                    frequency: "Monthly".to_string(), // TODO: Use enum
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    frequency: backend::database::enums::FeeFrequency::Monthly, // Corrected to enum
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<FeeStructure>>();
 
@@ -239,8 +237,8 @@ impl SeedModule for FinanceSeeder {
                     amount: rand::thread_rng().gen_range(5000.0..=20000.0),
                     is_exempted: rand::thread_rng().gen_bool(0.1),
                     exemption_reason: if rand::thread_rng().gen_bool(0.1) { Some(format!("Financial Hardship {}", i)) } else { None },
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<StudentFee>>();
 
@@ -261,12 +259,12 @@ impl SeedModule for FinanceSeeder {
                     student_fee_id: get_random_id(&context.student_fee_ids),
                     amount_paid: rand::thread_rng().gen_range(1000.0..=15000.0),
                     payment_date: random_datetime_in_past(0),
-                    payment_method: "Cash".to_string(), // TODO: Use enum
+                    payment_method: backend::database::enums::PaymentMethod::Cash, // Corrected to enum
                     receipt_number: format!("FEE-REC-{}", i),
                     collected_by: get_random_id(&context.staff_ids),
                     remarks: if rand::thread_rng().gen_bool(0.2) { Some(format!("Paid for month {}", i % 12 + 1)) } else { None },
-                    created_at: Some(random_datetime_in_past(0)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(0),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<FeePayment>>();
 
@@ -281,10 +279,10 @@ impl SeedModule for FinanceSeeder {
             SalaryComponent {
                 id: generate_uuid(),
                 name: format!("Component {}", i),
-                component_type: "Allowance".to_string(), // TODO: Use enum
+                component_type: backend::database::enums::ComponentType::Allowance, // Corrected to enum
                 description: Some(format!("Description for Component {}", i)),
-                created_at: Some(random_datetime_in_past(2)),
-                updated_at: Some(random_datetime_in_past(1)),
+                created_at: random_datetime_in_past(2),
+                updated_at: random_datetime_in_past(1),
             }
         }).collect::<Vec<SalaryComponent>>();
 
@@ -304,8 +302,8 @@ impl SeedModule for FinanceSeeder {
                     component_id: get_random_id(&context.salary_component_ids),
                     amount: rand::thread_rng().gen_range(10000.0..=100000.0),
                     effective_from: random_date_in_past(1),
-                    created_at: Some(random_datetime_in_past(1)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(1),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<StaffSalary>>();
 
@@ -343,10 +341,10 @@ impl SeedModule for FinanceSeeder {
                     total_deductions: rand::thread_rng().gen_range(5000.0..=20000.0),
                     net_salary: rand::thread_rng().gen_range(40000.0..=130000.0),
                     payment_date: random_datetime_in_past(0),
-                    payment_method: "Bank Transfer".to_string(), // TODO: Use enum
+                    payment_method: backend::database::enums::PaymentMethod::BankTransfer.to_string(), // Corrected to enum
                     remarks: if rand::thread_rng().gen_bool(0.2) { Some(format!("Bonus included for Q{}", i % 4 + 1)) } else { None },
-                    created_at: Some(random_datetime_in_past(0)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(0),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<SalaryPayment>>();
 
@@ -364,12 +362,12 @@ impl SeedModule for FinanceSeeder {
                 PettyCashTransaction {
                     id: generate_uuid(),
                     amount: rand::thread_rng().gen_range(100.0..=1000.0),
-                    transaction_type: match i % 2 { 0 => "Credit".to_string(), _ => "Debit".to_string() }, // TODO: Use enum
+                    transaction_type: match i % 2 { 0 => backend::database::enums::TransactionType::Received, _ => backend::database::enums::TransactionType::Spent }, // Corrected to use enum variants
                     date: random_datetime_in_past(0),
                     description: Some(format!("Petty cash transaction {}", i)),
                     handled_by: get_random_id(&context.staff_ids),
-                    created_at: Some(random_datetime_in_past(0)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(0),
+                    updated_at: random_datetime_in_past(0),
                 }
             }).collect::<Vec<PettyCashTransaction>>();
 
@@ -386,17 +384,17 @@ impl SeedModule for FinanceSeeder {
             let general_ledger_data = (1..=50).map(|i| {
                 let debit_account_id = get_random_id(&context.chart_of_account_ids);
                 let credit_account_id = get_random_id(&context.chart_of_account_ids);
-                GeneralLedger {
+                GeneralLedgerEntry { // Corrected struct name
                     id: generate_uuid(),
                     transaction_date: random_date_in_past(0),
                     description: Some(format!("GL entry {}", i)),
                     debit_account_id,
                     credit_account_id,
                     amount: rand::thread_rng().gen_range(10.0..=5000.0),
-                    created_at: Some(random_datetime_in_past(0)),
-                    updated_at: Some(random_datetime_in_past(0)),
+                    created_at: random_datetime_in_past(0),
+                    updated_at: random_datetime_in_past(0),
                 }
-            }).collect::<Vec<GeneralLedger>>();
+            }).collect::<Vec<GeneralLedgerEntry>>(); // Corrected struct name
 
             insert_into(general_ledger::table)
                 .values(&general_ledger_data)

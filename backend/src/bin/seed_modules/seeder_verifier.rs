@@ -1,15 +1,22 @@
 use diesel::prelude::*;
 use diesel::sql_query;
-use diesel::sql_types::Text;
+use diesel::sql_types::{BigInt, Text}; // Combined and added Text
 use anyhow::Result;
-use crate::Config;
-use std::collections::HashSet;
-use crate::bin::seed_modules::{SeedModule, SeederContext};
+use backend::config::Config; // Added
+use std::collections::HashSet; // Added
+use super::{SeedModule, SeederContext};
 
 #[derive(QueryableByName, Debug)]
 pub struct TableName {
-    #[sql_type = "Text"]
+    #[diesel(sql_type = Text)] // Updated attribute
     pub name: String,
+}
+
+// Struct to hold the count result
+#[derive(QueryableByName, Debug)]
+struct CountResult {
+    #[diesel(sql_type = BigInt)]
+    count: i64,
 }
 
 pub struct SeederVerifier;
@@ -37,16 +44,13 @@ impl SeedModule for SeederVerifier {
         .load(conn)?;
 
         for table in table_names {
-            let count: i64 = sql_query(format!("SELECT COUNT(*) FROM {};", table.name))
-                .load(conn)?
-                .into_iter()
-                .map(|row| diesel::row::Row::get::<i64, _>(&row, 0))
-                .next()
-                .unwrap_or(0);
-            println!("Table '{}' has {} records.", table.name, count);
+            let count_result: CountResult = sql_query(format!("SELECT COUNT(*) as count FROM {};", table.name))
+                .get_result(conn)?;
+            println!("Table '{}' has {} records.", table.name, count_result.count);
         }
 
         println!("Seeded data verification complete!");
         Ok(())
     }
 }
+
