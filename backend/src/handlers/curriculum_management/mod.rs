@@ -3,7 +3,8 @@ use actix_web::web::Json;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::{AppState, APIError};
+use crate::AppState;
+use crate::APIError;
 use crate::services::curriculum_management;
 use crate::models::curriculum_management::{CurriculumStandard, Syllabus};
 

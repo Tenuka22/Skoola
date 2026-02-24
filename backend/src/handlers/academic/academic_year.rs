@@ -1,14 +1,16 @@
 use actix_web::web;
-use apistos::{api_operation, ApiComponent};
 use actix_web::web::Json;
+use apistos::{ApiComponent, api_operation};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState,
     errors::APIError,
-    models::academic_year::{CreateAcademicYearRequest, UpdateAcademicYearRequest, AcademicYearResponse},
     models::MessageResponse,
+    models::academic_year::{
+        AcademicYearResponse, CreateAcademicYearRequest, UpdateAcademicYearRequest,
+    },
     services::academic::academic_year,
 };
 
@@ -87,10 +89,16 @@ pub async fn get_all_academic_years(
     query: web::Query<AcademicYearQuery>,
 ) -> Result<Json<PaginatedAcademicYearResponse>, APIError> {
     let inner_query = query.into_inner();
-    let (academic_years, total_academic_years, total_pages): (Vec<crate::models::academic_year::AcademicYearResponse>, i64, i64) =
-        academic_year::get_all_academic_years(data.clone(), inner_query.clone()).await?;
+    let (academic_years, total_academic_years, total_pages): (
+        Vec<crate::models::academic_year::AcademicYearResponse>,
+        i64,
+        i64,
+    ) = academic_year::get_all_academic_years(data.clone(), inner_query.clone()).await?;
     Ok(Json(PaginatedAcademicYearResponse {
-        data: academic_years.into_iter().map(AcademicYearResponse::from).collect(),
+        data: academic_years
+            .into_iter()
+            .map(AcademicYearResponse::from)
+            .collect(),
         total: total_academic_years,
         page: inner_query.page.unwrap_or(1),
         limit: inner_query.limit.unwrap_or(10),
@@ -108,8 +116,11 @@ pub async fn bulk_delete_academic_years(
     data: web::Data<AppState>,
     body: web::Json<BulkDeleteAcademicYearsRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
-    academic_year::bulk_delete_academic_years(data.clone(), body.into_inner().academic_year_ids).await?;
-    Ok(Json(MessageResponse { message: "Academic years deleted successfully".to_string() }))
+    academic_year::bulk_delete_academic_years(data.clone(), body.into_inner().academic_year_ids)
+        .await?;
+    Ok(Json(MessageResponse {
+        message: "Academic years deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -123,7 +134,9 @@ pub async fn bulk_update_academic_years(
     body: web::Json<BulkUpdateAcademicYearsRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     academic_year::bulk_update_academic_years(data.clone(), body.into_inner()).await?;
-    Ok(Json(MessageResponse { message: "Academic years updated successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Academic years updated successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -156,7 +169,9 @@ pub async fn delete_academic_year(
 ) -> Result<Json<MessageResponse>, APIError> {
     let academic_year_id = path.into_inner();
     academic_year::delete_academic_year(data.clone(), academic_year_id).await?;
-    Ok(Json(MessageResponse { message: "Academic year deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Academic year deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(

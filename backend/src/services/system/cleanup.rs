@@ -4,6 +4,7 @@ use crate::AppState;
 use chrono::{Duration, Utc};
 use tracing::{info, error};
 use actix_web::web;
+use crate::models::system::BulkDeleteUsersRequest; // Import the new DTO
 
 pub async fn remove_unverified_users(data: web::Data<AppState>) {
     info!("Starting unverified user cleanup job.");
@@ -35,4 +36,21 @@ pub async fn remove_unverified_users(data: web::Data<AppState>) {
             error!("Error removing unverified users: {:?}", e);
         }
     }
+}
+
+pub async fn bulk_delete_users(
+    data: web::Data<AppState>,
+    delete_request: BulkDeleteUsersRequest,
+) -> Result<(), anyhow::Error> {
+    info!("Attempting to bulk delete users: {:?}", delete_request.user_ids);
+
+    let mut conn = data.db_pool.get()?;
+
+    let num_deleted = diesel::delete(
+        users::table.filter(users::id.eq_any(&delete_request.user_ids))
+    )
+    .execute(&mut conn)?;
+
+    info!("Successfully deleted {} users.", num_deleted);
+    Ok(())
 }

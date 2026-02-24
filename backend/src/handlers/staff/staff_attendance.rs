@@ -38,7 +38,7 @@ pub async fn mark_staff_attendance_daily(
     summary = "Mark bulk staff attendance",
     description = "Marks attendance for multiple staff members for a specific date.",
     tag = "staff_attendance",
-    operation_id = "mark_bulk_staff_attendance"
+    operation_id = "mark_staff_attendance_bulk"
 )]
 pub async fn mark_bulk_staff_attendance(
     data: Data<AppState>,

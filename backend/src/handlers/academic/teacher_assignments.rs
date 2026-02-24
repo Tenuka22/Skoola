@@ -144,4 +144,3 @@ pub async fn get_teacher_workload(
         total_subjects_assigned,
     }))
 }
-
