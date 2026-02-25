@@ -1,4 +1,4 @@
-use actix_web::web;
+use actix_web::{HttpRequest, web};
 use apistos::api_operation;
 use actix_web::web::Json;
 use serde::Deserialize;
@@ -21,8 +21,9 @@ use crate::{
 )]
 pub async fn get_my_activities(
     data: web::Data<AppState>,
-    user_id: UserId,
+    req: HttpRequest,
 ) -> Result<Json<Vec<ActivityResponse>>, APIError> {
+    let user_id = UserId::from_request(&req)?;
     let res = activities::get_user_activities(data, user_id.0).await?;
     Ok(Json(res))
 }
@@ -54,10 +55,11 @@ pub async fn get_activities(
 )]
 pub async fn mark_activity_attendance(
     data: web::Data<AppState>,
+    req: HttpRequest,
     path: web::Path<String>, // activity_id
     body: web::Json<MarkActivityAttendanceRequest>,
-    marker_id: UserId,
 ) -> Result<Json<String>, APIError> {
+    let marker_id = UserId::from_request(&req)?;
     let status = body.status.parse().map_err(|_| APIError::bad_request("Invalid attendance status"))?;
     activities::mark_activity_attendance(data, path.into_inner(), body.user_id.clone(), status, marker_id.0).await?;
     Ok(Json("Attendance marked successfully".to_string()))
@@ -98,9 +100,10 @@ pub async fn get_all_activity_types(
 )]
 pub async fn create_activity(
     data: web::Data<AppState>,
+    req: HttpRequest,
     body: web::Json<CreateActivityRequest>,
-    user_id: UserId,
 ) -> Result<Json<ActivityResponse>, APIError> {
+    let user_id = UserId::from_request(&req)?;
     let res = activities::create_activity(data, body.into_inner(), user_id.0).await?;
     Ok(Json(res))
 }

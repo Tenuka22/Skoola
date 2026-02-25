@@ -19,7 +19,6 @@ use actix_web::web::{self, Json};
 use apistos::api_operation;
 use diesel::prelude::*;
 use tracing::{info, warn};
-use actix_web::HttpMessage; 
 
 #[api_operation(
     summary = "Get user profile",
@@ -33,13 +32,7 @@ pub async fn get_profile(
 ) -> Result<Json<UserProfileResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     
-    let user_id = req.extensions()
-        .get::<UserId>()
-        .cloned()  
-        .ok_or_else(|| {
-            warn!("ACTION: Failed to extract UserId from request extensions.");
-            APIError::unauthorized("Unauthorized")
-        })?;
+    let user_id = UserId::from_request(&req)?;
     
     let user: User = users::table
         .find(&user_id.0)
@@ -65,9 +58,10 @@ pub async fn get_profile(
 )]
 pub async fn update_profile(
     data: web::Data<AppState>,
-    user_id: UserId,
+    req: actix_web::HttpRequest,
     body: web::Json<UpdateProfileRequest>,
 ) -> Result<Json<UserResponse>, APIError> {
+    let user_id = UserId::from_request(&req)?;
     let mut conn = data.db_pool.get()?;
 
     let mut updated_fields = Vec::new();
@@ -112,9 +106,10 @@ pub async fn update_profile(
 )]
 pub async fn change_password(
     data: web::Data<AppState>,
-    user_id: UserId,
+    req: actix_web::HttpRequest,
     body: web::Json<ChangePasswordRequest>,
 ) -> Result<Json<UserResponse>, APIError> {
+    let user_id = UserId::from_request(&req)?;
     let mut conn = data.db_pool.get()?;
 
     let user: User = users::table
@@ -175,9 +170,10 @@ pub async fn change_password(
 )]
 pub async fn change_email(
     data: web::Data<AppState>,
-    user_id: UserId,
+    req: actix_web::HttpRequest,
     body: web::Json<ChangeEmailRequest>,
 ) -> Result<Json<UserResponse>, APIError> {
+    let user_id = UserId::from_request(&req)?;
     let mut conn = data.db_pool.get()?;
 
     let user: User = users::table
@@ -237,9 +233,10 @@ pub async fn change_email(
 )]
 pub async fn link_google(
     data: web::Data<AppState>,
-    user_id: UserId,
+    req: actix_web::HttpRequest,
     query: web::Query<OAuthQuery>,
 ) -> Result<Json<UserResponse>, APIError> {
+    let user_id = UserId::from_request(&req)?;
     let google_user_info = get_google_user_info(&query.code, &data.config)
         .await?;
 
@@ -278,9 +275,10 @@ pub async fn link_google(
 )]
 pub async fn link_github(
     data: web::Data<AppState>,
-    user_id: UserId,
+    req: actix_web::HttpRequest,
     query: web::Query<OAuthQuery>,
 ) -> Result<Json<UserResponse>, APIError> {
+    let user_id = UserId::from_request(&req)?;
     let github_user_info = get_github_user_info(&query.code, &data.config)
         .await?;
 

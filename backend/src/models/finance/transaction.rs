@@ -1,4 +1,4 @@
-use crate::database::enums::{PaymentMethod, TransactionType};
+use crate::database::enums::PaymentMethod;
 use crate::schema::{income_transactions, expense_transactions};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};

@@ -1,16 +1,19 @@
-use diesel::prelude::*;
-use crate::{
-    errors::APIError,
-    AppState,
-    models::student::student::{Student, CreateStudentRequest, StudentResponse, UpdateStudentRequest, PaginatedStudentResponse},
-    handlers::students::student::StudentQuery,
-    models::{Profile, NewProfile}, // Added Profile, NewProfile
-};
-use actix_web::{web, HttpResponse};
-use uuid::Uuid;
-use chrono::{NaiveDateTime, Utc};
-use crate::schema::{students, profiles}; // Added profiles
 use crate::database::enums::StudentStatus;
+use crate::schema::{profiles, students}; // Added profiles
+use crate::{
+    AppState,
+    errors::APIError,
+    handlers::students::student::StudentQuery,
+    models::student::student::{
+        CreateStudentRequest, PaginatedStudentResponse, Student, StudentResponse,
+        UpdateStudentRequest,
+    },
+    models::{NewProfile, Profile}, // Added Profile, NewProfile
+};
+use actix_web::{HttpResponse, web};
+use chrono::{NaiveDateTime, Utc};
+use diesel::prelude::*;
+use uuid::Uuid;
 
 use crate::models::auth::CurrentUser;
 use crate::services::system::audit::log_action;
@@ -68,9 +71,9 @@ pub async fn create_student(
     // Create a UserProfile entry linking the new Profile to an existing User if email matches
     if let Some(email) = new_student_request.email {
         use crate::database::tables::User;
-use crate::models::NewUserProfile;
+        use crate::models::NewUserProfile;
         use crate::schema::{user_profiles, users};
-        
+
         let matching_user: Option<User> = users::table
             .filter(users::email.eq(email.clone()))
             .select(User::as_select())
@@ -99,7 +102,8 @@ use crate::models::NewUserProfile;
         new_student.id.clone(),
         None::<&Student>,
         Some(&new_student),
-    ).await?;
+    )
+    .await?;
 
     Ok(StudentResponse {
         id: new_student.id,
@@ -136,17 +140,30 @@ pub async fn update_student(
         .select(Student::as_select())
         .first(&mut conn)?;
 
-    let profile_id = existing_student.profile_id.as_ref().ok_or_else(|| APIError::not_found("Profile not found for student"))?;
+    let profile_id = existing_student
+        .profile_id
+        .as_ref()
+        .ok_or_else(|| APIError::not_found("Profile not found for student"))?;
 
     // Update student-specific fields in the students table
     diesel::update(students::table.find(&student_id))
         .set((
-            update_request.nic_or_birth_certificate.map(|nic| students::nic_or_birth_certificate.eq(nic)),
+            update_request
+                .nic_or_birth_certificate
+                .map(|nic| students::nic_or_birth_certificate.eq(nic)),
             update_request.dob.map(|dob| students::dob.eq(dob)),
-            update_request.gender.map(|gender| students::gender.eq(gender)),
-            update_request.religion.map(|religion| students::religion.eq(religion)),
-            update_request.ethnicity.map(|ethnicity| students::ethnicity.eq(ethnicity)),
-            update_request.status.map(|status| students::status.eq(status)),
+            update_request
+                .gender
+                .map(|gender| students::gender.eq(gender)),
+            update_request
+                .religion
+                .map(|religion| students::religion.eq(religion)),
+            update_request
+                .ethnicity
+                .map(|ethnicity| students::ethnicity.eq(ethnicity)),
+            update_request
+                .status
+                .map(|status| students::status.eq(status)),
             students::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
@@ -166,21 +183,29 @@ pub async fn update_student(
         .execute(&mut conn)?;
 
     if updated_profile_count == 0 {
-        return Err(APIError::not_found(&format!("Profile with ID {} not found", profile_id)));
+        return Err(APIError::not_found(&format!(
+            "Profile with ID {} not found",
+            profile_id
+        )));
     }
-    
+
     // Fetch updated student, profile, and user info to construct StudentResponse
     use crate::database::tables::User;
-    
+
     use crate::schema::{user_profiles, users};
-    
-    let (updated_student, profile, user_profile): (Student, Profile, Option<User>) = students::table
-        .find(&student_id)
-        .inner_join(profiles::table)
-        .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
-        .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
-        .select((Student::as_select(), Profile::as_select(), Option::<User>::as_select()))
-        .first(&mut conn)?;
+
+    let (updated_student, profile, user_profile): (Student, Profile, Option<User>) =
+        students::table
+            .find(&student_id)
+            .inner_join(profiles::table)
+            .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
+            .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+            .select((
+                Student::as_select(),
+                Profile::as_select(),
+                Option::<User>::as_select(),
+            ))
+            .first(&mut conn)?;
 
     log_action(
         pool.clone(),
@@ -190,7 +215,8 @@ pub async fn update_student(
         updated_student.id.clone(),
         Some(&existing_student),
         Some(&updated_student),
-    ).await?;
+    )
+    .await?;
 
     Ok(StudentResponse {
         id: updated_student.id,
@@ -228,7 +254,11 @@ pub async fn get_student_by_id(
         .inner_join(profiles::table)
         .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
         .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
-        .select((Student::as_select(), Profile::as_select(), Option::<User>::as_select()))
+        .select((
+            Student::as_select(),
+            Profile::as_select(),
+            Option::<User>::as_select(),
+        ))
         .first(&mut conn)?;
 
     Ok(StudentResponse {
@@ -276,20 +306,22 @@ pub async fn get_all_students(
     if let Some(search_term) = &query.search {
         let pattern = format!("%{}%", search_term);
         base_query = base_query.filter(
-            profiles::name.like(pattern.clone())
+            profiles::name
+                .like(pattern.clone())
                 .or(students::admission_number.like(pattern.clone()))
                 .or(students::nic_or_birth_certificate.like(pattern.clone()))
                 .or(users::email.like(pattern.clone()))
                 .or(profiles::phone.like(pattern.clone()))
-                .or(profiles::address.like(pattern.clone()))
+                .or(profiles::address.like(pattern.clone())),
         );
         count_query_base = count_query_base.filter(
-            profiles::name.like(pattern.clone())
+            profiles::name
+                .like(pattern.clone())
                 .or(students::admission_number.like(pattern.clone()))
                 .or(students::nic_or_birth_certificate.like(pattern.clone()))
                 .or(users::email.like(pattern.clone()))
                 .or(profiles::phone.like(pattern.clone()))
-                .or(profiles::address.like(pattern.clone()))
+                .or(profiles::address.like(pattern.clone())),
         );
     }
 
@@ -299,15 +331,19 @@ pub async fn get_all_students(
             count_query_base = count_query_base.filter(students::status.eq(status));
         }
     }
-    
+
     if let Some(after_str) = &query.created_after {
-        if let Ok(after) = NaiveDateTime::parse_from_str(&format!("{} 00:00:00", after_str), "%Y-%m-%d %H:%M:%S") {
+        if let Ok(after) =
+            NaiveDateTime::parse_from_str(&format!("{} 00:00:00", after_str), "%Y-%m-%d %H:%M:%S")
+        {
             base_query = base_query.filter(students::created_at.ge(after));
             count_query_base = count_query_base.filter(students::created_at.ge(after));
         }
     }
     if let Some(before_str) = &query.created_before {
-        if let Ok(before) = NaiveDateTime::parse_from_str(&format!("{} 23:59:59", before_str), "%Y-%m-%d %H:%M:%S") {
+        if let Ok(before) =
+            NaiveDateTime::parse_from_str(&format!("{} 23:59:59", before_str), "%Y-%m-%d %H:%M:%S")
+        {
             base_query = base_query.filter(students::created_at.le(before));
             count_query_base = count_query_base.filter(students::created_at.le(before));
         }
@@ -336,13 +372,18 @@ pub async fn get_all_students(
     let offset = (page - 1) * limit;
 
     let student_list_data: Vec<(Student, Profile, Option<User>)> = base_query
-        .select((Student::as_select(), Profile::as_select(), Option::<User>::as_select()))
+        .select((
+            Student::as_select(),
+            Profile::as_select(),
+            Option::<User>::as_select(),
+        ))
         .limit(limit)
         .offset(offset)
         .load::<(Student, Profile, Option<User>)>(&mut conn)?;
 
-    let student_responses: Vec<StudentResponse> = student_list_data.into_iter().map(|(student, profile, user)| {
-        StudentResponse {
+    let student_responses: Vec<StudentResponse> = student_list_data
+        .into_iter()
+        .map(|(student, profile, user)| StudentResponse {
             id: student.id,
             admission_number: student.admission_number,
             name_english: student.name_english,
@@ -361,8 +402,8 @@ pub async fn get_all_students(
             profile_phone: profile.phone,
             profile_photo_url: profile.photo_url,
             user_email: user.map(|u| u.email),
-        }
-    }).collect();
+        })
+        .collect();
 
     let total_pages = (total_students as f64 / limit as f64).ceil() as i64;
 
@@ -375,10 +416,12 @@ pub async fn get_all_students(
     })
 }
 
+use crate::utils::jwt::UserId;
+
 pub async fn delete_student(
     pool: web::Data<AppState>,
-    current_user: CurrentUser,
     student_id: String,
+    user_id: UserId,
 ) -> Result<HttpResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
 
@@ -390,11 +433,17 @@ pub async fn delete_student(
     let target = students::table.filter(students::id.eq(&student_id));
 
     let updated_count = diesel::update(target)
-        .set((students::status.eq(StudentStatus::Withdrawn), students::updated_at.eq(Utc::now().naive_utc())))
+        .set((
+            students::status.eq(StudentStatus::Withdrawn),
+            students::updated_at.eq(Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Student with ID {} not found", student_id)));
+        return Err(APIError::not_found(&format!(
+            "Student with ID {} not found",
+            student_id
+        )));
     }
 
     let updated_student: Student = students::table
@@ -404,13 +453,14 @@ pub async fn delete_student(
 
     log_action(
         pool.clone(),
-        current_user.id,
+        user_id.0,
         "DELETE".to_string(),
         "students".to_string(),
         student_id,
         Some(&existing_student),
         Some(&updated_student),
-    ).await?;
+    )
+    .await?;
 
     Ok(HttpResponse::NoContent().finish())
 }

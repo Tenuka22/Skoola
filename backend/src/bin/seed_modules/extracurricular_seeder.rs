@@ -7,7 +7,7 @@ use std::collections::HashSet;
 use super::utils::*;
 use super::{SeedModule, SeederContext};
 use backend::models::system::activity::{ActivityType, Activity, ActivityParticipant, ActivityAttendance};
-use backend::models::resources::co_curricular::{Sport, SportTeam, SportTeamMember, SportEvent, SportEventParticipant, Club, ClubMember, ClubActivity, Competition, CompetitionParticipant, StudentAchievement, CulturalEvent, CulturalEventParticipant};
+use backend::models::resources::co_curricular::{Sport, SportTeam, Club, ClubMember, ClubActivity, Competition, CompetitionParticipant, StudentAchievement, CulturalEvent, CulturalEventParticipant};
 use backend::database::enums::{AttendanceStatus, ParticipantType};
 use chrono::{Utc, NaiveDate};
 use rand::Rng;

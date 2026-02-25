@@ -529,6 +529,29 @@ export const AuditLogResponseSchema = {
     }
 } as const;
 
+export const AuthMethodStatsSchema = {
+    type: 'object',
+    required: [
+        'github',
+        'google',
+        'password_only'
+    ],
+    properties: {
+        github: {
+            type: 'integer',
+            format: 'int64'
+        },
+        google: {
+            type: 'integer',
+            format: 'int64'
+        },
+        password_only: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
 export const BehaviorIncidentResponseSchema = {
     title: 'BehaviorIncidentResponse',
     type: 'object',
@@ -988,6 +1011,22 @@ export const BulkDeleteLibraryCategoriesRequestSchema = {
     }
 } as const;
 
+export const BulkDeleteStaffRequestSchema = {
+    title: 'BulkDeleteStaffRequest',
+    type: 'object',
+    required: [
+        'staff_ids'
+    ],
+    properties: {
+        staff_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
 export const BulkDeleteSubjectsRequestSchema = {
     title: 'BulkDeleteSubjectsRequest',
     type: 'object',
@@ -1432,6 +1471,105 @@ export const BulkUpdateLibraryCategoriesRequestSchema = {
         },
         description: {
             type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const BulkUpdateRequestSchema = {
+    title: 'BulkUpdateRequest',
+    type: 'object',
+    required: [
+        'user_ids'
+    ],
+    properties: {
+        is_verified: {
+            type: 'boolean',
+            nullable: true
+        },
+        lockout_until: {
+            default: null,
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        role: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/RoleEnum'
+                }
+            ],
+            nullable: true
+        },
+        user_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
+export const BulkUpdateStaffRequestSchema = {
+    title: 'BulkUpdateStaffRequest',
+    type: 'object',
+    required: [
+        'staff_ids'
+    ],
+    properties: {
+        address: {
+            type: 'string',
+            nullable: true
+        },
+        dob: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+        },
+        employee_id: {
+            type: 'string',
+            nullable: true
+        },
+        employment_status: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/EmploymentStatus'
+                }
+            ],
+            nullable: true
+        },
+        gender: {
+            type: 'string',
+            nullable: true
+        },
+        name: {
+            type: 'string',
+            nullable: true
+        },
+        nic: {
+            type: 'string',
+            nullable: true
+        },
+        phone: {
+            type: 'string',
+            nullable: true
+        },
+        photo_url: {
+            type: 'string',
+            nullable: true
+        },
+        staff_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        staff_type: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/StaffType'
+                }
+            ],
             nullable: true
         }
     }
@@ -3370,6 +3508,23 @@ export const DetailedAssetAllocationResponseSchema = {
         updated_at: {
             type: 'string',
             format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const DomainStatSchema = {
+    type: 'object',
+    required: [
+        'count',
+        'domain'
+    ],
+    properties: {
+        count: {
+            type: 'integer',
+            format: 'int64'
+        },
+        domain: {
+            type: 'string'
         }
     }
 } as const;
@@ -5572,6 +5727,42 @@ export const PaginatedSubjectResponseSchema = {
     }
 } as const;
 
+export const PaginatedUserResponseSchema = {
+    title: 'PaginatedUserResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/UserResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
 export const PasswordResetSchema = {
     title: 'PasswordReset',
     type: 'object',
@@ -6106,6 +6297,19 @@ export const ReligionSchema = {
         'Christianity',
         'Other'
     ]
+} as const;
+
+export const ResendVerificationEmailRequestSchema = {
+    title: 'ResendVerificationEmailRequest',
+    type: 'object',
+    required: [
+        'email'
+    ],
+    properties: {
+        email: {
+            type: 'string'
+        }
+    }
 } as const;
 
 export const ResourceBookingResponseSchema = {
@@ -7783,6 +7987,23 @@ export const TransactionTypeSchema = {
     ]
 } as const;
 
+export const TrendPointSchema = {
+    type: 'object',
+    required: [
+        'count',
+        'date'
+    ],
+    properties: {
+        count: {
+            type: 'integer',
+            format: 'int64'
+        },
+        date: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const TrialBalanceResponseSchema = {
     title: 'TrialBalanceResponse',
     type: 'object',
@@ -8770,9 +8991,46 @@ export const UpdateTimetableRequestSchema = {
     }
 } as const;
 
-export const UserIdSchema = {
-    title: 'UserId',
-    type: 'string'
+export const UpdateUserRequestSchema = {
+    title: 'UpdateUserRequest',
+    type: 'object',
+    properties: {
+        email: {
+            type: 'string',
+            nullable: true
+        },
+        is_verified: {
+            type: 'boolean',
+            nullable: true
+        },
+        lockout_until: {
+            default: null,
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        role: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/RoleEnum'
+                }
+            ],
+            nullable: true
+        }
+    }
+} as const;
+
+export const UserPermissionRequestSchema = {
+    title: 'UserPermissionRequest',
+    type: 'object',
+    required: [
+        'permission'
+    ],
+    properties: {
+        permission: {
+            $ref: '#/components/schemas/PermissionEnum'
+        }
+    }
 } as const;
 
 export const UserProfileResponseSchema = {
@@ -8903,6 +9161,53 @@ export const UserSetPermissionRequestSchema = {
     properties: {
         permission: {
             $ref: '#/components/schemas/PermissionEnum'
+        }
+    }
+} as const;
+
+export const UserStatsResponseSchema = {
+    title: 'UserStatsResponse',
+    type: 'object',
+    required: [
+        'auth_methods',
+        'locked_users',
+        'pending_users',
+        'registration_trend',
+        'top_domains',
+        'total_users',
+        'verified_users'
+    ],
+    properties: {
+        auth_methods: {
+            $ref: '#/components/schemas/AuthMethodStats'
+        },
+        locked_users: {
+            type: 'integer',
+            format: 'int64'
+        },
+        pending_users: {
+            type: 'integer',
+            format: 'int64'
+        },
+        registration_trend: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/TrendPoint'
+            }
+        },
+        top_domains: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/DomainStat'
+            }
+        },
+        total_users: {
+            type: 'integer',
+            format: 'int64'
+        },
+        verified_users: {
+            type: 'integer',
+            format: 'int64'
         }
     }
 } as const;

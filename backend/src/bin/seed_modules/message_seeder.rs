@@ -9,7 +9,7 @@ use backend::config::Config;
 use backend::schema::{conversations, conversation_participants, messages};
 use backend::models::messaging::{Conversation, ConversationParticipant, Message};
 use super::{SeedModule, SeederContext};
-use super::utils::{generate_uuid, random_datetime_in_past, get_random_id};
+use super::utils::{generate_uuid, random_datetime_in_past};
 
 pub struct MessageSeeder;
 

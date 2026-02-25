@@ -16,6 +16,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::post().to(staff::create_staff))
             .route("/{staff_id}", web::put().to(staff::update_staff))
             .route("/{staff_id}", web::delete().to(staff::delete_staff))
+            .route("/bulk", web::delete().to(staff::bulk_delete_staff))
+            .route("/bulk", web::patch().to(staff::bulk_update_staff))
             .route("/{staff_id}/photo", web::post().to(staff::upload_staff_photo))
             .route("/{teacher_id}/classes", web::post().to(teacher_assignments::assign_class_to_teacher))
             .route("/{teacher_id}/subjects", web::post().to(teacher_assignments::assign_subject_to_teacher))

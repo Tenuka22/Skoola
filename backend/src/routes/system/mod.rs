@@ -1,7 +1,7 @@
 pub mod audit;
 
 use apistos::web;
-use crate::handlers::system::{activities, hello, school_settings, user};
+use crate::handlers::system::{activities, hello, school_settings};
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.configure(|cfg_local| activities::config(cfg_local));
@@ -10,5 +10,5 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
 
     cfg.route("/", web::get().to(hello::hello));
     cfg.route("/error", web::get().to(hello::hello_error));
-    cfg.route("/users/bulk-delete", web::post().to(user::bulk_delete_users_handler)); // New line
+
 }

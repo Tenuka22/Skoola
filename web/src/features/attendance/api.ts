@@ -11,7 +11,7 @@ import {
   getAttendanceByClassAndDateQueryKey,
   getStaffAttendanceByDateOptions,
   getStaffAttendanceByDateQueryKey,
-  markBulkStaffAttendanceMutation,
+  markStaffAttendanceBulkMutation,
   updateStaffAttendanceMutation,
   updateStudentAttendanceMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
@@ -43,7 +43,7 @@ export const useStaffList = (
 export const useMarkStaffAttendanceBulk = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    ...markBulkStaffAttendanceMutation({
+    ...markStaffAttendanceBulkMutation({
       client: authClient,
     }),
     onSuccess: () => {

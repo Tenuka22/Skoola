@@ -1,4 +1,4 @@
-use actix_web::web;
+use actix_web::{HttpRequest, web};
 use apistos::api_operation;
 use actix_web::web::Json;
 
@@ -19,9 +19,10 @@ use crate::{
 )]
 pub async fn create_student_mark(
     data: web::Data<AppState>,
+    req: HttpRequest,
     body: web::Json<CreateStudentMarkRequest>,
-    user_id: UserId,
 ) -> Result<Json<StudentMarkResponse>, APIError> {
+    let user_id = UserId::from_request(&req)?;
     let new_student_mark = student_marks::create_student_mark(data.clone(), body.into_inner(), user_id.0).await?;
     Ok(Json(new_student_mark))
 }
@@ -92,10 +93,11 @@ pub async fn get_student_marks_by_exam_and_class(
 )]
 pub async fn update_student_mark(
     data: web::Data<AppState>,
+    req: HttpRequest,
     path: web::Path<String>, // student_mark_id
     body: web::Json<UpdateStudentMarkRequest>,
-    user_id: UserId,
 ) -> Result<Json<StudentMarkResponse>, APIError> {
+    let user_id = UserId::from_request(&req)?;
     let student_mark_id = path.into_inner();
     let updated_student_mark = student_marks::update_student_mark(data.clone(), student_mark_id, body.into_inner(), user_id.0).await?;
     Ok(Json(updated_student_mark))
@@ -124,9 +126,10 @@ pub async fn delete_student_mark(
 )]
 pub async fn bulk_create_student_marks(
     data: web::Data<AppState>,
+    req: HttpRequest,
     body: web::Json<BulkCreateStudentMarkRequest>,
-    user_id: UserId,
 ) -> Result<Json<Vec<StudentMarkResponse>>, APIError> {
+    let user_id = UserId::from_request(&req)?;
     let new_student_marks = student_marks::bulk_create_student_marks(data.clone(), body.into_inner(), user_id.0).await?;
     Ok(Json(new_student_marks))
 }

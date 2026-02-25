@@ -1,3 +1,4 @@
+use actix_web::HttpRequest;
 use actix_web::web;
 use actix_web::web::Data;
 use actix_web::web::Json;
@@ -26,10 +27,11 @@ use diesel::SelectableHelper;
 )]
 pub async fn mark_staff_attendance_daily(
     data: Data<AppState>,
+    req: HttpRequest,
     staff_id: Path<String>,
     body: Json<MarkStaffAttendanceRequest>,
-    _user_id: UserId,
 ) -> Result<Json<StaffAttendanceResponse>, APIError> {
+    let _user_id = UserId::from_request(&req)?;
     let res = staff_attendance::mark_daily_staff_attendance(data, staff_id.into_inner(), body.into_inner()).await?;
     Ok(Json(res))
 }
@@ -42,9 +44,10 @@ pub async fn mark_staff_attendance_daily(
 )]
 pub async fn mark_bulk_staff_attendance(
     data: Data<AppState>,
+    req: HttpRequest,
     body: Json<BulkMarkStaffAttendanceRequest>,
-    _user_id: UserId,
 ) -> Result<Json<Vec<StaffAttendanceResponse>>, APIError> {
+    let _user_id = UserId::from_request(&req)?;
     let res = staff_attendance::bulk_mark_staff_attendance(data, body.into_inner(), _user_id.0).await?;
     Ok(Json(res))
 }
@@ -57,10 +60,11 @@ pub async fn mark_bulk_staff_attendance(
 )]
 pub async fn update_staff_attendance(
     data: Data<AppState>,
+    req: HttpRequest,
     attendance_id: Path<String>,
     body: Json<UpdateStaffAttendanceRequest>,
-    _user_id: UserId,
 ) -> Result<Json<StaffAttendanceResponse>, APIError> {
+    let _user_id = UserId::from_request(&req)?;
     let res = staff_attendance::update_staff_attendance(data, attendance_id.into_inner(), body.into_inner(), _user_id.0).await?;
     Ok(Json(res))
 }
@@ -119,9 +123,10 @@ pub async fn get_staff_attendance_by_staff_member(
 )]
 pub async fn get_my_substitutions(
     data: Data<AppState>,
+    req: HttpRequest,
     query: web::Query<crate::models::staff::attendance::StaffAttendanceDateQuery>,
-    user_id: UserId,
 ) -> Result<Json<Vec<SubstitutionResponse>>, APIError> {
+    let user_id = UserId::from_request(&req)?;
     let res = staff_attendance::get_substitutions_by_teacher(data, user_id.0, query.date).await?;
     Ok(Json(res.into_iter().map(|s| SubstitutionResponse {
         id: s.id,
@@ -230,9 +235,10 @@ pub async fn create_substitution(
 )]
 pub async fn record_lesson_progress(
     data: Data<AppState>,
+    req: HttpRequest,
     body: Json<CreateLessonProgressRequest>,
-    teacher_id: UserId,
 ) -> Result<Json<LessonProgressResponse>, APIError> {
+    let teacher_id = UserId::from_request(&req)?;
     let res = staff_attendance::record_progress(data, body.into_inner(), teacher_id.0).await?;
     Ok(Json(LessonProgressResponse {
         id: res.id,

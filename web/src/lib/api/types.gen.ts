@@ -205,6 +205,12 @@ export type AuditLogResponse = {
     user_id: string;
 };
 
+export type AuthMethodStats = {
+    github: number;
+    google: number;
+    password_only: number;
+};
+
 /**
  * BehaviorIncidentResponse
  */
@@ -378,6 +384,13 @@ export type BulkDeleteLibraryCategoriesRequest = {
 };
 
 /**
+ * BulkDeleteStaffRequest
+ */
+export type BulkDeleteStaffRequest = {
+    staff_ids: Array<string>;
+};
+
+/**
  * BulkDeleteSubjectsRequest
  */
 export type BulkDeleteSubjectsRequest = {
@@ -526,6 +539,33 @@ export type BulkUpdateLibraryCategoriesRequest = {
     category_ids: Array<number>;
     category_name?: string | null;
     description?: string | null;
+};
+
+/**
+ * BulkUpdateRequest
+ */
+export type BulkUpdateRequest = {
+    is_verified?: boolean | null;
+    lockout_until?: string | null;
+    role?: RoleEnum | null;
+    user_ids: Array<string>;
+};
+
+/**
+ * BulkUpdateStaffRequest
+ */
+export type BulkUpdateStaffRequest = {
+    address?: string | null;
+    dob?: string | null;
+    employee_id?: string | null;
+    employment_status?: EmploymentStatus | null;
+    gender?: string | null;
+    name?: string | null;
+    nic?: string | null;
+    phone?: string | null;
+    photo_url?: string | null;
+    staff_ids: Array<string>;
+    staff_type?: StaffType | null;
 };
 
 /**
@@ -1197,6 +1237,11 @@ export type DetailedAssetAllocationResponse = {
     quantity: number;
     return_date?: string | null;
     updated_at: string;
+};
+
+export type DomainStat = {
+    count: number;
+    domain: string;
 };
 
 export type EducationLevel = 'Primary' | 'JuniorSecondary' | 'SeniorSecondary' | 'Collegiate';
@@ -1904,6 +1949,17 @@ export type PaginatedSubjectResponse = {
 };
 
 /**
+ * PaginatedUserResponse
+ */
+export type PaginatedUserResponse = {
+    data: Array<UserResponse>;
+    limit: number;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
  * PasswordReset
  */
 export type PasswordReset = {
@@ -2064,6 +2120,13 @@ export type RegisterRequest = {
 };
 
 export type Religion = 'Buddhism' | 'Hinduism' | 'Islam' | 'Christianity' | 'Other';
+
+/**
+ * ResendVerificationEmailRequest
+ */
+export type ResendVerificationEmailRequest = {
+    email: string;
+};
 
 /**
  * ResourceBookingResponse
@@ -2611,6 +2674,11 @@ export type TokenResponse = {
 
 export type TransactionType = 'Received' | 'Spent';
 
+export type TrendPoint = {
+    count: number;
+    date: string;
+};
+
 /**
  * TrialBalanceResponse
  */
@@ -2991,9 +3059,21 @@ export type UpdateTimetableRequest = {
 };
 
 /**
- * UserId
+ * UpdateUserRequest
  */
-export type UserId = string;
+export type UpdateUserRequest = {
+    email?: string | null;
+    is_verified?: boolean | null;
+    lockout_until?: string | null;
+    role?: RoleEnum | null;
+};
+
+/**
+ * UserPermissionRequest
+ */
+export type UserPermissionRequest = {
+    permission: PermissionEnum;
+};
 
 /**
  * UserProfileResponse
@@ -3039,6 +3119,19 @@ export type UserSet = {
  */
 export type UserSetPermissionRequest = {
     permission: PermissionEnum;
+};
+
+/**
+ * UserStatsResponse
+ */
+export type UserStatsResponse = {
+    auth_methods: AuthMethodStats;
+    locked_users: number;
+    pending_users: number;
+    registration_trend: Array<TrendPoint>;
+    top_domains: Array<DomainStat>;
+    total_users: number;
+    verified_users: number;
 };
 
 export type RegisterUserData = {
@@ -3811,6 +3904,884 @@ export type VerifyEmailResponses = {
 
 export type VerifyEmailResponse = VerifyEmailResponses[keyof VerifyEmailResponses];
 
+export type ResendVerificationEmailData = {
+    body: ResendVerificationEmailRequest;
+    path?: never;
+    query?: never;
+    url: '/auth/resend-verification-email';
+};
+
+export type ResendVerificationEmailErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type ResendVerificationEmailResponses = {
+    200: MessageResponse;
+};
+
+export type ResendVerificationEmailResponse = ResendVerificationEmailResponses[keyof ResendVerificationEmailResponses];
+
+export type GetAllUsersData = {
+    body?: never;
+    path?: never;
+    query?: {
+        auth_method?: string | null;
+        created_after?: string | null;
+        created_before?: string | null;
+        is_verified?: boolean | null;
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
+    url: '/auth/users';
+};
+
+export type GetAllUsersErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetAllUsersResponses = {
+    200: PaginatedUserResponse;
+};
+
+export type GetAllUsersResponse = GetAllUsersResponses[keyof GetAllUsersResponses];
+
+export type GetUserStatisticsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/users/stats';
+};
+
+export type GetUserStatisticsErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetUserStatisticsResponses = {
+    200: UserStatsResponse;
+};
+
+export type GetUserStatisticsResponse = GetUserStatisticsResponses[keyof GetUserStatisticsResponses];
+
+export type DeleteUserData = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/auth/users/{user_id}';
+};
+
+export type DeleteUserErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteUserResponses = {
+    200: MessageResponse;
+};
+
+export type DeleteUserResponse = DeleteUserResponses[keyof DeleteUserResponses];
+
+export type UpdateUserData = {
+    body: UpdateUserRequest;
+    path: {
+        /**
+         * String
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/auth/users/{user_id}';
+};
+
+export type UpdateUserErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type UpdateUserResponses = {
+    200: MessageResponse;
+};
+
+export type UpdateUserResponse = UpdateUserResponses[keyof UpdateUserResponses];
+
+export type BulkUpdateUsersData = {
+    body: BulkUpdateRequest;
+    path?: never;
+    query?: never;
+    url: '/auth/users/bulk';
+};
+
+export type BulkUpdateUsersErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkUpdateUsersResponses = {
+    200: MessageResponse;
+};
+
+export type BulkUpdateUsersResponse = BulkUpdateUsersResponses[keyof BulkUpdateUsersResponses];
+
+export type GetUserPermissionsData = {
+    body?: never;
+    path: {
+        /**
+         * String
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/auth/users/{user_id}/permissions';
+};
+
+export type GetUserPermissionsErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetUserPermissionsResponses = {
+    /**
+     * String
+     */
+    200: string;
+};
+
+export type GetUserPermissionsResponse = GetUserPermissionsResponses[keyof GetUserPermissionsResponses];
+
+export type UnassignPermissionFromUserData = {
+    body: UserPermissionRequest;
+    path: {
+        /**
+         * String
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/auth/users/{user_id}/permissions/{permission}';
+};
+
+export type UnassignPermissionFromUserErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type UnassignPermissionFromUserResponses = {
+    200: MessageResponse;
+};
+
+export type UnassignPermissionFromUserResponse = UnassignPermissionFromUserResponses[keyof UnassignPermissionFromUserResponses];
+
+export type AssignPermissionToUserData = {
+    body: UserPermissionRequest;
+    path: {
+        /**
+         * String
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/auth/users/{user_id}/permissions/{permission}';
+};
+
+export type AssignPermissionToUserErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type AssignPermissionToUserResponses = {
+    200: MessageResponse;
+};
+
+export type AssignPermissionToUserResponse = AssignPermissionToUserResponses[keyof AssignPermissionToUserResponses];
+
+export type BulkDeleteUsersData = {
+    body: BulkDeleteUsersRequest;
+    path?: never;
+    query?: never;
+    url: '/auth/users/bulk-delete';
+};
+
+export type BulkDeleteUsersErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkDeleteUsersResponses = {
+    200: MessageResponse;
+};
+
+export type BulkDeleteUsersResponse = BulkDeleteUsersResponses[keyof BulkDeleteUsersResponses];
+
 export type GetProfileData = {
     body?: never;
     path?: never;
@@ -4148,7 +5119,7 @@ export type ChangeEmailResponses = {
 export type ChangeEmailResponse = ChangeEmailResponses[keyof ChangeEmailResponses];
 
 export type LinkGoogleData = {
-    body: UserId;
+    body?: never;
     path?: never;
     query: {
         code: string;
@@ -4234,7 +5205,7 @@ export type LinkGoogleResponses = {
 export type LinkGoogleResponse = LinkGoogleResponses[keyof LinkGoogleResponses];
 
 export type LinkGithubData = {
-    body: UserId;
+    body?: never;
     path?: never;
     query: {
         code: string;
@@ -22462,6 +23433,174 @@ export type UpdateStaffResponses = {
 
 export type UpdateStaffResponse = UpdateStaffResponses[keyof UpdateStaffResponses];
 
+export type BulkDeleteStaffData = {
+    body: BulkDeleteStaffRequest;
+    path?: never;
+    query?: never;
+    url: '/staff/bulk';
+};
+
+export type BulkDeleteStaffErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkDeleteStaffResponses = {
+    200: MessageResponse;
+};
+
+export type BulkDeleteStaffResponse = BulkDeleteStaffResponses[keyof BulkDeleteStaffResponses];
+
+export type BulkUpdateStaffData = {
+    body: BulkUpdateStaffRequest;
+    path?: never;
+    query?: never;
+    url: '/staff/bulk';
+};
+
+export type BulkUpdateStaffErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkUpdateStaffResponses = {
+    200: MessageResponse;
+};
+
+export type BulkUpdateStaffResponse = BulkUpdateStaffResponses[keyof BulkUpdateStaffResponses];
+
 export type UploadStaffPhotoData = {
     body: unknown;
     path: {
@@ -22819,7 +23958,7 @@ export type GetTeacherWorkloadResponses = {
 export type GetTeacherWorkloadResponse = GetTeacherWorkloadResponses[keyof GetTeacherWorkloadResponses];
 
 export type MarkStaffAttendanceDailyData = {
-    body: UserId;
+    body: MarkStaffAttendanceRequest;
     path: {
         /**
          * String
@@ -22908,7 +24047,7 @@ export type MarkStaffAttendanceDailyResponses = {
 export type MarkStaffAttendanceDailyResponse = MarkStaffAttendanceDailyResponses[keyof MarkStaffAttendanceDailyResponses];
 
 export type MarkStaffAttendanceBulkData = {
-    body: UserId;
+    body: BulkMarkStaffAttendanceRequest;
     path?: never;
     query?: never;
     url: '/staff/attendance/bulk';
@@ -22992,7 +24131,7 @@ export type MarkStaffAttendanceBulkResponses = {
 export type MarkStaffAttendanceBulkResponse = MarkStaffAttendanceBulkResponses[keyof MarkStaffAttendanceBulkResponses];
 
 export type UpdateStaffAttendanceData = {
-    body: UserId;
+    body: UpdateStaffAttendanceRequest;
     path: {
         /**
          * String
@@ -23616,7 +24755,7 @@ export type CreateSubstitutionResponses = {
 export type CreateSubstitutionResponse = CreateSubstitutionResponses[keyof CreateSubstitutionResponses];
 
 export type GetMySubstitutionsData = {
-    body: UserId;
+    body?: never;
     path?: never;
     query: {
         date: string;
@@ -23702,7 +24841,7 @@ export type GetMySubstitutionsResponses = {
 export type GetMySubstitutionsResponse = GetMySubstitutionsResponses[keyof GetMySubstitutionsResponses];
 
 export type RecordLessonProgressData = {
-    body: UserId;
+    body: CreateLessonProgressRequest;
     path?: never;
     query?: never;
     url: '/staff/lesson-progress';
@@ -24598,7 +25737,7 @@ export type CreateStudentResponses = {
 export type CreateStudentResponse = CreateStudentResponses[keyof CreateStudentResponses];
 
 export type DeleteStudentData = {
-    body: CurrentUser;
+    body?: never;
     path: {
         /**
          * String
@@ -26630,7 +27769,7 @@ export type SendAbsenceNotificationsResponses = {
 export type SendAbsenceNotificationsResponse = SendAbsenceNotificationsResponses[keyof SendAbsenceNotificationsResponses];
 
 export type InitiateEmergencyRollCallData = {
-    body: UserId;
+    body: InitiateEmergencyRollCallRequest;
     path?: never;
     query?: never;
     url: '/student-attendance/emergency/initiate';
@@ -27253,7 +28392,7 @@ export type GetEnrichedStudentListResponses = {
 export type GetEnrichedStudentListResponse = GetEnrichedStudentListResponses[keyof GetEnrichedStudentListResponses];
 
 export type MarkPeriodAttendanceData = {
-    body: UserId;
+    body: MarkPeriodAttendanceRequest;
     path?: never;
     query?: never;
     url: '/student-attendance/period';
@@ -27337,7 +28476,7 @@ export type MarkPeriodAttendanceResponses = {
 export type MarkPeriodAttendanceResponse = MarkPeriodAttendanceResponses[keyof MarkPeriodAttendanceResponses];
 
 export type IssueExitPassData = {
-    body: UserId;
+    body: IssueExitPassRequest;
     path?: never;
     query?: never;
     url: '/student-attendance/exit-pass';
@@ -27597,7 +28736,7 @@ export type SubmitExcuseResponses = {
 export type SubmitExcuseResponse = SubmitExcuseResponses[keyof SubmitExcuseResponses];
 
 export type VerifyExcuseData = {
-    body: UserId;
+    body?: never;
     path: {
         /**
          * String
@@ -27770,7 +28909,7 @@ export type GetAllStudentMarksResponses = {
 export type GetAllStudentMarksResponse = GetAllStudentMarksResponses[keyof GetAllStudentMarksResponses];
 
 export type CreateStudentMarkData = {
-    body: UserId;
+    body: CreateStudentMarkRequest;
     path?: never;
     query?: never;
     url: '/student-marks';
@@ -27854,7 +28993,7 @@ export type CreateStudentMarkResponses = {
 export type CreateStudentMarkResponse = CreateStudentMarkResponses[keyof CreateStudentMarkResponses];
 
 export type BulkCreateStudentMarksData = {
-    body: UserId;
+    body: BulkCreateStudentMarkRequest;
     path?: never;
     query?: never;
     url: '/student-marks/bulk';
@@ -28116,7 +29255,7 @@ export type GetStudentMarkByIdResponses = {
 export type GetStudentMarkByIdResponse = GetStudentMarkByIdResponses[keyof GetStudentMarkByIdResponses];
 
 export type UpdateStudentMarkData = {
-    body: UserId;
+    body: UpdateStudentMarkRequest;
     path: {
         /**
          * String
@@ -28387,7 +29526,7 @@ export type GetStudentMarksByExamAndClassResponses = {
 export type GetStudentMarksByExamAndClassResponse = GetStudentMarksByExamAndClassResponses[keyof GetStudentMarksByExamAndClassResponses];
 
 export type GetMyActivitiesData = {
-    body: UserId;
+    body?: never;
     path?: never;
     query?: never;
     url: '/activities/my';
@@ -28557,7 +29696,7 @@ export type GetActivitiesResponses = {
 export type GetActivitiesResponse = GetActivitiesResponses[keyof GetActivitiesResponses];
 
 export type CreateActivityData = {
-    body: UserId;
+    body: CreateActivityRequest;
     path?: never;
     query?: never;
     url: '/activities';
@@ -28641,7 +29780,7 @@ export type CreateActivityResponses = {
 export type CreateActivityResponse = CreateActivityResponses[keyof CreateActivityResponses];
 
 export type MarkActivityAttendanceData = {
-    body: UserId;
+    body: MarkActivityAttendanceRequest;
     path: {
         /**
          * String
@@ -29509,88 +30648,6 @@ export type HelloErrorResponses = {
 };
 
 export type HelloErrorResponse = HelloErrorResponses[keyof HelloErrorResponses];
-
-export type PostUsersBulkDeleteC1F26Fa46830412232Dfce6Af9030161Data = {
-    body: BulkDeleteUsersRequest;
-    path?: never;
-    query?: never;
-    url: '/users/bulk-delete';
-};
-
-export type PostUsersBulkDeleteC1F26Fa46830412232Dfce6Af9030161Errors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type PostUsersBulkDeleteC1F26Fa46830412232Dfce6Af9030161Responses = {
-    200: unknown;
-};
 
 export type GetUserConversationsData = {
     body: CurrentUser;

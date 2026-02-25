@@ -6,9 +6,9 @@ use backend::config::Config;
 use std::collections::HashSet;
 use super::utils::*;
 use super::{SeedModule, SeederContext};
-use backend::models::student::attendance::{StudentAttendance, AttendancePolicy, ExitPass, PreApprovedAbsence, EmergencyRollCall, EmergencyRollCallEntry, AttendanceDiscrepancy, AttendanceExcuse, StudentPeriodAttendance, AttendanceAuditLog};
+use backend::models::student::attendance::{StudentAttendance, AttendancePolicy, ExitPass, PreApprovedAbsence, EmergencyRollCall, EmergencyRollCallEntry, StudentPeriodAttendance, AttendanceAuditLog};
 use backend::models::staff::attendance::StaffAttendance;
-use backend::database::enums::{AttendanceStatus, PolicyRuleType, ExitReason, PreApprovedReason, ExcuseType, SuspicionFlag, DetailedStatus, EmergencyStatus};
+use backend::database::enums::{AttendanceStatus, PolicyRuleType, ExitReason, PreApprovedReason, SuspicionFlag, DetailedStatus, EmergencyStatus};
 use chrono::{Utc, NaiveDate, NaiveTime};
 use rand::Rng;
 use rand::seq::SliceRandom;
@@ -166,7 +166,7 @@ impl SeedModule for AttendanceSeeder {
         if !context.student_ids.is_empty() && !context.user_ids.is_empty() {
             let mut pre_approved_data = Vec::new();
             for i in 0..seed_count_config.pre_approved_absences {
-                let start_date = NaiveDate::from_ymd_opt(2024, (rng.gen_range(1..=12)), (rng.gen_range(1..=28))).unwrap();
+                let start_date = NaiveDate::from_ymd_opt(2024, rng.gen_range(1..=12), rng.gen_range(1..=28)).unwrap();
                 let end_date = start_date + chrono::Duration::days(rng.gen_range(1..=5));
                 pre_approved_data.push(PreApprovedAbsence {
                     id: generate_uuid(),

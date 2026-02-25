@@ -72,10 +72,7 @@ export const getStudentColumns = ({
         <div className="flex items-center gap-3 pl-4">
           <Avatar className="size-8">
             <AvatarImage
-              src={
-                student.photo_url ||
-                `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.email || student.id}`
-              }
+              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.email || student.id}`}
               alt={student.name_english}
             />
             <AvatarFallback>

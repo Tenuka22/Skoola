@@ -5,10 +5,8 @@ use crate::models::finance::salary::{
     CreateSalaryComponentRequest, SalaryComponentResponse,
     SetStaffSalaryRequest, StaffSalaryResponse, RecordSalaryPaymentRequest, SalaryPaymentResponse,
 };
-use crate::models::finance::budget::{
-    CreateBudgetCategoryRequest, BudgetCategoryResponse, SetBudgetRequest, BudgetResponse,
-    UpdateBudgetRequest, BudgetSummaryResponse, BudgetComparisonResponse,
-};
+use crate::models::finance::budget_category::{CreateBudgetCategoryRequest, BudgetCategoryResponse};
+use crate::models::finance::budget::{SetBudgetRequest, BudgetResponse, UpdateBudgetRequest, BudgetSummaryResponse, BudgetComparisonResponse};
 use crate::models::finance::transaction::{
     RecordIncomeRequest, IncomeTransactionResponse, RecordExpenseRequest, ExpenseTransactionResponse,
     ReconcilePettyCashRequest,
@@ -78,7 +76,7 @@ pub async fn get_all_budget_categories(
 ) -> Result<Json<PaginatedBudgetCategoryResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let inner_query = query.into_inner();
-    let (categories, total_categories, total_pages): (Vec<crate::models::finance::budget::BudgetCategory>, i64, i64) =
+    let (categories, total_categories, total_pages): (Vec<crate::models::finance::budget_category::BudgetCategory>, i64, i64) =
         financial::get_all_budget_categories(&mut conn, inner_query.clone()).await?;
     Ok(Json(PaginatedBudgetCategoryResponse {
         data: categories.into_iter().map(BudgetCategoryResponse::from).collect(),

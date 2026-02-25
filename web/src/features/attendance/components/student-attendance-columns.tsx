@@ -18,7 +18,6 @@ export const studentAttendanceColumns: Array<
         <div className="flex items-center gap-3">
           <Avatar className="size-8 rounded-lg">
             <AvatarImage
-              src={student?.photo_url ?? ''}
               alt={student?.name_english}
             />
             <AvatarFallback className="rounded-lg">

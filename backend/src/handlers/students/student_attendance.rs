@@ -1,4 +1,4 @@
-use actix_web::web;
+use actix_web::{HttpRequest, web};
 use apistos::api_operation;
 use chrono::NaiveDate;
 use serde::Deserialize;
@@ -200,9 +200,10 @@ pub async fn send_absence_notifications(
     )]
     pub async fn initiate_emergency_roll_call(
         data: web::Data<AppState>,
+        req: HttpRequest,
         body: web::Json<InitiateEmergencyRollCallRequest>,
-        user_id: UserId,
     ) -> Result<Json<String>, APIError> {
+        let user_id = UserId::from_request(&req)?;
         let roll_call_id = student_attendance::initiate_emergency_roll_call(data, body.event_name.clone(), user_id.0).await?;
         Ok(Json(roll_call_id))
     }
@@ -346,9 +347,10 @@ pub async fn send_absence_notifications(
         )]
         pub async fn mark_period_attendance(
             data: web::Data<AppState>,
+            req: HttpRequest,
             body: web::Json<MarkPeriodAttendanceRequest>,
-            user_id: UserId,
         ) -> Result<Json<MessageResponse>, APIError> {
+            let user_id = UserId::from_request(&req)?;
             student_attendance::mark_period_attendance(data, body.into_inner(), user_id.0).await?;
             Ok(Json(MessageResponse { message: "Period attendance marked successfully.".to_string() }))
         }
@@ -361,9 +363,10 @@ pub async fn send_absence_notifications(
         )]
         pub async fn issue_exit_pass(
             data: web::Data<AppState>,
+            req: HttpRequest,
             body: web::Json<IssueExitPassRequest>,
-            user_id: UserId,
         ) -> Result<Json<ExitPassResponse>, APIError> {
+            let user_id = UserId::from_request(&req)?;
             let res = attendance_policies::issue_exit_pass(data, body.student_id.clone(), body.exit_time, body.reason.clone(), user_id.0).await?;
             Ok(Json(ExitPassResponse {
                 id: res.id,
@@ -418,9 +421,10 @@ pub async fn send_absence_notifications(
         )]
         pub async fn verify_excuse(
             data: web::Data<AppState>,
+            req: HttpRequest,
             path: web::Path<String>, // excuse_id
-            verifier: UserId,
         ) -> Result<Json<MessageResponse>, APIError> {
+            let verifier = UserId::from_request(&req)?;
             student_attendance::verify_excuse(data, path.into_inner(), verifier.0).await?;
             Ok(Json(MessageResponse { message: "Excuse verified successfully.".to_string() }))
         }

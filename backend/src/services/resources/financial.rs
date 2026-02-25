@@ -1,11 +1,14 @@
 use crate::models::finance::salary::{StaffSalary, SalaryComponent, SalaryPayment};
-use crate::models::finance::budget::{Budget, BudgetCategory, BudgetSummaryResponse, BudgetComparisonResponse};
+use crate::models::finance::budget::Budget;
+use crate::models::finance::budget_category::BudgetCategory;
+use crate::models::finance::budget::{BudgetSummaryResponse, BudgetComparisonResponse};
 use crate::models::finance::transaction::{IncomeTransaction, ExpenseTransaction};
 use crate::models::finance::petty_cash_transaction::PettyCashTransaction;
 use crate::errors::APIError;
 use crate::AppState;
 use actix_web::web;
-use crate::models::finance::budget::{CreateBudgetCategoryRequest, SetBudgetRequest, UpdateBudgetRequest};
+use crate::models::finance::budget_category::CreateBudgetCategoryRequest;
+use crate::models::finance::budget::{SetBudgetRequest, UpdateBudgetRequest};
 use crate::models::finance::transaction::{RecordIncomeRequest, RecordExpenseRequest, ReconcilePettyCashRequest};
 use crate::models::finance::petty_cash_transaction::RecordPettyCashRequest;
 use crate::models::finance::salary::{CreateSalaryComponentRequest, SetStaffSalaryRequest, RecordSalaryPaymentRequest};

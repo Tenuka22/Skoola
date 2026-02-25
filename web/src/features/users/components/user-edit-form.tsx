@@ -68,7 +68,7 @@ export function UserEditForm({
     if (current.includes(roleName)) {
       setValue(
         'roles',
-        current.filter((r) => r !== roleName),
+        current.filter((r: z.infer<typeof zRoleEnum>) => r !== roleName),
       )
     } else {
       setValue('roles', [...current, roleName])

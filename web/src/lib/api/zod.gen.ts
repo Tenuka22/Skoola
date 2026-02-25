@@ -242,6 +242,12 @@ export const zAuditLogResponse = z.object({
     user_id: z.string()
 });
 
+export const zAuthMethodStats = z.object({
+    github: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    google: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    password_only: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+});
+
 /**
  * BehaviorIncidentResponse
  */
@@ -407,6 +413,13 @@ export const zBulkDeleteLibraryBooksRequest = z.object({
  */
 export const zBulkDeleteLibraryCategoriesRequest = z.object({
     category_ids: z.array(z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }))
+});
+
+/**
+ * BulkDeleteStaffRequest
+ */
+export const zBulkDeleteStaffRequest = z.object({
+    staff_ids: z.array(z.string())
 });
 
 /**
@@ -1422,6 +1435,11 @@ export const zCurriculumStandardResponse = z.object({
     standard_code: z.string(),
     subject_id: z.string(),
     updated_at: z.string()
+});
+
+export const zDomainStat = z.object({
+    count: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    domain: z.string()
 });
 
 export const zEducationLevel = z.enum([
@@ -2632,6 +2650,13 @@ export const zReligion = z.enum([
 ]);
 
 /**
+ * ResendVerificationEmailRequest
+ */
+export const zResendVerificationEmailRequest = z.object({
+    email: z.string()
+});
+
+/**
  * ResourceBookingResponse
  */
 export const zResourceBookingResponse = z.object({
@@ -2695,6 +2720,25 @@ export const zRoleEnum = z.enum([
     'Accountant',
     'Librarian'
 ]);
+
+/**
+ * BulkUpdateRequest
+ */
+export const zBulkUpdateRequest = z.object({
+    is_verified: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    lockout_until: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])).default(null),
+    role: z.optional(z.union([
+        zRoleEnum,
+        z.null()
+    ])),
+    user_ids: z.array(z.string())
+});
 
 /**
  * CurrentUser
@@ -2934,6 +2978,53 @@ export const zStaffType = z.enum([
     'NonTeaching',
     'Administrative'
 ]);
+
+/**
+ * BulkUpdateStaffRequest
+ */
+export const zBulkUpdateStaffRequest = z.object({
+    address: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    dob: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    employee_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    employment_status: z.optional(z.union([
+        zEmploymentStatus,
+        z.null()
+    ])),
+    gender: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    name: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    nic: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    phone: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    photo_url: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    staff_ids: z.array(z.string()),
+    staff_type: z.optional(z.union([
+        zStaffType,
+        z.null()
+    ]))
+});
 
 /**
  * CreateStaffRequest
@@ -3521,6 +3612,11 @@ export const zRecordPettyCashRequest = z.object({
     ])),
     handled_by: z.string(),
     transaction_type: zTransactionType
+});
+
+export const zTrendPoint = z.object({
+    count: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    date: z.string()
 });
 
 /**
@@ -4297,9 +4393,33 @@ export const zUpdateTimetableRequest = z.object({
 });
 
 /**
- * UserId
+ * UpdateUserRequest
  */
-export const zUserId = z.string();
+export const zUpdateUserRequest = z.object({
+    email: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    is_verified: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    lockout_until: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])).default(null),
+    role: z.optional(z.union([
+        zRoleEnum,
+        z.null()
+    ]))
+});
+
+/**
+ * UserPermissionRequest
+ */
+export const zUserPermissionRequest = z.object({
+    permission: zPermissionEnum
+});
 
 /**
  * UserProfileResponse
@@ -4350,6 +4470,17 @@ export const zUserResponse = z.object({
 });
 
 /**
+ * PaginatedUserResponse
+ */
+export const zPaginatedUserResponse = z.object({
+    data: z.array(zUserResponse),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+});
+
+/**
  * UserSet
  */
 export const zUserSet = z.object({
@@ -4366,6 +4497,19 @@ export const zUserSet = z.object({
  */
 export const zUserSetPermissionRequest = z.object({
     permission: zPermissionEnum
+});
+
+/**
+ * UserStatsResponse
+ */
+export const zUserStatsResponse = z.object({
+    auth_methods: zAuthMethodStats,
+    locked_users: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    pending_users: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    registration_trend: z.array(zTrendPoint),
+    top_domains: z.array(zDomainStat),
+    total_users: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    verified_users: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
 });
 
 export const zRegisterUserData = z.object({
@@ -4448,6 +4592,136 @@ export const zVerifyEmailData = z.object({
 
 export const zVerifyEmailResponse = zMessageResponse;
 
+export const zResendVerificationEmailData = z.object({
+    body: zResendVerificationEmailRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zResendVerificationEmailResponse = zMessageResponse;
+
+export const zGetAllUsersData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.object({
+        auth_method: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        created_after: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        created_before: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        is_verified: z.optional(z.union([
+            z.boolean(),
+            z.null()
+        ])),
+        limit: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        page: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        search: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        sort_by: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        sort_order: z.optional(z.union([
+            z.string(),
+            z.null()
+        ]))
+    }))
+});
+
+export const zGetAllUsersResponse = zPaginatedUserResponse;
+
+export const zGetUserStatisticsData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zGetUserStatisticsResponse = zUserStatsResponse;
+
+export const zDeleteUserData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        user_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zDeleteUserResponse = zMessageResponse;
+
+export const zUpdateUserData = z.object({
+    body: zUpdateUserRequest,
+    path: z.object({
+        user_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zUpdateUserResponse = zMessageResponse;
+
+export const zBulkUpdateUsersData = z.object({
+    body: zBulkUpdateRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zBulkUpdateUsersResponse = zMessageResponse;
+
+export const zGetUserPermissionsData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        user_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+/**
+ * String
+ */
+export const zGetUserPermissionsResponse = z.string();
+
+export const zUnassignPermissionFromUserData = z.object({
+    body: zUserPermissionRequest,
+    path: z.object({
+        user_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zUnassignPermissionFromUserResponse = zMessageResponse;
+
+export const zAssignPermissionToUserData = z.object({
+    body: zUserPermissionRequest,
+    path: z.object({
+        user_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zAssignPermissionToUserResponse = zMessageResponse;
+
+export const zBulkDeleteUsersData = z.object({
+    body: zBulkDeleteUsersRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zBulkDeleteUsersResponse = zMessageResponse;
+
 export const zGetProfileData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
@@ -4481,7 +4755,7 @@ export const zChangeEmailData = z.object({
 export const zChangeEmailResponse = zUserResponse;
 
 export const zLinkGoogleData = z.object({
-    body: zUserId,
+    body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
         code: z.string()
@@ -4491,7 +4765,7 @@ export const zLinkGoogleData = z.object({
 export const zLinkGoogleResponse = zUserResponse;
 
 export const zLinkGithubData = z.object({
-    body: zUserId,
+    body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
         code: z.string()
@@ -6730,6 +7004,22 @@ export const zUpdateStaffData = z.object({
 
 export const zUpdateStaffResponse = zStaffResponse;
 
+export const zBulkDeleteStaffData = z.object({
+    body: zBulkDeleteStaffRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zBulkDeleteStaffResponse = zMessageResponse;
+
+export const zBulkUpdateStaffData = z.object({
+    body: zBulkUpdateStaffRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zBulkUpdateStaffResponse = zMessageResponse;
+
 export const zUploadStaffPhotoData = z.object({
     body: z.unknown(),
     path: z.object({
@@ -6771,7 +7061,7 @@ export const zGetTeacherWorkloadData = z.object({
 export const zGetTeacherWorkloadResponse = zTeacherWorkloadResponse;
 
 export const zMarkStaffAttendanceDailyData = z.object({
-    body: zUserId,
+    body: zMarkStaffAttendanceRequest,
     path: z.object({
         staff_id: z.string()
     }),
@@ -6781,7 +7071,7 @@ export const zMarkStaffAttendanceDailyData = z.object({
 export const zMarkStaffAttendanceDailyResponse = zStaffAttendanceResponse;
 
 export const zMarkStaffAttendanceBulkData = z.object({
-    body: zUserId,
+    body: zBulkMarkStaffAttendanceRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
@@ -6789,7 +7079,7 @@ export const zMarkStaffAttendanceBulkData = z.object({
 export const zMarkStaffAttendanceBulkResponse = z.array(zStaffAttendanceResponse);
 
 export const zUpdateStaffAttendanceData = z.object({
-    body: zUserId,
+    body: zUpdateStaffAttendanceRequest,
     path: z.object({
         attendance_id: z.string()
     }),
@@ -6869,7 +7159,7 @@ export const zCreateSubstitutionData = z.object({
 export const zCreateSubstitutionResponse = zSubstitutionResponse;
 
 export const zGetMySubstitutionsData = z.object({
-    body: zUserId,
+    body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.object({
         date: z.iso.date()
@@ -6879,7 +7169,7 @@ export const zGetMySubstitutionsData = z.object({
 export const zGetMySubstitutionsResponse = z.array(zSubstitutionResponse);
 
 export const zRecordLessonProgressData = z.object({
-    body: zUserId,
+    body: zCreateLessonProgressRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
@@ -7009,7 +7299,7 @@ export const zCreateStudentData = z.object({
 export const zCreateStudentResponse = zStudentResponse;
 
 export const zDeleteStudentData = z.object({
-    body: zCurrentUser,
+    body: z.optional(z.never()),
     path: z.object({
         student_id: z.string()
     }),
@@ -7251,7 +7541,7 @@ export const zSendAbsenceNotificationsData = z.object({
 export const zSendAbsenceNotificationsResponse = zMessageResponse;
 
 export const zInitiateEmergencyRollCallData = z.object({
-    body: zUserId,
+    body: zInitiateEmergencyRollCallRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
@@ -7333,7 +7623,7 @@ export const zGetEnrichedStudentListData = z.object({
 export const zGetEnrichedStudentListResponse = z.array(zEnrichedStudentAttendance);
 
 export const zMarkPeriodAttendanceData = z.object({
-    body: zUserId,
+    body: zMarkPeriodAttendanceRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
@@ -7341,7 +7631,7 @@ export const zMarkPeriodAttendanceData = z.object({
 export const zMarkPeriodAttendanceResponse = zMessageResponse;
 
 export const zIssueExitPassData = z.object({
-    body: zUserId,
+    body: zIssueExitPassRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
@@ -7370,7 +7660,7 @@ export const zSubmitExcuseData = z.object({
 export const zSubmitExcuseResponse = zAttendanceExcuseResponse;
 
 export const zVerifyExcuseData = z.object({
-    body: zUserId,
+    body: z.optional(z.never()),
     path: z.object({
         excuse_id: z.string()
     }),
@@ -7388,7 +7678,7 @@ export const zGetAllStudentMarksData = z.object({
 export const zGetAllStudentMarksResponse = z.array(zStudentMarkResponse);
 
 export const zCreateStudentMarkData = z.object({
-    body: zUserId,
+    body: zCreateStudentMarkRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
@@ -7396,7 +7686,7 @@ export const zCreateStudentMarkData = z.object({
 export const zCreateStudentMarkResponse = zStudentMarkResponse;
 
 export const zBulkCreateStudentMarksData = z.object({
-    body: zUserId,
+    body: zBulkCreateStudentMarkRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
@@ -7424,7 +7714,7 @@ export const zGetStudentMarkByIdData = z.object({
 export const zGetStudentMarkByIdResponse = zStudentMarkResponse;
 
 export const zUpdateStudentMarkData = z.object({
-    body: zUserId,
+    body: zUpdateStudentMarkRequest,
     path: z.object({
         id: z.string()
     }),
@@ -7455,7 +7745,7 @@ export const zGetStudentMarksByExamAndClassData = z.object({
 export const zGetStudentMarksByExamAndClassResponse = z.array(zStudentMarkResponse);
 
 export const zGetMyActivitiesData = z.object({
-    body: zUserId,
+    body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
@@ -7476,7 +7766,7 @@ export const zGetActivitiesData = z.object({
 export const zGetActivitiesResponse = z.array(zActivityResponse);
 
 export const zCreateActivityData = z.object({
-    body: zUserId,
+    body: zCreateActivityRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
@@ -7484,7 +7774,7 @@ export const zCreateActivityData = z.object({
 export const zCreateActivityResponse = zActivityResponse;
 
 export const zMarkActivityAttendanceData = z.object({
-    body: zUserId,
+    body: zMarkActivityAttendanceRequest,
     path: z.object({
         activity_id: z.string()
     }),
@@ -7577,12 +7867,6 @@ export const zHelloErrorData = z.object({
 });
 
 export const zHelloErrorResponse = zMessageResponse;
-
-export const zPostUsersBulkDeleteC1F26Fa46830412232Dfce6Af9030161Data = z.object({
-    body: zBulkDeleteUsersRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
 
 export const zGetUserConversationsData = z.object({
     body: zCurrentUser,

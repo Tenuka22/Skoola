@@ -1,20 +1,23 @@
-use actix_web::web;
-use apistos::{api_operation, ApiComponent};
-use actix_multipart::Multipart;
-use futures_util::stream::{StreamExt, TryStreamExt};
-use std::io::Write;
-use std::fs::create_dir_all;
 use crate::schema::students;
-use diesel::prelude::*;
+use actix_multipart::Multipart;
 use actix_web::web::Json;
+use actix_web::{HttpRequest, web};
+use apistos::{ApiComponent, api_operation};
+use diesel::prelude::*;
+use futures_util::stream::{StreamExt, TryStreamExt};
 use schemars::JsonSchema;
 use serde::Deserialize;
+use std::fs::create_dir_all;
+use std::io::Write;
 
 use crate::{
     AppState,
     errors::APIError,
-    models::student::student::{CreateStudentRequest, UpdateStudentRequest, StudentResponse, Student, PaginatedStudentResponse},
     models::MessageResponse,
+    models::student::student::{
+        CreateStudentRequest, PaginatedStudentResponse, Student, StudentResponse,
+        UpdateStudentRequest,
+    },
     services::students::student,
 };
 
@@ -43,7 +46,8 @@ pub async fn create_student(
     current_user: CurrentUser,
     body: web::Json<CreateStudentRequest>,
 ) -> Result<Json<StudentResponse>, APIError> {
-    let new_student = student::create_student(data.clone(), current_user, body.into_inner()).await?;
+    let new_student =
+        student::create_student(data.clone(), current_user, body.into_inner()).await?;
     Ok(Json(new_student))
 }
 
@@ -60,7 +64,8 @@ pub async fn update_student(
     body: web::Json<UpdateStudentRequest>,
 ) -> Result<Json<StudentResponse>, APIError> {
     let student_id = path.into_inner();
-    let updated_student = student::update_student(data.clone(), current_user, student_id, body.into_inner()).await?;
+    let updated_student =
+        student::update_student(data.clone(), current_user, student_id, body.into_inner()).await?;
     Ok(Json(updated_student))
 }
 
@@ -93,6 +98,8 @@ pub async fn get_all_students(
     Ok(Json(students))
 }
 
+use crate::utils::jwt::UserId;
+
 #[api_operation(
     summary = "Delete (deactivate) a student",
     description = "Deactivates a student by setting their status to 'Withdrawn'.",
@@ -101,12 +108,15 @@ pub async fn get_all_students(
 )]
 pub async fn delete_student(
     data: web::Data<AppState>,
-    current_user: CurrentUser,
+    req: HttpRequest,
     path: web::Path<String>,
 ) -> Result<Json<MessageResponse>, APIError> {
+    let user_id = UserId::from_request(&req)?;
     let student_id = path.into_inner();
-    student::delete_student(data.clone(), current_user, student_id).await?;
-    Ok(Json(MessageResponse { message: "Student deactivated successfully".to_string() }))
+    student::delete_student(data.clone(), student_id, user_id).await?;
+    Ok(Json(MessageResponse {
+        message: "Student deactivated successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -129,7 +139,9 @@ pub async fn upload_student_photo(
         .select(Student::as_select())
         .first(&mut conn)?;
 
-    let profile_id = existing_student.profile_id.ok_or_else(|| APIError::not_found("Profile not found for student"))?;
+    let profile_id = existing_student
+        .profile_id
+        .ok_or_else(|| APIError::not_found("Profile not found for student"))?;
 
     // Create uploads/students directory if it doesn't exist
     create_dir_all("./uploads/students")?;
@@ -140,7 +152,10 @@ pub async fn upload_student_photo(
         if let Some(content_disposition) = field.content_disposition() {
             if let Some(filename) = content_disposition.get_filename() {
                 let sanitized_filename = sanitize_filename::sanitize(filename);
-                let filepath = format!("./uploads/students/{}_{}", student_id_inner, sanitized_filename);
+                let filepath = format!(
+                    "./uploads/students/{}_{}",
+                    student_id_inner, sanitized_filename
+                );
                 let filepath_clone = filepath.clone();
                 let mut f = web::block(move || std::fs::File::create(&filepath_clone)).await??;
                 while let Some(chunk) = field.next().await {
@@ -162,14 +177,19 @@ pub async fn upload_student_photo(
         // Fetch updated student, profile, and user info to construct StudentResponse
         use crate::models::{Profile, auth::User};
         use crate::schema::{user_profiles, users};
-        
-        let (updated_student, profile, user_profile): (Student, Profile, Option<User>) = students::table
-            .find(&student_id_inner)
-            .inner_join(profiles::table)
-            .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
-            .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
-            .select((Student::as_select(), Profile::as_select(), Option::<User>::as_select()))
-            .first(&mut conn)?;
+
+        let (updated_student, profile, user_profile): (Student, Profile, Option<User>) =
+            students::table
+                .find(&student_id_inner)
+                .inner_join(profiles::table)
+                .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
+                .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+                .select((
+                    Student::as_select(),
+                    Profile::as_select(),
+                    Option::<User>::as_select(),
+                ))
+                .first(&mut conn)?;
 
         Ok(Json(StudentResponse {
             id: updated_student.id,
@@ -191,7 +211,6 @@ pub async fn upload_student_photo(
             profile_photo_url: profile.photo_url,
             user_email: user_profile.map(|u| u.email),
         }))
-
     } else {
         Err(APIError::bad_request("No file was uploaded"))
     }

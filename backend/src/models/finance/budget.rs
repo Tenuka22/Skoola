@@ -1,20 +1,9 @@
-use crate::schema::{budget_categories, budgets};
+use crate::schema::budgets;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime;
 use schemars::JsonSchema;
 use apistos::ApiComponent;
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
-#[diesel(table_name = budget_categories)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct BudgetCategory {
-    pub id: String,
-    pub name: String,
-    pub description: Option<String>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
 #[diesel(table_name = budgets)]
@@ -27,33 +16,6 @@ pub struct Budget {
     pub spent_amount: f32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
-pub struct CreateBudgetCategoryRequest {
-    pub name: String,
-    pub description: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
-pub struct BudgetCategoryResponse {
-    pub id: String,
-    pub name: String,
-    pub description: Option<String>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
-
-impl From<BudgetCategory> for BudgetCategoryResponse {
-    fn from(cat: BudgetCategory) -> Self {
-        Self {
-            id: cat.id,
-            name: cat.name,
-            description: cat.description,
-            created_at: cat.created_at,
-            updated_at: cat.updated_at,
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]

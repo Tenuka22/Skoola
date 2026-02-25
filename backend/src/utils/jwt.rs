@@ -3,7 +3,7 @@ use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
     web,
 };
-use futures_util::future::{Ready, ok, err};
+use futures_util::future::{Ready, err, ok};
 use std::future::Future;
 use std::pin::Pin;
 use std::rc::Rc;
@@ -11,7 +11,11 @@ use tracing::{info, warn};
 
 use crate::config::AppState;
 use crate::errors::APIError;
-use crate::{database::enums::{PermissionEnum, RoleEnum}, services::auth::auth::decode_jwt, services::auth::user_permissions::fetch_all_user_permissions};
+use crate::{
+    database::enums::{PermissionEnum, RoleEnum},
+    services::auth::auth::decode_jwt,
+    services::auth::user_permissions::fetch_all_user_permissions,
+};
 
 pub struct Authenticated;
 
@@ -55,7 +59,8 @@ where
         let app_state = req.app_data::<web::Data<AppState>>().cloned();
 
         Box::pin(async move {
-            let app_state = app_state.ok_or_else(|| APIError::internal("Application state not found"))?;
+            let app_state =
+                app_state.ok_or_else(|| APIError::internal("Application state not found"))?;
             let config = app_state.config.clone();
 
             let token = req
@@ -75,15 +80,16 @@ where
                             .iter()
                             .map(|r: &String| r.parse::<RoleEnum>().unwrap_or(RoleEnum::Guest))
                             .collect();
-                        
+
                         // Fetch all permissions for the user using web::block since it's synchronous
                         let app_state_for_block = app_state.clone();
                         let user_id_for_block = user_id;
-                        
+
                         let user_permissions = web::block(move || {
                             let mut conn = app_state_for_block.db_pool.get()?;
                             fetch_all_user_permissions(&mut conn, &user_id_for_block)
-                        }).await
+                        })
+                        .await
                         .map_err(|e| APIError::internal(&format!("Blocking error: {}", e)))?
                         .map_err(APIError::from)?;
 
@@ -93,7 +99,8 @@ where
                         );
                         req.extensions_mut().insert(UserId(user_id_for_extensions));
                         req.extensions_mut().insert(UserRoles(user_roles));
-                        req.extensions_mut().insert(UserPermissions(user_permissions));
+                        req.extensions_mut()
+                            .insert(UserPermissions(user_permissions));
                         srv.call(req).await
                     }
                     Err(e) => {
@@ -115,6 +122,18 @@ use schemars::JsonSchema;
 #[derive(Debug, Clone, ApiComponent, JsonSchema)]
 pub struct UserId(pub String);
 
+impl UserId {
+    pub fn from_request(req: &actix_web::HttpRequest) -> Result<Self, APIError> {
+        req.extensions()
+            .get::<UserId>()
+            .cloned()
+            .ok_or_else(|| {
+                warn!("ACTION: Failed to extract UserId from request extensions.");
+                APIError::unauthorized("Unauthorized")
+            })
+    }
+}
+
 impl FromRequest for UserId {
     type Error = Error;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -123,13 +142,9 @@ impl FromRequest for UserId {
         req: &actix_web::HttpRequest,
         _payload: &mut actix_web::dev::Payload,
     ) -> Self::Future {
-        let extensions = req.extensions();
-        match extensions.get::<UserId>() {
-            Some(user_id) => ok(user_id.clone()),
-            None => {
-                warn!("ACTION: Failed to extract UserId from request extensions.");
-                err(APIError::unauthorized("Unauthorized").into())
-            }
+        match Self::from_request(req) {
+            Ok(user_id) => ok(user_id),
+            Err(e) => err(e.into()),
         }
     }
 }

@@ -38,7 +38,7 @@ export async function deleteUser(userId: string) {
 export async function bulkDeleteUsers(userIds: Array<string>) {
   const { data } = await bulkDeleteUsersApi({
     client: authClient,
-    body: { user_ids: userIds },
+    body: { userIds: userIds },
     throwOnError: true,
   })
   return data

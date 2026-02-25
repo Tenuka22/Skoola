@@ -7,10 +7,10 @@ use std::collections::HashSet;
 use super::utils::*;
 use super::{SeedModule, SeederContext};
 use backend::models::academic::{AcademicYear, GradeLevel, Subject, Term, Class, Stream};
-use backend::models::auth::{NewProfile, NewUser, NewUserProfile, Profile};
+use backend::models::auth::{NewProfile, NewUser, NewUserProfile};
 use backend::database::enums::RoleEnum;
-use backend::models::staff::staff::{Staff, NewStaff};
-use backend::models::student::student::{Student, NewStudent};
+use backend::models::staff::staff::{NewStaff};
+use backend::models::student::student::{NewStudent};
 use chrono::{Utc, NaiveDate};
 use rand::Rng;
 use backend::database::enums::{EducationLevel, Medium, EmploymentStatus, StaffType, Gender, Religion, Ethnicity, StudentStatus}; // Added necessary enums
@@ -27,11 +27,11 @@ impl SeedModule for CoreEntitiesSeeder {
     fn seed(
         &self,
         conn: &mut SqliteConnection,
-        config: &Config,
+        _config: &Config,
         password_hash: &str,
         used_emails: &mut HashSet<String>,
         context: &mut SeederContext,
-        seed_count_config: &crate::SeedCountConfig, // Add SeedCountConfig here
+        seed_count_config: &crate::SeedCountConfig,
     ) -> Result<()> {
         println!("Seeding Core Entities module...");
 

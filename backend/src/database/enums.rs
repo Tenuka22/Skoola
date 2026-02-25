@@ -690,8 +690,6 @@ impl FromSql<Text, diesel::sqlite::Sqlite> for ExitReason {
             "Dismissal" => Ok(ExitReason::Dismissal),
             "FamilyEvent" => Ok(ExitReason::FamilyEvent),
             "Other" => Ok(ExitReason::Other),
-            "FamilyEvent" => Ok(ExitReason::FamilyEvent),
-            "Other" => Ok(ExitReason::Other),
             _ => Err("Unrecognized enum variant".into()),
         }
     }

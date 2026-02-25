@@ -20,8 +20,7 @@ pub use grading_criterion::*;
 pub use student_marks::*;
 pub use report_card::*;
 pub use zscore::*;
-pub use special_exam::*;
-pub use report_card_mark::*; // New
-pub use al_exam::*; // New
-pub use ol_exam::*; // New
-pub use scholarship_exam::*; // New
+pub use special_exam::ExamRegistrationRequest;
+pub use al_exam::*;
+pub use ol_exam::*;
+pub use scholarship_exam::*;

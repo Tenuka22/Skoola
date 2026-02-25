@@ -84,10 +84,7 @@ export function StudentBoardView({
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 border border-border/50">
                   <AvatarImage
-                    src={
-                      student.photo_url ||
-                      `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.id}`
-                    }
+                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.id}`}
                   />
                   <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                     {initials}

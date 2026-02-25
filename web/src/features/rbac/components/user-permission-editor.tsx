@@ -118,10 +118,12 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
 
       // Basic inheritance check (simplified)
       // In a real app, we'd check if the role already has it
-      assignPerm.mutate({
-        path: { user_id: user.id },
-        body: { permission },
-      })
+      assignPerm.mutate(
+        {
+          path: { user_id: user.id },
+          body: { permission },
+        } as any,
+      )
     }
   }
 
@@ -250,10 +252,12 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
                           size="icon"
                           className="size-4 p-0 h-4 w-4 hover:bg-destructive/20 hover:text-destructive"
                           onClick={() =>
-                            unassignPerm.mutate({
-                              path: { user_id: user.id },
-                              body: { permission: perm },
-                            })
+                            unassignPerm.mutate(
+                              {
+                                path: { user_id: user.id },
+                                body: { permission: perm },
+                              } as any,
+                            )
                           }
                         >
                           <HugeiconsIcon

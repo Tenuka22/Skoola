@@ -1,4 +1,4 @@
-use actix_web::web;
+use actix_web::{web, http::StatusCode};
 use actix_web::web::Json;
 use apistos::{ApiComponent, api_operation};
 use chrono::{Duration, NaiveDate, NaiveDateTime, Utc};
@@ -6,10 +6,12 @@ use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use tracing::{info, error};
 
 use crate::{
     AppState, database::enums::RoleEnum, database::tables::User, errors::APIError,
-    models::MessageResponse, models::auth::user::UserResponse, schema::users,
+    models::MessageResponse, models::auth::user::UserResponse, models::system::BulkDeleteUsersRequest, schema::users,
+    services::system::cleanup::bulk_delete_users as service_bulk_delete_users,
     utils::serde_helpers::deserialize_option_option,
 };
 
@@ -35,10 +37,6 @@ pub struct PaginatedUserResponse {
     pub total_pages: i64,
 }
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
-pub struct BulkDeleteRequest {
-    pub user_ids: Vec<String>,
-}
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
 pub struct BulkUpdateRequest {
@@ -303,13 +301,26 @@ pub async fn delete_user(
 )]
 pub async fn bulk_delete_users(
     data: web::Data<AppState>,
-    body: web::Json<BulkDeleteRequest>,
+    body: web::Json<BulkDeleteUsersRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    diesel::delete(users::table.filter(users::id.eq_any(&body.user_ids))).execute(&mut conn)?;
-    Ok(Json(MessageResponse {
-        message: "Users deleted successfully".to_string(),
-    }))
+    info!("Received request to bulk delete users: {:?}", body.user_ids);
+
+    match service_bulk_delete_users(data, body.into_inner()).await {
+        Ok(_) => {
+            info!("Successfully bulk deleted users.");
+            Ok(Json(MessageResponse {
+                message: "Users deleted successfully.".to_string(),
+            }))
+        }
+        Err(e) => {
+            error!("Failed to bulk delete users: {:?}", e);
+            Err(APIError::new(
+                "Internal Server Error",
+                &format!("Failed to bulk delete users: {}", e),
+                StatusCode::INTERNAL_SERVER_ERROR,
+            ))
+        }
+    }
 }
 
 #[api_operation(

@@ -15,7 +15,29 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/password/reset/{token}", web::post().to(reset_password))
             .route("/google/callback", web::get().to(oauth::google_callback))
             .route("/github/callback", web::get().to(oauth::github_callback))
-            .route("/verify-email/{token}", web::get().to(verification::verify_email)),
+            .route("/verify-email/{token}", web::get().to(verification::verify_email))
+            .route("/resend-verification-email", web::post().to(verification::resend_verification_email))
+            .service(
+                web::scope("/users")
+                    .wrap(Authenticated)
+                    .route("", web::get().to(crate::handlers::auth::users::get_all_users))
+                    .route("/stats", web::get().to(crate::handlers::auth::users::get_user_stats))
+                    .route("/{user_id}", web::delete().to(crate::handlers::auth::users::delete_user))
+                    .route("/{user_id}", web::put().to(crate::handlers::auth::users::update_user))
+                    .route("/bulk", web::patch().to(crate::handlers::auth::users::bulk_update_users))
+                    .service(
+                        web::scope("/{user_id}/permissions")
+                            .wrap(PermissionVerification { required_permission: PermissionEnum::UserManagePermissions })
+                            .route("", web::get().to(crate::handlers::auth::user_permissions::get_user_permissions))
+                            .route("/{permission}", web::post().to(crate::handlers::auth::user_permissions::assign_permission_to_user))
+                            .route("/{permission}", web::delete().to(crate::handlers::auth::user_permissions::unassign_permission_from_user)),
+                    )
+                    .service(
+                        web::scope("/bulk-delete")
+                            .wrap(PermissionVerification { required_permission: PermissionEnum::UserDelete })
+                            .route("", web::post().to(crate::handlers::auth::users::bulk_delete_users)),
+                    ),
+            ),
     )
     .service(
         web::scope("/profile")

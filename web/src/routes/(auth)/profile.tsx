@@ -49,7 +49,7 @@ export const Route = createFileRoute('/(auth)/profile')({
             client: authClient,
           })
           const processedPermissions = userPermissionsRes.data
-            ? userPermissionsRes.data.split(',').filter((s) => s.trim() !== '')
+            ? userPermissionsRes.data.split(',').filter((s: string) => s.trim() !== '')
             : []
           return {
             activeSession,
@@ -149,7 +149,7 @@ function ProfilePage() {
             <div className="text-sm text-muted-foreground">
               <strong>Permissions:</strong>
               <div className="flex flex-wrap gap-2 mt-2">
-                {permissions.map((permission) => (
+                {permissions.map((permission: string) => (
                   <Badge key={permission} variant="outline">
                     {permission}
                   </Badge>
