@@ -1,9 +1,16 @@
+'use client'
+
 import {
   ArrowDown01Icon,
   ArrowUp01Icon,
+  CalendarCheckIn01Icon,
+  Chart01Icon,
   Delete02Icon,
   Menu01Icon,
   PencilEdit01Icon,
+  School01Icon,
+  Upload01Icon,
+  UserGroupIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -13,6 +20,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -22,20 +30,27 @@ import { Checkbox } from '@/components/ui/checkbox'
 interface GetStudentColumnsProps {
   onEdit: (student: StudentResponse) => void
   onDelete: (id: string) => void
+  onUploadPhoto: (student: StudentResponse) => void
+  onAssignClass: (student: StudentResponse) => void
+  onManageGuardians: (student: StudentResponse) => void
+  onManageAttendance: (student: StudentResponse) => void
+  onManageMarks: (student: StudentResponse) => void
 }
 
 export const getStudentColumns = ({
   onEdit,
   onDelete,
+  onUploadPhoto,
+  onAssignClass,
+  onManageGuardians,
+  onManageAttendance,
+  onManageMarks,
 }: GetStudentColumnsProps): Array<ColumnDef<StudentResponse>> => [
   {
     id: 'select',
     header: ({ table }) => (
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}
-        indeterminate={
-          !table.getIsAllPageRowsSelected() && table.getIsSomeRowsSelected()
-        }
         onCheckedChange={(value) => {
           table.toggleAllPageRowsSelected(!!value)
         }}
@@ -72,7 +87,7 @@ export const getStudentColumns = ({
         <div className="flex items-center gap-3 pl-4">
           <Avatar className="size-8">
             <AvatarImage
-              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.email || student.id}`}
+              src={student.profile_photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.email || student.id}`}
               alt={student.name_english}
             />
             <AvatarFallback>
@@ -146,9 +161,9 @@ export const getStudentColumns = ({
     },
   },
   {
-    accessorKey: 'phone',
+    accessorKey: 'profile_phone',
     header: 'Phone',
-    cell: ({ row }) => <span className="pl-4">{row.getValue('phone')}</span>,
+    cell: ({ row }) => <span className="pl-4">{row.getValue('profile_phone') || '-'}</span>,
   },
   {
     accessorKey: 'gender',
@@ -169,11 +184,34 @@ export const getStudentColumns = ({
               </Button>
             }
           />
-          <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuContent align="end" className="w-52">
             <DropdownMenuItem onClick={() => onEdit(student)}>
               <HugeiconsIcon icon={PencilEdit01Icon} className="mr-2 size-4" />
-              Edit
+              Edit Profile
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onUploadPhoto(student)}>
+              <HugeiconsIcon icon={Upload01Icon} className="mr-2 size-4" />
+              Upload Photo
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onAssignClass(student)}>
+              <HugeiconsIcon icon={School01Icon} className="mr-2 size-4" />
+              Assign Class
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onManageGuardians(student)}>
+              <HugeiconsIcon icon={UserGroupIcon} className="mr-2 size-4" />
+              Guardians
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onManageAttendance(student)}>
+              <HugeiconsIcon icon={CalendarCheckIn01Icon} className="mr-2 size-4" />
+              Attendance
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onManageMarks(student)}>
+              <HugeiconsIcon icon={Chart01Icon} className="mr-2 size-4" />
+              Academic Marks
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
               onClick={() => onDelete(student.id)}

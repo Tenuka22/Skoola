@@ -1,6 +1,7 @@
 import { UserBulkEditDialog } from './user-bulk-edit-dialog'
 import { UserEditDialog } from './user-edit-dialog'
 import { UserLockDialog } from './user-lock-dialog'
+import { UserPermissionsDialog } from './user-permissions-dialog'
 import type { BulkUpdateValues, UpdateUserValues } from '../schemas'
 import type { User } from '../types'
 import {
@@ -34,6 +35,8 @@ interface UserModalsProps {
   setUserToLock: (user: User | null) => void
   onLockConfirm: (date: Date) => void
   isLocking?: boolean
+  userToManagePermissions: User | null
+  setUserToManagePermissions: (user: User | null) => void
 }
 
 export function UserModals({
@@ -56,6 +59,8 @@ export function UserModals({
   setUserToLock,
   onLockConfirm,
   isLocking,
+  userToManagePermissions,
+  setUserToManagePermissions,
 }: UserModalsProps) {
   return (
     <>
@@ -123,6 +128,11 @@ export function UserModals({
         onOpenChange={(open) => !open && setUserToLock(null)}
         onConfirm={onLockConfirm}
         isSubmitting={isLocking}
+      />
+
+      <UserPermissionsDialog
+        user={userToManagePermissions}
+        onClose={() => setUserToManagePermissions(null)}
       />
     </>
   )

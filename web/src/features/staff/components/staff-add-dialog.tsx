@@ -8,12 +8,12 @@ import {
   DialogTitle,
 } from '../../../components/ui/dialog'
 import { StaffForm } from './staff-form'
-import type { CreateStaffValues } from '../schemas'
+import type {StaffFormValues} from '../schemas';
 
 interface StaffAddDialogProps {
   isAddOpen: boolean
   setIsAddOpen: (open: boolean) => void
-  onAddConfirm: (values: CreateStaffValues) => void
+  onAddConfirm: (values: StaffFormValues) => void
   isAdding?: boolean
 }
 

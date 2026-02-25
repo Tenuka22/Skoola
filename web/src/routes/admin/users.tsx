@@ -215,6 +215,7 @@ function Users() {
     },
     setUserToDelete: store.setUserToDelete,
     setUserToEdit: store.setUserToEdit,
+    setUserToManagePermissions: store.setUserToManagePermissions,
     isUpdating: updateUser.isPending,
     updatingUserId: (updateUser.variables as any)?.path?.user_id,
   })
@@ -325,6 +326,8 @@ function Users() {
           )
         }
         isLocking={updateUser.isPending}
+        userToManagePermissions={store.userToManagePermissions}
+        setUserToManagePermissions={store.setUserToManagePermissions}
       />
 
       <UserCreateDialog

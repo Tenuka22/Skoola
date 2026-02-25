@@ -10,6 +10,11 @@ import { toast } from 'sonner'
 
 import { StudentAddDialog } from '../../features/students/components/student-add-dialog'
 import { StudentModals } from '../../features/students/components/student-modals'
+import { StudentPhotoUploadDialog } from '../../features/students/components/student-photo-upload-dialog'
+import { StudentAssignClassDialog } from '../../features/students/components/student-assign-class-dialog'
+import { StudentGuardiansDialog } from '../../features/students/components/student-guardians-dialog'
+import { StudentAttendanceDialog } from '../../features/students/components/student-attendance-dialog'
+import { StudentMarksDialog } from '../../features/students/components/student-marks-dialog'
 import { StudentToolbar } from '../../features/students/components/student-toolbar'
 import { getStudentColumns } from '../../features/students/components/student-table-columns'
 import { StudentFilters } from '../../features/students/components/student-filters'
@@ -21,6 +26,7 @@ import { handleExportCSV } from '../../lib/export'
 import { authClient } from '../../lib/clients'
 import type { UpdateStudentRequest } from '@/lib/api/types.gen'
 import {
+  assignStudentToClassMutation,
   createStudentMutation,
   deleteStudentMutation,
   getAllStudentsOptions,
@@ -51,11 +57,24 @@ function StudentsPage() {
     debouncedSearch,
     createdAfter,
     createdBefore,
-    setStudentToEdit,
-    setStudentToDelete,
     setIsBulkDeleteOpen,
     setIsBulkEditOpen,
     setIsCreateStudentOpen,
+    isUploadPhotoOpen,
+    setIsUploadPhotoOpen,
+    studentToUploadPhotoFor,
+    isAssignClassOpen,
+    setIsAssignClassOpen,
+    studentToAssignClassFor,
+    isGuardiansOpen,
+    setIsGuardiansOpen,
+    studentToManageGuardiansFor,
+    isAttendanceOpen,
+    setIsAttendanceOpen,
+    studentToManageAttendanceFor,
+    isMarksOpen,
+    setIsMarksOpen,
+    studentToManageMarksFor,
   } = store
 
   const sortBy = sorting[0]?.id
@@ -68,7 +87,7 @@ function StudentsPage() {
         page,
         limit,
         search: debouncedSearch,
-        status: statusFilter === 'all' ? undefined : statusFilter,
+        status: statusFilter === 'all' ? undefined : (statusFilter as any),
         created_after: createdAfter ?? undefined,
         created_before: createdBefore ?? undefined,
         sort_by: sortBy,
@@ -93,7 +112,7 @@ function StudentsPage() {
       const identifier = variables?.path.student_id || 'Student'
       toast.success(`Successfully deleted ${identifier}.`)
       invalidateStudents()
-      setStudentToDelete(null)
+      store.setStudentToDelete(null)
     },
     onError: (error, variables) => {
       const identifier = variables?.path.student_id || 'Student'
@@ -111,7 +130,7 @@ function StudentsPage() {
       const identifier = variables?.body.name_english || 'New student'
       toast.success(`Student ${identifier} created successfully.`)
       invalidateStudents()
-      setIsCreateStudentOpen(false)
+      store.setIsCreateStudentOpen(false)
     },
     onError: (error, variables) => {
       const identifier = variables?.body.name_english || 'Student'
@@ -129,7 +148,7 @@ function StudentsPage() {
       const identifier = variables?.path.student_id || 'Student'
       toast.success(`Successfully updated ${identifier}.`)
       invalidateStudents()
-      setStudentToEdit(null)
+      store.setStudentToEdit(null)
     },
     onError: (error, variables) => {
       const identifier = variables?.path.student_id || 'Student'
@@ -139,14 +158,30 @@ function StudentsPage() {
     },
   })
 
-  const [rowSelection, setRowSelection] = React.useState({})
+  const assignClass = useMutation({
+    ...assignStudentToClassMutation({ client: authClient }),
+    onSuccess: () => {
+      toast.success('Class assigned successfully.')
+      setIsAssignClassOpen(false)
+    },
+    onError: (error) => {
+      toast.error(`Failed to assign class: ${error.message || 'Unknown error'}`)
+    },
+  })
+
+  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({})
   const selectedStudents = React.useMemo(() => {
-    return new Set(Object.keys(rowSelection))
+    return new Set(Object.keys(rowSelection).filter(k => rowSelection[k]))
   }, [rowSelection])
 
   const columns = getStudentColumns({
-    onEdit: setStudentToEdit,
-    onDelete: setStudentToDelete,
+    onEdit: store.setStudentToEdit,
+    onDelete: store.setStudentToDelete,
+    onUploadPhoto: store.setStudentToUploadPhotoFor,
+    onAssignClass: store.setStudentToAssignClassFor,
+    onManageGuardians: store.setStudentToManageGuardiansFor,
+    onManageAttendance: store.setStudentToManageAttendanceFor,
+    onManageMarks: store.setStudentToManageMarksFor,
   })
 
   const totalStudents = studentsQuery.data?.total ?? 0
@@ -185,7 +220,7 @@ function StudentsPage() {
 
       <StudentModals
         studentToDelete={store.studentToDelete}
-        setStudentToDelete={setStudentToDelete}
+        setStudentToDelete={store.setStudentToDelete}
         onDeleteConfirm={(id) =>
           deleteStudent.mutate({ path: { student_id: id } })
         }
@@ -197,12 +232,12 @@ function StudentsPage() {
         }}
         selectedCount={selectedStudents.size}
         studentToEdit={store.studentToEdit}
-        setStudentToEdit={setStudentToEdit}
+        setStudentToEdit={store.setStudentToEdit}
         onEditConfirm={(values: UpdateStudentRequest) =>
           store.studentToEdit &&
           updateStudent.mutate({
             path: { student_id: store.studentToEdit.id },
-            body: values,
+            body: values as any,
           })
         }
         isEditing={updateStudent.isPending}
@@ -211,8 +246,44 @@ function StudentsPage() {
       <StudentAddDialog
         isAddOpen={store.isCreateStudentOpen}
         setIsAddOpen={setIsCreateStudentOpen}
-        onAddConfirm={(values) => createStudent.mutate({ body: values })}
+        onAddConfirm={(values) => createStudent.mutate({ body: values as any })}
         isAdding={createStudent.isPending}
+      />
+
+      <StudentPhotoUploadDialog
+        student={studentToUploadPhotoFor}
+        open={isUploadPhotoOpen}
+        onOpenChange={setIsUploadPhotoOpen}
+      />
+
+      <StudentAssignClassDialog
+        student={studentToAssignClassFor}
+        open={isAssignClassOpen}
+        onOpenChange={setIsAssignClassOpen}
+        onConfirm={(studentId, data) =>
+          assignClass.mutate({
+            body: { ...data, student_id: studentId },
+          })
+        }
+        isSubmitting={assignClass.isPending}
+      />
+
+      <StudentGuardiansDialog
+        student={studentToManageGuardiansFor}
+        open={isGuardiansOpen}
+        onOpenChange={setIsGuardiansOpen}
+      />
+
+      <StudentAttendanceDialog
+        student={studentToManageAttendanceFor}
+        open={isAttendanceOpen}
+        onOpenChange={setIsAttendanceOpen}
+      />
+
+      <StudentMarksDialog
+        student={studentToManageMarksFor}
+        open={isMarksOpen}
+        onOpenChange={setIsMarksOpen}
       />
     </div>
   )

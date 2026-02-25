@@ -1,14 +1,12 @@
 'use client'
 
-import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  createStaffSchema,
-  employmentStatusSchema,
-  staffTypeSchema,
+  
+  staffFormSchema
 } from '../schemas'
-import type { CreateStaffValues } from '../schemas'
+import type {StaffFormValues} from '../schemas';
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,10 +18,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
+import { zEmploymentStatus, zGender, zStaffType } from '@/lib/api/zod.gen'
 
 interface StaffFormProps {
-  initialValues?: Partial<CreateStaffValues>
-  onSubmit: (values: CreateStaffValues) => void
+  initialValues?: Partial<StaffFormValues>
+  onSubmit: (values: StaffFormValues) => void
   isSubmitting?: boolean
   submitLabel?: string
 }
@@ -40,8 +39,8 @@ export function StaffForm({
     setValue,
     watch,
     formState: { errors },
-  } = useForm<CreateStaffValues>({
-    resolver: zodResolver(createStaffSchema),
+  } = useForm<StaffFormValues>({
+    resolver: zodResolver(staffFormSchema),
     defaultValues: {
       employee_id: '',
       name: '',
@@ -49,10 +48,10 @@ export function StaffForm({
       phone: '',
       nic: '',
       dob: '',
-      gender: 'Male',
+      gender: zGender.enum.Male,
       address: '',
-      staff_type: 'Teaching',
-      employment_status: 'Permanent',
+      staff_type: zStaffType.enum.Teaching,
+      employment_status: zEmploymentStatus.enum.Permanent,
       ...initialValues,
     },
   })
@@ -123,17 +122,18 @@ export function StaffForm({
           <Select
             value={gender}
             onValueChange={(val) => {
-              const g = z.string().parse(val)
-              setValue('gender', g)
+              setValue('gender', zGender.parse(val))
             }}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select gender" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Male">Male</SelectItem>
-              <SelectItem value="Female">Female</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
+              {zGender.options.map((g) => (
+                <SelectItem key={g} value={g}>
+                  {g}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           {errors.gender && (
@@ -146,17 +146,18 @@ export function StaffForm({
           <Select
             value={staffType}
             onValueChange={(val) => {
-              const type = staffTypeSchema.parse(val)
-              setValue('staff_type', type)
+              setValue('staff_type', zStaffType.parse(val))
             }}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select staff type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Teaching">Teaching</SelectItem>
-              <SelectItem value="NonTeaching">Non-Teaching</SelectItem>
-              <SelectItem value="Administrative">Administrative</SelectItem>
+              {zStaffType.options.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           {errors.staff_type && (
@@ -171,17 +172,18 @@ export function StaffForm({
           <Select
             value={employmentStatus}
             onValueChange={(val) => {
-              const status = employmentStatusSchema.parse(val)
-              setValue('employment_status', status)
+              setValue('employment_status', zEmploymentStatus.parse(val))
             }}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Permanent">Permanent</SelectItem>
-              <SelectItem value="Contract">Contract</SelectItem>
-              <SelectItem value="Temporary">Temporary</SelectItem>
+              {zEmploymentStatus.options.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           {errors.employment_status && (

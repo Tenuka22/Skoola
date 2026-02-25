@@ -1,7 +1,16 @@
+'use client'
+
 import {
+  BookOpen01Icon,
+  Calendar01Icon,
+  CalendarCheckIn01Icon,
+  Chart01Icon,
   Delete02Icon,
+  Layers01Icon,
   MoreHorizontalIcon,
   PencilEdit01Icon,
+  School01Icon,
+  Upload01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -11,20 +20,55 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface GetStaffColumnsProps {
   onEdit: (staff: StaffResponse) => void
   onDelete: (id: string) => void
+  onUploadPhoto: (staff: StaffResponse) => void
+  onAssignClass: (staff: StaffResponse) => void
+  onAssignSubject: (staff: StaffResponse) => void
+  onViewWorkload: (staff: StaffResponse) => void
+  onManageAttendance: (staff: StaffResponse) => void
+  onManageLeaves: (staff: StaffResponse) => void
+  onManagePermissions: (staff: StaffResponse) => void
 }
 
 export const getStaffColumns = ({
   onEdit,
   onDelete,
+  onUploadPhoto,
+  onAssignClass,
+  onAssignSubject,
+  onViewWorkload,
+  onManageAttendance,
+  onManageLeaves,
+  onManagePermissions,
 }: GetStaffColumnsProps): Array<ColumnDef<StaffResponse>> => [
+  {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected()}
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: 'name',
     header: 'Staff Member',
@@ -36,7 +80,6 @@ export const getStaffColumns = ({
             <AvatarImage
               src={
                 staff.photo_url ||
-                undefined ||
                 `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.email}`
               }
               alt={staff.name}
@@ -111,11 +154,43 @@ export const getStaffColumns = ({
               </Button>
             }
           />
-          <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuContent align="end" className="w-52">
             <DropdownMenuItem onClick={() => onEdit(staff)}>
               <HugeiconsIcon icon={PencilEdit01Icon} className="mr-2 size-4" />
-              Edit
+              Edit Profile
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onUploadPhoto(staff)}>
+              <HugeiconsIcon icon={Upload01Icon} className="mr-2 size-4" />
+              Upload Photo
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onAssignClass(staff)}>
+              <HugeiconsIcon icon={School01Icon} className="mr-2 size-4" />
+              Assign Class
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAssignSubject(staff)}>
+              <HugeiconsIcon icon={BookOpen01Icon} className="mr-2 size-4" />
+              Assign Subject
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onViewWorkload(staff)}>
+              <HugeiconsIcon icon={Chart01Icon} className="mr-2 size-4" />
+              View Workload
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onManageAttendance(staff)}>
+              <HugeiconsIcon icon={CalendarCheckIn01Icon} className="mr-2 size-4" />
+              Attendance
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onManageLeaves(staff)}>
+              <HugeiconsIcon icon={Calendar01Icon} className="mr-2 size-4" />
+              Leaves
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onManagePermissions(staff)}>
+              <HugeiconsIcon icon={Layers01Icon} className="mr-2 size-4" />
+              Permissions
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
               onClick={() => onDelete(staff.id)}

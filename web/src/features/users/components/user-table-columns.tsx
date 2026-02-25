@@ -6,6 +6,7 @@ import {
   LockIcon,
   Menu01Icon,
   PencilEdit01Icon,
+  Shield02Icon,
   UserCheckIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -32,6 +33,7 @@ interface GetColumnsProps {
   onToggleLock: (user: User) => void
   setUserToDelete: (id: string | null) => void
   setUserToEdit: (user: User | null) => void
+  setUserToManagePermissions: (user: User | null) => void
   isUpdating?: boolean
   updatingUserId?: string | null
 }
@@ -41,6 +43,7 @@ export function getUserColumns({
   setUserToDelete,
   setUserToEdit,
   onToggleLock,
+  setUserToManagePermissions,
   isUpdating,
   updatingUserId,
 }: GetColumnsProps): Array<ColumnDef<User>> {
@@ -298,6 +301,12 @@ export function getUserColumns({
                   className="mr-2 h-4 w-4"
                 />
                 Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setUserToManagePermissions(user)}
+              >
+                <HugeiconsIcon icon={Shield02Icon} className="mr-2 h-4 w-4" />
+                Manage Permissions
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />

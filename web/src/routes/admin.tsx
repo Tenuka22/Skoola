@@ -6,7 +6,6 @@ import {
   Calendar01Icon,
   Calendar02Icon,
   Home01Icon,
-  Settings01Icon,
   Shield01Icon,
   User02Icon,
   UserGroupIcon,
@@ -136,14 +135,6 @@ function AdminLayout() {
                   <SidebarMenuButton tooltip="Access Control">
                     <HugeiconsIcon icon={Shield01Icon} />
                     <span>Access Control</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <Link to="/admin/settings">
-                  <SidebarMenuButton tooltip="Settings">
-                    <HugeiconsIcon icon={Settings01Icon} />
-                    <span>Settings</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
