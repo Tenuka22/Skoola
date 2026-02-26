@@ -46,7 +46,7 @@ export function SubjectAssignToGradeDialog({
   const form = useForm<FormValues>({
     resolver: zodResolver(assignSubjectToGradeSchema),
     defaultValues: {
-      grade_level_id: '',
+      grade_id: '',
       subject_id: subject?.id || '',
     },
   })
@@ -57,7 +57,7 @@ export function SubjectAssignToGradeDialog({
   const gradeLevels = gradeLevelsData?.data || []
 
   const handleSubmit = (data: FormValues) => {
-    onConfirm(data.grade_level_id)
+    onConfirm(data.grade_id)
   }
 
   return (
@@ -85,14 +85,12 @@ export function SubjectAssignToGradeDialog({
             to a specific grade level.
           </p>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="grade_level_id" className="text-right">
+            <Label htmlFor="grade_id" className="text-right">
               Grade Level
             </Label>
             <Select
-              onValueChange={(value) =>
-                form.setValue('grade_level_id', value || '')
-              }
-              value={form.watch('grade_level_id')}
+              onValueChange={(value) => form.setValue('grade_id', value || '')}
+              value={form.watch('grade_id')}
             >
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="Select a grade level" />
@@ -105,9 +103,9 @@ export function SubjectAssignToGradeDialog({
                 ))}
               </SelectContent>
             </Select>
-            {form.formState.errors.grade_level_id && (
+            {form.formState.errors.grade_id && (
               <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.grade_level_id.message}
+                {form.formState.errors.grade_id.message}
               </p>
             )}
           </div>

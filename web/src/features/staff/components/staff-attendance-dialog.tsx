@@ -9,6 +9,7 @@ import { format } from 'date-fns'
 import * as React from 'react'
 import { toast } from 'sonner'
 import type {
+  AttendanceStatus,
   StaffAttendanceResponse,
   StaffResponse,
 } from '@/lib/api/types.gen'
@@ -37,7 +38,10 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { isAttendanceStatus } from '@/features/attendance/types'
+import {
+  ALL_ATTENDANCE_STATUSES,
+  isAttendanceStatus,
+} from '@/features/attendance/types'
 
 interface StaffAttendanceDialogProps {
   staff: StaffResponse | null
@@ -52,9 +56,7 @@ export function StaffAttendanceDialog({
 }: StaffAttendanceDialogProps) {
   const queryClient = useQueryClient()
   const [date, setDate] = React.useState(format(new Date(), 'yyyy-MM-dd'))
-  const [status, setStatus] = React.useState<
-    'Present' | 'Absent' | 'Late' | 'Excused' | 'HalfDay' | 'SchoolBusiness'
-  >('Present')
+  const [status, setStatus] = React.useState<AttendanceStatus>('Present')
   const [timeIn, setTimeIn] = React.useState('')
   const [timeOut, setTimeOut] = React.useState('')
   const [remarks, setRemarks] = React.useState('')
@@ -144,14 +146,7 @@ export function StaffAttendanceDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {[
-                    'Present',
-                    'Absent',
-                    'Late',
-                    'Excused',
-                    'HalfDay',
-                    'SchoolBusiness',
-                  ].map((s) => (
+                  {ALL_ATTENDANCE_STATUSES.map((s) => (
                     <SelectItem key={s} value={s}>
                       {s}
                     </SelectItem>

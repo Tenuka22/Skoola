@@ -110,17 +110,21 @@ export const StudentAttendancePage = () => {
     if (!studentsData) return []
     return studentsData.map((attendance) => ({
       ...attendance,
-      student: attendance,
+      student: {
+        id: attendance.student_id,
+        name_english: attendance.student_id,
+        admission_number: attendance.student_id,
+      },
     }))
   }, [studentsData])
 
   const filteredData = React.useMemo(() => {
     return mergedData.filter(
       (item) =>
-        item.student?.name_english
+        (item.student?.name_english ?? '')
           .toLowerCase()
           .includes(search.toLowerCase()) ||
-        item.student?.admission_number
+        (item.student?.admission_number ?? '')
           .toLowerCase()
           .includes(search.toLowerCase()),
     )

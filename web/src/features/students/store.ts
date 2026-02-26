@@ -2,8 +2,9 @@ import { create } from 'zustand'
 import type { SortingState } from '@tanstack/react-table'
 import type { StudentResponse } from '@/features/students/types'
 import type { StudentStatus } from '@/lib/api/types.gen'
+import type { ListViewMode } from '@/lib/constants/view-modes'
 
-export type ViewMode = 'table' | 'board' | 'list'
+export type ViewMode = ListViewMode
 
 interface StudentsState {
   page: number

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { OnChangeFn, SortingState } from '@tanstack/react-table'
 import type { TimetableResponse } from '@/lib/api/types.gen'
+import type { TimetableViewMode } from './constants'
 
 interface TimetablesStore {
   search: string
@@ -19,8 +20,8 @@ interface TimetablesStore {
   setSelectedTeacherId: (id: string | undefined) => void
   selectedDayOfWeek: string | undefined
   setSelectedDayOfWeek: (day: string | undefined) => void
-  viewMode: 'class' | 'teacher'
-  setViewMode: (mode: 'class' | 'teacher') => void
+  viewMode: TimetableViewMode
+  setViewMode: (mode: TimetableViewMode) => void
   isCreateTimetableEntryOpen: boolean
   setIsCreateTimetableEntryOpen: (isOpen: boolean) => void
   timetableEntryToEdit: TimetableResponse | null

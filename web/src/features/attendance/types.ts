@@ -3,7 +3,6 @@ import type {
   StaffAttendanceResponse,
   StaffResponse,
   StudentAttendanceResponse,
-  StudentResponse,
 } from '@/lib/api/types.gen'
 
 export const ALL_ATTENDANCE_STATUSES: Array<AttendanceStatus> = [
@@ -24,5 +23,9 @@ export interface StaffAttendanceWithMember extends StaffAttendanceResponse {
 }
 
 export interface StudentAttendanceWithMember extends StudentAttendanceResponse {
-  student?: StudentResponse | null
+  student?: {
+    admission_number?: string
+    id: string
+    name_english?: string
+  }
 }

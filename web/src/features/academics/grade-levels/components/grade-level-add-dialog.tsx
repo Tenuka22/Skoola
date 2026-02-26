@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { zEducationLevel } from '@/lib/api/zod.gen'
 
 interface GradeLevelAddDialogProps {
   open: boolean
@@ -30,12 +31,7 @@ interface GradeLevelAddDialogProps {
   isSubmitting?: boolean
 }
 
-const educationLevels = [
-  'Primary',
-  'JuniorSecondary',
-  'SeniorSecondary',
-  'Collegiate',
-]
+const educationLevels = zEducationLevel.options
 
 export function GradeLevelAddDialog({
   open,

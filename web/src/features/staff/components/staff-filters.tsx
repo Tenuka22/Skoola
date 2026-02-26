@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
+import { zEmploymentStatus, zStaffType } from '@/lib/api/zod.gen'
 
 export function StaffFilters() {
   const {
@@ -20,6 +21,9 @@ export function StaffFilters() {
     employmentStatusFilter,
     setEmploymentStatusFilter,
   } = useStaffStore()
+
+  const staffTypes = zStaffType.options
+  const employmentStatuses = zEmploymentStatus.options
 
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2 px-8">
@@ -45,15 +49,11 @@ export function StaffFilters() {
               <DropdownMenuRadioItem value="all">
                 All Roles
               </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Teaching">
-                Teaching
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="NonTeaching">
-                Non-Teaching
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Administrative">
-                Administrative
-              </DropdownMenuRadioItem>
+              {staffTypes.map((type) => (
+                <DropdownMenuRadioItem key={type} value={type}>
+                  {type === 'NonTeaching' ? 'Non-Teaching' : type}
+                </DropdownMenuRadioItem>
+              ))}
             </DropdownMenuRadioGroup>
           </DropdownMenuGroup>
         </DropdownMenuContent>
@@ -83,15 +83,11 @@ export function StaffFilters() {
               <DropdownMenuRadioItem value="all">
                 All Status
               </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Permanent">
-                Permanent
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Contract">
-                Contract
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Temporary">
-                Temporary
-              </DropdownMenuRadioItem>
+              {employmentStatuses.map((status) => (
+                <DropdownMenuRadioItem key={status} value={status}>
+                  {status}
+                </DropdownMenuRadioItem>
+              ))}
             </DropdownMenuRadioGroup>
           </DropdownMenuGroup>
         </DropdownMenuContent>

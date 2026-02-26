@@ -28,6 +28,7 @@ import {
   getAllAcademicYearsOptions,
   getAllGradeLevelsOptions,
 } from '@/lib/api/@tanstack/react-query.gen'
+import { zMedium } from '@/lib/api/zod.gen'
 
 interface ClassAddDialogProps {
   open: boolean
@@ -36,7 +37,7 @@ interface ClassAddDialogProps {
   isSubmitting?: boolean
 }
 
-const mediums = ['Sinhala', 'Tamil', 'English'] as const
+const mediums = zMedium.options
 
 export function ClassAddDialog({
   open,

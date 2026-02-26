@@ -1,8 +1,9 @@
 import { create } from 'zustand'
 import type { SortingState } from '@tanstack/react-table'
 import type { StaffResponse } from '@/lib/api'
+import type { ListViewMode } from '@/lib/constants/view-modes'
 
-export type StaffViewMode = 'table' | 'board' | 'list'
+export type StaffViewMode = ListViewMode
 
 interface StaffState {
   page: number

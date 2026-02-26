@@ -38,7 +38,10 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { isAttendanceStatus } from '@/features/attendance/types'
+import {
+  ALL_ATTENDANCE_STATUSES,
+  isAttendanceStatus,
+} from '@/features/attendance/types'
 
 interface StudentAttendanceDialogProps {
   student: StudentResponse | null
@@ -143,14 +146,7 @@ export function StudentAttendanceDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {[
-                    'Present',
-                    'Absent',
-                    'Late',
-                    'Excused',
-                    'HalfDay',
-                    'SchoolBusiness',
-                  ].map((s) => (
+                  {ALL_ATTENDANCE_STATUSES.map((s) => (
                     <SelectItem key={s} value={s}>
                       {s}
                     </SelectItem>

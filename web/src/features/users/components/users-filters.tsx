@@ -2,6 +2,7 @@ import { Calendar01Icon, FilterIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { format } from 'date-fns'
 import { useUsersStore } from '../store'
+import { USER_AUTH_METHODS } from '../constants'
 import { cn } from '@/lib/utils'
 
 import { Button } from '@/components/ui/button'
@@ -59,9 +60,15 @@ export function UsersFilters() {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Auth Methods</SelectItem>
-          <SelectItem value="google">Google</SelectItem>
-          <SelectItem value="github">GitHub</SelectItem>
-          <SelectItem value="password">Password</SelectItem>
+          {USER_AUTH_METHODS.map((method) => (
+            <SelectItem key={method} value={method}>
+              {method === 'github'
+                ? 'GitHub'
+                : method === 'google'
+                  ? 'Google'
+                  : 'Password'}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 

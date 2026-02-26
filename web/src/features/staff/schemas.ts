@@ -1,14 +1,10 @@
-import { z } from 'zod'
-import {
-  zCreateStaffRequest,
-  zEmploymentStatus,
-  zStaffType,
-} from '@/lib/api/zod.gen'
+import type { z } from 'zod'
+import { zBulkUpdateStaffRequest, zCreateStaffRequest } from '@/lib/api/zod.gen'
 
 export const staffFormSchema = zCreateStaffRequest
-export const bulkEditStaffFormSchema = z.object({
-  staff_type: zStaffType.optional(),
-  employment_status: zEmploymentStatus.optional(),
+export const bulkEditStaffFormSchema = zBulkUpdateStaffRequest.pick({
+  staff_type: true,
+  employment_status: true,
 })
 
 export type StaffFormValues = z.infer<typeof staffFormSchema>

@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { DAYS_OF_WEEK } from '../constants'
 import { timetableEntryFormSchema } from '../schemas'
 import type {
   AcademicYearResponse,
@@ -74,16 +75,6 @@ export function TimetableEditDialog({
     staleTime: Infinity,
   })
   const subjects = subjectsData?.data || []
-
-  const daysOfWeek = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ]
 
   useEffect(() => {
     if (timetableEntry) {
@@ -241,7 +232,7 @@ export function TimetableEditDialog({
                 <SelectValue placeholder="Select a day" />
               </SelectTrigger>
               <SelectContent>
-                {daysOfWeek.map((day) => (
+                {DAYS_OF_WEEK.map((day) => (
                   <SelectItem key={day} value={day}>
                     {day}
                   </SelectItem>

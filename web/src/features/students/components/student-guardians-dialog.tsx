@@ -8,7 +8,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import type { z } from 'zod'
 import type {
   StudentGuardianResponse,
   StudentResponse,
@@ -29,16 +29,12 @@ import {
   getAllGuardiansForStudentOptions,
   removeGuardianFromStudentMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
+import { zCreateStudentGuardianRequest } from '@/lib/api/zod.gen'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-const guardianFormSchema = z.object({
-  id: z.string().min(1, 'ID is required'),
-  name: z.string().min(1, 'Name is required'),
-  relationship: z.string().min(1, 'Relationship is required'),
-  phone: z.string().min(1, 'Phone is required'),
-  address: z.string().min(1, 'Address is required'),
-  email: z.string().email().optional().or(z.literal('')),
+const guardianFormSchema = zCreateStudentGuardianRequest.omit({
+  student_id: true,
 })
 
 type GuardianFormValues = z.infer<typeof guardianFormSchema>

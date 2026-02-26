@@ -3,7 +3,7 @@ import { Tick01Icon } from '@hugeicons/core-free-icons'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueries } from '@tanstack/react-query'
-import { z } from 'zod'
+import type { z } from 'zod'
 import type {
   AcademicYearResponse,
   ClassResponse,
@@ -34,12 +34,11 @@ import {
   getAllClassesOptions,
   getAllGradeLevelsOptions,
 } from '@/lib/api/@tanstack/react-query.gen'
+import { zCreateStudentClassAssignmentRequest } from '@/lib/api/zod.gen'
 
-const formSchema = z.object({
-  class_id: z.string().min(1, 'Class is required'),
-  academic_year_id: z.string().min(1, 'Academic Year is required'),
-  grade_id: z.string().min(1, 'Grade Level is required'),
-  from_date: z.string().min(1, 'From date is required'),
+const formSchema = zCreateStudentClassAssignmentRequest.omit({
+  student_id: true,
+  to_date: true,
 })
 
 type FormValues = z.infer<typeof formSchema>

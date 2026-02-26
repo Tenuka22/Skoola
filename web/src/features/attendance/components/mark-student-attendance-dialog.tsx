@@ -1,13 +1,17 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 import {
   useMarkStudentAttendanceBulk,
   useUpdateStudentAttendance,
 } from '../api'
-import type { StudentAttendanceWithMember } from '../types'
-import { zAttendanceStatus } from '@/lib/api/zod.gen'
+import {
+  ALL_ATTENDANCE_STATUSES
+  
+} from '../types'
+import type {StudentAttendanceWithMember} from '../types';
+import type { z } from 'zod'
+import { zMarkStudentAttendanceRequest } from '@/lib/api/zod.gen'
 import {
   Dialog,
   DialogContent,
@@ -34,9 +38,9 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/hooks/use-auth'
 
-const attendanceSchema = z.object({
-  status: zAttendanceStatus,
-  remarks: z.string().optional().nullable(),
+const attendanceSchema = zMarkStudentAttendanceRequest.pick({
+  status: true,
+  remarks: true,
 })
 
 type AttendanceFormValues = z.infer<typeof attendanceSchema>
@@ -149,11 +153,11 @@ export const MarkStudentAttendanceDialog = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Present">Present</SelectItem>
-                      <SelectItem value="Absent">Absent</SelectItem>
-                      <SelectItem value="Late">Late</SelectItem>
-                      <SelectItem value="Excused">Excused</SelectItem>
-                      <SelectItem value="HalfDay">Half Day</SelectItem>
+                      {ALL_ATTENDANCE_STATUSES.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status === 'HalfDay' ? 'Half Day' : status}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

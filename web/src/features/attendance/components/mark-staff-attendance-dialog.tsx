@@ -1,10 +1,11 @@
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 import { useMarkStaffAttendanceBulk, useUpdateStaffAttendance } from '../api'
+import { ALL_ATTENDANCE_STATUSES } from '../types'
+import type { z } from 'zod'
 import type { StaffAttendanceWithMember } from '../types'
-import { zAttendanceStatus } from '@/lib/api/zod.gen'
+import { zMarkStaffAttendanceRequest } from '@/lib/api/zod.gen'
 import {
   Dialog,
   DialogContent,
@@ -31,12 +32,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
-const attendanceSchema = z.object({
-  status: zAttendanceStatus,
-  time_in: z.string().optional().nullable(),
-  time_out: z.string().optional().nullable(),
-  remarks: z.string().optional().nullable(),
-})
+const attendanceSchema = zMarkStaffAttendanceRequest.omit({ date: true })
 
 type AttendanceFormValues = z.infer<typeof attendanceSchema>
 
@@ -149,11 +145,11 @@ export const MarkStaffAttendanceDialog = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Present">Present</SelectItem>
-                      <SelectItem value="Absent">Absent</SelectItem>
-                      <SelectItem value="Late">Late</SelectItem>
-                      <SelectItem value="Excused">Excused</SelectItem>
-                      <SelectItem value="HalfDay">Half Day</SelectItem>
+                      {ALL_ATTENDANCE_STATUSES.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status === 'HalfDay' ? 'Half Day' : status}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

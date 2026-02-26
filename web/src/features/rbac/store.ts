@@ -1,8 +1,9 @@
 import { create } from 'zustand'
+import type { RBACActiveTab } from './constants'
 import type { RoleEnum } from '@/lib/api/types.gen'
 
 interface RBACState {
-  activeTab: 'users' | 'roles' | 'permission-sets'
+  activeTab: RBACActiveTab
   selectedUserId: string | null
   selectedRoleId: RoleEnum | null
   selectedPermissionSetId: string | null
@@ -11,7 +12,7 @@ interface RBACState {
   isRoleEditorOpen: boolean
   isPermissionSetEditorOpen: boolean
 
-  setActiveTab: (tab: 'users' | 'roles' | 'permission-sets') => void
+  setActiveTab: (tab: RBACActiveTab) => void
   setSelectedUserId: (id: string | null) => void
   setSelectedRoleId: (role: RoleEnum | null) => void
   setSelectedPermissionSetId: (id: string | null) => void

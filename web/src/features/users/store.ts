@@ -1,16 +1,18 @@
 import { create } from 'zustand'
 import type { SortingState } from '@tanstack/react-table'
+import type { ListViewMode } from '@/lib/constants/view-modes'
+import type { UserAuthFilter } from './constants'
 
 import type { UserResponse } from '@/lib/api/types.gen'
 
-export type ViewMode = 'table' | 'board' | 'list'
+export type ViewMode = ListViewMode
 
 interface UsersState {
   page: number
   search: string
   debouncedSearch: string
   statusFilter: string
-  authFilter: string
+  authFilter: UserAuthFilter
   createdAfter: string | null
   createdBefore: string | null
   sorting: SortingState
@@ -28,7 +30,7 @@ interface UsersState {
   setSearch: (search: string) => void
   setDebouncedSearch: (search: string) => void
   setStatusFilter: (filter: string) => void
-  setAuthFilter: (filter: string) => void
+  setAuthFilter: (filter: UserAuthFilter) => void
   setCreatedAfter: (date: string | null) => void
   setCreatedBefore: (date: string | null) => void
   setSorting: (

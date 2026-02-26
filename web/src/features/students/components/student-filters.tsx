@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import { Calendar } from '@/components/ui/calendar'
+import { zStudentStatus } from '@/lib/api/zod.gen'
 
 export function StudentFilters() {
   const {
@@ -31,6 +32,8 @@ export function StudentFilters() {
     createdBefore,
     setCreatedBefore,
   } = useStudentsStore()
+
+  const studentStatuses = zStudentStatus.options
 
   const hasFilters = statusFilter !== 'all' || !!createdAfter || !!createdBefore
 
@@ -62,21 +65,11 @@ export function StudentFilters() {
               <DropdownMenuRadioItem value="all">
                 All Status
               </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Active">
-                Active
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Suspended">
-                Suspended
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Graduated">
-                Graduated
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Transferred">
-                Transferred
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Withdrawn">
-                Withdrawn
-              </DropdownMenuRadioItem>
+              {studentStatuses.map((status) => (
+                <DropdownMenuRadioItem key={status} value={status}>
+                  {status}
+                </DropdownMenuRadioItem>
+              ))}
             </DropdownMenuRadioGroup>
           </DropdownMenuGroup>
         </DropdownMenuContent>

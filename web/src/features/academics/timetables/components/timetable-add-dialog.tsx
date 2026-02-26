@@ -3,6 +3,7 @@ import { FloppyDiskIcon } from '@hugeicons/core-free-icons'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
+import { DAYS_OF_WEEK } from '../constants'
 import { timetableEntryFormSchema } from '../schemas'
 import type {
   AcademicYearResponse,
@@ -70,16 +71,6 @@ export function TimetableAddDialog({
     staleTime: Infinity,
   })
   const subjects = subjectsData?.data || []
-
-  const daysOfWeek = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ]
 
   const handleSubmit = (data: TimetableEntryFormValues) => {
     onConfirm(data)
@@ -221,7 +212,7 @@ export function TimetableAddDialog({
                 <SelectValue placeholder="Select a day" />
               </SelectTrigger>
               <SelectContent>
-                {daysOfWeek.map((day) => (
+                {DAYS_OF_WEEK.map((day) => (
                   <SelectItem key={day} value={day}>
                     {day}
                   </SelectItem>

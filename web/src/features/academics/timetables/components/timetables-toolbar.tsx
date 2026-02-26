@@ -7,6 +7,12 @@ import {
   User02Icon,
 } from '@hugeicons/core-free-icons'
 import { useTimetablesStore } from '../store'
+import {
+  DAYS_OF_WEEK,
+  
+  isTimetableViewMode
+} from '../constants'
+import type {TimetableViewMode} from '../constants';
 import type {
   AcademicYearResponse,
   ClassResponse,
@@ -38,8 +44,8 @@ interface TimetablesToolbarProps {
   setSelectedTeacherId: (id: string | undefined) => void
   selectedDayOfWeek: string | undefined
   setSelectedDayOfWeek: (day: string | undefined) => void
-  viewMode: 'class' | 'teacher'
-  setViewMode: (mode: 'class' | 'teacher') => void
+  viewMode: TimetableViewMode
+  setViewMode: (mode: TimetableViewMode) => void
 }
 
 export function TimetablesToolbar({
@@ -61,16 +67,6 @@ export function TimetablesToolbar({
   const { search, setSearch, setIsCreateTimetableEntryOpen } =
     useTimetablesStore()
 
-  const daysOfWeek = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ]
-
   return (
     <div className="flex flex-col gap-4 px-8 py-4">
       <div className="flex items-center justify-between">
@@ -91,7 +87,7 @@ export function TimetablesToolbar({
             value={[viewMode]}
             onValueChange={(value: Array<string>) => {
               const selectedMode = value[0]
-              if (selectedMode === 'class' || selectedMode === 'teacher') {
+              if (selectedMode && isTimetableViewMode(selectedMode)) {
                 setViewMode(selectedMode)
               }
             }}
@@ -197,7 +193,7 @@ export function TimetablesToolbar({
                 <SelectValue placeholder="Select Day" />
               </SelectTrigger>
               <SelectContent>
-                {daysOfWeek.map((day) => (
+                {DAYS_OF_WEEK.map((day) => (
                   <SelectItem key={day} value={day}>
                     {day}
                   </SelectItem>

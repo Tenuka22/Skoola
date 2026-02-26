@@ -30,6 +30,7 @@ import {
   getAllAcademicYearsOptions,
   getAllGradeLevelsOptions,
 } from '@/lib/api/@tanstack/react-query.gen'
+import { zMedium } from '@/lib/api/zod.gen'
 
 interface ClassEditDialogProps {
   classItem: ClassResponse | null
@@ -39,7 +40,7 @@ interface ClassEditDialogProps {
   isSubmitting?: boolean
 }
 
-const mediums = ['Sinhala', 'Tamil', 'English'] as const
+const mediums = zMedium.options
 
 export function ClassEditDialog({
   classItem,
