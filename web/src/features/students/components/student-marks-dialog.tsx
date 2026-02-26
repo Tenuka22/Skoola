@@ -13,9 +13,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Spinner } from '@/components/ui/spinner'
 import { authClient } from '@/lib/clients'
-import {
-  getStudentMarksByStudentIdOptions,
-} from '@/lib/api/@tanstack/react-query.gen'
+import { getStudentMarksByStudentIdOptions } from '@/lib/api/@tanstack/react-query.gen'
 import { Badge } from '@/components/ui/badge'
 
 interface StudentMarksDialogProps {
@@ -29,7 +27,12 @@ export function StudentMarksDialog({
   open,
   onOpenChange,
 }: StudentMarksDialogProps) {
-  const { data: marksData, isLoading, isError, error } = useQuery({
+  const {
+    data: marksData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     ...getStudentMarksByStudentIdOptions({
       client: authClient,
       path: { student_id: student?.id ?? '' },
@@ -56,11 +59,18 @@ export function StudentMarksDialog({
             </div>
           ) : isError ? (
             <div className="grid flex-1 place-items-center text-center">
-              <HugeiconsIcon icon={AlertCircleIcon} className="size-8 text-destructive opacity-50" />
-              <p className="text-sm text-muted-foreground mt-2">Error: {error?.message}</p>
+              <HugeiconsIcon
+                icon={AlertCircleIcon}
+                className="size-8 text-destructive opacity-50"
+              />
+              <p className="text-sm text-muted-foreground mt-2">
+                Error: {error?.message}
+              </p>
             </div>
           ) : marks.length === 0 ? (
-            <p className="text-xs text-muted-foreground italic text-center p-8">No academic marks found for this student.</p>
+            <p className="text-xs text-muted-foreground italic text-center p-8">
+              No academic marks found for this student.
+            </p>
           ) : (
             <ScrollArea className="flex-1 border rounded-lg">
               <table className="w-full text-sm">
@@ -77,9 +87,13 @@ export function StudentMarksDialog({
                     <tr key={index}>
                       <td className="p-3">{mark.exam_id}</td>
                       <td className="p-3">{mark.subject_id}</td>
-                      <td className="p-3 text-right font-medium">{mark.marks_obtained}</td>
+                      <td className="p-3 text-right font-medium">
+                        {mark.marks_obtained}
+                      </td>
                       <td className="p-3 text-center">
-                        <Badge variant={mark.is_absent ? 'destructive' : 'secondary'}>
+                        <Badge
+                          variant={mark.is_absent ? 'destructive' : 'secondary'}
+                        >
                           {mark.is_absent ? 'Absent' : 'Present'}
                         </Badge>
                       </td>

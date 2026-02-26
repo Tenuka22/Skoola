@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from '../../../components/ui/dialog'
 import { StaffForm } from './staff-form'
-import type {StaffFormValues} from '../schemas';
+import type { StaffFormValues } from '../schemas'
 
 interface StaffAddDialogProps {
   isAddOpen: boolean

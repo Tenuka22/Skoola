@@ -10,6 +10,7 @@ import {
   User02Icon,
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
+import type { RoleEnum } from '@/lib/api/types.gen'
 import {
   getActiveSessionServer,
   getAuthStorageServer,
@@ -40,6 +41,13 @@ import {
 
 import { AccountSwitcher } from '@/features/auth/components/account-switcher'
 
+const ADMIN_ROLES: Array<RoleEnum> = [
+  'Admin',
+  'FullAdmin',
+  'Principal',
+  'VicePrincipal',
+]
+
 export const Route = createFileRoute('/admin')({
   component: AdminLayout,
   loader: async () => {
@@ -69,9 +77,7 @@ function AdminLayout() {
 
   if (
     !activeSession ||
-    !['Admin', 'FullAdmin', 'Principal', 'VicePrincipal'].some((role) =>
-      activeSession.user.roles.includes(role as any),
-    )
+    !ADMIN_ROLES.some((role) => activeSession.user.roles.includes(role))
   ) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-muted/40 p-4">

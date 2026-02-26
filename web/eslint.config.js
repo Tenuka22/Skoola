@@ -1,14 +1,14 @@
-//  @ts-check
-
 import { tanstackConfig } from '@tanstack/eslint-config'
 
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import tsEslint from '@typescript-eslint/eslint-plugin'
+import { defineConfig, globalIgnores } from 'eslint/config'
 
-export default [
+export default defineConfig([
+  globalIgnores(['src/lib/api']),
   {
-    ignores: ['.output/**', 'src/lib/api/**/*.gen.ts'],
+    ignores: ['.output/**', 'src/lib/api/**', 'src/components/ui/**'],
   },
   ...tanstackConfig,
   {
@@ -38,15 +38,15 @@ export default [
       ],
       '@typescript-eslint/no-non-null-assertion': 'error',
     },
-    parserOptions: {
-      project: true,
-      tsconfigRootDir: import.meta.dirname,
-    },
     languageOptions: {
+      parserOptions: {
+        project: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
       globals: {
         ...globals.browser,
         ...globals.node,
       },
     },
   },
-]
+])

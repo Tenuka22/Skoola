@@ -4,8 +4,9 @@ import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert01Icon, Delete02Icon, UserIcon } from '@hugeicons/core-free-icons'
 import { rbacApi } from '../api'
+import { isPermissionEnum, isRoleEnum } from '../utils/permissions'
 import { PermissionPalette } from './permission-palette'
-import type { PermissionEnum, RoleEnum, UserResponse } from '@/lib/api/types.gen'
+import type { RoleEnum, UserResponse } from '@/lib/api/types.gen'
 import { authClient } from '@/lib/clients'
 import {
   getAllStaffOptions,
@@ -37,20 +38,22 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
   )
   const staffMember = staffList?.data.find((s) => s.email === user.email)
 
-  const { data: rawPermissions = [] } = useQuery(
+  const { data: rawPermissions = '' } = useQuery(
     rbacApi.getUserPermissionsOptions(user.id),
   )
 
   const directPermissions = React.useMemo(
     () =>
-      Array.isArray(rawPermissions) ? (rawPermissions as Array<PermissionEnum>) : [],
+      typeof rawPermissions === 'string' && rawPermissions
+        ? rawPermissions.split(',').filter(isPermissionEnum)
+        : [],
     [rawPermissions],
   )
 
   const { data: allPermissionSets = [] } = useQuery(rbacApi.getSetsOptions())
 
   const { data: userPermissionSets = [] } = useQuery({
-    ...rbacApi.getStaffPermissionSetsOptions(staffMember?.id as string),
+    ...rbacApi.getStaffPermissionSetsOptions(staffMember?.id || ''),
     enabled: !!staffMember?.id,
   })
 
@@ -62,7 +65,13 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
       })
       toast.success('Permission assigned')
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error('Failed to assign permission')
+      }
+    },
   })
 
   const unassignPerm = useMutation({
@@ -73,7 +82,13 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
       })
       toast.success('Permission removed')
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error('Failed to remove permission')
+      }
+    },
   })
 
   const assignSet = useMutation({
@@ -84,7 +99,13 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
       })
       toast.success('Permission set assigned')
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error('Failed to assign permission set')
+      }
+    },
   })
 
   const unassignSet = useMutation({
@@ -95,7 +116,13 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
       })
       toast.success('Permission set removed')
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error('Failed to remove permission set')
+      }
+    },
   })
 
   const updateRole = useMutation({
@@ -104,13 +131,19 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
       queryClient.invalidateQueries({ queryKey: ['getAllUsers'] })
       toast.success('Role updated')
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error('Failed to update role')
+      }
+    },
   })
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
-    const permission = e.dataTransfer.getData('permission') as PermissionEnum
-    if (permission) {
+    const permission = e.dataTransfer.getData('permission')
+    if (isPermissionEnum(permission)) {
       if (directPermissions.includes(permission)) {
         toast.info('User already has this permission assigned directly.')
         return
@@ -118,17 +151,29 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
 
       // Basic inheritance check (simplified)
       // In a real app, we'd check if the role already has it
-      assignPerm.mutate(
-        {
-          path: { user_id: user.id },
-          body: { permission },
-        } as any,
-      )
+      assignPerm.mutate({
+        path: { user_id: user.id },
+        body: { permission },
+      })
     }
   }
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
+  }
+
+  const handleAssignPermissionSet = (value: string | null) => {
+    if (!value || !staffMember) return
+    if (userPermissionSets.some((s) => s.id === value)) {
+      toast.error('Set already assigned')
+      return
+    }
+    assignSet.mutate({
+      path: {
+        staff_id: staffMember.id,
+        set_id: value,
+      },
+    })
   }
 
   const roles: Array<RoleEnum> = [
@@ -167,12 +212,14 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
               </span>
               <Select
                 value={user.role || 'Guest'}
-                onValueChange={(val) =>
-                  updateRole.mutate({
-                    path: { user_id: user.id },
-                    body: { role: val as RoleEnum },
-                  } as any)
-                }
+                onValueChange={(val) => {
+                  if (val && isRoleEnum(val)) {
+                    updateRole.mutate({
+                      path: { user_id: user.id },
+                      body: { role: val },
+                    })
+                  }
+                }}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue />
@@ -252,12 +299,10 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
                           size="icon"
                           className="size-4 p-0 h-4 w-4 hover:bg-destructive/20 hover:text-destructive"
                           onClick={() =>
-                            unassignPerm.mutate(
-                              {
-                                path: { user_id: user.id },
-                                body: { permission: perm },
-                              } as any,
-                            )
+                            unassignPerm.mutate({
+                              path: { user_id: user.id },
+                              body: { permission: perm },
+                            })
                           }
                         >
                           <HugeiconsIcon
@@ -319,10 +364,10 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
                           onClick={() =>
                             unassignSet.mutate({
                               path: {
-                                staff_id: staffMember?.id as string,
+                                staff_id: staffMember?.id || '',
                                 set_id: set.id,
                               },
-                            } as any)
+                            })
                           }
                         >
                           <HugeiconsIcon
@@ -337,17 +382,7 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
 
                 {staffMember && (
                   <div className="pt-2 border-t border-dashed">
-                    <Select
-                      onValueChange={(setId) => {
-                        if (userPermissionSets.some((s) => s.id === setId)) {
-                          toast.error('Set already assigned')
-                          return
-                        }
-                        assignSet.mutate({
-                          path: { staff_id: staffMember.id, set_id: setId },
-                        } as any)
-                      }}
-                    >
+                    <Select onValueChange={handleAssignPermissionSet}>
                       <SelectTrigger className="h-8 text-xs">
                         <SelectValue placeholder="Assign a permission set..." />
                       </SelectTrigger>

@@ -24,6 +24,7 @@ import { StudentsToolbar } from '../../features/students/components/students-too
 import { useStudentsStore } from '../../features/students/store'
 import { handleExportCSV } from '../../lib/export'
 import { authClient } from '../../lib/clients'
+import { isStudentStatus } from '../../features/students/utils/student-guards'
 import type { UpdateStudentRequest } from '@/lib/api/types.gen'
 import {
   assignStudentToClassMutation,
@@ -87,7 +88,12 @@ function StudentsPage() {
         page,
         limit,
         search: debouncedSearch,
-        status: statusFilter === 'all' ? undefined : (statusFilter as any),
+        status:
+          statusFilter === 'all'
+            ? undefined
+            : isStudentStatus(statusFilter)
+              ? statusFilter
+              : undefined,
         created_after: createdAfter ?? undefined,
         created_before: createdBefore ?? undefined,
         sort_by: sortBy,
@@ -169,9 +175,11 @@ function StudentsPage() {
     },
   })
 
-  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({})
+  const [rowSelection, setRowSelection] = React.useState<
+    Record<string, boolean>
+  >({})
   const selectedStudents = React.useMemo(() => {
-    return new Set(Object.keys(rowSelection).filter(k => rowSelection[k]))
+    return new Set(Object.keys(rowSelection).filter((k) => rowSelection[k]))
   }, [rowSelection])
 
   const columns = getStudentColumns({
@@ -237,7 +245,7 @@ function StudentsPage() {
           store.studentToEdit &&
           updateStudent.mutate({
             path: { student_id: store.studentToEdit.id },
-            body: values as any,
+            body: values,
           })
         }
         isEditing={updateStudent.isPending}
@@ -246,7 +254,7 @@ function StudentsPage() {
       <StudentAddDialog
         isAddOpen={store.isCreateStudentOpen}
         setIsAddOpen={setIsCreateStudentOpen}
-        onAddConfirm={(values) => createStudent.mutate({ body: values as any })}
+        onAddConfirm={(values) => createStudent.mutate({ body: values })}
         isAdding={createStudent.isPending}
       />
 

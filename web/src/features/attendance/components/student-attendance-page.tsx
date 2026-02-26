@@ -108,11 +108,10 @@ export const StudentAttendancePage = () => {
 
   const mergedData: Array<StudentAttendanceWithMember> = React.useMemo(() => {
     if (!studentsData) return []
-    return studentsData.map((attendance) => {
-      return {
-        ...attendance,
-      }
-    })
+    return studentsData.map((attendance) => ({
+      ...attendance,
+      student: attendance,
+    }))
   }, [studentsData])
 
   const filteredData = React.useMemo(() => {

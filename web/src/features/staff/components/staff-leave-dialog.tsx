@@ -51,7 +51,12 @@ export function StaffLeaveDialog({
     },
   })
 
-  const { data: balanceData, isLoading, isError, error } = useQuery({
+  const {
+    data: balanceData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     ...viewLeaveBalanceOptions({
       client: authClient,
       path: { staff_id: staff?.id ?? '' },
@@ -69,7 +74,9 @@ export function StaffLeaveDialog({
       form.reset()
     },
     onError: (error) => {
-      toast.error(`Failed to apply for leave: ${error.message || 'Unknown error'}`)
+      toast.error(
+        `Failed to apply for leave: ${error.message || 'Unknown error'}`,
+      )
     },
   })
 
@@ -100,14 +107,23 @@ export function StaffLeaveDialog({
             {isLoading ? (
               <Spinner />
             ) : isError ? (
-              <p className="text-xs text-destructive">Error loading balances: {error?.message}</p>
+              <p className="text-xs text-destructive">
+                Error loading balances: {error?.message}
+              </p>
             ) : balances.length === 0 ? (
-              <p className="text-xs text-muted-foreground italic text-center col-span-2">No leave data available.</p>
+              <p className="text-xs text-muted-foreground italic text-center col-span-2">
+                No leave data available.
+              </p>
             ) : (
               balances.map((b: LeaveBalanceResponse, i: number) => (
-                <div key={i} className="p-3 border rounded-lg bg-muted/20 flex justify-between items-center">
+                <div
+                  key={i}
+                  className="p-3 border rounded-lg bg-muted/20 flex justify-between items-center"
+                >
                   <span className="text-sm font-medium">{b.leave_type}</span>
-                  <Badge variant="secondary">{b.total_days_taken} days taken</Badge>
+                  <Badge variant="secondary">
+                    {b.total_days_taken} days taken
+                  </Badge>
                 </div>
               ))
             )}
@@ -120,34 +136,76 @@ export function StaffLeaveDialog({
               Apply for New Leave
             </h3>
             <ScrollArea className="flex-1">
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-4 border rounded-xl bg-muted/30">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4 p-4 border rounded-xl bg-muted/30"
+              >
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="leave_type">Leave Type</Label>
-                    <Input id="leave_type" {...form.register('leave_type')} placeholder="e.g. Sick, Casual" />
-                    {form.formState.errors.leave_type && <p className="text-xs text-red-500">{form.formState.errors.leave_type.message}</p>}
+                    <Input
+                      id="leave_type"
+                      {...form.register('leave_type')}
+                      placeholder="e.g. Sick, Casual"
+                    />
+                    {form.formState.errors.leave_type && (
+                      <p className="text-xs text-red-500">
+                        {form.formState.errors.leave_type.message}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="from_date">From Date</Label>
-                    <Input id="from_date" type="date" {...form.register('from_date')} />
-                    {form.formState.errors.from_date && <p className="text-xs text-red-500">{form.formState.errors.from_date.message}</p>}
+                    <Input
+                      id="from_date"
+                      type="date"
+                      {...form.register('from_date')}
+                    />
+                    {form.formState.errors.from_date && (
+                      <p className="text-xs text-red-500">
+                        {form.formState.errors.from_date.message}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="to_date">To Date</Label>
-                    <Input id="to_date" type="date" {...form.register('to_date')} />
-                    {form.formState.errors.to_date && <p className="text-xs text-red-500">{form.formState.errors.to_date.message}</p>}
+                    <Input
+                      id="to_date"
+                      type="date"
+                      {...form.register('to_date')}
+                    />
+                    {form.formState.errors.to_date && (
+                      <p className="text-xs text-red-500">
+                        {form.formState.errors.to_date.message}
+                      </p>
+                    )}
                   </div>
                   <div className="col-span-2 space-y-2">
                     <Label htmlFor="reason">Reason</Label>
-                    <Input id="reason" placeholder="Brief reason for leave" {...form.register('reason')} />
-                    {form.formState.errors.reason && <p className="text-xs text-red-500">{form.formState.errors.reason.message}</p>}
+                    <Input
+                      id="reason"
+                      placeholder="Brief reason for leave"
+                      {...form.register('reason')}
+                    />
+                    {form.formState.errors.reason && (
+                      <p className="text-xs text-red-500">
+                        {form.formState.errors.reason.message}
+                      </p>
+                    )}
                   </div>
                 </div>
-                <Button type="submit" className="w-full" disabled={applyLeave.isPending}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={applyLeave.isPending}
+                >
                   {applyLeave.isPending ? (
                     <Spinner className="mr-2" />
                   ) : (
-                    <HugeiconsIcon icon={FloppyDiskIcon} className="size-4 mr-2" />
+                    <HugeiconsIcon
+                      icon={FloppyDiskIcon}
+                      className="size-4 mr-2"
+                    />
                   )}
                   Submit Application
                 </Button>

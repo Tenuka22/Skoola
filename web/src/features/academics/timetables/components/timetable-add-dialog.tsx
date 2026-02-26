@@ -29,9 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { authClient } from '@/lib/clients'
-import {
-  getAllSubjectsOptions,
-} from '@/lib/api/@tanstack/react-query.gen'
+import { getAllSubjectsOptions } from '@/lib/api/@tanstack/react-query.gen'
 
 interface TimetableAddDialogProps {
   open: boolean
@@ -99,7 +97,10 @@ export function TimetableAddDialog({
         <DialogHeader>
           <DialogTitle>Add New Timetable Entry</DialogTitle>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="grid gap-4 py-4">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="grid gap-4 py-4"
+        >
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="class_id" className="text-right">
               Class
@@ -130,7 +131,9 @@ export function TimetableAddDialog({
               Subject
             </Label>
             <Select
-              onValueChange={(value) => form.setValue('subject_id', value || '')}
+              onValueChange={(value) =>
+                form.setValue('subject_id', value || '')
+              }
               value={form.watch('subject_id')}
             >
               <SelectTrigger id="subject_id" className="col-span-3">
@@ -155,7 +158,9 @@ export function TimetableAddDialog({
               Teacher
             </Label>
             <Select
-              onValueChange={(value) => form.setValue('teacher_id', value || '')}
+              onValueChange={(value) =>
+                form.setValue('teacher_id', value || '')
+              }
               value={form.watch('teacher_id')}
             >
               <SelectTrigger id="teacher_id" className="col-span-3">
@@ -180,7 +185,9 @@ export function TimetableAddDialog({
               Academic Year
             </Label>
             <Select
-              onValueChange={(value) => form.setValue('academic_year_id', value || '')}
+              onValueChange={(value) =>
+                form.setValue('academic_year_id', value || '')
+              }
               value={form.watch('academic_year_id')}
             >
               <SelectTrigger id="academic_year_id" className="col-span-3">
@@ -205,7 +212,9 @@ export function TimetableAddDialog({
               Day of Week
             </Label>
             <Select
-              onValueChange={(value) => form.setValue('day_of_week', value || '')}
+              onValueChange={(value) =>
+                form.setValue('day_of_week', value || '')
+              }
               value={form.watch('day_of_week')}
             >
               <SelectTrigger id="day_of_week" className="col-span-3">
@@ -289,7 +298,11 @@ export function TimetableAddDialog({
             )}
           </div>
           <DialogFooter className="mt-4">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

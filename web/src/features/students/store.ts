@@ -114,13 +114,18 @@ export const useStudentsStore = create<StudentsState>((set) => ({
   setIsCreateStudentOpen: (isCreateStudentOpen) => set({ isCreateStudentOpen }),
   setStudentToEdit: (studentToEdit) => set({ studentToEdit }),
   setIsUploadPhotoOpen: (isUploadPhotoOpen) => set({ isUploadPhotoOpen }),
-  setStudentToUploadPhotoFor: (studentToUploadPhotoFor) => set({ studentToUploadPhotoFor }),
+  setStudentToUploadPhotoFor: (studentToUploadPhotoFor) =>
+    set({ studentToUploadPhotoFor }),
   setIsAssignClassOpen: (isAssignClassOpen) => set({ isAssignClassOpen }),
-  setStudentToAssignClassFor: (studentToAssignClassFor) => set({ studentToAssignClassFor }),
+  setStudentToAssignClassFor: (studentToAssignClassFor) =>
+    set({ studentToAssignClassFor }),
   setIsGuardiansOpen: (isGuardiansOpen) => set({ isGuardiansOpen }),
-  setStudentToManageGuardiansFor: (studentToManageGuardiansFor) => set({ studentToManageGuardiansFor }),
+  setStudentToManageGuardiansFor: (studentToManageGuardiansFor) =>
+    set({ studentToManageGuardiansFor }),
   setIsAttendanceOpen: (isAttendanceOpen) => set({ isAttendanceOpen }),
-  setStudentToManageAttendanceFor: (studentToManageAttendanceFor) => set({ studentToManageAttendanceFor }),
+  setStudentToManageAttendanceFor: (studentToManageAttendanceFor) =>
+    set({ studentToManageAttendanceFor }),
   setIsMarksOpen: (isMarksOpen) => set({ isMarksOpen }),
-  setStudentToManageMarksFor: (studentToManageMarksFor) => set({ studentToManageMarksFor }),
+  setStudentToManageMarksFor: (studentToManageMarksFor) =>
+    set({ studentToManageMarksFor }),
 }))

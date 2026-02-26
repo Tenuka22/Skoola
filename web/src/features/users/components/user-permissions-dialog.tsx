@@ -3,10 +3,7 @@
 import * as React from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import type {
-  PermissionEnum,
-  UserResponse,
-} from '@/lib/api/types.gen'
+import type { PermissionEnum, UserResponse } from '@/lib/api/types.gen'
 import {
   Dialog,
   DialogContent,
@@ -56,7 +53,14 @@ export function UserPermissionsDialog({
 
   React.useEffect(() => {
     if (userPermissions) {
-      const perms = userPermissions as unknown as Array<PermissionEnum>
+      const perms = userPermissions
+        .split(',')
+        .map((p) => p.trim())
+        .filter(Boolean)
+        .flatMap((permission) => {
+          const parsed = zPermissionEnum.safeParse(permission)
+          return parsed.success ? [parsed.data] : []
+        })
       setSelectedPermissions(perms)
       setInitialPermissions(perms)
     }
@@ -88,13 +92,13 @@ export function UserPermissionsDialog({
       await Promise.all([
         ...permissionsToAssign.map((permission) =>
           assignPermission.mutateAsync({
-            path: { user_id: user.id, permission } as any,
+            path: { user_id: user.id },
             body: { permission },
           }),
         ),
         ...permissionsToUnassign.map((permission) =>
           unassignPermission.mutateAsync({
-            path: { user_id: user.id, permission } as any,
+            path: { user_id: user.id },
             body: { permission },
           }),
         ),
@@ -125,9 +129,7 @@ export function UserPermissionsDialog({
         ) : (
           <>
             <div className="flex items-center gap-2">
-              <p className="text-sm font-medium">
-                Current Role:
-              </p>
+              <p className="text-sm font-medium">Current Role:</p>
               <Badge variant="secondary">{user?.role}</Badge>
             </div>
             <ScrollArea className="h-72">
@@ -136,11 +138,11 @@ export function UserPermissionsDialog({
                   <div key={permission} className="flex items-center gap-2">
                     <Checkbox
                       id={permission}
-                      checked={selectedPermissions.includes(permission as PermissionEnum)}
+                      checked={selectedPermissions.includes(permission)}
                       onCheckedChange={(checked) => {
                         setSelectedPermissions((prev) =>
                           checked
-                            ? [...prev, permission as PermissionEnum]
+                            ? [...prev, permission]
                             : prev.filter((p) => p !== permission),
                         )
                       }}

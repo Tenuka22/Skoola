@@ -82,22 +82,25 @@ function TimetablesPage() {
   // Fetch all academic years, classes, and staff for filters and display
   const [academicYearsQuery, classesQuery, staffQuery] = useQueries({
     queries: [
-      { ...getAllAcademicYearsOptions({ client: authClient }), staleTime: Infinity },
+      {
+        ...getAllAcademicYearsOptions({ client: authClient }),
+        staleTime: Infinity,
+      },
       { ...getAllClassesOptions({ client: authClient }), staleTime: Infinity },
       { ...getAllStaffOptions({ client: authClient }), staleTime: Infinity },
     ],
   })
 
   const academicYears = React.useMemo(
-    () => (academicYearsQuery.data)?.data || [],
+    () => academicYearsQuery.data?.data || [],
     [academicYearsQuery.data],
   )
   const classes = React.useMemo(
-    () => (classesQuery.data)?.data || [],
+    () => classesQuery.data?.data || [],
     [classesQuery.data],
   )
   const staff = React.useMemo(
-    () => (staffQuery.data)?.data || [],
+    () => staffQuery.data?.data || [],
     [staffQuery.data],
   )
 
@@ -111,25 +114,27 @@ function TimetablesPage() {
 
   // Fetch timetable entries based on view mode and selected filters
   const timetableQuery = useQuery<Array<TimetableResponse>, Error>({
-    queryKey: viewMode === 'class' 
-      ? getTimetableByClassAndDayQueryKey({
-          client: authClient,
-          path: {
-            class_id: selectedClassId ?? '',
-            day_of_week: selectedDayOfWeek ?? '',
-            academic_year_id: selectedAcademicYearId ?? '',
-          },
-        })
-      : getTimetableByTeacherQueryKey({
-          client: authClient,
-          path: {
-            teacher_id: selectedTeacherId ?? '',
-            academic_year_id: selectedAcademicYearId ?? '',
-          },
-        }),
+    queryKey:
+      viewMode === 'class'
+        ? getTimetableByClassAndDayQueryKey({
+            client: authClient,
+            path: {
+              class_id: selectedClassId ?? '',
+              day_of_week: selectedDayOfWeek ?? '',
+              academic_year_id: selectedAcademicYearId ?? '',
+            },
+          })
+        : getTimetableByTeacherQueryKey({
+            client: authClient,
+            path: {
+              teacher_id: selectedTeacherId ?? '',
+              academic_year_id: selectedAcademicYearId ?? '',
+            },
+          }),
     queryFn: async ({ signal }) => {
       if (viewMode === 'class') {
-        if (!selectedClassId || !selectedDayOfWeek || !selectedAcademicYearId) return []
+        if (!selectedClassId || !selectedDayOfWeek || !selectedAcademicYearId)
+          return []
         const res = await getTimetableByClassAndDay({
           client: authClient,
           path: {
@@ -260,19 +265,15 @@ function TimetablesPage() {
         viewMode={viewMode}
         setViewMode={setViewMode}
         onExport={() =>
-          handleExportCSV(
-            mappedTimetableEntries,
-            'timetables_export.csv',
-            [
-              { header: 'Class', accessor: 'className' },
-              { header: 'Subject', accessor: 'subjectName' },
-              { header: 'Teacher', accessor: 'teacherName' },
-              { header: 'Day', accessor: 'dayOfWeek' },
-              { header: 'Start Time', accessor: 'startTime' },
-              { header: 'End Time', accessor: 'endTime' },
-              { header: 'Academic Year', accessor: 'academicYearName' },
-            ],
-          )
+          handleExportCSV(mappedTimetableEntries, 'timetables_export.csv', [
+            { header: 'Class', accessor: 'className' },
+            { header: 'Subject', accessor: 'subjectName' },
+            { header: 'Teacher', accessor: 'teacherName' },
+            { header: 'Day', accessor: 'dayOfWeek' },
+            { header: 'Start Time', accessor: 'startTime' },
+            { header: 'End Time', accessor: 'endTime' },
+            { header: 'Academic Year', accessor: 'academicYearName' },
+          ])
         }
       />
       <TimetablesListContainer

@@ -1,10 +1,7 @@
 'use client'
 
 import { HugeiconsIcon } from '@hugeicons/react'
-import {
-  Delete01Icon,
-  PencilEdit01Icon,
-} from '@hugeicons/core-free-icons'
+import { Delete01Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -54,10 +51,7 @@ export function StaffBulkActionsToolbar({
                   className="rounded-full"
                   onClick={onBulkEdit}
                 >
-                  <HugeiconsIcon
-                    icon={PencilEdit01Icon}
-                    className="size-4"
-                  />
+                  <HugeiconsIcon icon={PencilEdit01Icon} className="size-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Bulk Edit</TooltipContent>

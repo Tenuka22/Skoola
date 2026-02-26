@@ -186,7 +186,9 @@ export function ClassEditDialog({
               Medium
             </Label>
             <Select
-              onValueChange={(value) => form.setValue('medium', value as any)}
+              onValueChange={(value) =>
+                form.setValue('medium', value ?? 'English')
+              }
               value={form.watch('medium')}
             >
               <SelectTrigger id="medium" className="col-span-3">

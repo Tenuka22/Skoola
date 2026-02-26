@@ -8,7 +8,7 @@ import { DataTable } from '@/components/ui/data-table'
 
 interface ClassesListContainerProps {
   query: UseQueryResult<PaginatedClassResponse, Error>
-  columns: Array<ColumnDef<ClassResponse, any>>
+  columns: Array<ColumnDef<ClassResponse, unknown>>
   rowSelection: Record<string, boolean>
   setRowSelection: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
 }

@@ -47,7 +47,7 @@ const createQueryKey = <TOptions extends Options>(
     _id: id,
     baseUrl:
       options?.baseUrl || (options?.client ?? client).getConfig().baseUrl,
-  } as QueryKey<TOptions>[0]
+  }
   if (infinite) {
     params._infinite = infinite
   }
@@ -69,38 +69,38 @@ const createQueryKey = <TOptions extends Options>(
   return [params]
 }
 
-const createInfiniteParams = <
-  K extends Pick<QueryKey<Options>[0], 'body' | 'headers' | 'path' | 'query'>,
->(
-  queryKey: QueryKey<Options>,
-  page: K,
-) => {
-  const params = { ...queryKey[0] }
-  if (page.body) {
-    params.body = {
-      ...(queryKey[0].body as any),
-      ...(page.body as any),
-    }
+const createInfiniteParams = (
+  queryKey: QueryKey<Options<GetAllStudentsData>>,
+  page: Pick<QueryKey<Options<GetAllStudentsData>>[0], 'headers' | 'query'>,
+): Pick<QueryKey<Options<GetAllStudentsData>>[0], 'headers' | 'query'> => {
+  const baseParams = queryKey[0]
+
+  return {
+    headers:
+      baseParams.headers || page.headers
+        ? {
+            ...(typeof baseParams.headers === 'object' &&
+            baseParams.headers !== null
+              ? baseParams.headers
+              : {}),
+            ...(typeof page.headers === 'object' && page.headers !== null
+              ? page.headers
+              : {}),
+          }
+        : undefined,
+    query:
+      baseParams.query || page.query
+        ? {
+            ...(typeof baseParams.query === 'object' &&
+            baseParams.query !== null
+              ? baseParams.query
+              : {}),
+            ...(typeof page.query === 'object' && page.query !== null
+              ? page.query
+              : {}),
+          }
+        : undefined,
   }
-  if (page.headers) {
-    params.headers = {
-      ...queryKey[0].headers,
-      ...page.headers,
-    }
-  }
-  if (page.path) {
-    params.path = {
-      ...(queryKey[0].path as any),
-      ...(page.path as any),
-    }
-  }
-  if (page.query) {
-    params.query = {
-      ...(queryKey[0].query as any),
-      ...(page.query as any),
-    }
-  }
-  return params as unknown as typeof page
 }
 
 // getAllStudents
@@ -138,38 +138,34 @@ export const getAllStudentsInfiniteOptions = (
     QueryKey<Options<GetAllStudentsData>>,
     | number
     | null
-    | Pick<
+    | Pick<QueryKey<Options<GetAllStudentsData>>[0], 'headers' | 'query'>
+  >({
+    queryFn: async ({ pageParam, queryKey, signal }) => {
+      const page: Pick<
         QueryKey<Options<GetAllStudentsData>>[0],
-        'body' | 'headers' | 'path' | 'query'
-      >
-  >(
-    // @ts-ignore
-    {
-      queryFn: async ({ pageParam, queryKey, signal }) => {
-        // @ts-ignore
-        const page: Pick<
-          QueryKey<Options<GetAllStudentsData>>[0],
-          'body' | 'headers' | 'path' | 'query'
-        > =
-          typeof pageParam === 'object'
-            ? pageParam
-            : {
-                query: {
-                  page: pageParam,
-                },
-              }
-        const params = createInfiniteParams(queryKey, page)
-        const { data } = await getAllStudents({
-          ...options,
-          ...params,
-          signal,
-          throwOnError: true,
-        })
-        return data
-      },
-      queryKey: getAllStudentsInfiniteQueryKey(options),
+        'headers' | 'query'
+      > =
+        typeof pageParam === 'object' && pageParam !== null
+          ? pageParam
+          : {
+              query: {
+                page: pageParam,
+              },
+            }
+      const params = createInfiniteParams(queryKey, page)
+      const { data } = await getAllStudents({
+        ...options,
+        ...params,
+        signal,
+        throwOnError: true,
+      })
+      return data
     },
-  )
+    queryKey: getAllStudentsInfiniteQueryKey(options),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.total_pages ? lastPage.page + 1 : undefined,
+  })
 
 // createStudent
 export const createStudentMutation = (

@@ -1,5 +1,9 @@
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon, MoreVerticalIcon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
+import {
+  Delete02Icon,
+  MoreVerticalIcon,
+  PencilEdit01Icon,
+} from '@hugeicons/core-free-icons'
 import type { ColumnDef } from '@tanstack/react-table'
 import type {
   AcademicYearResponse,
@@ -166,7 +170,10 @@ export function getTimetableColumns({
             />
             <DropdownMenuContent align="end" className="w-[160px]">
               <DropdownMenuItem onClick={() => onEdit(entry)}>
-                <HugeiconsIcon icon={PencilEdit01Icon} className="size-4 mr-2" />
+                <HugeiconsIcon
+                  icon={PencilEdit01Icon}
+                  className="size-4 mr-2"
+                />
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onDelete(entry.id)}>

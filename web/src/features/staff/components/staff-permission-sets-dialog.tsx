@@ -1,5 +1,10 @@
+import * as React from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { AlertCircleIcon, Delete02Icon, Layers01Icon } from '@hugeicons/core-free-icons'
+import {
+  AlertCircleIcon,
+  Delete02Icon,
+  Layers01Icon,
+} from '@hugeicons/core-free-icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import type { StaffResponse, UserSet } from '@/lib/api/types.gen'
@@ -48,7 +53,12 @@ export function StaffPermissionSetsDialog({
   )
   const allSets = allSetsData || []
 
-  const { data: staffSetsData, isLoading, isError, error } = useQuery({
+  const {
+    data: staffSetsData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     ...getStaffPermissionSetsOptions({
       client: authClient,
       path: { staff_id: staff?.id ?? '' },
@@ -83,6 +93,16 @@ export function StaffPermissionSetsDialog({
     },
   })
 
+  const handleAssignSet = React.useCallback(
+    (value: string | null) => {
+      if (!value || !staff) return
+      assignSet.mutate({
+        path: { staff_id: staff.id, set_id: value },
+      })
+    },
+    [assignSet, staff],
+  )
+
   const availableSets = allSets.filter(
     (set: UserSet) => !staffSets.some((ss: UserSet) => ss.id === set.id),
   )
@@ -102,11 +122,7 @@ export function StaffPermissionSetsDialog({
           <div className="space-y-2">
             <Label>Assign New Set</Label>
             <div className="flex gap-2">
-              <Select
-                onValueChange={(setId) =>
-                  staff && assignSet.mutate({ path: { staff_id: staff.id, set_id: setId as string } })
-                }
-              >
+              <Select onValueChange={handleAssignSet}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a set to assign" />
                 </SelectTrigger>
@@ -133,23 +149,37 @@ export function StaffPermissionSetsDialog({
               </div>
             ) : isError ? (
               <div className="grid flex-1 place-items-center text-center">
-                <HugeiconsIcon icon={AlertCircleIcon} className="size-8 text-destructive opacity-50" />
-                <p className="text-xs text-muted-foreground mt-2">Error: {error?.message}</p>
+                <HugeiconsIcon
+                  icon={AlertCircleIcon}
+                  className="size-8 text-destructive opacity-50"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Error: {error?.message}
+                </p>
               </div>
             ) : staffSets.length === 0 ? (
-              <p className="text-xs text-muted-foreground italic text-center p-8">No sets assigned.</p>
+              <p className="text-xs text-muted-foreground italic text-center p-8">
+                No sets assigned.
+              </p>
             ) : (
               <ScrollArea className="flex-1 border rounded-lg p-4">
                 <div className="flex flex-wrap gap-2">
                   {staffSets.map((set: UserSet) => (
-                    <Badge key={set.id} variant="secondary" className="pl-3 pr-1 py-1 gap-2">
+                    <Badge
+                      key={set.id}
+                      variant="secondary"
+                      className="pl-3 pr-1 py-1 gap-2"
+                    >
                       {set.name}
                       <Button
                         variant="ghost"
                         size="icon"
                         className="size-4 p-0 hover:bg-destructive/20 hover:text-destructive"
                         onClick={() =>
-                          staff && unassignSet.mutate({ path: { staff_id: staff.id, set_id: set.id } })
+                          staff &&
+                          unassignSet.mutate({
+                            path: { staff_id: staff.id, set_id: set.id },
+                          })
                         }
                       >
                         <HugeiconsIcon icon={Delete02Icon} className="size-3" />

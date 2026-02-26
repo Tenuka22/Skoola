@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { SortingState } from '@tanstack/react-table'
+import type { OnChangeFn, SortingState } from '@tanstack/react-table'
 import type { SubjectResponse } from '@/lib/api/types.gen'
 
 interface SubjectsStore {
@@ -10,7 +10,7 @@ interface SubjectsStore {
   page: number
   setPage: (page: number) => void
   sorting: SortingState
-  setSorting: (sorting: SortingState) => void
+  setSorting: OnChangeFn<SortingState>
   isCreateSubjectOpen: boolean
   setIsCreateSubjectOpen: (isOpen: boolean) => void
   subjectToEdit: SubjectResponse | null
@@ -37,7 +37,10 @@ export const useSubjectsStore = create<SubjectsStore>((set) => ({
   page: 1,
   setPage: (page) => set({ page }),
   sorting: [],
-  setSorting: (sorting) => set({ sorting }),
+  setSorting: (updater) =>
+    set((state) => ({
+      sorting: typeof updater === 'function' ? updater(state.sorting) : updater,
+    })),
   isCreateSubjectOpen: false,
   setIsCreateSubjectOpen: (isOpen) => set({ isCreateSubjectOpen: isOpen }),
   subjectToEdit: null,

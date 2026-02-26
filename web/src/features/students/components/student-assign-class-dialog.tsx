@@ -4,7 +4,12 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueries } from '@tanstack/react-query'
 import { z } from 'zod'
-import type { AcademicYearResponse, ClassResponse, GradeLevelResponse, StudentResponse } from '@/lib/api/types.gen'
+import type {
+  AcademicYearResponse,
+  ClassResponse,
+  GradeLevelResponse,
+  StudentResponse,
+} from '@/lib/api/types.gen'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -66,15 +71,21 @@ export function StudentAssignClassDialog({
 
   const [academicYearsQuery, classesQuery, gradeLevelsQuery] = useQueries({
     queries: [
-      { ...getAllAcademicYearsOptions({ client: authClient }), staleTime: Infinity },
+      {
+        ...getAllAcademicYearsOptions({ client: authClient }),
+        staleTime: Infinity,
+      },
       { ...getAllClassesOptions({ client: authClient }), staleTime: Infinity },
-      { ...getAllGradeLevelsOptions({ client: authClient }), staleTime: Infinity },
+      {
+        ...getAllGradeLevelsOptions({ client: authClient }),
+        staleTime: Infinity,
+      },
     ],
   })
 
-  const academicYears = (academicYearsQuery.data as any)?.data || []
-  const classes = (classesQuery.data as any)?.data || []
-  const gradeLevels = (gradeLevelsQuery.data as any)?.data || []
+  const academicYears = academicYearsQuery.data?.data || []
+  const classes = classesQuery.data?.data || []
+  const gradeLevels = gradeLevelsQuery.data?.data || []
 
   const handleSubmit = (data: FormValues) => {
     if (student) {
@@ -94,7 +105,10 @@ export function StudentAssignClassDialog({
         <DialogHeader>
           <DialogTitle>Assign Class to {student?.name_english}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="grid gap-4 py-4">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="grid gap-4 py-4"
+        >
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="grade_id" className="text-right">
               Grade
@@ -128,7 +142,11 @@ export function StudentAssignClassDialog({
               </SelectTrigger>
               <SelectContent>
                 {classes
-                  .filter((c: ClassResponse) => !form.watch('grade_id') || c.grade_id === form.watch('grade_id'))
+                  .filter(
+                    (c: ClassResponse) =>
+                      !form.watch('grade_id') ||
+                      c.grade_id === form.watch('grade_id'),
+                  )
                   .map((cls: ClassResponse) => (
                     <SelectItem key={cls.id} value={cls.id}>
                       {cls.section_name}
@@ -142,7 +160,9 @@ export function StudentAssignClassDialog({
               Academic Year
             </Label>
             <Select
-              onValueChange={(value) => form.setValue('academic_year_id', value || '')}
+              onValueChange={(value) =>
+                form.setValue('academic_year_id', value || '')
+              }
               value={form.watch('academic_year_id')}
             >
               <SelectTrigger id="academic_year_id" className="col-span-3">
@@ -161,10 +181,19 @@ export function StudentAssignClassDialog({
             <Label htmlFor="from_date" className="text-right">
               From Date
             </Label>
-            <Input id="from_date" type="date" {...form.register('from_date')} className="col-span-3" />
+            <Input
+              id="from_date"
+              type="date"
+              {...form.register('from_date')}
+              className="col-span-3"
+            />
           </div>
           <DialogFooter className="mt-4">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

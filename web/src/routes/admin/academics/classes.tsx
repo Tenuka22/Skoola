@@ -99,9 +99,7 @@ function ClassesPage() {
       setIsCreateClassOpen(false)
     },
     onError: (error) => {
-      toast.error(
-        `Failed to create class: ${error.message || 'Unknown error'}`,
-      )
+      toast.error(`Failed to create class: ${error.message || 'Unknown error'}`)
     },
   })
 
@@ -115,9 +113,7 @@ function ClassesPage() {
       setClassToEdit(null)
     },
     onError: (error) => {
-      toast.error(
-        `Failed to update class: ${error.message || 'Unknown error'}`,
-      )
+      toast.error(`Failed to update class: ${error.message || 'Unknown error'}`)
     },
   })
 
@@ -131,9 +127,7 @@ function ClassesPage() {
       setClassToDelete(null)
     },
     onError: (error) => {
-      toast.error(
-        `Failed to delete class: ${error.message || 'Unknown error'}`,
-      )
+      toast.error(`Failed to delete class: ${error.message || 'Unknown error'}`)
     },
   })
 
@@ -155,11 +149,11 @@ function ClassesPage() {
     },
   })
 
-  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({})
+  const [rowSelection, setRowSelection] = React.useState<
+    Record<string, boolean>
+  >({})
   const selectedClasses = React.useMemo(() => {
-    return new Set(
-      Object.keys(rowSelection).filter((key) => rowSelection[key]),
-    )
+    return new Set(Object.keys(rowSelection).filter((key) => rowSelection[key]))
   }, [rowSelection])
 
   const columns = useClassesColumns({
@@ -172,16 +166,12 @@ function ClassesPage() {
       <ClassesHeader />
       <ClassesToolbar
         onExport={() =>
-          handleExportCSV(
-            classesQuery.data?.data || [],
-            'classes_export.csv',
-            [
-              { header: 'ID', accessor: 'id' },
-              { header: 'Name', accessor: 'section_name' },
-              { header: 'Grade Level', accessor: 'grade_id' },
-              { header: 'Academic Year', accessor: 'academic_year_id' },
-            ],
-          )
+          handleExportCSV(classesQuery.data?.data || [], 'classes_export.csv', [
+            { header: 'ID', accessor: 'id' },
+            { header: 'Name', accessor: 'section_name' },
+            { header: 'Grade Level', accessor: 'grade_id' },
+            { header: 'Academic Year', accessor: 'academic_year_id' },
+          ])
         }
       />
       <ClassesListContainer
@@ -240,10 +230,7 @@ function ClassesPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog
-        open={isBulkDeleteOpen}
-        onOpenChange={setIsBulkDeleteOpen}
-      >
+      <AlertDialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>

@@ -34,7 +34,7 @@ import {
   UserIcon,
 } from '@hugeicons/core-free-icons'
 import { ThemeToggle } from './root/theme-toggle'
-import { Example, ExampleWrapper } from '@/components/example'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -97,17 +97,17 @@ import { Textarea } from '@/components/ui/textarea'
 
 export function ComponentExample() {
   return (
-    <ExampleWrapper>
+    <div>
       <ThemeToggle />
       <CardExample />
       <FormExample />
-    </ExampleWrapper>
+    </div>
   )
 }
 
 function CardExample() {
   return (
-    <Example title="Card" className="items-center justify-center">
+    <div title="Card" className="items-center justify-center">
       <Card className="relative w-full max-w-sm overflow-hidden pt-0">
         <div className="bg-primary absolute inset-0 z-30 aspect-video opacity-50 mix-blend-color" />
         <img
@@ -156,7 +156,7 @@ function CardExample() {
           </Badge>
         </CardFooter>
       </Card>
-    </Example>
+    </div>
   )
 }
 
@@ -175,6 +175,8 @@ const roleItems = [
   { label: 'Other', value: 'other' },
 ]
 
+type Framework = (typeof frameworks)[number]
+
 function FormExample() {
   const [notifications, setNotifications] = React.useState({
     email: true,
@@ -184,7 +186,7 @@ function FormExample() {
   const [theme, setTheme] = React.useState('light')
 
   return (
-    <Example title="Form">
+    <div title="Form">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>User Information</CardTitle>
@@ -473,7 +475,7 @@ function FormExample() {
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="small-form-role">Role</FieldLabel>
-                  <Select items={roleItems} defaultValue={null}>
+                  <Select items={roleItems}>
                     <SelectTrigger id="small-form-role">
                       <SelectValue />
                     </SelectTrigger>
@@ -502,7 +504,7 @@ function FormExample() {
                   <ComboboxContent>
                     <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
                     <ComboboxList>
-                      {(item) => (
+                      {(item: Framework) => (
                         <ComboboxItem key={item} value={item}>
                           {item}
                         </ComboboxItem>
@@ -528,6 +530,6 @@ function FormExample() {
           </form>
         </CardContent>
       </Card>
-    </Example>
+    </div>
   )
 }

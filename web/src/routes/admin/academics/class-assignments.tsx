@@ -27,9 +27,7 @@ import { useClassAssignmentsStore } from '@/features/academics/class-assignments
 import { ClassAssignmentsHeader } from '@/features/academics/class-assignments/components/class-assignments-header'
 import { ClassAssignmentsToolbar } from '@/features/academics/class-assignments/components/class-assignments-toolbar'
 import { ClassAssignmentsListContainer } from '@/features/academics/class-assignments/components/class-assignments-list-container'
-import {
-  getAssignmentColumns,
-} from '@/features/academics/class-assignments/components/class-assignments-table-columns'
+import { getAssignmentColumns } from '@/features/academics/class-assignments/components/class-assignments-table-columns'
 import { AssignTeacherDialog } from '@/features/academics/class-assignments/components/assign-teacher-dialog'
 import { EditTeacherAssignmentDialog } from '@/features/academics/class-assignments/components/edit-teacher-assignment-dialog'
 import {
@@ -83,11 +81,11 @@ function ClassAssignmentsPage() {
   })
 
   const academicYears = React.useMemo(
-    () => (academicYearsQuery.data)?.data || [],
+    () => academicYearsQuery.data?.data || [],
     [academicYearsQuery.data],
   )
   const classes = React.useMemo(
-    () => (classesQuery.data)?.data || [],
+    () => classesQuery.data?.data || [],
     [classesQuery.data],
   )
 
@@ -118,8 +116,8 @@ function ClassAssignmentsPage() {
         client: authClient,
         path: {
           class_id: selectedClassId ?? '',
-          academic_year_id: selectedAcademicYearId ?? ''
-        }
+          academic_year_id: selectedAcademicYearId ?? '',
+        },
       }),
     })
   }
@@ -193,16 +191,12 @@ function ClassAssignmentsPage() {
         selectedClassId={selectedClassId}
         setSelectedClassId={setSelectedClassId}
         onExport={() =>
-          handleExportCSV(
-            mappedAssignments,
-            'class_assignments_export.csv',
-            [
-              { header: 'Class', accessor: 'className' },
-              { header: 'Subject', accessor: 'subjectName' },
-              { header: 'Teacher', accessor: 'teacherName' },
-              { header: 'Academic Year', accessor: 'academicYearName' },
-            ],
-          )
+          handleExportCSV(mappedAssignments, 'class_assignments_export.csv', [
+            { header: 'Class', accessor: 'className' },
+            { header: 'Subject', accessor: 'subjectName' },
+            { header: 'Teacher', accessor: 'teacherName' },
+            { header: 'Academic Year', accessor: 'academicYearName' },
+          ])
         }
       />
       <ClassAssignmentsListContainer

@@ -178,7 +178,10 @@ export const getStaffColumns = ({
               View Workload
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onManageAttendance(staff)}>
-              <HugeiconsIcon icon={CalendarCheckIn01Icon} className="mr-2 size-4" />
+              <HugeiconsIcon
+                icon={CalendarCheckIn01Icon}
+                className="mr-2 size-4"
+              />
               Attendance
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onManageLeaves(staff)}>

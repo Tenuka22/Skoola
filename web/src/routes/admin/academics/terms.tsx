@@ -1,15 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 import type { TermFormValues } from '@/features/academics/terms/schemas'
 import { authClient } from '@/lib/clients'
-import {
-  createTermMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
+import { createTermMutation } from '@/lib/api/@tanstack/react-query.gen'
 import { useTermsStore } from '@/features/academics/terms/store'
 import { TermsHeader } from '@/features/academics/terms/components/terms-header'
 import { TermsToolbar } from '@/features/academics/terms/components/terms-toolbar'

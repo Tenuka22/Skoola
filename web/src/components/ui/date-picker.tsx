@@ -41,8 +41,8 @@ export function DatePicker({
               )}
             >
               <HugeiconsIcon icon={Calendar01Icon} className="mr-2 h-4 w-4" />
-              {value ? (
-                format(selectedDate as Date, 'PPP')
+              {selectedDate instanceof Date ? (
+                format(selectedDate, 'PPP')
               ) : (
                 <span>Pick a date</span>
               )}

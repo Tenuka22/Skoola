@@ -14,7 +14,10 @@ check-backend:
     cd backend; cargo check
 
 check-web:
-    cd web; bun run tsc
+    cd web; bun run tsc;
+
+lint-web:
+    cd web; bun run check;
 
 dev-web:
     cd web; bun run dev

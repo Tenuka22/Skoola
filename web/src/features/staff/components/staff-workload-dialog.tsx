@@ -1,5 +1,10 @@
 import { HugeiconsIcon } from '@hugeicons/react'
-import { AlertCircleIcon, Book01Icon, Chart01Icon, School01Icon } from '@hugeicons/core-free-icons'
+import {
+  AlertCircleIcon,
+  Book01Icon,
+  Chart01Icon,
+  School01Icon,
+} from '@hugeicons/core-free-icons'
 import { useQuery } from '@tanstack/react-query'
 import type { StaffResponse } from '@/lib/api/types.gen'
 import { Button } from '@/components/ui/button'
@@ -26,7 +31,12 @@ export function StaffWorkloadDialog({
   open,
   onOpenChange,
 }: StaffWorkloadDialogProps) {
-  const { data: workload, isLoading, isError, error } = useQuery({
+  const {
+    data: workload,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     ...getTeacherWorkloadOptions({
       client: authClient,
       path: { teacher_id: staff?.id ?? '' },
@@ -74,21 +84,37 @@ export function StaffWorkloadDialog({
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Classes</CardTitle>
-                  <HugeiconsIcon icon={School01Icon} className="size-4 text-muted-foreground" />
+                  <HugeiconsIcon
+                    icon={School01Icon}
+                    className="size-4 text-muted-foreground"
+                  />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{workload.total_classes_assigned}</div>
-                  <p className="text-xs text-muted-foreground">Total classes assigned</p>
+                  <div className="text-2xl font-bold">
+                    {workload.total_classes_assigned}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Total classes assigned
+                  </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Subjects</CardTitle>
-                  <HugeiconsIcon icon={Book01Icon} className="size-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium">
+                    Subjects
+                  </CardTitle>
+                  <HugeiconsIcon
+                    icon={Book01Icon}
+                    className="size-4 text-muted-foreground"
+                  />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{workload.total_subjects_assigned}</div>
-                  <p className="text-xs text-muted-foreground">Total subjects assigned</p>
+                  <div className="text-2xl font-bold">
+                    {workload.total_subjects_assigned}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Total subjects assigned
+                  </p>
                 </CardContent>
               </Card>
             </div>

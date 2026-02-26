@@ -80,18 +80,29 @@ export function SubjectEnrollStudentDialog({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Enroll Student in {subject?.subject_name_en}</DialogTitle>
+          <DialogTitle>
+            Enroll Student in {subject?.subject_name_en}
+          </DialogTitle>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="grid gap-4 py-4">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="grid gap-4 py-4"
+        >
           <p className="text-sm text-muted-foreground">
-            Enroll a student into the subject <span className="font-medium text-foreground">{subject?.subject_name_en}</span>.
+            Enroll a student into the subject{' '}
+            <span className="font-medium text-foreground">
+              {subject?.subject_name_en}
+            </span>
+            .
           </p>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="student_id" className="text-right">
               Student
             </Label>
             <Select
-              onValueChange={(value) => form.setValue('student_id', value || '')}
+              onValueChange={(value) =>
+                form.setValue('student_id', value || '')
+              }
               value={form.watch('student_id')}
             >
               <SelectTrigger className="col-span-3">
@@ -116,7 +127,9 @@ export function SubjectEnrollStudentDialog({
               Academic Year
             </Label>
             <Select
-              onValueChange={(value) => form.setValue('academic_year_id', value || '')}
+              onValueChange={(value) =>
+                form.setValue('academic_year_id', value || '')
+              }
               value={form.watch('academic_year_id')}
             >
               <SelectTrigger className="col-span-3">
@@ -137,7 +150,11 @@ export function SubjectEnrollStudentDialog({
             )}
           </div>
           <DialogFooter className="mt-4">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

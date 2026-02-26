@@ -1,4 +1,4 @@
-import type {StaffFormValues} from '../schemas';
+import type { StaffFormValues } from '../schemas'
 import type { StaffResponse } from '@/lib/api/types.gen'
 
 export const mapStaffResponseToCreateStaffValues = (

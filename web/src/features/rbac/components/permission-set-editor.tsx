@@ -10,8 +10,9 @@ import {
   UserIcon,
 } from '@hugeicons/core-free-icons'
 import { rbacApi } from '../api'
+import { isPermissionEnum } from '../utils/permissions'
 import { PermissionPalette } from './permission-palette'
-import type { PermissionEnum, UserSet } from '@/lib/api/types.gen'
+import type { UserSet } from '@/lib/api/types.gen'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -35,13 +36,16 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
     setIsEditingInfo(false)
   }, [set.id, set.name, set.description])
 
-  const { data: rawPermissions = [] } = useQuery(
+  const { data: rawPermissions = '' } = useQuery(
+    // rawPermissions is a string
     rbacApi.getSetPermissionsOptions(set.id),
   )
 
   const assignedPermissions = React.useMemo(
     () =>
-      Array.isArray(rawPermissions) ? (rawPermissions as Array<PermissionEnum>) : [],
+      typeof rawPermissions === 'string' && rawPermissions
+        ? rawPermissions.split(',').filter(isPermissionEnum)
+        : [],
     [rawPermissions],
   )
 
@@ -54,7 +58,13 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
       setIsEditingInfo(false)
       toast.success('Set info updated')
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error('Failed to update set info')
+      }
+    },
   })
 
   const assignPerm = useMutation({
@@ -65,7 +75,13 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
       })
       toast.success('Permission assigned to set')
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error('Failed to assign permission to set')
+      }
+    },
   })
 
   const unassignPerm = useMutation({
@@ -76,16 +92,25 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
       })
       toast.success('Permission removed from set')
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error('Failed to remove permission from set')
+      }
+    },
   })
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
-    const permission = e.dataTransfer.getData('permission') as PermissionEnum
-    if (permission && !assignedPermissions.includes(permission)) {
+    const droppedPermission = e.dataTransfer.getData('permission')
+    if (
+      isPermissionEnum(droppedPermission) &&
+      !assignedPermissions.includes(droppedPermission)
+    ) {
       assignPerm.mutate({
         path: { user_set_id: set.id },
-        body: { permission },
+        body: { permission: droppedPermission },
       })
     }
   }

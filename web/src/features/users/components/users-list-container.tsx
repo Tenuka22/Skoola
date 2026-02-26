@@ -89,7 +89,7 @@ export function UsersListContainer({
               updateMutation.mutate({
                 path: { user_id: user.id },
                 body: { is_verified: !user.is_verified },
-              } as any)
+              })
             }
             isUpdating={isUpdating}
             updatingUserId={updatingUserId}

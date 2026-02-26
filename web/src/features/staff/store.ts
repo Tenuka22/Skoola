@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { SortingState } from '@tanstack/react-table'
 import type { StaffResponse } from '@/lib/api'
 
-type ViewMode = 'table' | 'board' | 'list'
+export type StaffViewMode = 'table' | 'board' | 'list'
 
 interface StaffState {
   page: number
@@ -12,7 +12,7 @@ interface StaffState {
   employmentStatusFilter: string
   sorting: SortingState
   columnVisibility: Record<string, boolean>
-  view: ViewMode
+  view: StaffViewMode
   staffToDelete: string | null
   isBulkDeleteOpen: boolean
   isBulkEditOpen: boolean
@@ -45,7 +45,7 @@ interface StaffState {
       | Record<string, boolean>
       | ((prev: Record<string, boolean>) => Record<string, boolean>),
   ) => void
-  setView: (view: ViewMode) => void
+  setView: (view: StaffViewMode) => void
   setStaffToDelete: (id: string | null) => void
   setIsBulkDeleteOpen: (open: boolean) => void
   setIsBulkEditOpen: (open: boolean) => void
@@ -121,17 +121,25 @@ export const useStaffStore = create<StaffState>((set) => ({
   setIsCreateStaffOpen: (isCreateStaffOpen) => set({ isCreateStaffOpen }),
   setStaffToEdit: (staffToEdit) => set({ staffToEdit }),
   setIsUploadPhotoOpen: (isUploadPhotoOpen) => set({ isUploadPhotoOpen }),
-  setStaffToUploadPhotoFor: (staffToUploadPhotoFor) => set({ staffToUploadPhotoFor }),
+  setStaffToUploadPhotoFor: (staffToUploadPhotoFor) =>
+    set({ staffToUploadPhotoFor }),
   setIsAssignClassOpen: (isAssignClassOpen) => set({ isAssignClassOpen }),
-  setStaffToAssignClassFor: (staffToAssignClassFor) => set({ staffToAssignClassFor }),
+  setStaffToAssignClassFor: (staffToAssignClassFor) =>
+    set({ staffToAssignClassFor }),
   setIsAssignSubjectOpen: (isAssignSubjectOpen) => set({ isAssignSubjectOpen }),
-  setStaffToAssignSubjectFor: (staffToAssignSubjectFor) => set({ staffToAssignSubjectFor }),
+  setStaffToAssignSubjectFor: (staffToAssignSubjectFor) =>
+    set({ staffToAssignSubjectFor }),
   setIsWorkloadOpen: (isWorkloadOpen) => set({ isWorkloadOpen }),
-  setStaffToViewWorkloadFor: (staffToViewWorkloadFor) => set({ staffToViewWorkloadFor }),
+  setStaffToViewWorkloadFor: (staffToViewWorkloadFor) =>
+    set({ staffToViewWorkloadFor }),
   setIsAttendanceOpen: (isAttendanceOpen) => set({ isAttendanceOpen }),
-  setStaffToManageAttendanceFor: (staffToManageAttendanceFor) => set({ staffToManageAttendanceFor }),
+  setStaffToManageAttendanceFor: (staffToManageAttendanceFor) =>
+    set({ staffToManageAttendanceFor }),
   setIsLeavesOpen: (isLeavesOpen) => set({ isLeavesOpen }),
-  setStaffToManageLeavesFor: (staffToManageLeavesFor) => set({ staffToManageLeavesFor }),
-  setIsPermissionSetsOpen: (isPermissionSetsOpen) => set({ isPermissionSetsOpen }),
-  setStaffToManagePermissionSetsFor: (staffToManagePermissionSetsFor) => set({ staffToManagePermissionSetsFor }),
+  setStaffToManageLeavesFor: (staffToManageLeavesFor) =>
+    set({ staffToManageLeavesFor }),
+  setIsPermissionSetsOpen: (isPermissionSetsOpen) =>
+    set({ isPermissionSetsOpen }),
+  setStaffToManagePermissionSetsFor: (staffToManagePermissionSetsFor) =>
+    set({ staffToManagePermissionSetsFor }),
 }))

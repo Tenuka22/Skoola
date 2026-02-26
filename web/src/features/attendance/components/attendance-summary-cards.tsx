@@ -87,27 +87,29 @@ export const AttendanceSummaryCards = ({
     let excusedCount = 0
     let halfDayCount = 0
 
-    attendanceRecords.forEach((record) => {
-      switch (record.status) {
-        case 'Present':
-          presentCount++
-          break
-        case 'Late':
-          lateCount++
-          break
-        case 'Absent':
-          absentCount++
-          break
-        case 'Excused':
-          excusedCount++
-          break
-        case 'HalfDay':
-          halfDayCount++
-          break
-        default:
-          break
-      }
-    })
+    attendanceRecords.forEach(
+      (record: StaffAttendanceWithMember | StudentAttendanceWithMember) => {
+        switch (record.status) {
+          case 'Present':
+            presentCount++
+            break
+          case 'Late':
+            lateCount++
+            break
+          case 'Absent':
+            absentCount++
+            break
+          case 'Excused':
+            excusedCount++
+            break
+          case 'HalfDay':
+            halfDayCount++
+            break
+          default:
+            break
+        }
+      },
+    )
 
     return {
       total: attendanceRecords.length,

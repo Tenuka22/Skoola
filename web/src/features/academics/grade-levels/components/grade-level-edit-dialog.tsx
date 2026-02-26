@@ -38,7 +38,7 @@ const educationLevels = [
   'JuniorSecondary',
   'SeniorSecondary',
   'Collegiate',
-] as const
+]
 
 export function GradeLevelEditDialog({
   gradeLevel,
@@ -136,7 +136,7 @@ export function GradeLevelEditDialog({
             </Label>
             <Select
               onValueChange={(val) =>
-                form.setValue('education_level', val as any)
+                form.setValue('education_level', val ?? 'Primary')
               }
               value={form.watch('education_level')}
             >

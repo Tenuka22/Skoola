@@ -12,7 +12,7 @@ export const ThemeToggle = () => {
   const { userTheme, setTheme } = useTheme()
 
   const getNextTheme = () => {
-    const themes = Object.keys(themeConfig) as Array<UserTheme>
+    const themes: Array<UserTheme> = ['light', 'dark', 'system']
     const currentIndex = themes.indexOf(userTheme)
     const nextIndex = (currentIndex + 1) % themes.length
     return themes[nextIndex]

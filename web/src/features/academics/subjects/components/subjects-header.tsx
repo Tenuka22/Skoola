@@ -18,7 +18,8 @@ export function SubjectsHeader() {
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold tracking-tight">Subjects</h1>
           <p className="text-muted-foreground">
-            Manage academic subjects, their assignments to grades/streams, and student enrollments.
+            Manage academic subjects, their assignments to grades/streams, and
+            student enrollments.
           </p>
         </div>
       </div>

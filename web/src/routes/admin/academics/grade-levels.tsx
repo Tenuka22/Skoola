@@ -155,11 +155,11 @@ function GradeLevelsPage() {
     },
   })
 
-  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({})
+  const [rowSelection, setRowSelection] = React.useState<
+    Record<string, boolean>
+  >({})
   const selectedGradeLevels = React.useMemo(() => {
-    return new Set(
-      Object.keys(rowSelection).filter((key) => rowSelection[key]),
-    )
+    return new Set(Object.keys(rowSelection).filter((key) => rowSelection[key]))
   }, [rowSelection])
 
   const columns = getGradeLevelsColumns({
@@ -185,7 +185,7 @@ function GradeLevelsPage() {
         }
       />
       <GradeLevelsListContainer
-        query={gradeLevelsQuery as any}
+        query={gradeLevelsQuery}
         columns={columns}
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
@@ -195,7 +195,7 @@ function GradeLevelsPage() {
         open={store.isCreateGradeLevelOpen}
         onOpenChange={setIsCreateGradeLevelOpen}
         onConfirm={(data: GradeLevelFormValues) =>
-          createGradeLevel.mutate({ body: data as any })
+          createGradeLevel.mutate({ body: data })
         }
         isSubmitting={createGradeLevel.isPending}
       />
@@ -208,7 +208,7 @@ function GradeLevelsPage() {
           store.gradeLevelToEdit &&
           updateGradeLevel.mutate({
             path: { id: store.gradeLevelToEdit.id },
-            body: data as any,
+            body: data,
           })
         }
         isSubmitting={updateGradeLevel.isPending}
@@ -231,7 +231,9 @@ function GradeLevelsPage() {
             <AlertDialogAction
               onClick={() =>
                 store.gradeLevelToDelete &&
-                deleteGradeLevel.mutate({ path: { id: store.gradeLevelToDelete } })
+                deleteGradeLevel.mutate({
+                  path: { id: store.gradeLevelToDelete },
+                })
               }
             >
               Delete
@@ -240,10 +242,7 @@ function GradeLevelsPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog
-        open={isBulkDeleteOpen}
-        onOpenChange={setIsBulkDeleteOpen}
-      >
+      <AlertDialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>

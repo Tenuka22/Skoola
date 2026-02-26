@@ -28,7 +28,7 @@ async function getAuthStorageFromCookie(): Promise<AuthStorage | null> {
     }
 
     const decoded = decodeURIComponent(cookieValue)
-    const parsed = JSON.parse(decoded)
+    const parsed: unknown = JSON.parse(decoded)
     const result = AuthStorageSchema.safeParse(parsed)
 
     if (!result.success) {

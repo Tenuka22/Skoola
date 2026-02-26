@@ -64,7 +64,9 @@ export function getSubjectsColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Name" />
       ),
-      cell: ({ row }) => <div className="font-medium">{row.original.subject_name_en}</div>,
+      cell: ({ row }) => (
+        <div className="font-medium">{row.original.subject_name_en}</div>
+      ),
     },
     {
       accessorKey: 'subject_code',
@@ -81,7 +83,7 @@ export function getSubjectsColumns({
         <DataTableColumnHeader column={column} title="Type" />
       ),
       cell: ({ row }) => (
-        <Badge variant={row.original.is_core ? "default" : "secondary"}>
+        <Badge variant={row.original.is_core ? 'default' : 'secondary'}>
           {row.original.is_core ? 'Core' : 'Elective'}
         </Badge>
       ),
@@ -106,7 +108,10 @@ export function getSubjectsColumns({
             />
             <DropdownMenuContent align="end" className="w-[200px]">
               <DropdownMenuItem onClick={() => onEdit(subject)}>
-                <HugeiconsIcon icon={PencilEdit01Icon} className="size-4 mr-2" />
+                <HugeiconsIcon
+                  icon={PencilEdit01Icon}
+                  className="size-4 mr-2"
+                />
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onDelete(subject.id)}>

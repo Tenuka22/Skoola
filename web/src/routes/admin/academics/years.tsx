@@ -148,7 +148,9 @@ function AcademicYearsPage() {
       invalidateQueries()
     },
     onError: (error) => {
-      toast.error(`Failed to set academic year: ${error.message || 'Unknown error'}`)
+      toast.error(
+        `Failed to set academic year: ${error.message || 'Unknown error'}`,
+      )
     },
   })
 
@@ -170,11 +172,11 @@ function AcademicYearsPage() {
     },
   })
 
-  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({})
+  const [rowSelection, setRowSelection] = React.useState<
+    Record<string, boolean>
+  >({})
   const selectedYears = React.useMemo(() => {
-    return new Set(
-      Object.keys(rowSelection).filter((key) => rowSelection[key]),
-    )
+    return new Set(Object.keys(rowSelection).filter((key) => rowSelection[key]))
   }, [rowSelection])
 
   const columns = getAcademicYearsColumns({
@@ -196,11 +198,13 @@ function AcademicYearsPage() {
               { header: 'Name', accessor: 'name' },
               {
                 header: 'Start Date',
-                accessor: (year) => format(new Date(String(year.year_start)), 'yyyy-MM-dd'),
+                accessor: (year) =>
+                  format(new Date(String(year.year_start)), 'yyyy-MM-dd'),
               },
               {
                 header: 'End Date',
-                accessor: (year) => format(new Date(String(year.year_end)), 'yyyy-MM-dd'),
+                accessor: (year) =>
+                  format(new Date(String(year.year_end)), 'yyyy-MM-dd'),
               },
               { header: 'Is Current', accessor: 'current' },
             ],
@@ -263,10 +267,7 @@ function AcademicYearsPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog
-        open={isBulkDeleteOpen}
-        onOpenChange={setIsBulkDeleteOpen}
-      >
+      <AlertDialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>

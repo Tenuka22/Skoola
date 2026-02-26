@@ -4,11 +4,8 @@ import * as React from 'react'
 import { format } from 'date-fns'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  
-  academicYearFormSchema
-} from '../schemas'
-import type {AcademicYearFormValues} from '../schemas';
+import { academicYearFormSchema } from '../schemas'
+import type { AcademicYearFormValues } from '../schemas'
 import type { AcademicYearResponse } from '@/lib/api'
 import {
   Dialog,

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { SortingState } from '@tanstack/react-table'
+import type { OnChangeFn, SortingState } from '@tanstack/react-table'
 import type { TimetableResponse } from '@/lib/api/types.gen'
 
 interface TimetablesStore {
@@ -10,7 +10,7 @@ interface TimetablesStore {
   page: number
   setPage: (page: number) => void
   sorting: SortingState
-  setSorting: (sorting: SortingState) => void
+  setSorting: OnChangeFn<SortingState>
   selectedAcademicYearId: string | undefined
   setSelectedAcademicYearId: (id: string | undefined) => void
   selectedClassId: string | undefined
@@ -37,7 +37,10 @@ export const useTimetablesStore = create<TimetablesStore>((set) => ({
   page: 1,
   setPage: (page) => set({ page }),
   sorting: [],
-  setSorting: (sorting) => set({ sorting }),
+  setSorting: (updater) =>
+    set((state) => ({
+      sorting: typeof updater === 'function' ? updater(state.sorting) : updater,
+    })),
   selectedAcademicYearId: undefined,
   setSelectedAcademicYearId: (id) => set({ selectedAcademicYearId: id }),
   selectedClassId: undefined,

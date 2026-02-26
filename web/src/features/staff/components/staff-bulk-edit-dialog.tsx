@@ -2,11 +2,8 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  bulkEditStaffFormSchema,
-} from '../schemas'
-import type {
-  BulkEditStaffFormValues} from '../schemas';
+import { bulkEditStaffFormSchema } from '../schemas'
+import type { BulkEditStaffFormValues } from '../schemas'
 import {
   Dialog,
   DialogContent,
@@ -32,10 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
-import {
-  zEmploymentStatus,
-  zStaffType,
-} from '@/lib/api/zod.gen'
+import { zEmploymentStatus, zStaffType } from '@/lib/api/zod.gen'
 
 interface StaffBulkEditDialogProps {
   open: boolean

@@ -56,7 +56,10 @@ export function StaffAssignSubjectDialog({
 
   const [academicYearsQuery, subjectsQuery] = useQueries({
     queries: [
-      { ...getAllAcademicYearsOptions({ client: authClient }), staleTime: Infinity },
+      {
+        ...getAllAcademicYearsOptions({ client: authClient }),
+        staleTime: Infinity,
+      },
       { ...getAllSubjectsOptions({ client: authClient }), staleTime: Infinity },
     ],
   })
@@ -82,16 +85,23 @@ export function StaffAssignSubjectDialog({
         <DialogHeader>
           <DialogTitle>Assign Subject to {staff?.name}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="grid gap-4 py-4">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="grid gap-4 py-4"
+        >
           <p className="text-sm text-muted-foreground">
-            Assign <span className="font-medium text-foreground">{staff?.name}</span> to a specific subject for an academic year.
+            Assign{' '}
+            <span className="font-medium text-foreground">{staff?.name}</span>{' '}
+            to a specific subject for an academic year.
           </p>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="subject_id" className="text-right">
               Subject
             </Label>
             <Select
-              onValueChange={(value) => form.setValue('subject_id', value || '')}
+              onValueChange={(value) =>
+                form.setValue('subject_id', value || '')
+              }
               value={form.watch('subject_id')}
             >
               <SelectTrigger id="subject_id" className="col-span-3">
@@ -116,7 +126,9 @@ export function StaffAssignSubjectDialog({
               Academic Year
             </Label>
             <Select
-              onValueChange={(value) => form.setValue('academic_year_id', value || '')}
+              onValueChange={(value) =>
+                form.setValue('academic_year_id', value || '')
+              }
               value={form.watch('academic_year_id')}
             >
               <SelectTrigger id="academic_year_id" className="col-span-3">
@@ -137,7 +149,11 @@ export function StaffAssignSubjectDialog({
             )}
           </div>
           <DialogFooter className="mt-4">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

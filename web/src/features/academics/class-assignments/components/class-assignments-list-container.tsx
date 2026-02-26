@@ -9,7 +9,7 @@ import { DataTable } from '@/components/ui/data-table'
 
 interface ClassAssignmentsListContainerProps {
   query: UseQueryResult<Array<SubjectResponse>, Error>
-  columns: Array<ColumnDef<ClassAssignmentRow, any>>
+  columns: Array<ColumnDef<ClassAssignmentRow, unknown>>
   data: Array<ClassAssignmentRow>
 }
 

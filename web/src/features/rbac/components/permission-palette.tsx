@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { DragDropIcon, Search01Icon } from '@hugeicons/core-free-icons'
-import { PERMISSION_CATEGORIES } from '../utils/permissions'
+import { PERMISSION_CATEGORIES } from '../utils/constants'
 import type { PermissionEnum } from '@/lib/api/types.gen'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -20,12 +20,13 @@ interface PermissionPaletteProps {
 export function PermissionPalette({ onDrag }: PermissionPaletteProps) {
   const [search, setSearch] = React.useState('')
 
-  const filteredCategories = PERMISSION_CATEGORIES.map((category) => ({
-    ...category,
-    permissions: category.permissions.filter((p) =>
-      p.toLowerCase().includes(search.toLowerCase()),
-    ),
-  })).filter((category) => category.permissions.length > 0)
+  const filteredCategories: typeof PERMISSION_CATEGORIES =
+    PERMISSION_CATEGORIES.map((category) => ({
+      ...category,
+      permissions: category.permissions.filter((p) =>
+        p.toLowerCase().includes(search.toLowerCase()),
+      ),
+    })).filter((category) => category.permissions.length > 0)
 
   const handleDragStart = (e: React.DragEvent, permission: PermissionEnum) => {
     e.dataTransfer.setData('permission', permission)

@@ -56,7 +56,10 @@ export function StaffAssignClassDialog({
 
   const [academicYearsQuery, classesQuery] = useQueries({
     queries: [
-      { ...getAllAcademicYearsOptions({ client: authClient }), staleTime: Infinity },
+      {
+        ...getAllAcademicYearsOptions({ client: authClient }),
+        staleTime: Infinity,
+      },
       { ...getAllClassesOptions({ client: authClient }), staleTime: Infinity },
     ],
   })
@@ -82,9 +85,14 @@ export function StaffAssignClassDialog({
         <DialogHeader>
           <DialogTitle>Assign Class to {staff?.name}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="grid gap-4 py-4">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="grid gap-4 py-4"
+        >
           <p className="text-sm text-muted-foreground">
-            Assign <span className="font-medium text-foreground">{staff?.name}</span> to a specific class for an academic year.
+            Assign{' '}
+            <span className="font-medium text-foreground">{staff?.name}</span>{' '}
+            to a specific class for an academic year.
           </p>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="class_id" className="text-right">
@@ -116,7 +124,9 @@ export function StaffAssignClassDialog({
               Academic Year
             </Label>
             <Select
-              onValueChange={(value) => form.setValue('academic_year_id', value || '')}
+              onValueChange={(value) =>
+                form.setValue('academic_year_id', value || '')
+              }
               value={form.watch('academic_year_id')}
             >
               <SelectTrigger id="academic_year_id" className="col-span-3">
@@ -137,7 +147,11 @@ export function StaffAssignClassDialog({
             )}
           </div>
           <DialogFooter className="mt-4">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

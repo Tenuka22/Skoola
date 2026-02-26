@@ -1,17 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  useQuery,
-} from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import * as React from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ActivityIcon, AlertCircleIcon, Search01Icon } from '@hugeicons/core-free-icons'
+import {
+  ActivityIcon,
+  AlertCircleIcon,
+  Search01Icon,
+} from '@hugeicons/core-free-icons'
 
 import { format } from 'date-fns'
 import type { AuditLogResponse } from '@/lib/api/types.gen'
 import { authClient } from '@/lib/clients'
-import {
-  getAllAuditLogsOptions,
-} from '@/lib/api/@tanstack/react-query.gen'
+import { getAllAuditLogsOptions } from '@/lib/api/@tanstack/react-query.gen'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
@@ -24,7 +24,12 @@ export const Route = createFileRoute('/admin/audit')({
 function AuditLogsPage() {
   const [search, setSearch] = React.useState('')
 
-  const { data: auditLogsData, isLoading, isError, error } = useQuery({
+  const {
+    data: auditLogsData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     ...getAllAuditLogsOptions({ client: authClient }),
   })
 
@@ -66,7 +71,10 @@ function AuditLogsPage() {
           </div>
         ) : isError ? (
           <div className="grid place-items-center h-64 text-center">
-            <HugeiconsIcon icon={AlertCircleIcon} className="size-12 text-destructive opacity-50" />
+            <HugeiconsIcon
+              icon={AlertCircleIcon}
+              className="size-12 text-destructive opacity-50"
+            />
             <p className="mt-4 text-muted-foreground">Error: {error.message}</p>
           </div>
         ) : filteredLogs.length === 0 ? (
@@ -76,21 +84,33 @@ function AuditLogsPage() {
         ) : (
           <div className="divide-y">
             {filteredLogs.map((log: AuditLogResponse) => (
-              <div key={log.id} className="p-4 hover:bg-muted/50 transition-colors flex items-start gap-4">
+              <div
+                key={log.id}
+                className="p-4 hover:bg-muted/50 transition-colors flex items-start gap-4"
+              >
                 <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                  <HugeiconsIcon icon={ActivityIcon} className="size-4 text-primary" />
+                  <HugeiconsIcon
+                    icon={ActivityIcon}
+                    className="size-4 text-primary"
+                  />
                 </div>
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="col-span-1 space-y-1">
                     <p className="text-sm font-semibold">{log.action_type}</p>
-                    <p className="text-xs text-muted-foreground">{format(new Date(log.timestamp), 'PPP p')}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(log.timestamp), 'PPP p')}
+                    </p>
                   </div>
                   <div className="col-span-1 space-y-1">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Table</span>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Table
+                    </span>
                     <p className="text-sm font-mono">{log.table_name}</p>
                   </div>
                   <div className="col-span-1 space-y-1">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">User</span>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      User
+                    </span>
                     <p className="text-sm">{log.user_id}</p>
                   </div>
                   <div className="col-span-1 flex items-center justify-end">
@@ -99,11 +119,15 @@ function AuditLogsPage() {
                     </Badge>
                   </div>
                   {log.old_value_json && (
-                     <div className="col-span-full mt-2 p-3 bg-muted rounded-lg overflow-x-auto">
-                        <pre className="text-[10px] text-muted-foreground">
-                          {JSON.stringify(JSON.parse(log.old_value_json), null, 2)}
-                        </pre>
-                     </div>
+                    <div className="col-span-full mt-2 p-3 bg-muted rounded-lg overflow-x-auto">
+                      <pre className="text-[10px] text-muted-foreground">
+                        {JSON.stringify(
+                          JSON.parse(log.old_value_json),
+                          null,
+                          2,
+                        )}
+                      </pre>
+                    </div>
                   )}
                 </div>
               </div>

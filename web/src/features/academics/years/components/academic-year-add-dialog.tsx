@@ -2,11 +2,8 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  
-  academicYearFormSchema
-} from '../schemas'
-import type {AcademicYearFormValues} from '../schemas';
+import { academicYearFormSchema } from '../schemas'
+import type { AcademicYearFormValues } from '../schemas'
 import {
   Dialog,
   DialogContent,
@@ -53,9 +50,7 @@ export function AcademicYearAddDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add Academic Year</DialogTitle>
-          <DialogDescription>
-            Create a new academic year.
-          </DialogDescription>
+          <DialogDescription>Create a new academic year.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form

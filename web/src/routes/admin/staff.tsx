@@ -231,7 +231,9 @@ function StaffPage() {
       setIsAssignSubjectOpen(false)
     },
     onError: (error) => {
-      toast.error(`Failed to assign subject: ${error.message || 'Unknown error'}`)
+      toast.error(
+        `Failed to assign subject: ${error.message || 'Unknown error'}`,
+      )
     },
   })
 
@@ -247,11 +249,11 @@ function StaffPage() {
     onManagePermissions: store.setStaffToManagePermissionSetsFor,
   })
 
-  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({})
+  const [rowSelection, setRowSelection] = React.useState<
+    Record<string, boolean>
+  >({})
   const selectedStaff = React.useMemo(() => {
-    return new Set(
-      Object.keys(rowSelection).filter((key) => rowSelection[key]),
-    )
+    return new Set(Object.keys(rowSelection).filter((key) => rowSelection[key]))
   }, [rowSelection])
 
   return (

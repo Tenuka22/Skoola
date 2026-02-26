@@ -41,7 +41,7 @@ export function StudentEditDialog({
         </DialogHeader>
         {studentToEdit && (
           <StudentForm
-            initialValues={studentToEdit as Partial<CreateStudentValues>}
+            initialValues={mapStudentToFormValues(studentToEdit)}
             onSubmit={onEditConfirm}
             isSubmitting={isEditing}
             submitLabel="Update Records"
@@ -50,4 +50,23 @@ export function StudentEditDialog({
       </DialogContent>
     </Dialog>
   )
+}
+
+function mapStudentToFormValues(
+  student: StudentResponse,
+): Partial<CreateStudentValues> {
+  return {
+    admission_number: student.admission_number,
+    name_english: student.name_english,
+    phone: student.profile_phone ?? '',
+    nic_or_birth_certificate: student.nic_or_birth_certificate,
+    dob: student.dob,
+    address: student.profile_address ?? '',
+    email: student.email ?? undefined,
+    photo_url: student.profile_photo_url ?? undefined,
+    gender: student.gender,
+    ethnicity: student.ethnicity ?? undefined,
+    religion: student.religion ?? undefined,
+    status: student.status,
+  }
 }

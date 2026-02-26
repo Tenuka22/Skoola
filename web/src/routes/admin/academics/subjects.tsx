@@ -115,7 +115,9 @@ function SubjectsPage() {
       setIsCreateSubjectOpen(false)
     },
     onError: (error) => {
-      toast.error(`Failed to create subject: ${error.message || 'Unknown error'}`)
+      toast.error(
+        `Failed to create subject: ${error.message || 'Unknown error'}`,
+      )
     },
   })
 
@@ -129,7 +131,9 @@ function SubjectsPage() {
       setSubjectToEdit(null)
     },
     onError: (error) => {
-      toast.error(`Failed to update subject: ${error.message || 'Unknown error'}`)
+      toast.error(
+        `Failed to update subject: ${error.message || 'Unknown error'}`,
+      )
     },
   })
 
@@ -143,7 +147,9 @@ function SubjectsPage() {
       setSubjectToDelete(null)
     },
     onError: (error) => {
-      toast.error(`Failed to delete subject: ${error.message || 'Unknown error'}`)
+      toast.error(
+        `Failed to delete subject: ${error.message || 'Unknown error'}`,
+      )
     },
   })
 
@@ -159,7 +165,9 @@ function SubjectsPage() {
       setRowSelection({})
     },
     onError: (error) => {
-      toast.error(`Failed to delete subjects: ${error.message || 'Unknown error'}`)
+      toast.error(
+        `Failed to delete subjects: ${error.message || 'Unknown error'}`,
+      )
     },
   })
 
@@ -211,11 +219,11 @@ function SubjectsPage() {
     },
   })
 
-  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({})
+  const [rowSelection, setRowSelection] = React.useState<
+    Record<string, boolean>
+  >({})
   const selectedSubjects = React.useMemo(() => {
-    return new Set(
-      Object.keys(rowSelection).filter((key) => rowSelection[key]),
-    )
+    return new Set(Object.keys(rowSelection).filter((key) => rowSelection[key]))
   }, [rowSelection])
 
   const columns = getSubjectsColumns({
@@ -239,13 +247,16 @@ function SubjectsPage() {
               { header: 'ID', accessor: 'id' },
               { header: 'Name', accessor: 'subject_name_en' },
               { header: 'Code', accessor: 'subject_code' },
-              { header: 'Is Core', accessor: (s: SubjectResponse) => s.is_core ? 'Yes' : 'No' },
+              {
+                header: 'Is Core',
+                accessor: (s: SubjectResponse) => (s.is_core ? 'Yes' : 'No'),
+              },
             ],
           )
         }
       />
       <SubjectsListContainer
-        query={subjectsQuery as any}
+        query={subjectsQuery}
         columns={columns}
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
@@ -255,7 +266,7 @@ function SubjectsPage() {
         open={store.isCreateSubjectOpen}
         onOpenChange={setIsCreateSubjectOpen}
         onConfirm={(data: SubjectFormValues) =>
-          createSubject.mutate({ body: data as any })
+          createSubject.mutate({ body: data })
         }
         isSubmitting={createSubject.isPending}
       />
@@ -268,7 +279,7 @@ function SubjectsPage() {
           store.subjectToEdit &&
           updateSubject.mutate({
             path: { id: store.subjectToEdit.id },
-            body: data as any,
+            body: data,
           })
         }
         isSubmitting={updateSubject.isPending}
@@ -300,10 +311,7 @@ function SubjectsPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog
-        open={isBulkDeleteOpen}
-        onOpenChange={setIsBulkDeleteOpen}
-      >
+      <AlertDialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>

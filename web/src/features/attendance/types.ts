@@ -1,26 +1,28 @@
 import type {
+  AttendanceStatus,
   StaffAttendanceResponse,
   StaffResponse,
   StudentAttendanceResponse,
   StudentResponse,
 } from '@/lib/api/types.gen'
 
-export type StaffAttendanceWithMember = StaffAttendanceResponse & {
-  staff?: StaffResponse
+export const ALL_ATTENDANCE_STATUSES: Array<AttendanceStatus> = [
+  'Present',
+  'Absent',
+  'Late',
+  'Excused',
+  'HalfDay',
+  'SchoolBusiness',
+]
+
+export function isAttendanceStatus(value: string): value is AttendanceStatus {
+  return ALL_ATTENDANCE_STATUSES.some((v) => v === value)
 }
 
-export type StudentAttendanceWithMember = StudentAttendanceResponse & {
-  student?: StudentResponse
+export interface StaffAttendanceWithMember extends StaffAttendanceResponse {
+  staff: StaffResponse
 }
 
-export interface StaffAttendanceStats {
-  present: number
-  late: number
-  early: number
-  absent: number
-  no_clock_in: number
-  no_clock_out: number
-  invalid: number
-  day_off: number
-  time_off: number
+export interface StudentAttendanceWithMember extends StudentAttendanceResponse {
+  student?: StudentResponse | null
 }

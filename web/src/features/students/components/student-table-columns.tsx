@@ -87,7 +87,10 @@ export const getStudentColumns = ({
         <div className="flex items-center gap-3 pl-4">
           <Avatar className="size-8">
             <AvatarImage
-              src={student.profile_photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.email || student.id}`}
+              src={
+                student.profile_photo_url ||
+                `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.email || student.id}`
+              }
               alt={student.name_english}
             />
             <AvatarFallback>
@@ -163,7 +166,9 @@ export const getStudentColumns = ({
   {
     accessorKey: 'profile_phone',
     header: 'Phone',
-    cell: ({ row }) => <span className="pl-4">{row.getValue('profile_phone') || '-'}</span>,
+    cell: ({ row }) => (
+      <span className="pl-4">{row.getValue('profile_phone') || '-'}</span>
+    ),
   },
   {
     accessorKey: 'gender',
@@ -204,7 +209,10 @@ export const getStudentColumns = ({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => onManageAttendance(student)}>
-              <HugeiconsIcon icon={CalendarCheckIn01Icon} className="mr-2 size-4" />
+              <HugeiconsIcon
+                icon={CalendarCheckIn01Icon}
+                className="mr-2 size-4"
+              />
               Attendance
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onManageMarks(student)}>

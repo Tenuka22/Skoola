@@ -7,7 +7,11 @@ import {
   User02Icon,
 } from '@hugeicons/core-free-icons'
 import { useTimetablesStore } from '../store'
-import type { AcademicYearResponse, ClassResponse, StaffResponse } from '@/lib/api/types.gen'
+import type {
+  AcademicYearResponse,
+  ClassResponse,
+  StaffResponse,
+} from '@/lib/api/types.gen'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -54,7 +58,8 @@ export function TimetablesToolbar({
   viewMode,
   setViewMode,
 }: TimetablesToolbarProps) {
-  const { search, setSearch, setIsCreateTimetableEntryOpen } = useTimetablesStore()
+  const { search, setSearch, setIsCreateTimetableEntryOpen } =
+    useTimetablesStore()
 
   const daysOfWeek = [
     'Monday',
@@ -84,15 +89,18 @@ export function TimetablesToolbar({
         <div className="flex items-center gap-2">
           <ToggleGroup
             value={[viewMode]}
-            onValueChange={(value: Array<any>) =>
-              value[0] && setViewMode(value[0] as 'class' | 'teacher')
-            }
+            onValueChange={(value: Array<string>) => {
+              const selectedMode = value[0]
+              if (selectedMode === 'class' || selectedMode === 'teacher') {
+                setViewMode(selectedMode)
+              }
+            }}
             className="border p-1 rounded-lg bg-muted/50"
           >
             <ToggleGroupItem
               value="class"
               className={cn(
-                "px-3 py-1.5 h-auto text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground",
+                'px-3 py-1.5 h-auto text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
                 viewMode === 'class' && 'shadow-sm',
               )}
             >
@@ -102,7 +110,7 @@ export function TimetablesToolbar({
             <ToggleGroupItem
               value="teacher"
               className={cn(
-                "px-3 py-1.5 h-auto text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground",
+                'px-3 py-1.5 h-auto text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
                 viewMode === 'teacher' && 'shadow-sm',
               )}
             >
@@ -124,7 +132,10 @@ export function TimetablesToolbar({
 
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <Label htmlFor="year-filter" className="text-sm text-muted-foreground">
+          <Label
+            htmlFor="year-filter"
+            className="text-sm text-muted-foreground"
+          >
             Academic Year:
           </Label>
           <Select
@@ -146,7 +157,10 @@ export function TimetablesToolbar({
 
         {viewMode === 'class' && (
           <div className="flex items-center gap-2">
-            <Label htmlFor="class-filter" className="text-sm text-muted-foreground">
+            <Label
+              htmlFor="class-filter"
+              className="text-sm text-muted-foreground"
+            >
               Class:
             </Label>
             <Select
@@ -169,7 +183,10 @@ export function TimetablesToolbar({
 
         {viewMode === 'class' && (
           <div className="flex items-center gap-2">
-            <Label htmlFor="day-filter" className="text-sm text-muted-foreground">
+            <Label
+              htmlFor="day-filter"
+              className="text-sm text-muted-foreground"
+            >
               Day:
             </Label>
             <Select
@@ -192,7 +209,10 @@ export function TimetablesToolbar({
 
         {viewMode === 'teacher' && (
           <div className="flex items-center gap-2">
-            <Label htmlFor="teacher-filter" className="text-sm text-muted-foreground">
+            <Label
+              htmlFor="teacher-filter"
+              className="text-sm text-muted-foreground"
+            >
               Teacher:
             </Label>
             <Select

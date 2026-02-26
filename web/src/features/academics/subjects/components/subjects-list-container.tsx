@@ -3,7 +3,10 @@ import { AlertCircleIcon } from '@hugeicons/core-free-icons'
 import * as React from 'react'
 import { useSubjectsStore } from '../store'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { PaginatedSubjectResponse, SubjectResponse } from '@/lib/api/types.gen'
+import type {
+  PaginatedSubjectResponse,
+  SubjectResponse,
+} from '@/lib/api/types.gen'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { DataTable } from '@/components/ui/data-table'
 
@@ -52,9 +55,7 @@ export function SubjectsListContainer({
           icon={AlertCircleIcon}
           className="size-12 text-muted-foreground"
         />
-        <p className="text-sm text-muted-foreground mt-2">
-          No subjects found.
-        </p>
+        <p className="text-sm text-muted-foreground mt-2">No subjects found.</p>
       </div>
     )
   }
@@ -66,9 +67,9 @@ export function SubjectsListContainer({
           columns={columns}
           data={data.data}
           sorting={sorting}
-          onSortingChange={setSorting as any}
+          onSortingChange={setSorting}
           rowSelection={rowSelection}
-          onRowSelectionChange={setRowSelection as any}
+          onRowSelectionChange={setRowSelection}
           pageIndex={page - 1}
           pageSize={data.limit}
           pageCount={data.total_pages}

@@ -1,7 +1,6 @@
 import { mergeProps } from '@base-ui/react/merge-props'
 import { useRender } from '@base-ui/react/use-render'
-import { cva } from 'class-variance-authority'
-import type { VariantProps } from 'class-variance-authority'
+import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
 
@@ -38,7 +37,7 @@ function Badge({
     defaultTagName: 'span',
     props: mergeProps<'span'>(
       {
-        className: cn(badgeVariants({ className, variant })),
+        className: cn(badgeVariants({ variant }), className),
       },
       props,
     ),

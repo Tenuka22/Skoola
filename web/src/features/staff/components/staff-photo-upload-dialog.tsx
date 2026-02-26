@@ -16,7 +16,10 @@ import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import { Input } from '@/components/ui/input'
 import { authClient } from '@/lib/clients'
-import { getAllStaffQueryKey, uploadStaffPhotoMutation } from '@/lib/api/@tanstack/react-query.gen'
+import {
+  getAllStaffQueryKey,
+  uploadStaffPhotoMutation,
+} from '@/lib/api/@tanstack/react-query.gen'
 
 interface StaffPhotoUploadDialogProps {
   staff: StaffResponse | null
@@ -60,7 +63,9 @@ export function StaffPhotoUploadDialog({
       formData.append('photo', selectedFile)
       uploadPhoto.mutate({
         path: { staff_id: staff.id },
-        body: formData as any, // OpenAPI generator expects object, but FormData is accepted
+        body: {
+          photo: selectedFile,
+        },
       })
     }
   }
@@ -98,7 +103,10 @@ export function StaffPhotoUploadDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={!selectedFile || uploadPhoto.isPending}>
+            <Button
+              type="submit"
+              disabled={!selectedFile || uploadPhoto.isPending}
+            >
               {uploadPhoto.isPending ? (
                 <Spinner className="mr-2" />
               ) : (

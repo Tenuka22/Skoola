@@ -17,9 +17,7 @@ export const studentAttendanceColumns: Array<
       return (
         <div className="flex items-center gap-3">
           <Avatar className="size-8 rounded-lg">
-            <AvatarImage
-              alt={student?.name_english}
-            />
+            <AvatarImage alt={student?.name_english} />
             <AvatarFallback className="rounded-lg">
               {student?.name_english?.charAt(0) ?? 'S'}
             </AvatarFallback>

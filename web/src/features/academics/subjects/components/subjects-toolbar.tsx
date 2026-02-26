@@ -1,5 +1,9 @@
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Add01Icon, Download01Icon, Search01Icon } from '@hugeicons/core-free-icons'
+import {
+  Add01Icon,
+  Download01Icon,
+  Search01Icon,
+} from '@hugeicons/core-free-icons'
 import { useSubjectsStore } from '../store'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

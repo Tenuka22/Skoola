@@ -5,6 +5,7 @@ import {
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
 import { useRBACStore } from '../store'
+import { isRBACActiveTab } from '../utils/permissions'
 import { UsersTab } from './users-tab'
 import { RolesTab } from './roles-tab'
 import { PermissionSetsTab } from './permission-sets-tab'
@@ -25,7 +26,11 @@ export function RBACLayout() {
       <Tabs
         defaultValue="users"
         value={activeTab}
-        onValueChange={(val) => setActiveTab(val)}
+        onValueChange={(val: string) => {
+          if (isRBACActiveTab(val)) {
+            setActiveTab(val)
+          }
+        }}
         className="flex-1 flex flex-col gap-6 overflow-hidden"
       >
         <TabsList className="w-fit p-1 bg-muted/50 border">

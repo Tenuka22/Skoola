@@ -1,11 +1,18 @@
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Add01Icon, Delete02Icon, UserGroupIcon } from '@hugeicons/core-free-icons'
+import {
+  Add01Icon,
+  Delete02Icon,
+  UserGroupIcon,
+} from '@hugeicons/core-free-icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import type { StudentGuardianResponse, StudentResponse } from '@/lib/api/types.gen'
+import type {
+  StudentGuardianResponse,
+  StudentResponse,
+} from '@/lib/api/types.gen'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -60,7 +67,12 @@ export function StudentGuardiansDialog({
     },
   })
 
-  const { data: guardiansData, isLoading, isError, error } = useQuery({
+  const {
+    data: guardiansData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     ...getAllGuardiansForStudentOptions({
       client: authClient,
       path: { student_id: student?.id ?? '' },
@@ -92,7 +104,9 @@ export function StudentGuardiansDialog({
       })
     },
     onError: (error) => {
-      toast.error(`Failed to remove guardian: ${error.message || 'Unknown error'}`)
+      toast.error(
+        `Failed to remove guardian: ${error.message || 'Unknown error'}`,
+      )
     },
   })
 
@@ -129,14 +143,21 @@ export function StudentGuardiansDialog({
             ) : isError ? (
               <p className="text-xs text-destructive">Error: {error.message}</p>
             ) : guardians.length === 0 ? (
-              <p className="text-xs text-muted-foreground italic text-center p-8 border rounded-lg border-dashed">No guardians linked to this student.</p>
+              <p className="text-xs text-muted-foreground italic text-center p-8 border rounded-lg border-dashed">
+                No guardians linked to this student.
+              </p>
             ) : (
               <ScrollArea className="flex-1 border rounded-lg">
                 <div className="divide-y">
                   {guardians.map((guardian: StudentGuardianResponse) => (
-                    <div key={guardian.id} className="p-3 flex items-center justify-between">
+                    <div
+                      key={guardian.id}
+                      className="p-3 flex items-center justify-between"
+                    >
                       <div className="flex flex-col">
-                        <span className="font-medium text-sm">{guardian.name}</span>
+                        <span className="font-medium text-sm">
+                          {guardian.name}
+                        </span>
                         <span className="text-xs text-muted-foreground">
                           {guardian.relationship} | {guardian.phone}
                         </span>
@@ -146,8 +167,12 @@ export function StudentGuardiansDialog({
                         size="icon"
                         className="size-8 text-destructive hover:bg-destructive/10"
                         onClick={() =>
-                          student && removeGuardian.mutate({
-                            path: { student_id: student.id, guardian_id: guardian.id }
+                          student &&
+                          removeGuardian.mutate({
+                            path: {
+                              student_id: student.id,
+                              guardian_id: guardian.id,
+                            },
                           })
                         }
                       >
@@ -162,32 +187,63 @@ export function StudentGuardiansDialog({
 
           {/* Add Guardian Form */}
           <ScrollArea className="flex-1">
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-4 border rounded-xl bg-muted/30">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4 p-4 border rounded-xl bg-muted/30"
+            >
               <h4 className="text-sm font-semibold">Add New Guardian</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <Label htmlFor="guardian_id">NIC / ID</Label>
-                  <Input id="guardian_id" {...form.register('id')} placeholder="Guardian ID" />
+                  <Input
+                    id="guardian_id"
+                    {...form.register('id')}
+                    placeholder="Guardian ID"
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="guardian_name">Full Name</Label>
-                  <Input id="guardian_name" {...form.register('name')} placeholder="Full Name" />
+                  <Input
+                    id="guardian_name"
+                    {...form.register('name')}
+                    placeholder="Full Name"
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="relationship">Relationship</Label>
-                  <Input id="relationship" {...form.register('relationship')} placeholder="e.g. Father, Mother" />
+                  <Input
+                    id="relationship"
+                    {...form.register('relationship')}
+                    placeholder="e.g. Father, Mother"
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" {...form.register('phone')} placeholder="Phone Number" />
+                  <Input
+                    id="phone"
+                    {...form.register('phone')}
+                    placeholder="Phone Number"
+                  />
                 </div>
                 <div className="col-span-2 space-y-1">
                   <Label htmlFor="address">Address</Label>
-                  <Input id="address" {...form.register('address')} placeholder="Residential Address" />
+                  <Input
+                    id="address"
+                    {...form.register('address')}
+                    placeholder="Residential Address"
+                  />
                 </div>
               </div>
-              <Button type="submit" className="w-full" disabled={addGuardian.isPending}>
-                {addGuardian.isPending ? <Spinner className="mr-2" /> : <HugeiconsIcon icon={Add01Icon} className="size-4 mr-2" />}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={addGuardian.isPending}
+              >
+                {addGuardian.isPending ? (
+                  <Spinner className="mr-2" />
+                ) : (
+                  <HugeiconsIcon icon={Add01Icon} className="size-4 mr-2" />
+                )}
                 Add Guardian
               </Button>
             </form>

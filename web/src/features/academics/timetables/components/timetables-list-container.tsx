@@ -64,7 +64,7 @@ export function TimetablesListContainer({
           columns={columns}
           data={data}
           sorting={sorting}
-          onSortingChange={setSorting as any}
+          onSortingChange={setSorting}
           pageIndex={page - 1}
           pageSize={data.length || 10}
           pageCount={1}

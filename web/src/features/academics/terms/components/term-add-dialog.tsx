@@ -3,7 +3,7 @@ import { FloppyDiskIcon } from '@hugeicons/core-free-icons'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
-import { formatISO } from 'date-fns'
+
 import { termFormSchema } from '../schemas'
 import type { TermFormValues } from '../schemas'
 import { Button } from '@/components/ui/button'
@@ -30,7 +30,7 @@ import { authClient } from '@/lib/clients'
 interface TermAddDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onConfirm: (data: any) => void
+  onConfirm: (data: TermFormValues) => void
   isSubmitting?: boolean
 }
 
@@ -44,8 +44,8 @@ export function TermAddDialog({
     resolver: zodResolver(termFormSchema),
     defaultValues: {
       name: '',
-      start_date: '' as any,
-      end_date: '' as any,
+      start_date: '',
+      end_date: '',
       academic_year_id: '',
       term_number: 1,
     },
@@ -57,13 +57,9 @@ export function TermAddDialog({
   const academicYears = academicYearsData?.data || []
 
   const handleSubmit = (data: TermFormValues) => {
-    // Ensure dates are strings if the API expects strings
-    const formattedData = {
-      ...data,
-      start_date: (data.start_date as any) instanceof Date ? formatISO(data.start_date as any, { representation: 'date' }) : data.start_date,
-      end_date: (data.end_date as any) instanceof Date ? formatISO(data.end_date as any, { representation: 'date' }) : data.end_date,
-    }
-    onConfirm(formattedData)
+    // The date inputs directly return strings in 'YYYY-MM-DD' format,
+    // which is compatible with z.iso.date().
+    onConfirm(data)
   }
 
   return (
@@ -78,7 +74,10 @@ export function TermAddDialog({
         <DialogHeader>
           <DialogTitle>Add New Term</DialogTitle>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="grid gap-4 py-4">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="grid gap-4 py-4"
+        >
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
               Name
@@ -99,7 +98,9 @@ export function TermAddDialog({
               Academic Year
             </Label>
             <Select
-              onValueChange={(value) => form.setValue('academic_year_id', value || '')}
+              onValueChange={(value) =>
+                form.setValue('academic_year_id', value || '')
+              }
               value={form.watch('academic_year_id')}
             >
               <SelectTrigger id="academic_year_id" className="col-span-3">
@@ -168,7 +169,11 @@ export function TermAddDialog({
             )}
           </div>
           <DialogFooter className="mt-4">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

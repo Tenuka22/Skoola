@@ -16,7 +16,10 @@ import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import { Input } from '@/components/ui/input'
 import { authClient } from '@/lib/clients'
-import { getAllStudentsQueryKey, uploadStudentPhotoMutation } from '@/lib/api/@tanstack/react-query.gen'
+import {
+  getAllStudentsQueryKey,
+  uploadStudentPhotoMutation,
+} from '@/lib/api/@tanstack/react-query.gen'
 
 interface StudentPhotoUploadDialogProps {
   student: StudentResponse | null
@@ -60,7 +63,9 @@ export function StudentPhotoUploadDialog({
       formData.append('photo', selectedFile)
       uploadPhoto.mutate({
         path: { student_id: student.id },
-        body: formData as any,
+        body: {
+          photo: selectedFile,
+        },
       })
     }
   }
@@ -98,7 +103,10 @@ export function StudentPhotoUploadDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={!selectedFile || uploadPhoto.isPending}>
+            <Button
+              type="submit"
+              disabled={!selectedFile || uploadPhoto.isPending}
+            >
               {uploadPhoto.isPending ? (
                 <Spinner className="mr-2" />
               ) : (

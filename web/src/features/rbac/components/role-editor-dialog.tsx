@@ -10,8 +10,8 @@ import {
 } from '@hugeicons/core-free-icons'
 import { useRBACStore } from '../store'
 import { rbacApi } from '../api'
+import { isPermissionEnum } from '../utils/permissions'
 import { PermissionPalette } from './permission-palette'
-import type { PermissionEnum } from '@/lib/api/types.gen'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,14 +28,16 @@ export function RoleEditorDialog() {
     useRBACStore()
   const queryClient = useQueryClient()
 
-  const { data: rawPermissions = [] } = useQuery({
-    ...rbacApi.getRolePermissionsOptions(selectedRoleId as string),
+  const { data: rawPermissions = '' } = useQuery({
+    ...rbacApi.getRolePermissionsOptions(selectedRoleId || ''),
     enabled: !!selectedRoleId,
   })
 
   const assignedPermissions = React.useMemo(
     () =>
-      Array.isArray(rawPermissions) ? (rawPermissions as Array<PermissionEnum>) : [],
+      typeof rawPermissions === 'string' && rawPermissions
+        ? rawPermissions.split(',').filter(isPermissionEnum)
+        : [],
     [rawPermissions],
   )
 
@@ -47,7 +49,13 @@ export function RoleEditorDialog() {
       })
       toast.success('Permission assigned to role')
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error('Failed to assign permission to role')
+      }
+    },
   })
 
   const unassignPerm = useMutation({
@@ -58,20 +66,26 @@ export function RoleEditorDialog() {
       })
       toast.success('Permission removed from role')
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => {
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error('Failed to remove permission from role')
+      }
+    },
   })
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
-    const permission = e.dataTransfer.getData('permission') as PermissionEnum
+    const droppedPermission = e.dataTransfer.getData('permission')
     if (
       selectedRoleId &&
-      permission &&
-      !assignedPermissions.includes(permission)
+      isPermissionEnum(droppedPermission) &&
+      !assignedPermissions.includes(droppedPermission)
     ) {
       assignPerm.mutate({
-        path: { role_id: selectedRoleId as any },
-        body: { permission },
+        path: { role_id: selectedRoleId || '' },
+        body: { permission: droppedPermission },
       })
     }
   }
@@ -130,7 +144,7 @@ export function RoleEditorDialog() {
                         className="size-4 p-0 h-4 w-4 hover:bg-destructive/20 hover:text-destructive"
                         onClick={() =>
                           unassignPerm.mutate({
-                            path: { role_id: selectedRoleId as any },
+                            path: { role_id: selectedRoleId || '' },
                             body: { permission: perm },
                           })
                         }
