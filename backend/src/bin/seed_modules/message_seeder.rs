@@ -1,15 +1,15 @@
 use anyhow::Result;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
-use rand::seq::SliceRandom;
 use rand::Rng;
+use rand::seq::SliceRandom;
 use std::collections::HashSet;
 
-use backend::config::Config;
-use backend::schema::{conversations, conversation_participants, messages};
-use backend::models::messaging::{Conversation, ConversationParticipant, Message};
-use super::{SeedModule, SeederContext};
 use super::utils::{generate_uuid, random_datetime_in_past};
+use super::{SeedModule, SeederContext};
+use backend::config::Config;
+use backend::models::messaging::{Conversation, ConversationParticipant, Message};
+use backend::schema::{conversation_participants, conversations, messages};
 
 pub struct MessageSeeder;
 
@@ -45,7 +45,7 @@ impl SeedModule for MessageSeeder {
         for i in 0..seed_count_config.conversations {
             let conv_id = generate_uuid();
             let subject = format!("General Discussion {}", i + 1);
-            
+
             all_conversations.push(Conversation {
                 id: conv_id.clone(),
                 subject,
@@ -53,7 +53,12 @@ impl SeedModule for MessageSeeder {
             });
 
             // Randomly select 2 to `conversation_participants_per_conversation` participants
-            let num_participants = rng.gen_range(2..=context.user_ids.len().min(seed_count_config.conversation_participants_per_conversation));
+            let num_participants = rng.gen_range(
+                2..=context
+                    .user_ids
+                    .len()
+                    .min(seed_count_config.conversation_participants_per_conversation),
+            );
             let mut shuffled_users = context.user_ids.clone();
             shuffled_users.shuffle(&mut rng);
             let conv_participants = &shuffled_users[0..num_participants];
@@ -75,7 +80,11 @@ impl SeedModule for MessageSeeder {
                     sender_user_id: sender_id.clone(),
                     content: format!("Message {} in conversation {}", j + 1, i + 1),
                     sent_at: random_datetime_in_past(1),
-                    read_at: if rng.gen_bool(0.7) { Some(random_datetime_in_past(0)) } else { None },
+                    read_at: if rng.gen_bool(0.7) {
+                        Some(random_datetime_in_past(0))
+                    } else {
+                        None
+                    },
                 });
             }
 
@@ -94,7 +103,12 @@ impl SeedModule for MessageSeeder {
             .values(&all_messages)
             .execute(conn)?;
 
-        println!("Seeded {} conversations, {} participants, and {} messages.", all_conversations.len(), all_participants.len(), all_messages.len());
+        println!(
+            "Seeded {} conversations, {} participants, and {} messages.",
+            all_conversations.len(),
+            all_participants.len(),
+            all_messages.len()
+        );
         Ok(())
     }
 }

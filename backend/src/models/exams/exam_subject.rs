@@ -1,11 +1,22 @@
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use chrono::{NaiveDate, NaiveTime, NaiveDateTime};
-use apistos::ApiComponent;
 use crate::schema::exam_subjects;
+use apistos::ApiComponent;
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Clone,
+    Queryable,
+    Selectable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = exam_subjects)]
 #[diesel(primary_key(exam_id, subject_id))] // Specify composite primary key
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]

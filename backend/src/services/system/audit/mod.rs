@@ -1,7 +1,7 @@
-use diesel::prelude::*;
-use uuid::Uuid;
-use serde::Serialize;
 use actix_web::web::Data;
+use diesel::prelude::*;
+use serde::Serialize;
+use uuid::Uuid;
 
 use crate::AppState;
 use crate::errors::APIError;
@@ -20,7 +20,7 @@ pub async fn log_action<T: Serialize>(
 ) -> Result<AuditLog, APIError> {
     let mut conn = data.db_pool.get()?;
     let id = Uuid::new_v4().to_string();
-    
+
     let old_value_json = old_value.and_then(|v| serde_json::to_string(v).ok());
     let new_value_json = new_value.and_then(|v| serde_json::to_string(v).ok());
 
@@ -62,9 +62,7 @@ pub async fn get_record_audit_logs(
 }
 
 // Service to get all audit logs (for administrators)
-pub async fn get_all_audit_logs(
-    data: Data<AppState>,
-) -> Result<Vec<AuditLog>, APIError> {
+pub async fn get_all_audit_logs(data: Data<AppState>) -> Result<Vec<AuditLog>, APIError> {
     let mut conn = data.db_pool.get()?;
     let logs = audit_log::table
         .order(audit_log::timestamp.desc())

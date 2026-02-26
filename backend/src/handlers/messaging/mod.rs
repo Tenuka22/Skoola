@@ -3,13 +3,13 @@ use actix_web::web::Json;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::AppState;
 use crate::APIError;
+use crate::AppState;
+use crate::models::messaging::{Conversation, ConversationParticipant, Message};
 use crate::services::messaging;
-use crate::models::messaging::{Conversation, Message, ConversationParticipant};
 
+use apistos::{ApiComponent, api_operation};
 use schemars::JsonSchema;
-use apistos::{api_operation, ApiComponent};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct ConversationResponse {
@@ -109,7 +109,12 @@ pub async fn get_user_conversations(
     current_user: CurrentUser,
 ) -> Result<Json<Vec<ConversationResponse>>, APIError> {
     let conversations = messaging::get_user_conversations(data.clone(), current_user.id).await?;
-    Ok(Json(conversations.into_iter().map(ConversationResponse::from).collect()))
+    Ok(Json(
+        conversations
+            .into_iter()
+            .map(ConversationResponse::from)
+            .collect(),
+    ))
 }
 
 #[api_operation(
@@ -147,8 +152,12 @@ pub async fn get_conversation_messages(
     path: web::Path<String>,
 ) -> Result<Json<Vec<MessageResponse>>, APIError> {
     let conversation_id = path.into_inner();
-    let messages = messaging::get_conversation_messages(data.clone(), current_user.id, conversation_id).await?;
-    Ok(Json(messages.into_iter().map(MessageResponse::from).collect()))
+    let messages =
+        messaging::get_conversation_messages(data.clone(), current_user.id, conversation_id)
+            .await?;
+    Ok(Json(
+        messages.into_iter().map(MessageResponse::from).collect(),
+    ))
 }
 
 #[api_operation(
@@ -163,6 +172,7 @@ pub async fn mark_message_as_read(
     path: web::Path<String>,
 ) -> Result<Json<usize>, APIError> {
     let message_id = path.into_inner();
-    let updated_rows = messaging::mark_message_as_read(data.clone(), current_user.id, message_id).await?;
+    let updated_rows =
+        messaging::mark_message_as_read(data.clone(), current_user.id, message_id).await?;
     Ok(Json(updated_rows))
 }

@@ -1,11 +1,21 @@
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
+use crate::schema::school_settings;
 use apistos::ApiComponent;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use crate::schema::school_settings;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = school_settings)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct SchoolSetting {

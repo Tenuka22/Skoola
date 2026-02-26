@@ -1,5 +1,5 @@
-use thiserror::Error;
 use crate::errors::APIError;
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum IAMError {
@@ -57,16 +57,32 @@ impl From<IAMError> for APIError {
         match err {
             IAMError::InvalidCredentials => APIError::unauthorized("Invalid credentials"),
             IAMError::AuthenticationFailed { reason } => APIError::unauthorized(&reason),
-            IAMError::UserNotFound { identifier } => APIError::not_found(&format!("User not found: {}", identifier)),
-            IAMError::UserAlreadyExists { identifier } => APIError::conflict(&format!("User already exists: {}", identifier)),
-            IAMError::AccountLocked { until } => APIError::forbidden(&format!("Account is locked until {}", until)),
-            IAMError::AccountNotVerified { email } => APIError::forbidden(&format!("Account not verified: {}", email)),
-            IAMError::SessionExpired { session_id } => APIError::unauthorized(&format!("Session expired or invalid: {}", session_id)),
+            IAMError::UserNotFound { identifier } => {
+                APIError::not_found(&format!("User not found: {}", identifier))
+            }
+            IAMError::UserAlreadyExists { identifier } => {
+                APIError::conflict(&format!("User already exists: {}", identifier))
+            }
+            IAMError::AccountLocked { until } => {
+                APIError::forbidden(&format!("Account is locked until {}", until))
+            }
+            IAMError::AccountNotVerified { email } => {
+                APIError::forbidden(&format!("Account not verified: {}", email))
+            }
+            IAMError::SessionExpired { session_id } => {
+                APIError::unauthorized(&format!("Session expired or invalid: {}", session_id))
+            }
             IAMError::Unauthorized { reason } => APIError::unauthorized(&reason),
-            IAMError::Forbidden { resource, reason } => APIError::forbidden(&format!("{}: {}", resource, reason)),
+            IAMError::Forbidden { resource, reason } => {
+                APIError::forbidden(&format!("{}: {}", resource, reason))
+            }
             IAMError::Internal { message } => APIError::internal(&message),
-            IAMError::GoogleOAuthError(msg) => APIError::internal(&format!("Google OAuth failed: {}", msg)),
-            IAMError::GithubOAuthError(msg) => APIError::internal(&format!("GitHub OAuth failed: {}", msg)),
+            IAMError::GoogleOAuthError(msg) => {
+                APIError::internal(&format!("Google OAuth failed: {}", msg))
+            }
+            IAMError::GithubOAuthError(msg) => {
+                APIError::internal(&format!("GitHub OAuth failed: {}", msg))
+            }
             IAMError::DatabaseError(e) => APIError::from(e),
             IAMError::PoolError(e) => APIError::from(e),
             IAMError::BcryptError(_) => APIError::internal("Security operation failed"),

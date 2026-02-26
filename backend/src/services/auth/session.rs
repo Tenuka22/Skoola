@@ -1,8 +1,8 @@
 use crate::errors::iam::IAMError;
-use diesel::prelude::*;
 use chrono::NaiveDateTime;
-use uuid::Uuid;
+use diesel::prelude::*;
 use tracing::{info, warn};
+use uuid::Uuid;
 
 use crate::{
     database::tables::Session,
@@ -47,27 +47,33 @@ pub fn find_session_by_refresh_token_hash(
         .select(Session::as_select())
         .first(conn)
         .optional()?;
-    
+
     match session.as_ref() {
-        Some(s) => info!(event = "session_lookup_success", session_id = %s.id, user_id = %s.user_id, "Session found by hash"),
-        None => warn!(event = "session_lookup_failure", "Session not found by hash"),
+        Some(s) => {
+            info!(event = "session_lookup_success", session_id = %s.id, user_id = %s.user_id, "Session found by hash")
+        }
+        None => warn!(
+            event = "session_lookup_failure",
+            "Session not found by hash"
+        ),
     }
     Ok(session)
 }
 
 /// Deletes a specific session.
 pub fn delete_session(conn: &mut SqliteConnection, session_id: &str) -> Result<(), IAMError> {
-    diesel::delete(sessions::table.find(session_id))
-        .execute(conn)?;
+    diesel::delete(sessions::table.find(session_id)).execute(conn)?;
 
     log_session_revoked(session_id, "explicit_deletion");
     Ok(())
 }
 
 /// Invalidates all sessions for a specific user.
-pub fn invalidate_sessions_for_user(conn: &mut SqliteConnection, user_id: &str) -> Result<(), IAMError> {
-    diesel::delete(sessions::table.filter(sessions::user_id.eq(user_id)))
-        .execute(conn)?;
+pub fn invalidate_sessions_for_user(
+    conn: &mut SqliteConnection,
+    user_id: &str,
+) -> Result<(), IAMError> {
+    diesel::delete(sessions::table.filter(sessions::user_id.eq(user_id))).execute(conn)?;
 
     info!(event = "sessions_invalidated", user_id = %user_id, "All sessions invalidated for user");
     Ok(())

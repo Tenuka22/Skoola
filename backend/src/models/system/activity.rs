@@ -1,12 +1,22 @@
-use chrono::NaiveDateTime;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use apistos::ApiComponent;
-use diesel::prelude::*;
-use crate::schema::{activities, activity_attendance, activity_participants, activity_types};
 use crate::database::enums::{AttendanceStatus, ParticipantType};
+use crate::schema::{activities, activity_attendance, activity_participants, activity_types};
+use apistos::ApiComponent;
+use chrono::NaiveDateTime;
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = activity_types)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct ActivityType {
@@ -16,7 +26,17 @@ pub struct ActivityType {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = activities)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Activity {
@@ -34,7 +54,17 @@ pub struct Activity {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = activity_participants)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 #[diesel(primary_key(activity_id, user_id))]
@@ -46,7 +76,17 @@ pub struct ActivityParticipant {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = activity_attendance)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct ActivityAttendance {

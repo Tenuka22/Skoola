@@ -1,12 +1,23 @@
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use chrono::{NaiveDateTime, NaiveTime};
 use apistos::ApiComponent;
+use chrono::{NaiveDateTime, NaiveTime};
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 use crate::schema::timetable;
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Clone,
+    Queryable,
+    Selectable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = timetable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Timetable {

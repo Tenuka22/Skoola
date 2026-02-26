@@ -1,11 +1,13 @@
 use crate::schema::student_class_assignments;
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use chrono::{NaiveDate, NaiveDateTime};
 use apistos::ApiComponent;
+use chrono::{NaiveDate, NaiveDateTime};
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema)]
+#[derive(
+    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema,
+)]
 #[diesel(table_name = student_class_assignments)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct StudentClassAssignment {

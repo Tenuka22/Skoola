@@ -1,25 +1,32 @@
-use apistos::api_operation;
 use crate::AppState;
+use apistos::api_operation;
 
-use crate::models::finance::salary::{
-    CreateSalaryComponentRequest, SalaryComponentResponse,
-    SetStaffSalaryRequest, StaffSalaryResponse, RecordSalaryPaymentRequest, SalaryPaymentResponse,
-};
-use crate::models::finance::budget_category::{CreateBudgetCategoryRequest, BudgetCategoryResponse};
-use crate::models::finance::budget::{SetBudgetRequest, BudgetResponse, UpdateBudgetRequest, BudgetSummaryResponse, BudgetComparisonResponse};
-use crate::models::finance::transaction::{
-    RecordIncomeRequest, IncomeTransactionResponse, RecordExpenseRequest, ExpenseTransactionResponse,
-    ReconcilePettyCashRequest,
-};
-use crate::models::finance::petty_cash_transaction::{RecordPettyCashRequest, PettyCashTransactionResponse};
+use crate::errors::APIError;
 use crate::models::MessageResponse;
+use crate::models::finance::budget::{
+    BudgetComparisonResponse, BudgetResponse, BudgetSummaryResponse, SetBudgetRequest,
+    UpdateBudgetRequest,
+};
+use crate::models::finance::budget_category::{
+    BudgetCategoryResponse, CreateBudgetCategoryRequest,
+};
+use crate::models::finance::petty_cash_transaction::{
+    PettyCashTransactionResponse, RecordPettyCashRequest,
+};
+use crate::models::finance::salary::{
+    CreateSalaryComponentRequest, RecordSalaryPaymentRequest, SalaryComponentResponse,
+    SalaryPaymentResponse, SetStaffSalaryRequest, StaffSalaryResponse,
+};
+use crate::models::finance::transaction::{
+    ExpenseTransactionResponse, IncomeTransactionResponse, ReconcilePettyCashRequest,
+    RecordExpenseRequest, RecordIncomeRequest,
+};
 use crate::services::resources::financial;
 use actix_web::web::{Data, Json, Path, Query};
-use apistos::{web, ApiComponent};
+use apistos::{ApiComponent, web};
 use chrono::NaiveDateTime;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use crate::errors::APIError;
 
 // Budget Category structs
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
@@ -58,7 +65,10 @@ pub struct BulkUpdateBudgetCategoriesRequest {
     tag = "financial",
     operation_id = "create_budget_category"
 )]
-pub async fn create_budget_category(data: Data<AppState>, req: Json<CreateBudgetCategoryRequest>) -> Result<Json<BudgetCategoryResponse>, APIError> {
+pub async fn create_budget_category(
+    data: Data<AppState>,
+    req: Json<CreateBudgetCategoryRequest>,
+) -> Result<Json<BudgetCategoryResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let cat = financial::create_budget_category(&mut conn, req.into_inner())?;
     Ok(Json(BudgetCategoryResponse::from(cat)))
@@ -76,10 +86,16 @@ pub async fn get_all_budget_categories(
 ) -> Result<Json<PaginatedBudgetCategoryResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let inner_query = query.into_inner();
-    let (categories, total_categories, total_pages): (Vec<crate::models::finance::budget_category::BudgetCategory>, i64, i64) =
-        financial::get_all_budget_categories(&mut conn, inner_query.clone()).await?;
+    let (categories, total_categories, total_pages): (
+        Vec<crate::models::finance::budget_category::BudgetCategory>,
+        i64,
+        i64,
+    ) = financial::get_all_budget_categories(&mut conn, inner_query.clone()).await?;
     Ok(Json(PaginatedBudgetCategoryResponse {
-        data: categories.into_iter().map(BudgetCategoryResponse::from).collect(),
+        data: categories
+            .into_iter()
+            .map(BudgetCategoryResponse::from)
+            .collect(),
         total: total_categories,
         page: inner_query.page.unwrap_or(1),
         limit: inner_query.limit.unwrap_or(10),
@@ -99,7 +115,9 @@ pub async fn bulk_delete_budget_categories(
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     financial::bulk_delete_budget_categories(&mut conn, body.into_inner().category_ids).await?;
-    Ok(Json(MessageResponse { message: "Budget categories deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Budget categories deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -114,10 +132,10 @@ pub async fn bulk_update_budget_categories(
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     financial::bulk_update_budget_categories(&mut conn, body.into_inner()).await?;
-    Ok(Json(MessageResponse { message: "Budget categories updated successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Budget categories updated successfully".to_string(),
+    }))
 }
-
-
 
 #[api_operation(
     summary = "Set budget",
@@ -125,7 +143,10 @@ pub async fn bulk_update_budget_categories(
     tag = "financial",
     operation_id = "set_budget"
 )]
-pub async fn set_budget(data: Data<AppState>, req: Json<SetBudgetRequest>) -> Result<Json<BudgetResponse>, APIError> {
+pub async fn set_budget(
+    data: Data<AppState>,
+    req: Json<SetBudgetRequest>,
+) -> Result<Json<BudgetResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let budget = financial::set_budget(&mut conn, req.into_inner())?;
     Ok(Json(BudgetResponse::from(budget)))
@@ -137,7 +158,10 @@ pub async fn set_budget(data: Data<AppState>, req: Json<SetBudgetRequest>) -> Re
     tag = "financial",
     operation_id = "record_income"
 )]
-pub async fn record_income(data: Data<AppState>, req: Json<RecordIncomeRequest>) -> Result<Json<IncomeTransactionResponse>, APIError> {
+pub async fn record_income(
+    data: Data<AppState>,
+    req: Json<RecordIncomeRequest>,
+) -> Result<Json<IncomeTransactionResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let trans = financial::record_income(&mut conn, req.into_inner())?;
     Ok(Json(IncomeTransactionResponse::from(trans)))
@@ -149,7 +173,10 @@ pub async fn record_income(data: Data<AppState>, req: Json<RecordIncomeRequest>)
     tag = "financial",
     operation_id = "record_expense"
 )]
-pub async fn record_expense(data: Data<AppState>, req: Json<RecordExpenseRequest>) -> Result<Json<ExpenseTransactionResponse>, APIError> {
+pub async fn record_expense(
+    data: Data<AppState>,
+    req: Json<RecordExpenseRequest>,
+) -> Result<Json<ExpenseTransactionResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let trans = financial::record_expense(data.clone(), &mut conn, req.into_inner()).await?;
     Ok(Json(ExpenseTransactionResponse::from(trans)))
@@ -161,7 +188,10 @@ pub async fn record_expense(data: Data<AppState>, req: Json<RecordExpenseRequest
     tag = "financial",
     operation_id = "record_petty_cash"
 )]
-pub async fn record_petty_cash(data: Data<AppState>, req: Json<RecordPettyCashRequest>) -> Result<Json<PettyCashTransactionResponse>, APIError> {
+pub async fn record_petty_cash(
+    data: Data<AppState>,
+    req: Json<RecordPettyCashRequest>,
+) -> Result<Json<PettyCashTransactionResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let trans = financial::record_petty_cash(&mut conn, req.into_inner())?;
     Ok(Json(PettyCashTransactionResponse::from(trans)))
@@ -173,7 +203,10 @@ pub async fn record_petty_cash(data: Data<AppState>, req: Json<RecordPettyCashRe
     tag = "financial",
     operation_id = "create_salary_component"
 )]
-pub async fn create_salary_component(data: Data<AppState>, req: Json<CreateSalaryComponentRequest>) -> Result<Json<SalaryComponentResponse>, APIError> {
+pub async fn create_salary_component(
+    data: Data<AppState>,
+    req: Json<CreateSalaryComponentRequest>,
+) -> Result<Json<SalaryComponentResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let comp = financial::create_salary_component(&mut conn, req.into_inner())?;
     Ok(Json(SalaryComponentResponse::from(comp)))
@@ -185,7 +218,10 @@ pub async fn create_salary_component(data: Data<AppState>, req: Json<CreateSalar
     tag = "financial",
     operation_id = "set_staff_salary"
 )]
-pub async fn set_staff_salary(data: Data<AppState>, req: Json<SetStaffSalaryRequest>) -> Result<Json<StaffSalaryResponse>, APIError> {
+pub async fn set_staff_salary(
+    data: Data<AppState>,
+    req: Json<SetStaffSalaryRequest>,
+) -> Result<Json<StaffSalaryResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let salary = financial::set_staff_salary(&mut conn, req.into_inner())?;
     Ok(Json(StaffSalaryResponse::from(salary)))
@@ -195,23 +231,50 @@ pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/financial")
             .route("/budget-categories", web::post().to(create_budget_category))
-            .route("/budget-categories", web::get().to(get_all_budget_categories))
-            .route("/budget-categories/bulk", web::delete().to(bulk_delete_budget_categories))
-            .route("/budget-categories/bulk", web::patch().to(bulk_update_budget_categories))
+            .route(
+                "/budget-categories",
+                web::get().to(get_all_budget_categories),
+            )
+            .route(
+                "/budget-categories/bulk",
+                web::delete().to(bulk_delete_budget_categories),
+            )
+            .route(
+                "/budget-categories/bulk",
+                web::patch().to(bulk_update_budget_categories),
+            )
             .route("/budgets", web::post().to(set_budget))
             .route("/budgets/{id}", web::patch().to(update_budget))
-            .route("/budgets/summary/{year_id}", web::get().to(get_budget_summary))
-            .route("/budgets/comparison/{year_id}", web::get().to(get_budget_comparison))
+            .route(
+                "/budgets/summary/{year_id}",
+                web::get().to(get_budget_summary),
+            )
+            .route(
+                "/budgets/comparison/{year_id}",
+                web::get().to(get_budget_comparison),
+            )
             .route("/income", web::post().to(record_income))
-            .route("/income/source/{source_id}", web::get().to(get_income_by_source))
+            .route(
+                "/income/source/{source_id}",
+                web::get().to(get_income_by_source),
+            )
             .route("/income/report", web::get().to(get_income_report))
             .route("/expense", web::post().to(record_expense))
-            .route("/expense/category/{cat_id}", web::get().to(get_expenses_by_category))
+            .route(
+                "/expense/category/{cat_id}",
+                web::get().to(get_expenses_by_category),
+            )
             .route("/expense/report", web::get().to(get_expense_report))
             .route("/petty-cash", web::post().to(record_petty_cash))
-            .route("/petty-cash/reconcile", web::post().to(reconcile_petty_cash))
+            .route(
+                "/petty-cash/reconcile",
+                web::post().to(reconcile_petty_cash),
+            )
             .route("/petty-cash/balance", web::get().to(get_petty_cash_balance))
-            .route("/salary-components", web::post().to(create_salary_component))
+            .route(
+                "/salary-components",
+                web::post().to(create_salary_component),
+            )
             .route("/staff-salary", web::post().to(set_staff_salary))
             .route("/salary-payments", web::post().to(record_salary_payment)),
     );
@@ -223,9 +286,14 @@ pub fn config(cfg: &mut web::ServiceConfig) {
     tag = "financial",
     operation_id = "update_budget_allocation"
 )]
-pub async fn update_budget(data: Data<AppState>, path: Path<String>, req: Json<UpdateBudgetRequest>) -> Result<Json<BudgetResponse>, APIError> {
+pub async fn update_budget(
+    data: Data<AppState>,
+    path: Path<String>,
+    req: Json<UpdateBudgetRequest>,
+) -> Result<Json<BudgetResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let budget = financial::update_budget_allocation(&mut conn, &path.into_inner(), req.into_inner())?;
+    let budget =
+        financial::update_budget_allocation(&mut conn, &path.into_inner(), req.into_inner())?;
     Ok(Json(BudgetResponse::from(budget)))
 }
 
@@ -235,7 +303,10 @@ pub async fn update_budget(data: Data<AppState>, path: Path<String>, req: Json<U
     tag = "financial",
     operation_id = "get_budget_summary"
 )]
-pub async fn get_budget_summary(data: Data<AppState>, path: Path<String>) -> Result<Json<Vec<BudgetSummaryResponse>>, APIError> {
+pub async fn get_budget_summary(
+    data: Data<AppState>,
+    path: Path<String>,
+) -> Result<Json<Vec<BudgetSummaryResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let summary = financial::get_budget_summary(&mut conn, &path.into_inner())?;
     Ok(Json(summary))
@@ -247,10 +318,18 @@ pub async fn get_budget_summary(data: Data<AppState>, path: Path<String>) -> Res
     tag = "financial",
     operation_id = "get_income_by_source"
 )]
-pub async fn get_income_by_source(data: Data<AppState>, path: Path<String>) -> Result<Json<Vec<IncomeTransactionResponse>>, APIError> {
+pub async fn get_income_by_source(
+    data: Data<AppState>,
+    path: Path<String>,
+) -> Result<Json<Vec<IncomeTransactionResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let trans = financial::get_income_by_source(&mut conn, &path.into_inner())?;
-    Ok(Json(trans.into_iter().map(IncomeTransactionResponse::from).collect()))
+    Ok(Json(
+        trans
+            .into_iter()
+            .map(IncomeTransactionResponse::from)
+            .collect(),
+    ))
 }
 
 #[api_operation(
@@ -259,10 +338,18 @@ pub async fn get_income_by_source(data: Data<AppState>, path: Path<String>) -> R
     tag = "financial",
     operation_id = "get_expenses_by_category"
 )]
-pub async fn get_expenses_by_category(data: Data<AppState>, path: Path<String>) -> Result<Json<Vec<ExpenseTransactionResponse>>, APIError> {
+pub async fn get_expenses_by_category(
+    data: Data<AppState>,
+    path: Path<String>,
+) -> Result<Json<Vec<ExpenseTransactionResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let trans = financial::get_expenses_by_category(&mut conn, &path.into_inner())?;
-    Ok(Json(trans.into_iter().map(ExpenseTransactionResponse::from).collect()))
+    Ok(Json(
+        trans
+            .into_iter()
+            .map(ExpenseTransactionResponse::from)
+            .collect(),
+    ))
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
@@ -277,10 +364,18 @@ pub struct DateRangeRequest {
     tag = "financial",
     operation_id = "get_income_report"
 )]
-pub async fn get_income_report(data: Data<AppState>, query: Query<DateRangeRequest>) -> Result<Json<Vec<IncomeTransactionResponse>>, APIError> {
+pub async fn get_income_report(
+    data: Data<AppState>,
+    query: Query<DateRangeRequest>,
+) -> Result<Json<Vec<IncomeTransactionResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let trans = financial::get_income_by_date_range(&mut conn, query.start, query.end)?;
-    Ok(Json(trans.into_iter().map(IncomeTransactionResponse::from).collect()))
+    Ok(Json(
+        trans
+            .into_iter()
+            .map(IncomeTransactionResponse::from)
+            .collect(),
+    ))
 }
 
 #[api_operation(
@@ -289,10 +384,18 @@ pub async fn get_income_report(data: Data<AppState>, query: Query<DateRangeReque
     tag = "financial",
     operation_id = "get_expense_report"
 )]
-pub async fn get_expense_report(data: Data<AppState>, query: Query<DateRangeRequest>) -> Result<Json<Vec<ExpenseTransactionResponse>>, APIError> {
+pub async fn get_expense_report(
+    data: Data<AppState>,
+    query: Query<DateRangeRequest>,
+) -> Result<Json<Vec<ExpenseTransactionResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let trans = financial::get_expenses_by_date_range(&mut conn, query.start, query.end)?;
-    Ok(Json(trans.into_iter().map(ExpenseTransactionResponse::from).collect()))
+    Ok(Json(
+        trans
+            .into_iter()
+            .map(ExpenseTransactionResponse::from)
+            .collect(),
+    ))
 }
 
 #[api_operation(
@@ -313,7 +416,10 @@ pub async fn get_petty_cash_balance(data: Data<AppState>) -> Result<Json<f32>, A
     tag = "financial",
     operation_id = "record_salary_payment"
 )]
-pub async fn record_salary_payment(data: Data<AppState>, req: Json<RecordSalaryPaymentRequest>) -> Result<Json<SalaryPaymentResponse>, APIError> {
+pub async fn record_salary_payment(
+    data: Data<AppState>,
+    req: Json<RecordSalaryPaymentRequest>,
+) -> Result<Json<SalaryPaymentResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let payment = financial::record_salary_payment(&mut conn, req.into_inner())?;
     Ok(Json(SalaryPaymentResponse::from(payment)))
@@ -325,7 +431,10 @@ pub async fn record_salary_payment(data: Data<AppState>, req: Json<RecordSalaryP
     tag = "financial",
     operation_id = "get_budget_comparison"
 )]
-pub async fn get_budget_comparison(data: Data<AppState>, path: Path<String>) -> Result<Json<Vec<BudgetComparisonResponse>>, APIError> {
+pub async fn get_budget_comparison(
+    data: Data<AppState>,
+    path: Path<String>,
+) -> Result<Json<Vec<BudgetComparisonResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let comparison = financial::get_budget_comparison(&mut conn, &path.into_inner())?;
     Ok(Json(comparison))
@@ -337,7 +446,10 @@ pub async fn get_budget_comparison(data: Data<AppState>, path: Path<String>) -> 
     tag = "financial",
     operation_id = "reconcile_petty_cash"
 )]
-pub async fn reconcile_petty_cash(data: Data<AppState>, req: Json<ReconcilePettyCashRequest>) -> Result<Json<PettyCashTransactionResponse>, APIError> {
+pub async fn reconcile_petty_cash(
+    data: Data<AppState>,
+    req: Json<ReconcilePettyCashRequest>,
+) -> Result<Json<PettyCashTransactionResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let trans = financial::reconcile_petty_cash(&mut conn, req.into_inner())?;
     Ok(Json(PettyCashTransactionResponse::from(trans)))

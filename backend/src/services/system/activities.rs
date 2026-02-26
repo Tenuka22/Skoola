@@ -1,15 +1,18 @@
-use diesel::prelude::*;
+use crate::schema::{activities, activity_attendance, activity_participants, activity_types};
 use crate::{
-    errors::APIError,
     AppState,
-    models::system::activity::{CreateActivityRequest, ActivityResponse, EnrollParticipantRequest, CreateActivityTypeRequest, ActivityTypeResponse},
-    database::tables::{Activity, ActivityParticipant, ActivityAttendance, ActivityType},
     database::enums::{AttendanceStatus, ParticipantType},
+    database::tables::{Activity, ActivityAttendance, ActivityParticipant, ActivityType},
+    errors::APIError,
+    models::system::activity::{
+        ActivityResponse, ActivityTypeResponse, CreateActivityRequest, CreateActivityTypeRequest,
+        EnrollParticipantRequest,
+    },
 };
 use actix_web::web;
-use uuid::Uuid;
 use chrono::Utc;
-use crate::schema::{activities, activity_participants, activity_attendance, activity_types};
+use diesel::prelude::*;
+use uuid::Uuid;
 
 pub async fn create_activity_type(
     pool: web::Data<AppState>,
@@ -40,14 +43,16 @@ pub async fn get_all_activity_types(
     pool: web::Data<AppState>,
 ) -> Result<Vec<ActivityTypeResponse>, APIError> {
     let mut conn = pool.db_pool.get()?;
-    let types = activity_types::table
-        .load::<ActivityType>(&mut conn)?;
+    let types = activity_types::table.load::<ActivityType>(&mut conn)?;
 
-    Ok(types.into_iter().map(|t| ActivityTypeResponse {
-        id: t.id,
-        name: t.name,
-        description: t.description,
-    }).collect())
+    Ok(types
+        .into_iter()
+        .map(|t| ActivityTypeResponse {
+            id: t.id,
+            name: t.name,
+            description: t.description,
+        })
+        .collect())
 }
 
 pub async fn get_activities(
@@ -60,17 +65,20 @@ pub async fn get_activities(
         query = query.filter(activities::academic_year_id.eq(ay_id));
     }
     let list = query.load::<Activity>(&mut conn)?;
-    Ok(list.into_iter().map(|a| ActivityResponse {
-        id: a.id,
-        activity_type_id: a.activity_type_id,
-        name: a.name,
-        description: a.description,
-        location: a.location,
-        start_time: a.start_time,
-        end_time: a.end_time,
-        is_mandatory: a.is_mandatory,
-        created_by: a.created_by,
-    }).collect())
+    Ok(list
+        .into_iter()
+        .map(|a| ActivityResponse {
+            id: a.id,
+            activity_type_id: a.activity_type_id,
+            name: a.name,
+            description: a.description,
+            location: a.location,
+            start_time: a.start_time,
+            end_time: a.end_time,
+            is_mandatory: a.is_mandatory,
+            created_by: a.created_by,
+        })
+        .collect())
 }
 
 pub async fn get_user_activities(
@@ -79,22 +87,27 @@ pub async fn get_user_activities(
 ) -> Result<Vec<ActivityResponse>, APIError> {
     let mut conn = pool.db_pool.get()?;
     let list = activities::table
-        .inner_join(activity_participants::table.on(activities::id.eq(activity_participants::activity_id)))
+        .inner_join(
+            activity_participants::table.on(activities::id.eq(activity_participants::activity_id)),
+        )
         .filter(activity_participants::user_id.eq(user_id))
         .select(activities::all_columns)
         .load::<Activity>(&mut conn)?;
-    
-    Ok(list.into_iter().map(|a| ActivityResponse {
-        id: a.id,
-        activity_type_id: a.activity_type_id,
-        name: a.name,
-        description: a.description,
-        location: a.location,
-        start_time: a.start_time,
-        end_time: a.end_time,
-        is_mandatory: a.is_mandatory,
-        created_by: a.created_by,
-    }).collect())
+
+    Ok(list
+        .into_iter()
+        .map(|a| ActivityResponse {
+            id: a.id,
+            activity_type_id: a.activity_type_id,
+            name: a.name,
+            description: a.description,
+            location: a.location,
+            start_time: a.start_time,
+            end_time: a.end_time,
+            is_mandatory: a.is_mandatory,
+            created_by: a.created_by,
+        })
+        .collect())
 }
 
 pub async fn create_activity(
@@ -104,7 +117,7 @@ pub async fn create_activity(
 ) -> Result<ActivityResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
     let activity_id = Uuid::new_v4().to_string();
-    
+
     let new_activity = Activity {
         id: activity_id.clone(),
         activity_type_id: req.activity_type_id,
@@ -143,8 +156,10 @@ pub async fn enroll_participant(
     req: EnrollParticipantRequest,
 ) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
-    
-    let p_type: ParticipantType = req.participant_type.parse::<ParticipantType>()
+
+    let p_type: ParticipantType = req
+        .participant_type
+        .parse::<ParticipantType>()
         .map_err(|_| APIError::bad_request("Invalid participant type"))?;
 
     let new_participant = ActivityParticipant {
@@ -170,7 +185,7 @@ pub async fn mark_activity_attendance(
     marker_id: String,
 ) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
-    
+
     let new_entry = ActivityAttendance {
         id: Uuid::new_v4().to_string(),
         activity_id: activity_id.clone(),
@@ -191,20 +206,25 @@ pub async fn mark_activity_attendance(
     // PRACTICAL LINK: Reduction of detention hours
     if status == AttendanceStatus::Present {
         let activity: Activity = activities::table.find(&activity_id).first(&mut conn)?;
-        let a_type: ActivityType = activity_types::table.find(&activity.activity_type_id).first(&mut conn)?;
-        
+        let a_type: ActivityType = activity_types::table
+            .find(&activity.activity_type_id)
+            .first(&mut conn)?;
+
         if a_type.name == "Detention" {
             let duration = activity.end_time - activity.start_time;
             let hours_served = (duration.num_minutes() as f32) / 60.0;
-            
+
             use crate::schema::detention_balances;
             diesel::update(detention_balances::table.find(&user_id))
                 .set((
-                    detention_balances::total_hours_served.eq(detention_balances::total_hours_served + hours_served),
-                    detention_balances::remaining_hours.eq(detention_balances::remaining_hours - hours_served),
+                    detention_balances::total_hours_served
+                        .eq(detention_balances::total_hours_served + hours_served),
+                    detention_balances::remaining_hours
+                        .eq(detention_balances::remaining_hours - hours_served),
                     detention_balances::updated_at.eq(Utc::now().naive_utc()),
                 ))
-                .execute(&mut conn).ok(); // ok() because student might not have a balance record yet
+                .execute(&mut conn)
+                .ok(); // ok() because student might not have a balance record yet
         }
     }
 

@@ -5,9 +5,9 @@ use actix_web::{
     http::{StatusCode, header::ContentType},
 };
 
+use anyhow::Error as AnyhowError;
 use apistos::ApiErrorComponent;
 use derive_more::{Display, Error};
-use anyhow::Error as AnyhowError;
 use diesel::result::Error as DieselError;
 use r2d2::Error as R2d2Error;
 use schemars::JsonSchema;
@@ -16,14 +16,14 @@ use serde_json::json;
 use tracing::error;
 
 // New use statements for error types
-use reqwest::Error as ReqwestError;
+use bcrypt::BcryptError;
+use jsonwebtoken::errors::Error as JwtError;
 use lettre::address::AddressError;
 use lettre::error::Error as LettreError;
 use lettre::transport::smtp::Error as SmtpError;
-use bcrypt::BcryptError;
-use jsonwebtoken::errors::Error as JwtError;
-use std::num::ParseIntError;
+use reqwest::Error as ReqwestError;
 use std::env::VarError;
+use std::num::ParseIntError;
 
 pub mod iam;
 
@@ -150,7 +150,10 @@ impl From<DieselError> for APIError {
             DieselError::NotFound => APIError::not_found("Resource not found."),
             DieselError::DatabaseError(_, info) => {
                 error!("Database error details: {}", info.message());
-                APIError::internal(&format!("An internal database error occurred: {}", info.message()))
+                APIError::internal(&format!(
+                    "An internal database error occurred: {}",
+                    info.message()
+                ))
             }
             _ => APIError::internal(&format!("An internal database error occurred: {}", error)),
         }

@@ -1,37 +1,40 @@
 mod seed_modules; // Declare the seed_modules module
 
+use anyhow::Result;
 use backend::config::Config;
 use backend::database::connection::establish_connection;
 use backend::utils::security::hash_password; // Still needed for password hashing in modules
-use anyhow::Result;
 use diesel::QueryableByName; // New import
 use rand::Rng; // New import
-use seed_modules::SeedModule;
-use seed_modules::message_seeder::MessageSeeder; // New import
-use seed_modules::academic_detail_seeder::AcademicDetailSeeder; // New import
-use seed_modules::attendance_seeder::AttendanceSeeder; // New import
-use seed_modules::extracurricular_seeder::ExtracurricularSeeder; // New import
-use seed_modules::staff_student_detail_seeder::StaffStudentDetailSeeder; // New import
-use seed_modules::library_seeder::LibrarySeeder; // New import
-use seed_modules::system_seeder::SystemSeeder; // New import
-use seed_modules::resource_management::ResourceManagementSeeder; // New import
-use seed_modules::curriculum_management::CurriculumManagementSeeder; // New import
-use seed_modules::behavior_management::BehaviorManagementSeeder; // New import
-use seed_modules::audit_log::AuditLogSeeder; // New import
-use seed_modules::exams::ExamsSeeder; // New import
-use seed_modules::finance::FinanceSeeder; // New import
-use seed_modules::seeder_verifier::SeederVerifier; // New import
-use seed_modules::custom_user_seeder::CustomUserSeeder; // New import
-use seed_modules::core_entities_seeder::CoreEntitiesSeeder;
+use seed_modules::{
+    academic_detail_seeder::AcademicDetailSeeder,
+    attendance_seeder::AttendanceSeeder,
+    audit_log::AuditLogSeeder,
+    behavior_management::BehaviorManagementSeeder,
+    core_entities_seeder::CoreEntitiesSeeder,
+    curriculum_management::CurriculumManagementSeeder,
+    custom_user_seeder::CustomUserSeeder,
+    exams::ExamsSeeder,
+    extracurricular_seeder::ExtracurricularSeeder,
+    finance::FinanceSeeder,
+    library_seeder::LibrarySeeder,
+    message_seeder::MessageSeeder,
+    resource_management::ResourceManagementSeeder,
+    seeder_verifier::SeederVerifier,
+    staff_student_detail_seeder::StaffStudentDetailSeeder,
+    system_seeder::SystemSeeder,
+    SeederContext,
+    SeedModule,
+};
 
-use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+use chrono::{DateTime, Datelike, NaiveDate, NaiveDateTime, Utc};
 use clap::Parser; // Keep for Args
-use diesel::sqlite::SqliteConnection; // Keep for functions that receive connection
-use diesel::{sql_query, RunQueryDsl}; // Keep for delete_all_tables
 use diesel::sql_types::Text; // Keep for TableName
-use uuid::Uuid; // Keep for generate_uuid
+use diesel::sqlite::SqliteConnection; // Keep for functions that receive connection
+use diesel::{RunQueryDsl, sql_query}; // Keep for delete_all_tables
+use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
 use std::collections::HashSet; // Keep for used_emails
-use chrono::{NaiveDate, NaiveDateTime, Utc, Datelike, DateTime}; // Keep for date/time generation
+use uuid::Uuid; // Keep for generate_uuid // Keep for date/time generation
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
@@ -48,8 +51,7 @@ pub struct TableName {
 }
 
 pub fn delete_all_tables(conn: &mut SqliteConnection) -> Result<()> {
-    sql_query("PRAGMA foreign_keys = OFF;")
-        .execute(conn)?;
+    sql_query("PRAGMA foreign_keys = OFF;").execute(conn)?;
     println!("Foreign key checks disabled.");
 
     let table_names: Vec<TableName> = sql_query(
@@ -59,13 +61,11 @@ pub fn delete_all_tables(conn: &mut SqliteConnection) -> Result<()> {
 
     for table in table_names {
         let drop_table_sql = format!("DROP TABLE IF EXISTS {};", table.name);
-        sql_query(&drop_table_sql)
-            .execute(conn)?;
+        sql_query(&drop_table_sql).execute(conn)?;
         println!("Dropped table: {}", table.name);
     }
 
-    sql_query("PRAGMA foreign_keys = ON;")
-        .execute(conn)?;
+    sql_query("PRAGMA foreign_keys = ON;").execute(conn)?;
     println!("Foreign key checks enabled.");
 
     Ok(())
@@ -78,24 +78,34 @@ pub fn generate_uuid() -> String {
 pub fn random_datetime_in_past(years: u32) -> NaiveDateTime {
     let mut rng = rand::thread_rng();
     let now = Utc::now().naive_utc();
-    let years_ago_date = NaiveDate::from_ymd_opt(now.year() - years as i32, now.month(), now.day()).unwrap_or(now.date());
+    let years_ago_date = NaiveDate::from_ymd_opt(now.year() - years as i32, now.month(), now.day())
+        .unwrap_or(now.date());
     let years_ago_datetime = NaiveDateTime::new(years_ago_date, now.time());
-    
+
     let start_timestamp = years_ago_datetime.and_utc().timestamp();
     let end_timestamp = now.and_utc().timestamp();
     let random_timestamp = rng.gen_range(start_timestamp..=end_timestamp);
-    DateTime::from_timestamp(random_timestamp, 0).unwrap().naive_utc()
+    DateTime::from_timestamp(random_timestamp, 0)
+        .unwrap()
+        .naive_utc()
 }
 
 pub fn random_date_in_past(years: u32) -> NaiveDate {
     let mut rng = rand::thread_rng();
     let now = Utc::now().naive_utc().date();
-    let years_ago = NaiveDate::from_ymd_opt(now.year() - years as i32, now.month(), now.day()).unwrap_or(now);
+    let years_ago =
+        NaiveDate::from_ymd_opt(now.year() - years as i32, now.month(), now.day()).unwrap_or(now);
 
-    let start_timestamp = years_ago.and_hms_opt(0, 0, 0).unwrap().and_utc().timestamp();
+    let start_timestamp = years_ago
+        .and_hms_opt(0, 0, 0)
+        .unwrap()
+        .and_utc()
+        .timestamp();
     let end_timestamp = now.and_hms_opt(23, 59, 59).unwrap().and_utc().timestamp();
     let random_timestamp = rng.gen_range(start_timestamp..=end_timestamp);
-    DateTime::from_timestamp(random_timestamp, 0).unwrap().date_naive()
+    DateTime::from_timestamp(random_timestamp, 0)
+        .unwrap()
+        .date_naive()
 }
 
 // Struct to define the number of items to generate for each table/entity
@@ -306,13 +316,17 @@ impl Default for SeedCountConfig {
 }
 
 fn main() -> Result<()> {
-
     let config = Config::from_env().expect("Failed to load config");
     let pool = establish_connection(&config.database_url).expect("Failed to establish connection");
     let mut connection = pool.get().expect("Failed to get connection from pool");
     let mut used_emails: HashSet<String> = HashSet::new();
-    let default_password_hash = hash_password(config.seed_user_password.as_deref().unwrap_or("password123"))?;
-    let mut seeder_context = seed_modules::SeederContext::new(); // Initialize SeederContext
+    let default_password_hash = hash_password(
+        config
+            .seed_user_password
+            .as_deref()
+            .unwrap_or("password123"),
+    )?;
+    let mut seeder_context = SeederContext::new(); // Initialize SeederContext
     let seed_count_config = SeedCountConfig::default(); // Initialize seed count configuration
 
     let args = Args::parse();
@@ -330,7 +344,8 @@ fn main() -> Result<()> {
 
     // Run migrations to recreate the schema
     println!("Running database migrations...");
-    connection.run_pending_migrations(MIGRATIONS)
+    connection
+        .run_pending_migrations(MIGRATIONS)
         .expect("Failed to run migrations");
     println!("Database migrations complete.");
 
@@ -355,7 +370,14 @@ fn main() -> Result<()> {
     ];
 
     for seeder in seeders {
-        seeder.seed(&mut connection, &config, &default_password_hash, &mut used_emails, &mut seeder_context, &seed_count_config)?;
+        seeder.seed(
+            &mut connection,
+            &config,
+            &default_password_hash,
+            &mut used_emails,
+            &mut seeder_context,
+            &seed_count_config,
+        )?;
     }
 
     println!("Database seeding complete!");

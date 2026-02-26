@@ -1,12 +1,12 @@
-use actix_web::web;
-use apistos::api_operation; // Added
-use actix_web::web::Json;
 use crate::{
     AppState,
     errors::APIError,
     models::academic::terms::{CreateTermRequest, TermResponse},
     services::academic::terms,
 };
+use actix_web::web;
+use actix_web::web::Json;
+use apistos::api_operation; // Added
 
 #[api_operation(
     summary = "Create Term",

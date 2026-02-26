@@ -1,14 +1,27 @@
 use crate::database::enums::MaintenanceStatus;
-use crate::schema::{asset_categories, inventory_items, uniform_items, uniform_issues, asset_allocations, maintenance_requests};
+use crate::models::staff::staff::Staff;
+use crate::models::student::student::Student;
+use crate::schema::{
+    asset_allocations, asset_categories, inventory_items, maintenance_requests, uniform_issues,
+    uniform_items,
+};
+use apistos::ApiComponent;
+use chrono::NaiveDateTime;
+use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use chrono::NaiveDateTime;
-use apistos::ApiComponent;
-use diesel::prelude::*;
-use crate::models::student::student::Student;
-use crate::models::staff::staff::Staff;
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = asset_categories)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct AssetCategory {
@@ -29,7 +42,7 @@ pub struct AssetCategory {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = inventory_items)]
 #[diesel(belongs_to(AssetCategory, foreign_key = category_id))]
@@ -47,7 +60,17 @@ pub struct InventoryItem {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = uniform_items)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct UniformItem {
@@ -72,7 +95,7 @@ pub struct UniformItem {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = uniform_issues)]
 #[diesel(belongs_to(Student))]
@@ -101,7 +124,7 @@ pub struct UniformIssue {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = asset_allocations)]
 #[diesel(belongs_to(InventoryItem, foreign_key = item_id))]
@@ -130,7 +153,7 @@ pub struct AssetAllocation {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = maintenance_requests)]
 #[diesel(belongs_to(InventoryItem, foreign_key = item_id))]

@@ -1,15 +1,17 @@
-use diesel::prelude::*;
-use diesel::{QueryDsl, RunQueryDsl};
+use crate::handlers::academic::grade_level::{BulkUpdateGradeLevelsRequest, GradeLevelQuery};
+use crate::schema::grade_levels;
 use crate::{
-    errors::APIError,
     AppState,
-    models::grade_level::{GradeLevel, GradeLevelResponse, CreateGradeLevelRequest, UpdateGradeLevelRequest},
+    errors::APIError,
+    models::grade_level::{
+        CreateGradeLevelRequest, GradeLevel, GradeLevelResponse, UpdateGradeLevelRequest,
+    },
 };
 use actix_web::web;
-use uuid::Uuid;
 use chrono::Utc;
-use crate::schema::grade_levels;
-use crate::handlers::academic::grade_level::{GradeLevelQuery, BulkUpdateGradeLevelsRequest};
+use diesel::prelude::*;
+use diesel::{QueryDsl, RunQueryDsl};
+use uuid::Uuid;
 
 pub async fn create_grade_level(
     pool: web::Data<AppState>,
@@ -43,8 +45,7 @@ pub async fn get_grade_level_by_id(
 
     let grade_level: GradeLevel = grade_levels::table
         .filter(grade_levels::id.eq(&grade_level_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(GradeLevelResponse::from(grade_level))
 }
@@ -109,17 +110,22 @@ pub async fn update_grade_level(
     let target = grade_levels::table.filter(grade_levels::id.eq(&grade_level_id));
 
     let updated_count = diesel::update(target)
-        .set((update_request, grade_levels::updated_at.eq(Utc::now().naive_utc())))
+        .set((
+            update_request,
+            grade_levels::updated_at.eq(Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Grade Level with ID {} not found", grade_level_id)));
+        return Err(APIError::not_found(&format!(
+            "Grade Level with ID {} not found",
+            grade_level_id
+        )));
     }
 
     let updated_grade_level: GradeLevel = grade_levels::table
         .filter(grade_levels::id.eq(&grade_level_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(GradeLevelResponse::from(updated_grade_level))
 }
@@ -135,7 +141,10 @@ pub async fn delete_grade_level(
         .execute(&mut conn)?;
 
     if deleted_count == 0 {
-        return Err(APIError::not_found(&format!("Grade Level with ID {} not found", grade_level_id)));
+        return Err(APIError::not_found(&format!(
+            "Grade Level with ID {} not found",
+            grade_level_id
+        )));
     }
 
     Ok(())
@@ -159,16 +168,18 @@ pub async fn bulk_update_grade_levels(
 
     conn.transaction::<_, APIError, _>(|conn| {
         let target = grade_levels::table.filter(grade_levels::id.eq_any(&body.grade_level_ids));
-        
+
         diesel::update(target)
             .set((
                 body.grade_name.map(|gn| grade_levels::grade_name.eq(gn)),
-                body.grade_number.map(|gn| grade_levels::grade_number.eq(gn)),
-                body.education_level.map(|el| grade_levels::education_level.eq(el)),
+                body.grade_number
+                    .map(|gn| grade_levels::grade_number.eq(gn)),
+                body.education_level
+                    .map(|el| grade_levels::education_level.eq(el)),
                 grade_levels::updated_at.eq(Utc::now().naive_utc()),
             ))
             .execute(conn)?;
-        
+
         Ok(())
     })
 }

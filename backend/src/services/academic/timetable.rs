@@ -1,13 +1,15 @@
+use actix_web::{HttpResponse, web};
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::{Utc};
-use actix_web::{web, HttpResponse};
 
 use crate::{
-    errors::APIError,
     AppState,
-    schema::{timetable},
-    models::timetable::{Timetable, TimetableResponse, CreateTimetableRequest, UpdateTimetableRequest},
+    errors::APIError,
+    models::timetable::{
+        CreateTimetableRequest, Timetable, TimetableResponse, UpdateTimetableRequest,
+    },
+    schema::timetable,
 };
 
 pub async fn create_timetable_entry(
@@ -27,7 +29,7 @@ pub async fn create_timetable_entry(
 
     if overlap_period.is_some() {
         return Err(APIError::conflict(
-            "An entry already exists for this class, day, period, and academic year."
+            "An entry already exists for this class, day, period, and academic year.",
         ));
     }
 
@@ -38,17 +40,16 @@ pub async fn create_timetable_entry(
         .filter(timetable::academic_year_id.eq(&new_entry_request.academic_year_id))
         .filter(
             (timetable::start_time.lt(&new_entry_request.end_time))
-            .and(timetable::end_time.gt(&new_entry_request.start_time))
+                .and(timetable::end_time.gt(&new_entry_request.start_time)),
         )
         .first(&mut conn)
         .optional()?;
 
     if teacher_overlap.is_some() {
         return Err(APIError::conflict(
-            "Teacher is already scheduled for another class during this time slot."
+            "Teacher is already scheduled for another class during this time slot.",
         ));
     }
-
 
     let new_entry = Timetable {
         id: Uuid::new_v4().to_string(),
@@ -129,11 +130,17 @@ pub async fn update_timetable_entry(
     let target = timetable::table.filter(timetable::id.eq(&entry_id));
 
     let updated_count = diesel::update(target)
-        .set((update_request, timetable::updated_at.eq(Utc::now().naive_utc())))
+        .set((
+            update_request,
+            timetable::updated_at.eq(Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Timetable entry with ID {} not found", entry_id)));
+        return Err(APIError::not_found(&format!(
+            "Timetable entry with ID {} not found",
+            entry_id
+        )));
     }
 
     let updated_entry: Timetable = timetable::table
@@ -154,7 +161,10 @@ pub async fn delete_timetable_entry(
         .execute(&mut conn)?;
 
     if deleted_count == 0 {
-        return Err(APIError::not_found(&format!("Timetable entry with ID {} not found", entry_id)));
+        return Err(APIError::not_found(&format!(
+            "Timetable entry with ID {} not found",
+            entry_id
+        )));
     }
 
     Ok(HttpResponse::NoContent().finish())

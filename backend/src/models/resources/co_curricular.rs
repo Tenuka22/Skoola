@@ -1,18 +1,28 @@
 use crate::schema::{
-    sports, sport_teams, sport_team_members, sport_events, sport_event_participants,
-    clubs, club_members, club_activities,
-    competitions, competition_participants, student_achievements,
-    cultural_events, cultural_event_participants
+    club_activities, club_members, clubs, competition_participants, competitions,
+    cultural_event_participants, cultural_events, sport_event_participants, sport_events,
+    sport_team_members, sport_teams, sports, student_achievements,
 };
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use chrono::{NaiveDateTime, NaiveDate};
-use schemars::JsonSchema;
 use apistos::ApiComponent;
+use chrono::{NaiveDate, NaiveDateTime};
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 // --- Sports ---
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Identifiable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Selectable,
+    Identifiable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = sports)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Sport {
@@ -31,7 +41,18 @@ pub struct CreateSportRequest {
     pub category: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Identifiable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Selectable,
+    Identifiable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = sport_teams)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct SportTeam {
@@ -52,7 +73,18 @@ pub struct CreateSportTeamRequest {
     pub coach_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Identifiable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Selectable,
+    Identifiable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(primary_key(team_id, student_id))]
 #[diesel(table_name = sport_team_members)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -72,7 +104,18 @@ pub struct AddSportTeamMemberRequest {
     pub joined_date: NaiveDate,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Identifiable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Selectable,
+    Identifiable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = sport_events)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct SportEvent {
@@ -95,7 +138,18 @@ pub struct CreateSportEventRequest {
     pub organizer: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Identifiable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Selectable,
+    Identifiable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(primary_key(event_id, student_id))]
 #[diesel(table_name = sport_event_participants)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -119,7 +173,18 @@ pub struct RecordEventResultRequest {
 
 // --- Clubs ---
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Identifiable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Selectable,
+    Identifiable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = clubs)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Club {
@@ -140,7 +205,18 @@ pub struct CreateClubRequest {
     pub meeting_schedule: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Identifiable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Selectable,
+    Identifiable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(primary_key(club_id, student_id))]
 #[diesel(table_name = club_members)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -160,7 +236,18 @@ pub struct AddClubMemberRequest {
     pub joined_date: NaiveDate,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Identifiable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Selectable,
+    Identifiable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = club_activities)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct ClubActivity {
@@ -185,7 +272,18 @@ pub struct CreateClubActivityRequest {
 
 // --- Competitions ---
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Identifiable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Selectable,
+    Identifiable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = competitions)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Competition {
@@ -208,7 +306,18 @@ pub struct CreateCompetitionRequest {
     pub level: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Identifiable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Selectable,
+    Identifiable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(primary_key(competition_id, student_id))]
 #[diesel(table_name = competition_participants)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -228,7 +337,18 @@ pub struct AddCompetitionParticipantRequest {
     pub award: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Identifiable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Selectable,
+    Identifiable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = student_achievements)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct StudentAchievement {
@@ -253,7 +373,18 @@ pub struct CreateStudentAchievementRequest {
 
 // --- Cultural Events ---
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Identifiable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Selectable,
+    Identifiable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = cultural_events)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct CulturalEvent {
@@ -274,7 +405,18 @@ pub struct CreateCulturalEventRequest {
     pub description: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Identifiable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Queryable,
+    Selectable,
+    Identifiable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(primary_key(event_id, student_id))]
 #[diesel(table_name = cultural_event_participants)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]

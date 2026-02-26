@@ -2,7 +2,7 @@ use serde::{Deserialize, Deserializer};
 
 /// Deserializer for `Option<Option<T>>` to distinguish between a missing field,
 /// an explicit null, and a value.
-/// 
+///
 /// - Missing field (with `#[serde(default)]`): `None`
 /// - Explicit null: `Some(None)`
 /// - Explicit value: `Some(Some(T))`

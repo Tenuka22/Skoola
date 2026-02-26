@@ -1,13 +1,18 @@
+use actix_web::web::Data;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::Utc;
-use actix_web::web::Data;
 
 use crate::AppState;
 use crate::errors::APIError;
-use crate::models::curriculum_management::{CurriculumStandard, NewCurriculumStandard, Syllabus, NewSyllabus};
+use crate::handlers::curriculum_management::{
+    CreateCurriculumStandardRequest, CreateSyllabusRequest, UpdateCurriculumStandardRequest,
+    UpdateSyllabusRequest,
+};
+use crate::models::curriculum_management::{
+    CurriculumStandard, NewCurriculumStandard, NewSyllabus, Syllabus,
+};
 use crate::schema::{curriculum_standards, syllabus};
-use crate::handlers::curriculum_management::{CreateCurriculumStandardRequest, UpdateCurriculumStandardRequest, CreateSyllabusRequest, UpdateSyllabusRequest};
 
 // Service to create a new curriculum standard
 pub async fn create_curriculum_standard(
@@ -48,7 +53,10 @@ pub async fn get_curriculum_standard_by_id(
 
     match standard {
         Some(s) => Ok(s),
-        None => Err(APIError::not_found(&format!("Curriculum standard with ID {} not found", standard_id))),
+        None => Err(APIError::not_found(&format!(
+            "Curriculum standard with ID {} not found",
+            standard_id
+        ))),
     }
 }
 
@@ -57,8 +65,7 @@ pub async fn get_all_curriculum_standards(
     data: Data<AppState>,
 ) -> Result<Vec<CurriculumStandard>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let all_standards = curriculum_standards::table
-        .load::<CurriculumStandard>(&mut conn)?;
+    let all_standards = curriculum_standards::table.load::<CurriculumStandard>(&mut conn)?;
 
     Ok(all_standards)
 }
@@ -74,16 +81,23 @@ pub async fn update_curriculum_standard(
 
     let updated_count = diesel::update(target)
         .set((
-            req.subject_id.map(|s| curriculum_standards::subject_id.eq(s)),
-            req.grade_level_id.map(|g| curriculum_standards::grade_level_id.eq(g)),
-            req.standard_code.map(|c| curriculum_standards::standard_code.eq(c)),
-            req.description.map(|d| curriculum_standards::description.eq(d)),
+            req.subject_id
+                .map(|s| curriculum_standards::subject_id.eq(s)),
+            req.grade_level_id
+                .map(|g| curriculum_standards::grade_level_id.eq(g)),
+            req.standard_code
+                .map(|c| curriculum_standards::standard_code.eq(c)),
+            req.description
+                .map(|d| curriculum_standards::description.eq(d)),
             curriculum_standards::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Curriculum standard with ID {} not found", standard_id)));
+        return Err(APIError::not_found(&format!(
+            "Curriculum standard with ID {} not found",
+            standard_id
+        )));
     }
 
     let updated_standard = curriculum_standards::table
@@ -99,11 +113,16 @@ pub async fn delete_curriculum_standard(
     standard_id: String,
 ) -> Result<(), APIError> {
     let mut conn = data.db_pool.get()?;
-    let num_deleted = diesel::delete(curriculum_standards::table.filter(curriculum_standards::id.eq(&standard_id)))
-        .execute(&mut conn)?;
+    let num_deleted = diesel::delete(
+        curriculum_standards::table.filter(curriculum_standards::id.eq(&standard_id)),
+    )
+    .execute(&mut conn)?;
 
     if num_deleted == 0 {
-        return Err(APIError::not_found(&format!("Curriculum standard with ID {} not found", standard_id)));
+        return Err(APIError::not_found(&format!(
+            "Curriculum standard with ID {} not found",
+            standard_id
+        )));
     }
 
     Ok(())
@@ -148,7 +167,10 @@ pub async fn get_syllabus_topic_by_id(
 
     match syllabus_topic {
         Some(s) => Ok(s),
-        None => Err(APIError::not_found(&format!("Syllabus topic with ID {} not found", syllabus_id))),
+        None => Err(APIError::not_found(&format!(
+            "Syllabus topic with ID {} not found",
+            syllabus_id
+        ))),
     }
 }
 
@@ -178,14 +200,18 @@ pub async fn update_syllabus_topic(
     let updated_count = diesel::update(target)
         .set((
             req.topic_name.map(|t| syllabus::topic_name.eq(t)),
-            req.suggested_duration_hours.map(|d| syllabus::suggested_duration_hours.eq(d)),
+            req.suggested_duration_hours
+                .map(|d| syllabus::suggested_duration_hours.eq(d)),
             req.description.map(|d| syllabus::description.eq(d)),
             syllabus::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Syllabus topic with ID {} not found", syllabus_id)));
+        return Err(APIError::not_found(&format!(
+            "Syllabus topic with ID {} not found",
+            syllabus_id
+        )));
     }
 
     let updated_syllabus_topic = syllabus::table
@@ -201,11 +227,14 @@ pub async fn delete_syllabus_topic(
     syllabus_id: String,
 ) -> Result<(), APIError> {
     let mut conn = data.db_pool.get()?;
-    let num_deleted = diesel::delete(syllabus::table.filter(syllabus::id.eq(&syllabus_id)))
-        .execute(&mut conn)?;
+    let num_deleted =
+        diesel::delete(syllabus::table.filter(syllabus::id.eq(&syllabus_id))).execute(&mut conn)?;
 
     if num_deleted == 0 {
-        return Err(APIError::not_found(&format!("Syllabus topic with ID {} not found", syllabus_id)));
+        return Err(APIError::not_found(&format!(
+            "Syllabus topic with ID {} not found",
+            syllabus_id
+        )));
     }
 
     Ok(())

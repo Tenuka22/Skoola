@@ -1,14 +1,16 @@
 use actix_web::web;
-use apistos::{api_operation, ApiComponent};
 use actix_web::web::Json;
+use apistos::{ApiComponent, api_operation};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState,
     errors::APIError,
-    models::academic::grade_level::{CreateGradeLevelRequest, UpdateGradeLevelRequest, GradeLevelResponse},
     models::MessageResponse,
+    models::academic::grade_level::{
+        CreateGradeLevelRequest, GradeLevelResponse, UpdateGradeLevelRequest,
+    },
     services::academic::grade_level,
 };
 
@@ -106,7 +108,9 @@ pub async fn bulk_delete_grade_levels(
     body: web::Json<BulkDeleteGradeLevelsRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     grade_level::bulk_delete_grade_levels(data.clone(), body.into_inner().grade_level_ids).await?;
-    Ok(Json(MessageResponse { message: "Grade levels deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Grade levels deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -120,7 +124,9 @@ pub async fn bulk_update_grade_levels(
     body: web::Json<BulkUpdateGradeLevelsRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     grade_level::bulk_update_grade_levels(data.clone(), body.into_inner()).await?;
-    Ok(Json(MessageResponse { message: "Grade levels updated successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Grade levels updated successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -135,7 +141,8 @@ pub async fn update_grade_level(
     body: web::Json<UpdateGradeLevelRequest>,
 ) -> Result<Json<GradeLevelResponse>, APIError> {
     let grade_level_id = path.into_inner();
-    let updated_grade_level = grade_level::update_grade_level(data.clone(), grade_level_id, body.into_inner()).await?;
+    let updated_grade_level =
+        grade_level::update_grade_level(data.clone(), grade_level_id, body.into_inner()).await?;
     Ok(Json(updated_grade_level))
 }
 
@@ -151,5 +158,7 @@ pub async fn delete_grade_level(
 ) -> Result<Json<MessageResponse>, APIError> {
     let grade_level_id = path.into_inner();
     grade_level::delete_grade_level(data.clone(), grade_level_id).await?;
-    Ok(Json(MessageResponse { message: "Grade level deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Grade level deleted successfully".to_string(),
+    }))
 }

@@ -1,9 +1,9 @@
+use crate::schema::{profiles, user_profiles};
 use apistos::ApiComponent;
 use chrono::NaiveDateTime;
+use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use diesel::prelude::*;
-use crate::schema::{profiles, user_profiles};
 
 // Profile Model
 #[derive(
@@ -58,7 +58,7 @@ pub struct NewProfile {
 #[diesel(table_name = user_profiles)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct UserProfile {
-    pub user_id: String, // Storing UUIDs as TEXT in SQLite
+    pub user_id: String,    // Storing UUIDs as TEXT in SQLite
     pub profile_id: String, // Storing UUIDs as TEXT in SQLite
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -67,7 +67,7 @@ pub struct UserProfile {
 #[derive(Debug, Insertable)]
 #[diesel(table_name = user_profiles)]
 pub struct NewUserProfile {
-    pub user_id: String, // Expect String for user_id
+    pub user_id: String,    // Expect String for user_id
     pub profile_id: String, // Expect String for profile_id
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,

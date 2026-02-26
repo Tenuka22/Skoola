@@ -1,16 +1,16 @@
-use actix_web::{web, HttpResponse};
 use actix_web::web::Json;
+use actix_web::{HttpResponse, web};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::AppState;
 use crate::APIError;
+use crate::AppState;
+use crate::models::behavior_management::{BehaviorIncident, BehaviorIncidentType};
 use crate::services::behavior_management;
-use crate::models::behavior_management::{BehaviorIncidentType, BehaviorIncident};
 
-use schemars::JsonSchema;
 use apistos::{ApiComponent, api_operation};
 use chrono::NaiveDateTime;
+use schemars::JsonSchema;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct BehaviorIncidentTypeResponse {
@@ -127,7 +127,8 @@ pub async fn get_behavior_incident_type_by_id(
     path: web::Path<String>,
 ) -> Result<Json<BehaviorIncidentTypeResponse>, APIError> {
     let type_id = path.into_inner();
-    let incident_type = behavior_management::get_behavior_incident_type_by_id(data.clone(), type_id).await?;
+    let incident_type =
+        behavior_management::get_behavior_incident_type_by_id(data.clone(), type_id).await?;
     Ok(Json(BehaviorIncidentTypeResponse::from(incident_type)))
 }
 
@@ -141,7 +142,12 @@ pub async fn get_all_behavior_incident_types(
     data: web::Data<AppState>,
 ) -> Result<Json<Vec<BehaviorIncidentTypeResponse>>, APIError> {
     let incident_types = behavior_management::get_all_behavior_incident_types(data.clone()).await?;
-    Ok(Json(incident_types.into_iter().map(BehaviorIncidentTypeResponse::from).collect()))
+    Ok(Json(
+        incident_types
+            .into_iter()
+            .map(BehaviorIncidentTypeResponse::from)
+            .collect(),
+    ))
 }
 
 #[api_operation(
@@ -193,8 +199,12 @@ pub async fn record_behavior_incident(
     current_user: CurrentUser,
     body: web::Json<RecordBehaviorIncidentRequest>,
 ) -> Result<Json<BehaviorIncidentResponse>, APIError> {
-    let incident =
-        behavior_management::record_behavior_incident(data.clone(), current_user.id, body.into_inner()).await?;
+    let incident = behavior_management::record_behavior_incident(
+        data.clone(),
+        current_user.id,
+        body.into_inner(),
+    )
+    .await?;
     Ok(Json(BehaviorIncidentResponse::from(incident)))
 }
 
@@ -209,8 +219,14 @@ pub async fn get_student_behavior_incidents(
     path: web::Path<String>,
 ) -> Result<Json<Vec<BehaviorIncidentResponse>>, APIError> {
     let student_id = path.into_inner();
-    let incidents = behavior_management::get_student_behavior_incidents(data.clone(), student_id).await?;
-    Ok(Json(incidents.into_iter().map(BehaviorIncidentResponse::from).collect()))
+    let incidents =
+        behavior_management::get_student_behavior_incidents(data.clone(), student_id).await?;
+    Ok(Json(
+        incidents
+            .into_iter()
+            .map(BehaviorIncidentResponse::from)
+            .collect(),
+    ))
 }
 
 #[api_operation(
@@ -224,7 +240,8 @@ pub async fn get_behavior_incident_by_id(
     path: web::Path<String>,
 ) -> Result<Json<BehaviorIncidentResponse>, APIError> {
     let incident_id = path.into_inner();
-    let incident = behavior_management::get_behavior_incident_by_id(data.clone(), incident_id).await?;
+    let incident =
+        behavior_management::get_behavior_incident_by_id(data.clone(), incident_id).await?;
     Ok(Json(BehaviorIncidentResponse::from(incident)))
 }
 
@@ -240,12 +257,9 @@ pub async fn update_behavior_incident(
     body: web::Json<UpdateBehaviorIncidentRequest>,
 ) -> Result<Json<BehaviorIncidentResponse>, APIError> {
     let incident_id = path.into_inner();
-    let updated_incident = behavior_management::update_behavior_incident(
-        data.clone(),
-        incident_id,
-        body.into_inner(),
-    )
-    .await?;
+    let updated_incident =
+        behavior_management::update_behavior_incident(data.clone(), incident_id, body.into_inner())
+            .await?;
     Ok(Json(BehaviorIncidentResponse::from(updated_incident)))
 }
 

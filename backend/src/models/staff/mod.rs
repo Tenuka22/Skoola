@@ -1,15 +1,15 @@
-pub mod staff;
-pub mod attendance;
-pub mod leave;
 pub mod assignment;
-pub mod history;
-pub mod qualification;
+pub mod attendance;
 pub mod department;
+pub mod history;
+pub mod leave;
+pub mod qualification;
+pub mod staff;
 
-pub use staff::*;
-pub use attendance::*;
-pub use leave::*;
 pub use assignment::*;
-pub use history::*;
-pub use qualification::*;
+pub use attendance::*;
 pub use department::*;
+pub use history::*;
+pub use leave::*;
+pub use qualification::*;
+pub use staff::*;

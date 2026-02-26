@@ -3,13 +3,13 @@ use crate::database::enums::{EducationLevel, Medium};
 
 use crate::errors::APIError;
 use crate::faker::CustomFaker;
-use crate::models::academic::{GradeStream, GradeSubject, Stream, StreamSubject};
 use crate::models::academic::AcademicYear;
 use crate::models::academic::Class;
-use crate::models::academic::class_subject_teacher::ClassSubjectTeacher;
 use crate::models::academic::GradeLevel;
 use crate::models::academic::Subject;
 use crate::models::academic::Timetable;
+use crate::models::academic::class_subject_teacher::ClassSubjectTeacher;
+use crate::models::academic::{GradeStream, GradeSubject, Stream, StreamSubject};
 use crate::schema::{
     academic_years, class_subject_teachers, classes, grade_levels, grade_streams, grade_subjects,
     staff, stream_subjects, streams, subjects, timetable,

@@ -1,18 +1,21 @@
-use crate::models::finance::fees::{FeeCategory, FeeStructure, StudentFee, FeePayment};
-use crate::errors::APIError;
 use crate::AppState;
-use actix_web::web;
+use crate::errors::APIError;
 use crate::models::finance::fees::{
-    CreateFeeCategoryRequest, UpdateFeeCategoryRequest, CreateFeeStructureRequest, 
-    AssignFeeToStudentRequest, RecordFeePaymentRequest, ApplyWaiverRequest, BulkAssignFeesRequest,
-    FeeReceiptResponse, ExportReportResponse, UpdateFeeCategoryChangeset
+    ApplyWaiverRequest, AssignFeeToStudentRequest, BulkAssignFeesRequest, CreateFeeCategoryRequest,
+    CreateFeeStructureRequest, ExportReportResponse, FeeReceiptResponse, RecordFeePaymentRequest,
+    UpdateFeeCategoryChangeset, UpdateFeeCategoryRequest,
 };
+use crate::models::finance::fees::{FeeCategory, FeePayment, FeeStructure, StudentFee};
+use actix_web::web;
 
-use crate::schema::{fee_categories, fee_structures, student_fees, fee_payments, students, student_class_assignments, grade_levels};
-use diesel::prelude::*;
+use crate::schema::{
+    fee_categories, fee_payments, fee_structures, grade_levels, student_class_assignments,
+    student_fees, students,
+};
+use chrono::{NaiveDateTime, Utc};
 use diesel::SqliteConnection;
+use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::{Utc, NaiveDateTime};
 
 pub async fn export_fee_reports(
     _conn: &mut SqliteConnection,
@@ -44,9 +47,7 @@ pub async fn create_category(
     Ok(new_category)
 }
 
-pub async fn get_all_categories(
-    conn: &mut SqliteConnection,
-) -> Result<Vec<FeeCategory>, APIError> {
+pub async fn get_all_categories(conn: &mut SqliteConnection) -> Result<Vec<FeeCategory>, APIError> {
     Ok(fee_categories::table
         .select(FeeCategory::as_select())
         .load(conn)?)
@@ -56,7 +57,7 @@ pub async fn get_all_categories_paginated(
     conn: &mut SqliteConnection,
     query: crate::handlers::resources::fees::FeeCategoryQuery,
 ) -> Result<(Vec<FeeCategory>, i64, i64), APIError> {
-    use crate::schema::fee_categories::dsl::{fee_categories, name, is_mandatory};
+    use crate::schema::fee_categories::dsl::{fee_categories, is_mandatory, name};
 
     let mut data_query = fee_categories.into_boxed();
     let mut count_query = fee_categories.into_boxed();
@@ -100,8 +101,7 @@ pub async fn bulk_delete_fee_categories(
 ) -> Result<(), APIError> {
     use crate::schema::fee_categories::dsl::{fee_categories, id};
 
-    diesel::delete(fee_categories.filter(id.eq_any(category_ids_to_delete)))
-        .execute(conn)?;
+    diesel::delete(fee_categories.filter(id.eq_any(category_ids_to_delete))).execute(conn)?;
 
     Ok(())
 }
@@ -136,9 +136,15 @@ pub async fn update_category(
         .first(conn)
         .map_err(|e| APIError::internal(&format!("Failed to find fee category: {}", e)))?;
 
-    if let Some(name) = req.name { target.name = name; }
-    if let Some(desc) = req.description { target.description = Some(desc); }
-    if let Some(mandatory) = req.is_mandatory { target.is_mandatory = mandatory; }
+    if let Some(name) = req.name {
+        target.name = name;
+    }
+    if let Some(desc) = req.description {
+        target.description = Some(desc);
+    }
+    if let Some(mandatory) = req.is_mandatory {
+        target.is_mandatory = mandatory;
+    }
     target.updated_at = Utc::now().naive_utc();
 
     diesel::update(fee_categories::table.filter(fee_categories::id.eq(category_id)))
@@ -199,9 +205,15 @@ pub async fn update_structure(
         .first(conn)
         .map_err(|e| APIError::internal(&format!("Failed to find fee structure: {}", e)))?;
 
-    if let Some(amount) = req.amount { target.amount = amount; }
-    if let Some(due_date) = req.due_date { target.due_date = due_date; }
-    if let Some(frequency) = req.frequency { target.frequency = frequency; }
+    if let Some(amount) = req.amount {
+        target.amount = amount;
+    }
+    if let Some(due_date) = req.due_date {
+        target.due_date = due_date;
+    }
+    if let Some(frequency) = req.frequency {
+        target.frequency = frequency;
+    }
     target.updated_at = Utc::now().naive_utc();
 
     diesel::update(fee_structures::table.filter(fee_structures::id.eq(structure_id)))
@@ -231,7 +243,9 @@ pub async fn get_all_fee_structures_paginated(
     conn: &mut SqliteConnection,
     query: crate::handlers::resources::fees::FeeStructureQuery,
 ) -> Result<(Vec<FeeStructure>, i64, i64), APIError> {
-    use crate::schema::fee_structures::dsl::{fee_structures, grade_id, academic_year_id, category_id, amount, due_date};
+    use crate::schema::fee_structures::dsl::{
+        academic_year_id, amount, category_id, due_date, fee_structures, grade_id,
+    };
 
     let mut data_query = fee_structures.into_boxed();
     let mut count_query = fee_structures.into_boxed();
@@ -281,8 +295,7 @@ pub async fn bulk_delete_fee_structures(
 ) -> Result<(), APIError> {
     use crate::schema::fee_structures::dsl::{fee_structures, id};
 
-    diesel::delete(fee_structures.filter(id.eq_any(structure_ids_to_delete)))
-        .execute(conn)?;
+    diesel::delete(fee_structures.filter(id.eq_any(structure_ids_to_delete))).execute(conn)?;
 
     Ok(())
 }
@@ -346,7 +359,7 @@ pub async fn record_payment(
             .unwrap_or_default()
             .to_uppercase()
     );
-    
+
     let new_payment = FeePayment {
         id: Uuid::new_v4().to_string(),
         student_fee_id: req.student_fee_id,
@@ -369,21 +382,34 @@ pub async fn record_payment(
     let student_fee = student_fees::table
         .find(&new_payment.student_fee_id)
         .first::<StudentFee>(conn)
-        .map_err(|e| APIError::internal(&format!("Failed to retrieve student fee for ledger entry: {}", e)))?;
+        .map_err(|e| {
+            APIError::internal(&format!(
+                "Failed to retrieve student fee for ledger entry: {}",
+                e
+            ))
+        })?;
 
     let student = students::table
         .find(&student_fee.student_id)
         .select(crate::models::student::student::Student::as_select())
         .first(conn)
-        .map_err(|e| APIError::internal(&format!("Failed to retrieve student for ledger entry: {}", e)))?;
-    
+        .map_err(|e| {
+            APIError::internal(&format!(
+                "Failed to retrieve student for ledger entry: {}",
+                e
+            ))
+        })?;
+
     // Placeholder Account IDs (these should ideally be configurable or fetched dynamically)
     let debit_account_id = "CASH_BANK_ACCOUNT_ID".to_string(); // Example: Asset account
     let credit_account_id = "TUITION_FEE_INCOME_ACCOUNT_ID".to_string(); // Example: Revenue account
 
     let transaction_description = format!(
         "Fee payment by student {} ({}) for fee structure {}",
-        student.profile_id.clone().unwrap_or_else(|| student.admission_number.clone()), // Use profile ID if available
+        student
+            .profile_id
+            .clone()
+            .unwrap_or_else(|| student.admission_number.clone()), // Use profile ID if available
         student.admission_number,
         student_fee.fee_structure_id
     );
@@ -395,7 +421,8 @@ pub async fn record_payment(
         debit_account_id,
         credit_account_id,
         new_payment.amount_paid,
-    ).await?;
+    )
+    .await?;
 
     Ok(new_payment)
 }
@@ -445,7 +472,10 @@ pub async fn get_exempted_students(
         .load(conn)
         .map_err(|e| APIError::internal(&format!("Failed to load exempted students: {}", e)))?;
 
-    Ok(fees.into_iter().map(crate::models::finance::StudentFeeResponse::from).collect())
+    Ok(fees
+        .into_iter()
+        .map(crate::models::finance::StudentFeeResponse::from)
+        .collect())
 }
 
 pub async fn get_student_balance(
@@ -457,13 +487,22 @@ pub async fn get_student_balance(
         .select(StudentFee::as_select())
         .load(conn)?;
 
-    let total_due: f32 = fees.iter().filter(|f| !f.is_exempted).map(|f| f.amount).sum();
-    
+    let total_due: f32 = fees
+        .iter()
+        .filter(|f| !f.is_exempted)
+        .map(|f| f.amount)
+        .sum();
+
     let fee_ids: Vec<String> = fees.into_iter().map(|f| f.id).collect();
     let payments = fee_payments::table
         .filter(fee_payments::student_fee_id.eq_any(fee_ids))
         .load::<FeePayment>(conn)
-        .map_err(|e| APIError::internal(&format!("Failed to load payments for student balance: {}", e)))?;
+        .map_err(|e| {
+            APIError::internal(&format!(
+                "Failed to load payments for student balance: {}",
+                e
+            ))
+        })?;
 
     let total_paid: f32 = payments.iter().map(|p| p.amount_paid).sum();
 
@@ -476,7 +515,12 @@ pub async fn get_defaulters(
     let all_students = students::table
         .select(crate::models::student::Student::as_select())
         .load(conn)
-        .map_err(|e| APIError::internal(&format!("Failed to load all students for defaulters: {}", e)))?;
+        .map_err(|e| {
+            APIError::internal(&format!(
+                "Failed to load all students for defaulters: {}",
+                e
+            ))
+        })?;
 
     let mut defaulters = Vec::new();
 
@@ -502,7 +546,9 @@ pub async fn get_collection_report(
 ) -> Result<Vec<crate::models::finance::FeeCollectionReport>, APIError> {
     let categories = fee_categories::table
         .load::<FeeCategory>(conn)
-        .map_err(|e| APIError::internal(&format!("Failed to load fee categories for report: {}", e)))?;
+        .map_err(|e| {
+            APIError::internal(&format!("Failed to load fee categories for report: {}", e))
+        })?;
 
     let mut report = Vec::new();
 
@@ -510,26 +556,40 @@ pub async fn get_collection_report(
         let structures = fee_structures::table
             .filter(fee_structures::category_id.eq(&category.id))
             .load::<FeeStructure>(conn)
-            .map_err(|e| APIError::internal(&format!("Failed to load fee structures for report: {}", e)))?;
+            .map_err(|e| {
+                APIError::internal(&format!("Failed to load fee structures for report: {}", e))
+            })?;
 
         let structure_ids: Vec<String> = structures.into_iter().map(|s| s.id).collect();
-        
+
         let fees = student_fees::table
             .filter(student_fees::fee_structure_id.eq_any(&structure_ids))
             .load::<StudentFee>(conn)
-            .map_err(|e| APIError::internal(&format!("Failed to load student fees for report: {}", e)))?;
+            .map_err(|e| {
+                APIError::internal(&format!("Failed to load student fees for report: {}", e))
+            })?;
 
-        let total_expected: f32 = fees.iter().filter(|f| !f.is_exempted).map(|f| f.amount).sum();
-        
+        let total_expected: f32 = fees
+            .iter()
+            .filter(|f| !f.is_exempted)
+            .map(|f| f.amount)
+            .sum();
+
         let fee_ids: Vec<String> = fees.into_iter().map(|f| f.id).collect();
         let payments = fee_payments::table
             .filter(fee_payments::student_fee_id.eq_any(fee_ids))
             .load::<FeePayment>(conn)
-            .map_err(|e| APIError::internal(&format!("Failed to load payments for report: {}", e)))?;
+            .map_err(|e| {
+                APIError::internal(&format!("Failed to load payments for report: {}", e))
+            })?;
 
         let total_collected: f32 = payments.iter().map(|p| p.amount_paid).sum();
-        
-        let percentage = if total_expected > 0.0 { (total_collected / total_expected) * 100.0 } else { 0.0 };
+
+        let percentage = if total_expected > 0.0 {
+            (total_collected / total_expected) * 100.0
+        } else {
+            0.0
+        };
 
         report.push(crate::models::finance::FeeCollectionReport {
             category_name: category.name,
@@ -549,10 +609,16 @@ pub async fn get_payment_history_by_student(
     let fees = student_fees::table
         .filter(student_fees::student_id.eq(student_id))
         .load::<StudentFee>(conn)
-        .map_err(|e| APIError::internal(&format!("Failed to load student fees for history: {}", e)))?;
+        .map_err(|e| {
+            APIError::internal(&format!("Failed to load student fees for history: {}", e))
+        })?;
 
-    let total_due: f32 = fees.iter().filter(|f| !f.is_exempted).map(|f| f.amount).sum();
-    
+    let total_due: f32 = fees
+        .iter()
+        .filter(|f| !f.is_exempted)
+        .map(|f| f.amount)
+        .sum();
+
     let fee_ids: Vec<String> = fees.into_iter().map(|f| f.id).collect();
     let payments = fee_payments::table
         .filter(fee_payments::student_fee_id.eq_any(&fee_ids))
@@ -563,7 +629,10 @@ pub async fn get_payment_history_by_student(
     let balance = total_due - total_paid;
 
     Ok(crate::models::finance::FeePaymentHistoryResponse {
-        payments: payments.into_iter().map(crate::models::finance::FeePaymentResponse::from).collect(),
+        payments: payments
+            .into_iter()
+            .map(crate::models::finance::FeePaymentResponse::from)
+            .collect(),
         total_paid,
         balance,
     })
@@ -574,7 +643,9 @@ pub async fn get_grade_collection_report(
 ) -> Result<Vec<crate::models::finance::GradeFeeCollectionReport>, APIError> {
     let all_grades = grade_levels::table
         .load::<crate::models::academic::GradeLevel>(conn)
-        .map_err(|e| APIError::internal(&format!("Failed to load grade levels for report: {}", e)))?;
+        .map_err(|e| {
+            APIError::internal(&format!("Failed to load grade levels for report: {}", e))
+        })?;
 
     let mut report = Vec::new();
 
@@ -582,22 +653,38 @@ pub async fn get_grade_collection_report(
         let structures = fee_structures::table
             .filter(fee_structures::grade_id.eq(&grade.id))
             .load::<FeeStructure>(conn)
-            .map_err(|e| APIError::internal(&format!("Failed to load fee structures for grade report: {}", e)))?;
+            .map_err(|e| {
+                APIError::internal(&format!(
+                    "Failed to load fee structures for grade report: {}",
+                    e
+                ))
+            })?;
 
         let structure_ids: Vec<String> = structures.into_iter().map(|s| s.id).collect();
-        
+
         let fees = student_fees::table
             .filter(student_fees::fee_structure_id.eq_any(&structure_ids))
             .load::<StudentFee>(conn)
-            .map_err(|e| APIError::internal(&format!("Failed to load student fees for grade report: {}", e)))?;
+            .map_err(|e| {
+                APIError::internal(&format!(
+                    "Failed to load student fees for grade report: {}",
+                    e
+                ))
+            })?;
 
-        let total_expected: f32 = fees.iter().filter(|f| !f.is_exempted).map(|f| f.amount).sum();
-        
+        let total_expected: f32 = fees
+            .iter()
+            .filter(|f| !f.is_exempted)
+            .map(|f| f.amount)
+            .sum();
+
         let fee_ids: Vec<String> = fees.into_iter().map(|f| f.id).collect();
         let payments = fee_payments::table
             .filter(fee_payments::student_fee_id.eq_any(fee_ids))
             .load::<FeePayment>(conn)
-            .map_err(|e| APIError::internal(&format!("Failed to load payments for grade report: {}", e)))?;
+            .map_err(|e| {
+                APIError::internal(&format!("Failed to load payments for grade report: {}", e))
+            })?;
 
         let total_collected: f32 = payments.iter().map(|p| p.amount_paid).sum();
 
@@ -619,11 +706,18 @@ pub async fn apply_waiver(
     let mut target = student_fees::table
         .filter(student_fees::id.eq(fee_id))
         .first::<StudentFee>(conn)
-        .map_err(|e| APIError::internal(&format!("Failed to find student fee for waiver: {}", e)))?;
+        .map_err(|e| {
+            APIError::internal(&format!("Failed to find student fee for waiver: {}", e))
+        })?;
 
     target.amount -= req.discount_amount;
-    if target.amount < 0.0 { target.amount = 0.0; }
-    target.exemption_reason = Some(format!("Waiver applied: {}. Reason: {}", req.discount_amount, req.reason));
+    if target.amount < 0.0 {
+        target.amount = 0.0;
+    }
+    target.exemption_reason = Some(format!(
+        "Waiver applied: {}. Reason: {}",
+        req.discount_amount, req.reason
+    ));
     target.updated_at = Utc::now().naive_utc();
 
     diesel::update(student_fees::table.filter(student_fees::id.eq(fee_id)))
@@ -633,7 +727,9 @@ pub async fn apply_waiver(
             student_fees::updated_at.eq(target.updated_at),
         ))
         .execute(conn)
-        .map_err(|e| APIError::internal(&format!("Failed to apply waiver to student fee: {}", e)))?;
+        .map_err(|e| {
+            APIError::internal(&format!("Failed to apply waiver to student fee: {}", e))
+        })?;
 
     Ok(target)
 }
@@ -647,12 +743,22 @@ pub async fn bulk_assign_fees(
         .filter(student_class_assignments::academic_year_id.eq(&req.academic_year_id))
         .select(student_class_assignments::student_id)
         .load::<String>(conn)
-        .map_err(|e| APIError::internal(&format!("Failed to load student IDs for bulk assignment: {}", e)))?;
+        .map_err(|e| {
+            APIError::internal(&format!(
+                "Failed to load student IDs for bulk assignment: {}",
+                e
+            ))
+        })?;
 
     let structure = fee_structures::table
         .find(&req.fee_structure_id)
         .first::<FeeStructure>(conn)
-        .map_err(|e| APIError::internal(&format!("Failed to find fee structure for bulk assignment: {}", e)))?;
+        .map_err(|e| {
+            APIError::internal(&format!(
+                "Failed to find fee structure for bulk assignment: {}",
+                e
+            ))
+        })?;
 
     let mut count = 0;
     for sid in student_ids {
@@ -669,7 +775,9 @@ pub async fn bulk_assign_fees(
         diesel::insert_into(student_fees::table)
             .values(&new_fee)
             .execute(conn)
-            .map_err(|e| APIError::internal(&format!("Failed to assign individual fee in bulk: {}", e)))
+            .map_err(|e| {
+                APIError::internal(&format!("Failed to assign individual fee in bulk: {}", e))
+            })
             .ok(); // Ignore duplicates if already assigned
         count += 1;
     }
@@ -692,13 +800,22 @@ pub async fn get_receipt_data(
     conn: &mut SqliteConnection,
     payment_id: &str,
 ) -> Result<FeeReceiptResponse, APIError> {
-    let payment = fee_payments::table.find(payment_id).first::<FeePayment>(conn)
+    let payment = fee_payments::table
+        .find(payment_id)
+        .first::<FeePayment>(conn)
         .map_err(|e| APIError::internal(&format!("Failed to find payment for receipt: {}", e)))?;
-    let student_fee = student_fees::table.find(&payment.student_fee_id).first::<StudentFee>(conn)
-        .map_err(|e| APIError::internal(&format!("Failed to find student fee for receipt: {}", e)))?;
-    let student = students::table.find(&student_fee.student_id).select(crate::models::student::Student::as_select()).first(conn)
+    let student_fee = student_fees::table
+        .find(&payment.student_fee_id)
+        .first::<StudentFee>(conn)
+        .map_err(|e| {
+            APIError::internal(&format!("Failed to find student fee for receipt: {}", e))
+        })?;
+    let student = students::table
+        .find(&student_fee.student_id)
+        .select(crate::models::student::Student::as_select())
+        .first(conn)
         .map_err(|e| APIError::internal(&format!("Failed to find student for receipt: {}", e)))?;
-    
+
     let balance = get_student_balance(conn, &student.id).await?;
 
     Ok(FeeReceiptResponse {

@@ -1,5 +1,5 @@
-use actix_web::{HttpRequest, web::Json};
 use actix_web::web;
+use actix_web::{HttpRequest, web::Json};
 use apistos::api_operation;
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
@@ -10,16 +10,21 @@ use tracing::{info, warn};
 
 use crate::{
     AppState,
-    database::tables::{User},
     database::enums::RoleEnum,
+    database::tables::User,
     errors::APIError,
-    models::auth::user::{LoginRequest, PasswordReset, PasswordResetRequest, RefreshTokenRequest, RegisterRequest, TokenResponse, UserResponse},
+    models::auth::user::{
+        LoginRequest, PasswordReset, PasswordResetRequest, RefreshTokenRequest, RegisterRequest,
+        TokenResponse, UserResponse,
+    },
     models::{MessageResponse, NewProfile, NewUserProfile},
-    schema::{users, profiles, user_profiles},
+    schema::{profiles, user_profiles, users},
     services::auth::auth::{create_token_pair, hash_password, refresh_jwt, verify_password},
-    services::system::email::{send_verification_email, send_password_reset_email},
-    services::auth::session::{create_session, delete_session, find_session_by_refresh_token_hash, invalidate_sessions_for_user},
-
+    services::auth::session::{
+        create_session, delete_session, find_session_by_refresh_token_hash,
+        invalidate_sessions_for_user,
+    },
+    services::system::email::{send_password_reset_email, send_verification_email},
 };
 
 #[api_operation(
@@ -105,7 +110,7 @@ pub async fn register(
     let email_config = data.config.clone();
     let email = new_user.email.clone();
     let token = verification_token.clone();
-    
+
     // Send verification email asynchronously
     tokio::spawn(async move {
         if let Err(e) = send_verification_email(&email_config, &email, &token).await {
@@ -152,7 +157,9 @@ pub async fn login(
                 "ACTION: User login failed | reason: account locked | user_id: {} | email: {}",
                 user.id, user.email
             );
-            return Err(APIError::unauthorized("Account is locked. Try again later."));
+            return Err(APIError::unauthorized(
+                "Account is locked. Try again later.",
+            ));
         }
     }
 
@@ -196,7 +203,8 @@ pub async fn login(
         ))
         .execute(&mut conn)?;
 
-    let (token, refresh_token, _access_token_expiration) = create_token_pair(&user, &data.config, &data.db_pool)?;
+    let (token, refresh_token, _access_token_expiration) =
+        create_token_pair(&user, &data.config, &data.db_pool)?;
 
     let hashed_refresh_token = hash_password(&refresh_token)?;
 
@@ -223,7 +231,8 @@ pub async fn login(
         user_agent.as_deref(),
         ip_address.as_deref(),
         expires_at,
-    ).map_err(APIError::from)?;
+    )
+    .map_err(APIError::from)?;
 
     info!(
         "ACTION: User logged in successfully | user_id: {} | email: {} | ip_address: {:?} | user_agent: {:?}",
@@ -234,7 +243,6 @@ pub async fn login(
         refresh_token,
     }))
 }
-
 
 #[api_operation(
     summary = "User logout",
@@ -249,7 +257,9 @@ pub async fn logout(
     let mut conn = data.db_pool.get()?;
     let hashed_refresh_token = hash_password(&body.refresh_token)?;
 
-    if let Some(session) = find_session_by_refresh_token_hash(&mut conn, &hashed_refresh_token).map_err(APIError::from)? {
+    if let Some(session) = find_session_by_refresh_token_hash(&mut conn, &hashed_refresh_token)
+        .map_err(APIError::from)?
+    {
         delete_session(&mut conn, &session.id).map_err(APIError::from)?;
         info!(
             "ACTION: User logged out successfully | user_id: {} | session_id: {}",
@@ -259,7 +269,9 @@ pub async fn logout(
         warn!("ACTION: Logout attempt with invalid refresh token");
     }
 
-    Ok(Json(MessageResponse { message: "Logged out successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Logged out successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -348,7 +360,9 @@ pub async fn request_password_reset(
         );
     }
 
-    Ok(Json(MessageResponse { message: "Password reset email sent if user exists".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Password reset email sent if user exists".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -372,9 +386,7 @@ pub async fn reset_password(
 
     if let Some(sent_at) = user.password_reset_sent_at {
         if Utc::now().naive_utc() - sent_at > Duration::hours(1) {
-            return Err(APIError::unauthorized(
-                "Password reset token has expired",
-            ));
+            return Err(APIError::unauthorized("Password reset token has expired"));
         }
     } else {
         return Err(APIError::unauthorized(
@@ -398,5 +410,7 @@ pub async fn reset_password(
         "ACTION: User password reset successfully | user_id: {}",
         user.id
     );
-    Ok(Json(MessageResponse { message: "Password reset successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Password reset successfully".to_string(),
+    }))
 }

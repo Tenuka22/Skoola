@@ -1,18 +1,18 @@
 use actix_web::web;
-use apistos::{api_operation, ApiComponent};
-use diesel::prelude::*;
 use actix_web::web::Json;
+use apistos::{ApiComponent, api_operation};
+use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::{
     AppState,
-    database::tables::{UserSet, UserSetUser, User},
+    database::tables::{User, UserSet, UserSetUser},
     errors::APIError,
     models::MessageResponse,
     models::auth::user::UserResponse,
-    schema::{user_sets, user_set_users, users},
+    schema::{user_set_users, user_sets, users},
 };
 
 #[derive(Debug, Deserialize, Serialize, ApiComponent, JsonSchema)]
@@ -108,9 +108,10 @@ pub async fn delete_permission_set(
     permission_set_id: web::Path<String>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    diesel::delete(user_sets::table.find(permission_set_id.into_inner()))
-        .execute(&mut conn)?;
-    Ok(Json(MessageResponse { message: "Permission set deleted successfully".to_string() }))
+    diesel::delete(user_sets::table.find(permission_set_id.into_inner())).execute(&mut conn)?;
+    Ok(Json(MessageResponse {
+        message: "Permission set deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -132,7 +133,9 @@ pub async fn get_user_set_members(
         .select(User::as_select())
         .load::<User>(&mut conn)?;
 
-    Ok(Json(user_list.into_iter().map(UserResponse::from).collect()))
+    Ok(Json(
+        user_list.into_iter().map(UserResponse::from).collect(),
+    ))
 }
 
 #[api_operation(
@@ -179,7 +182,9 @@ pub async fn assign_permission_set_to_staff(
         .values(&new_assignment)
         .execute(&mut conn)?;
 
-    Ok(Json(MessageResponse { message: "Permission set assigned to staff successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Permission set assigned to staff successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -202,5 +207,7 @@ pub async fn unassign_permission_set_from_staff(
     )
     .execute(&mut conn)?;
 
-    Ok(Json(MessageResponse { message: "Permission set unassigned from staff successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Permission set unassigned from staff successfully".to_string(),
+    }))
 }

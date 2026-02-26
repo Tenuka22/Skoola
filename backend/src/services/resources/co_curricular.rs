@@ -1,18 +1,13 @@
-use diesel::prelude::*;
-use crate::{
-    errors::APIError,
-    AppState,
-    models::co_curricular::*,
-};
-use actix_web::web;
-use uuid::Uuid;
-use chrono::Utc;
 use crate::schema::{
-    sports, sport_teams, sport_team_members, sport_events, sport_event_participants,
-    clubs, club_members, club_activities,
-    competitions, competition_participants, student_achievements,
-    cultural_events, cultural_event_participants
+    club_activities, club_members, clubs, competition_participants, competitions,
+    cultural_event_participants, cultural_events, sport_event_participants, sport_events,
+    sport_team_members, sport_teams, sports, student_achievements,
 };
+use crate::{AppState, errors::APIError, models::co_curricular::*};
+use actix_web::web;
+use chrono::Utc;
+use diesel::prelude::*;
+use uuid::Uuid;
 
 // --- Sports Services ---
 
@@ -339,6 +334,6 @@ pub async fn get_student_co_curricular_summary(
     Ok(StudentCoCurricularSummary {
         sports: sports_participated,
         clubs: clubs_joined,
-        achievements: achievements
+        achievements: achievements,
     })
 }

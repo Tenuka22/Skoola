@@ -1,13 +1,17 @@
+use actix_web::web::Data;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::Utc;
-use actix_web::web::Data;
 
 use crate::AppState;
 use crate::errors::APIError;
-use crate::models::resource_management::{Resource, NewResource, ResourceBooking, NewResourceBooking};
-use crate::schema::{resources, resource_bookings};
-use crate::handlers::resource_management::{CreateResourceRequest, UpdateResourceRequest, BookResourceRequest};
+use crate::handlers::resource_management::{
+    BookResourceRequest, CreateResourceRequest, UpdateResourceRequest,
+};
+use crate::models::resource_management::{
+    NewResource, NewResourceBooking, Resource, ResourceBooking,
+};
+use crate::schema::{resource_bookings, resources};
 
 // Service to create a new resource
 pub async fn create_resource(
@@ -47,17 +51,17 @@ pub async fn get_resource_by_id(
 
     match resource {
         Some(r) => Ok(r),
-        None => Err(APIError::not_found(&format!("Resource with ID {} not found", resource_id))),
+        None => Err(APIError::not_found(&format!(
+            "Resource with ID {} not found",
+            resource_id
+        ))),
     }
 }
 
 // Service to get all resources
-pub async fn get_all_resources(
-    data: Data<AppState>,
-) -> Result<Vec<Resource>, APIError> {
+pub async fn get_all_resources(data: Data<AppState>) -> Result<Vec<Resource>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let all_resources = resources::table
-        .load::<Resource>(&mut conn)?;
+    let all_resources = resources::table.load::<Resource>(&mut conn)?;
 
     Ok(all_resources)
 }
@@ -81,7 +85,10 @@ pub async fn update_resource(
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Resource with ID {} not found", resource_id)));
+        return Err(APIError::not_found(&format!(
+            "Resource with ID {} not found",
+            resource_id
+        )));
     }
 
     let updated_resource = resources::table
@@ -92,16 +99,16 @@ pub async fn update_resource(
 }
 
 // Service to delete a resource
-pub async fn delete_resource(
-    data: Data<AppState>,
-    resource_id: String,
-) -> Result<(), APIError> {
+pub async fn delete_resource(data: Data<AppState>, resource_id: String) -> Result<(), APIError> {
     let mut conn = data.db_pool.get()?;
     let num_deleted = diesel::delete(resources::table.filter(resources::id.eq(&resource_id)))
         .execute(&mut conn)?;
 
     if num_deleted == 0 {
-        return Err(APIError::not_found(&format!("Resource with ID {} not found", resource_id)));
+        return Err(APIError::not_found(&format!(
+            "Resource with ID {} not found",
+            resource_id
+        )));
     }
 
     Ok(())
@@ -124,7 +131,9 @@ pub async fn book_resource(
         .get_result::<i64>(&mut conn)?;
 
     if existing_bookings > 0 {
-        return Err(APIError::conflict("Resource is already booked for the requested time slot."));
+        return Err(APIError::conflict(
+            "Resource is already booked for the requested time slot.",
+        ));
     }
 
     let new_booking_id = Uuid::new_v4().to_string();

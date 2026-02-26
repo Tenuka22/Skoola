@@ -124,13 +124,10 @@ pub struct UserId(pub String);
 
 impl UserId {
     pub fn from_request(req: &actix_web::HttpRequest) -> Result<Self, APIError> {
-        req.extensions()
-            .get::<UserId>()
-            .cloned()
-            .ok_or_else(|| {
-                warn!("ACTION: Failed to extract UserId from request extensions.");
-                APIError::unauthorized("Unauthorized")
-            })
+        req.extensions().get::<UserId>().cloned().ok_or_else(|| {
+            warn!("ACTION: Failed to extract UserId from request extensions.");
+            APIError::unauthorized("Unauthorized")
+        })
     }
 }
 

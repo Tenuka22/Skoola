@@ -4,7 +4,9 @@ use std::str::FromStr;
 
 use crate::database::enums::{PermissionEnum, RoleEnum};
 use crate::errors::iam::IAMError;
-use crate::schema::{user_permissions, user_set_permissions, user_set_users, role_permissions, users};
+use crate::schema::{
+    role_permissions, user_permissions, user_set_permissions, user_set_users, users,
+};
 use crate::utils::logging::log_permission_denied;
 
 /// Retrieves all permissions for a user based on their direct permissions, user sets, and role.
@@ -20,10 +22,12 @@ pub fn fetch_all_user_permissions(
         .select(users::role)
         .first::<String>(conn)
         .map_err(|e| match e {
-            diesel::result::Error::NotFound => IAMError::UserNotFound { identifier: user_id.to_string() },
+            diesel::result::Error::NotFound => IAMError::UserNotFound {
+                identifier: user_id.to_string(),
+            },
             _ => IAMError::from(e),
         })?;
-    
+
     let user_role = RoleEnum::from_str(&role_str).unwrap_or(RoleEnum::Guest);
 
     // 2. Get permissions assigned directly to the user
@@ -31,7 +35,7 @@ pub fn fetch_all_user_permissions(
         .filter(user_permissions::user_id.eq(user_id))
         .select(user_permissions::permission)
         .load::<String>(conn)?;
-    
+
     for p_str in direct_permissions_str {
         if let Ok(p) = PermissionEnum::from_str(&p_str) {
             user_permission_enums.insert(p);
@@ -49,7 +53,7 @@ pub fn fetch_all_user_permissions(
             .filter(user_set_permissions::user_set_id.eq_any(user_set_ids))
             .select(user_set_permissions::permission)
             .load::<String>(conn)?;
-        
+
         for p_str in set_permissions_str {
             if let Ok(p) = PermissionEnum::from_str(&p_str) {
                 user_permission_enums.insert(p);
@@ -62,7 +66,7 @@ pub fn fetch_all_user_permissions(
         .filter(role_permissions::role_id.eq(user_role.to_string()))
         .select(role_permissions::permission)
         .load::<String>(conn)?;
-        
+
     for p_str in role_permissions_str {
         if let Ok(p) = PermissionEnum::from_str(&p_str) {
             user_permission_enums.insert(p);

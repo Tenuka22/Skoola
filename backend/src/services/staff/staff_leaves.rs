@@ -1,13 +1,10 @@
-use diesel::prelude::*;
 use crate::{
-    models::staff::leave::StaffLeave,
+    AppState, database::enums::LeaveStatus, errors::APIError,
+    models::staff::leave::LeaveBalanceResponse, models::staff::leave::StaffLeave,
     schema::staff_leaves,
-    errors::APIError,
-    AppState,
-    models::staff::leave::LeaveBalanceResponse,
-    database::enums::LeaveStatus,
 };
 use actix_web::web;
+use diesel::prelude::*;
 
 pub async fn get_staff_leave_balance(
     pool: web::Data<AppState>,
@@ -20,7 +17,8 @@ pub async fn get_staff_leave_balance(
         .filter(staff_leaves::status.eq(LeaveStatus::Approved.to_string()))
         .load::<StaffLeave>(&mut conn)?;
 
-    let mut leave_balances: std::collections::HashMap<String, i64> = std::collections::HashMap::new();
+    let mut leave_balances: std::collections::HashMap<String, i64> =
+        std::collections::HashMap::new();
 
     for leave in approved_leaves {
         let from_date = leave.from_date;

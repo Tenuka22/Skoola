@@ -1,12 +1,12 @@
-use apistos::api_operation;
 use crate::AppState;
 use crate::errors::APIError;
+use crate::models::MessageResponse;
 use crate::models::exams::grading_criterion::{
     GradingCriterion, NewGradingCriterion, UpdateGradingCriterion,
 };
-use crate::models::MessageResponse;
 use crate::services::exams::grading_criteria;
 use actix_web::web::{self, Json};
+use apistos::api_operation;
 
 #[api_operation(
     summary = "Create Grading Criterion",
@@ -88,5 +88,7 @@ pub async fn delete_grading_criterion_handler(
     // Changed return type
     let criterion_id = path.into_inner();
     grading_criteria::delete_grading_criterion(pool, criterion_id).await?;
-    Ok(Json(MessageResponse { message: "Grading criterion deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Grading criterion deleted successfully".to_string(),
+    }))
 }

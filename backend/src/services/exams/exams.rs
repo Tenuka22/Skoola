@@ -1,15 +1,15 @@
-use diesel::prelude::*;
-use diesel::{QueryDsl, RunQueryDsl};
+use crate::handlers::exams::exams::{BulkUpdateExamsRequest, ExamQuery};
+use crate::schema::exams;
 use crate::{
-    errors::APIError,
     AppState,
-    models::exams::{Exam, ExamResponse, CreateExamRequest, UpdateExamRequest},
+    errors::APIError,
+    models::exams::{CreateExamRequest, Exam, ExamResponse, UpdateExamRequest},
 };
 use actix_web::web;
-use uuid::Uuid;
 use chrono::Utc;
-use crate::schema::exams;
-use crate::handlers::exams::exams::{ExamQuery, BulkUpdateExamsRequest};
+use diesel::prelude::*;
+use diesel::{QueryDsl, RunQueryDsl};
+use uuid::Uuid;
 
 // Service to create a new Exam
 pub async fn create_exam(
@@ -48,8 +48,7 @@ pub async fn get_exam_by_id(
 
     let exam: Exam = exams::table
         .filter(exams::id.eq(&exam_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(ExamResponse::from(exam))
 }
@@ -109,10 +108,7 @@ pub async fn get_all_exams(
         .offset(offset)
         .load::<Exam>(&mut conn)?;
 
-    let responses: Vec<ExamResponse> = exams_list
-        .into_iter()
-        .map(ExamResponse::from)
-        .collect();
+    let responses: Vec<ExamResponse> = exams_list.into_iter().map(ExamResponse::from).collect();
 
     Ok((responses, total_exams, total_pages))
 }
@@ -129,10 +125,7 @@ pub async fn get_exams_by_term_id(
         .order(exams::start_date.asc())
         .load::<Exam>(&mut conn)?;
 
-    let responses: Vec<ExamResponse> = exams_list
-        .into_iter()
-        .map(ExamResponse::from)
-        .collect();
+    let responses: Vec<ExamResponse> = exams_list.into_iter().map(ExamResponse::from).collect();
 
     Ok(responses)
 }
@@ -152,22 +145,21 @@ pub async fn update_exam(
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Exam with ID {} not found", exam_id)));
+        return Err(APIError::not_found(&format!(
+            "Exam with ID {} not found",
+            exam_id
+        )));
     }
 
     let updated_exam: Exam = exams::table
         .filter(exams::id.eq(&exam_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(ExamResponse::from(updated_exam))
 }
 
 // Service to delete an Exam
-pub async fn delete_exam(
-    pool: web::Data<AppState>,
-    exam_id: String,
-) -> Result<(), APIError> {
+pub async fn delete_exam(pool: web::Data<AppState>, exam_id: String) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
 
     let deleted_count = diesel::delete(exams::table)
@@ -175,7 +167,10 @@ pub async fn delete_exam(
         .execute(&mut conn)?;
 
     if deleted_count == 0 {
-        return Err(APIError::not_found(&format!("Exam with ID {} not found", exam_id)));
+        return Err(APIError::not_found(&format!(
+            "Exam with ID {} not found",
+            exam_id
+        )));
     }
 
     Ok(())
@@ -186,8 +181,7 @@ pub async fn bulk_delete_exams(
     exam_ids: Vec<String>,
 ) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
-    diesel::delete(exams::table.filter(exams::id.eq_any(exam_ids)))
-        .execute(&mut conn)?;
+    diesel::delete(exams::table.filter(exams::id.eq_any(exam_ids))).execute(&mut conn)?;
     Ok(())
 }
 
@@ -199,11 +193,12 @@ pub async fn bulk_update_exams(
 
     conn.transaction::<_, APIError, _>(|conn| {
         let target = exams::table.filter(exams::id.eq_any(&body.exam_ids));
-        
+
         diesel::update(target)
             .set((
                 body.name.map(|n| exams::name.eq(n)),
-                body.academic_year_id.map(|ay_id| exams::academic_year_id.eq(ay_id)),
+                body.academic_year_id
+                    .map(|ay_id| exams::academic_year_id.eq(ay_id)),
                 body.term_id.map(|t_id| exams::term_id.eq(t_id)),
                 body.exam_type_id.map(|et_id| exams::exam_type_id.eq(et_id)),
                 body.start_date.map(|sd| exams::start_date.eq(sd)),
@@ -211,7 +206,7 @@ pub async fn bulk_update_exams(
                 exams::updated_at.eq(Utc::now().naive_utc()),
             ))
             .execute(conn)?;
-        
+
         Ok(())
     })
 }

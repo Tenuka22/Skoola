@@ -54,10 +54,14 @@ pub fn seed_all(
     let two_years_ago = now - Duration::days(730);
 
     // Get all students and staff for assignments
-    let students_data = students::table.select(Student::as_select()).load::<Student>(conn)?;
+    let students_data = students::table
+        .select(Student::as_select())
+        .load::<Student>(conn)?;
     let student_ids: Vec<String> = students_data.iter().map(|s| s.id.clone()).collect();
 
-    let staff_data = staff::table.select(Staff::as_select()).load::<Staff>(conn)?;
+    let staff_data = staff::table
+        .select(Staff::as_select())
+        .load::<Staff>(conn)?;
     let staff_ids: Vec<String> = staff_data.iter().map(|s| s.id.clone()).collect();
 
     if student_ids.is_empty() || staff_ids.is_empty() {

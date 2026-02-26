@@ -1,13 +1,13 @@
-use diesel::prelude::*;
-use diesel::insert_into;
-use anyhow::Result;
-use backend::schema::*;
-use backend::config::Config;
-use std::collections::HashSet;
 use super::utils::*;
 use super::{SeedModule, SeederContext};
+use anyhow::Result;
+use backend::config::Config;
 use backend::models::system::AuditLog;
+use backend::schema::*;
+use diesel::insert_into;
+use diesel::prelude::*;
 use rand::Rng;
+use std::collections::HashSet;
 
 pub struct AuditLogSeeder;
 
@@ -31,10 +31,12 @@ impl SeedModule for AuditLogSeeder {
 
         // Seed Audit Logs
         if context.user_ids.is_empty() {
-            println!("Skipping AuditLog seeding: user_ids are empty. Ensure relevant seeders run first.");
+            println!(
+                "Skipping AuditLog seeding: user_ids are empty. Ensure relevant seeders run first."
+            );
         } else {
-            let audit_logs_data = (0..seed_count_config.audit_log_entries).map(|i| {
-                AuditLog {
+            let audit_logs_data = (0..seed_count_config.audit_log_entries)
+                .map(|i| AuditLog {
                     id: generate_uuid(),
                     user_id: get_random_id(&context.user_ids),
                     action_type: match i % 3 {
@@ -50,11 +52,19 @@ impl SeedModule for AuditLogSeeder {
                         _ => "inventory_items".to_string(),
                     },
                     record_pk: generate_uuid(),
-                    old_value_json: if rand::thread_rng().gen_bool(0.5) { Some(format!(r#"{{"field": "old_value_{}"}}"#, i)) } else { None },
-                    new_value_json: if rand::thread_rng().gen_bool(0.5) { Some(format!(r#"{{"field": "new_value_{}"}}"#, i)) } else { None },
+                    old_value_json: if rand::thread_rng().gen_bool(0.5) {
+                        Some(format!(r#"{{"field": "old_value_{}"}}"#, i))
+                    } else {
+                        None
+                    },
+                    new_value_json: if rand::thread_rng().gen_bool(0.5) {
+                        Some(format!(r#"{{"field": "new_value_{}"}}"#, i))
+                    } else {
+                        None
+                    },
                     timestamp: random_datetime_in_past(1),
-                }
-            }).collect::<Vec<AuditLog>>();
+                })
+                .collect::<Vec<AuditLog>>();
 
             insert_into(audit_log::table)
                 .values(&audit_logs_data)

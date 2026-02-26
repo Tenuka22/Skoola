@@ -1,12 +1,22 @@
-use crate::schema::school_calendar;
 use crate::database::enums::DayType;
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use chrono::{NaiveDate, NaiveDateTime};
-use schemars::JsonSchema;
+use crate::schema::school_calendar;
 use apistos::ApiComponent;
+use chrono::{NaiveDate, NaiveDateTime};
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = school_calendar,
     check_for_backend(diesel::sqlite::Sqlite)
 )]

@@ -1,13 +1,8 @@
-use backend::config::{AppState, Config};
-use backend::database::connection::establish_connection;
-use backend::errors::APIError;
-use backend::services::system::cleanup::remove_unverified_users;
-use backend::routes;
 use actix_cors::Cors;
 use actix_web::{
     App, HttpServer,
-    web::{self, Data},
     middleware::{self, TrailingSlash},
+    web::{self, Data},
 };
 use apistos::{
     app::{BuildConfig, OpenApiWrapper},
@@ -15,6 +10,11 @@ use apistos::{
 };
 use apistos_models::info::Info;
 use apistos_scalar::ScalarConfig;
+use backend::config::{AppState, Config};
+use backend::database::connection::establish_connection;
+use backend::errors::APIError;
+use backend::routes;
+use backend::services::system::cleanup::remove_unverified_users;
 use tokio::time::{Duration, interval};
 use tracing::info;
 use tracing_actix_web::TracingLogger;

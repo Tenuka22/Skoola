@@ -1,4 +1,4 @@
-pub mod constants;
-pub mod tables;
 pub mod connection;
+pub mod constants;
 pub mod enums;
+pub mod tables;

@@ -1,16 +1,17 @@
-use actix_web::{web, http::StatusCode};
 use actix_web::web::Json;
+use actix_web::{http::StatusCode, web};
 use apistos::{ApiComponent, api_operation};
 use chrono::{Duration, NaiveDate, NaiveDateTime, Utc};
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tracing::{info, error};
+use tracing::{error, info};
 
 use crate::{
     AppState, database::enums::RoleEnum, database::tables::User, errors::APIError,
-    models::MessageResponse, models::auth::user::UserResponse, models::system::BulkDeleteUsersRequest, schema::users,
+    models::MessageResponse, models::auth::user::UserResponse,
+    models::system::BulkDeleteUsersRequest, schema::users,
     services::system::cleanup::bulk_delete_users as service_bulk_delete_users,
     utils::serde_helpers::deserialize_option_option,
 };
@@ -36,7 +37,6 @@ pub struct PaginatedUserResponse {
     pub limit: i64,
     pub total_pages: i64,
 }
-
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
 pub struct BulkUpdateRequest {

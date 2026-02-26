@@ -1,15 +1,21 @@
-use diesel::prelude::*;
-use diesel::{QueryDsl, RunQueryDsl};
+use crate::handlers::academic::subject::{BulkUpdateSubjectsRequest, SubjectQuery};
+use crate::schema::{
+    grade_levels, grade_subjects, stream_subjects, streams, subject_enrollments, subjects,
+};
 use crate::{
-    errors::APIError,
     AppState,
-    models::academic::subject::{Subject, SubjectResponse, CreateSubjectRequest, UpdateSubjectRequest, AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, EnrollStudentInSubjectRequest, SubjectEnrollmentResponse},
+    errors::APIError,
+    models::academic::subject::{
+        AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, CreateSubjectRequest,
+        EnrollStudentInSubjectRequest, Subject, SubjectEnrollmentResponse, SubjectResponse,
+        UpdateSubjectRequest,
+    },
 };
 use actix_web::web;
-use uuid::Uuid;
 use chrono::Utc;
-use crate::schema::{subjects, grade_subjects, grade_levels, stream_subjects, streams, subject_enrollments};
-use crate::handlers::academic::subject::{SubjectQuery, BulkUpdateSubjectsRequest};
+use diesel::prelude::*;
+use diesel::{QueryDsl, RunQueryDsl};
+use uuid::Uuid;
 
 // NEW IMPORTS
 use crate::database::tables::SubjectEnrollment;
@@ -51,7 +57,7 @@ pub async fn get_student_enrollments(
         .filter(subject_enrollments::academic_year_id.eq(academic_year_id))
         .select(subjects::all_columns)
         .load::<Subject>(&mut conn)?;
-    
+
     Ok(list.into_iter().map(SubjectResponse::from).collect())
 }
 
@@ -121,16 +127,18 @@ pub async fn get_all_subjects(
     if let Some(search_term) = &query.search {
         let pattern = format!("%{}%", search_term);
         data_query = data_query.filter(
-            subjects::subject_name_en.like(pattern.clone())
+            subjects::subject_name_en
+                .like(pattern.clone())
                 .or(subjects::subject_name_si.like(pattern.clone()))
                 .or(subjects::subject_name_ta.like(pattern.clone()))
-                .or(subjects::subject_code.like(pattern.clone()))
+                .or(subjects::subject_code.like(pattern.clone())),
         );
         count_query = count_query.filter(
-            subjects::subject_name_en.like(pattern.clone())
+            subjects::subject_name_en
+                .like(pattern.clone())
                 .or(subjects::subject_name_si.like(pattern.clone()))
                 .or(subjects::subject_name_ta.like(pattern.clone()))
-                .or(subjects::subject_code.like(pattern.clone()))
+                .or(subjects::subject_code.like(pattern.clone())),
         );
     }
 
@@ -186,11 +194,17 @@ pub async fn update_subject(
     let target = subjects::table.filter(subjects::id.eq(&subject_id));
 
     let updated_count = diesel::update(target)
-        .set((update_request, subjects::updated_at.eq(Utc::now().naive_utc())))
+        .set((
+            update_request,
+            subjects::updated_at.eq(Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Subject with ID {} not found", subject_id)));
+        return Err(APIError::not_found(&format!(
+            "Subject with ID {} not found",
+            subject_id
+        )));
     }
 
     let updated_subject: Subject = subjects::table
@@ -200,10 +214,7 @@ pub async fn update_subject(
     Ok(SubjectResponse::from(updated_subject))
 }
 
-pub async fn delete_subject(
-    pool: web::Data<AppState>,
-    subject_id: String,
-) -> Result<(), APIError> {
+pub async fn delete_subject(pool: web::Data<AppState>, subject_id: String) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
 
     let deleted_count = diesel::delete(subjects::table)
@@ -211,7 +222,10 @@ pub async fn delete_subject(
         .execute(&mut conn)?;
 
     if deleted_count == 0 {
-        return Err(APIError::not_found(&format!("Subject with ID {} not found", subject_id)));
+        return Err(APIError::not_found(&format!(
+            "Subject with ID {} not found",
+            subject_id
+        )));
     }
 
     Ok(())
@@ -222,8 +236,7 @@ pub async fn bulk_delete_subjects(
     subject_ids: Vec<String>,
 ) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
-    diesel::delete(subjects::table.filter(subjects::id.eq_any(subject_ids)))
-        .execute(&mut conn)?;
+    diesel::delete(subjects::table.filter(subjects::id.eq_any(subject_ids))).execute(&mut conn)?;
     Ok(())
 }
 
@@ -235,18 +248,21 @@ pub async fn bulk_update_subjects(
 
     conn.transaction::<_, APIError, _>(|conn| {
         let target = subjects::table.filter(subjects::id.eq_any(&body.subject_ids));
-        
+
         diesel::update(target)
             .set((
-                body.subject_name_en.map(|sn_en| subjects::subject_name_en.eq(sn_en)),
-                body.subject_name_si.map(|sn_si| subjects::subject_name_si.eq(sn_si)),
-                body.subject_name_ta.map(|sn_ta| subjects::subject_name_ta.eq(sn_ta)),
+                body.subject_name_en
+                    .map(|sn_en| subjects::subject_name_en.eq(sn_en)),
+                body.subject_name_si
+                    .map(|sn_si| subjects::subject_name_si.eq(sn_si)),
+                body.subject_name_ta
+                    .map(|sn_ta| subjects::subject_name_ta.eq(sn_ta)),
                 body.subject_code.map(|sc| subjects::subject_code.eq(sc)),
                 body.is_core.map(|ic| subjects::is_core.eq(ic)),
                 subjects::updated_at.eq(Utc::now().naive_utc()),
             ))
             .execute(conn)?;
-        
+
         Ok(())
     })
 }
@@ -263,8 +279,7 @@ pub async fn get_subjects_by_grade(
         .filter(grade_levels::id.eq(&grade_id))
         .select(subjects::all_columns)
         .order(subjects::subject_name_en.asc())
-        .load::<Subject>(&mut conn)
-?;
+        .load::<Subject>(&mut conn)?;
 
     let responses: Vec<SubjectResponse> = subjects_list
         .into_iter()
@@ -286,8 +301,7 @@ pub async fn get_subjects_by_stream(
         .filter(streams::id.eq(&stream_id))
         .select(subjects::all_columns)
         .order(subjects::subject_name_en.asc())
-        .load::<Subject>(&mut conn)
-?;
+        .load::<Subject>(&mut conn)?;
 
     let responses: Vec<SubjectResponse> = subjects_list
         .into_iter()
@@ -307,22 +321,28 @@ pub async fn assign_subject_to_grade(
     let grade_exists: bool = grade_levels::table
         .filter(grade_levels::id.eq(&assign_req.grade_id))
         .select(diesel::dsl::count(grade_levels::id))
-        .get_result::<i64>(&mut conn)
-? > 0;
+        .get_result::<i64>(&mut conn)?
+        > 0;
 
     if !grade_exists {
-        return Err(APIError::not_found(&format!("Grade with ID {} not found", assign_req.grade_id)));
+        return Err(APIError::not_found(&format!(
+            "Grade with ID {} not found",
+            assign_req.grade_id
+        )));
     }
 
     // Check if subject exists
     let subject_exists: bool = subjects::table
         .filter(subjects::id.eq(&assign_req.subject_id))
         .select(diesel::dsl::count(subjects::id))
-        .get_result::<i64>(&mut conn)
-? > 0;
+        .get_result::<i64>(&mut conn)?
+        > 0;
 
     if !subject_exists {
-        return Err(APIError::not_found(&format!("Subject with ID {} not found", assign_req.subject_id)));
+        return Err(APIError::not_found(&format!(
+            "Subject with ID {} not found",
+            assign_req.subject_id
+        )));
     }
 
     // Check for duplicate assignment
@@ -330,11 +350,13 @@ pub async fn assign_subject_to_grade(
         .filter(grade_subjects::grade_id.eq(&assign_req.grade_id))
         .filter(grade_subjects::subject_id.eq(&assign_req.subject_id))
         .select(diesel::dsl::count(grade_subjects::grade_id))
-        .get_result::<i64>(&mut conn)
-? > 0;
+        .get_result::<i64>(&mut conn)?
+        > 0;
 
     if assignment_exists {
-        return Err(APIError::bad_request("Subject is already assigned to this grade"));
+        return Err(APIError::bad_request(
+            "Subject is already assigned to this grade",
+        ));
     }
 
     let new_assignment = NewGradeSubject {
@@ -344,8 +366,7 @@ pub async fn assign_subject_to_grade(
 
     diesel::insert_into(grade_subjects::table)
         .values(&new_assignment)
-        .execute(&mut conn)
-?;
+        .execute(&mut conn)?;
 
     Ok(())
 }
@@ -360,22 +381,28 @@ pub async fn assign_subject_to_stream(
     let stream_exists: bool = streams::table
         .filter(streams::id.eq(&assign_req.stream_id))
         .select(diesel::dsl::count(streams::id))
-        .get_result::<i64>(&mut conn)
-? > 0;
+        .get_result::<i64>(&mut conn)?
+        > 0;
 
     if !stream_exists {
-        return Err(APIError::not_found(&format!("Stream with ID {} not found", assign_req.stream_id)));
+        return Err(APIError::not_found(&format!(
+            "Stream with ID {} not found",
+            assign_req.stream_id
+        )));
     }
 
     // Check if subject exists
     let subject_exists: bool = subjects::table
         .filter(subjects::id.eq(&assign_req.subject_id))
         .select(diesel::dsl::count(subjects::id))
-        .get_result::<i64>(&mut conn)
-? > 0;
+        .get_result::<i64>(&mut conn)?
+        > 0;
 
     if !subject_exists {
-        return Err(APIError::not_found(&format!("Subject with ID {} not found", assign_req.subject_id)));
+        return Err(APIError::not_found(&format!(
+            "Subject with ID {} not found",
+            assign_req.subject_id
+        )));
     }
 
     // Check for duplicate assignment
@@ -383,11 +410,13 @@ pub async fn assign_subject_to_stream(
         .filter(stream_subjects::stream_id.eq(&assign_req.stream_id))
         .filter(stream_subjects::subject_id.eq(&assign_req.subject_id))
         .select(diesel::dsl::count(stream_subjects::stream_id))
-        .get_result::<i64>(&mut conn)
-? > 0;
+        .get_result::<i64>(&mut conn)?
+        > 0;
 
     if assignment_exists {
-        return Err(APIError::bad_request("Subject is already assigned to this stream"));
+        return Err(APIError::bad_request(
+            "Subject is already assigned to this stream",
+        ));
     }
 
     let new_assignment = NewStreamSubject {
@@ -397,8 +426,7 @@ pub async fn assign_subject_to_stream(
 
     diesel::insert_into(stream_subjects::table)
         .values(&new_assignment)
-        .execute(&mut conn)
-?;
+        .execute(&mut conn)?;
 
     Ok(())
 }

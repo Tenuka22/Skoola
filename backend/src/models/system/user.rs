@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use apistos::{ApiComponent};
-use schemars::JsonSchema; // Import JsonSchema
+use apistos::ApiComponent;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize}; // Import JsonSchema
 
 #[derive(Debug, Clone, Serialize, Deserialize, ApiComponent, JsonSchema)] // Add JsonSchema
 #[serde(rename_all = "camelCase")]

@@ -1,11 +1,22 @@
 use crate::schema::audit_log;
-use diesel::{Queryable, Insertable, Selectable};
-use serde::{Deserialize, Serialize};
-use chrono::NaiveDateTime;
-use schemars::JsonSchema;
 use apistos::ApiComponent;
+use chrono::NaiveDateTime;
+use diesel::{Insertable, Queryable, Selectable};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Queryable, Selectable, Insertable, Serialize, Deserialize, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Queryable,
+    Selectable,
+    Insertable,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = audit_log)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct AuditLog {

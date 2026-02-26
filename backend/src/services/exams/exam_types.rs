@@ -1,16 +1,17 @@
+use crate::handlers::exams::exam_types::{BulkUpdateExamTypesRequest, ExamTypeQuery};
+use crate::schema::exam_types;
 use crate::{
-    errors::APIError,
     AppState,
-    models::exams::exam_type::{ExamType, ExamTypeResponse, CreateExamTypeRequest, UpdateExamTypeRequest},
+    errors::APIError,
+    models::exams::exam_type::{
+        CreateExamTypeRequest, ExamType, ExamTypeResponse, UpdateExamTypeRequest,
+    },
 };
 use actix_web::web;
-use uuid::Uuid;
 use chrono::Utc;
-use crate::schema::exam_types;
-use crate::handlers::exams::exam_types::{ExamTypeQuery, BulkUpdateExamTypesRequest};
 use diesel::prelude::*;
-use diesel::{QueryDsl, RunQueryDsl, Connection};
-
+use diesel::{Connection, QueryDsl, RunQueryDsl};
+use uuid::Uuid;
 
 // Service to create a new ExamType
 pub async fn create_exam_type(
@@ -46,8 +47,7 @@ pub async fn get_exam_type_by_id(
 
     let exam_type: ExamType = exam_types::table
         .filter(exam_types::id.eq(&exam_type_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(ExamTypeResponse::from(exam_type))
 }
@@ -63,8 +63,16 @@ pub async fn get_all_exam_types(
 
     if let Some(search_term) = &query.search {
         let pattern = format!("%{}%", search_term);
-        data_query = data_query.filter(exam_types::name.like(pattern.clone()).or(exam_types::description.like(pattern.clone())));
-        count_query = count_query.filter(exam_types::name.like(pattern.clone()).or(exam_types::description.like(pattern.clone())));
+        data_query = data_query.filter(
+            exam_types::name
+                .like(pattern.clone())
+                .or(exam_types::description.like(pattern.clone())),
+        );
+        count_query = count_query.filter(
+            exam_types::name
+                .like(pattern.clone())
+                .or(exam_types::description.like(pattern.clone())),
+        );
     }
 
     let sort_by = query.sort_by.as_deref().unwrap_or("name");
@@ -90,7 +98,14 @@ pub async fn get_all_exam_types(
         .offset(offset)
         .load::<ExamType>(&mut conn)?;
 
-    Ok((exam_types_list.into_iter().map(ExamTypeResponse::from).collect(), total_exam_types, total_pages))
+    Ok((
+        exam_types_list
+            .into_iter()
+            .map(ExamTypeResponse::from)
+            .collect(),
+        total_exam_types,
+        total_pages,
+    ))
 }
 
 // Service to update an existing ExamType
@@ -104,17 +119,22 @@ pub async fn update_exam_type(
     let target = exam_types::table.filter(exam_types::id.eq(&exam_type_id));
 
     let updated_count = diesel::update(target)
-        .set((update_request, exam_types::updated_at.eq(Utc::now().naive_utc())))
+        .set((
+            update_request,
+            exam_types::updated_at.eq(Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Exam Type with ID {} not found", exam_type_id)));
+        return Err(APIError::not_found(&format!(
+            "Exam Type with ID {} not found",
+            exam_type_id
+        )));
     }
 
     let updated_exam_type: ExamType = exam_types::table
         .filter(exam_types::id.eq(&exam_type_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(ExamTypeResponse::from(updated_exam_type))
 }
@@ -131,7 +151,10 @@ pub async fn delete_exam_type(
         .execute(&mut conn)?;
 
     if deleted_count == 0 {
-        return Err(APIError::not_found(&format!("Exam Type with ID {} not found", exam_type_id)));
+        return Err(APIError::not_found(&format!(
+            "Exam Type with ID {} not found",
+            exam_type_id
+        )));
     }
 
     Ok(())
@@ -155,7 +178,7 @@ pub async fn bulk_update_exam_types(
 
     conn.transaction::<_, APIError, _>(|conn| {
         let target = exam_types::table.filter(exam_types::id.eq_any(&body.exam_type_ids));
-        
+
         diesel::update(target)
             .set((
                 body.name.map(|n| exam_types::name.eq(n)),
@@ -164,7 +187,7 @@ pub async fn bulk_update_exam_types(
                 exam_types::updated_at.eq(Utc::now().naive_utc()),
             ))
             .execute(conn)?;
-        
+
         Ok(())
     })
 }

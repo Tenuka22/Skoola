@@ -1,17 +1,17 @@
-use crate::models::auth::user::{UserResponse, UserProfileResponse};
+use crate::models::auth::user::{UserProfileResponse, UserResponse};
 use crate::schema::users::dsl::*;
 use crate::{
     AppState,
-    database::tables::{User},
+    database::tables::User,
     errors::APIError,
     handlers::auth::oauth::OAuthQuery,
     models::auth::profile::{ChangeEmailRequest, ChangePasswordRequest, UpdateProfileRequest},
-    schema::{users},
+    schema::users,
     services::{
         auth::auth::{hash_password, verify_password},
         auth::oauth::{get_github_user_info, get_google_user_info},
         auth::session::invalidate_sessions_for_user,
-        auth::user_service
+        auth::user_service,
     },
     utils::jwt::UserId,
 };
@@ -31,16 +31,19 @@ pub async fn get_profile(
     req: actix_web::HttpRequest,
 ) -> Result<Json<UserProfileResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    
+
     let user_id = UserId::from_request(&req)?;
-    
+
     let user: User = users::table
         .find(&user_id.0)
         .select(User::as_select())
         .first(&mut conn)
         .optional()?
         .ok_or_else(|| {
-            warn!("ACTION: User profile fetch failed | reason: user not found | user_id: {}", user_id.0);
+            warn!(
+                "ACTION: User profile fetch failed | reason: user not found | user_id: {}",
+                user_id.0
+            );
             APIError::not_found("User not found")
         })?;
 
@@ -237,8 +240,7 @@ pub async fn link_google(
     query: web::Query<OAuthQuery>,
 ) -> Result<Json<UserResponse>, APIError> {
     let user_id = UserId::from_request(&req)?;
-    let google_user_info = get_google_user_info(&query.code, &data.config)
-        .await?;
+    let google_user_info = get_google_user_info(&query.code, &data.config).await?;
 
     let mut conn = data.db_pool.get()?;
 
@@ -279,8 +281,7 @@ pub async fn link_github(
     query: web::Query<OAuthQuery>,
 ) -> Result<Json<UserResponse>, APIError> {
     let user_id = UserId::from_request(&req)?;
-    let github_user_info = get_github_user_info(&query.code, &data.config)
-        .await?;
+    let github_user_info = get_github_user_info(&query.code, &data.config).await?;
 
     let mut conn = data.db_pool.get()?;
 

@@ -1,12 +1,13 @@
-use diesel::prelude::*;
-use uuid::Uuid;
-use crate::schema::grading_schemes;
-use crate::models::{grading_scheme::{GradingScheme, NewGradingScheme, UpdateGradingScheme},
-    academic::grade_level::GradeLevel,
-};
 use crate::AppState; // Changed from DbPool
 use crate::errors::APIError;
+use crate::models::{
+    academic::grade_level::GradeLevel,
+    grading_scheme::{GradingScheme, NewGradingScheme, UpdateGradingScheme},
+};
+use crate::schema::grading_schemes;
 use actix_web::web;
+use diesel::prelude::*;
+use uuid::Uuid;
 
 pub async fn create_grading_scheme(
     pool: web::Data<AppState>, // Changed from DbPool
@@ -32,7 +33,9 @@ pub async fn create_grading_scheme(
         .first(&mut conn)?)
 }
 
-pub async fn get_all_grading_schemes(pool: web::Data<AppState>) -> Result<Vec<GradingScheme>, APIError> {
+pub async fn get_all_grading_schemes(
+    pool: web::Data<AppState>,
+) -> Result<Vec<GradingScheme>, APIError> {
     let mut conn = pool.db_pool.get()?;
 
     Ok(grading_schemes::table
@@ -106,7 +109,12 @@ pub async fn assign_grading_scheme_to_grade_level(
     diesel::update(grading_schemes::table.filter(grading_schemes::id.eq(scheme_id.clone())))
         .set(grading_schemes::grade_level.eq(grade_level_id.clone()))
         .execute(&mut conn)
-        .map_err(|e| APIError::internal(&format!("Failed to update grading scheme with grade level: {}", e)))?;
+        .map_err(|e| {
+            APIError::internal(&format!(
+                "Failed to update grading scheme with grade level: {}",
+                e
+            ))
+        })?;
 
     Ok(grading_schemes::table
         .filter(grading_schemes::id.eq(scheme_id))

@@ -1,9 +1,9 @@
 use crate::config::Config;
-use crate::database::enums::{EmploymentStatus, StaffType, PermissionEnum};
-use crate::database::tables::{Staff, User, RolePermission};
 use crate::database::enums::RoleEnum;
+use crate::database::enums::{EmploymentStatus, PermissionEnum, StaffType};
+use crate::database::tables::{RolePermission, Staff, User};
 use crate::errors::APIError;
-use crate::schema::{staff, users, role_permissions};
+use crate::schema::{role_permissions, staff, users};
 use crate::utils::security::hash_password;
 use chrono::{Duration, Utc};
 use diesel::SqliteConnection;
@@ -58,10 +58,10 @@ pub fn seed_all(
 
     // 2. Assign some permissions directly to roles (using role name as role_id now)
     // FullAdmin gets ALL permissions
-    // We can list them manually or if we have an iterator. 
+    // We can list them manually or if we have an iterator.
     // For now, let's just add a few key ones or all if possible.
     // Since I don't know if strum::IntoEnumIterator is derived, I will list the ones from the previous file + others.
-    
+
     let all_permissions = vec![
         PermissionEnum::UserCreate,
         PermissionEnum::UserRead,
@@ -114,11 +114,14 @@ pub fn seed_all(
     ];
 
     let full_admin_role_name = RoleEnum::FullAdmin.to_string();
-    let role_perms: Vec<RolePermission> = all_permissions.iter().map(|p| RolePermission {
-        role_id: full_admin_role_name.clone(),
-        permission: p.to_string(),
-    }).collect();
-    
+    let role_perms: Vec<RolePermission> = all_permissions
+        .iter()
+        .map(|p| RolePermission {
+            role_id: full_admin_role_name.clone(),
+            permission: p.to_string(),
+        })
+        .collect();
+
     diesel::insert_into(role_permissions::table)
         .values(&role_perms)
         .execute(conn)?;
@@ -137,7 +140,10 @@ pub fn seed_all(
         RoleEnum::Accountant,
     ];
 
-    let test_user_password = app_config.seed_user_password.as_deref().unwrap_or("password123");
+    let test_user_password = app_config
+        .seed_user_password
+        .as_deref()
+        .unwrap_or("password123");
     let hashed_test_pw = hash_password(test_user_password)?;
 
     let mut users_to_insert = Vec::new();

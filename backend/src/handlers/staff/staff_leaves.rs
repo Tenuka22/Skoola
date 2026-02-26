@@ -1,18 +1,21 @@
 use actix_web::web;
+use actix_web::web::Json;
 use apistos::api_operation;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::Utc;
-use actix_web::web::Json;
 // use serde_json; // Removed unused import
 
 use crate::{
     AppState,
+    database::enums::LeaveStatus,
     database::tables::StaffLeave,
     errors::APIError,
-    models::staff::leave::{ApplyLeaveRequest, ApproveRejectLeaveRequest, StaffLeaveResponse, StaffLeaveChangeset, LeaveBalanceResponse},
+    models::staff::leave::{
+        ApplyLeaveRequest, ApproveRejectLeaveRequest, LeaveBalanceResponse, StaffLeaveChangeset,
+        StaffLeaveResponse,
+    },
     schema::staff_leaves,
-    database::enums::LeaveStatus,
 };
 
 #[api_operation(
@@ -72,9 +75,10 @@ pub async fn approve_reject_leave(
         .select(StaffLeave::as_select())
         .first(&mut conn)?;
 
-    if existing_leave.status.parse::<LeaveStatus>()? != LeaveStatus::Pending
-    {
-        return Err(APIError::bad_request("Only pending leave applications can be approved or rejected"));
+    if existing_leave.status.parse::<LeaveStatus>()? != LeaveStatus::Pending {
+        return Err(APIError::bad_request(
+            "Only pending leave applications can be approved or rejected",
+        ));
     }
 
     let changeset = StaffLeaveChangeset {
@@ -105,6 +109,8 @@ pub async fn view_leave_balance(
     staff_id: web::Path<String>,
 ) -> Result<Json<Vec<LeaveBalanceResponse>>, APIError> {
     let staff_id_inner = staff_id.into_inner();
-    let leave_balances = crate::services::staff::staff_leaves::get_staff_leave_balance(data.clone(), staff_id_inner).await?;
+    let leave_balances =
+        crate::services::staff::staff_leaves::get_staff_leave_balance(data.clone(), staff_id_inner)
+            .await?;
     Ok(Json(leave_balances))
 }

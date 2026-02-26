@@ -1,11 +1,22 @@
 use crate::schema::general_ledger;
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use chrono::{NaiveDate, NaiveDateTime};
 use apistos::ApiComponent;
+use chrono::{NaiveDate, NaiveDateTime};
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Clone,
+    Queryable,
+    Selectable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = general_ledger)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct GeneralLedgerEntry {

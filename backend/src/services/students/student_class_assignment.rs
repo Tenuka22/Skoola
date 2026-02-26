@@ -1,13 +1,16 @@
-use diesel::prelude::*;
+use crate::schema::student_class_assignments;
 use crate::{
-    errors::APIError,
     AppState,
-    models::student::enrollment::{StudentClassAssignment, CreateStudentClassAssignmentRequest, StudentClassAssignmentResponse, BulkAssignStudentClassRequest, PromoteStudentRequest},
+    errors::APIError,
+    models::student::enrollment::{
+        BulkAssignStudentClassRequest, CreateStudentClassAssignmentRequest, PromoteStudentRequest,
+        StudentClassAssignment, StudentClassAssignmentResponse,
+    },
 };
 use actix_web::web;
-use uuid::Uuid;
 use chrono::Utc;
-use crate::schema::student_class_assignments;
+use diesel::prelude::*;
+use uuid::Uuid;
 
 pub async fn assign_student_to_class(
     pool: web::Data<AppState>,
@@ -18,8 +21,15 @@ pub async fn assign_student_to_class(
     // Check for existing active assignment for the student in the same academic year
     let existing_assignment: Option<StudentClassAssignment> = student_class_assignments::table
         .filter(student_class_assignments::student_id.eq(&new_assignment_request.student_id))
-        .filter(student_class_assignments::academic_year_id.eq(&new_assignment_request.academic_year_id))
-        .filter(student_class_assignments::to_date.is_null().or(student_class_assignments::to_date.ge(Utc::now().naive_utc().date())))
+        .filter(
+            student_class_assignments::academic_year_id
+                .eq(&new_assignment_request.academic_year_id),
+        )
+        .filter(
+            student_class_assignments::to_date
+                .is_null()
+                .or(student_class_assignments::to_date.ge(Utc::now().naive_utc().date())),
+        )
         .first(&mut conn)
         .optional()?;
 
@@ -142,8 +152,15 @@ pub async fn bulk_assign_students_to_classes(
         // Check for existing active assignment for the student in the same academic year
         let existing_assignment: Option<StudentClassAssignment> = student_class_assignments::table
             .filter(student_class_assignments::student_id.eq(&assignment_request.student_id))
-            .filter(student_class_assignments::academic_year_id.eq(&assignment_request.academic_year_id))
-            .filter(student_class_assignments::to_date.is_null().or(student_class_assignments::to_date.ge(Utc::now().naive_utc().date())))
+            .filter(
+                student_class_assignments::academic_year_id
+                    .eq(&assignment_request.academic_year_id),
+            )
+            .filter(
+                student_class_assignments::to_date
+                    .is_null()
+                    .or(student_class_assignments::to_date.ge(Utc::now().naive_utc().date())),
+            )
             .first(&mut conn)
             .optional()?;
 
@@ -170,7 +187,7 @@ pub async fn bulk_assign_students_to_classes(
         diesel::insert_into(student_class_assignments::table)
             .values(&new_assignment)
             .execute(&mut conn)?;
-        
+
         assigned_students.push(StudentClassAssignmentResponse::from(new_assignment));
     }
 
@@ -186,7 +203,10 @@ pub async fn promote_student_to_next_grade(
     // 1. Find and end the current active assignment for the student in the current academic year
     let updated_rows = diesel::update(student_class_assignments::table)
         .filter(student_class_assignments::student_id.eq(&promote_request.student_id))
-        .filter(student_class_assignments::academic_year_id.eq(&promote_request.current_academic_year_id))
+        .filter(
+            student_class_assignments::academic_year_id
+                .eq(&promote_request.current_academic_year_id),
+        )
         .filter(student_class_assignments::to_date.is_null()) // Only active assignments
         .set((
             student_class_assignments::to_date.eq(Utc::now().naive_utc().date()), // End date to today

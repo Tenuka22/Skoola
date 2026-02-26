@@ -1,16 +1,16 @@
-use actix_web::{web, HttpResponse};
 use actix_web::web::Json;
+use actix_web::{HttpResponse, web};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::AppState;
 use crate::APIError;
-use crate::services::curriculum_management;
+use crate::AppState;
 use crate::models::curriculum_management::{CurriculumStandard, Syllabus};
+use crate::services::curriculum_management;
 
-use schemars::JsonSchema;
-use apistos::{api_operation, ApiComponent};
+use apistos::{ApiComponent, api_operation};
 use chrono::NaiveDateTime;
+use schemars::JsonSchema;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct CurriculumStandardResponse {
@@ -124,7 +124,8 @@ pub async fn get_curriculum_standard_by_id(
     path: web::Path<String>,
 ) -> Result<Json<CurriculumStandardResponse>, APIError> {
     let standard_id = path.into_inner();
-    let standard = curriculum_management::get_curriculum_standard_by_id(data.clone(), standard_id).await?;
+    let standard =
+        curriculum_management::get_curriculum_standard_by_id(data.clone(), standard_id).await?;
     Ok(Json(CurriculumStandardResponse::from(standard)))
 }
 
@@ -138,7 +139,12 @@ pub async fn get_all_curriculum_standards(
     data: web::Data<AppState>,
 ) -> Result<Json<Vec<CurriculumStandardResponse>>, APIError> {
     let standards = curriculum_management::get_all_curriculum_standards(data.clone()).await?;
-    Ok(Json(standards.into_iter().map(CurriculumStandardResponse::from).collect()))
+    Ok(Json(
+        standards
+            .into_iter()
+            .map(CurriculumStandardResponse::from)
+            .collect(),
+    ))
 }
 
 #[api_operation(
@@ -203,7 +209,8 @@ pub async fn get_syllabus_topic_by_id(
     path: web::Path<String>,
 ) -> Result<Json<SyllabusResponse>, APIError> {
     let syllabus_id = path.into_inner();
-    let syllabus_topic = curriculum_management::get_syllabus_topic_by_id(data.clone(), syllabus_id).await?;
+    let syllabus_topic =
+        curriculum_management::get_syllabus_topic_by_id(data.clone(), syllabus_id).await?;
     Ok(Json(SyllabusResponse::from(syllabus_topic)))
 }
 
@@ -218,8 +225,14 @@ pub async fn get_syllabus_topics_for_standard(
     path: web::Path<String>,
 ) -> Result<Json<Vec<SyllabusResponse>>, APIError> {
     let standard_id = path.into_inner();
-    let syllabus_topics = curriculum_management::get_syllabus_topics_for_standard(data.clone(), standard_id).await?;
-    Ok(Json(syllabus_topics.into_iter().map(SyllabusResponse::from).collect()))
+    let syllabus_topics =
+        curriculum_management::get_syllabus_topics_for_standard(data.clone(), standard_id).await?;
+    Ok(Json(
+        syllabus_topics
+            .into_iter()
+            .map(SyllabusResponse::from)
+            .collect(),
+    ))
 }
 
 #[api_operation(
@@ -234,12 +247,9 @@ pub async fn update_syllabus_topic(
     body: web::Json<UpdateSyllabusRequest>,
 ) -> Result<Json<SyllabusResponse>, APIError> {
     let syllabus_id = path.into_inner();
-    let updated_syllabus_topic = curriculum_management::update_syllabus_topic(
-        data.clone(),
-        syllabus_id,
-        body.into_inner(),
-    )
-    .await?;
+    let updated_syllabus_topic =
+        curriculum_management::update_syllabus_topic(data.clone(), syllabus_id, body.into_inner())
+            .await?;
     Ok(Json(SyllabusResponse::from(updated_syllabus_topic)))
 }
 

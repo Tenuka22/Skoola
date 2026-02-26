@@ -1,13 +1,24 @@
+use crate::database::enums::{AttendanceStatus, SubstitutionStatus};
+use crate::models::staff::staff::Staff;
+use crate::schema::{lesson_progress, staff_attendance, substitutions};
 use apistos::ApiComponent;
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
+use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use chrono::{NaiveDate, NaiveTime, NaiveDateTime};
-use diesel::prelude::*;
-use crate::database::enums::{AttendanceStatus, SubstitutionStatus};
-use crate::schema::{staff_attendance, substitutions, lesson_progress};
-use crate::models::staff::staff::Staff;
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent,
+)]
 #[diesel(table_name = staff_attendance)]
 #[diesel(belongs_to(Staff))]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -25,7 +36,17 @@ pub struct StaffAttendance {
     pub marked_by: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = substitutions)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Substitution {
@@ -39,7 +60,17 @@ pub struct Substitution {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = lesson_progress)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct LessonProgress {
@@ -102,7 +133,10 @@ impl From<StaffAttendance> for StaffAttendanceResponse {
             id: attendance.id,
             staff_id: attendance.staff_id,
             date: attendance.date,
-            status: attendance.status.parse().unwrap_or(AttendanceStatus::Absent),
+            status: attendance
+                .status
+                .parse()
+                .unwrap_or(AttendanceStatus::Absent),
             time_in: attendance.time_in,
             time_out: attendance.time_out,
             remarks: attendance.remarks,

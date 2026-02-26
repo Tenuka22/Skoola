@@ -1,8 +1,8 @@
 use apistos::ApiComponent;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 use crate::database::enums::{EmploymentStatus, StaffType};
 use crate::schema::{staff, staff_subjects};
@@ -70,7 +70,7 @@ pub struct NewStaff {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = staff_subjects)]
 #[diesel(belongs_to(Staff))]
@@ -157,8 +157,6 @@ pub struct StaffResponse {
     pub profile_photo_url: Option<String>,
     pub user_email: Option<String>,
 }
-
-
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct PaginatedStaffResponse {

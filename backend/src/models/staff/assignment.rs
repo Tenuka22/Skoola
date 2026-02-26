@@ -1,10 +1,10 @@
-use crate::schema::{teacher_class_assignments, teacher_subject_assignments};
 use crate::models::staff::staff::Staff;
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use chrono::NaiveDateTime;
-use schemars::JsonSchema;
+use crate::schema::{teacher_class_assignments, teacher_subject_assignments};
 use apistos::ApiComponent;
+use chrono::NaiveDateTime;
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 #[derive(
     Debug,
@@ -16,7 +16,7 @@ use apistos::ApiComponent;
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = teacher_class_assignments)]
 #[diesel(belongs_to(Staff, foreign_key = teacher_id))]
@@ -40,7 +40,7 @@ pub struct TeacherClassAssignment {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = teacher_subject_assignments)]
 #[diesel(belongs_to(Staff, foreign_key = teacher_id))]

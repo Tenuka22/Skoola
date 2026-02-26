@@ -1,12 +1,14 @@
+use crate::database::enums::{Ethnicity, Gender, Religion, StudentStatus};
 use crate::schema::students;
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use chrono::{NaiveDate, NaiveDateTime};
-use crate::database::enums::{Gender, Religion, Ethnicity, StudentStatus};
 use apistos::ApiComponent;
+use chrono::{NaiveDate, NaiveDateTime};
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema)]
+#[derive(
+    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema,
+)]
 #[diesel(table_name = students)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Student {
@@ -59,14 +61,14 @@ pub struct NewStudent {
 pub struct CreateStudentRequest {
     pub id: String,
     pub admission_number: String,
-    pub name_english: String, // Still needed for profile creation
+    pub name_english: String,         // Still needed for profile creation
     pub name_sinhala: Option<String>, // Still needed for profile creation
-    pub name_tamil: Option<String>, // Still needed for profile creation
+    pub name_tamil: Option<String>,   // Still needed for profile creation
     pub nic_or_birth_certificate: String,
     pub dob: NaiveDate,
     pub gender: Gender,
-    pub address: String, // Still needed for profile creation
-    pub phone: String, // Still needed for profile creation
+    pub address: String,       // Still needed for profile creation
+    pub phone: String,         // Still needed for profile creation
     pub email: Option<String>, // Still needed for user creation
     pub religion: Option<Religion>,
     pub ethnicity: Option<Ethnicity>,
@@ -105,8 +107,6 @@ pub struct StudentResponse {
     pub profile_photo_url: Option<String>,
     pub user_email: Option<String>,
 }
-
-
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct PaginatedStudentResponse {

@@ -1,9 +1,9 @@
 use actix_web::web;
 use actix_web::web::Json;
-use apistos::{api_operation, ApiComponent};
+use apistos::{ApiComponent, api_operation};
 use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState, database::enums::PermissionEnum, database::tables::UserPermission, errors::APIError,

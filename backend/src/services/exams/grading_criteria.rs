@@ -1,12 +1,12 @@
-use diesel::prelude::*;
-use uuid::Uuid;
-use crate::schema::grading_criteria;
-use crate::models::{
-    grading_criterion::{GradingCriterion, NewGradingCriterion, UpdateGradingCriterion},
-};
 use crate::AppState; // Changed from DbPool
 use crate::errors::APIError;
+use crate::models::grading_criterion::{
+    GradingCriterion, NewGradingCriterion, UpdateGradingCriterion,
+};
+use crate::schema::grading_criteria;
 use actix_web::web;
+use diesel::prelude::*;
+use uuid::Uuid;
 
 pub async fn create_grading_criterion(
     pool: web::Data<AppState>, // Changed from DbPool

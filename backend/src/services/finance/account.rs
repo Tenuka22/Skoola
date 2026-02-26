@@ -1,12 +1,12 @@
-use diesel::prelude::*;
 use crate::{
-    errors::APIError,
     AppState,
-    models::finance::account::{ChartOfAccount, NewChartOfAccount, ChartOfAccountChangeset},
+    errors::APIError,
+    models::finance::account::{ChartOfAccount, ChartOfAccountChangeset, NewChartOfAccount},
 };
 use actix_web::web;
-use uuid::Uuid;
 use chrono::Utc;
+use diesel::prelude::*;
+use uuid::Uuid;
 
 pub async fn create_account(
     pool: web::Data<AppState>,
@@ -38,9 +38,7 @@ pub async fn create_account(
         .first(&mut conn)?)
 }
 
-pub async fn get_all_accounts(
-    pool: web::Data<AppState>,
-) -> Result<Vec<ChartOfAccount>, APIError> {
+pub async fn get_all_accounts(pool: web::Data<AppState>) -> Result<Vec<ChartOfAccount>, APIError> {
     let mut conn = pool.db_pool.get()?;
     Ok(crate::schema::chart_of_accounts::table
         .select(ChartOfAccount::as_select())
@@ -66,13 +64,27 @@ pub async fn update_account(
     let mut conn = pool.db_pool.get()?;
     diesel::update(crate::schema::chart_of_accounts::table.find(&account_id))
         .set((
-            update_request.account_code.map(|c| crate::schema::chart_of_accounts::account_code.eq(c)),
-            update_request.account_name.map(|n| crate::schema::chart_of_accounts::account_name.eq(n)),
-            update_request.account_type.map(|t| crate::schema::chart_of_accounts::account_type.eq(t)),
-            update_request.normal_balance.map(|n| crate::schema::chart_of_accounts::normal_balance.eq(n)),
-            update_request.description.map(|d| crate::schema::chart_of_accounts::description.eq(d)),
-            update_request.parent_account_id.map(|p| crate::schema::chart_of_accounts::parent_account_id.eq(p)),
-            update_request.is_active.map(|a| crate::schema::chart_of_accounts::is_active.eq(a)),
+            update_request
+                .account_code
+                .map(|c| crate::schema::chart_of_accounts::account_code.eq(c)),
+            update_request
+                .account_name
+                .map(|n| crate::schema::chart_of_accounts::account_name.eq(n)),
+            update_request
+                .account_type
+                .map(|t| crate::schema::chart_of_accounts::account_type.eq(t)),
+            update_request
+                .normal_balance
+                .map(|n| crate::schema::chart_of_accounts::normal_balance.eq(n)),
+            update_request
+                .description
+                .map(|d| crate::schema::chart_of_accounts::description.eq(d)),
+            update_request
+                .parent_account_id
+                .map(|p| crate::schema::chart_of_accounts::parent_account_id.eq(p)),
+            update_request
+                .is_active
+                .map(|a| crate::schema::chart_of_accounts::is_active.eq(a)),
             crate::schema::chart_of_accounts::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
@@ -82,12 +94,8 @@ pub async fn update_account(
         .first(&mut conn)?)
 }
 
-pub async fn delete_account(
-    pool: web::Data<AppState>,
-    account_id: String,
-) -> Result<(), APIError> {
+pub async fn delete_account(pool: web::Data<AppState>, account_id: String) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
-    diesel::delete(crate::schema::chart_of_accounts::table.find(&account_id))
-        .execute(&mut conn)?;
+    diesel::delete(crate::schema::chart_of_accounts::table.find(&account_id)).execute(&mut conn)?;
     Ok(())
 }

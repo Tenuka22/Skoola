@@ -1,16 +1,17 @@
-use diesel::prelude::*;
-use diesel::{QueryDsl, RunQueryDsl};
+use crate::handlers::academic::academic_year::{AcademicYearQuery, BulkUpdateAcademicYearsRequest};
+use crate::schema::academic_years;
 use crate::{
-    errors::APIError,
     AppState,
-    models::academic_year::{AcademicYear, AcademicYearResponse, CreateAcademicYearRequest, UpdateAcademicYearRequest},
+    errors::APIError,
+    models::academic_year::{
+        AcademicYear, AcademicYearResponse, CreateAcademicYearRequest, UpdateAcademicYearRequest,
+    },
 };
 use actix_web::web;
-use uuid::Uuid;
 use chrono::Utc;
-use crate::schema::academic_years;
-use crate::handlers::academic::academic_year::{AcademicYearQuery, BulkUpdateAcademicYearsRequest};
-
+use diesel::prelude::*;
+use diesel::{QueryDsl, RunQueryDsl};
+use uuid::Uuid;
 
 pub async fn create_academic_year(
     pool: web::Data<AppState>,
@@ -52,8 +53,7 @@ pub async fn get_academic_year_by_id(
 
     let academic_year: AcademicYear = academic_years::table
         .filter(academic_years::id.eq(&academic_year_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(AcademicYearResponse::from(academic_year))
 }
@@ -104,7 +104,14 @@ pub async fn get_all_academic_years(
         .offset(offset)
         .load::<AcademicYear>(&mut conn)?;
 
-    Ok((academic_years_list.into_iter().map(AcademicYearResponse::from).collect(), total_academic_years, total_pages))
+    Ok((
+        academic_years_list
+            .into_iter()
+            .map(AcademicYearResponse::from)
+            .collect(),
+        total_academic_years,
+        total_pages,
+    ))
 }
 
 pub async fn update_academic_year(
@@ -124,17 +131,22 @@ pub async fn update_academic_year(
     let target = academic_years::table.filter(academic_years::id.eq(&academic_year_id));
 
     let updated_count = diesel::update(target)
-        .set((update_request, academic_years::updated_at.eq(Utc::now().naive_utc())))
+        .set((
+            update_request,
+            academic_years::updated_at.eq(Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Academic Year with ID {} not found", academic_year_id)));
+        return Err(APIError::not_found(&format!(
+            "Academic Year with ID {} not found",
+            academic_year_id
+        )));
     }
 
     let updated_academic_year: AcademicYear = academic_years::table
         .filter(academic_years::id.eq(&academic_year_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(AcademicYearResponse::from(updated_academic_year))
 }
@@ -150,7 +162,10 @@ pub async fn delete_academic_year(
         .execute(&mut conn)?;
 
     if deleted_count == 0 {
-        return Err(APIError::not_found(&format!("Academic Year with ID {} not found", academic_year_id)));
+        return Err(APIError::not_found(&format!(
+            "Academic Year with ID {} not found",
+            academic_year_id
+        )));
     }
 
     Ok(())
@@ -181,8 +196,9 @@ pub async fn bulk_update_academic_years(
                 .execute(conn)?;
         }
 
-        let target = academic_years::table.filter(academic_years::id.eq_any(&body.academic_year_ids));
-        
+        let target =
+            academic_years::table.filter(academic_years::id.eq_any(&body.academic_year_ids));
+
         diesel::update(target)
             .set((
                 body.name.map(|n| academic_years::name.eq(n)),
@@ -192,7 +208,7 @@ pub async fn bulk_update_academic_years(
                 academic_years::updated_at.eq(Utc::now().naive_utc()),
             ))
             .execute(conn)?;
-        
+
         Ok(())
     })
 }
@@ -211,17 +227,22 @@ pub async fn set_current_academic_year(
     // Set the specified academic year to current
     let updated_count = diesel::update(academic_years::table)
         .filter(academic_years::id.eq(&academic_year_id))
-        .set((academic_years::current.eq(true), academic_years::updated_at.eq(Utc::now().naive_utc())))
+        .set((
+            academic_years::current.eq(true),
+            academic_years::updated_at.eq(Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Academic Year with ID {} not found", academic_year_id)));
+        return Err(APIError::not_found(&format!(
+            "Academic Year with ID {} not found",
+            academic_year_id
+        )));
     }
 
     let updated_academic_year: AcademicYear = academic_years::table
         .filter(academic_years::id.eq(&academic_year_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(AcademicYearResponse::from(updated_academic_year))
 }

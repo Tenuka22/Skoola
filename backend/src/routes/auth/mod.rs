@@ -1,8 +1,11 @@
-use apistos::web;
-use crate::handlers::auth::{login, logout, oauth, permission_sets, profile, refresh, register, request_password_reset, reset_password, role_permissions, user_set_permissions, verification};
+use crate::database::enums::PermissionEnum;
+use crate::handlers::auth::{
+    login, logout, oauth, permission_sets, profile, refresh, register, request_password_reset,
+    reset_password, role_permissions, user_set_permissions, verification,
+};
 use crate::utils::jwt::Authenticated;
 use crate::utils::permission_verification::PermissionVerification;
-use crate::database::enums::PermissionEnum;
+use apistos::web;
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(

@@ -14,13 +14,13 @@ pub async fn create_term(
     new_term_req: CreateTermRequest,
 ) -> Result<TermResponse, APIError> {
     let mut conn = app_state.db_pool.get()?; // Corrected connection acquisition
-    
+
     // Check if the academic year exists
     let academic_year_exists: bool = academic_years::table
         .filter(academic_years::id.eq(&new_term_req.academic_year_id))
         .select(diesel::dsl::count(academic_years::id))
-        .get_result::<i64>(&mut conn)
-? > 0;
+        .get_result::<i64>(&mut conn)?
+        > 0;
 
     if !academic_year_exists {
         return Err(APIError::bad_request("Academic year not found"));
@@ -31,11 +31,12 @@ pub async fn create_term(
         .filter(terms::academic_year_id.eq(&new_term_req.academic_year_id))
         .filter(terms::name.eq(&new_term_req.name))
         .first::<Term>(&mut conn)
-        .optional()
-?;
+        .optional()?;
 
     if duplicate_name.is_some() {
-        return Err(APIError::bad_request("Term with this name already exists for the academic year"));
+        return Err(APIError::bad_request(
+            "Term with this name already exists for the academic year",
+        ));
     }
 
     // Check for overlapping dates within the academic year
@@ -44,11 +45,13 @@ pub async fn create_term(
         .filter(terms::start_date.le(&new_term_req.end_date))
         .filter(terms::end_date.ge(&new_term_req.start_date))
         .select(diesel::dsl::count(terms::id))
-        .get_result::<i64>(&mut conn)
-? > 0;
+        .get_result::<i64>(&mut conn)?
+        > 0;
 
     if overlapping_term_exists {
-        return Err(APIError::bad_request("Term dates overlap with an existing term in the academic year"));
+        return Err(APIError::bad_request(
+            "Term dates overlap with an existing term in the academic year",
+        ));
     }
 
     let term_id = Uuid::new_v4().to_string();
@@ -66,8 +69,7 @@ pub async fn create_term(
 
     diesel::insert_into(terms::table)
         .values(&new_term)
-        .execute(&mut conn)
-?;
+        .execute(&mut conn)?;
 
     Ok(new_term.into())
 }

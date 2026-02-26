@@ -1,13 +1,15 @@
+use actix_web::web::Data;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::Utc;
-use actix_web::web::Data;
 
 use crate::AppState;
 use crate::errors::APIError;
-use crate::models::messaging::{Conversation, NewConversation, NewConversationParticipant, Message, NewMessage};
-use crate::schema::{conversations, conversation_participants, messages};
 use crate::handlers::messaging::CreateConversationRequest;
+use crate::models::messaging::{
+    Conversation, Message, NewConversation, NewConversationParticipant, NewMessage,
+};
+use crate::schema::{conversation_participants, conversations, messages};
 
 // Service to start a new conversation
 pub async fn start_new_conversation(
@@ -16,7 +18,7 @@ pub async fn start_new_conversation(
     req: CreateConversationRequest,
 ) -> Result<Conversation, APIError> {
     let mut conn = data.db_pool.get()?;
-    
+
     let mut participant_ids = req.participant_ids;
     if !participant_ids.contains(&current_user_id) {
         participant_ids.push(current_user_id);
@@ -81,10 +83,13 @@ pub async fn send_message(
         .filter(conversation_participants::conversation_id.eq(&conversation_id))
         .filter(conversation_participants::user_id.eq(&sender_user_id))
         .count()
-        .get_result::<i64>(&mut conn)? > 0;
+        .get_result::<i64>(&mut conn)?
+        > 0;
 
     if !is_participant {
-        return Err(APIError::forbidden("User is not a participant of this conversation"));
+        return Err(APIError::forbidden(
+            "User is not a participant of this conversation",
+        ));
     }
 
     let new_message_id = Uuid::new_v4().to_string();
@@ -119,10 +124,13 @@ pub async fn get_conversation_messages(
         .filter(conversation_participants::conversation_id.eq(&conversation_id))
         .filter(conversation_participants::user_id.eq(&user_id))
         .count()
-        .get_result::<i64>(&mut conn)? > 0;
+        .get_result::<i64>(&mut conn)?
+        > 0;
 
     if !is_participant {
-        return Err(APIError::forbidden("User is not a participant of this conversation"));
+        return Err(APIError::forbidden(
+            "User is not a participant of this conversation",
+        ));
     }
 
     let conversation_messages = messages::table
@@ -153,10 +161,13 @@ pub async fn mark_message_as_read(
         .filter(conversation_participants::conversation_id.eq(&message.conversation_id))
         .filter(conversation_participants::user_id.eq(&user_id))
         .count()
-        .get_result::<i64>(&mut conn)? > 0;
+        .get_result::<i64>(&mut conn)?
+        > 0;
 
     if !is_participant {
-        return Err(APIError::forbidden("User is not a participant of this conversation"));
+        return Err(APIError::forbidden(
+            "User is not a participant of this conversation",
+        ));
     }
 
     let updated_rows = diesel::update(messages::table.filter(messages::id.eq(message_id)))

@@ -2,13 +2,13 @@ use actix_web::web;
 use actix_web::web::Json;
 use serde::{Deserialize, Serialize};
 
-use crate::{AppState, APIError};
-use crate::services::system::audit;
 use crate::models::system::audit::AuditLog;
+use crate::services::system::audit;
+use crate::{APIError, AppState};
 
-use schemars::JsonSchema;
-use apistos::{api_operation, ApiComponent};
+use apistos::{ApiComponent, api_operation};
 use chrono::NaiveDateTime;
+use schemars::JsonSchema;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct AuditLogResponse {

@@ -1,17 +1,13 @@
 use actix_web::web;
-use apistos::{api_operation, ApiComponent};
-use diesel::prelude::*;
 use actix_web::web::Json;
-use serde::{Deserialize, Serialize};
+use apistos::{ApiComponent, api_operation};
+use diesel::prelude::*;
 use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 use crate::{
-    AppState,
-    database::enums::PermissionEnum,
-    database::tables::UserSetPermission,
-    errors::APIError,
-    models::MessageResponse,
-    schema::user_set_permissions,
+    AppState, database::enums::PermissionEnum, database::tables::UserSetPermission,
+    errors::APIError, models::MessageResponse, schema::user_set_permissions,
 };
 
 #[derive(Debug, Deserialize, Serialize, ApiComponent, JsonSchema)]
@@ -31,7 +27,7 @@ pub async fn assign_permission_to_user_set(
     body: web::Json<UserSetPermissionRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    
+
     let new_assignment = UserSetPermission {
         user_set_id: user_set_id.into_inner(),
         permission: body.permission.to_string(),
@@ -41,7 +37,9 @@ pub async fn assign_permission_to_user_set(
         .values(&new_assignment)
         .execute(&mut conn)?;
 
-    Ok(Json(MessageResponse { message: "Permission assigned to user set successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Permission assigned to user set successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -64,7 +62,9 @@ pub async fn unassign_permission_from_user_set(
     )
     .execute(&mut conn)?;
 
-    Ok(Json(MessageResponse { message: "Permission unassigned from user set successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Permission unassigned from user set successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -78,7 +78,7 @@ pub async fn get_user_set_permissions(
     user_set_id: web::Path<String>,
 ) -> Result<Json<Vec<String>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    
+
     let set_perms: Vec<String> = user_set_permissions::table
         .filter(user_set_permissions::user_set_id.eq(user_set_id.into_inner()))
         .select(user_set_permissions::permission)

@@ -1,5 +1,5 @@
-use bcrypt::{hash, verify, DEFAULT_COST};
 use crate::errors::APIError;
+use bcrypt::{DEFAULT_COST, hash, verify};
 
 pub fn hash_password(password: &str) -> Result<String, APIError> {
     Ok(hash(password, DEFAULT_COST)?)

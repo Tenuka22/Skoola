@@ -1,9 +1,9 @@
-use actix_web::{Error, FromRequest, HttpMessage};
-use futures_util::future::{Ready, ok, err};
 use crate::database::enums::{PermissionEnum, RoleEnum};
-use crate::utils::jwt::{UserId, UserRoles, UserPermissions};
-use schemars::JsonSchema;
+use crate::utils::jwt::{UserId, UserPermissions, UserRoles};
+use actix_web::{Error, FromRequest, HttpMessage};
 use apistos::ApiComponent;
+use futures_util::future::{Ready, err, ok};
+use schemars::JsonSchema;
 
 #[derive(Debug, Clone, JsonSchema, ApiComponent)]
 pub struct CurrentUser {

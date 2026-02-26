@@ -1,10 +1,12 @@
-use crate::schema::{student_previous_schools, student_class_assignments_history};
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
+use crate::schema::{student_class_assignments_history, student_previous_schools};
 use chrono::{NaiveDate, NaiveDateTime};
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema)]
+#[derive(
+    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema,
+)]
 #[diesel(table_name = student_class_assignments_history)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct StudentClassAssignmentHistory {
@@ -19,7 +21,9 @@ pub struct StudentClassAssignmentHistory {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema)]
+#[derive(
+    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema,
+)]
 #[diesel(table_name = student_previous_schools)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct StudentPreviousSchool {

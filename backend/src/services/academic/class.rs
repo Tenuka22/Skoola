@@ -1,16 +1,15 @@
-use diesel::prelude::*;
-use diesel::{QueryDsl, RunQueryDsl};
+use crate::handlers::academic::class::{BulkUpdateClassesRequest, ClassQuery};
+use crate::schema::classes;
 use crate::{
-    errors::APIError,
     AppState,
+    errors::APIError,
     models::academic::class::{Class, ClassResponse, CreateClassRequest, UpdateClassRequest},
 };
 use actix_web::web;
-use uuid::Uuid;
 use chrono::Utc;
-use crate::schema::{classes};
-use crate::handlers::academic::class::{ClassQuery, BulkUpdateClassesRequest};
-
+use diesel::prelude::*;
+use diesel::{QueryDsl, RunQueryDsl};
+use uuid::Uuid;
 
 pub async fn create_class(
     pool: web::Data<AppState>,
@@ -48,8 +47,7 @@ pub async fn get_class_by_id(
 
     let class: Class = classes::table
         .filter(classes::id.eq(&class_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(ClassResponse::from(class))
 }
@@ -116,25 +114,27 @@ pub async fn update_class(
     let target = classes::table.filter(classes::id.eq(&class_id));
 
     let updated_count = diesel::update(target)
-        .set((update_request, classes::updated_at.eq(Utc::now().naive_utc())))
+        .set((
+            update_request,
+            classes::updated_at.eq(Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Class with ID {} not found", class_id)));
+        return Err(APIError::not_found(&format!(
+            "Class with ID {} not found",
+            class_id
+        )));
     }
 
     let updated_class: Class = classes::table
         .filter(classes::id.eq(&class_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(ClassResponse::from(updated_class))
 }
 
-pub async fn delete_class(
-    pool: web::Data<AppState>,
-    class_id: String,
-) -> Result<(), APIError> {
+pub async fn delete_class(pool: web::Data<AppState>, class_id: String) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
 
     let deleted_count = diesel::delete(classes::table)
@@ -142,7 +142,10 @@ pub async fn delete_class(
         .execute(&mut conn)?;
 
     if deleted_count == 0 {
-        return Err(APIError::not_found(&format!("Class with ID {} not found", class_id)));
+        return Err(APIError::not_found(&format!(
+            "Class with ID {} not found",
+            class_id
+        )));
     }
 
     Ok(())
@@ -153,8 +156,7 @@ pub async fn bulk_delete_classes(
     class_ids: Vec<String>,
 ) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
-    diesel::delete(classes::table.filter(classes::id.eq_any(class_ids)))
-        .execute(&mut conn)?;
+    diesel::delete(classes::table.filter(classes::id.eq_any(class_ids))).execute(&mut conn)?;
     Ok(())
 }
 
@@ -166,20 +168,22 @@ pub async fn bulk_update_classes(
 
     conn.transaction::<_, APIError, _>(|conn| {
         let target = classes::table.filter(classes::id.eq_any(&body.class_ids));
-        
+
         diesel::update(target)
             .set((
-                body.academic_year_id.map(|ay_id| classes::academic_year_id.eq(ay_id)),
+                body.academic_year_id
+                    .map(|ay_id| classes::academic_year_id.eq(ay_id)),
                 body.grade_id.map(|g_id| classes::grade_id.eq(g_id)),
                 body.section_name.map(|sn| classes::section_name.eq(sn)),
-                body.class_teacher_id.map(|ct_id| classes::class_teacher_id.eq(ct_id)),
+                body.class_teacher_id
+                    .map(|ct_id| classes::class_teacher_id.eq(ct_id)),
                 body.room_number.map(|rn| classes::room_number.eq(rn)),
                 body.medium.map(|m| classes::medium.eq(m)),
                 body.max_capacity.map(|mc| classes::max_capacity.eq(mc)),
                 classes::updated_at.eq(Utc::now().naive_utc()),
             ))
             .execute(conn)?;
-        
+
         Ok(())
     })
 }
@@ -195,10 +199,7 @@ pub async fn get_classes_by_grade(
         .order(classes::section_name.asc())
         .load::<Class>(&mut conn)?;
 
-    let responses: Vec<ClassResponse> = classes_list
-        .into_iter()
-        .map(ClassResponse::from)
-        .collect();
+    let responses: Vec<ClassResponse> = classes_list.into_iter().map(ClassResponse::from).collect();
 
     Ok(responses)
 }

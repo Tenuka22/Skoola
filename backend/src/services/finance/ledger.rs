@@ -1,14 +1,14 @@
-use diesel::prelude::*;
-use std::collections::HashMap; // Added
 use crate::{
-    errors::APIError,
     AppState,
-    models::finance::ledger::{GeneralLedgerEntry, NewGeneralLedgerEntry},
+    errors::APIError,
     models::finance::account::ChartOfAccount, // Added
+    models::finance::ledger::{GeneralLedgerEntry, NewGeneralLedgerEntry},
 };
 use actix_web::web;
-use uuid::Uuid;
 use chrono::Utc;
+use diesel::prelude::*;
+use std::collections::HashMap; // Added
+use uuid::Uuid;
 
 pub async fn record_transaction(
     pool: web::Data<AppState>,
@@ -28,7 +28,9 @@ pub async fn record_transaction(
 
     // Basic validation: ensure debit and credit accounts are different
     if debit_account_id == credit_account_id {
-        return Err(APIError::bad_request("Debit and credit accounts cannot be the same"));
+        return Err(APIError::bad_request(
+            "Debit and credit accounts cannot be the same",
+        ));
     }
 
     // TODO: Add more robust validation, e.g., checking if accounts exist and are of correct type
@@ -57,12 +59,11 @@ pub async fn generate_trial_balance(
     pool: web::Data<AppState>,
 ) -> Result<HashMap<String, f32>, APIError> {
     let mut conn = pool.db_pool.get()?;
-    
-    let all_accounts = crate::schema::chart_of_accounts::table
-        .load::<ChartOfAccount>(&mut conn)?;
 
-    let all_ledger_entries = crate::schema::general_ledger::table
-        .load::<GeneralLedgerEntry>(&mut conn)?;
+    let all_accounts = crate::schema::chart_of_accounts::table.load::<ChartOfAccount>(&mut conn)?;
+
+    let all_ledger_entries =
+        crate::schema::general_ledger::table.load::<GeneralLedgerEntry>(&mut conn)?;
 
     let mut balances: HashMap<String, f32> = HashMap::new();
 

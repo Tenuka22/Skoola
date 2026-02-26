@@ -1,20 +1,28 @@
 use actix_web::{HttpRequest, web};
 use apistos::api_operation;
+use chrono::{Duration, Utc};
+use diesel::prelude::*;
 use schemars::JsonSchema;
 use uuid::Uuid;
-use chrono::{Utc, Duration};
-use diesel::prelude::*;
 
 use tracing::{info, warn}; // Added warn for logging errors
 
-use crate::{AppState, database::tables::{User}, database::enums::RoleEnum, errors::APIError,
-    services::{auth::auth::{create_token_pair, hash_password}, auth::oauth::{get_github_user_info, get_google_user_info}, auth::session::create_session},
-    schema::{users},
+use crate::{
+    AppState,
+    database::enums::RoleEnum,
+    database::tables::User,
+    errors::APIError,
+    schema::users,
+    services::{
+        auth::auth::{create_token_pair, hash_password},
+        auth::oauth::{get_github_user_info, get_google_user_info},
+        auth::session::create_session,
+    },
 };
 
-use apistos::ApiComponent;
+use crate::models::auth::user::TokenResponse;
 use actix_web::web::Json; // Added Json here
-use crate::models::auth::user::TokenResponse; // Added TokenResponse here
+use apistos::ApiComponent; // Added TokenResponse here
 
 #[derive(serde::Deserialize, ApiComponent, JsonSchema)]
 pub struct OAuthQuery {
@@ -33,8 +41,15 @@ pub async fn google_callback(
     query: web::Query<OAuthQuery>,
     req: HttpRequest,
 ) -> Result<Json<TokenResponse>, APIError> {
-    let ip_address = req.connection_info().realip_remote_addr().map(|s| s.to_string());
-    let user_agent = req.headers().get("User-Agent").and_then(|v| v.to_str().ok()).map(|s| s.to_string());
+    let ip_address = req
+        .connection_info()
+        .realip_remote_addr()
+        .map(|s| s.to_string());
+    let user_agent = req
+        .headers()
+        .get("User-Agent")
+        .and_then(|v| v.to_str().ok())
+        .map(|s| s.to_string());
 
     let user_info = get_google_user_info(&query.code, &data.config).await?;
 
@@ -52,13 +67,16 @@ pub async fn google_callback(
             diesel::update(users::table.find(&user.id))
                 .set(users::google_id.eq(&user.google_id))
                 .execute(&mut conn)?;
-            
-            info!("ACTION: Existing user logged in via Google OAuth | user_id: {} | email: {} | google_id: {}", user.id, user.email, user_info.id);
+
+            info!(
+                "ACTION: Existing user logged in via Google OAuth | user_id: {} | email: {} | google_id: {}",
+                user.id, user.email, user_info.id
+            );
             users::table
                 .find(&user.id)
                 .select(User::as_select())
                 .first(&mut conn)?
-        },
+        }
         None => {
             let new_user = User {
                 id: Uuid::new_v4().to_string(),
@@ -81,14 +99,18 @@ pub async fn google_callback(
                 .values(&new_user)
                 .execute(&mut conn)?;
 
-            info!("ACTION: New user registered via Google OAuth | user_id: {} | email: {} | google_id: {}", new_user.id, new_user.email, user_info.id);
+            info!(
+                "ACTION: New user registered via Google OAuth | user_id: {} | email: {} | google_id: {}",
+                new_user.id, new_user.email, user_info.id
+            );
             users::table
                 .filter(users::email.eq(&new_user.email))
                 .select(User::as_select())
                 .first(&mut conn)?
         }
     };
-    let (token, refresh_token, _access_token_expiration) = create_token_pair(&user, &data.config, &data.db_pool)?;
+    let (token, refresh_token, _access_token_expiration) =
+        create_token_pair(&user, &data.config, &data.db_pool)?;
     let hashed_refresh_token = hash_password(&refresh_token)?;
 
     let expires_at = Utc::now()
@@ -103,7 +125,8 @@ pub async fn google_callback(
         user_agent.as_deref(),
         ip_address.as_deref(),
         expires_at,
-    ).map_err(APIError::from)?;
+    )
+    .map_err(APIError::from)?;
 
     info!(
         "ACTION: Google OAuth successful | user_id: {} | email: {} | ip_address: {:?} | user_agent: {:?}",
@@ -127,8 +150,15 @@ pub async fn github_callback(
     query: web::Query<OAuthQuery>,
     req: HttpRequest,
 ) -> Result<Json<TokenResponse>, APIError> {
-    let ip_address = req.connection_info().realip_remote_addr().map(|s| s.to_string());
-    let user_agent = req.headers().get("User-Agent").and_then(|v| v.to_str().ok()).map(|s| s.to_string());
+    let ip_address = req
+        .connection_info()
+        .realip_remote_addr()
+        .map(|s| s.to_string());
+    let user_agent = req
+        .headers()
+        .get("User-Agent")
+        .and_then(|v| v.to_str().ok())
+        .map(|s| s.to_string());
 
     let user_info = get_github_user_info(&query.code, &data.config).await?;
 
@@ -153,8 +183,11 @@ pub async fn github_callback(
             diesel::update(users::table.find(&user.id))
                 .set(users::github_id.eq(&user.github_id))
                 .execute(&mut conn)?;
-            
-            info!("ACTION: Existing user logged in via GitHub OAuth | user_id: {} | email: {} | github_id: {}", user.id, user.email, user_info.id);
+
+            info!(
+                "ACTION: Existing user logged in via GitHub OAuth | user_id: {} | email: {} | github_id: {}",
+                user.id, user.email, user_info.id
+            );
             users::table
                 .find(&user.id)
                 .select(User::as_select())
@@ -182,7 +215,10 @@ pub async fn github_callback(
                 .values(&new_user)
                 .execute(&mut conn)?;
 
-            info!("ACTION: New user registered via GitHub OAuth | user_id: {} | email: {} | github_id: {}", new_user.id, new_user.email, user_info.id);
+            info!(
+                "ACTION: New user registered via GitHub OAuth | user_id: {} | email: {} | github_id: {}",
+                new_user.id, new_user.email, user_info.id
+            );
             users::table
                 .filter(users::email.eq(&new_user.email))
                 .select(User::as_select())
@@ -190,7 +226,8 @@ pub async fn github_callback(
         }
     };
 
-    let (token, refresh_token, _access_token_expiration) = create_token_pair(&user, &data.config, &data.db_pool)?;
+    let (token, refresh_token, _access_token_expiration) =
+        create_token_pair(&user, &data.config, &data.db_pool)?;
     let hashed_refresh_token = hash_password(&refresh_token)?;
 
     let expires_at = Utc::now()
@@ -205,7 +242,8 @@ pub async fn github_callback(
         user_agent.as_deref(),
         ip_address.as_deref(),
         expires_at,
-    ).map_err(APIError::from)?;
+    )
+    .map_err(APIError::from)?;
 
     info!(
         "ACTION: GitHub OAuth successful | user_id: {} | email: {} | ip_address: {:?} | user_agent: {:?}",

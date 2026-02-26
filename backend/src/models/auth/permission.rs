@@ -1,11 +1,23 @@
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use apistos::ApiComponent;
-use crate::schema::{role_permissions, user_permissions, user_set_permissions, user_sets, user_set_users};
 use crate::models::auth::user::User;
+use crate::schema::{
+    role_permissions, user_permissions, user_set_permissions, user_set_users, user_sets,
+};
+use apistos::ApiComponent;
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = role_permissions)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct RolePermission {
@@ -23,7 +35,7 @@ pub struct RolePermission {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = user_permissions)]
 #[diesel(belongs_to(User))]
@@ -43,7 +55,7 @@ pub struct UserPermission {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = user_set_permissions)]
 #[diesel(belongs_to(UserSet))]
@@ -82,7 +94,7 @@ pub struct UserSet {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = user_set_users)]
 #[diesel(belongs_to(UserSet))]

@@ -1,19 +1,21 @@
-use diesel::prelude::*;
-use diesel::insert_into;
-use anyhow::Result;
-use backend::schema::*;
-use backend::config::Config;
-use std::collections::HashSet;
 use super::utils::*;
 use super::{SeedModule, SeederContext};
-use backend::models::academic::{AcademicYear, GradeLevel, Subject, Term, Class, Stream};
-use backend::models::auth::{NewProfile, NewUser, NewUserProfile};
+use anyhow::Result;
+use backend::config::Config;
 use backend::database::enums::RoleEnum;
-use backend::models::staff::staff::{NewStaff};
-use backend::models::student::student::{NewStudent};
-use chrono::{Utc, NaiveDate};
+use backend::database::enums::{
+    EducationLevel, EmploymentStatus, Ethnicity, Gender, Medium, Religion, StaffType, StudentStatus,
+};
+use backend::models::academic::{AcademicYear, Class, GradeLevel, Stream, Subject, Term};
+use backend::models::auth::{NewProfile, NewUser, NewUserProfile};
+use backend::models::staff::staff::NewStaff;
+use backend::models::student::student::NewStudent;
+use backend::schema::*;
+use chrono::{NaiveDate, Utc};
+use diesel::insert_into;
+use diesel::prelude::*;
 use rand::Rng;
-use backend::database::enums::{EducationLevel, Medium, EmploymentStatus, StaffType, Gender, Religion, Ethnicity, StudentStatus}; // Added necessary enums
+use std::collections::HashSet; // Added necessary enums
 
 pub struct CoreEntitiesSeeder;
 
@@ -81,41 +83,65 @@ impl SeedModule for CoreEntitiesSeeder {
 
         // Seed Subjects
         let base_subjects = vec![
-            "Mathematics", "Science", "English", "Sinhala", "History", "Geography", "Art", "Music",
-            "Physical Education", "Buddhism", "Christianity", "Islam", "Hinduism", "ICT", "Drama"
+            "Mathematics",
+            "Science",
+            "English",
+            "Sinhala",
+            "History",
+            "Geography",
+            "Art",
+            "Music",
+            "Physical Education",
+            "Buddhism",
+            "Christianity",
+            "Islam",
+            "Hinduism",
+            "ICT",
+            "Drama",
         ];
         let mut used_subject_codes: HashSet<String> = HashSet::new();
-        let subjects_data: Vec<Subject> = (0..seed_count_config.subjects).map(|i| {
-            let name_index = i % base_subjects.len();
-            let base_name = base_subjects[name_index];
-            let name = if i < base_subjects.len() {
-                base_name.to_string()
-            } else {
-                format!("{} - {}", base_name, i / base_subjects.len())
-            };
+        let subjects_data: Vec<Subject> = (0..seed_count_config.subjects)
+            .map(|i| {
+                let name_index = i % base_subjects.len();
+                let base_name = base_subjects[name_index];
+                let name = if i < base_subjects.len() {
+                    base_name.to_string()
+                } else {
+                    format!("{} - {}", base_name, i / base_subjects.len())
+                };
 
-            let mut subject_code_base = name.chars().filter(|c| c.is_alphabetic()).collect::<String>().to_uppercase().chars().take(3).collect::<String>();
-            if subject_code_base.is_empty() { subject_code_base = "SUB".to_string(); }
-            
-            let mut subject_code = format!("SUB-{}", subject_code_base);
-            let mut counter = 1;
-            while used_subject_codes.contains(&subject_code) {
-                subject_code = format!("SUB-{}{}", subject_code_base, counter);
-                counter += 1;
-            }
-            used_subject_codes.insert(subject_code.clone());
+                let mut subject_code_base = name
+                    .chars()
+                    .filter(|c| c.is_alphabetic())
+                    .collect::<String>()
+                    .to_uppercase()
+                    .chars()
+                    .take(3)
+                    .collect::<String>();
+                if subject_code_base.is_empty() {
+                    subject_code_base = "SUB".to_string();
+                }
 
-            Subject {
-                id: generate_uuid(),
-                subject_code,
-                subject_name_en: name.clone(),
-                subject_name_si: Some(format!("{} (සිංහල)", name)), // Dummy Sinhala name
-                subject_name_ta: Some(format!("{} (தமிழ்)", name)), // Dummy Tamil name
-                is_core: true, // Assuming all seeded subjects are core
-                created_at: random_datetime_in_past(3),
-                updated_at: random_datetime_in_past(2),
-            }
-        }).collect();
+                let mut subject_code = format!("SUB-{}", subject_code_base);
+                let mut counter = 1;
+                while used_subject_codes.contains(&subject_code) {
+                    subject_code = format!("SUB-{}{}", subject_code_base, counter);
+                    counter += 1;
+                }
+                used_subject_codes.insert(subject_code.clone());
+
+                Subject {
+                    id: generate_uuid(),
+                    subject_code,
+                    subject_name_en: name.clone(),
+                    subject_name_si: Some(format!("{} (සිංහල)", name)), // Dummy Sinhala name
+                    subject_name_ta: Some(format!("{} (தமிழ்)", name)), // Dummy Tamil name
+                    is_core: true, // Assuming all seeded subjects are core
+                    created_at: random_datetime_in_past(3),
+                    updated_at: random_datetime_in_past(2),
+                }
+            })
+            .collect();
 
         insert_into(subjects::table)
             .values(&subjects_data)
@@ -134,11 +160,12 @@ impl SeedModule for CoreEntitiesSeeder {
                     name: name.clone(),
                     term_number: (i + 1) as i32,
                     start_date: random_date_in_past(1), // Dummy dates
-                    end_date: random_date_in_past(0), // Dummy dates
+                    end_date: random_date_in_past(0),   // Dummy dates
                     created_at: random_datetime_in_past(1),
                     updated_at: random_datetime_in_past(0),
                 }
-            }).collect();
+            })
+            .collect();
         insert_into(terms::table)
             .values(&terms_data)
             .execute(conn)?;
@@ -187,10 +214,14 @@ impl SeedModule for CoreEntitiesSeeder {
             .execute(conn)?;
         context.profile_ids.push(admin_profile_id.clone());
         insert_into(user_profiles::table)
-            .values(&NewUserProfile { user_id: admin_user_id.clone(), profile_id: admin_profile_id.clone(), created_at: Utc::now().naive_utc(), updated_at: Utc::now().naive_utc() })
+            .values(&NewUserProfile {
+                user_id: admin_user_id.clone(),
+                profile_id: admin_profile_id.clone(),
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            })
             .execute(conn)?;
         println!("Seeded Admin user and profile.");
-
 
         // Staff Users and Profiles
         for i in 1..=seed_count_config.staff {
@@ -234,7 +265,12 @@ impl SeedModule for CoreEntitiesSeeder {
                 .execute(conn)?;
             context.profile_ids.push(staff_profile_id.clone());
             insert_into(user_profiles::table)
-                .values(&NewUserProfile { user_id: staff_user_id.clone(), profile_id: staff_profile_id.clone(), created_at: Utc::now().naive_utc(), updated_at: Utc::now().naive_utc() })
+                .values(&NewUserProfile {
+                    user_id: staff_user_id.clone(),
+                    profile_id: staff_profile_id.clone(),
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                })
                 .execute(conn)?;
 
             let staff_member_id = generate_uuid();
@@ -243,15 +279,24 @@ impl SeedModule for CoreEntitiesSeeder {
                 employee_id: format!("EMP-{}", 1000 + i),
                 name: staff_name.clone(),
                 nic: format!("{:09}V", rng.gen_range(100000000..=999999999)), // Dummy NIC
-                dob: NaiveDate::from_ymd_opt(1970 + rng.gen_range(0..=30), rng.gen_range(1..=12), rng.gen_range(1..=28)).unwrap(), // Dummy DOB
-                gender: if rng.gen_bool(0.5) { Gender::Male.to_string() } else { Gender::Female.to_string() }, // Dummy Gender
+                dob: NaiveDate::from_ymd_opt(
+                    1970 + rng.gen_range(0..=30),
+                    rng.gen_range(1..=12),
+                    rng.gen_range(1..=28),
+                )
+                .unwrap(), // Dummy DOB
+                gender: if rng.gen_bool(0.5) {
+                    Gender::Male.to_string()
+                } else {
+                    Gender::Female.to_string()
+                }, // Dummy Gender
                 address: generate_random_address(),
                 phone: generate_random_phone_number(),
                 email: staff_email.clone(),
                 created_at: Utc::now().naive_utc(),
                 updated_at: Utc::now().naive_utc(),
                 employment_status: EmploymentStatus::Permanent, // Default status
-                staff_type: StaffType::Teaching, // Default type
+                staff_type: StaffType::Teaching,                // Default type
                 photo_url: None,
                 profile_id: Some(staff_profile_id.clone()),
             };
@@ -260,7 +305,10 @@ impl SeedModule for CoreEntitiesSeeder {
                 .execute(conn)?;
             context.staff_ids.push(staff_member_id.clone());
         }
-        println!("Seeded {} staff users and profiles.", seed_count_config.staff);
+        println!(
+            "Seeded {} staff users and profiles.",
+            seed_count_config.staff
+        );
 
         // Student Users and Profiles
         for i in 1..=seed_count_config.students {
@@ -304,7 +352,12 @@ impl SeedModule for CoreEntitiesSeeder {
                 .execute(conn)?;
             context.profile_ids.push(student_profile_id.clone());
             insert_into(user_profiles::table)
-                .values(&NewUserProfile { user_id: student_user_id.clone(), profile_id: student_profile_id.clone(), created_at: Utc::now().naive_utc(), updated_at: Utc::now().naive_utc() })
+                .values(&NewUserProfile {
+                    user_id: student_user_id.clone(),
+                    profile_id: student_profile_id.clone(),
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                })
                 .execute(conn)?;
 
             let student_member_id = generate_uuid();
@@ -313,10 +366,19 @@ impl SeedModule for CoreEntitiesSeeder {
                 admission_number: format!("ADM-{}", 2000 + i),
                 name_english: student_name_english.clone(),
                 name_sinhala: Some(format!("සිසුවා {}", i)), // Dummy Sinhala name
-                name_tamil: Some(format!("மாணவர் {}", i)), // Dummy Tamil name
+                name_tamil: Some(format!("மாணவர் {}", i)),  // Dummy Tamil name
                 nic_or_birth_certificate: format!("{:09}V", rng.gen_range(100000000..=999999999)), // Dummy NIC
-                dob: NaiveDate::from_ymd_opt(2010 + (i as i32 % 3), (i as u32 % 12) + 1, (i as u32 % 28) + 1).unwrap(),
-                gender: if i % 2 == 0 { Gender::Male } else { Gender::Female }, // Dummy Gender
+                dob: NaiveDate::from_ymd_opt(
+                    2010 + (i as i32 % 3),
+                    (i as u32 % 12) + 1,
+                    (i as u32 % 28) + 1,
+                )
+                .unwrap(),
+                gender: if i % 2 == 0 {
+                    Gender::Male
+                } else {
+                    Gender::Female
+                }, // Dummy Gender
                 address: generate_random_address(),
                 phone: generate_random_phone_number(),
                 email: Some(student_email),
@@ -341,11 +403,15 @@ impl SeedModule for CoreEntitiesSeeder {
                 .execute(conn)?;
             context.student_ids.push(student_member_id.clone());
         }
-        println!("Seeded {} student users and profiles.", seed_count_config.students);
+        println!(
+            "Seeded {} student users and profiles.",
+            seed_count_config.students
+        );
 
         // Guardian Users and Profiles (without linking to specific students here, as that's complex and better handled by another seeder or a dedicated migration script)
         for i in 1..=seed_count_config.guardians {
-            let guardian_email = generate_random_email_unique(used_emails, &format!("guardian{}", i));
+            let guardian_email =
+                generate_random_email_unique(used_emails, &format!("guardian{}", i));
             let guardian_user_id = generate_uuid();
             let new_guardian_user = NewUser {
                 id: guardian_user_id.clone(),
@@ -384,11 +450,18 @@ impl SeedModule for CoreEntitiesSeeder {
                 .execute(conn)?;
             context.profile_ids.push(guardian_profile_id.clone());
             insert_into(user_profiles::table)
-                .values(&NewUserProfile { user_id: guardian_user_id.clone(), profile_id: guardian_profile_id.clone(), created_at: Utc::now().naive_utc(), updated_at: Utc::now().naive_utc() })
+                .values(&NewUserProfile {
+                    user_id: guardian_user_id.clone(),
+                    profile_id: guardian_profile_id.clone(),
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                })
                 .execute(conn)?;
         }
-        println!("Seeded {} guardian users and profiles.", seed_count_config.guardians);
-
+        println!(
+            "Seeded {} guardian users and profiles.",
+            seed_count_config.guardians
+        );
 
         // Seed Classes
         if context.grade_level_ids.is_empty() {
@@ -406,9 +479,18 @@ impl SeedModule for CoreEntitiesSeeder {
                 let new_class = Class {
                     id: class_id.clone(),
                     grade_id: grade_id.clone(),
-                    section_name: format!("{} {}", get_grade_name_by_id(conn, &grade_id).unwrap_or("Unknown Grade".to_string()), class_suffix),
+                    section_name: format!(
+                        "{} {}",
+                        get_grade_name_by_id(conn, &grade_id)
+                            .unwrap_or("Unknown Grade".to_string()),
+                        class_suffix
+                    ),
                     academic_year_id: current_academic_year_id.clone(),
-                    class_teacher_id: if !context.staff_ids.is_empty() { Some(get_random_id(&context.staff_ids)) } else { None },
+                    class_teacher_id: if !context.staff_ids.is_empty() {
+                        Some(get_random_id(&context.staff_ids))
+                    } else {
+                        None
+                    },
                     medium: Medium::English, // Default to English for now
                     room_number: Some(format!("RM-{}", rng.gen_range(100..=999))),
                     max_capacity: rng.gen_range(25..=40),
@@ -425,32 +507,31 @@ impl SeedModule for CoreEntitiesSeeder {
         }
 
         // Seed Streams
-        let base_streams = vec![
-            "Arts", "Science", "Commerce", "Technology", "Vocational"
-        ];
-        let streams_data: Vec<Stream> = (0..seed_count_config.grade_streams).map(|i| {
-            let name_index = i % base_streams.len();
-            let base_name = base_streams[name_index];
-            let name = if i < base_streams.len() { 
-                base_name.to_string() 
-            } else { 
-                format!("{} - {}", base_name, i / base_streams.len()) 
-            };
-            Stream {
-                id: generate_uuid(),
-                name: name.clone(),
-                description: Some(format!("Academic stream for {}", name)),
-                created_at: random_datetime_in_past(2),
-                updated_at: random_datetime_in_past(1),
-            }
-        }).collect();
+        let base_streams = vec!["Arts", "Science", "Commerce", "Technology", "Vocational"];
+        let streams_data: Vec<Stream> = (0..seed_count_config.grade_streams)
+            .map(|i| {
+                let name_index = i % base_streams.len();
+                let base_name = base_streams[name_index];
+                let name = if i < base_streams.len() {
+                    base_name.to_string()
+                } else {
+                    format!("{} - {}", base_name, i / base_streams.len())
+                };
+                Stream {
+                    id: generate_uuid(),
+                    name: name.clone(),
+                    description: Some(format!("Academic stream for {}", name)),
+                    created_at: random_datetime_in_past(2),
+                    updated_at: random_datetime_in_past(1),
+                }
+            })
+            .collect();
 
         insert_into(streams::table)
             .values(&streams_data)
             .execute(conn)?;
         context.stream_ids = streams_data.into_iter().map(|s| s.id).collect();
         println!("Seeded {} streams.", context.stream_ids.len());
-
 
         Ok(())
     }
@@ -464,16 +545,4 @@ fn get_grade_name_by_id(conn: &mut SqliteConnection, grade_id: &str) -> anyhow::
         .select(grade_name)
         .first::<String>(conn)?;
     Ok(name)
-}
-
-// Helper function to generate unique emails
-fn generate_random_email_unique(used_emails: &mut HashSet<String>, prefix: &str) -> String {
-    let mut email = format!("{}@example.com", prefix);
-    let mut counter = 1;
-    while used_emails.contains(&email) {
-        email = format!("{}{}@example.com", prefix, counter);
-        counter += 1;
-    }
-    used_emails.insert(email.clone());
-    email
 }

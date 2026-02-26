@@ -1,14 +1,17 @@
 use actix_web::web;
-use apistos::api_operation;
 use actix_web::web::Json;
+use apistos::api_operation;
 
 use crate::{
     AppState,
     errors::APIError,
-    models::academic::class_subject_teacher::{CreateClassSubjectTeacherRequest, UpdateClassSubjectTeacherRequest, ClassSubjectTeacherResponse},
-    models::academic::class::ClassResponse,
-    models::academic::subject::SubjectResponse,
     models::MessageResponse,
+    models::academic::class::ClassResponse,
+    models::academic::class_subject_teacher::{
+        ClassSubjectTeacherResponse, CreateClassSubjectTeacherRequest,
+        UpdateClassSubjectTeacherRequest,
+    },
+    models::academic::subject::SubjectResponse,
     services::academic::class_subject_teacher,
 };
 
@@ -22,7 +25,9 @@ pub async fn assign_subject_teacher_to_class(
     data: web::Data<AppState>,
     body: web::Json<CreateClassSubjectTeacherRequest>,
 ) -> Result<Json<ClassSubjectTeacherResponse>, APIError> {
-    let new_assignment = class_subject_teacher::assign_subject_teacher_to_class(data.clone(), body.into_inner()).await?;
+    let new_assignment =
+        class_subject_teacher::assign_subject_teacher_to_class(data.clone(), body.into_inner())
+            .await?;
     Ok(Json(new_assignment))
 }
 
@@ -68,7 +73,9 @@ pub async fn remove_subject_teacher_assignment(
         academic_year_id,
     )
     .await?;
-    Ok(Json(MessageResponse { message: "Assignment removed successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Assignment removed successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -82,7 +89,9 @@ pub async fn get_subjects_by_class(
     path: web::Path<(String, String)>, // (class_id, academic_year_id)
 ) -> Result<Json<Vec<SubjectResponse>>, APIError> {
     let (class_id, academic_year_id) = path.into_inner();
-    let subjects = class_subject_teacher::get_subjects_by_class(data.clone(), class_id, academic_year_id).await?;
+    let subjects =
+        class_subject_teacher::get_subjects_by_class(data.clone(), class_id, academic_year_id)
+            .await?;
     Ok(Json(subjects))
 }
 
@@ -97,6 +106,8 @@ pub async fn get_classes_by_teacher(
     path: web::Path<(String, String)>, // (teacher_id, academic_year_id)
 ) -> Result<Json<Vec<ClassResponse>>, APIError> {
     let (teacher_id, academic_year_id) = path.into_inner();
-    let classes = class_subject_teacher::get_classes_by_teacher(data.clone(), teacher_id, academic_year_id).await?;
+    let classes =
+        class_subject_teacher::get_classes_by_teacher(data.clone(), teacher_id, academic_year_id)
+            .await?;
     Ok(Json(classes))
 }

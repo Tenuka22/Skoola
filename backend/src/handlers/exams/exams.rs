@@ -1,15 +1,15 @@
 use actix_web::web;
-use apistos::{api_operation, ApiComponent};
 use actix_web::web::Json;
+use apistos::{ApiComponent, api_operation};
+use chrono::NaiveDateTime;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use chrono::NaiveDateTime;
 
 use crate::{
     AppState,
     errors::APIError,
-    models::exams::exam::{CreateExamRequest, UpdateExamRequest, ExamResponse},
     models::MessageResponse,
+    models::exams::exam::{CreateExamRequest, ExamResponse, UpdateExamRequest},
     services::exams::exams,
 };
 
@@ -112,7 +112,9 @@ pub async fn bulk_delete_exams(
     body: web::Json<BulkDeleteExamsRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     exams::bulk_delete_exams(data.clone(), body.into_inner().exam_ids).await?;
-    Ok(Json(MessageResponse { message: "Exams deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Exams deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -126,7 +128,9 @@ pub async fn bulk_update_exams(
     body: web::Json<BulkUpdateExamsRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     exams::bulk_update_exams(data.clone(), body.into_inner()).await?;
-    Ok(Json(MessageResponse { message: "Exams updated successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Exams updated successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -172,5 +176,7 @@ pub async fn delete_exam(
 ) -> Result<Json<MessageResponse>, APIError> {
     let exam_id = path.into_inner();
     exams::delete_exam(data.clone(), exam_id).await?;
-    Ok(Json(MessageResponse { message: "Exam deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Exam deleted successfully".to_string(),
+    }))
 }

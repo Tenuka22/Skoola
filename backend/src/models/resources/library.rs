@@ -1,8 +1,8 @@
+use apistos::ApiComponent;
 use chrono::NaiveDate;
 use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
-use apistos::ApiComponent;
+use serde::{Deserialize, Serialize};
 
 use crate::schema::{library_books, library_categories, library_issues, library_settings};
 
@@ -18,7 +18,17 @@ pub struct LibraryCategory {
     pub updated_at: chrono::NaiveDateTime,
 }
 
-#[derive(Debug, Clone, Queryable, Selectable, Serialize, Deserialize, JsonSchema, ApiComponent, AsChangeset)]
+#[derive(
+    Debug,
+    Clone,
+    Queryable,
+    Selectable,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    AsChangeset,
+)]
 #[diesel(table_name = library_books)]
 pub struct LibraryBook {
     pub id: i32,

@@ -1,7 +1,8 @@
 use crate::config::Config;
 use crate::errors::APIError;
 use crate::handlers::system::seed::{
-    academic_structure, users_and_staff, students, exams_and_grading, financial, inventory_and_assets, library, co_curricular
+    academic_structure, co_curricular, exams_and_grading, financial, inventory_and_assets, library,
+    students, users_and_staff,
 };
 use crate::schema::seeds;
 use chrono::{NaiveDateTime, Utc};
@@ -86,7 +87,7 @@ pub fn seed_data(
         track_seeded_ids(conn, "staff_leaves", seeded_leave_ids)?;
         track_seeded_ids(conn, "sessions", seeded_session_ids)?;
         track_seeded_ids(conn, "user_permissions", seeded_user_permission_ids)?;
-        
+
         // 2. Academic Structure
         let (
             seeded_academic_year_ids,
@@ -353,41 +354,33 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
         fee_payments, fee_structures, grade_levels, grade_streams, grade_subjects,
         grading_criteria, grading_schemes, income_sources, income_transactions, inventory_items,
         library_books, library_categories, library_issues, library_settings, maintenance_requests,
-        ol_exams,
-        petty_cash_transactions, report_card_marks, report_cards,
-        role_permissions, user_permissions, user_set_permissions,
-        salary_components, salary_payments,
-        scholarship_exams, sessions, sport_event_participants, sport_events, sport_team_members,
-        sport_teams, sports, staff, staff_attendance, staff_departments, staff_employment_history,
-        staff_leaves, staff_qualifications, staff_salaries, staff_subjects,
-        stream_subjects, streams, student_achievements, student_attendance,
-        student_class_assignments, student_emergency_contacts, student_fees, student_guardians,
-        student_marks, student_medical_info, student_previous_schools, student_zscores, students,
-        subjects, teacher_class_assignments, teacher_subject_assignments, terms, timetable,
-        uniform_issues, uniform_items, user_set_users,
-        user_sets, users, zscore_calculations,
+        ol_exams, petty_cash_transactions, report_card_marks, report_cards, role_permissions,
+        salary_components, salary_payments, scholarship_exams, sessions, sport_event_participants,
+        sport_events, sport_team_members, sport_teams, sports, staff, staff_attendance,
+        staff_departments, staff_employment_history, staff_leaves, staff_qualifications,
+        staff_salaries, staff_subjects, stream_subjects, streams, student_achievements,
+        student_attendance, student_class_assignments, student_emergency_contacts, student_fees,
+        student_guardians, student_marks, student_medical_info, student_previous_schools,
+        student_zscores, students, subjects, teacher_class_assignments,
+        teacher_subject_assignments, terms, timetable, uniform_issues, uniform_items,
+        user_permissions, user_set_permissions, user_set_users, user_sets, users,
+        zscore_calculations,
     };
 
     // Explicitly delete test users and staff users by email pattern
-    diesel::delete(users::table.filter(users::email.like("%.test@main.co")))
-        .execute(conn)?;
-    diesel::delete(users::table.filter(users::email.like("staff%@example.com")))
-        .execute(conn)?;
+    diesel::delete(users::table.filter(users::email.like("%.test@main.co"))).execute(conn)?;
+    diesel::delete(users::table.filter(users::email.like("staff%@example.com"))).execute(conn)?;
 
     // Explicitly delete tables with hardcoded integer primary keys to prevent
     // unique constraint violations if previous seeding or tracking was incomplete.
     // Order matters due to foreign key constraints: issues -> books -> categories
-    diesel::delete(library_issues::table)
-        .execute(conn)?;
-    diesel::delete(library_books::table)
-        .execute(conn)?;
-    diesel::delete(library_categories::table)
-        .execute(conn)?;
-    diesel::delete(library_settings::table)
-        .execute(conn)?;
+    diesel::delete(library_issues::table).execute(conn)?;
+    diesel::delete(library_books::table).execute(conn)?;
+    diesel::delete(library_categories::table).execute(conn)?;
+    diesel::delete(library_settings::table).execute(conn)?;
     diesel::delete(user_set_users::table).execute(conn)?;
     diesel::delete(user_sets::table).execute(conn)?;
-    
+
     // Clear assignment tables
     diesel::delete(role_permissions::table).execute(conn)?;
     diesel::delete(user_permissions::table).execute(conn)?;
@@ -806,10 +799,8 @@ pub fn unseed_data(conn: &mut SqliteConnection) -> Result<(), APIError> {
                     user_set_users::table.filter(user_set_users::user_id.eq_any(ids)),
                 )
                 .execute(conn)?,
-                "user_sets" => {
-                    diesel::delete(user_sets::table.filter(user_sets::id.eq_any(ids)))
-                        .execute(conn)?
-                }
+                "user_sets" => diesel::delete(user_sets::table.filter(user_sets::id.eq_any(ids)))
+                    .execute(conn)?,
                 "users" => {
                     diesel::delete(users::table.filter(users::id.eq_any(ids))).execute(conn)?
                 }

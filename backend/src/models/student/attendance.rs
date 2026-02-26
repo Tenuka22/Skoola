@@ -1,12 +1,30 @@
-use crate::schema::{student_attendance, attendance_policies, exit_passes, pre_approved_absences, attendance_discrepancies, detention_balances, attendance_excuses, student_period_attendance, attendance_audit_log, emergency_roll_calls, emergency_roll_call_entries};
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
+use crate::database::enums::{
+    AttendanceStatus, DetailedStatus, EmergencyStatus, ExcuseType, ExitReason, PolicyRuleType,
+    PreApprovedReason, SuspicionFlag,
+};
+use crate::schema::{
+    attendance_audit_log, attendance_discrepancies, attendance_excuses, attendance_policies,
+    detention_balances, emergency_roll_call_entries, emergency_roll_calls, exit_passes,
+    pre_approved_absences, student_attendance, student_period_attendance,
+};
 use apistos::ApiComponent;
-use crate::database::enums::{AttendanceStatus, PolicyRuleType, ExitReason, PreApprovedReason, ExcuseType, SuspicionFlag, DetailedStatus, EmergencyStatus};
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Clone,
+    Queryable,
+    Selectable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = student_attendance)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct StudentAttendance {
@@ -22,7 +40,17 @@ pub struct StudentAttendance {
     pub is_locked: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = attendance_policies)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct AttendancePolicy {
@@ -35,7 +63,17 @@ pub struct AttendancePolicy {
     pub is_active: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = exit_passes)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct ExitPass {
@@ -51,7 +89,17 @@ pub struct ExitPass {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = pre_approved_absences)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct PreApprovedAbsence {
@@ -67,7 +115,17 @@ pub struct PreApprovedAbsence {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = emergency_roll_calls)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct EmergencyRollCall {
@@ -80,7 +138,17 @@ pub struct EmergencyRollCall {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = emergency_roll_call_entries)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 #[diesel(primary_key(roll_call_id, user_id))]
@@ -92,7 +160,17 @@ pub struct EmergencyRollCallEntry {
     pub marked_at: Option<NaiveDateTime>,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = attendance_discrepancies)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct AttendanceDiscrepancy {
@@ -107,7 +185,17 @@ pub struct AttendanceDiscrepancy {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = detention_balances)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct DetentionBalance {
@@ -118,7 +206,17 @@ pub struct DetentionBalance {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = attendance_excuses)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct AttendanceExcuse {
@@ -131,7 +229,17 @@ pub struct AttendanceExcuse {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = student_period_attendance)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct StudentPeriodAttendance {
@@ -151,7 +259,17 @@ pub struct StudentPeriodAttendance {
     pub detailed_status: Option<DetailedStatus>,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = attendance_audit_log)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct AttendanceAuditLog {

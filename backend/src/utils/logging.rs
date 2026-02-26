@@ -1,4 +1,4 @@
-use tracing::{info, warn, error};
+use tracing::{error, info, warn};
 
 pub fn log_auth_success(user_id: &str, method: &str) {
     info!(

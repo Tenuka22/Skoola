@@ -1,11 +1,13 @@
-use crate::{
-    errors::APIError,
-    AppState,
-    models::exams::exam_subject::{ExamSubject, ExamSubjectResponse, CreateExamSubjectRequest, UpdateExamSubjectRequest},
-};
-use actix_web::{web, HttpResponse};
-use chrono::Utc;
 use crate::schema::{exam_subjects, exams::dsl::*};
+use crate::{
+    AppState,
+    errors::APIError,
+    models::exams::exam_subject::{
+        CreateExamSubjectRequest, ExamSubject, ExamSubjectResponse, UpdateExamSubjectRequest,
+    },
+};
+use actix_web::{HttpResponse, web};
+use chrono::Utc;
 use diesel::prelude::*;
 use diesel::{QueryDsl, RunQueryDsl};
 
@@ -46,8 +48,7 @@ pub async fn get_exam_subject_by_ids(
     let exam_subject: ExamSubject = exam_subjects::table
         .filter(exam_subjects::exam_id.eq(&exam_id))
         .filter(exam_subjects::subject_id.eq(&subject_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(ExamSubjectResponse::from(exam_subject))
 }
@@ -59,7 +60,10 @@ pub async fn get_all_exam_subjects(
     let mut conn = pool.db_pool.get()?;
 
     let exam_subjects_list: Vec<ExamSubject> = exam_subjects::table
-        .order((exam_subjects::exam_id.asc(), exam_subjects::subject_id.asc()))
+        .order((
+            exam_subjects::exam_id.asc(),
+            exam_subjects::subject_id.asc(),
+        ))
         .load::<ExamSubject>(&mut conn)?;
 
     let responses: Vec<ExamSubjectResponse> = exam_subjects_list
@@ -110,7 +114,6 @@ pub async fn get_exam_subjects_by_subject_id(
     Ok(responses)
 }
 
-
 // Service to update an existing ExamSubject
 pub async fn update_exam_subject(
     pool: web::Data<AppState>,
@@ -125,18 +128,23 @@ pub async fn update_exam_subject(
         .filter(exam_subjects::subject_id.eq(&subject_id));
 
     let updated_count = diesel::update(target)
-        .set((update_request, exam_subjects::updated_at.eq(Utc::now().naive_utc())))
+        .set((
+            update_request,
+            exam_subjects::updated_at.eq(Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("ExamSubject with Exam ID {} and Subject ID {} not found", exam_id, subject_id)));
+        return Err(APIError::not_found(&format!(
+            "ExamSubject with Exam ID {} and Subject ID {} not found",
+            exam_id, subject_id
+        )));
     }
 
     let updated_exam_subject: ExamSubject = exam_subjects::table
         .filter(exam_subjects::exam_id.eq(&exam_id))
         .filter(exam_subjects::subject_id.eq(&subject_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(ExamSubjectResponse::from(updated_exam_subject))
 }
@@ -155,7 +163,10 @@ pub async fn delete_exam_subject(
         .execute(&mut conn)?;
 
     if deleted_count == 0 {
-        return Err(APIError::not_found(&format!("ExamSubject with Exam ID {} and Subject ID {} not found", exam_id, subject_id)));
+        return Err(APIError::not_found(&format!(
+            "ExamSubject with Exam ID {} and Subject ID {} not found",
+            exam_id, subject_id
+        )));
     }
 
     Ok(HttpResponse::NoContent().finish())

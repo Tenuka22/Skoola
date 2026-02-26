@@ -6,11 +6,11 @@ use serde::{Deserialize, Serialize};
 use crate::{
     config::Config,
     database::{connection::DbPool, tables::User},
-    errors::iam::IAMError,
     errors::APIError,
+    errors::iam::IAMError,
     services::auth::session,
-    utils::logging::{log_auth_success, log_auth_failure, log_iam_error},
     services::auth::user_service,
+    utils::logging::{log_auth_failure, log_auth_success, log_iam_error},
 };
 
 pub use crate::utils::security::{hash_password, verify_password};
@@ -32,7 +32,9 @@ pub fn create_token_pair(
 
     let expiration = Utc::now()
         .checked_add_signed(Duration::days(config.jwt_expiration as i64))
-        .ok_or_else(|| IAMError::Internal { message: "Failed to calculate JWT expiration timestamp".to_string() })?
+        .ok_or_else(|| IAMError::Internal {
+            message: "Failed to calculate JWT expiration timestamp".to_string(),
+        })?
         .timestamp();
 
     let claims = Claims {
@@ -49,7 +51,7 @@ pub fn create_token_pair(
     )?;
 
     let refresh_token = generate_refresh_token();
-    
+
     log_auth_success(&user.id, "token_creation");
     Ok((access_token, refresh_token, expiration))
 }
@@ -88,22 +90,24 @@ pub async fn refresh_jwt(
     let session = session::find_session_by_refresh_token_hash(&mut conn, &hashed_refresh_token)
         .map_err(APIError::from)?
         .ok_or_else(|| {
-            log_auth_failure("unknown_session", "Invalid refresh token or session expired");
+            log_auth_failure(
+                "unknown_session",
+                "Invalid refresh token or session expired",
+            );
             APIError::unauthorized("Invalid refresh token or session expired")
         })?;
 
     // Delete the old session
     session::delete_session(&mut conn, &session.id).map_err(APIError::from)?;
 
-    let user = user_service::get_user_by_id(&mut conn, &session.user_id)
-        .map_err(|e| {
-             log_auth_failure(&session.user_id, "User not found during refresh");
-             APIError::from(e)
-        })?;
+    let user = user_service::get_user_by_id(&mut conn, &session.user_id).map_err(|e| {
+        log_auth_failure(&session.user_id, "User not found during refresh");
+        APIError::from(e)
+    })?;
 
     let (access_token, new_refresh_token, _access_token_expiration) =
         create_token_pair(&user, config, db_pool).map_err(APIError::from)?;
-    
+
     let hashed_new_refresh_token = hash_password(&new_refresh_token).map_err(APIError::from)?;
 
     let expires_at = Utc::now()
@@ -118,7 +122,8 @@ pub async fn refresh_jwt(
         user_agent.as_deref(),
         ip_address.as_deref(),
         expires_at,
-    ).map_err(APIError::from)?;
+    )
+    .map_err(APIError::from)?;
 
     Ok((access_token, new_refresh_token))
 }

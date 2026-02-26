@@ -1,20 +1,20 @@
 use crate::AppState;
 use crate::errors::APIError;
+use crate::models::MessageResponse;
 use crate::models::finance::fees::{
-    CreateFeeCategoryRequest, UpdateFeeCategoryRequest, CreateFeeStructureRequest, UpdateFeeStructureRequest, 
-    AssignFeeToStudentRequest, RecordFeePaymentRequest, ExemptFeeRequest, FeeCategoryResponse, FeeStructureResponse, 
-    StudentFeeResponse, FeePaymentResponse, StudentBalanceResponse, SendRemindersResponse, FeePaymentHistoryResponse, 
-    ApplyWaiverRequest, BulkAssignFeesRequest, FeeReceiptResponse, ExportReportResponse,
-    FeePayment
+    ApplyWaiverRequest, AssignFeeToStudentRequest, BulkAssignFeesRequest, CreateFeeCategoryRequest,
+    CreateFeeStructureRequest, ExemptFeeRequest, ExportReportResponse, FeeCategoryResponse,
+    FeePayment, FeePaymentHistoryResponse, FeePaymentResponse, FeeReceiptResponse,
+    FeeStructureResponse, RecordFeePaymentRequest, SendRemindersResponse, StudentBalanceResponse,
+    StudentFeeResponse, UpdateFeeCategoryRequest, UpdateFeeStructureRequest,
 };
 use crate::services::resources::fees;
 use crate::services::system::email::send_email;
-use actix_web::web; 
-use crate::models::MessageResponse;
-use apistos::{api_operation, ApiComponent};
+use actix_web::web;
 use apistos::web as api_web;
-use diesel::prelude::*;
+use apistos::{ApiComponent, api_operation};
 use chrono::{NaiveDate, NaiveDateTime};
+use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -115,9 +115,15 @@ pub async fn get_all_categories(
 ) -> Result<web::Json<PaginatedFeeCategoryResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let inner_query = query.into_inner();
-    let (categories, total_categories, total_pages): (Vec<crate::models::finance::fees::FeeCategory>, i64, i64) =
-        fees::get_all_categories_paginated(&mut conn, inner_query.clone()).await?;
-    let responses: Vec<FeeCategoryResponse> = categories.into_iter().map(FeeCategoryResponse::from).collect();
+    let (categories, total_categories, total_pages): (
+        Vec<crate::models::finance::fees::FeeCategory>,
+        i64,
+        i64,
+    ) = fees::get_all_categories_paginated(&mut conn, inner_query.clone()).await?;
+    let responses: Vec<FeeCategoryResponse> = categories
+        .into_iter()
+        .map(FeeCategoryResponse::from)
+        .collect();
     Ok(web::Json(PaginatedFeeCategoryResponse {
         data: responses,
         total: total_categories,
@@ -139,7 +145,9 @@ pub async fn bulk_delete_fee_categories(
 ) -> Result<web::Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     fees::bulk_delete_fee_categories(&mut conn, body.into_inner().category_ids).await?;
-    Ok(web::Json(MessageResponse { message: "Fee categories deleted successfully".to_string() }))
+    Ok(web::Json(MessageResponse {
+        message: "Fee categories deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -154,7 +162,9 @@ pub async fn bulk_update_fee_categories(
 ) -> Result<web::Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     fees::bulk_update_fee_categories(&mut conn, body.into_inner()).await?;
-    Ok(web::Json(MessageResponse { message: "Fee categories updated successfully".to_string() }))
+    Ok(web::Json(MessageResponse {
+        message: "Fee categories updated successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -218,8 +228,12 @@ pub async fn get_structures_by_grade(
 ) -> Result<web::Json<Vec<FeeStructureResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let grade_id = path.into_inner();
-    let structures: Vec<crate::models::finance::fees::FeeStructure> = fees::get_structures_by_grade(&mut conn, &grade_id).await?;
-    let responses: Vec<FeeStructureResponse> = structures.into_iter().map(FeeStructureResponse::from).collect();
+    let structures: Vec<crate::models::finance::fees::FeeStructure> =
+        fees::get_structures_by_grade(&mut conn, &grade_id).await?;
+    let responses: Vec<FeeStructureResponse> = structures
+        .into_iter()
+        .map(FeeStructureResponse::from)
+        .collect();
     Ok(web::Json(responses))
 }
 
@@ -235,9 +249,15 @@ pub async fn get_all_fee_structures(
 ) -> Result<web::Json<PaginatedFeeStructureResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let inner_query = query.into_inner();
-    let (structures, total_structures, total_pages): (Vec<crate::models::finance::fees::FeeStructure>, i64, i64) =
-        fees::get_all_fee_structures_paginated(&mut conn, inner_query.clone()).await?;
-    let responses: Vec<FeeStructureResponse> = structures.into_iter().map(FeeStructureResponse::from).collect();
+    let (structures, total_structures, total_pages): (
+        Vec<crate::models::finance::fees::FeeStructure>,
+        i64,
+        i64,
+    ) = fees::get_all_fee_structures_paginated(&mut conn, inner_query.clone()).await?;
+    let responses: Vec<FeeStructureResponse> = structures
+        .into_iter()
+        .map(FeeStructureResponse::from)
+        .collect();
     Ok(web::Json(PaginatedFeeStructureResponse {
         data: responses,
         total: total_structures,
@@ -259,7 +279,9 @@ pub async fn bulk_delete_fee_structures(
 ) -> Result<web::Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     fees::bulk_delete_fee_structures(&mut conn, body.into_inner().structure_ids).await?;
-    Ok(web::Json(MessageResponse { message: "Fee structures deleted successfully".to_string() }))
+    Ok(web::Json(MessageResponse {
+        message: "Fee structures deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -274,7 +296,9 @@ pub async fn bulk_update_fee_structures(
 ) -> Result<web::Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     fees::bulk_update_fee_structures(&mut conn, body.into_inner()).await?;
-    Ok(web::Json(MessageResponse { message: "Fee structures updated successfully".to_string() }))
+    Ok(web::Json(MessageResponse {
+        message: "Fee structures updated successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -321,8 +345,12 @@ pub async fn get_student_fees(
 ) -> Result<web::Json<Vec<StudentFeeResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let student_id = path.into_inner();
-    let student_fees_list: Vec<crate::models::finance::fees::StudentFee> = fees::get_fees_by_student(&mut conn, &student_id).await?;
-    let responses: Vec<StudentFeeResponse> = student_fees_list.into_iter().map(StudentFeeResponse::from).collect();
+    let student_fees_list: Vec<crate::models::finance::fees::StudentFee> =
+        fees::get_fees_by_student(&mut conn, &student_id).await?;
+    let responses: Vec<StudentFeeResponse> = student_fees_list
+        .into_iter()
+        .map(StudentFeeResponse::from)
+        .collect();
     Ok(web::Json(responses))
 }
 
@@ -440,23 +468,26 @@ pub async fn send_reminders(
 ) -> Result<web::Json<SendRemindersResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let defaulters = fees::get_defaulters(&mut conn).await?;
-    
+
     let mut count = 0;
     for defaulter in defaulters {
         if let Ok(student) = crate::schema::students::table
             .filter(crate::schema::students::id.eq(&defaulter.student_id))
             .select(crate::models::student::student::Student::as_select())
-            .first::<crate::models::student::student::Student>(&mut conn) {
-            
+            .first::<crate::models::student::student::Student>(&mut conn)
+        {
             if let Some(email) = student.email {
                 let subject = "Fee Payment Reminder - Skoola".to_string();
-                let body = format!("Dear {},\n\nThis is a reminder that you have an outstanding balance of {} in your school fees. Please make the payment at your earliest convenience.\n\nThank you.", student.name_english, defaulter.balance);
-                
+                let body = format!(
+                    "Dear {},\n\nThis is a reminder that you have an outstanding balance of {} in your school fees. Please make the payment at your earliest convenience.\n\nThank you.",
+                    student.name_english, defaulter.balance
+                );
+
                 let config = data.config.clone();
                 let email_clone: String = email.clone();
                 let subject_clone = subject.clone();
                 let body_clone = body.clone();
-                
+
                 tokio::spawn(async move {
                     let _ = send_email(&config, email_clone, subject_clone, body_clone).await;
                 });
@@ -464,8 +495,10 @@ pub async fn send_reminders(
             }
         }
     }
-    
-    Ok(web::Json(SendRemindersResponse { reminders_sent: count as i32 }))
+
+    Ok(web::Json(SendRemindersResponse {
+        reminders_sent: count as i32,
+    }))
 }
 
 #[api_operation(
@@ -497,7 +530,9 @@ pub async fn bulk_assign_fees(
 ) -> Result<web::Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let count = fees::bulk_assign_fees(&mut conn, req.into_inner()).await?;
-    Ok(web::Json(MessageResponse { message: format!("Successfully assigned fees to {} students", count) }))
+    Ok(web::Json(MessageResponse {
+        message: format!("Successfully assigned fees to {} students", count),
+    }))
 }
 
 #[derive(Deserialize, JsonSchema, ApiComponent)]
@@ -517,8 +552,10 @@ pub async fn get_payments_by_date_range(
     query: web::Query<DateRangeQuery>,
 ) -> Result<web::Json<Vec<FeePaymentResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let payments: Vec<FeePayment> = fees::get_payments_by_date_range(&mut conn, query.start, query.end).await?;
-    let responses: Vec<FeePaymentResponse> = payments.into_iter().map(FeePaymentResponse::from).collect();
+    let payments: Vec<FeePayment> =
+        fees::get_payments_by_date_range(&mut conn, query.start, query.end).await?;
+    let responses: Vec<FeePaymentResponse> =
+        payments.into_iter().map(FeePaymentResponse::from).collect();
     Ok(web::Json(responses))
 }
 
@@ -557,28 +594,64 @@ pub fn config(cfg: &mut api_web::ServiceConfig) {
             .route("/categories", api_web::post().to(create_category))
             .route("/categories", api_web::get().to(get_all_categories))
             .route("/categories/{id}", api_web::put().to(update_category))
-            .route("/categories/bulk", api_web::delete().to(bulk_delete_fee_categories))
-            .route("/categories/bulk", api_web::patch().to(bulk_update_fee_categories))
+            .route(
+                "/categories/bulk",
+                api_web::delete().to(bulk_delete_fee_categories),
+            )
+            .route(
+                "/categories/bulk",
+                api_web::patch().to(bulk_update_fee_categories),
+            )
             .route("/structures", api_web::post().to(create_structure))
             .route("/structures", api_web::get().to(get_all_fee_structures))
             .route("/structures/{id}", api_web::put().to(update_structure))
-            .route("/structures/bulk", api_web::delete().to(bulk_delete_fee_structures))
-            .route("/structures/bulk", api_web::patch().to(bulk_update_fee_structures))
-            .route("/structures/grade/{grade_id}", api_web::get().to(get_structures_by_grade))
+            .route(
+                "/structures/bulk",
+                api_web::delete().to(bulk_delete_fee_structures),
+            )
+            .route(
+                "/structures/bulk",
+                api_web::patch().to(bulk_update_fee_structures),
+            )
+            .route(
+                "/structures/grade/{grade_id}",
+                api_web::get().to(get_structures_by_grade),
+            )
             .route("/assignments", api_web::post().to(assign_fee_to_student))
             .route("/assignments/bulk", api_web::post().to(bulk_assign_fees))
-            .route("/assignments/student/{student_id}", api_web::get().to(get_student_fees))
+            .route(
+                "/assignments/student/{student_id}",
+                api_web::get().to(get_student_fees),
+            )
             .route("/assignments/{id}", api_web::put().to(update_student_fee))
             .route("/assignments/{id}/waiver", api_web::post().to(apply_waiver))
-            .route("/assignments/exempted", api_web::get().to(get_exempted_students))
+            .route(
+                "/assignments/exempted",
+                api_web::get().to(get_exempted_students),
+            )
             .route("/payments", api_web::post().to(record_payment))
-            .route("/payments/report", api_web::get().to(get_payments_by_date_range))
+            .route(
+                "/payments/report",
+                api_web::get().to(get_payments_by_date_range),
+            )
             .route("/payments/{id}/receipt", api_web::get().to(get_receipt))
-            .route("/history/{student_id}", api_web::get().to(get_payment_history))
-            .route("/balance/{student_id}", api_web::get().to(get_student_balance))
+            .route(
+                "/history/{student_id}",
+                api_web::get().to(get_payment_history),
+            )
+            .route(
+                "/balance/{student_id}",
+                api_web::get().to(get_student_balance),
+            )
             .route("/defaulters", api_web::get().to(get_defaulters))
-            .route("/reports/collection", api_web::get().to(get_collection_report))
-            .route("/reports/grade", api_web::get().to(get_grade_collection_report))
+            .route(
+                "/reports/collection",
+                api_web::get().to(get_collection_report),
+            )
+            .route(
+                "/reports/grade",
+                api_web::get().to(get_grade_collection_report),
+            )
             .route("/reports/export", api_web::get().to(export_reports))
             .route("/reminders", api_web::post().to(send_reminders)),
     );

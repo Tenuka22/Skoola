@@ -1,9 +1,9 @@
+use crate::config::Config;
 use crate::errors::iam::IAMError;
+use crate::utils::logging::log_iam_error;
 use reqwest::Client;
 use serde::Deserialize;
 use tracing::info;
-use crate::config::Config;
-use crate::utils::logging::log_iam_error;
 
 #[derive(Deserialize)]
 struct GoogleTokenResponse {

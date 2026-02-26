@@ -1,10 +1,12 @@
 use crate::schema::student_emergency_contacts;
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
 use chrono::NaiveDateTime;
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema)]
+#[derive(
+    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema,
+)]
 #[diesel(table_name = student_emergency_contacts)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct StudentEmergencyContact {

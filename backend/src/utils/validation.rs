@@ -1,5 +1,5 @@
 pub fn is_valid_nic(nic: &str) -> bool {
-    // This is a very basic NIC validation. 
+    // This is a very basic NIC validation.
     // A more robust implementation would check for the format and the checksum.
     nic.len() == 10 || nic.len() == 12
 }
@@ -38,7 +38,9 @@ pub fn is_valid_ethnicity(ethnicity: &str) -> bool {
     !ethnicity.is_empty()
 }
 
-pub fn validate_optional_string_not_empty(s: &Option<String>) -> Result<(), validator::ValidationError> {
+pub fn validate_optional_string_not_empty(
+    s: &Option<String>,
+) -> Result<(), validator::ValidationError> {
     if let Some(val) = s {
         if val.trim().is_empty() {
             return Err(validator::ValidationError::new("cannot_be_empty"));

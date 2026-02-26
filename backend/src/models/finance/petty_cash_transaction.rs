@@ -1,8 +1,8 @@
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
+use apistos::ApiComponent;
 use chrono::NaiveDateTime;
+use diesel::prelude::*;
 use schemars::JsonSchema; // Added for JsonSchema derive
-use apistos::ApiComponent; // Added for ApiComponent derive
+use serde::{Deserialize, Serialize}; // Added for ApiComponent derive
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, JsonSchema, ApiComponent)] // Added JsonSchema, ApiComponent
 #[diesel(table_name = crate::schema::petty_cash_transactions)]

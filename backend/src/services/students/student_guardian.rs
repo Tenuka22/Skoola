@@ -1,19 +1,21 @@
-use diesel::prelude::*;
-use diesel::SelectableHelper;
-use diesel::NullableExpressionMethods;
-use crate::{
-    errors::APIError,
-    AppState,
-    models::student::guardian::{StudentGuardian, CreateStudentGuardianRequest, StudentGuardianResponse, UpdateStudentGuardianRequest},
-    database::tables::{User, NewUser}, // Added User, NewUser
-    database::enums::RoleEnum, // Added RoleEnum
-};
-use actix_web::{web, HttpResponse};
-use uuid::Uuid;
-use chrono::Utc;
 use crate::schema::{student_guardians, users}; // Added users
-use bcrypt::{hash, DEFAULT_COST}; // Added bcrypt for hashing passwords
-
+use crate::{
+    AppState,
+    database::enums::RoleEnum,         // Added RoleEnum
+    database::tables::{NewUser, User}, // Added User, NewUser
+    errors::APIError,
+    models::student::guardian::{
+        CreateStudentGuardianRequest, StudentGuardian, StudentGuardianResponse,
+        UpdateStudentGuardianRequest,
+    },
+};
+use actix_web::{HttpResponse, web};
+use bcrypt::{DEFAULT_COST, hash};
+use chrono::Utc;
+use diesel::NullableExpressionMethods;
+use diesel::SelectableHelper;
+use diesel::prelude::*;
+use uuid::Uuid; // Added bcrypt for hashing passwords
 
 pub async fn add_guardian_to_student(
     pool: web::Data<AppState>,
@@ -24,7 +26,9 @@ pub async fn add_guardian_to_student(
 
     let guardian_id = Uuid::new_v4().to_string();
 
-    let user_id_for_guardian: Option<String> = if let Some(guardian_email) = new_guardian_request.email.clone() {
+    let user_id_for_guardian: Option<String> = if let Some(guardian_email) =
+        new_guardian_request.email.clone()
+    {
         // 1. Look up a user by the guardian's email
         let matching_user: Option<User> = users::table
             .filter(users::email.eq(guardian_email.clone()))
@@ -37,7 +41,10 @@ pub async fn add_guardian_to_student(
             Some(user.id)
         } else {
             // 3. If no user exists, create a new user and link the guardian
-            println!("Creating new user for guardian with email: {}", guardian_email);
+            println!(
+                "Creating new user for guardian with email: {}",
+                guardian_email
+            );
             let new_user_id = Uuid::new_v4().to_string();
             let password = Uuid::new_v4().to_string(); // Generate a random temporary password
             let hashed_password = hash(password.as_bytes(), DEFAULT_COST)
@@ -64,8 +71,11 @@ pub async fn add_guardian_to_student(
             diesel::insert_into(users::table)
                 .values(&new_user)
                 .execute(&mut conn)?;
-            
-            println!("User created for {} with ID {}. Temporary password: {}. Please ensure a password reset mechanism is in place.", guardian_email, new_user_id, password);
+
+            println!(
+                "User created for {} with ID {}. Temporary password: {}. Please ensure a password reset mechanism is in place.",
+                guardian_email, new_user_id, password
+            );
             Some(new_user_id)
         }
     } else {
@@ -127,7 +137,10 @@ pub async fn update_guardian_info(
         .filter(student_guardians::id.eq(&guardian_id));
 
     let updated_count = diesel::update(target)
-        .set((update_request, student_guardians::updated_at.eq(Utc::now().naive_utc())))
+        .set((
+            update_request,
+            student_guardians::updated_at.eq(Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {

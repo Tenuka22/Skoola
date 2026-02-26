@@ -1,16 +1,16 @@
-use actix_web::{web, HttpResponse};
 use actix_web::web::Json;
+use actix_web::{HttpResponse, web};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::AppState;
 use crate::APIError;
-use crate::services::resource_management;
+use crate::AppState;
 use crate::models::resource_management::{Resource, ResourceBooking};
+use crate::services::resource_management;
 
-use schemars::JsonSchema;
-use apistos::{api_operation, ApiComponent};
+use apistos::{ApiComponent, api_operation};
 use chrono::NaiveDateTime;
+use schemars::JsonSchema;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct ResourceResponse {
@@ -96,8 +96,7 @@ pub async fn create_resource(
     data: web::Data<AppState>,
     body: web::Json<CreateResourceRequest>,
 ) -> Result<Json<ResourceResponse>, APIError> {
-    let resource =
-        resource_management::create_resource(data.clone(), body.into_inner()).await?;
+    let resource = resource_management::create_resource(data.clone(), body.into_inner()).await?;
     Ok(Json(ResourceResponse::from(resource)))
 }
 
@@ -126,7 +125,9 @@ pub async fn get_all_resources(
     data: web::Data<AppState>,
 ) -> Result<Json<Vec<ResourceResponse>>, APIError> {
     let resources = resource_management::get_all_resources(data.clone()).await?;
-    Ok(Json(resources.into_iter().map(ResourceResponse::from).collect()))
+    Ok(Json(
+        resources.into_iter().map(ResourceResponse::from).collect(),
+    ))
 }
 
 #[api_operation(
@@ -141,12 +142,8 @@ pub async fn update_resource(
     body: web::Json<UpdateResourceRequest>,
 ) -> Result<Json<ResourceResponse>, APIError> {
     let resource_id = path.into_inner();
-    let updated_resource = resource_management::update_resource(
-        data.clone(),
-        resource_id,
-        body.into_inner(),
-    )
-    .await?;
+    let updated_resource =
+        resource_management::update_resource(data.clone(), resource_id, body.into_inner()).await?;
     Ok(Json(ResourceResponse::from(updated_resource)))
 }
 
@@ -179,7 +176,8 @@ pub async fn book_resource(
     body: web::Json<BookResourceRequest>,
 ) -> Result<Json<ResourceBookingResponse>, APIError> {
     let booking =
-        resource_management::book_resource(data.clone(), current_user.id, body.into_inner()).await?;
+        resource_management::book_resource(data.clone(), current_user.id, body.into_inner())
+            .await?;
     Ok(Json(ResourceBookingResponse::from(booking)))
 }
 
@@ -195,5 +193,10 @@ pub async fn get_resource_bookings(
 ) -> Result<Json<Vec<ResourceBookingResponse>>, APIError> {
     let resource_id = path.into_inner();
     let bookings = resource_management::get_resource_bookings(data.clone(), resource_id).await?;
-    Ok(Json(bookings.into_iter().map(ResourceBookingResponse::from).collect()))
+    Ok(Json(
+        bookings
+            .into_iter()
+            .map(ResourceBookingResponse::from)
+            .collect(),
+    ))
 }

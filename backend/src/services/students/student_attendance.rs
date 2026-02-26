@@ -1,31 +1,36 @@
-use diesel::prelude::*;
+use crate::schema::{
+    activities, activity_participants, attendance_audit_log, attendance_discrepancies,
+    attendance_excuses, emergency_roll_call_entries, emergency_roll_calls, pre_approved_absences,
+    school_calendar, student_attendance, student_class_assignments, student_guardians,
+    student_medical_info, student_period_attendance, students, timetable,
+};
+use crate::services::system::email::send_email;
 use crate::{
-    errors::APIError,
     AppState,
+    database::enums::{AttendanceStatus, DayType, EmergencyStatus, SuspicionFlag},
+    errors::APIError,
+    models::academic::timetable::Timetable,
     models::student::attendance::{
-        StudentAttendance, MarkStudentAttendanceRequest, StudentAttendanceResponse,
-        BulkMarkStudentAttendanceRequest, UpdateStudentAttendanceRequest,
-        GenerateAttendanceReportRequest, StudentAttendanceReportResponse, LowAttendanceStudentQuery,
-        EmergencyRollCall, EmergencyRollCallEntry, PreApprovedAbsence,
-        AttendanceDiscrepancy, AttendanceAuditLog, StudentPeriodAttendance,
-        AttendanceExcuse as DbAttendanceExcuse, MarkPeriodAttendanceRequest, SubmitExcuseRequest
+        AttendanceAuditLog, AttendanceDiscrepancy, AttendanceExcuse as DbAttendanceExcuse,
+        BulkMarkStudentAttendanceRequest, EmergencyRollCall, EmergencyRollCallEntry,
+        GenerateAttendanceReportRequest, LowAttendanceStudentQuery, MarkPeriodAttendanceRequest,
+        MarkStudentAttendanceRequest, PreApprovedAbsence, StudentAttendance,
+        StudentAttendanceReportResponse, StudentAttendanceResponse, StudentPeriodAttendance,
+        SubmitExcuseRequest, UpdateStudentAttendanceRequest,
     },
     models::student::enrollment::StudentClassAssignment,
-    models::student::student::Student,
     models::student::medical::StudentMedicalInfo,
-    models::system::calendar::SchoolCalendar,
+    models::student::student::Student,
     models::system::activity::{Activity, ActivityParticipant},
-    database::enums::{AttendanceStatus, DayType, SuspicionFlag, EmergencyStatus},
-    models::academic::timetable::Timetable,
+    models::system::calendar::SchoolCalendar,
 };
-use actix_web::{web, HttpResponse};
-use uuid::Uuid;
-use chrono::{Utc, NaiveDate, Datelike, NaiveTime};
-use schemars::JsonSchema;
+use actix_web::{HttpResponse, web};
 use apistos::ApiComponent;
+use chrono::{Datelike, NaiveDate, NaiveTime, Utc};
+use diesel::prelude::*;
+use schemars::JsonSchema;
 use serde::Serialize;
-use crate::schema::{student_attendance, student_period_attendance, students, student_guardians, school_calendar, activities, activity_participants, attendance_audit_log, student_class_assignments, attendance_discrepancies, student_medical_info, pre_approved_absences, emergency_roll_calls, emergency_roll_call_entries, timetable, attendance_excuses};
-use crate::services::system::email::send_email;
+use uuid::Uuid;
 
 pub async fn submit_excuse(
     pool: web::Data<AppState>,
@@ -34,7 +39,9 @@ pub async fn submit_excuse(
     let mut conn = pool.db_pool.get()?;
     let id = Uuid::new_v4().to_string();
 
-    let excuse_type: crate::database::enums::ExcuseType = req.excuse_type.parse()
+    let excuse_type: crate::database::enums::ExcuseType = req
+        .excuse_type
+        .parse()
         .map_err(|_| APIError::bad_request("Invalid excuse type"))?;
 
     let new_excuse = DbAttendanceExcuse {
@@ -60,8 +67,10 @@ pub async fn verify_excuse(
     verifier_id: String,
 ) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
-    
-    let excuse: DbAttendanceExcuse = attendance_excuses::table.find(&excuse_id).first(&mut conn)?;
+
+    let excuse: DbAttendanceExcuse = attendance_excuses::table
+        .find(&excuse_id)
+        .first(&mut conn)?;
 
     diesel::update(attendance_excuses::table.find(&excuse_id))
         .set((
@@ -72,11 +81,13 @@ pub async fn verify_excuse(
 
     diesel::update(student_attendance::table.find(&excuse.attendance_record_id))
         .set(student_attendance::status.eq(AttendanceStatus::Excused))
-        .execute(&mut conn).ok();
+        .execute(&mut conn)
+        .ok();
 
     diesel::update(student_period_attendance::table.find(&excuse.attendance_record_id))
         .set(student_period_attendance::status.eq(AttendanceStatus::Excused))
-        .execute(&mut conn).ok();
+        .execute(&mut conn)
+        .ok();
 
     Ok(())
 }
@@ -90,7 +101,11 @@ pub struct EnrichedStudentAttendance {
     pub suspicion_flag: Option<SuspicionFlag>,
 }
 
-pub async fn initiate_emergency_roll_call(pool: web::Data<AppState>, event_name: String, user_id: String) -> Result<String, APIError> {
+pub async fn initiate_emergency_roll_call(
+    pool: web::Data<AppState>,
+    event_name: String,
+    user_id: String,
+) -> Result<String, APIError> {
     let mut conn = pool.db_pool.get()?;
     let roll_call_id = Uuid::new_v4().to_string();
     let now = Utc::now().naive_utc();
@@ -105,27 +120,35 @@ pub async fn initiate_emergency_roll_call(pool: web::Data<AppState>, event_name:
         created_at: now,
     };
 
-    diesel::insert_into(emergency_roll_calls::table).values(&roll_call).execute(&mut conn)?;
+    diesel::insert_into(emergency_roll_calls::table)
+        .values(&roll_call)
+        .execute(&mut conn)?;
 
     let today = now.date();
     let present_student_ids: Vec<String> = student_attendance::table
         .filter(student_attendance::date.eq(today))
-        .filter(student_attendance::status.eq_any(vec![AttendanceStatus::Present.to_string(), AttendanceStatus::Late.to_string()]))
+        .filter(student_attendance::status.eq_any(vec![
+            AttendanceStatus::Present.to_string(),
+            AttendanceStatus::Late.to_string(),
+        ]))
         .select(student_attendance::student_id)
         .load::<String>(&mut conn)?;
 
-    let entries: Vec<EmergencyRollCallEntry> = present_student_ids.into_iter().map(|s_id| {
-        EmergencyRollCallEntry {
+    let entries: Vec<EmergencyRollCallEntry> = present_student_ids
+        .into_iter()
+        .map(|s_id| EmergencyRollCallEntry {
             roll_call_id: roll_call_id.clone(),
             user_id: s_id,
             status: EmergencyStatus::Unknown,
             location_found: None,
             marked_at: None,
-        }
-    }).collect();
+        })
+        .collect();
 
     if !entries.is_empty() {
-        diesel::insert_into(emergency_roll_call_entries::table).values(&entries).execute(&mut conn)?;
+        diesel::insert_into(emergency_roll_call_entries::table)
+            .values(&entries)
+            .execute(&mut conn)?;
     }
 
     Ok(roll_call_id)
@@ -151,7 +174,10 @@ pub async fn update_emergency_entry(
     Ok(())
 }
 
-pub async fn complete_emergency_roll_call(pool: web::Data<AppState>, id: String) -> Result<(), APIError> {
+pub async fn complete_emergency_roll_call(
+    pool: web::Data<AppState>,
+    id: String,
+) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
     diesel::update(emergency_roll_calls::table.find(id))
         .set((
@@ -162,9 +188,12 @@ pub async fn complete_emergency_roll_call(pool: web::Data<AppState>, id: String)
     Ok(())
 }
 
-pub async fn apply_pre_approved_absences(pool: web::Data<AppState>, target_date: NaiveDate) -> Result<i32, APIError> {
+pub async fn apply_pre_approved_absences(
+    pool: web::Data<AppState>,
+    target_date: NaiveDate,
+) -> Result<i32, APIError> {
     let mut conn = pool.db_pool.get()?;
-    
+
     let approved: Vec<PreApprovedAbsence> = pre_approved_absences::table
         .filter(pre_approved_absences::start_date.le(target_date))
         .filter(pre_approved_absences::end_date.ge(target_date))
@@ -182,7 +211,7 @@ pub async fn apply_pre_approved_absences(pool: web::Data<AppState>, target_date:
             if let Ok(assignment) = student_class_assignments::table
                 .filter(student_class_assignments::student_id.eq(&note.student_id))
                 .filter(student_class_assignments::to_date.is_null())
-                .first::<StudentClassAssignment>(&mut conn) 
+                .first::<StudentClassAssignment>(&mut conn)
             {
                 let new_att = StudentAttendance {
                     id: Uuid::new_v4().to_string(),
@@ -196,7 +225,9 @@ pub async fn apply_pre_approved_absences(pool: web::Data<AppState>, target_date:
                     updated_at: Utc::now().naive_utc(),
                     is_locked: true,
                 };
-                diesel::insert_into(student_attendance::table).values(&new_att).execute(&mut conn)?;
+                diesel::insert_into(student_attendance::table)
+                    .values(&new_att)
+                    .execute(&mut conn)?;
                 count += 1;
             }
         }
@@ -209,9 +240,7 @@ pub async fn calculate_precise_late_minutes(
     t_id: String,
     check_in_time: NaiveTime,
 ) -> Result<i32, APIError> {
-    let entry: Timetable = timetable::table
-        .find(&t_id)
-        .first(conn)?;
+    let entry: Timetable = timetable::table.find(&t_id).first(conn)?;
 
     let cutoff_str: Option<String> = crate::schema::school_settings::table
         .filter(crate::schema::school_settings::setting_key.eq("morning_cutoff_time"))
@@ -236,7 +265,10 @@ pub async fn calculate_precise_late_minutes(
     }
 }
 
-pub async fn is_working_day(conn: &mut SqliteConnection, check_date: NaiveDate) -> Result<bool, APIError> {
+pub async fn is_working_day(
+    conn: &mut SqliteConnection,
+    check_date: NaiveDate,
+) -> Result<bool, APIError> {
     let day_info: Option<SchoolCalendar> = school_calendar::table
         .filter(school_calendar::date.eq(check_date))
         .first(conn)
@@ -251,9 +283,12 @@ pub async fn is_working_day(conn: &mut SqliteConnection, check_date: NaiveDate) 
     }
 }
 
-pub async fn run_discrepancy_check(pool: web::Data<AppState>, check_date: NaiveDate) -> Result<i32, APIError> {
+pub async fn run_discrepancy_check(
+    pool: web::Data<AppState>,
+    check_date: NaiveDate,
+) -> Result<i32, APIError> {
     let mut conn = pool.db_pool.get()?;
-    
+
     let morning_present: Vec<String> = student_attendance::table
         .filter(student_attendance::date.eq(check_date))
         .filter(student_attendance::status.eq(AttendanceStatus::Present))
@@ -274,19 +309,26 @@ pub async fn run_discrepancy_check(pool: web::Data<AppState>, check_date: NaiveD
                 student_id: s_id.clone(),
                 date: check_date,
                 discrepancy_type: "PresentButMissingPeriod".to_string(),
-                details: Some(format!("Student was present in the morning but missed {} periods.", absent_periods.len())),
+                details: Some(format!(
+                    "Student was present in the morning but missed {} periods.",
+                    absent_periods.len()
+                )),
                 severity: "High".to_string(),
                 is_resolved: false,
                 resolved_by: None,
                 created_at: Utc::now().naive_utc(),
             };
-            diesel::insert_into(attendance_discrepancies::table).values(&new_discrepancy).execute(&mut conn)?;
-            
-            diesel::update(student_period_attendance::table
-                .filter(student_period_attendance::student_id.eq(&s_id))
-                .filter(student_period_attendance::date.eq(check_date)))
-                .set(student_period_attendance::suspicion_flag.eq(SuspicionFlag::SkippingAfterInterval))
+            diesel::insert_into(attendance_discrepancies::table)
+                .values(&new_discrepancy)
                 .execute(&mut conn)?;
+
+            diesel::update(
+                student_period_attendance::table
+                    .filter(student_period_attendance::student_id.eq(&s_id))
+                    .filter(student_period_attendance::date.eq(check_date)),
+            )
+            .set(student_period_attendance::suspicion_flag.eq(SuspicionFlag::SkippingAfterInterval))
+            .execute(&mut conn)?;
 
             alerts_count += 1;
         }
@@ -294,30 +336,49 @@ pub async fn run_discrepancy_check(pool: web::Data<AppState>, check_date: NaiveD
     Ok(alerts_count)
 }
 
-pub async fn check_consecutive_absences(pool: web::Data<AppState>, student_id: String) -> Result<bool, APIError> {
+pub async fn check_consecutive_absences(
+    pool: web::Data<AppState>,
+    student_id: String,
+) -> Result<bool, APIError> {
     let mut conn = pool.db_pool.get()?;
-    
+
     let last_records = student_attendance::table
         .filter(student_attendance::student_id.eq(&student_id))
         .order(student_attendance::date.desc())
         .limit(3)
         .load::<StudentAttendance>(&mut conn)?;
 
-    if last_records.len() < 3 { return Ok(false); }
+    if last_records.len() < 3 {
+        return Ok(false);
+    }
 
-    let all_absent = last_records.iter().all(|r| r.status == AttendanceStatus::Absent);
+    let all_absent = last_records
+        .iter()
+        .all(|r| r.status == AttendanceStatus::Absent);
     Ok(all_absent)
 }
 
-pub async fn get_enriched_student_list(pool: web::Data<AppState>, class_id: String, date: NaiveDate) -> Result<Vec<EnrichedStudentAttendance>, APIError> {
+pub async fn get_enriched_student_list(
+    pool: web::Data<AppState>,
+    class_id: String,
+    date: NaiveDate,
+) -> Result<Vec<EnrichedStudentAttendance>, APIError> {
     let mut conn = pool.db_pool.get()?;
-    
+
     let students_data: Vec<(Student, Option<StudentMedicalInfo>)> = students::table
-        .inner_join(student_class_assignments::table.on(students::id.eq(student_class_assignments::student_id)))
-        .left_join(student_medical_info::table.on(students::id.eq(student_medical_info::student_id)))
+        .inner_join(
+            student_class_assignments::table
+                .on(students::id.eq(student_class_assignments::student_id)),
+        )
+        .left_join(
+            student_medical_info::table.on(students::id.eq(student_medical_info::student_id)),
+        )
         .filter(student_class_assignments::class_id.eq(&class_id))
         .filter(student_class_assignments::to_date.is_null())
-        .select((Student::as_select(), Option::<StudentMedicalInfo>::as_select()))
+        .select((
+            Student::as_select(),
+            Option::<StudentMedicalInfo>::as_select(),
+        ))
         .load(&mut conn)?;
 
     let mut enriched = Vec::new();
@@ -332,8 +393,13 @@ pub async fn get_enriched_student_list(pool: web::Data<AppState>, class_id: Stri
             student_id: s.id,
             student_name: s.name_english,
             status: att.as_ref().map(|a| a.status.clone()),
-            medical_alerts: med.map(|m| format!("BG: {:?}, Allergies: {:?}, Conditions: {:?}", m.blood_group, m.allergies, m.medical_conditions)),
-            suspicion_flag: None, 
+            medical_alerts: med.map(|m| {
+                format!(
+                    "BG: {:?}, Allergies: {:?}, Conditions: {:?}",
+                    m.blood_group, m.allergies, m.medical_conditions
+                )
+            }),
+            suspicion_flag: None,
         });
     }
     Ok(enriched)
@@ -345,12 +411,21 @@ pub async fn mark_period_attendance(
     marker_id: String,
 ) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
-    
-    let status: AttendanceStatus = req.status.parse()
+
+    let status: AttendanceStatus = req
+        .status
+        .parse()
         .map_err(|_| APIError::bad_request("Invalid attendance status"))?;
 
     let minutes_late = if status == AttendanceStatus::Late && req.minutes_late.is_none() {
-        Some(calculate_precise_late_minutes(&mut conn, req.timetable_id.clone(), Utc::now().naive_utc().time()).await?)
+        Some(
+            calculate_precise_late_minutes(
+                &mut conn,
+                req.timetable_id.clone(),
+                Utc::now().naive_utc().time(),
+            )
+            .await?,
+        )
     } else {
         req.minutes_late
     };
@@ -414,7 +489,9 @@ pub async fn bulk_mark_student_attendance(
 
     if let Some(first) = bulk_request.attendance_records.first() {
         if !is_working_day(&mut conn, first.date).await? {
-            return Err(APIError::bad_request("Cannot mark attendance on a non-working day"));
+            return Err(APIError::bad_request(
+                "Cannot mark attendance on a non-working day",
+            ));
         }
     }
 
@@ -436,7 +513,7 @@ pub async fn bulk_mark_student_attendance(
         diesel::insert_into(student_attendance::table)
             .values(&new_attendance)
             .execute(&mut conn)?;
-        
+
         marked_attendance_records.push(StudentAttendanceResponse::from(new_attendance));
     }
 
@@ -450,7 +527,9 @@ pub async fn mark_individual_student_attendance(
     let mut conn = pool.db_pool.get()?;
 
     if !is_working_day(&mut conn, record_request.date).await? {
-        return Err(APIError::bad_request("Cannot mark attendance on a non-working day"));
+        return Err(APIError::bad_request(
+            "Cannot mark attendance on a non-working day",
+        ));
     }
 
     let attendance_id = Uuid::new_v4().to_string();
@@ -487,13 +566,18 @@ pub async fn update_student_attendance(
         .map_err(|_| APIError::not_found("Attendance record not found"))?;
 
     if old_record.is_locked {
-        return Err(APIError::forbidden("This attendance record is locked and cannot be modified"));
+        return Err(APIError::forbidden(
+            "This attendance record is locked and cannot be modified",
+        ));
     }
 
     let target = student_attendance::table.filter(student_attendance::id.eq(&attendance_id));
 
     diesel::update(target)
-        .set((&update_request, student_attendance::updated_at.eq(Utc::now().naive_utc())))
+        .set((
+            &update_request,
+            student_attendance::updated_at.eq(Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     if let Some(new_status) = update_request.status {
@@ -503,33 +587,49 @@ pub async fn update_student_attendance(
             &attendance_id,
             Some(old_record.status),
             new_status,
-            update_request.remarks.clone().unwrap_or_else(|| "Manual Update".to_string()),
-            update_request.marked_by.clone().unwrap_or_else(|| "UNKNOWN".to_string()),
-        ).await?;
+            update_request
+                .remarks
+                .clone()
+                .unwrap_or_else(|| "Manual Update".to_string()),
+            update_request
+                .marked_by
+                .clone()
+                .unwrap_or_else(|| "UNKNOWN".to_string()),
+        )
+        .await?;
     }
 
     let updated_record: StudentAttendance = student_attendance::table
         .filter(student_attendance::id.eq(&attendance_id))
         .first(&mut conn)?;
-    
+
     Ok(StudentAttendanceResponse::from(updated_record))
 }
 
-pub async fn sync_school_business(pool: web::Data<AppState>, target_date: NaiveDate) -> Result<i32, APIError> {
+pub async fn sync_school_business(
+    pool: web::Data<AppState>,
+    target_date: NaiveDate,
+) -> Result<i32, APIError> {
     let mut conn = pool.db_pool.get()?;
     let start_of_day = target_date.and_hms_opt(0, 0, 0).unwrap();
     let end_of_day = target_date.and_hms_opt(23, 59, 59).unwrap();
 
     let day_activities: Vec<(Activity, ActivityParticipant)> = activities::table
-        .inner_join(activity_participants::table.on(activities::id.eq(activity_participants::activity_id)))
+        .inner_join(
+            activity_participants::table.on(activities::id.eq(activity_participants::activity_id)),
+        )
         .filter(activities::start_time.ge(start_of_day))
         .filter(activities::start_time.le(end_of_day))
         .load(&mut conn)?;
 
     let mut count = 0;
     for (activity, participant) in day_activities {
-        let student_exists = students::table.find(&participant.user_id).select(students::id).first::<String>(&mut conn).is_ok();
-        
+        let student_exists = students::table
+            .find(&participant.user_id)
+            .select(students::id)
+            .first::<String>(&mut conn)
+            .is_ok();
+
         if student_exists {
             let existing: Option<StudentAttendance> = student_attendance::table
                 .filter(student_attendance::student_id.eq(&participant.user_id))
@@ -541,7 +641,7 @@ pub async fn sync_school_business(pool: web::Data<AppState>, target_date: NaiveD
                 if let Ok(assignment) = student_class_assignments::table
                     .filter(student_class_assignments::student_id.eq(&participant.user_id))
                     .filter(student_class_assignments::to_date.is_null())
-                    .first::<StudentClassAssignment>(&mut conn) 
+                    .first::<StudentClassAssignment>(&mut conn)
                 {
                     let new_att = StudentAttendance {
                         id: Uuid::new_v4().to_string(),
@@ -555,7 +655,9 @@ pub async fn sync_school_business(pool: web::Data<AppState>, target_date: NaiveD
                         updated_at: Utc::now().naive_utc(),
                         is_locked: true,
                     };
-                    diesel::insert_into(student_attendance::table).values(&new_att).execute(&mut conn)?;
+                    diesel::insert_into(student_attendance::table)
+                        .values(&new_att)
+                        .execute(&mut conn)?;
                     count += 1;
                 }
             }
@@ -575,7 +677,7 @@ pub async fn get_attendance_by_class_and_date(
         .filter(student_attendance::class_id.eq(&class_id))
         .filter(student_attendance::date.eq(&date))
         .load::<StudentAttendance>(&mut conn)?;
-    
+
     let responses: Vec<StudentAttendanceResponse> = attendance_records
         .into_iter()
         .map(StudentAttendanceResponse::from)
@@ -626,17 +728,23 @@ pub async fn calculate_attendance_percentage(
     let total_days = (to_date - from_date).num_days() + 1;
 
     if total_days <= 0 {
-        return Err(APIError::bad_request("To date must be after or equal to from date"));
+        return Err(APIError::bad_request(
+            "To date must be after or equal to from date",
+        ));
     }
 
     let present_days = student_attendance::table
         .filter(student_attendance::student_id.eq(&student_id))
         .filter(student_attendance::date.ge(from_date))
         .filter(student_attendance::date.le(to_date))
-        .filter(student_attendance::status.eq(AttendanceStatus::Present).or(student_attendance::status.eq(AttendanceStatus::SchoolBusiness)))
+        .filter(
+            student_attendance::status
+                .eq(AttendanceStatus::Present)
+                .or(student_attendance::status.eq(AttendanceStatus::SchoolBusiness)),
+        )
         .count()
         .get_result::<i64>(&mut conn)?;
-    
+
     let percentage = (present_days as f64 / total_days as f64) * 100.0;
 
     Ok(percentage)
@@ -651,14 +759,23 @@ pub async fn generate_attendance_report(
 
     let total_days_in_period = (report_request.to_date - report_request.from_date).num_days() + 1;
     if total_days_in_period <= 0 {
-        return Err(APIError::bad_request("To date must be after or equal to from date"));
+        return Err(APIError::bad_request(
+            "To date must be after or equal to from date",
+        ));
     }
 
     let students_in_class: Vec<Student> = students::table
-        .inner_join(student_class_assignments::table.on(students::id.eq(student_class_assignments::student_id)))
+        .inner_join(
+            student_class_assignments::table
+                .on(students::id.eq(student_class_assignments::student_id)),
+        )
         .filter(student_class_assignments::class_id.eq(&report_request.class_id))
         .filter(student_class_assignments::from_date.le(report_request.to_date))
-        .filter(student_class_assignments::to_date.is_null().or(student_class_assignments::to_date.ge(report_request.from_date)))
+        .filter(
+            student_class_assignments::to_date
+                .is_null()
+                .or(student_class_assignments::to_date.ge(report_request.from_date)),
+        )
         .select(Student::as_select())
         .group_by(students::id)
         .load::<Student>(&mut conn)?;
@@ -687,7 +804,7 @@ pub async fn generate_attendance_report(
             .filter(student_attendance::status.eq(AttendanceStatus::Late))
             .count()
             .get_result::<i64>(&mut conn)?;
-        
+
         let sb_days = student_attendance::table
             .filter(student_attendance::student_id.eq(&student.id))
             .filter(student_attendance::date.ge(report_request.from_date))
@@ -695,8 +812,8 @@ pub async fn generate_attendance_report(
             .filter(student_attendance::status.eq(AttendanceStatus::SchoolBusiness))
             .count()
             .get_result::<i64>(&mut conn)?;
-        
-        let actual_attended_days = present_days + late_days + sb_days; 
+
+        let actual_attended_days = present_days + late_days + sb_days;
         let percentage = (actual_attended_days as f64 / total_days_in_period as f64) * 100.0;
 
         report_responses.push(StudentAttendanceReportResponse {
@@ -720,16 +837,26 @@ pub async fn get_students_with_low_attendance(
     let mut conn = pool.db_pool.get()?;
     let mut low_attendance_students = Vec::new();
 
-    let total_days_in_period = (low_attendance_query.to_date - low_attendance_query.from_date).num_days() + 1;
+    let total_days_in_period =
+        (low_attendance_query.to_date - low_attendance_query.from_date).num_days() + 1;
     if total_days_in_period <= 0 {
-        return Err(APIError::bad_request("To date must be after or equal to from date"));
+        return Err(APIError::bad_request(
+            "To date must be after or equal to from date",
+        ));
     }
 
     let students_in_class: Vec<Student> = students::table
-        .inner_join(student_class_assignments::table.on(students::id.eq(student_class_assignments::student_id)))
+        .inner_join(
+            student_class_assignments::table
+                .on(students::id.eq(student_class_assignments::student_id)),
+        )
         .filter(student_class_assignments::class_id.eq(&low_attendance_query.class_id))
         .filter(student_class_assignments::from_date.le(low_attendance_query.to_date))
-        .filter(student_class_assignments::to_date.is_null().or(student_class_assignments::to_date.ge(low_attendance_query.from_date)))
+        .filter(
+            student_class_assignments::to_date
+                .is_null()
+                .or(student_class_assignments::to_date.ge(low_attendance_query.from_date)),
+        )
         .select(Student::as_select())
         .group_by(students::id)
         .load::<Student>(&mut conn)?;
@@ -750,7 +877,7 @@ pub async fn get_students_with_low_attendance(
             .filter(student_attendance::status.eq(AttendanceStatus::Late))
             .count()
             .get_result::<i64>(&mut conn)?;
-        
+
         let sb_days = student_attendance::table
             .filter(student_attendance::student_id.eq(&student.id))
             .filter(student_attendance::date.ge(low_attendance_query.from_date))
@@ -758,7 +885,7 @@ pub async fn get_students_with_low_attendance(
             .filter(student_attendance::status.eq(AttendanceStatus::SchoolBusiness))
             .count()
             .get_result::<i64>(&mut conn)?;
-        
+
         let actual_attended_days = present_days + late_days + sb_days;
         let percentage = (actual_attended_days as f64 / total_days_in_period as f64) * 100.0;
 
@@ -813,39 +940,44 @@ pub async fn send_absence_notifications(
             .filter(student_guardians::student_id.eq(&student.id))
             .select(student_guardians::email)
             .filter(student_guardians::email.is_not_null())
-            .load::<Option<String>>(&mut conn)? 
+            .load::<Option<String>>(&mut conn)?
             .into_iter()
-            .filter_map(|email_opt| email_opt) 
+            .filter_map(|email_opt| email_opt)
             .collect();
 
         if guardians.is_empty() {
             log::warn!("No guardian emails found for student: {}\n", student.id);
-            continue; 
+            continue;
         }
 
-        let subject = format!("Absence Notification: {} ({})\n", student.name_english, date);
+        let subject = format!(
+            "Absence Notification: {} ({})\n",
+            student.name_english, date
+        );
         let body = format!(
             "Dear Parent/Guardian,\n\nThis is to inform you that your child, {} (Admission No: {}), was marked absent from class {} on {}.\n\nRemarks: {}\n\nPlease contact the school if you have any questions.\n\nSincerely,\nSchool Administration",
             student.name_english,
             student.admission_number,
             attendance_record.class_id,
             date,
-            attendance_record.remarks.unwrap_or_else(|| "N/A".to_string())
+            attendance_record
+                .remarks
+                .unwrap_or_else(|| "N/A".to_string())
         );
 
         for guardian_email in guardians {
-            if let Err(e) = send_email(
-                &pool.config,
-                guardian_email,
-                subject.clone(),
-                body.clone(),
-            )
-            .await
+            if let Err(e) =
+                send_email(&pool.config, guardian_email, subject.clone(), body.clone()).await
             {
-                log::error!("Failed to send absence notification to {}: {}\n", student.name_english, e);
+                log::error!(
+                    "Failed to send absence notification to {}: {}\n",
+                    student.name_english,
+                    e
+                );
             }
         }
     }
 
-    Ok(HttpResponse::Ok().body("Absence notifications sent successfully (check logs for failures)."))
+    Ok(HttpResponse::Ok()
+        .body("Absence notifications sent successfully (check logs for failures)."))
 }

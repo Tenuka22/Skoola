@@ -1,11 +1,22 @@
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use chrono::NaiveDateTime;
-use apistos::ApiComponent;
 use crate::schema::exam_types;
+use apistos::ApiComponent;
+use chrono::NaiveDateTime;
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Clone,
+    Queryable,
+    Selectable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = exam_types)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct ExamType {
@@ -17,7 +28,9 @@ pub struct ExamType {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug, Serialize, Deserialize, Clone, Insertable, AsChangeset, JsonSchema, ApiComponent,
+)]
 #[diesel(table_name = exam_types)]
 pub struct CreateExamTypeRequest {
     pub name: String,

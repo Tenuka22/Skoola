@@ -78,7 +78,7 @@ where
                     return Ok(res);
                 }
             }
-            
+
             // Extract user permissions and check if it contains the required permission
             let user_has_permission = {
                 let extensions = req.extensions();

@@ -1,6 +1,6 @@
-use chrono::{NaiveDateTime, DateTime};
-use rand::seq::SliceRandom;
+use chrono::{DateTime, NaiveDateTime};
 use rand::Rng;
+use rand::seq::SliceRandom;
 
 pub struct CustomFaker;
 
@@ -10,7 +10,9 @@ impl CustomFaker {
         let start_timestamp = start_date.and_utc().timestamp();
         let end_timestamp = end_date.and_utc().timestamp();
         let random_timestamp = rng.gen_range(start_timestamp..=end_timestamp);
-        DateTime::from_timestamp(random_timestamp, 0).unwrap().naive_utc()
+        DateTime::from_timestamp(random_timestamp, 0)
+            .unwrap()
+            .naive_utc()
     }
 
     pub fn pick_from_vec<T: Clone>(items: &[T]) -> T {

@@ -1,23 +1,25 @@
-use actix_web::web;
-use apistos::{api_operation, ApiComponent};
-use diesel::prelude::*;
-use uuid::Uuid;
-use chrono::{Utc, NaiveDateTime};
 use actix_multipart::Multipart;
-use futures_util::stream::{StreamExt, TryStreamExt};
-use std::io::Write;
-use std::fs::create_dir_all;
+use actix_web::web;
 use actix_web::web::Json;
+use apistos::{ApiComponent, api_operation};
+use chrono::{NaiveDateTime, Utc};
+use diesel::prelude::*;
+use futures_util::stream::{StreamExt, TryStreamExt};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use std::fs::create_dir_all;
+use std::io::Write;
+use uuid::Uuid;
 
 use crate::{
     AppState,
-    database::tables::{Staff as DbStaff},
+    database::tables::Staff as DbStaff,
     errors::APIError,
-    models::staff::staff::{CreateStaffRequest, UpdateStaffRequest, StaffResponse, StaffQuery, PaginatedStaffResponse},
-    models::{MessageResponse, Profile, NewProfile, UserProfile, NewUserProfile, auth_user::User}, // Added Profile, NewProfile, UserProfile, NewUserProfile, User
-    schema::{staff, profiles, user_profiles, users}, // Added profiles, user_profiles, users
+    models::staff::staff::{
+        CreateStaffRequest, PaginatedStaffResponse, StaffQuery, StaffResponse, UpdateStaffRequest,
+    },
+    models::{MessageResponse, NewProfile, NewUserProfile, Profile, UserProfile, auth_user::User}, // Added Profile, NewProfile, UserProfile, NewUserProfile, User
+    schema::{profiles, staff, user_profiles, users}, // Added profiles, user_profiles, users
     utils::validation::{is_valid_email, is_valid_nic, is_valid_phone},
 };
 
@@ -61,7 +63,9 @@ pub async fn upload_staff_photo(
         .select(DbStaff::as_select())
         .first(&mut conn)?;
 
-    let profile_id = existing_staff.profile_id.ok_or_else(|| APIError::not_found("Profile not found for staff member"))?;
+    let profile_id = existing_staff
+        .profile_id
+        .ok_or_else(|| APIError::not_found("Profile not found for staff member"))?;
 
     // Create uploads directory if it doesn't exist
     create_dir_all("./uploads")?;
@@ -97,7 +101,11 @@ pub async fn upload_staff_photo(
             .inner_join(profiles::table)
             .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
             .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
-            .select((DbStaff::as_select(), Profile::as_select(), Option::<User>::as_select()))
+            .select((
+                DbStaff::as_select(),
+                Profile::as_select(),
+                Option::<User>::as_select(),
+            ))
             .first(&mut conn)?;
 
         Ok(Json(StaffResponse {
@@ -152,30 +160,32 @@ pub async fn get_all_staff(
         .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
         .into_boxed();
 
-
     if let Some(search_term) = &query.search {
         let pattern = format!("%{}%", search_term);
         base_query = base_query.filter(
-            profiles::name.like(pattern.clone())
+            profiles::name
+                .like(pattern.clone())
                 .or(staff::employee_id.like(pattern.clone()))
                 .or(staff::nic.like(pattern.clone()))
                 .or(users::email.like(pattern.clone()))
                 .or(profiles::phone.like(pattern.clone()))
-                .or(profiles::address.like(pattern.clone()))
+                .or(profiles::address.like(pattern.clone())),
         );
         count_query_base = count_query_base.filter(
-            profiles::name.like(pattern.clone())
+            profiles::name
+                .like(pattern.clone())
                 .or(staff::employee_id.like(pattern.clone()))
                 .or(staff::nic.like(pattern.clone()))
                 .or(users::email.like(pattern.clone()))
                 .or(profiles::phone.like(pattern.clone()))
-                .or(profiles::address.like(pattern.clone()))
+                .or(profiles::address.like(pattern.clone())),
         );
     }
 
     if let Some(employment_status) = &query.employment_status {
         base_query = base_query.filter(staff::employment_status.eq(employment_status.clone()));
-        count_query_base = count_query_base.filter(staff::employment_status.eq(employment_status.clone()));
+        count_query_base =
+            count_query_base.filter(staff::employment_status.eq(employment_status.clone()));
     }
 
     if let Some(staff_type) = &query.staff_type {
@@ -184,13 +194,17 @@ pub async fn get_all_staff(
     }
 
     if let Some(after_str) = &query.created_after {
-        if let Ok(after) = NaiveDateTime::parse_from_str(&format!("{} 00:00:00", after_str), "%Y-%m-%d %H:%M:%S") {
+        if let Ok(after) =
+            NaiveDateTime::parse_from_str(&format!("{} 00:00:00", after_str), "%Y-%m-%d %H:%M:%S")
+        {
             base_query = base_query.filter(staff::created_at.ge(after));
             count_query_base = count_query_base.filter(staff::created_at.ge(after));
         }
     }
     if let Some(before_str) = &query.created_before {
-        if let Ok(before) = NaiveDateTime::parse_from_str(&format!("{} 23:59:59", before_str), "%Y-%m-%d %H:%M:%S") {
+        if let Ok(before) =
+            NaiveDateTime::parse_from_str(&format!("{} 23:59:59", before_str), "%Y-%m-%d %H:%M:%S")
+        {
             base_query = base_query.filter(staff::created_at.le(before));
             count_query_base = count_query_base.filter(staff::created_at.le(before));
         }
@@ -219,13 +233,18 @@ pub async fn get_all_staff(
     };
 
     let staff_list_data: Vec<(DbStaff, Profile, Option<User>)> = base_query
-        .select((DbStaff::as_select(), Profile::as_select(), Option::<User>::as_select()))
+        .select((
+            DbStaff::as_select(),
+            Profile::as_select(),
+            Option::<User>::as_select(),
+        ))
         .limit(limit)
         .offset(offset)
         .load::<(DbStaff, Profile, Option<User>)>(&mut conn)?;
 
-    let staff_responses: Vec<StaffResponse> = staff_list_data.into_iter().map(|(staff, profile, user)| {
-        StaffResponse {
+    let staff_responses: Vec<StaffResponse> = staff_list_data
+        .into_iter()
+        .map(|(staff, profile, user)| StaffResponse {
             id: staff.id,
             employee_id: staff.employee_id,
             name: profile.name.clone(),
@@ -246,8 +265,8 @@ pub async fn get_all_staff(
             profile_phone: profile.phone,
             profile_photo_url: profile.photo_url,
             user_email: user.map(|u| u.email),
-        }
-    }).collect();
+        })
+        .collect();
 
     let total_pages = (total_staff_count as f64 / limit as f64).ceil() as i64;
 
@@ -280,7 +299,11 @@ pub async fn get_staff_by_id(
         .inner_join(profiles::table)
         .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
         .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
-        .select((DbStaff::as_select(), Profile::as_select(), Option::<User>::as_select()))
+        .select((
+            DbStaff::as_select(),
+            Profile::as_select(),
+            Option::<User>::as_select(),
+        ))
         .first(&mut conn)?;
 
     Ok(Json(StaffResponse {
@@ -337,7 +360,9 @@ pub async fn create_staff(
         .optional()?;
 
     if existing_staff.is_some() {
-        return Err(APIError::conflict("Staff with this employee ID already exists"));
+        return Err(APIError::conflict(
+            "Staff with this employee ID already exists",
+        ));
     }
 
     // Check if an existing user with this email is already linked to a profile
@@ -349,7 +374,9 @@ pub async fn create_staff(
         .optional()?;
 
     if existing_user_profile.is_some() {
-        return Err(APIError::conflict("An existing user with this email is already linked to a profile."));
+        return Err(APIError::conflict(
+            "An existing user with this email is already linked to a profile.",
+        ));
     }
 
     let new_staff_id = Uuid::new_v4().to_string(); // Generate staff ID here
@@ -413,7 +440,6 @@ pub async fn create_staff(
         user_email_str = Some(user.email);
     }
 
-
     Ok(Json(StaffResponse {
         id: new_staff_record.id,
         employee_id: new_staff_record.employee_id,
@@ -460,7 +486,9 @@ pub async fn update_staff(
             .first(&mut conn)
             .optional()?;
         if existing_staff.is_some() {
-            return Err(APIError::conflict("Another staff member with this NIC already exists"));
+            return Err(APIError::conflict(
+                "Another staff member with this NIC already exists",
+            ));
         }
     }
 
@@ -469,8 +497,10 @@ pub async fn update_staff(
         .select(DbStaff::as_select())
         .first(&mut conn)?;
 
-    let profile_id = existing_staff.profile_id.ok_or_else(|| APIError::not_found("Profile not found for staff member"))?;
-    
+    let profile_id = existing_staff
+        .profile_id
+        .ok_or_else(|| APIError::not_found("Profile not found for staff member"))?;
+
     // Update profile-specific fields in the profiles table
     use crate::schema::profiles;
     diesel::update(profiles::table.find(&profile_id))
@@ -492,13 +522,18 @@ pub async fn update_staff(
         ))
         .execute(&mut conn)?;
 
-    let (final_staff, final_profile, final_user_profile): (DbStaff, Profile, Option<User>) = staff::table
-        .find(&staff_id_inner)
-        .inner_join(profiles::table)
-        .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
-        .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
-        .select((DbStaff::as_select(), Profile::as_select(), Option::<User>::as_select()))
-        .first(&mut conn)?;
+    let (final_staff, final_profile, final_user_profile): (DbStaff, Profile, Option<User>) =
+        staff::table
+            .find(&staff_id_inner)
+            .inner_join(profiles::table)
+            .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
+            .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+            .select((
+                DbStaff::as_select(),
+                Profile::as_select(),
+                Option::<User>::as_select(),
+            ))
+            .first(&mut conn)?;
 
     Ok(Json(StaffResponse {
         id: final_staff.id,
@@ -506,7 +541,10 @@ pub async fn update_staff(
         name: final_profile.name.clone(),
         address: final_profile.address.clone().unwrap_or_default(),
         phone: final_profile.phone.clone().unwrap_or_default(),
-        email: final_user_profile.clone().map(|u| u.email).unwrap_or_default(),
+        email: final_user_profile
+            .clone()
+            .map(|u| u.email)
+            .unwrap_or_default(),
         photo_url: final_profile.photo_url.clone(),
         nic: final_staff.nic,
         dob: final_staff.dob,
@@ -535,9 +573,10 @@ pub async fn delete_staff(
     staff_id: web::Path<String>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    diesel::delete(staff::table.find(staff_id.into_inner()))
-        .execute(&mut conn)?;
-    Ok(Json(MessageResponse { message: "Staff member deleted successfully".to_string() }))
+    diesel::delete(staff::table.find(staff_id.into_inner())).execute(&mut conn)?;
+    Ok(Json(MessageResponse {
+        message: "Staff member deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -550,8 +589,11 @@ pub async fn bulk_delete_staff(
     data: web::Data<AppState>,
     body: web::Json<BulkDeleteStaffRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
-    crate::services::staff::staff::bulk_delete_staff(data.clone(), body.into_inner().staff_ids).await?;
-    Ok(Json(MessageResponse { message: "Staff members deleted successfully".to_string() }))
+    crate::services::staff::staff::bulk_delete_staff(data.clone(), body.into_inner().staff_ids)
+        .await?;
+    Ok(Json(MessageResponse {
+        message: "Staff members deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -565,5 +607,7 @@ pub async fn bulk_update_staff(
     body: web::Json<BulkUpdateStaffRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     crate::services::staff::staff::bulk_update_staff(data.clone(), body.into_inner()).await?;
-    Ok(Json(MessageResponse { message: "Staff members updated successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Staff members updated successfully".to_string(),
+    }))
 }

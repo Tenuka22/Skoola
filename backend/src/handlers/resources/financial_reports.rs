@@ -1,12 +1,8 @@
+use crate::{AppState, errors::APIError, services::finance::ledger};
 use actix_web::web;
-use apistos::{api_operation, ApiComponent};
+use apistos::{ApiComponent, api_operation};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use crate::{
-    AppState,
-    errors::APIError,
-    services::finance::ledger,
-};
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]

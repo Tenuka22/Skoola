@@ -1,10 +1,10 @@
+use super::{SeedModule, SeederContext};
+use anyhow::Result;
+use backend::config::Config; // Added
 use diesel::prelude::*;
 use diesel::sql_query;
 use diesel::sql_types::{BigInt, Text}; // Combined and added Text
-use anyhow::Result;
-use backend::config::Config; // Added
 use std::collections::HashSet; // Added
-use super::{SeedModule, SeederContext};
 
 #[derive(QueryableByName, Debug)]
 pub struct TableName {
@@ -45,8 +45,9 @@ impl SeedModule for SeederVerifier {
         .load(conn)?;
 
         for table in table_names {
-            let count_result: CountResult = sql_query(format!("SELECT COUNT(*) as count FROM {};", table.name))
-                .get_result(conn)?;
+            let count_result: CountResult =
+                sql_query(format!("SELECT COUNT(*) as count FROM {};", table.name))
+                    .get_result(conn)?;
             println!("Table '{}' has {} records.", table.name, count_result.count);
         }
 
@@ -54,4 +55,3 @@ impl SeedModule for SeederVerifier {
         Ok(())
     }
 }
-

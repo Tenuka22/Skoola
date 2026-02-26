@@ -1,11 +1,22 @@
-use crate::schema::{conversations, conversation_participants, messages};
-use diesel::{Queryable, Insertable, Selectable};
-use serde::{Deserialize, Serialize};
-use chrono::NaiveDateTime;
-use schemars::JsonSchema;
+use crate::schema::{conversation_participants, conversations, messages};
 use apistos::ApiComponent;
+use chrono::NaiveDateTime;
+use diesel::{Insertable, Queryable, Selectable};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Queryable, Selectable, Insertable, Serialize, Deserialize, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Queryable,
+    Selectable,
+    Insertable,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = conversations)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Conversation {
@@ -14,7 +25,18 @@ pub struct Conversation {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Debug, Clone, PartialEq, Queryable, Selectable, Insertable, Serialize, Deserialize, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Queryable,
+    Selectable,
+    Insertable,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = conversation_participants)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct ConversationParticipant {
@@ -22,7 +44,18 @@ pub struct ConversationParticipant {
     pub user_id: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Queryable, Selectable, Insertable, Serialize, Deserialize, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Queryable,
+    Selectable,
+    Insertable,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = messages)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Message {

@@ -1,12 +1,23 @@
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use chrono::NaiveDateTime;
-use apistos::ApiComponent;
-use crate::schema::classes;
 use crate::database::enums::Medium;
+use crate::schema::classes;
+use apistos::ApiComponent;
+use chrono::NaiveDateTime;
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Clone,
+    Queryable,
+    Selectable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = classes)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Class {
@@ -22,7 +33,9 @@ pub struct Class {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug, Serialize, Deserialize, Clone, Insertable, AsChangeset, JsonSchema, ApiComponent,
+)]
 #[diesel(table_name = classes)]
 pub struct CreateClassRequest {
     pub id: String,

@@ -1,11 +1,22 @@
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use chrono::NaiveDateTime;
-use apistos::ApiComponent;
 use crate::schema::academic_years;
+use apistos::ApiComponent;
+use chrono::NaiveDateTime;
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Clone,
+    Queryable,
+    Selectable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = academic_years)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct AcademicYear {
@@ -18,7 +29,9 @@ pub struct AcademicYear {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug, Serialize, Deserialize, Clone, Insertable, AsChangeset, JsonSchema, ApiComponent,
+)]
 #[diesel(table_name = academic_years)]
 pub struct CreateAcademicYearRequest {
     pub id: String,

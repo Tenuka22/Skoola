@@ -1,13 +1,23 @@
 use crate::database::enums::ComponentType;
-use crate::schema::{salary_components, staff_salaries, salary_payments};
 use crate::models::staff::staff::Staff;
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use chrono::{NaiveDate, NaiveDateTime};
-use schemars::JsonSchema;
+use crate::schema::{salary_components, salary_payments, staff_salaries};
 use apistos::ApiComponent;
+use chrono::{NaiveDate, NaiveDateTime};
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = salary_components)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct SalaryComponent {
@@ -29,7 +39,7 @@ pub struct SalaryComponent {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = staff_salaries)]
 #[diesel(belongs_to(Staff))]
@@ -55,7 +65,7 @@ pub struct StaffSalary {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = salary_payments)]
 #[diesel(belongs_to(Staff))]

@@ -1,14 +1,14 @@
 use actix_web::web;
-use apistos::{api_operation, ApiComponent};
 use actix_web::web::Json;
+use apistos::{ApiComponent, api_operation};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState,
     errors::APIError,
-    models::academic::class::{CreateClassRequest, UpdateClassRequest, ClassResponse},
     models::MessageResponse,
+    models::academic::class::{ClassResponse, CreateClassRequest, UpdateClassRequest},
     services::academic::class,
 };
 
@@ -89,8 +89,11 @@ pub async fn get_all_classes(
     query: web::Query<ClassQuery>,
 ) -> Result<Json<PaginatedClassResponse>, APIError> {
     let inner_query = query.into_inner();
-    let (classes, total_classes, total_pages): (Vec<crate::models::academic::class::Class>, i64, i64) =
-        class::get_all_classes(data.clone(), inner_query.clone()).await?;
+    let (classes, total_classes, total_pages): (
+        Vec<crate::models::academic::class::Class>,
+        i64,
+        i64,
+    ) = class::get_all_classes(data.clone(), inner_query.clone()).await?;
     Ok(Json(PaginatedClassResponse {
         data: classes.into_iter().map(ClassResponse::from).collect(),
         total: total_classes,
@@ -111,7 +114,9 @@ pub async fn bulk_delete_classes(
     body: web::Json<BulkDeleteClassesRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     class::bulk_delete_classes(data.clone(), body.into_inner().class_ids).await?;
-    Ok(Json(MessageResponse { message: "Classes deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Classes deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -125,7 +130,9 @@ pub async fn bulk_update_classes(
     body: web::Json<BulkUpdateClassesRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     class::bulk_update_classes(data.clone(), body.into_inner()).await?;
-    Ok(Json(MessageResponse { message: "Classes updated successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Classes updated successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -156,7 +163,9 @@ pub async fn delete_class(
 ) -> Result<Json<MessageResponse>, APIError> {
     let class_id = path.into_inner();
     class::delete_class(data.clone(), class_id).await?;
-    Ok(Json(MessageResponse { message: "Class deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Class deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -170,6 +179,7 @@ pub async fn get_classes_by_grade(
     path: web::Path<String>, // grade_id
 ) -> Result<Json<Vec<ClassResponse>>, APIError> {
     let grade_id = path.into_inner();
-    let classes: Vec<crate::models::academic::class::ClassResponse> = class::get_classes_by_grade(data.clone(), grade_id).await?;
+    let classes: Vec<crate::models::academic::class::ClassResponse> =
+        class::get_classes_by_grade(data.clone(), grade_id).await?;
     Ok(Json(classes.into_iter().map(ClassResponse::from).collect()))
 }

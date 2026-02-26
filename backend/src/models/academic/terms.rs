@@ -1,14 +1,14 @@
-use diesel::{Queryable, Insertable, AsChangeset};
-use serde::{Serialize, Deserialize};
-use schemars::JsonSchema;
-use apistos::ApiComponent;
 use crate::schema::terms;
+use apistos::ApiComponent;
 use chrono::NaiveDate;
+use diesel::{AsChangeset, Insertable, Queryable};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Insertable, AsChangeset, Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[diesel(table_name = terms)]
 pub struct Term {
-    pub id: String, // Changed from i32 to String
+    pub id: String,               // Changed from i32 to String
     pub academic_year_id: String, // Changed from i32 to String
     pub term_number: i32,
     pub name: String,
@@ -18,7 +18,9 @@ pub struct Term {
     pub updated_at: chrono::NaiveDateTime,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug, Clone, Serialize, Deserialize, Insertable, AsChangeset, JsonSchema, ApiComponent,
+)]
 #[diesel(table_name = terms)]
 pub struct CreateTermRequest {
     pub academic_year_id: String, // Changed from i32 to String
@@ -40,7 +42,7 @@ pub struct UpdateTermRequest {
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct TermResponse {
-    pub id: String, // Changed from i32 to String
+    pub id: String,               // Changed from i32 to String
     pub academic_year_id: String, // Changed from i32 to String
     pub term_number: i32,
     pub name: String,

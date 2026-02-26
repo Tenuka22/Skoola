@@ -1,28 +1,34 @@
-use crate::models::finance::salary::{StaffSalary, SalaryComponent, SalaryPayment};
-use crate::models::finance::budget::Budget;
-use crate::models::finance::budget_category::BudgetCategory;
-use crate::models::finance::budget::{BudgetSummaryResponse, BudgetComparisonResponse};
-use crate::models::finance::transaction::{IncomeTransaction, ExpenseTransaction};
-use crate::models::finance::petty_cash_transaction::PettyCashTransaction;
-use crate::errors::APIError;
 use crate::AppState;
-use actix_web::web;
-use crate::models::finance::budget_category::CreateBudgetCategoryRequest;
+use crate::errors::APIError;
+use crate::models::finance::budget::Budget;
+use crate::models::finance::budget::{BudgetComparisonResponse, BudgetSummaryResponse};
 use crate::models::finance::budget::{SetBudgetRequest, UpdateBudgetRequest};
-use crate::models::finance::transaction::{RecordIncomeRequest, RecordExpenseRequest, ReconcilePettyCashRequest};
+use crate::models::finance::budget_category::BudgetCategory;
+use crate::models::finance::budget_category::CreateBudgetCategoryRequest;
+use crate::models::finance::petty_cash_transaction::PettyCashTransaction;
 use crate::models::finance::petty_cash_transaction::RecordPettyCashRequest;
-use crate::models::finance::salary::{CreateSalaryComponentRequest, SetStaffSalaryRequest, RecordSalaryPaymentRequest};
+use crate::models::finance::salary::{
+    CreateSalaryComponentRequest, RecordSalaryPaymentRequest, SetStaffSalaryRequest,
+};
+use crate::models::finance::salary::{SalaryComponent, SalaryPayment, StaffSalary};
+use crate::models::finance::transaction::{ExpenseTransaction, IncomeTransaction};
+use crate::models::finance::transaction::{
+    ReconcilePettyCashRequest, RecordExpenseRequest, RecordIncomeRequest,
+};
 use crate::schema::{
     budget_categories, budgets, expense_transactions, income_transactions, petty_cash_transactions,
     salary_components, salary_payments, staff_salaries,
 };
+use actix_web::web;
 
+use crate::handlers::resources::financial::{
+    BudgetCategoryQuery, BulkUpdateBudgetCategoriesRequest,
+};
 use chrono::{NaiveDateTime, Utc};
 use diesel::SqliteConnection;
 use diesel::prelude::*;
 use diesel::{QueryDsl, RunQueryDsl};
 use uuid::Uuid;
-use crate::handlers::resources::financial::{BudgetCategoryQuery, BulkUpdateBudgetCategoriesRequest};
 
 pub fn create_budget_category(
     conn: &mut SqliteConnection,
@@ -50,8 +56,16 @@ pub async fn get_all_budget_categories(
 
     if let Some(search_term) = &query.search {
         let pattern = format!("%{}%", search_term);
-        data_query = data_query.filter(budget_categories::name.like(pattern.clone()).or(budget_categories::description.like(pattern.clone())));
-        count_query = count_query.filter(budget_categories::name.like(pattern.clone()).or(budget_categories::description.like(pattern.clone())));
+        data_query = data_query.filter(
+            budget_categories::name
+                .like(pattern.clone())
+                .or(budget_categories::description.like(pattern.clone())),
+        );
+        count_query = count_query.filter(
+            budget_categories::name
+                .like(pattern.clone())
+                .or(budget_categories::description.like(pattern.clone())),
+        );
     }
 
     let sort_by = query.sort_by.as_deref().unwrap_or("name");
@@ -92,24 +106,23 @@ pub async fn bulk_update_budget_categories(
     body: BulkUpdateBudgetCategoriesRequest,
 ) -> Result<(), APIError> {
     conn.transaction::<_, APIError, _>(|conn| {
-        let target = budget_categories::table.filter(budget_categories::id.eq_any(&body.category_ids));
-        
+        let target =
+            budget_categories::table.filter(budget_categories::id.eq_any(&body.category_ids));
+
         diesel::update(target)
             .set((
                 body.name.map(|n| budget_categories::name.eq(n)),
-                body.description.map(|d| budget_categories::description.eq(d)),
+                body.description
+                    .map(|d| budget_categories::description.eq(d)),
                 budget_categories::updated_at.eq(Utc::now().naive_utc()),
             ))
             .execute(conn)?;
-        
+
         Ok(())
     })
 }
 
-pub fn set_budget(
-    conn: &mut SqliteConnection,
-    req: SetBudgetRequest,
-) -> Result<Budget, APIError> {
+pub fn set_budget(conn: &mut SqliteConnection, req: SetBudgetRequest) -> Result<Budget, APIError> {
     let new_budget = Budget {
         id: Uuid::new_v4().to_string(),
         academic_year_id: req.academic_year_id,
@@ -205,10 +218,10 @@ pub async fn record_expense(
         debit_account_id,
         credit_account_id,
         new_trans.amount,
-    ).await;
+    )
+    .await;
     // Handle the result of the block_in_place call
     record_result?;
-
 
     Ok(new_trans)
 }
@@ -356,7 +369,8 @@ pub fn update_budget_allocation(
         ))
         .execute(conn)?;
 
-    Ok(budgets::table.find(id)
+    Ok(budgets::table
+        .find(id)
         .select(Budget::as_select())
         .first(conn)?)
 }

@@ -1,11 +1,13 @@
 use crate::schema::student_guardians;
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use chrono::NaiveDateTime;
 use apistos::ApiComponent;
+use chrono::NaiveDateTime;
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema)]
+#[derive(
+    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema,
+)]
 #[diesel(table_name = student_guardians)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct StudentGuardian {
@@ -57,5 +59,3 @@ pub struct StudentGuardianResponse {
     pub user_id: Option<String>,
     pub user_email: Option<String>,
 }
-
-

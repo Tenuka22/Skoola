@@ -1,14 +1,18 @@
 use actix_web::web;
-use apistos::{api_operation, ApiComponent};
 use actix_web::web::Json;
+use apistos::{ApiComponent, api_operation};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState,
     errors::APIError,
-    models::academic::subject::{CreateSubjectRequest, UpdateSubjectRequest, AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, SubjectResponse, EnrollStudentInSubjectRequest, SubjectEnrollmentResponse},
     models::MessageResponse,
+    models::academic::subject::{
+        AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, CreateSubjectRequest,
+        EnrollStudentInSubjectRequest, SubjectEnrollmentResponse, SubjectResponse,
+        UpdateSubjectRequest,
+    },
     services::academic::subject,
 };
 
@@ -139,7 +143,9 @@ pub async fn bulk_delete_subjects(
     body: web::Json<BulkDeleteSubjectsRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     subject::bulk_delete_subjects(data.clone(), body.into_inner().subject_ids).await?;
-    Ok(Json(MessageResponse { message: "Subjects deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Subjects deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -153,7 +159,9 @@ pub async fn bulk_update_subjects(
     body: web::Json<BulkUpdateSubjectsRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     subject::bulk_update_subjects(data.clone(), body.into_inner()).await?;
-    Ok(Json(MessageResponse { message: "Subjects updated successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Subjects updated successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -168,7 +176,8 @@ pub async fn update_subject(
     body: web::Json<UpdateSubjectRequest>,
 ) -> Result<Json<SubjectResponse>, APIError> {
     let subject_id = path.into_inner();
-    let updated_subject = subject::update_subject(data.clone(), subject_id, body.into_inner()).await?;
+    let updated_subject =
+        subject::update_subject(data.clone(), subject_id, body.into_inner()).await?;
     Ok(Json(updated_subject))
 }
 
@@ -184,7 +193,9 @@ pub async fn delete_subject(
 ) -> Result<Json<MessageResponse>, APIError> {
     let subject_id = path.into_inner();
     subject::delete_subject(data.clone(), subject_id).await?;
-    Ok(Json(MessageResponse { message: "Subject deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Subject deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -228,7 +239,9 @@ pub async fn assign_subject_to_grade_handler(
     body: web::Json<AssignSubjectToGradeRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     subject::assign_subject_to_grade(data.clone(), body.into_inner()).await?;
-    Ok(Json(MessageResponse { message: "Subject assigned to grade successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Subject assigned to grade successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -242,5 +255,7 @@ pub async fn assign_subject_to_stream_handler(
     body: web::Json<AssignSubjectToStreamRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     subject::assign_subject_to_stream(data.clone(), body.into_inner()).await?;
-    Ok(Json(MessageResponse { message: "Subject assigned to stream successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Subject assigned to stream successfully".to_string(),
+    }))
 }

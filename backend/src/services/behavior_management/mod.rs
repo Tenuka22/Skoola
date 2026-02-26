@@ -1,13 +1,18 @@
+use actix_web::web::Data;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::Utc;
-use actix_web::web::Data;
 
 use crate::AppState;
 use crate::errors::APIError;
-use crate::models::behavior_management::{BehaviorIncidentType, NewBehaviorIncidentType, BehaviorIncident, NewBehaviorIncident};
+use crate::handlers::behavior_management::{
+    CreateBehaviorIncidentTypeRequest, RecordBehaviorIncidentRequest,
+    UpdateBehaviorIncidentRequest, UpdateBehaviorIncidentTypeRequest,
+};
+use crate::models::behavior_management::{
+    BehaviorIncident, BehaviorIncidentType, NewBehaviorIncident, NewBehaviorIncidentType,
+};
 use crate::schema::{behavior_incident_types, behavior_incidents};
-use crate::handlers::behavior_management::{CreateBehaviorIncidentTypeRequest, UpdateBehaviorIncidentTypeRequest, RecordBehaviorIncidentRequest, UpdateBehaviorIncidentRequest};
 
 // Service to create a new behavior incident type
 pub async fn create_behavior_incident_type(
@@ -47,7 +52,10 @@ pub async fn get_behavior_incident_type_by_id(
 
     match incident_type {
         Some(t) => Ok(t),
-        None => Err(APIError::not_found(&format!("Behavior incident type with ID {} not found", type_id))),
+        None => Err(APIError::not_found(&format!(
+            "Behavior incident type with ID {} not found",
+            type_id
+        ))),
     }
 }
 
@@ -56,8 +64,7 @@ pub async fn get_all_behavior_incident_types(
     data: Data<AppState>,
 ) -> Result<Vec<BehaviorIncidentType>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let all_types = behavior_incident_types::table
-        .load::<BehaviorIncidentType>(&mut conn)?;
+    let all_types = behavior_incident_types::table.load::<BehaviorIncidentType>(&mut conn)?;
 
     Ok(all_types)
 }
@@ -73,15 +80,21 @@ pub async fn update_behavior_incident_type(
 
     let updated_count = diesel::update(target)
         .set((
-            req.type_name.map(|n| behavior_incident_types::type_name.eq(n)),
-            req.default_points.map(|p| behavior_incident_types::default_points.eq(p)),
-            req.description.map(|d| behavior_incident_types::description.eq(d)),
+            req.type_name
+                .map(|n| behavior_incident_types::type_name.eq(n)),
+            req.default_points
+                .map(|p| behavior_incident_types::default_points.eq(p)),
+            req.description
+                .map(|d| behavior_incident_types::description.eq(d)),
             behavior_incident_types::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Behavior incident type with ID {} not found", type_id)));
+        return Err(APIError::not_found(&format!(
+            "Behavior incident type with ID {} not found",
+            type_id
+        )));
     }
 
     let updated_type = behavior_incident_types::table
@@ -97,11 +110,16 @@ pub async fn delete_behavior_incident_type(
     type_id: String,
 ) -> Result<(), APIError> {
     let mut conn = data.db_pool.get()?;
-    let num_deleted = diesel::delete(behavior_incident_types::table.filter(behavior_incident_types::id.eq(&type_id)))
-        .execute(&mut conn)?;
+    let num_deleted = diesel::delete(
+        behavior_incident_types::table.filter(behavior_incident_types::id.eq(&type_id)),
+    )
+    .execute(&mut conn)?;
 
     if num_deleted == 0 {
-        return Err(APIError::not_found(&format!("Behavior incident type with ID {} not found", type_id)));
+        return Err(APIError::not_found(&format!(
+            "Behavior incident type with ID {} not found",
+            type_id
+        )));
     }
 
     Ok(())
@@ -163,7 +181,10 @@ pub async fn get_behavior_incident_by_id(
 
     match incident {
         Some(i) => Ok(i),
-        None => Err(APIError::not_found(&format!("Behavior incident with ID {} not found", incident_id))),
+        None => Err(APIError::not_found(&format!(
+            "Behavior incident with ID {} not found",
+            incident_id
+        ))),
     }
 }
 
@@ -179,17 +200,25 @@ pub async fn update_behavior_incident(
     let updated_count = diesel::update(target)
         .set((
             req.student_id.map(|s| behavior_incidents::student_id.eq(s)),
-            req.reported_by_user_id.map(|r| behavior_incidents::reported_by_user_id.eq(r)),
-            req.incident_type_id.map(|i| behavior_incidents::incident_type_id.eq(i)),
-            req.description.map(|d| behavior_incidents::description.eq(d)),
-            req.incident_date.map(|d| behavior_incidents::incident_date.eq(d)),
-            req.points_awarded.map(|p| behavior_incidents::points_awarded.eq(p)),
+            req.reported_by_user_id
+                .map(|r| behavior_incidents::reported_by_user_id.eq(r)),
+            req.incident_type_id
+                .map(|i| behavior_incidents::incident_type_id.eq(i)),
+            req.description
+                .map(|d| behavior_incidents::description.eq(d)),
+            req.incident_date
+                .map(|d| behavior_incidents::incident_date.eq(d)),
+            req.points_awarded
+                .map(|p| behavior_incidents::points_awarded.eq(p)),
             behavior_incidents::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Behavior incident with ID {} not found", incident_id)));
+        return Err(APIError::not_found(&format!(
+            "Behavior incident with ID {} not found",
+            incident_id
+        )));
     }
 
     let updated_incident = behavior_incidents::table
@@ -205,11 +234,15 @@ pub async fn delete_behavior_incident(
     incident_id: String,
 ) -> Result<(), APIError> {
     let mut conn = data.db_pool.get()?;
-    let num_deleted = diesel::delete(behavior_incidents::table.filter(behavior_incidents::id.eq(&incident_id)))
-        .execute(&mut conn)?;
+    let num_deleted =
+        diesel::delete(behavior_incidents::table.filter(behavior_incidents::id.eq(&incident_id)))
+            .execute(&mut conn)?;
 
     if num_deleted == 0 {
-        return Err(APIError::not_found(&format!("Behavior incident with ID {} not found", incident_id)));
+        return Err(APIError::not_found(&format!(
+            "Behavior incident with ID {} not found",
+            incident_id
+        )));
     }
 
     Ok(())

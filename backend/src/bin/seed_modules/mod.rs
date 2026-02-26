@@ -1,25 +1,25 @@
-use diesel::sqlite::SqliteConnection;
+use crate::Config;
 use anyhow::Result;
-use std::collections::HashSet;
-use crate::Config; // Import Config from the main crate (seed.rs)
+use diesel::sqlite::SqliteConnection;
+use std::collections::HashSet; // Import Config from the main crate (seed.rs)
 
-pub mod utils;
-pub mod core_entities_seeder;
-pub mod message_seeder; // New
 pub mod academic_detail_seeder;
 pub mod attendance_seeder;
-pub mod extracurricular_seeder;
-pub mod staff_student_detail_seeder;
-pub mod library_seeder;
-pub mod system_seeder;
-pub mod resource_management;
-pub mod curriculum_management;
-pub mod behavior_management;
 pub mod audit_log;
-pub mod exams;
-pub mod finance;
-pub mod seeder_verifier;
+pub mod behavior_management;
+pub mod core_entities_seeder;
+pub mod curriculum_management;
 pub mod custom_user_seeder;
+pub mod exams;
+pub mod extracurricular_seeder;
+pub mod finance;
+pub mod library_seeder;
+pub mod message_seeder; // New
+pub mod resource_management;
+pub mod seeder_verifier;
+pub mod staff_student_detail_seeder;
+pub mod system_seeder;
+pub mod utils;
 
 pub struct SeederContext {
     // Vectors to hold IDs of seeded entities

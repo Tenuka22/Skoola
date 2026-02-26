@@ -1,14 +1,12 @@
-use actix_web::{web, HttpResponse, http::StatusCode}; // Import StatusCode
-use apistos::{api_operation, ApiComponent};
-use tracing::{info, error};
 use crate::{
-    AppState,
-    errors::APIError,
-    models::system::BulkDeleteUsersRequest,
+    AppState, errors::APIError, models::system::BulkDeleteUsersRequest,
     services::system::cleanup::bulk_delete_users,
 };
+use actix_web::{HttpResponse, http::StatusCode, web}; // Import StatusCode
+use apistos::{ApiComponent, api_operation};
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use schemars::JsonSchema; // Import JsonSchema
+use tracing::{error, info}; // Import JsonSchema
 
 #[derive(Debug, Clone, Serialize, Deserialize, ApiComponent, JsonSchema)] // Add JsonSchema
 pub struct MessageResponse {

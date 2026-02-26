@@ -2,12 +2,12 @@ use crate::config::Config;
 use crate::errors::APIError;
 use crate::faker::CustomFaker;
 use crate::models::academic::AcademicYear;
-use crate::models::exams::ExamType;
+use crate::models::academic::Term;
 use crate::models::exams::Exam;
+use crate::models::exams::ExamType;
 use crate::models::exams::NewGradingCriterion;
 use crate::models::exams::NewGradingScheme;
 use crate::models::student::Student;
-use crate::models::academic::Term;
 use crate::schema::{
     academic_years, exam_types, exams, grading_criteria, grading_schemes, students, terms,
 };
@@ -44,10 +44,14 @@ pub fn seed_all(
     let now = Utc::now().naive_utc();
     let two_years_ago = now - Duration::days(730);
 
-    let students = students::table.select(Student::as_select()).load::<Student>(conn)?;
+    let students = students::table
+        .select(Student::as_select())
+        .load::<Student>(conn)?;
     let _student_ids: Vec<String> = students.iter().map(|s| s.id.clone()).collect();
 
-    let academic_years = academic_years::table.select(AcademicYear::as_select()).load::<AcademicYear>(conn)?;
+    let academic_years = academic_years::table
+        .select(AcademicYear::as_select())
+        .load::<AcademicYear>(conn)?;
 
     // 1. Seed Exam Types
     let exam_type_data = vec![

@@ -1,12 +1,22 @@
 use crate::database::enums::PaymentMethod;
-use crate::schema::{income_transactions, expense_transactions};
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use chrono::NaiveDateTime;
-use schemars::JsonSchema;
+use crate::schema::{expense_transactions, income_transactions};
 use apistos::ApiComponent;
+use chrono::NaiveDateTime;
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = income_transactions)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct IncomeTransaction {
@@ -21,7 +31,17 @@ pub struct IncomeTransaction {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = expense_transactions)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct ExpenseTransaction {
@@ -77,8 +97,6 @@ impl From<IncomeTransaction> for IncomeTransactionResponse {
     }
 }
 
-
-
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct RecordExpenseRequest {
     pub category_id: String,
@@ -123,8 +141,6 @@ impl From<ExpenseTransaction> for ExpenseTransactionResponse {
         }
     }
 }
-
-
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct ReconcilePettyCashRequest {

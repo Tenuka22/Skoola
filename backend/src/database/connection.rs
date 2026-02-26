@@ -1,6 +1,6 @@
-use diesel::sqlite::SqliteConnection;
-use diesel::r2d2::{ConnectionManager, Pool};
 use crate::errors::APIError;
+use diesel::r2d2::{ConnectionManager, Pool};
+use diesel::sqlite::SqliteConnection;
 
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 

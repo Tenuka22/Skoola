@@ -1,14 +1,17 @@
-use diesel::prelude::*;
+use crate::schema::{class_subject_teachers, classes, subjects};
 use crate::{
-    errors::APIError,
     AppState,
-    models::class_subject_teacher::{ClassSubjectTeacher, ClassSubjectTeacherResponse, CreateClassSubjectTeacherRequest, UpdateClassSubjectTeacherRequest},
-    models::subject::SubjectResponse,
+    errors::APIError,
     models::class::ClassResponse,
+    models::class_subject_teacher::{
+        ClassSubjectTeacher, ClassSubjectTeacherResponse, CreateClassSubjectTeacherRequest,
+        UpdateClassSubjectTeacherRequest,
+    },
+    models::subject::SubjectResponse,
 };
-use actix_web::{web, HttpResponse};
+use actix_web::{HttpResponse, web};
 use chrono::Utc;
-use crate::schema::{class_subject_teachers, subjects, classes};
+use diesel::prelude::*;
 
 pub async fn assign_subject_teacher_to_class(
     pool: web::Data<AppState>,
@@ -21,13 +24,15 @@ pub async fn assign_subject_teacher_to_class(
         .filter(class_subject_teachers::class_id.eq(&new_assignment_request.class_id))
         .filter(class_subject_teachers::subject_id.eq(&new_assignment_request.subject_id))
         .filter(class_subject_teachers::teacher_id.eq(&new_assignment_request.teacher_id))
-        .filter(class_subject_teachers::academic_year_id.eq(&new_assignment_request.academic_year_id))
+        .filter(
+            class_subject_teachers::academic_year_id.eq(&new_assignment_request.academic_year_id),
+        )
         .first(&mut conn)
         .optional()?;
 
     if existing_assignment.is_some() {
         return Err(APIError::conflict(
-            "This teacher is already assigned to this subject in this class for the academic year."
+            "This teacher is already assigned to this subject in this class for the academic year.",
         ));
     }
 
@@ -62,7 +67,10 @@ pub async fn update_subject_teacher_assignment(
         .filter(class_subject_teachers::academic_year_id.eq(&academic_year_id));
 
     let updated_count = diesel::update(target)
-        .set((update_request, class_subject_teachers::updated_at.eq(Utc::now().naive_utc())))
+        .set((
+            update_request,
+            class_subject_teachers::updated_at.eq(Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     if updated_count == 0 {
@@ -76,8 +84,7 @@ pub async fn update_subject_teacher_assignment(
         .filter(class_subject_teachers::class_id.eq(&class_id))
         .filter(class_subject_teachers::subject_id.eq(&subject_id))
         .filter(class_subject_teachers::academic_year_id.eq(&academic_year_id))
-        .first(&mut conn)
-        ?;
+        .first(&mut conn)?;
 
     Ok(ClassSubjectTeacherResponse::from(updated_assignment))
 }

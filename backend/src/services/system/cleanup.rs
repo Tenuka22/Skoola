@@ -1,10 +1,10 @@
-use diesel::prelude::*;
-use crate::schema::users;
 use crate::AppState;
-use chrono::{Duration, Utc};
-use tracing::{info, error};
+use crate::models::system::BulkDeleteUsersRequest;
+use crate::schema::users;
 use actix_web::web;
-use crate::models::system::BulkDeleteUsersRequest; // Import the new DTO
+use chrono::{Duration, Utc};
+use diesel::prelude::*;
+use tracing::{error, info}; // Import the new DTO
 
 pub async fn remove_unverified_users(data: web::Data<AppState>) {
     info!("Starting unverified user cleanup job.");
@@ -21,13 +21,16 @@ pub async fn remove_unverified_users(data: web::Data<AppState>) {
     match diesel::delete(
         users::table
             .filter(users::is_verified.eq(false))
-            .filter(users::created_at.lt(one_hour_ago))
+            .filter(users::created_at.lt(one_hour_ago)),
     )
     .execute(&mut conn)
     {
         Ok(num_deleted) => {
             if num_deleted > 0 {
-                info!("Removed {} unverified users older than one hour.", num_deleted);
+                info!(
+                    "Removed {} unverified users older than one hour.",
+                    num_deleted
+                );
             } else {
                 info!("No unverified users older than one hour found to remove.");
             }
@@ -42,14 +45,16 @@ pub async fn bulk_delete_users(
     data: web::Data<AppState>,
     delete_request: BulkDeleteUsersRequest,
 ) -> Result<(), anyhow::Error> {
-    info!("Attempting to bulk delete users: {:?}", delete_request.user_ids);
+    info!(
+        "Attempting to bulk delete users: {:?}",
+        delete_request.user_ids
+    );
 
     let mut conn = data.db_pool.get()?;
 
-    let num_deleted = diesel::delete(
-        users::table.filter(users::id.eq_any(&delete_request.user_ids))
-    )
-    .execute(&mut conn)?;
+    let num_deleted =
+        diesel::delete(users::table.filter(users::id.eq_any(&delete_request.user_ids)))
+            .execute(&mut conn)?;
 
     info!("Successfully deleted {} users.", num_deleted);
     Ok(())

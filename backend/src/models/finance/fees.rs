@@ -1,14 +1,24 @@
 use crate::database::enums::{FeeFrequency, PaymentMethod};
+use crate::models::staff::staff::Staff;
+use crate::models::student::student::Student;
+use crate::schema::{fee_categories, fee_payments, fee_structures, student_fees};
+use apistos::ApiComponent;
+use chrono::{NaiveDate, NaiveDateTime};
+use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use chrono::{NaiveDate, NaiveDateTime};
-use apistos::ApiComponent;
-use diesel::prelude::*;
-use crate::schema::{fee_categories, fee_structures, student_fees, fee_payments};
-use crate::models::student::student::Student;
-use crate::models::staff::staff::Staff;
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    ApiComponent,
+)]
 #[diesel(table_name = fee_categories)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct FeeCategory {
@@ -30,7 +40,7 @@ pub struct FeeCategory {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = fee_structures)]
 #[diesel(belongs_to(FeeCategory, foreign_key = category_id))]
@@ -57,7 +67,7 @@ pub struct FeeStructure {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = student_fees)]
 #[diesel(belongs_to(Student))]
@@ -84,7 +94,7 @@ pub struct StudentFee {
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = fee_payments)]
 #[diesel(belongs_to(StudentFee))]

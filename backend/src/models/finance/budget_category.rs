@@ -1,8 +1,8 @@
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use chrono::NaiveDateTime;
-use schemars::JsonSchema;
 use apistos::ApiComponent;
+use chrono::NaiveDateTime;
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, ApiComponent, JsonSchema)]
 #[diesel(table_name = crate::schema::budget_categories)]

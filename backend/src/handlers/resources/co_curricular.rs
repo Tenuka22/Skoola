@@ -1,11 +1,9 @@
-use actix_web::web::{Data, Json, Path};
-use apistos::{api_operation, web};
 use crate::{
-    AppState,
-    errors::APIError,
-    models::resources::co_curricular::{*},
+    AppState, errors::APIError, models::resources::co_curricular::*,
     services::resources::co_curricular,
 };
+use actix_web::web::{Data, Json, Path};
+use apistos::{api_operation, web};
 // use serde_json; // Removed unused import
 
 // --- Sports Handlers ---
@@ -91,7 +89,8 @@ pub async fn record_sport_event_result(
     body: Json<RecordEventResultRequest>,
 ) -> Result<Json<SportEventParticipant>, APIError> {
     let event_id = path.into_inner();
-    let participant = co_curricular::record_sport_event_result(data, event_id, body.into_inner()).await?;
+    let participant =
+        co_curricular::record_sport_event_result(data, event_id, body.into_inner()).await?;
     Ok(Json(participant))
 }
 
@@ -169,7 +168,8 @@ pub async fn add_competition_participant(
     body: Json<AddCompetitionParticipantRequest>,
 ) -> Result<Json<CompetitionParticipant>, APIError> {
     let competition_id = path.into_inner();
-    let participant = co_curricular::add_competition_participant(data, competition_id, body.into_inner()).await?;
+    let participant =
+        co_curricular::add_competition_participant(data, competition_id, body.into_inner()).await?;
     Ok(Json(participant))
 }
 
@@ -215,7 +215,8 @@ pub async fn add_cultural_event_participant(
     body: Json<AddCulturalEventParticipantRequest>,
 ) -> Result<Json<CulturalEventParticipant>, APIError> {
     let event_id = path.into_inner();
-    let participant = co_curricular::add_cultural_event_participant(data, event_id, body.into_inner()).await?;
+    let participant =
+        co_curricular::add_cultural_event_participant(data, event_id, body.into_inner()).await?;
     Ok(Json(participant))
 }
 
@@ -241,21 +242,36 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .route("/sports", web::post().to(create_sport))
             .route("/sports", web::get().to(get_all_sports))
             .route("/sports/teams", web::post().to(create_sport_team))
-            .route("/sports/teams/{team_id}/members", web::post().to(add_sport_team_member))
+            .route(
+                "/sports/teams/{team_id}/members",
+                web::post().to(add_sport_team_member),
+            )
             .route("/sports/events", web::post().to(create_sport_event))
-            .route("/sports/events/{event_id}/results", web::post().to(record_sport_event_result))
+            .route(
+                "/sports/events/{event_id}/results",
+                web::post().to(record_sport_event_result),
+            )
             // Clubs
             .route("/clubs", web::post().to(create_club))
             .route("/clubs/{club_id}/members", web::post().to(add_club_member))
             .route("/clubs/activities", web::post().to(create_club_activity))
             // Competitions
             .route("/competitions", web::post().to(create_competition))
-            .route("/competitions/{id}/participants", web::post().to(add_competition_participant))
+            .route(
+                "/competitions/{id}/participants",
+                web::post().to(add_competition_participant),
+            )
             .route("/achievements", web::post().to(create_student_achievement))
             // Cultural
             .route("/cultural/events", web::post().to(create_cultural_event))
-            .route("/cultural/events/{id}/participants", web::post().to(add_cultural_event_participant))
+            .route(
+                "/cultural/events/{id}/participants",
+                web::post().to(add_cultural_event_participant),
+            )
             // Summary
-            .route("/summary/student/{student_id}", web::get().to(get_student_summary)),
+            .route(
+                "/summary/student/{student_id}",
+                web::get().to(get_student_summary),
+            ),
     );
 }

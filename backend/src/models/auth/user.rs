@@ -1,10 +1,10 @@
-use apistos::ApiComponent;
-use chrono::NaiveDateTime;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use diesel::prelude::*;
 use crate::database::enums::RoleEnum;
 use crate::schema::users;
+use apistos::ApiComponent;
+use chrono::NaiveDateTime;
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 #[derive(
     Debug,

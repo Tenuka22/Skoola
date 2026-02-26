@@ -1,15 +1,14 @@
-use diesel::prelude::*;
-use diesel::insert_into;
-use anyhow::Result;
-use backend::schema::{users, profiles, user_profiles};
-use backend::config::Config;
-use std::collections::HashSet;
 use super::utils::*;
 use super::{SeedModule, SeederContext};
-use backend::models::auth::{NewProfile, NewUser, NewUserProfile};
+use anyhow::Result;
+use backend::config::Config;
 use backend::database::enums::RoleEnum;
+use backend::models::auth::{NewProfile, NewUser, NewUserProfile};
+use backend::schema::{profiles, user_profiles, users};
 use chrono::Utc;
-use crate::hash_password;
+use diesel::insert_into;
+use diesel::prelude::*;
+use std::collections::HashSet;
 
 pub struct CustomUserSeeder;
 
@@ -23,7 +22,7 @@ impl SeedModule for CustomUserSeeder {
     fn seed(
         &self,
         conn: &mut SqliteConnection,
-        config: &Config,
+        _config: &Config,
         password_hash: &str,
         used_emails: &mut HashSet<String>,
         context: &mut SeederContext,
@@ -33,14 +32,19 @@ impl SeedModule for CustomUserSeeder {
 
         // Helper function to create a user and their profile
         let seed_user = |conn: &mut SqliteConnection,
-                           password_hash: &str,
-                           used_emails: &mut HashSet<String>,
-                           context: &mut SeederContext,
-                           email_prefix: &str,
-                           email_domain: &str,
-                           name: &str,
-                           role: RoleEnum| -> Result<()> {
-            let user_email = format!("{}{}", email_prefix, email_domain);
+                         password_hash: &str,
+                         used_emails: &mut HashSet<String>,
+                         context: &mut SeederContext,
+                         email_prefix: &str,
+                         email_domain: &str,
+                         name: &str,
+                         role: RoleEnum|
+         -> Result<()> {
+            let user_email = generate_random_email_unique_with_domain(
+                used_emails,
+                email_prefix,
+                email_domain,
+            );
             let user_id = generate_uuid();
             let new_user = NewUser {
                 id: user_id.clone(),
@@ -59,9 +63,7 @@ impl SeedModule for CustomUserSeeder {
                 lockout_until: None,
                 role: role.clone(),
             };
-            insert_into(users::table)
-                .values(&new_user)
-                .execute(conn)?;
+            insert_into(users::table).values(&new_user).execute(conn)?;
             context.user_ids.push(user_id.clone());
 
             let profile_id = generate_uuid();
@@ -79,23 +81,64 @@ impl SeedModule for CustomUserSeeder {
                 .execute(conn)?;
             context.profile_ids.push(profile_id.clone());
             insert_into(user_profiles::table)
-                .values(&NewUserProfile { user_id: user_id.clone(), profile_id: profile_id.clone(), created_at: Utc::now().naive_utc(), updated_at: Utc::now().naive_utc() })
+                .values(&NewUserProfile {
+                    user_id: user_id.clone(),
+                    profile_id: profile_id.clone(),
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                })
                 .execute(conn)?;
             println!("Seeded {} user: {}", role, user_email);
             Ok(())
         };
 
         // Generate a FullAdmin user
-        seed_user(conn, password_hash, used_emails, context, "fulladmin.test", "@main.co", "Full Admin User", RoleEnum::FullAdmin)?;
+        seed_user(
+            conn,
+            password_hash,
+            used_emails,
+            context,
+            "fulladmin.test",
+            "@main.co",
+            "Full Admin User",
+            RoleEnum::FullAdmin,
+        )?;
 
         // Generate an Admin user
-        seed_user(conn, password_hash, used_emails, context, &generate_random_email_prefix(), "@admin.com", "Admin User", RoleEnum::Admin)?;
+        seed_user(
+            conn,
+            password_hash,
+            used_emails,
+            context,
+            &generate_random_email_prefix(),
+            "@admin.com",
+            "Admin User",
+            RoleEnum::Admin,
+        )?;
 
         // Generate a Teacher user
-        seed_user(conn, password_hash, used_emails, context, &generate_random_email_prefix(), "@teacher.com", "Teacher User", RoleEnum::Teacher)?;
+        seed_user(
+            conn,
+            password_hash,
+            used_emails,
+            context,
+            &generate_random_email_prefix(),
+            "@teacher.com",
+            "Teacher User",
+            RoleEnum::Teacher,
+        )?;
 
         // Generate a Student user
-        seed_user(conn, password_hash, used_emails, context, &generate_random_email_prefix(), "@student.com", "Student User", RoleEnum::Student)?;
+        seed_user(
+            conn,
+            password_hash,
+            used_emails,
+            context,
+            &generate_random_email_prefix(),
+            "@student.com",
+            "Student User",
+            RoleEnum::Student,
+        )?;
 
         Ok(())
     }

@@ -1,12 +1,14 @@
 use actix_web::web;
-use apistos::api_operation;
 use actix_web::web::Json;
+use apistos::api_operation;
 
 use crate::{
     AppState,
     errors::APIError,
-    models::student::guardian::{CreateStudentGuardianRequest, UpdateStudentGuardianRequest, StudentGuardianResponse},
     models::MessageResponse,
+    models::student::guardian::{
+        CreateStudentGuardianRequest, StudentGuardianResponse, UpdateStudentGuardianRequest,
+    },
     services::students::student_guardian,
 };
 
@@ -22,7 +24,9 @@ pub async fn add_guardian_to_student(
     body: web::Json<CreateStudentGuardianRequest>,
 ) -> Result<Json<StudentGuardianResponse>, APIError> {
     let student_id = path.into_inner();
-    let new_guardian = student_guardian::add_guardian_to_student(data.clone(), student_id, body.into_inner()).await?;
+    let new_guardian =
+        student_guardian::add_guardian_to_student(data.clone(), student_id, body.into_inner())
+            .await?;
     Ok(Json(new_guardian))
 }
 
@@ -60,7 +64,9 @@ pub async fn remove_guardian_from_student(
 ) -> Result<Json<MessageResponse>, APIError> {
     let (student_id, guardian_id) = path.into_inner();
     student_guardian::remove_guardian_from_student(data.clone(), student_id, guardian_id).await?;
-    Ok(Json(MessageResponse { message: "Guardian removed successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Guardian removed successfully".to_string(),
+    }))
 }
 
 #[api_operation(
@@ -74,6 +80,7 @@ pub async fn get_all_guardians_for_student(
     path: web::Path<String>,
 ) -> Result<Json<Vec<StudentGuardianResponse>>, APIError> {
     let student_id = path.into_inner();
-    let guardians = student_guardian::get_all_guardians_for_student(data.clone(), student_id).await?;
+    let guardians =
+        student_guardian::get_all_guardians_for_student(data.clone(), student_id).await?;
     Ok(Json(guardians))
 }

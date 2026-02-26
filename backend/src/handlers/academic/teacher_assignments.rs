@@ -1,16 +1,19 @@
 use actix_web::web;
+use actix_web::web::Json;
 use apistos::api_operation;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::Utc;
-use actix_web::web::Json;
 // use serde_json; // Removed unused import
 
 use crate::{
     AppState,
     database::tables::{TeacherClassAssignment, TeacherSubjectAssignment},
     errors::APIError,
-    models::staff::assignment::{AssignClassToTeacherRequest, AssignSubjectToTeacherRequest, TeacherClassAssignmentResponse, TeacherSubjectAssignmentResponse, TeacherWorkloadResponse},
+    models::staff::assignment::{
+        AssignClassToTeacherRequest, AssignSubjectToTeacherRequest, TeacherClassAssignmentResponse,
+        TeacherSubjectAssignmentResponse, TeacherWorkloadResponse,
+    },
     schema::{teacher_class_assignments, teacher_subject_assignments},
 };
 
@@ -38,7 +41,9 @@ pub async fn assign_class_to_teacher(
         .optional()?;
 
     if existing_assignment.is_some() {
-        return Err(APIError::conflict("Teacher already assigned to this class for the given academic year"));
+        return Err(APIError::conflict(
+            "Teacher already assigned to this class for the given academic year",
+        ));
     }
 
     let new_assignment = TeacherClassAssignment {
@@ -86,7 +91,9 @@ pub async fn assign_subject_to_teacher(
         .optional()?;
 
     if existing_assignment.is_some() {
-        return Err(APIError::conflict("Teacher already assigned to this subject for the given academic year"));
+        return Err(APIError::conflict(
+            "Teacher already assigned to this subject for the given academic year",
+        ));
     }
 
     let new_assignment = TeacherSubjectAssignment {

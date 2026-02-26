@@ -1,20 +1,19 @@
-use diesel::{
-    prelude::*,
-};
+use crate::schema::{exam_subjects, student_class_assignments, student_marks, students};
 use crate::{
-    errors::APIError,
     AppState,
+    errors::APIError,
     models::{
-        student_marks::{StudentMark, StudentMarkResponse, CreateStudentMarkRequest, UpdateStudentMarkRequest, BulkCreateStudentMarkRequest},
         exams::exam_subject::ExamSubject,
+        student_marks::{
+            BulkCreateStudentMarkRequest, CreateStudentMarkRequest, StudentMark,
+            StudentMarkResponse, UpdateStudentMarkRequest,
+        },
     },
 };
-use actix_web::{web, HttpResponse};
-use uuid::Uuid;
+use actix_web::{HttpResponse, web};
 use chrono::Utc;
-use crate::schema::{student_marks, student_class_assignments, students, exam_subjects};
-
-
+use diesel::prelude::*;
+use uuid::Uuid;
 
 // Service to create a new StudentMark
 pub async fn create_student_mark(
@@ -31,8 +30,13 @@ pub async fn create_student_mark(
         .first(&mut conn)?;
 
     // Validate marks_obtained
-    if new_student_mark_request.marks_obtained < 0 || new_student_mark_request.marks_obtained > exam_subject.max_marks {
-        return Err(APIError::bad_request(&format!("Marks obtained must be between 0 and {}", exam_subject.max_marks)));
+    if new_student_mark_request.marks_obtained < 0
+        || new_student_mark_request.marks_obtained > exam_subject.max_marks
+    {
+        return Err(APIError::bad_request(&format!(
+            "Marks obtained must be between 0 and {}",
+            exam_subject.max_marks
+        )));
     }
 
     let student_mark_id = Uuid::new_v4().to_string();
@@ -53,8 +57,7 @@ pub async fn create_student_mark(
 
     diesel::insert_into(student_marks::table)
         .values(&new_student_mark)
-        .execute(&mut conn)
-?;
+        .execute(&mut conn)?;
 
     Ok(StudentMarkResponse::from(new_student_mark))
 }
@@ -81,8 +84,7 @@ pub async fn get_all_student_marks(
 
     let student_marks_list: Vec<StudentMark> = student_marks::table
         .order(student_marks::entered_at.desc())
-        .load::<StudentMark>(&mut conn)
-?;
+        .load::<StudentMark>(&mut conn)?;
 
     let responses: Vec<StudentMarkResponse> = student_marks_list
         .into_iter()
@@ -102,8 +104,7 @@ pub async fn get_student_marks_by_student_id(
     let student_marks_list: Vec<StudentMark> = student_marks::table
         .filter(student_marks::student_id.eq(&student_id))
         .order(student_marks::entered_at.desc())
-        .load::<StudentMark>(&mut conn)
-?;
+        .load::<StudentMark>(&mut conn)?;
 
     let responses: Vec<StudentMarkResponse> = student_marks_list
         .into_iter()
@@ -136,7 +137,10 @@ pub async fn update_student_mark(
 
         // Validate marks_obtained
         if marks_obtained < 0 || marks_obtained > exam_subject.max_marks {
-            return Err(APIError::bad_request(&format!("Marks obtained must be between 0 and {}", exam_subject.max_marks)));
+            return Err(APIError::bad_request(&format!(
+                "Marks obtained must be between 0 and {}",
+                exam_subject.max_marks
+            )));
         }
     }
 
@@ -148,11 +152,13 @@ pub async fn update_student_mark(
             student_marks::updated_by.eq(current_user_id),
             student_marks::updated_at.eq(Utc::now().naive_utc()),
         ))
-        .execute(&mut conn)
-?;
+        .execute(&mut conn)?;
 
     if updated_count == 0 {
-        return Err(APIError::not_found(&format!("Student Mark with ID {} not found", student_mark_id)));
+        return Err(APIError::not_found(&format!(
+            "Student Mark with ID {} not found",
+            student_mark_id
+        )));
     }
 
     let updated_student_mark: StudentMark = student_marks::table
@@ -171,11 +177,13 @@ pub async fn delete_student_mark(
 
     let deleted_count = diesel::delete(student_marks::table)
         .filter(student_marks::id.eq(&student_mark_id))
-        .execute(&mut conn)
-?;
+        .execute(&mut conn)?;
 
     if deleted_count == 0 {
-        return Err(APIError::not_found(&format!("Student Mark with ID {} not found", student_mark_id)));
+        return Err(APIError::not_found(&format!(
+            "Student Mark with ID {} not found",
+            student_mark_id
+        )));
     }
 
     Ok(HttpResponse::NoContent().finish())
@@ -202,7 +210,10 @@ pub async fn bulk_create_student_marks(
             if req.marks_obtained < 0 || req.marks_obtained > exam_subject.max_marks {
                 // If validation fails, return an APIError that causes a rollback
                 // Here, we can return APIError directly as it's within the transaction's map_err
-                return Err(APIError::bad_request(&format!("Marks obtained must be between 0 and {}", exam_subject.max_marks)));
+                return Err(APIError::bad_request(&format!(
+                    "Marks obtained must be between 0 and {}",
+                    exam_subject.max_marks
+                )));
             }
 
             let student_mark_id = Uuid::new_v4().to_string();
@@ -223,14 +234,12 @@ pub async fn bulk_create_student_marks(
 
             diesel::insert_into(student_marks::table)
                 .values(&new_student_mark)
-                .execute(conn)
-        ?;
+                .execute(conn)?;
 
             created_marks.push(StudentMarkResponse::from(new_student_mark));
         }
         Ok(())
     })?;
-
 
     Ok(created_marks)
 }
@@ -247,13 +256,15 @@ pub async fn get_student_marks_by_exam_and_class(
     // Then filter these marks based on the class_id of the student through student_class_assignments
     let student_marks_list: Vec<StudentMark> = student_marks::table
         .inner_join(students::table)
-        .inner_join(student_class_assignments::table.on(students::id.eq(student_class_assignments::student_id)))
+        .inner_join(
+            student_class_assignments::table
+                .on(students::id.eq(student_class_assignments::student_id)),
+        )
         .filter(student_marks::exam_id.eq(&exam_id))
         .filter(student_class_assignments::class_id.eq(&class_id))
         .select(student_marks::all_columns)
         .order(student_marks::student_id.asc())
-        .load::<StudentMark>(&mut conn)
-?;
+        .load::<StudentMark>(&mut conn)?;
 
     let responses: Vec<StudentMarkResponse> = student_marks_list
         .into_iter()

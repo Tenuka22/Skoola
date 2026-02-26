@@ -1,9 +1,8 @@
-use diesel::{Queryable, Insertable, AsChangeset, Selectable};
-use serde::{Serialize, Deserialize};
-use schemars::JsonSchema;
 use apistos::ApiComponent;
 use chrono::NaiveDateTime;
-
+use diesel::{AsChangeset, Insertable, Queryable, Selectable};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Queryable, Selectable, Serialize, Deserialize, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::grading_schemes)]

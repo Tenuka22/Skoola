@@ -1,10 +1,10 @@
-use apistos::api_operation;
 use crate::AppState;
 use crate::errors::APIError;
-use crate::models::exams::grading_scheme::{GradingScheme, NewGradingScheme, UpdateGradingScheme};
 use crate::models::MessageResponse;
+use crate::models::exams::grading_scheme::{GradingScheme, NewGradingScheme, UpdateGradingScheme};
 use crate::services::exams::grading_schemes;
 use actix_web::web::{self, Json};
+use apistos::api_operation;
 
 #[api_operation(
     summary = "Create Grading Scheme",
@@ -83,7 +83,9 @@ pub async fn delete_grading_scheme_handler(
     // Changed return type
     let scheme_id = path.into_inner();
     grading_schemes::delete_grading_scheme(pool, scheme_id).await?;
-    Ok(Json(MessageResponse { message: "Grading scheme deleted successfully".to_string() }))
+    Ok(Json(MessageResponse {
+        message: "Grading scheme deleted successfully".to_string(),
+    }))
 }
 
 #[api_operation(

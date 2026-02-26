@@ -1,17 +1,20 @@
-use actix_web::{HttpRequest, web};
-use apistos::api_operation;
-use actix_web::web::Json;
-use serde::Deserialize;
-use schemars::JsonSchema;
-use apistos::ApiComponent;
 use crate::{
     AppState,
-    errors::APIError,
-    models::system::activity::{CreateActivityRequest, ActivityResponse, EnrollParticipantRequest, CreateActivityTypeRequest, ActivityTypeResponse, MarkActivityAttendanceRequest},
-    services::system::activities,
-    utils::{jwt::Authenticated, permission_verification::PermissionVerification, jwt::UserId},
     database::enums::PermissionEnum,
+    errors::APIError,
+    models::system::activity::{
+        ActivityResponse, ActivityTypeResponse, CreateActivityRequest, CreateActivityTypeRequest,
+        EnrollParticipantRequest, MarkActivityAttendanceRequest,
+    },
+    services::system::activities,
+    utils::{jwt::Authenticated, jwt::UserId, permission_verification::PermissionVerification},
 };
+use actix_web::web::Json;
+use actix_web::{HttpRequest, web};
+use apistos::ApiComponent;
+use apistos::api_operation;
+use schemars::JsonSchema;
+use serde::Deserialize;
 
 #[api_operation(
     summary = "Get my activities",
@@ -60,8 +63,18 @@ pub async fn mark_activity_attendance(
     body: web::Json<MarkActivityAttendanceRequest>,
 ) -> Result<Json<String>, APIError> {
     let marker_id = UserId::from_request(&req)?;
-    let status = body.status.parse().map_err(|_| APIError::bad_request("Invalid attendance status"))?;
-    activities::mark_activity_attendance(data, path.into_inner(), body.user_id.clone(), status, marker_id.0).await?;
+    let status = body
+        .status
+        .parse()
+        .map_err(|_| APIError::bad_request("Invalid attendance status"))?;
+    activities::mark_activity_attendance(
+        data,
+        path.into_inner(),
+        body.user_id.clone(),
+        status,
+        marker_id.0,
+    )
+    .await?;
     Ok(Json("Attendance marked successfully".to_string()))
 }
 
@@ -129,7 +142,10 @@ pub fn config(cfg: &mut apistos::web::ServiceConfig) {
             .wrap(Authenticated)
             .route("/my", apistos::web::get().to(get_my_activities))
             .route("", apistos::web::get().to(get_activities))
-            .route("/{activity_id}/attendance", apistos::web::post().to(mark_activity_attendance))
+            .route(
+                "/{activity_id}/attendance",
+                apistos::web::post().to(mark_activity_attendance),
+            )
             .service(
                 apistos::web::scope("")
                     .wrap(PermissionVerification {
@@ -138,7 +154,10 @@ pub fn config(cfg: &mut apistos::web::ServiceConfig) {
                     .route("", apistos::web::post().to(create_activity))
                     .route("/types", apistos::web::post().to(create_activity_type))
                     .route("/types", apistos::web::get().to(get_all_activity_types))
-                    .route("/{activity_id}/enroll", apistos::web::post().to(enroll_participant)),
+                    .route(
+                        "/{activity_id}/enroll",
+                        apistos::web::post().to(enroll_participant),
+                    ),
             ),
     );
 }

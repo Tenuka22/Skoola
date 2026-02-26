@@ -1,11 +1,11 @@
+use crate::database::enums::LeaveStatus;
+use crate::models::staff::staff::Staff;
+use crate::schema::staff_leaves;
 use apistos::ApiComponent;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::prelude::*;
-use crate::database::enums::LeaveStatus;
-use crate::schema::staff_leaves;
-use crate::models::staff::staff::Staff;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 #[derive(
     Debug,
@@ -17,7 +17,7 @@ use crate::models::staff::staff::Staff;
     Insertable,
     Clone,
     Associations,
-    ApiComponent
+    ApiComponent,
 )]
 #[diesel(table_name = staff_leaves)]
 #[diesel(belongs_to(Staff))]

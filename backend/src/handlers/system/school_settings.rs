@@ -1,14 +1,14 @@
-use actix_web::web;
-use apistos::api_operation;
-use actix_web::web::Json;
 use crate::{
     AppState,
+    database::enums::PermissionEnum,
     errors::APIError,
     models::system::setting::{SchoolSettingResponse, UpdateSchoolSettingRequest},
     services::system::school_settings,
     utils::{jwt::Authenticated, permission_verification::PermissionVerification},
-    database::enums::PermissionEnum,
 };
+use actix_web::web;
+use actix_web::web::Json;
+use apistos::api_operation;
 
 #[api_operation(
     summary = "Get all school settings",

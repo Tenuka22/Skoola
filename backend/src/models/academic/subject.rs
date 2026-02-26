@@ -1,11 +1,22 @@
-use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use chrono::NaiveDateTime;
+use crate::schema::{subject_enrollments, subjects};
 use apistos::ApiComponent;
-use crate::schema::{subjects, subject_enrollments};
+use chrono::NaiveDateTime;
+use diesel::prelude::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Clone,
+    Queryable,
+    Selectable,
+    Insertable,
+    AsChangeset,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = subjects)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Subject {
@@ -19,7 +30,9 @@ pub struct Subject {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Insertable, AsChangeset, JsonSchema, ApiComponent)]
+#[derive(
+    Debug, Serialize, Deserialize, Clone, Insertable, AsChangeset, JsonSchema, ApiComponent,
+)]
 #[diesel(table_name = subjects)]
 pub struct CreateSubjectRequest {
     pub id: String,
