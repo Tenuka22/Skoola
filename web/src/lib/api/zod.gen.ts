@@ -2235,12 +2235,9 @@ export const zMessageResponse = z.object({
  */
 export const zMonthlyAttendancePercentageResponse = z.object({
   attendance_percentage: z.number(),
-  month: z
-    .int()
-    .gte(0)
-    .max(4294967295, {
-      error: 'Invalid value: Expected uint32 to be <= 4294967295',
-    }),
+  month: z.int().gte(0).max(4294967295, {
+    error: 'Invalid value: Expected uint32 to be <= 4294967295',
+  }),
   present_days: z.coerce
     .bigint()
     .min(BigInt('-9223372036854775808'), {
@@ -7586,12 +7583,9 @@ export const zCalculateMonthlyStaffAttendancePercentageData = z.object({
       .max(2147483647, {
         error: 'Invalid value: Expected int32 to be <= 2147483647',
       }),
-    month: z
-      .int()
-      .gte(0)
-      .max(4294967295, {
-        error: 'Invalid value: Expected uint32 to be <= 4294967295',
-      }),
+    month: z.int().gte(0).max(4294967295, {
+      error: 'Invalid value: Expected uint32 to be <= 4294967295',
+    }),
   }),
   query: z.optional(z.never()),
 })

@@ -6,6 +6,7 @@ import {
   MoreVerticalIcon,
   PencilEdit01Icon,
 } from '@hugeicons/core-free-icons'
+import { useStaffStore } from '../store'
 import type { StaffResponse } from '@/lib/api/types.gen'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -32,7 +33,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty'
-import { useStaffStore } from '../store'
 
 interface StaffBoardViewProps {
   staff: Array<StaffResponse> | undefined
@@ -48,7 +48,6 @@ export function StaffBoardView({
   onDelete,
 }: StaffBoardViewProps) {
   const { setIsCreateStaffOpen } = useStaffStore()
-
 
   if (isLoading) {
     return (
@@ -90,13 +89,10 @@ export function StaffBoardView({
             <HugeiconsIcon icon={CloudCog} />
           </EmptyMedia>
           <EmptyTitle>No Staff Found</EmptyTitle>
-          <EmptyDescription>
-            Add staff members to get started.
-          </EmptyDescription>
+          <EmptyDescription>Add staff members to get started.</EmptyDescription>
         </EmptyHeader>
 
         <EmptyContent className="flex-row justify-center">
-
           <Button
             variant="default"
             size="sm"
@@ -157,7 +153,6 @@ export function StaffBoardView({
                   <Text size="xs" muted>
                     {format(new Date(member.created_at), 'MMM d, yyyy')}
                   </Text>
-
                 </Stack>
               </HStack>
 

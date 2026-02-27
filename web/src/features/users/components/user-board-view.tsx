@@ -157,12 +157,13 @@ export function UserBoardView({
                     </Text>
                     <Badge
                       variant="outline"
-                      className={`text-[10px] px-1.5 py-0 ${isLocked
+                      className={`text-[10px] px-1.5 py-0 ${
+                        isLocked
                           ? 'text-red-500'
                           : user.is_verified
                             ? 'text-green-500'
                             : 'text-amber-500'
-                        }`}
+                      }`}
                     >
                       {isLocked
                         ? 'Locked'
