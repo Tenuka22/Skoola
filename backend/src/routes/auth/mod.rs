@@ -32,8 +32,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                         web::scope("/{user_id}/permissions")
                             .wrap(PermissionVerification { required_permission: PermissionEnum::UserManagePermissions })
                             .route("", web::get().to(crate::handlers::auth::user_permissions::get_user_permissions))
-                            .route("/{permission}", web::post().to(crate::handlers::auth::user_permissions::assign_permission_to_user))
-                            .route("/{permission}", web::delete().to(crate::handlers::auth::user_permissions::unassign_permission_from_user)),
+                            .route("", web::post().to(crate::handlers::auth::user_permissions::assign_permission_to_user))
+                            .route("", web::delete().to(crate::handlers::auth::user_permissions::unassign_permission_from_user)),
                     )
                     .service(
                         web::scope("/bulk-delete")
@@ -66,15 +66,15 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .wrap(PermissionVerification { required_permission: PermissionEnum::RoleAssignPermissions })
             .wrap(Authenticated)
             .route("", web::get().to(role_permissions::get_role_permissions))
-            .route("/{permission}", web::post().to(role_permissions::assign_permission_to_role))
-            .route("/{permission}", web::delete().to(role_permissions::unassign_permission_from_role)),
+            .route("", web::post().to(role_permissions::assign_permission_to_role))
+            .route("", web::delete().to(role_permissions::unassign_permission_from_role)),
     )
     .service(
         web::scope("/user-sets/{user_set_id}/permissions")
             .wrap(PermissionVerification { required_permission: PermissionEnum::PermissionSetManage })
             .wrap(Authenticated)
             .route("", web::get().to(user_set_permissions::get_user_set_permissions))
-            .route("/{permission}", web::post().to(user_set_permissions::assign_permission_to_user_set))
-            .route("/{permission}", web::delete().to(user_set_permissions::unassign_permission_from_user_set)),
+            .route("", web::post().to(user_set_permissions::assign_permission_to_user_set))
+            .route("", web::delete().to(user_set_permissions::unassign_permission_from_user_set)),
     );
 }
