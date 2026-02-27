@@ -26,6 +26,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
+import { HStack, Stack, Text } from '@/components/primitives'
 
 interface GetStaffColumnsProps {
   onEdit: (staff: StaffResponse) => void
@@ -75,7 +76,7 @@ export const getStaffColumns = ({
     cell: ({ row }) => {
       const staff = row.original
       return (
-        <div className="flex items-center gap-3">
+        <HStack gap={3}>
           <Avatar className="size-8">
             <AvatarImage
               src={
@@ -92,13 +93,13 @@ export const getStaffColumns = ({
                 .toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col">
-            <span className="font-medium">{staff.name}</span>
-            <span className="text-xs text-muted-foreground">
+          <Stack gap={0}>
+            <Text className="font-medium text-sm">{staff.name}</Text>
+            <Text size="xs" muted>
               {staff.employee_id}
-            </span>
-          </div>
-        </div>
+            </Text>
+          </Stack>
+        </HStack>
       )
     },
   },
@@ -155,52 +156,72 @@ export const getStaffColumns = ({
             }
           />
           <DropdownMenuContent align="end" className="w-52">
-            <DropdownMenuItem onClick={() => onEdit(staff)}>
-              <HugeiconsIcon icon={PencilEdit01Icon} className="mr-2 size-4" />
-              Edit Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onUploadPhoto(staff)}>
-              <HugeiconsIcon icon={Upload01Icon} className="mr-2 size-4" />
-              Upload Photo
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onAssignClass(staff)}>
-              <HugeiconsIcon icon={School01Icon} className="mr-2 size-4" />
-              Assign Class
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAssignSubject(staff)}>
-              <HugeiconsIcon icon={BookOpen01Icon} className="mr-2 size-4" />
-              Assign Subject
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onViewWorkload(staff)}>
-              <HugeiconsIcon icon={Chart01Icon} className="mr-2 size-4" />
-              View Workload
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onManageAttendance(staff)}>
-              <HugeiconsIcon
-                icon={CalendarCheckIn01Icon}
-                className="mr-2 size-4"
-              />
-              Attendance
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onManageLeaves(staff)}>
-              <HugeiconsIcon icon={Calendar01Icon} className="mr-2 size-4" />
-              Leaves
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onManagePermissions(staff)}>
-              <HugeiconsIcon icon={Layers01Icon} className="mr-2 size-4" />
-              Permissions
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
-              onClick={() => onDelete(staff.id)}
-            >
-              <HugeiconsIcon icon={Delete02Icon} className="mr-2 size-4" />
-              Delete
-            </DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuItem onClick={() => onEdit(staff)}>
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={PencilEdit01Icon} className="size-4" />
+                  <span>Edit Profile</span>
+                </HStack>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onUploadPhoto(staff)}>
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={Upload01Icon} className="size-4" />
+                  <span>Upload Photo</span>
+                </HStack>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onAssignClass(staff)}>
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={School01Icon} className="size-4" />
+                  <span>Assign Class</span>
+                </HStack>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAssignSubject(staff)}>
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={BookOpen01Icon} className="size-4" />
+                  <span>Assign Subject</span>
+                </HStack>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onViewWorkload(staff)}>
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={Chart01Icon} className="size-4" />
+                  <span>View Workload</span>
+                </HStack>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onManageAttendance(staff)}>
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon
+                    icon={CalendarCheckIn01Icon}
+                    className="size-4"
+                  />
+                  <span>Attendance</span>
+                </HStack>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onManageLeaves(staff)}>
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={Calendar01Icon} className="size-4" />
+                  <span>Leaves</span>
+                </HStack>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onManagePermissions(staff)}>
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={Layers01Icon} className="size-4" />
+                  <span>Permissions</span>
+                </HStack>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => onDelete(staff.id)}
+              >
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={Delete02Icon} className="size-4" />
+                  <span>Delete</span>
+                </HStack>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenuContent>
         </DropdownMenu>
       )

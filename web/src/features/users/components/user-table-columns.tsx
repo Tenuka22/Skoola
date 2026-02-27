@@ -26,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Spinner } from '@/components/ui/spinner'
+import { HStack, Stack, Text } from '@/components/primitives'
 
 interface GetColumnsProps {
   users?: Array<User>
@@ -79,12 +80,14 @@ export function getUserColumns({
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            User Info
-            {column.getIsSorted() === 'asc' ? (
-              <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'desc' ? (
-              <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
-            ) : null}
+            <HStack gap={2} p={0}>
+              <span>User Info</span>
+              {column.getIsSorted() === 'asc' ? (
+                <HugeiconsIcon icon={ArrowUp01Icon} className="h-4 w-4" />
+              ) : column.getIsSorted() === 'desc' ? (
+                <HugeiconsIcon icon={ArrowDown01Icon} className="h-4 w-4" />
+              ) : null}
+            </HStack>
           </Button>
         )
       },
@@ -97,7 +100,7 @@ export function getUserColumns({
         const initials = name.substring(0, 2).toUpperCase()
 
         return (
-          <div className="flex items-center gap-3">
+          <HStack gap={3}>
             <Avatar className="h-9 w-9 border border-border/50">
               <AvatarImage
                 src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
@@ -106,15 +109,15 @@ export function getUserColumns({
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-foreground">
+            <Stack gap={0}>
+              <Text size="sm" className="font-medium text-foreground">
                 {name}
-              </span>
-              <span className="text-xs text-muted-foreground">
+              </Text>
+              <Text size="xs" muted>
                 {user.email}
-              </span>
-            </div>
-          </div>
+              </Text>
+            </Stack>
+          </HStack>
         )
       },
     },
@@ -125,34 +128,39 @@ export function getUserColumns({
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Verification
-          {column.getIsSorted() === 'asc' ? (
-            <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
-          ) : column.getIsSorted() === 'desc' ? (
-            <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
-          ) : null}
+          <HStack gap={2} p={0}>
+            <span>
+              {column.id === 'is_verified' ? 'Verification' : 'Lock Status'}
+            </span>
+            {column.getIsSorted() === 'asc' ? (
+              <HugeiconsIcon icon={ArrowUp01Icon} className="h-4 w-4" />
+            ) : column.getIsSorted() === 'desc' ? (
+              <HugeiconsIcon icon={ArrowDown01Icon} className="h-4 w-4" />
+            ) : null}
+          </HStack>
         </Button>
       ),
       cell: ({ row }) => {
         const isVerified = row.original.is_verified
 
         return (
-          <div className="flex items-center gap-2">
+          <HStack gap={2}>
             <span
               className={cn('inline-flex h-2 w-2 rounded-full', {
                 'bg-green-500': isVerified,
                 'bg-red-500': !isVerified,
               })}
             />
-            <span
-              className={cn('text-xs font-medium', {
+            <Text
+              size="xs"
+              className={cn('font-medium', {
                 'text-green-600': isVerified,
                 'text-red-600': !isVerified,
               })}
             >
               {isVerified ? 'Verified' : 'Unverified'}
-            </span>
-          </div>
+            </Text>
+          </HStack>
         )
       },
     },
@@ -163,12 +171,14 @@ export function getUserColumns({
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Lock Status
-          {column.getIsSorted() === 'asc' ? (
-            <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
-          ) : column.getIsSorted() === 'desc' ? (
-            <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
-          ) : null}
+          <HStack gap={2} p={0}>
+            <span>Lock Status</span>
+            {column.getIsSorted() === 'asc' ? (
+              <HugeiconsIcon icon={ArrowUp01Icon} className="h-4 w-4" />
+            ) : column.getIsSorted() === 'desc' ? (
+              <HugeiconsIcon icon={ArrowDown01Icon} className="h-4 w-4" />
+            ) : null}
+          </HStack>
         </Button>
       ),
       cell: ({ row }) => {
@@ -176,30 +186,31 @@ export function getUserColumns({
         const isLocked = lockoutUntil && new Date(lockoutUntil) > new Date()
 
         return (
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
+          <Stack gap={1}>
+            <HStack gap={2}>
               <span
                 className={cn('inline-flex h-2 w-2 rounded-full', {
                   'bg-amber-500': isLocked,
                   'bg-muted-foreground': !isLocked,
                 })}
               />
-              <span
-                className={cn('text-xs font-medium', {
+              <Text
+                size="xs"
+                className={cn('font-medium', {
                   'text-amber-600': isLocked,
                   'text-muted-foreground': !isLocked,
                 })}
               >
                 {isLocked ? 'Locked' : 'Unlocked'}
-              </span>
-            </div>
+              </Text>
+            </HStack>
 
             {isLocked && lockoutUntil && (
-              <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+              <Text size="xs" muted className="whitespace-nowrap">
                 Until {format(new Date(lockoutUntil), 'd MMM yyyy')}
-              </span>
+              </Text>
             )}
-          </div>
+          </Stack>
         )
       },
     },
@@ -211,12 +222,14 @@ export function getUserColumns({
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            Joined date
-            {column.getIsSorted() === 'asc' ? (
-              <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'desc' ? (
-              <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
-            ) : null}
+            <HStack gap={2} p={0}>
+              <span>Joined date</span>
+              {column.getIsSorted() === 'asc' ? (
+                <HugeiconsIcon icon={ArrowUp01Icon} className="h-4 w-4" />
+              ) : column.getIsSorted() === 'desc' ? (
+                <HugeiconsIcon icon={ArrowDown01Icon} className="h-4 w-4" />
+              ) : null}
+            </HStack>
           </Button>
         )
       },
@@ -234,12 +247,14 @@ export function getUserColumns({
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            Last Updated
-            {column.getIsSorted() === 'asc' ? (
-              <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'desc' ? (
-              <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
-            ) : null}
+            <HStack gap={2} p={0}>
+              <span>Last Updated</span>
+              {column.getIsSorted() === 'asc' ? (
+                <HugeiconsIcon icon={ArrowUp01Icon} className="h-4 w-4" />
+              ) : column.getIsSorted() === 'desc' ? (
+                <HugeiconsIcon icon={ArrowDown01Icon} className="h-4 w-4" />
+              ) : null}
+            </HStack>
           </Button>
         )
       },
@@ -279,8 +294,10 @@ export function getUserColumns({
                   toast.success('User ID copied to clipboard')
                 }}
               >
-                <HugeiconsIcon icon={Copy01Icon} className="mr-2 h-4 w-4" />
-                Copy ID
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={Copy01Icon} className="h-4 w-4" />
+                  <span>Copy ID</span>
+                </HStack>
               </DropdownMenuItem>
 
               <DropdownMenuItem
@@ -289,24 +306,27 @@ export function getUserColumns({
                   toast.success('User email copied to clipboard')
                 }}
               >
-                <HugeiconsIcon icon={Copy01Icon} className="mr-2 h-4 w-4" />
-                Copy Email
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={Copy01Icon} className="h-4 w-4" />
+                  <span>Copy Email</span>
+                </HStack>
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
 
               <DropdownMenuItem onClick={() => setUserToEdit(user)}>
-                <HugeiconsIcon
-                  icon={PencilEdit01Icon}
-                  className="mr-2 h-4 w-4"
-                />
-                Edit
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={PencilEdit01Icon} className="h-4 w-4" />
+                  <span>Edit</span>
+                </HStack>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setUserToManagePermissions(user)}
               >
-                <HugeiconsIcon icon={Shield02Icon} className="mr-2 h-4 w-4" />
-                Manage Permissions
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={Shield02Icon} className="h-4 w-4" />
+                  <span>Manage Permissions</span>
+                </HStack>
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
@@ -319,15 +339,14 @@ export function getUserColumns({
                 disabled={isBeingUpdated}
                 closeOnClick={false}
               >
-                {isBeingUpdated ? (
-                  <Spinner className="mr-2 h-4 w-4" />
-                ) : (
-                  <HugeiconsIcon
-                    icon={UserCheckIcon}
-                    className="mr-2 h-4 w-4"
-                  />
-                )}
-                {user.is_verified ? 'Unverify' : 'Verify'}
+                <HStack gap={2} p={0}>
+                  {isBeingUpdated ? (
+                    <Spinner className="h-4 w-4" />
+                  ) : (
+                    <HugeiconsIcon icon={UserCheckIcon} className="h-4 w-4" />
+                  )}
+                  <span>{user.is_verified ? 'Unverify' : 'Verify'}</span>
+                </HStack>
               </DropdownMenuItem>
 
               <DropdownMenuItem
@@ -335,12 +354,14 @@ export function getUserColumns({
                 disabled={isBeingUpdated}
                 closeOnClick={false}
               >
-                {isBeingUpdated ? (
-                  <Spinner className="mr-2 h-4 w-4" />
-                ) : (
-                  <HugeiconsIcon icon={LockIcon} className="mr-2 h-4 w-4" />
-                )}
-                {isLocked ? 'Unlock' : 'Lock'}
+                <HStack gap={2} p={0}>
+                  {isBeingUpdated ? (
+                    <Spinner className="h-4 w-4" />
+                  ) : (
+                    <HugeiconsIcon icon={LockIcon} className="h-4 w-4" />
+                  )}
+                  <span>{isLocked ? 'Unlock' : 'Lock'}</span>
+                </HStack>
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
@@ -349,8 +370,10 @@ export function getUserColumns({
                 onClick={() => setUserToDelete(user.id)}
                 className="text-destructive focus:text-destructive"
               >
-                <HugeiconsIcon icon={Delete02Icon} className="mr-2 h-4 w-4" />
-                Delete
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={Delete02Icon} className="h-4 w-4" />
+                  <span>Delete</span>
+                </HStack>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

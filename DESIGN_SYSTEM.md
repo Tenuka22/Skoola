@@ -87,6 +87,58 @@ Headers compose tightly with counts/badges, taking advantage of `gap={1}` for ve
 - Use `HugeiconsIcon` standardly with `size-4` for consistency.
 - Standard secondary action buttons use `variant="outline"` or `variant="destructive" size="sm"`.
 
+### Empty State Pattern
+When a data set is empty, use the `Empty` component suite to provide a consistent, friendly placeholder.
+- Structure: `<Empty>` → `<EmptyHeader>` (icon & title) → `<EmptyDescription>` → `<EmptyContent>` (actions).
+- Use `HugeiconsIcon` for the visual cue and `Button`/`Link` for primary actions.
+- Keep the layout compact and centered, matching the page padding (`p={8}`) and using `h-full` containers.
+
+Example (from `user-board-view.tsx`):
+```tsx
+<Empty className="border border-dashed w-auto">
+  <EmptyHeader>
+    <EmptyMedia variant="icon"><HugeiconsIcon icon={CloudCog} /></EmptyMedia>
+    <EmptyTitle>No User Found</EmptyTitle>
+    <EmptyDescription>Add users or share your app to get started.</EmptyDescription>
+  </EmptyHeader>
+  <EmptyContent className="flex-row justify-center">
+    <Link to="/sign-up"><Button variant="outline" size="sm">Sign Up A User</Button></Link>
+    <Button variant="default" size="sm" onClick={() => setIsCreateUserOpen(true)}>Create a user</Button>
+  </EmptyContent>
+</Empty>
+```
+
+### Compact Board/Card View Patterns (`user-board-view.tsx`)
+**Board views prioritize information density and immediate action.** Cards avoid the full Shadcn `CardHeader`/`CardContent` overhead in favor of a direct layout using `p-3` and primitives:
+- Use `<Card className="p-3">` for the root.
+- Use an outer `<HStack align="start" justify="between" gap={3}>` to separate content from actions.
+- Use a nested `<HStack align="start" gap={3}>` for the avatar and info stack.
+- Inside the info stack, use `<Stack gap={1}>` for tight vertical alignment.
+- Status badges inside cards should be extremely compact (`text-[10px] px-1.5 py-0`).
+
+Example Structure:
+```tsx
+<Card className="p-3">
+  <HStack align="start" justify="between" gap={3}>
+    <HStack align="start" gap={3}>
+      <Avatar className="h-8 w-8" />
+      <Stack gap={1}>
+        <HStack gap={2} align="center">
+          <Text size="sm">Name</Text>
+          <Badge>Role</Badge>
+        </HStack>
+        <Text size="xs" muted>Email</Text>
+        <HStack gap={2}>
+           <Text size="xs" muted>Date</Text>
+           <Badge variant="outline">Status</Badge>
+        </HStack>
+      </Stack>
+    </HStack>
+    <DropdownMenu>...</DropdownMenu>
+  </HStack>
+</Card>
+```
+
 ## Summary
 When building UI for Skoola:
 1. Wrap everything in a `Stack` or `HStack`.

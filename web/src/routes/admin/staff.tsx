@@ -258,8 +258,8 @@ function StaffPage() {
   }, [rowSelection])
 
   return (
-    <Stack gap={0} className="h-full bg-background">
-      <StaffHeader />
+    <Stack gap={4} p={8} className="h-full">
+      <StaffHeader totalStaff={staffQuery.data?.total} />
       <StaffToolbar
         onExport={() =>
           handleExportCSV(staffQuery.data?.data || [], 'staff_export.csv', [

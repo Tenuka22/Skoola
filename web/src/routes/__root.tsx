@@ -39,10 +39,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
-         <script
-      crossOrigin="anonymous"
-      src="https://tweakcn.com/live-preview.min.js"
-    />
+        <script
+          crossOrigin="anonymous"
+          src="https://tweakcn.com/live-preview.min.js"
+        />
         <HeadContent />
       </head>
       <body>

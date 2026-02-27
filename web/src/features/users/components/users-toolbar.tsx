@@ -26,10 +26,7 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
     useUsersStore()
 
   return (
-    <HStack
-      align="center"
-      justify="between"
-    >
+    <HStack align="center" justify="between">
       <Tabs value={view} onValueChange={(value: ViewMode) => setView(value)}>
         <TabsList>
           <TabsTrigger value="table">
@@ -47,10 +44,7 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
         </TabsList>
       </Tabs>
 
-      <HStack
-        align="center"
-        gap={2}
-      >
+      <HStack align="center" gap={2}>
         <Box className="relative flex-1 sm:w-64">
           <InputGroup>
             <InputGroupInput
@@ -64,27 +58,18 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
           </InputGroup>
         </Box>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleExportCSV}
-        >
-            <HStack gap={1} p={0}>
-
-          Export CSV
-          <HugeiconsIcon icon={Download01Icon} className="size-4" />
-</HStack>
+        <Button variant="outline" size="sm" onClick={handleExportCSV}>
+          <HStack gap={1} p={0}>
+            Export CSV
+            <HugeiconsIcon icon={Download01Icon} className="size-4" />
+          </HStack>
         </Button>
 
-        <Button
-          size="sm"
-          onClick={() => setIsCreateUserOpen(true)}
-        >
-            <HStack gap={1} p={0}>
-
-          Add User
-          <HugeiconsIcon icon={Add01Icon} className="size-4" />
-</HStack>
+        <Button size="sm" onClick={() => setIsCreateUserOpen(true)}>
+          <HStack gap={1} p={0}>
+            Add User
+            <HugeiconsIcon icon={Add01Icon} className="size-4" />
+          </HStack>
         </Button>
       </HStack>
     </HStack>

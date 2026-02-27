@@ -8,8 +8,8 @@ import type {
 import type { UseQueryResult } from '@tanstack/react-query'
 import type { StaffResponse } from '@/lib/api/types.gen'
 import { DataTable } from '@/components/ui/data-table'
-
-import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent } from '@/components/ui/tabs'
+import { Stack } from '@/components/primitives'
 
 interface StaffListContainerProps {
   staffQuery: UseQueryResult<{
@@ -34,58 +34,37 @@ export function StaffListContainer({
   const staffMembers = staffQuery.data?.data || []
   const totalPages = staffQuery.data?.total_pages || 0
 
-  if (view === 'table') {
-    return (
-      <div className="px-8">
-        <DataTable<StaffResponse, unknown>
-          columns={columns}
-          data={staffMembers}
-          pageIndex={page - 1}
-          pageSize={10}
-          pageCount={totalPages}
-          canNextPage={page < totalPages}
-          canPreviousPage={page > 1}
-          fetchNextPage={() => setPage(page + 1)}
-          fetchPreviousPage={() => setPage(page - 1)}
-          rowSelection={rowSelection}
-          onRowSelectionChange={setRowSelection}
-          isLoading={staffQuery.isFetching}
-        />
-      </div>
-    )
-  }
-
   return (
-    <div className="px-8 py-4 space-y-4">
-      <StaffBoardView
-        staff={staffMembers}
-        isLoading={staffQuery.isFetching}
-        onEdit={(staff) => setStaffToEdit(staff)}
-        onDelete={setStaffToDelete}
-      />
-      {totalPages > 1 && (
-        <div className="mt-8 flex items-center justify-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(Math.max(1, page - 1))}
-            disabled={page === 1 || staffQuery.isLoading}
-          >
-            Previous
-          </Button>
-          <div className="text-sm font-medium">
-            Page {page} of {totalPages}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(Math.min(totalPages, page + 1))}
-            disabled={page === totalPages || staffQuery.isLoading}
-          >
-            Next
-          </Button>
+    <Tabs value={view} defaultValue="table">
+      <TabsContent value="table" className="flex w-full">
+        <div className="overflow-y-auto w-0 flex-1">
+          <DataTable<StaffResponse, unknown>
+            columns={columns}
+            data={staffMembers}
+            pageIndex={page - 1}
+            pageSize={10}
+            pageCount={totalPages}
+            canNextPage={page < totalPages}
+            canPreviousPage={page > 1}
+            fetchNextPage={() => setPage(page + 1)}
+            fetchPreviousPage={() => setPage(page - 1)}
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
+            isLoading={staffQuery.isFetching}
+          />
         </div>
-      )}
-    </div>
+      </TabsContent>
+
+      <TabsContent value="board">
+        <Stack gap={4}>
+          <StaffBoardView
+            staff={staffMembers}
+            isLoading={staffQuery.isFetching}
+            onEdit={(staff) => setStaffToEdit(staff)}
+            onDelete={setStaffToDelete}
+          />
+        </Stack>
+      </TabsContent>
+    </Tabs>
   )
 }

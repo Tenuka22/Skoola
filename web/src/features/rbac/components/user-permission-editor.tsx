@@ -1,5 +1,10 @@
 import * as React from 'react'
-import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
@@ -426,7 +431,10 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
               <Box p={6}>
                 <Stack gap={4}>
                   <Heading size="h4">Permission Inheritance</Heading>
-                  <HStack justify="around" className="bg-background/50 p-4 rounded-lg border">
+                  <HStack
+                    justify="around"
+                    className="bg-background/50 p-4 rounded-lg border"
+                  >
                     <HStack gap={2}>
                       <Box className="size-2.5 rounded-full bg-primary" />
                       <Text size="sm">Direct</Text>
@@ -436,14 +444,18 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
                       <Text size="sm">Inherent (Role/Set)</Text>
                     </HStack>
                     <HStack gap={2}>
-                      <Badge variant="outline" className="text-[10px] py-0 h-4 bg-muted/30">
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] py-0 h-4 bg-muted/30"
+                      >
                         Label
                       </Badge>
                       <Text size="sm">Source info</Text>
                     </HStack>
                   </HStack>
                   <Text size="xs" muted>
-                    Permissions inherited from roles or sets are locked and cannot be removed directly from the user editor.
+                    Permissions inherited from roles or sets are locked and
+                    cannot be removed directly from the user editor.
                   </Text>
                 </Stack>
               </Box>

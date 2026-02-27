@@ -1,9 +1,8 @@
 import { format } from 'date-fns'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  Calendar01Icon,
+  CloudCog,
   Delete02Icon,
-  Mail01Icon,
   MoreVerticalIcon,
   PencilEdit01Icon,
 } from '@hugeicons/core-free-icons'
@@ -24,14 +23,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Grid, HStack, Stack, Text } from '@/components/primitives'
 import {
-  Box,
-  Grid,
-  HStack,
-  Heading,
-  Stack,
-  Text,
-} from '@/components/primitives'
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty'
+import { useStaffStore } from '../store'
 
 interface StaffBoardViewProps {
   staff: Array<StaffResponse> | undefined
@@ -46,6 +47,9 @@ export function StaffBoardView({
   onEdit,
   onDelete,
 }: StaffBoardViewProps) {
+  const { setIsCreateStaffOpen } = useStaffStore()
+
+
   if (isLoading) {
     return (
       <Grid
@@ -80,9 +84,28 @@ export function StaffBoardView({
 
   if (!staff?.length) {
     return (
-      <Box className="flex h-64 flex-col items-center justify-center rounded-xl border border-dashed bg-muted/10">
-        <Text muted>No staff found</Text>
-      </Box>
+      <Empty className="border border-dashed w-auto">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <HugeiconsIcon icon={CloudCog} />
+          </EmptyMedia>
+          <EmptyTitle>No Staff Found</EmptyTitle>
+          <EmptyDescription>
+            Add staff members to get started.
+          </EmptyDescription>
+        </EmptyHeader>
+
+        <EmptyContent className="flex-row justify-center">
+
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setIsCreateStaffOpen(true)}
+          >
+            Create a staff member
+          </Button>
+        </EmptyContent>
+      </Empty>
     )
   }
 
@@ -99,107 +122,86 @@ export function StaffBoardView({
           .toUpperCase()
 
         return (
-          <CardPrimitive
-            key={member.id}
-            className="p-0 overflow-hidden border-border/60 shadow-none bg-card"
-          >
-            <CardHeader>
-              <HStack align="start" className="justify-between p-4">
-                <HStack gap={3}>
-                  <Avatar className="h-10 w-10 border border-border/50">
-                    <AvatarImage
-                      src={
-                        member.photo_url ||
-                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.email}`
-                      }
-                    />
-                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <Stack gap={1}>
-                    <Heading
-                      size="h4"
-                      className="text-base leading-none tracking-tight"
-                    >
-                      {member.name}
-                    </Heading>
-                    <Text size="xs" muted>
-                      {member.employment_status}
-                    </Text>
-                  </Stack>
-                </HStack>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 -mr-2 text-muted-foreground"
-                      >
-                        <HugeiconsIcon
-                          icon={MoreVerticalIcon}
-                          className="size-4"
-                        />
-                      </Button>
+          <CardPrimitive key={member.id} className="p-3">
+            <HStack align="start" justify="between" gap={3}>
+              <HStack align="start" gap={3}>
+                <Avatar className="h-8 w-8 border border-border/50">
+                  <AvatarImage
+                    src={
+                      member.photo_url ||
+                      `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.email}`
                     }
                   />
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onEdit(member)}>
-                      <HugeiconsIcon
-                        icon={PencilEdit01Icon}
-                        className="mr-2 size-4 opacity-70"
-                      />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => onDelete(member.id)}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <HugeiconsIcon
-                        icon={Delete02Icon}
-                        className="mr-2 size-4 opacity-70"
-                      />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </HStack>
-            </CardHeader>
+                  <AvatarFallback className="text-[10px] font-semibold">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
 
-            <CardContent className="p-4 pt-0">
-              <Stack gap={3}>
-                <HStack gap={2}>
-                  <HugeiconsIcon
-                    icon={Mail01Icon}
-                    className="size-3.5 text-muted-foreground"
-                  />
+                <Stack gap={1}>
+                  <HStack gap={2} align="center">
+                    <Text size="sm" className="truncate font-medium">
+                      {member.name}
+                    </Text>
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px] px-1.5 py-0"
+                    >
+                      {member.staff_type}
+                    </Badge>
+                  </HStack>
+
                   <Text size="xs" muted className="truncate">
                     {member.email}
                   </Text>
-                </HStack>
-                <HStack gap={2}>
-                  <HugeiconsIcon
-                    icon={Calendar01Icon}
-                    className="size-3.5 text-muted-foreground"
-                  />
-                  <Text size="xs" muted>
-                    Joined {format(new Date(member.created_at), 'MMM d, yyyy')}
-                  </Text>
-                </HStack>
-              </Stack>
-            </CardContent>
 
-            <Box className="m-4 mt-0">
-              <Badge
-                variant="outline"
-                className="border-0 bg-transparent px-0 font-medium text-blue-500"
-              >
-                <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-blue-500" />
-                {member.employment_status}
-              </Badge>
-            </Box>
+                  <Text size="xs" muted>
+                    {format(new Date(member.created_at), 'MMM d, yyyy')}
+                  </Text>
+
+                </Stack>
+              </HStack>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-fit w-fit p-1"
+                    >
+                      <HugeiconsIcon
+                        icon={MoreVerticalIcon}
+                        className="size-4"
+                      />
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onEdit(member)}>
+                    <HStack gap={2} p={0}>
+                      <HugeiconsIcon
+                        icon={PencilEdit01Icon}
+                        className="size-4 opacity-70"
+                      />
+                      <span>Edit</span>
+                    </HStack>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => onDelete(member.id)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <HStack gap={2} p={0}>
+                      <HugeiconsIcon
+                        icon={Delete02Icon}
+                        className="size-4 opacity-70"
+                      />
+                      <span>Delete</span>
+                    </HStack>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </HStack>
           </CardPrimitive>
         )
       })}

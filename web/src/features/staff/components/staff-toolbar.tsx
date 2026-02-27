@@ -28,7 +28,7 @@ export function StaffToolbar({ onExport }: StaffToolbarProps) {
   return (
     <HStack
       align="center"
-      className="mb-4 flex-col gap-4 px-8 sm:flex-row sm:justify-between space-y-4 sm:space-y-0"
+      className="flex-col gap-4 sm:flex-row sm:justify-between"
     >
       <Tabs
         value={view}

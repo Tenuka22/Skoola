@@ -40,11 +40,10 @@ export function UsersFilters() {
         onValueChange={(value) => setStatusFilter(value || 'all')}
       >
         <SelectTrigger className="w-fit min-w-32">
-            <HStack gap={1} p={0}>
-
+          <HStack gap={1} p={0}>
             <HugeiconsIcon icon={FilterIcon} className="size-4" />
             <SelectValue placeholder="Status" className="capitalize" />
-</HStack>
+          </HStack>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Status</SelectItem>
@@ -57,12 +56,11 @@ export function UsersFilters() {
         value={authFilter}
         onValueChange={(value) => setAuthFilter(value || 'all')}
       >
-         <SelectTrigger className="w-fit min-w-32">
-            <HStack gap={1} p={0}>
-
+        <SelectTrigger className="w-fit min-w-32">
+          <HStack gap={1} p={0}>
             <HugeiconsIcon icon={FilterIcon} className="size-4" />
             <SelectValue placeholder="Auth Method" className="capitalize" />
-</HStack>
+          </HStack>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Auth Methods</SelectItem>
@@ -83,17 +81,16 @@ export function UsersFilters() {
           render={
             <Button
               variant="outline"
-              className={cn(
-                  !createdAfter && 'text-muted-foreground',
-              )}
+              className={cn(!createdAfter && 'text-muted-foreground')}
             >
-              <HugeiconsIcon
-                icon={Calendar01Icon}
-                className="mr-2 h-4"
-              />
-              {createdAfter
-                ? format(new Date(createdAfter), 'PPP')
-                : 'Created After'}
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon icon={Calendar01Icon} className="h-4 w-4" />
+                <span>
+                  {createdAfter
+                    ? format(new Date(createdAfter), 'PPP')
+                    : 'Created After'}
+                </span>
+              </HStack>
             </Button>
           }
         />
@@ -114,17 +111,16 @@ export function UsersFilters() {
           render={
             <Button
               variant="outline"
-              className={cn(
-                !createdBefore && 'text-muted-foreground',
-              )}
+              className={cn(!createdBefore && 'text-muted-foreground')}
             >
-              <HugeiconsIcon
-                icon={Calendar01Icon}
-                className="mr-2 h-3.5 w-3.5"
-              />
-              {createdBefore
-                ? format(new Date(createdBefore), 'PPP')
-                : 'Created Before'}
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon icon={Calendar01Icon} className="size-4" />
+                <span>
+                  {createdBefore
+                    ? format(new Date(createdBefore), 'PPP')
+                    : 'Created Before'}
+                </span>
+              </HStack>
             </Button>
           }
         />
@@ -144,7 +140,8 @@ export function UsersFilters() {
         createdAfter ||
         createdBefore) && (
         <Button
-          variant="destructive" size="sm"
+          variant="destructive"
+          size="sm"
           onClick={() => {
             setStatusFilter('all')
             setAuthFilter('all')

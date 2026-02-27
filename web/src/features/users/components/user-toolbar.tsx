@@ -10,6 +10,7 @@ import {
 import type { User } from '../types'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
+import { HStack } from '@/components/primitives'
 
 interface UserToolbarProps {
   selectedUsers: Set<string>
@@ -35,18 +36,24 @@ export function UserToolbar({
         </Button>
 
         <Button variant="outline" onClick={onBulkEdit}>
-          <HugeiconsIcon icon={PencilEdit01Icon} className="mr-2 size-4" />
-          Edit
+          <HStack gap={2} p={0}>
+            <HugeiconsIcon icon={PencilEdit01Icon} className="size-4" />
+            <span>Edit</span>
+          </HStack>
         </Button>
 
         <Button variant="outline" onClick={() => onBulkVerify(true)}>
-          <HugeiconsIcon icon={Tick01Icon} className="mr-2 size-4" />
-          Verify
+          <HStack gap={2} p={0}>
+            <HugeiconsIcon icon={Tick01Icon} className="size-4" />
+            <span>Verify</span>
+          </HStack>
         </Button>
 
         <Button onClick={onBulkDelete} variant="destructive">
-          <HugeiconsIcon icon={Delete02Icon} />
-          Delete
+          <HStack gap={2} p={0}>
+            <HugeiconsIcon icon={Delete02Icon} className="size-4" />
+            <span>Delete</span>
+          </HStack>
         </Button>
       </ButtonGroup>
     </div>

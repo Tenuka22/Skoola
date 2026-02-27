@@ -56,48 +56,48 @@ export function UsersListContainer({
   const updatingUserId = updateMutation.variables?.path?.user_id
 
   return (
-      <Tabs defaultValue="table" value={view}>
-        <TabsContent value="table" className="flex w-full">
-          <div className="overflow-y-auto w-0 flex-1">
-            <DataTable
-              columns={columns}
-              data={usersQuery.data?.data || []}
-              pageIndex={page - 1}
-              pageSize={limit}
-              pageCount={usersQuery.data?.total_pages || 0}
-              canPreviousPage={page > 1}
-              canNextPage={page < (usersQuery.data?.total_pages || 0)}
-              fetchPreviousPage={() => setPage(page - 1)}
-              fetchNextPage={() => setPage(page + 1)}
-              sorting={sorting}
-              onSortingChange={setSorting}
-              columnVisibility={columnVisibility}
-              onColumnVisibilityChange={setColumnVisibility}
-              rowSelection={rowSelection}
-              onRowSelectionChange={setRowSelection}
-              isLoading={usersQuery.isFetching}
-            />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="board">
-          <UserBoardView
-            users={usersQuery.data?.data ?? []}
+    <Tabs defaultValue="table" value={view}>
+      <TabsContent value="table" className="flex w-full">
+        <div className="overflow-y-auto w-0 flex-1">
+          <DataTable
+            columns={columns}
+            data={usersQuery.data?.data || []}
+            pageIndex={page - 1}
+            pageSize={limit}
+            pageCount={usersQuery.data?.total_pages || 0}
+            canPreviousPage={page > 1}
+            canNextPage={page < (usersQuery.data?.total_pages || 0)}
+            fetchPreviousPage={() => setPage(page - 1)}
+            fetchNextPage={() => setPage(page + 1)}
+            sorting={sorting}
+            onSortingChange={setSorting}
+            columnVisibility={columnVisibility}
+            onColumnVisibilityChange={setColumnVisibility}
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
             isLoading={usersQuery.isFetching}
-            onEdit={(user) => setUserToEdit(user)}
-            onDelete={(id) => setUserToDelete(id)}
-            onToggleVerify={(user) =>
-              updateMutation.mutate({
-                path: { user_id: user.id },
-                body: { is_verified: !user.is_verified },
-              })
-            }
-            onToggleLock={(user) => setUserToLock(user)}
-            onManagePermissions={(user) => setUserToManagePermissions(user)}
-            isUpdating={isUpdating}
-            updatingUserId={updatingUserId}
           />
-        </TabsContent>
-      </Tabs>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="board">
+        <UserBoardView
+          users={usersQuery.data?.data ?? []}
+          isLoading={usersQuery.isFetching}
+          onEdit={(user) => setUserToEdit(user)}
+          onDelete={(id) => setUserToDelete(id)}
+          onToggleVerify={(user) =>
+            updateMutation.mutate({
+              path: { user_id: user.id },
+              body: { is_verified: !user.is_verified },
+            })
+          }
+          onToggleLock={(user) => setUserToLock(user)}
+          onManagePermissions={(user) => setUserToManagePermissions(user)}
+          isUpdating={isUpdating}
+          updatingUserId={updatingUserId}
+        />
+      </TabsContent>
+    </Tabs>
   )
 }

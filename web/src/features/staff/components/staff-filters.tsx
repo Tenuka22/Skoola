@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { zEmploymentStatus, zStaffType } from '@/lib/api/zod.gen'
+import { HStack } from '@/components/primitives'
 
 export function StaffFilters() {
   const {
@@ -26,16 +27,20 @@ export function StaffFilters() {
   const employmentStatuses = zEmploymentStatus.options
 
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-2 px-8">
+    <HStack p={0}>
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
             <Button variant="outline" size="sm">
-              <HugeiconsIcon icon={FilterIcon} className="mr-2 size-4" />
-              {staffTypeFilter === 'all' ? 'All Roles' : staffTypeFilter}
+              <HStack gap={1} p={0}>
+                <HugeiconsIcon icon={FilterIcon} className="size-4" />
+                <span>
+                  {staffTypeFilter === 'all' ? 'All Roles' : staffTypeFilter}
+                </span>
+              </HStack>
             </Button>
           }
-        ></DropdownMenuTrigger>
+        />
 
         <DropdownMenuContent align="start" className="w-56">
           <DropdownMenuGroup>
@@ -63,13 +68,17 @@ export function StaffFilters() {
         <DropdownMenuTrigger
           render={
             <Button variant="outline" size="sm">
-              <HugeiconsIcon icon={FilterIcon} className="mr-2 size-4" />
-              {employmentStatusFilter === 'all'
-                ? 'All Status'
-                : employmentStatusFilter}
+              <HStack gap={1} p={0}>
+                <HugeiconsIcon icon={FilterIcon} className="size-4" />
+                <span>
+                  {employmentStatusFilter === 'all'
+                    ? 'All Status'
+                    : employmentStatusFilter}
+                </span>
+              </HStack>
             </Button>
           }
-        ></DropdownMenuTrigger>
+        />
 
         <DropdownMenuContent align="start" className="w-56">
           <DropdownMenuGroup>
@@ -106,6 +115,6 @@ export function StaffFilters() {
           Clear Filters
         </Button>
       )}
-    </div>
+    </HStack>
   )
 }
