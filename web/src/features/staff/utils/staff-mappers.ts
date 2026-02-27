@@ -1,5 +1,6 @@
 import type { StaffFormValues } from '../schemas'
 import type { StaffResponse } from '@/lib/api/types.gen'
+import { zGender } from '@/lib/api/zod.gen'
 
 export const mapStaffResponseToCreateStaffValues = (
   staff: StaffResponse,
@@ -13,7 +14,7 @@ export const mapStaffResponseToCreateStaffValues = (
     phone: staff.phone,
     nic: staff.nic,
     dob: staff.dob,
-    gender: staff.gender as StaffFormValues['gender'],
+    gender: zGender.parse(staff.gender),
     address: staff.address,
   }
 }

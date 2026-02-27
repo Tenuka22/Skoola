@@ -150,3 +150,8 @@ pub struct PasswordResetRequest {
 pub struct PasswordReset {
     pub new_password: String,
 }
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct UserPermissionsResponse {
+    pub permissions: Vec<String>,
+}

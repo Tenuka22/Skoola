@@ -52,15 +52,11 @@ export function UserPermissionsDialog({
   })
 
   React.useEffect(() => {
-    if (userPermissions) {
-      const perms = userPermissions
-        .split(',')
-        .map((p) => p.trim())
-        .filter(Boolean)
-        .flatMap((permission) => {
-          const parsed = zPermissionEnum.safeParse(permission)
-          return parsed.success ? [parsed.data] : []
-        })
+    if (userPermissions && userPermissions.permissions) {
+      const perms = userPermissions.permissions.flatMap((permission) => {
+        const parsed = zPermissionEnum.safeParse(permission)
+        return parsed.success ? [parsed.data] : []
+      })
       setSelectedPermissions(perms)
       setInitialPermissions(perms)
     }

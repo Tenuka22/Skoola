@@ -3212,6 +3212,13 @@ export type UserPermissionRequest = {
 }
 
 /**
+ * UserPermissionsResponse
+ */
+export type UserPermissionsResponse = {
+  permissions: Array<string>
+}
+
+/**
  * UserProfileResponse
  */
 export type UserProfileResponse = {
@@ -4659,10 +4666,7 @@ export type GetUserPermissionsErrors = {
 }
 
 export type GetUserPermissionsResponses = {
-  /**
-   * String
-   */
-  200: string
+  200: UserPermissionsResponse
 }
 
 export type GetUserPermissionsResponse =
@@ -5968,10 +5972,7 @@ export type GetRolePermissionsErrors = {
 }
 
 export type GetRolePermissionsResponses = {
-  /**
-   * String
-   */
-  200: string
+  200: UserPermissionsResponse
 }
 
 export type GetRolePermissionsResponse =
@@ -6241,10 +6242,7 @@ export type GetUserSetPermissionsErrors = {
 }
 
 export type GetUserSetPermissionsResponses = {
-  /**
-   * String
-   */
-  200: string
+  200: UserPermissionsResponse
 }
 
 export type GetUserSetPermissionsResponse =

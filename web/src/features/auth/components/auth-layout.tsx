@@ -1,11 +1,12 @@
 import * as React from 'react'
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
+  Card as CardPrimitive,
   CardTitle,
 } from '@/components/ui/card'
+import { Box, Heading, Text } from '@/components/primitives'
 
 interface AuthLayoutProps {
   title: string
@@ -15,14 +16,22 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ title, description, children }: AuthLayoutProps) {
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-4">
-      <Card className="w-full max-w-sm">
+    <Box className="flex min-h-screen w-full items-center justify-center p-4">
+      <CardPrimitive className="p-0 w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">{title}</CardTitle>
-          {description && <CardDescription>{description}</CardDescription>}
+          <CardTitle>
+            <Heading size="h3">{title}</Heading>
+          </CardTitle>
+          {description && (
+            <CardDescription>
+              <Text size="sm" muted>
+                {description}
+              </Text>
+            </CardDescription>
+          )}
         </CardHeader>
         <CardContent>{children}</CardContent>
-      </Card>
-    </div>
+      </CardPrimitive>
+    </Box>
   )
 }

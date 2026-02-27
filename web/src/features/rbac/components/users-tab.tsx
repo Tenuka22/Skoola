@@ -7,184 +7,196 @@ import {
   UserIcon,
 } from '@hugeicons/core-free-icons'
 import { useRBACStore } from '../store'
+import { rbacApi } from '../api'
 import { UserPermissionEditor } from './user-permission-editor'
-import { authClient } from '@/lib/clients'
-import { getAllUsersOptions } from '@/lib/api/@tanstack/react-query.gen'
+import { useDebounce } from '@/hooks/use-debounce'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Box, HStack, Heading, Stack, Text } from '@/components/primitives'
+import { Skeleton } from '@/components/ui/skeleton'
 
-const PAGE_SIZE = 10 // Define page size
+const PAGE_SIZE = 15
 
 export function UsersTab() {
   const [search, setSearch] = React.useState('')
+  const debouncedSearch = useDebounce(search, 300)
   const { selectedUserId, setSelectedUserId } = useRBACStore()
-  const [page, setPage] = React.useState(0) // Add page state
+  const [page, setPage] = React.useState(0)
 
   const { data: usersData, isLoading } = useQuery(
-    getAllUsersOptions({
-      client: authClient,
-      query: {
-        limit: PAGE_SIZE, // Use PAGE_SIZE
-        page: page, // Use 'page' parameter for pagination
-        search: search || undefined,
-      },
+    rbacApi.getAllUsersOptions({
+      limit: PAGE_SIZE,
+      page,
+      search: debouncedSearch || undefined,
     }),
   )
 
-  const users = usersData?.data || []
-  const totalUsers = usersData?.total || 0 // Get total users from response
+  const users = React.useMemo(() => usersData?.data || [], [usersData])
+  const totalUsers = usersData?.total || 0
   const selectedUser = users.find((u) => u.id === selectedUserId)
-
-  const handlePreviousPage = () => {
-    setPage((prev) => Math.max(0, prev - 1))
-  }
-
-  const handleNextPage = () => {
-    setPage((prev) => prev + 1)
-  }
-
   const totalPages = Math.ceil(totalUsers / PAGE_SIZE)
 
-  // Reset selected user when page or search changes
   React.useEffect(() => {
+    setPage(0)
     setSelectedUserId(null)
-  }, [page, search, setSelectedUserId])
+  }, [debouncedSearch, setSelectedUserId])
+
+  React.useEffect(() => {
+    if (users.length > 0 && !selectedUser) {
+      setSelectedUserId(users[0].id)
+    }
+  }, [users, selectedUser, setSelectedUserId])
 
   return (
-    <div className="flex h-full gap-6 overflow-hidden">
-      {/* Left Panel: User List (40%) */}
-      <div className="flex flex-col w-[400px] shrink-0 gap-4 p-2">
-        <div className="flex flex-col gap-1.5">
-          <h2 className="text-sm font-semibold flex items-center gap-2">
-            <HugeiconsIcon
-              icon={UserGroupIcon}
-              className="size-4 text-primary"
-            />
-            Select User
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Search and select a user to manage their access.
-          </p>
-        </div>
+    <div className="h-full flex flex-col overflow-hidden rounded-xl border border-border/60 bg-background shadow-sm">
+      <HStack className="h-full" align="start">
+        {/* Left Panel: Users List */}
+        <Stack gap={4} className="w-[350px] shrink-0 h-full border-r">
+          <Stack gap={1} p={4} className="border-b">
+            <Heading size="h4">Users Directory</Heading>
+            <Text size="sm" muted>
+              Select a user to manage their access.
+            </Text>
+          </Stack>
 
-        <div className="relative">
-          <HugeiconsIcon
-            icon={Search01Icon}
-            className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
-          />
-          <Input
-            placeholder="Search users..."
-            className="pl-9 h-11"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              setPage(0) // Reset page on search
-            }}
-          />
-        </div>
+          <Box px={4}>
+            <Box className="relative">
+              <HugeiconsIcon
+                icon={Search01Icon}
+                className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+              />
+              <Input
+                placeholder="Search users by email..."
+                className="pl-9"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </Box>
+          </Box>
 
-        <ScrollArea className="flex-1 -mx-2 px-2">
-          <div className="space-y-1.5 pb-4">
-            {isLoading ? (
-              Array.from({ length: PAGE_SIZE }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-16 rounded-xl bg-muted animate-pulse mb-2"
-                />
-              ))
-            ) : users.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                <HugeiconsIcon
-                  icon={UserGroupIcon}
-                  className="size-8 mb-3 opacity-20"
-                />
-                <p className="text-sm font-medium">No users found</p>
-                <p className="text-xs opacity-60">
-                  Try a different search term
-                </p>
-              </div>
-            ) : (
-              users.map((user) => (
-                <button
-                  key={user.id}
-                  onClick={() => setSelectedUserId(user.id)}
-                  className={cn(
-                    'w-full flex flex-col items-start gap-1 p-2 text-left transition-all relative overflow-hidden group',
-                    selectedUserId === user.id ? 'bg-primary/5' : '',
-                  )}
+          <ScrollArea className="flex-1">
+            <Stack p={4} className="pt-0">
+              {isLoading ? (
+                <Stack gap={2}>
+                  {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+                    <Skeleton key={i} className="h-16 rounded-lg" />
+                  ))}
+                </Stack>
+              ) : users.length === 0 ? (
+                <Stack
+                  align="center"
+                  className="justify-center py-12 text-center"
+                  gap={2}
                 >
-                  {selectedUserId === user.id && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
-                  )}
-                  <div className="flex items-center justify-between w-full">
-                    <span className="font-semibold text-[13px] truncate max-w-[200px]">
-                      {user.email}
-                    </span>
-                    <Badge
-                      variant={
-                        selectedUserId === user.id ? 'default' : 'secondary'
-                      }
-                      className="text-[10px] px-1.5 h-5 font-mono uppercase tracking-tight"
+                  <HugeiconsIcon
+                    icon={UserGroupIcon}
+                    className="size-8 text-muted-foreground"
+                  />
+                  <Text size="sm" className="font-medium text-muted-foreground">
+                    No users found
+                  </Text>
+                </Stack>
+              ) : (
+                <Stack gap={2}>
+                  {users.map((user) => (
+                    <button
+                      key={user.id}
+                      onClick={() => setSelectedUserId(user.id)}
+                      className={cn(
+                        'w-full text-left p-3 rounded-lg transition-colors',
+                        selectedUserId === user.id
+                          ? 'bg-muted'
+                          : 'hover:bg-muted/50',
+                      )}
                     >
-                      {user.role}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-                    <span className="truncate opacity-70">ID: {user.id}</span>
-                  </div>
-                </button>
-              ))
-            )}
-          </div>
-        </ScrollArea>
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-2 pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePreviousPage}
-              disabled={page === 0}
-            >
-              Previous
-            </Button>
-            <span className="text-sm text-muted-foreground">
-              Page {page + 1} of {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNextPage}
-              disabled={page + 1 >= totalPages}
-            >
-              Next
-            </Button>
-          </div>
-        )}
-      </div>
+                      <HStack justify="between">
+                        <Stack gap={0} className="min-w-0">
+                          <Text className="font-semibold text-sm truncate">
+                            {user.email}
+                          </Text>
+                          <Text
+                            size="xs"
+                            muted
+                            className="font-mono truncate opacity-70"
+                          >
+                            ID: {user.id}
+                          </Text>
+                        </Stack>
+                        <Badge
+                          variant={
+                            selectedUserId === user.id ? 'default' : 'secondary'
+                          }
+                          className="text-[10px] h-5 font-mono uppercase"
+                        >
+                          {user.role}
+                        </Badge>
+                      </HStack>
+                    </button>
+                  ))}
+                </Stack>
+              )}
+            </Stack>
+          </ScrollArea>
 
-      {/* Right Panel: Permission Editor (Rest) */}
-      <div className="flex-1 overflow-hidden h-full">
-        {selectedUser ? (
-          <UserPermissionEditor user={selectedUser} />
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-            <div className="size-16 flex items-center justify-center mb-6">
-              <HugeiconsIcon icon={UserIcon} className="size-10 opacity-20" />
-            </div>
-            <h3 className="text-xl font-semibold text-foreground">
-              No User Selected
-            </h3>
-            <p className="text-sm max-w-[280px] text-center mt-2 leading-relaxed opacity-70">
-              Select a user from the directory on the left to review and manage
-              their individual permissions and system roles.
-            </p>
-          </div>
-        )}
-      </div>
+          {totalPages > 1 && (
+            <HStack align="center" justify="between" p={4} className="border-t">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+              >
+                Previous
+              </Button>
+              <Text size="sm" muted>
+                Page {page + 1} of {totalPages}
+              </Text>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={page + 1 >= totalPages}
+              >
+                Next
+              </Button>
+            </HStack>
+          )}
+        </Stack>
+
+        {/* Right Panel: User Editor */}
+        <Box className="flex-1 h-full overflow-y-auto">
+          <Box p={6}>
+            {selectedUser ? (
+              <UserPermissionEditor user={selectedUser} key={selectedUser.id} />
+            ) : isLoading ? (
+              <Stack gap={4}>
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-64 w-full" />
+                <Skeleton className="h-64 w-full" />
+              </Stack>
+            ) : (
+              <Stack
+                align="center"
+                justify="center"
+                className="h-[60vh] text-center"
+                gap={2}
+              >
+                <HugeiconsIcon
+                  icon={UserIcon}
+                  className="size-12 text-muted-foreground/50"
+                />
+                <Heading size="h3">No User Selected</Heading>
+                <Text muted>
+                  Select a user from the directory to manage them.
+                </Text>
+              </Stack>
+            )}
+          </Box>
+        </Box>
+      </HStack>
     </div>
   )
 }

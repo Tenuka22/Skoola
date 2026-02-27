@@ -1,19 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
-
-import { useRBACStore } from '../../features/rbac/store'
-import { RBACHeader } from '../../features/rbac/components/rbac-header'
-import { UsersTab } from '../../features/rbac/components/users-tab'
-import { RolesTab } from '../../features/rbac/components/roles-tab'
-import { PermissionSetsTab } from '../../features/rbac/components/permission-sets-tab'
-import { RoleEditorDialog } from '../../features/rbac/components/role-editor-dialog'
-import { TabsContent, Tabs, TabsTrigger, TabsList } from '@/components/ui/tabs'
-import { RBACActiveTab } from '@/features/rbac/constants'
 import {
   Layers01Icon,
   Shield01Icon,
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { useRBACStore } from '../../features/rbac/store'
+import { RBACHeader } from '../../features/rbac/components/rbac-header'
+import { UsersTab } from '../../features/rbac/components/users-tab'
+import { RolesTab } from '../../features/rbac/components/roles-tab'
+import { PermissionSetsTab } from '../../features/rbac/components/permission-sets-tab'
+import { RoleEditorDialog } from '../../features/rbac/components/role-editor-dialog'
+import { isRBACActiveTab } from '@/features/rbac/utils/permissions'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { HStack, Stack, Text } from '@/components/primitives'
 
 export const Route = createFileRoute('/admin/rbac')({
   component: RBACPage,
@@ -23,45 +23,72 @@ function RBACPage() {
   const { activeTab, setActiveTab } = useRBACStore()
 
   return (
-    <div className="flex gap-2 flex-col h-full">
+    <Stack gap={0} className="h-full bg-background">
       <RBACHeader />
 
-      <main className="flex-1 overflow-hidden">
-        <Tabs
-          value={activeTab}
-          onValueChange={(val: RBACActiveTab) => setActiveTab(val)}
-          className="h-full flex flex-col"
-        >
-          <TabsList className="w-full sm:w-fit">
-            <TabsTrigger value="users">
-              <HugeiconsIcon icon={UserGroupIcon} className="size-4" />
-              Users
+      <Tabs
+        value={activeTab}
+        onValueChange={(val) => {
+          if (typeof val === 'string' && isRBACActiveTab(val)) {
+            setActiveTab(val)
+          }
+        }}
+        className="h-full flex flex-col"
+      >
+        <div className="px-8 mb-4">
+          <TabsList className="w-full sm:w-fit justify-start bg-transparent p-0 border-b rounded-none h-auto gap-6">
+            <TabsTrigger
+              value="users"
+              className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-2"
+            >
+              <HStack gap={2}>
+                <HugeiconsIcon icon={UserGroupIcon} className="size-4" />
+                <Text>Users</Text>
+              </HStack>
             </TabsTrigger>
-            <TabsTrigger value="roles">
-              <HugeiconsIcon icon={Shield01Icon} className="size-4" />
-              Roles
+            <TabsTrigger
+              value="roles"
+              className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-2"
+            >
+              <HStack gap={2}>
+                <HugeiconsIcon icon={Shield01Icon} className="size-4" />
+                <Text>Roles</Text>
+              </HStack>
             </TabsTrigger>
-            <TabsTrigger value="permission-sets">
-              <HugeiconsIcon icon={Layers01Icon} className="size-4" />
-              Permission Sets
+            <TabsTrigger
+              value="permission-sets"
+              className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-2"
+            >
+              <HStack gap={2}>
+                <HugeiconsIcon icon={Layers01Icon} className="size-4" />
+                <Text>Permission Sets</Text>
+              </HStack>
             </TabsTrigger>
           </TabsList>
+        </div>
 
-          <TabsContent value="users">
+        <div className="flex-1 overflow-hidden px-8 py-4">
+          <TabsContent
+            value="users"
+            className="h-full mt-0 focus-visible:outline-none"
+          >
             <UsersTab />
           </TabsContent>
-
-          <TabsContent value="roles">
+          <TabsContent
+            value="roles"
+            className="h-full mt-0 focus-visible:outline-none"
+          >
             <RolesTab />
           </TabsContent>
-
-          <TabsContent value="permission-sets">
+          <TabsContent
+            value="permission-sets"
+            className="h-full mt-0 focus-visible:outline-none"
+          >
             <PermissionSetsTab />
           </TabsContent>
-        </Tabs>
-      </main>
-
+        </div>
+      </Tabs>
       <RoleEditorDialog />
-    </div>
+    </Stack>
   )
 }

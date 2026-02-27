@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import {
   zCreateGradeLevelRequest,
-  zGradeLevelResponse,
   zEducationLevel,
+  zGradeLevelResponse,
 } from '@/lib/api/zod.gen'
 
 export const gradeLevelFormSchema = zCreateGradeLevelRequest.extend({

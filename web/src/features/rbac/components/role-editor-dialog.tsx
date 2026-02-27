@@ -2,11 +2,7 @@ import * as React from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import {
-  Cancel01Icon,
-  Tick01Icon,
-  Shield01Icon,
-} from '@hugeicons/core-free-icons'
+import { Cancel01Icon, Shield01Icon } from '@hugeicons/core-free-icons'
 import { useRBACStore } from '../store'
 import { rbacApi } from '../api'
 import { isPermissionEnum } from '../utils/permissions'
@@ -21,35 +17,36 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Box, HStack, Stack, Text } from '@/components/primitives'
 
 export function RoleEditorDialog() {
   const { selectedRoleId, isRoleEditorOpen, setIsRoleEditorOpen } =
     useRBACStore()
   const queryClient = useQueryClient()
 
-  const { data: rawPermissions = '' } = useQuery({
+  const { data: rawPermissions } = useQuery({
     ...rbacApi.getRolePermissionsOptions(selectedRoleId || ''),
     enabled: !!selectedRoleId,
   })
 
-  const assignedPermissions = React.useMemo(
-    () =>
-      typeof rawPermissions === 'string' && rawPermissions
-        ? rawPermissions.split(',').filter(isPermissionEnum)
-        : [],
-    [rawPermissions],
-  )
+  const assignedPermissions = React.useMemo(() => {
+    const perms = rawPermissions?.permissions || []
+    return perms.filter(isPermissionEnum)
+  }, [rawPermissions])
 
   const assignPerm = useMutation({
     ...rbacApi.assignPermissionToRoleMutation(),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['getRolePermissions', { role_id: selectedRoleId }],
+        queryKey: rbacApi.getRolePermissionsOptions(selectedRoleId || '')
+          .queryKey,
       })
       toast.success('Permission assigned to role')
     },
     onError: (err) => {
-      toast.error(err instanceof Error ? err.message : 'Failed to assign permission')
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to assign permission',
+      )
     },
   })
 
@@ -57,16 +54,22 @@ export function RoleEditorDialog() {
     ...rbacApi.unassignPermissionFromRoleMutation(),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['getRolePermissions', { role_id: selectedRoleId }],
+        queryKey: rbacApi.getRolePermissionsOptions(selectedRoleId || '')
+          .queryKey,
       })
       toast.success('Permission removed from role')
     },
     onError: (err) => {
-      toast.error(err instanceof Error ? err.message : 'Failed to remove permission')
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to remove permission',
+      )
     },
   })
 
-  const handleTogglePermission = (permission: PermissionEnum, checked: boolean) => {
+  const handleTogglePermission = (
+    permission: PermissionEnum,
+    checked: boolean,
+  ) => {
     if (!selectedRoleId) return
 
     if (checked) {
@@ -84,57 +87,72 @@ export function RoleEditorDialog() {
 
   return (
     <Dialog open={isRoleEditorOpen} onOpenChange={setIsRoleEditorOpen}>
-      <DialogContent className="max-w-2xl h-[85vh] flex flex-col p-0 gap-0 overflow-hidden border-none">
-        <DialogHeader className="p-4 pb-3">
-          <div className="flex items-center gap-4">
-            <div className="size-10 flex items-center justify-center">
-              <HugeiconsIcon icon={Shield01Icon} className="size-6 text-primary" />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <DialogTitle className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                Configure Role: <span className="text-primary">{selectedRoleId}</span>
+      <DialogContent className="max-w-2xl h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-4">
+          <HStack align="start" gap={4}>
+            <Box
+              p={3}
+              rounded="lg"
+              className="bg-muted border dark:bg-zinc-900 dark:border-zinc-800"
+            >
+              <HugeiconsIcon
+                icon={Shield01Icon}
+                className="size-6 text-primary"
+              />
+            </Box>
+            <Stack gap={1}>
+              <DialogTitle>
+                <HStack align="center" gap={2}>
+                  <Text as="span" size="xl" className="font-bold">
+                    Configure Role:
+                  </Text>
+                  <Text as="span" size="xl" className="font-bold text-primary">
+                    {selectedRoleId}
+                  </Text>
+                </HStack>
               </DialogTitle>
-              <p className="text-sm text-muted-foreground">
-                Baseline permissions for all users assigned to the {selectedRoleId} role.
-              </p>
-            </div>
-          </div>
+              <Text size="sm" muted>
+                Baseline permissions for all users assigned to the{' '}
+                <Text as="span" className="font-semibold text-foreground">
+                  {selectedRoleId}
+                </Text>{' '}
+                role.
+              </Text>
+            </Stack>
+          </HStack>
         </DialogHeader>
 
-        <div className="flex-1 min-h-0 overflow-hidden p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-[13px] uppercase tracking-wider text-foreground/60 flex items-center gap-2">
+        <Box className="flex-1 min-h-0 overflow-hidden px-6">
+          <HStack align="center" justify="between" className="mb-4">
+            <Text
+              size="xs"
+              className="font-bold uppercase tracking-wider text-muted-foreground"
+            >
               Permissions Management
-            </h3>
+            </Text>
             <Badge variant="secondary" className="font-mono">
-              {assignedPermissions.length} ASSIGNED
+              {assignedPermissions.length} assigned
             </Badge>
-          </div>
-          
-          <div className="h-full pb-8">
-            <PermissionList 
+          </HStack>
+
+          <Box className="h-full pb-8">
+            <PermissionList
               assignedPermissions={assignedPermissions}
               onToggle={handleTogglePermission}
             />
-          </div>
-        </div>
+          </Box>
+        </Box>
 
-        <DialogFooter className="p-4">
-          <Button 
-            variant="outline" 
-            className="px-6 h-11"
-            onClick={() => setIsRoleEditorOpen(false)}
-          >
-            <HugeiconsIcon icon={Cancel01Icon} className="size-4 mr-2" />
-            Cancel
-          </Button>
-          <Button 
-            className="px-8 h-11 font-semibold"
-            onClick={() => setIsRoleEditorOpen(false)}
-          >
-            <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
-            Save Configuration
-          </Button>
+        <DialogFooter className="p-4 border-t">
+          <HStack justify="end" gap={2}>
+            <Button
+              variant="outline"
+              onClick={() => setIsRoleEditorOpen(false)}
+            >
+              <HugeiconsIcon icon={Cancel01Icon} className="size-4 mr-2" />
+              Close
+            </Button>
+          </HStack>
         </DialogFooter>
       </DialogContent>
     </Dialog>

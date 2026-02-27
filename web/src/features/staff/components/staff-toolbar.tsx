@@ -15,6 +15,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from '@/components/ui/input-group'
+import { Box, HStack } from '@/components/primitives'
 
 interface StaffToolbarProps {
   onExport: () => void
@@ -25,7 +26,10 @@ export function StaffToolbar({ onExport }: StaffToolbarProps) {
     useStaffStore()
 
   return (
-    <div className="mb-4 flex flex-col gap-4 px-8 sm:flex-row sm:items-center sm:justify-between">
+    <HStack
+      align="center"
+      className="mb-4 flex-col gap-4 px-8 sm:flex-row sm:justify-between space-y-4 sm:space-y-0"
+    >
       <Tabs
         value={view}
         onValueChange={(value: StaffViewMode) => setView(value)}
@@ -42,8 +46,12 @@ export function StaffToolbar({ onExport }: StaffToolbarProps) {
         </TabsList>
       </Tabs>
 
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:w-auto sm:pb-0">
-        <div className="relative flex-1 sm:w-64">
+      <HStack
+        align="center"
+        gap={2}
+        className="overflow-x-auto pb-2 sm:w-auto sm:pb-0"
+      >
+        <Box className="relative flex-1 sm:w-64">
           <InputGroup>
             <InputGroupInput
               value={search}
@@ -54,7 +62,7 @@ export function StaffToolbar({ onExport }: StaffToolbarProps) {
               <HugeiconsIcon icon={Search01Icon} />
             </InputGroupAddon>
           </InputGroup>
-        </div>
+        </Box>
 
         <Button
           variant="outline"
@@ -74,7 +82,7 @@ export function StaffToolbar({ onExport }: StaffToolbarProps) {
           <HugeiconsIcon icon={Add01Icon} className="size-4" />
           Add Staff
         </Button>
-      </div>
-    </div>
+      </HStack>
+    </HStack>
   )
 }

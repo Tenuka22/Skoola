@@ -35,6 +35,7 @@ import {
   registerUserMutation,
   updateUserMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
+import { Stack } from '@/components/primitives'
 
 export const Route = createFileRoute('/admin/users')({
   component: Users,
@@ -232,7 +233,7 @@ function Users() {
   })
 
   return (
-    <div className="flex h-full flex-col bg-background">
+    <Stack gap={0} className="h-full bg-background">
       <UsersHeader />
       <UsersToolbar
         handleExportCSV={() =>
@@ -351,6 +352,6 @@ function Users() {
         }
         isSubmitting={createUser.isPending}
       />
-    </div>
+    </Stack>
   )
 }

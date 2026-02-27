@@ -48,6 +48,8 @@ export function UsersListContainer({
     setColumnVisibility,
     setUserToEdit,
     setUserToDelete,
+    setUserToLock,
+    setUserToManagePermissions,
   } = useUsersStore()
 
   const isUpdating = updateMutation.isPending
@@ -91,6 +93,8 @@ export function UsersListContainer({
                 body: { is_verified: !user.is_verified },
               })
             }
+            onToggleLock={(user) => setUserToLock(user)}
+            onManagePermissions={(user) => setUserToManagePermissions(user)}
             isUpdating={isUpdating}
             updatingUserId={updatingUserId}
           />

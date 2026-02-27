@@ -7,7 +7,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState, database::enums::PermissionEnum, database::tables::UserSetPermission,
-    errors::APIError, models::MessageResponse, schema::user_set_permissions,
+    errors::APIError,
+    models::{auth::user::UserPermissionsResponse, MessageResponse},
+    schema::user_set_permissions,
 };
 
 #[derive(Debug, Deserialize, Serialize, ApiComponent, JsonSchema)]
@@ -76,7 +78,7 @@ pub async fn unassign_permission_from_user_set(
 pub async fn get_user_set_permissions(
     data: web::Data<AppState>,
     user_set_id: web::Path<String>,
-) -> Result<Json<Vec<String>>, APIError> {
+) -> Result<Json<UserPermissionsResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
 
     let set_perms: Vec<String> = user_set_permissions::table
@@ -84,5 +86,7 @@ pub async fn get_user_set_permissions(
         .select(user_set_permissions::permission)
         .load::<String>(&mut conn)?;
 
-    Ok(Json(set_perms))
+    Ok(Json(UserPermissionsResponse {
+        permissions: set_perms,
+    }))
 }

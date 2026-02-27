@@ -1,10 +1,3 @@
-import { HugeiconsIcon } from '@hugeicons/react'
-import {
-  AccessIcon,
-  Shield01Icon,
-  UserGroupIcon,
-  Layers01Icon,
-} from '@hugeicons/core-free-icons'
 import { useRBACStore } from '../store'
 import { Badge } from '@/components/ui/badge'
 
@@ -47,12 +40,17 @@ export function RBACHeader() {
   const { title, description, count } = getHeaderInfo()
 
   return (
-    <div className="flex items-center justify-between gap-4 px-8 py-6 pb-2">
-      <div className="flex flex-col">
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        <p className="text-sm text-muted-foreground">{description}</p>
+    <div className="px-8 py-6 pb-2">
+      <div className="mb-1 flex items-center gap-3">
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <Badge
+          variant="secondary"
+          className="rounded-md bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground hover:bg-muted"
+        >
+          {count}
+        </Badge>
       </div>
-      <Badge variant="secondary">{count}</Badge>
+      <p className="text-sm text-muted-foreground">{description}</p>
     </div>
   )
 }

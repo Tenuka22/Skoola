@@ -5,6 +5,7 @@ import { useClassAssignmentsStore } from '../store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getSubjectsByClassOptions } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
+import { Grid, HStack, Heading, Stack, Text } from '@/components/primitives'
 
 export function ClassAssignmentsHeader() {
   const { selectedClassId, selectedAcademicYearId } = useClassAssignmentsStore()
@@ -28,36 +29,42 @@ export function ClassAssignmentsHeader() {
   const totalAssignments = assignmentsQuery.data?.length ?? 0
 
   return (
-    <div className="flex flex-col gap-4 p-8">
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-bold tracking-tight">
+    <Stack gap={4} className="p-8">
+      <HStack align="center" className="justify-between">
+        <Stack gap={1}>
+          <Heading size="h1" className="text-3xl font-bold tracking-tight">
             Class Assignments
-          </h1>
-          <p className="text-muted-foreground">
+          </Heading>
+          <Text muted>
             Manage teacher assignments to subjects within classes.
-          </p>
-        </div>
-      </div>
-      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+          </Text>
+        </Stack>
+      </HStack>
+      <Grid gap={4} className="auto-rows-min md:grid-cols-3">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Assignments
-            </CardTitle>
-            <HugeiconsIcon
-              icon={UserStarIcon}
-              className="size-4 text-muted-foreground"
-            />
+          <CardHeader>
+            <HStack align="center" className="justify-between pb-2">
+              <CardTitle>
+                <Text size="sm" className="font-medium">
+                  Total Assignments
+                </Text>
+              </CardTitle>
+              <HugeiconsIcon
+                icon={UserStarIcon}
+                className="size-4 text-muted-foreground"
+              />
+            </HStack>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalAssignments}</div>
-            <p className="text-muted-foreground text-xs">
+            <Text size="2xl" className="font-bold">
+              {totalAssignments}
+            </Text>
+            <Text size="xs" muted className="block">
               Assignments for selected class and academic year
-            </p>
+            </Text>
           </CardContent>
         </Card>
-      </div>
-    </div>
+      </Grid>
+    </Stack>
   )
 }

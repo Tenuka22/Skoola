@@ -54,6 +54,7 @@ import {
   getAllStaffQueryKey,
   updateStaffMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
+import { Stack } from '@/components/primitives'
 
 export const Route = createFileRoute('/admin/staff')({
   component: StaffPage,
@@ -257,7 +258,7 @@ function StaffPage() {
   }, [rowSelection])
 
   return (
-    <div className="flex h-full flex-col bg-background">
+    <Stack gap={0} className="h-full bg-background">
       <StaffHeader />
       <StaffToolbar
         onExport={() =>
@@ -402,6 +403,6 @@ function StaffPage() {
         open={isPermissionSetsOpen}
         onOpenChange={setIsPermissionSetsOpen}
       />
-    </div>
+    </Stack>
   )
 }

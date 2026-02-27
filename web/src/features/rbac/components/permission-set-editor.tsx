@@ -3,21 +3,40 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
+  Delete02Icon,
   Edit01Icon,
-  Tick01Icon,
-  UserIcon,
   Layers01Icon,
+  UserGroupIcon,
+  UserIcon,
 } from '@hugeicons/core-free-icons'
+import { updatePermissionSetSchema } from '../schemas'
 import { rbacApi } from '../api'
 import { isPermissionEnum } from '../utils/permissions'
 import { PermissionList } from './permission-list'
-import type { UserSet, PermissionEnum } from '@/lib/api/types.gen'
+import type { UpdatePermissionSetInput as UpdatePermissionSetValues } from '../schemas'
+import type { PermissionEnum, UserSet } from '@/lib/api/types.gen'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/components/ui/combobox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Box,
+  Grid,
+  HStack,
+  Heading,
+  Stack,
+  Text,
+} from '@/components/primitives'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface PermissionSetEditorProps {
   set: UserSet
@@ -26,68 +45,91 @@ interface PermissionSetEditorProps {
 export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
   const queryClient = useQueryClient()
   const [isEditingInfo, setIsEditingInfo] = React.useState(false)
-  const [name, setName] = React.useState(set.name)
-  const [description, setDescription] = React.useState(set.description || '')
 
   React.useEffect(() => {
-    setName(set.name)
-    setDescription(set.description || '')
     setIsEditingInfo(false)
-  }, [set.id, set.name, set.description])
+  }, [set.id])
 
-  const { data: rawPermissions = '' } = useQuery({
+  const { data: rawPermissions } = useQuery({
     ...rbacApi.getSetPermissionsOptions(set.id),
     enabled: !!set.id,
   })
 
-  const assignedPermissions = React.useMemo(
-    () =>
-      typeof rawPermissions === 'string' && rawPermissions
-        ? rawPermissions.split(',').filter(isPermissionEnum)
-        : [],
-    [rawPermissions],
-  )
+  const assignedPermissions = React.useMemo(() => {
+    const perms = rawPermissions?.permissions || []
+    return perms.filter(isPermissionEnum)
+  }, [rawPermissions])
 
-  const { data: members = [] } = useQuery(rbacApi.getSetMembersOptions(set.id))
+  const { data: members = [], isLoading: isLoadingMembers } = useQuery(
+    rbacApi.getSetMembersOptions(set.id),
+  )
 
   const updateSet = useMutation({
     ...rbacApi.updateSetMutation(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['getAllPermissionSets'] })
       setIsEditingInfo(false)
-      toast.success('Permission set updated successfully')
+      toast.success('Permission set updated')
     },
-    onError: (err) =>
-      toast.error(err instanceof Error ? err.message : 'Failed to update set'),
+    onError: (err) => toast.error(err.message),
   })
 
   const assignPerm = useMutation({
     ...rbacApi.assignPermissionToSetMutation(),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ['getUserSetPermissions', { user_set_id: set.id }],
+        queryKey: rbacApi.getSetPermissionsOptions(variables.path.user_set_id)
+          .queryKey,
       })
-      toast.success('Permission added to set')
+      toast.success('Permission added')
     },
-    onError: (err) =>
-      toast.error(
-        err instanceof Error ? err.message : 'Failed to add permission',
-      ),
+    onError: (err) => toast.error(err.message),
   })
 
   const unassignPerm = useMutation({
     ...rbacApi.unassignPermissionFromSetMutation(),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: rbacApi.getSetPermissionsOptions(variables.path.user_set_id)
+          .queryKey,
+      })
+      toast.success('Permission removed')
+    },
+    onError: (err) => toast.error(err.message),
+  })
+
+  const assignSetToUser = useMutation({
+    ...rbacApi.assignSetToStaffMutation(),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['getUserSetPermissions', { user_set_id: set.id }],
+        queryKey: rbacApi.getSetMembersOptions(set.id).queryKey,
       })
-      toast.success('Permission removed from set')
+      toast.success('User assigned to set')
     },
-    onError: (err) =>
-      toast.error(
-        err instanceof Error ? err.message : 'Failed to remove permission',
-      ),
+    onError: (err) => toast.error(err.message),
   })
+
+  const unassignSetFromUser = useMutation({
+    ...rbacApi.unassignSetFromStaffMutation(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: rbacApi.getSetMembersOptions(set.id).queryKey,
+      })
+      toast.success('User removed from set')
+    },
+    onError: (err) => toast.error(err.message),
+  })
+
+  // To add a member, we need the list of all users to pick from
+  // We fetch a larger batch to support the combobox picker
+  const { data: allUsersRes } = useQuery(
+    rbacApi.getAllUsersOptions({ limit: 100 }),
+  )
+  const allUsers = allUsersRes?.data || []
+
+  const availableUsers = allUsers.filter(
+    (u) => !members.some((m) => m.id === u.id),
+  )
 
   const handleTogglePermission = (
     permission: PermissionEnum,
@@ -106,185 +148,251 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
     }
   }
 
+  const handleSaveInfo = (values: UpdatePermissionSetValues) => {
+    updateSet.mutate({
+      path: { permission_set_id: set.id },
+      body: { name: values.name, description: values.description },
+    })
+  }
+
+  const formConfig = defineFormConfig(updatePermissionSetSchema, {
+    structure: [
+      [{ field: 'name', type: 'input', label: 'Set Name' }],
+      [
+        {
+          field: 'description',
+          type: 'textarea',
+          label: 'Description',
+          rows: 3,
+          textareaClassName: 'resize-none',
+        },
+      ],
+    ],
+  })
+
   return (
-    <div className="flex flex-col h-full gap-6 animate-in fade-in duration-500">
-      <Card className="border-none shadow-none overflow-hidden">
-        <CardHeader className="p-4">
-          {isEditingInfo ? (
-            <div className="space-y-4 max-w-2xl">
-              <div className="grid gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">
-                    Set Name
-                  </label>
-                  <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="h-11"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">
-                    Description
-                  </label>
-                  <Textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={2}
-                    className="resize-none p-3"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2 pt-2">
-                <Button
-                  size="sm"
-                  className="px-4 h-9 gap-2"
-                  onClick={() =>
-                    updateSet.mutate({
-                      path: { permission_set_id: set.id },
-                      body: { name, description },
-                    })
-                  }
-                  disabled={updateSet.isPending}
-                >
-                  <HugeiconsIcon icon={Tick01Icon} className="size-4" />
-                  Save Changes
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="px-4 h-9"
-                  onClick={() => setIsEditingInfo(false)}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-start justify-between">
-              <div className="space-y-2 flex-1">
-                <div className="flex items-center gap-2 group">
-                  <CardTitle className="text-2xl font-bold tracking-tight">
-                    {set.name}
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => setIsEditingInfo(true)}
-                  >
-                    <HugeiconsIcon
-                      icon={Edit01Icon}
-                      className="size-4 text-primary"
-                    />
-                  </Button>
-                </div>
-                <p className="text-muted-foreground text-[15px] leading-relaxed max-w-3xl">
-                  {set.description ||
-                    'No description provided for this permission set.'}
-                </p>
+    <Stack gap={6} className="animate-in fade-in duration-300">
+      {isEditingInfo ? (
+        <Card>
+          <CardHeader>
+            <Heading size="h3">Edit Set Details</Heading>
+          </CardHeader>
+          <CardContent>
+            <FormBuilder
+              schema={updatePermissionSetSchema}
+              config={formConfig}
+              defaultValues={{
+                name: set.name,
+                description: set.description || '',
+              }}
+              onSubmit={handleSaveInfo}
+              isLoading={updateSet.isPending}
+              actions={[
+                {
+                  label: 'Save Changes',
+                  type: 'submit',
+                  variant: 'default',
+                },
+                {
+                  label: 'Cancel',
+                  type: 'button',
+                  variant: 'outline',
+                  onClick: () => setIsEditingInfo(false),
+                },
+              ]}
+              showSuccessAlert={false}
+              showErrorSummary={false}
+              className="space-y-4"
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <Stack gap={2}>
+          <HStack align="start" justify="between">
+            <Heading size="h2" className="group">
+              {set.name}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={() => setIsEditingInfo(true)}
+              >
+                <HugeiconsIcon
+                  icon={Edit01Icon}
+                  className="size-4 text-primary"
+                />
+              </Button>
+            </Heading>
+          </HStack>
+          <Text muted className="max-w-3xl">
+            {set.description || 'No description provided.'}
+          </Text>
+          <HStack gap={6} className="pt-2">
+            <HStack gap={2}>
+              <HugeiconsIcon
+                icon={Layers01Icon}
+                className="size-4 text-muted-foreground"
+              />
+              <Text size="sm" muted>
+                <Text className="font-bold text-foreground">
+                  {assignedPermissions.length}
+                </Text>{' '}
+                permissions
+              </Text>
+            </HStack>
+            <HStack gap={2}>
+              <HugeiconsIcon
+                icon={UserGroupIcon}
+                className="size-4 text-muted-foreground"
+              />
+              <Text size="sm" muted>
+                <Text className="font-bold text-foreground">
+                  {members.length}
+                </Text>{' '}
+                assigned users
+              </Text>
+            </HStack>
+          </HStack>
+        </Stack>
+      )}
 
-                <div className="flex items-center gap-4 mt-4 pt-2">
-                  <div className="flex items-center gap-2">
-                    <div className="size-2 rounded-full bg-primary" />
-                    <span className="text-xs font-semibold text-foreground/70 uppercase tracking-wide">
-                      {assignedPermissions.length} Permissions
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="size-2 rounded-full bg-blue-500" />
-                    <span className="text-xs font-semibold text-foreground/70 uppercase tracking-wide">
-                      {members.length} Users Assigned
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </CardHeader>
-      </Card>
-
-      <div className="grid grid-cols-5 gap-6 flex-1 min-h-0">
-        <div className="col-span-3 flex flex-col gap-4 p-4 overflow-hidden">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-bold text-[13px] uppercase tracking-wider text-foreground/60 flex items-center gap-2">
-              <HugeiconsIcon icon={Layers01Icon} className="size-4" />
-              Manage Bundle
-            </h3>
-            <Badge
-              variant="secondary"
-              className="font-mono"
-            >
-              {assignedPermissions.length} ASSIGNED
-            </Badge>
-          </div>
-
-          <div className="flex-1 min-h-0">
+      <Grid cols={5} gap={6} className="min-h-0">
+        <Card className="col-span-3">
+          <CardHeader>
+            <HStack justify="between">
+              <CardTitle>Permissions</CardTitle>
+              <Badge variant="secondary" className="font-mono">
+                {assignedPermissions.length} Assigned
+              </Badge>
+            </HStack>
+          </CardHeader>
+          <CardContent className="h-[55vh]">
             <PermissionList
               assignedPermissions={assignedPermissions}
               onToggle={handleTogglePermission}
             />
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        {/* Assigned Users Summary (Right 2 Columns) */}
-        <div className="col-span-2 flex flex-col gap-6 overflow-hidden">
-          <Card className="flex-1 overflow-hidden flex flex-col">
-            <CardHeader className="p-4">
-              <CardTitle className="text-[13px] font-bold uppercase tracking-wider text-foreground/60 flex items-center justify-between">
-                Assigned Users
-                <Badge variant="secondary" className="font-mono h-5 px-1.5">
-                  {members.length}
+        <Card className="col-span-2">
+          <CardHeader>
+            <Stack gap={2}>
+              <HStack justify="between">
+                <CardTitle>Assigned Users</CardTitle>
+                <Badge variant="secondary" className="font-mono">
+                  {members.length} Users
                 </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 flex-1 overflow-hidden">
-              <ScrollArea className="h-full p-6">
-                {members.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <div className="size-10 flex items-center justify-center mb-3">
-                      <HugeiconsIcon
-                        icon={UserIcon}
-                        className="size-6 opacity-20"
-                      />
-                    </div>
-                    <p className="text-sm font-medium text-muted-foreground">
+              </HStack>
+              <Box className="pt-2">
+                <Combobox
+                  onValueChange={(userId) => {
+                    if (typeof userId === 'string') {
+                      assignSetToUser.mutate({
+                        path: { staff_id: userId, set_id: set.id },
+                      })
+                    }
+                  }}
+                >
+                  <ComboboxInput
+                    placeholder="Search users by email..."
+                    className="h-8 py-0 px-2 text-xs"
+                    showTrigger={false}
+                  />
+                  <ComboboxContent>
+                    <ComboboxList className="text-xs">
+                      {availableUsers.length === 0 ? (
+                        <ComboboxEmpty>No more users available</ComboboxEmpty>
+                      ) : (
+                        availableUsers.map((u) => (
+                          <ComboboxItem key={u.id} value={u.id}>
+                            {u.email}
+                          </ComboboxItem>
+                        ))
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
+              </Box>
+            </Stack>
+          </CardHeader>
+          <CardContent className="h-[55vh] p-0">
+            <ScrollArea className="h-full">
+              <Stack p={6} gap={2}>
+                {isLoadingMembers ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-12" />
+                  ))
+                ) : members.length === 0 ? (
+                  <Stack align="center" className="py-12 text-center" gap={2}>
+                    <HugeiconsIcon
+                      icon={UserIcon}
+                      className="size-8 text-muted-foreground"
+                    />
+                    <Text
+                      size="sm"
+                      className="font-medium text-muted-foreground"
+                    >
                       No users assigned
-                    </p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">
-                      Users can be linked via User Permissions.
-                    </p>
-                  </div>
+                    </Text>
+                  </Stack>
                 ) : (
-                  <div className="grid grid-cols-1 gap-2">
-                    {members.map((member) => (
-                      <div
-                        key={member.id}
-                        className="flex items-center gap-3 p-2"
+                  members.map((member) => (
+                    <HStack
+                      key={member.id}
+                      gap={3}
+                      p={2}
+                      align="center"
+                      className="group/member"
+                    >
+                      <Box
+                        p={2}
+                        rounded="full"
+                        className="bg-muted/70 dark:bg-zinc-800"
                       >
-                        <div className="size-8 flex items-center justify-center">
-                          <HugeiconsIcon
-                            icon={UserIcon}
-                            className="size-4 text-primary/70"
-                          />
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-[13px] font-medium truncate">
-                            {member.email}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground uppercase font-mono tracking-tighter">
-                            ID: {member.id.split('-')[0]}...
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                        <HugeiconsIcon
+                          icon={UserIcon}
+                          className="size-4 text-primary"
+                        />
+                      </Box>
+                      <Stack gap={0} className="min-w-0 flex-1">
+                        <Text className="text-sm font-medium truncate">
+                          {member.email}
+                        </Text>
+                        <Text
+                          size="xs"
+                          muted
+                          className="uppercase font-mono tracking-tighter"
+                        >
+                          ID: {member.id.split('-')[0]}...
+                        </Text>
+                      </Stack>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 opacity-0 group-hover/member:opacity-100 transition-opacity hover:bg-destructive/10"
+                        onClick={() => {
+                          if (
+                            confirm(`Remove ${member.email} from this set?`)
+                          ) {
+                            unassignSetFromUser.mutate({
+                              path: { staff_id: member.id, set_id: set.id },
+                            })
+                          }
+                        }}
+                      >
+                        <HugeiconsIcon
+                          icon={Delete02Icon}
+                          className="size-4 text-destructive"
+                        />
+                      </Button>
+                    </HStack>
+                  ))
                 )}
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
+              </Stack>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </Grid>
+    </Stack>
   )
 }

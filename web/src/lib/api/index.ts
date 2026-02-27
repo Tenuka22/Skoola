@@ -2018,6 +2018,7 @@ export type {
   UploadStudentPhotoResponse,
   UploadStudentPhotoResponses,
   UserPermissionRequest,
+  UserPermissionsResponse,
   UserProfileResponse,
   UserResponse,
   UserSet,

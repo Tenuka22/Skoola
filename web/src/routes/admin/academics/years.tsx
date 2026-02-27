@@ -38,6 +38,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Stack } from '@/components/primitives'
 
 export const Route = createFileRoute('/admin/academics/years')({
   component: AcademicYearsPage,
@@ -186,7 +187,7 @@ function AcademicYearsPage() {
   })
 
   return (
-    <div className="flex h-full flex-col bg-background">
+    <Stack gap={0} className="h-full bg-background">
       <AcademicYearsHeader />
       <AcademicYearsToolbar
         onExport={() =>
@@ -224,10 +225,12 @@ function AcademicYearsPage() {
         onConfirm={(data: AcademicYearFormValues) =>
           createYear.mutate({
             body: {
-              ...data,
+              id: data.id,
+              name: data.name,
               year_start: new Date(data.start_date).getTime(),
               year_end: new Date(data.end_date).getTime(),
-            } as any,
+              current: data.current,
+            },
           })
         }
         isSubmitting={createYear.isPending}
@@ -242,10 +245,11 @@ function AcademicYearsPage() {
           updateYear.mutate({
             path: { id: store.yearToEdit.id },
             body: {
-              ...data,
+              name: data.name,
               year_start: new Date(data.start_date).getTime(),
               year_end: new Date(data.end_date).getTime(),
-            } as any,
+              current: data.current,
+            },
           })
         }
         isSubmitting={updateYear.isPending}
@@ -300,6 +304,6 @@ function AcademicYearsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </Stack>
   )
 }

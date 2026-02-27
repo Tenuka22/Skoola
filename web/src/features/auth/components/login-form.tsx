@@ -16,6 +16,7 @@ import {
   defineFormConfig,
   normalizeErrorMessage,
 } from '@/components/form-builder'
+import { Box, Grid, HStack, Stack, Text } from '@/components/primitives'
 
 export function LoginForm({
   authStorage,
@@ -67,19 +68,19 @@ export function LoginForm({
           </Alert>
         ) : null,
       bottom: (
-        <>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
+        <Stack gap={4}>
+          <Box className="relative">
+            <Box className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="px-2 text-muted-foreground">
+            </Box>
+            <HStack align="center" className="relative justify-center">
+              <Text size="xs" muted className="bg-background px-2 uppercase">
                 Or continue with
-              </span>
-            </div>
-          </div>
+              </Text>
+            </HStack>
+          </Box>
 
-          <div className="grid grid-cols-2 gap-2">
+          <Grid cols={2} gap={2}>
             <a
               href={`${env.VITE_API_URL}/auth/google/login`}
               target="_blank"
@@ -122,8 +123,8 @@ export function LoginForm({
                 GitHub
               </Button>
             </a>
-          </div>
-        </>
+          </Grid>
+        </Stack>
       ),
     },
   })

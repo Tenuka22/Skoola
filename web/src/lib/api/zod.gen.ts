@@ -4637,6 +4637,13 @@ export const zUserPermissionRequest = z.object({
 })
 
 /**
+ * UserPermissionsResponse
+ */
+export const zUserPermissionsResponse = z.object({
+  permissions: z.array(z.string()),
+})
+
+/**
  * UserProfileResponse
  */
 export const zUserProfileResponse = z.object({
@@ -4942,10 +4949,7 @@ export const zGetUserPermissionsData = z.object({
   query: z.optional(z.never()),
 })
 
-/**
- * String
- */
-export const zGetUserPermissionsResponse = z.string()
+export const zGetUserPermissionsResponse = zUserPermissionsResponse
 
 export const zUnassignPermissionFromUserData = z.object({
   body: zUserPermissionRequest,
@@ -5081,10 +5085,7 @@ export const zGetRolePermissionsData = z.object({
   query: z.optional(z.never()),
 })
 
-/**
- * String
- */
-export const zGetRolePermissionsResponse = z.string()
+export const zGetRolePermissionsResponse = zUserPermissionsResponse
 
 export const zUnassignPermissionFromRoleData = z.object({
   body: zRolePermissionRequest,
@@ -5114,10 +5115,7 @@ export const zGetUserSetPermissionsData = z.object({
   query: z.optional(z.never()),
 })
 
-/**
- * String
- */
-export const zGetUserSetPermissionsResponse = z.string()
+export const zGetUserSetPermissionsResponse = zUserPermissionsResponse
 
 export const zUnassignPermissionFromUserSetData = z.object({
   body: zUserSetPermissionRequest,

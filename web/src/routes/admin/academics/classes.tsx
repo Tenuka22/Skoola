@@ -36,6 +36,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Stack } from '@/components/primitives'
 
 export const Route = createFileRoute('/admin/academics/classes')({
   component: ClassesPage,
@@ -162,7 +163,7 @@ function ClassesPage() {
   })
 
   return (
-    <div className="flex h-full flex-col bg-background">
+    <Stack gap={0} className="h-full bg-background">
       <ClassesHeader />
       <ClassesToolbar
         onExport={() =>
@@ -253,6 +254,6 @@ function ClassesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </Stack>
   )
 }

@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/empty'
 
 import { AccountSwitcher } from '@/features/auth/components/account-switcher'
+import { Box, HStack, Stack, Text } from '@/components/primitives'
 
 const ADMIN_ROLES: Array<RoleEnum> = [
   'Admin',
@@ -80,7 +81,7 @@ function AdminLayout() {
     !ADMIN_ROLES.some((role) => activeSession.user.roles.includes(role))
   ) {
     return (
-      <div className="flex min-h-screen w-full items-center justify-center bg-muted/40 p-4">
+      <Box className="flex min-h-screen w-full items-center justify-center bg-muted/40 p-4">
         <Empty className="max-w-sm border-border bg-background">
           <EmptyHeader>
             <EmptyTitle>Admin Access Required</EmptyTitle>
@@ -88,33 +89,40 @@ function AdminLayout() {
               You must be an administrator to view this page.
             </EmptyDescription>
           </EmptyHeader>
-          <EmptyContent className="grid w-full gap-2">
-            <Button
-              render={<Link to="/login">Login with another account</Link>}
-            />
-            <AccountSwitcher
-              otherSessions={otherSessions}
-              className="w-full justify-start gap-2"
-              buttonVariant="outline"
-            />
+          <EmptyContent>
+            <Stack gap={2} className="w-full">
+              <Button
+                render={<Link to="/login">Login with another account</Link>}
+              />
+              <AccountSwitcher
+                otherSessions={otherSessions}
+                className="w-full justify-start gap-2"
+                buttonVariant="outline"
+              />
+            </Stack>
           </EmptyContent>
         </Empty>
-      </div>
+      </Box>
     )
   }
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader className="group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 flex justify-center items-start h-16">
-          <div className="flex items-center gap-4 ">
-            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+          <HStack gap={4}>
+            <Box className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-7 items-center justify-center rounded-lg">
               <HugeiconsIcon icon={Book01Icon} />
-            </div>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">Skoola</span>{' '}
-              <span className="truncate text-xs">Your edu platform.</span>
-            </div>
-          </div>
+            </Box>
+            <Stack
+              gap={0}
+              className="flex-1  text-left leading-tight group-has-data-[collapsible=icon]/sidebar-wrapper:hidden"
+            >
+              <Text className="truncate font-medium">Skoola</Text>
+              <Text size="xs" className="truncate">
+                Your edu platform.
+              </Text>
+            </Stack>
+          </HStack>
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
@@ -192,15 +200,20 @@ function AdminLayout() {
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <header className="flex p-2 h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
+        <HStack
+          as="header"
+          gap={2}
+          p={0}
+          className="p-2 border-b h-16 shrink-0 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
+        >
+          <HStack gap={2} className="px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2" />
-          </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          </HStack>
+        </HStack>
+        <Stack gap={4} className="flex-1 p-4 pt-0">
           <Outlet />
-        </div>
+        </Stack>
       </SidebarInset>
     </SidebarProvider>
   )

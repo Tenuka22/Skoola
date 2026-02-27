@@ -61,7 +61,10 @@ export const updateStudentSchema = zUpdateStudentRequest.extend({
     .min(5, 'NIC or Birth Certificate must be at least 5 characters')
     .optional(),
   dob: z.string().min(1, 'Date of birth is required').optional(),
-  address: z.string().min(5, 'Address must be at least 5 characters').optional(),
+  address: z
+    .string()
+    .min(5, 'Address must be at least 5 characters')
+    .optional(),
   email: z.string().email('Invalid email address').optional().nullable(),
   photo_url: z.string().url('Invalid URL').optional().nullable(),
 })

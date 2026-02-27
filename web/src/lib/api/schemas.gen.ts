@@ -8347,6 +8347,20 @@ export const UserPermissionRequestSchema = {
   },
 } as const
 
+export const UserPermissionsResponseSchema = {
+  title: 'UserPermissionsResponse',
+  type: 'object',
+  required: ['permissions'],
+  properties: {
+    permissions: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
+  },
+} as const
+
 export const UserProfileResponseSchema = {
   title: 'UserProfileResponse',
   type: 'object',

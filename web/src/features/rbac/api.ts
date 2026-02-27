@@ -1,4 +1,4 @@
-import { authClient } from '@/lib/clients'
+import type { GetAllUsersData } from '@/lib/api/types.gen'
 import {
   assignPermissionSetToStaffMutation,
   assignPermissionToRoleMutation,
@@ -7,6 +7,8 @@ import {
   createPermissionSetMutation,
   deletePermissionSetMutation,
   getAllPermissionSetsOptions,
+  getAllStaffOptions,
+  getAllUsersOptions,
   getRolePermissionsOptions,
   getStaffPermissionSetsOptions,
   getUserPermissionsOptions,
@@ -17,16 +19,30 @@ import {
   unassignPermissionFromUserSetMutation,
   unassignPermissionSetFromStaffMutation,
   updatePermissionSetMutation,
+  updateUserMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
+import { authClient } from '@/lib/clients'
 
+/**
+ * A central object to hold all RBAC-related tanstack-query options and mutation factories.
+ * This follows a similar pattern to the generated file, making it easy to use and mock.
+ */
 export const rbacApi = {
+  // User Management
+  getAllUsersOptions: (query?: GetAllUsersData['query']) =>
+    getAllUsersOptions({ client: authClient, query }),
+  updateUserMutation: () => updateUserMutation({ client: authClient }),
+
+  // Staff Management (for linking users to staff)
+  getAllStaffOptions: () => getAllStaffOptions({ client: authClient }),
+
   // Permission Sets (User Sets)
   getSetsOptions: () => getAllPermissionSetsOptions({ client: authClient }),
   createSetMutation: () => createPermissionSetMutation({ client: authClient }),
   deleteSetMutation: () => deletePermissionSetMutation({ client: authClient }),
   updateSetMutation: () => updatePermissionSetMutation({ client: authClient }),
 
-  // Set Permissions
+  // Permissions within a Set
   getSetPermissionsOptions: (setId: string) =>
     getUserSetPermissionsOptions({
       client: authClient,
@@ -37,7 +53,7 @@ export const rbacApi = {
   unassignPermissionFromSetMutation: () =>
     unassignPermissionFromUserSetMutation({ client: authClient }),
 
-  // Set Members
+  // Members of a Set
   getSetMembersOptions: (setId: string) =>
     getUserSetMembersOptions({
       client: authClient,
@@ -52,7 +68,7 @@ export const rbacApi = {
   unassignPermissionFromRoleMutation: () =>
     unassignPermissionFromRoleMutation({ client: authClient }),
 
-  // User Permissions (Direct)
+  // Direct User Permissions
   getUserPermissionsOptions: (userId: string) =>
     getUserPermissionsOptions({
       client: authClient,
@@ -63,7 +79,7 @@ export const rbacApi = {
   unassignPermissionFromUserMutation: () =>
     unassignPermissionFromUserMutation({ client: authClient }),
 
-  // Staff Permission Sets
+  // Linking Permission Sets to Staff
   getStaffPermissionSetsOptions: (staffId: string) =>
     getStaffPermissionSetsOptions({
       client: authClient,

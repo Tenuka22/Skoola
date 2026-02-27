@@ -48,11 +48,8 @@ export const Route = createFileRoute('/(auth)/profile')({
             path: { user_id: activeSession?.user.id },
             client: authClient,
           })
-          const processedPermissions = userPermissionsRes.data
-            ? userPermissionsRes.data
-                .split(',')
-                .filter((s: string) => s.trim() !== '')
-            : []
+          const processedPermissions =
+            userPermissionsRes.data?.permissions || []
           return {
             activeSession,
             otherSessions,

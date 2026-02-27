@@ -89,7 +89,7 @@ export const getStudentColumns = ({
             <AvatarImage
               src={
                 student.profile_photo_url ||
-                `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.email || student.id}`
+                `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.email}`
               }
               alt={student.name_english}
             />

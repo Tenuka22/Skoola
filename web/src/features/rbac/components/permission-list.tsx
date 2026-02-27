@@ -12,21 +12,25 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { Box, HStack, Stack, Text } from '@/components/primitives'
+import { Badge } from '@/components/ui/badge'
 
 interface PermissionListProps {
-  assignedPermissions: PermissionEnum[]
+  assignedPermissions: Array<PermissionEnum>
   onToggle: (permission: PermissionEnum, checked: boolean) => void
   isReadOnly?: boolean
 }
 
-export function PermissionList({ 
-  assignedPermissions, 
+export function PermissionList({
+  assignedPermissions,
   onToggle,
-  isReadOnly = false
+  isReadOnly = false,
 }: PermissionListProps) {
   const [search, setSearch] = React.useState('')
 
   const filteredCategories = React.useMemo(() => {
+    if (!search) return PERMISSION_CATEGORIES
+
     return PERMISSION_CATEGORIES.map((category) => ({
       ...category,
       permissions: category.permissions.filter((p) =>
@@ -35,9 +39,14 @@ export function PermissionList({
     })).filter((category) => category.permissions.length > 0)
   }, [search])
 
+  const defaultOpen = React.useMemo(
+    () => PERMISSION_CATEGORIES.map((c) => c.name),
+    [],
+  )
+
   return (
-    <div className="flex h-full flex-col gap-4">
-      <div className="relative">
+    <Stack gap={4} className="h-full">
+      <Box className="relative">
         <HugeiconsIcon
           icon={Search01Icon}
           className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
@@ -48,41 +57,43 @@ export function PermissionList({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-      </div>
+      </Box>
 
       <ScrollArea className="flex-1 -mr-4 pr-4">
-        <Accordion
-          multiple
-          defaultValue={PERMISSION_CATEGORIES.map((c) => c.name)}
-          className="space-y-2"
-        >
+        <Accordion multiple defaultValue={defaultOpen} className="space-y-2">
           {filteredCategories.map((category) => (
-            <AccordionItem 
-              key={category.name} 
+            <AccordionItem
+              key={category.name}
               value={category.name}
-              className="overflow-hidden"
+              className="border-none"
             >
-              <AccordionTrigger className="py-2 px-2 hover:no-underline transition-colors">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold tracking-tight">{category.name}</span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 text-muted-foreground">
-                    {category.permissions.length}
-                  </span>
-                </div>
+              <AccordionTrigger className="py-2 px-2 hover:no-underline rounded-md hover:bg-muted/50 transition-colors">
+                <HStack justify="between" className="w-full">
+                  <HStack gap={2}>
+                    <Text className="font-bold tracking-tight">
+                      {category.name}
+                    </Text>
+                    <Badge variant="secondary" className="h-5">
+                      {category.permissions.length}
+                    </Badge>
+                  </HStack>
+                </HStack>
               </AccordionTrigger>
               <AccordionContent className="px-2 pb-2 pt-0">
-                <div className="grid grid-cols-1 gap-1.5 mt-2">
+                <Stack gap={1} className="mt-2">
                   {category.permissions.map((permission) => {
                     const isChecked = assignedPermissions.includes(permission)
                     return (
-                      <div
+                      <HStack
                         key={permission}
-                        className="flex items-center gap-3 p-2 group"
+                        align="center"
+                        gap={3}
+                        className="p-2 rounded-md hover:bg-muted/50"
                       >
                         <Checkbox
                           id={`perm-${permission}`}
                           checked={isChecked}
-                          onCheckedChange={(checked) => 
+                          onCheckedChange={(checked) =>
                             onToggle(permission, !!checked)
                           }
                           disabled={isReadOnly}
@@ -93,15 +104,15 @@ export function PermissionList({
                         >
                           {permission}
                         </label>
-                      </div>
+                      </HStack>
                     )
                   })}
-                </div>
+                </Stack>
               </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
       </ScrollArea>
-    </div>
+    </Stack>
   )
 }

@@ -11,8 +11,14 @@ import type {
   StaffAttendanceWithMember,
   StudentAttendanceWithMember,
 } from '../types'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  CardContent,
+  CardHeader,
+  Card as CardPrimitive,
+  CardTitle,
+} from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { Box, Grid, HStack, Stack, Text } from '@/components/primitives'
 
 interface SummaryCardProps {
   title: string
@@ -33,41 +39,56 @@ const SummaryCard = ({
   items,
 }: SummaryCardProps) => {
   return (
-    <Card className="flex-1 border-none shadow-sm bg-background">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div className="flex items-center gap-2">
-          <div className={cn('p-2 rounded-lg bg-muted/50', iconClassName)}>
-            <HugeiconsIcon icon={icon} className="size-4" />
-          </div>
-          <CardTitle className="text-sm font-bold">{title}</CardTitle>
-        </div>
-        <HugeiconsIcon
-          icon={MoreHorizontalIcon}
-          className="size-4 text-muted-foreground cursor-pointer"
-        />
+    <CardPrimitive className="flex-1 border-none shadow-sm bg-background">
+      <CardHeader>
+        <HStack align="center" className="justify-between space-y-0 pb-2">
+          <HStack gap={2}>
+            <Box
+              p={2}
+              rounded="lg"
+              className={cn('bg-muted/50', iconClassName)}
+            >
+              <HugeiconsIcon icon={icon} className="size-4" />
+            </Box>
+            <CardTitle className="text-sm font-bold">{title}</CardTitle>
+          </HStack>
+          <HugeiconsIcon
+            icon={MoreHorizontalIcon}
+            className="size-4 text-muted-foreground cursor-pointer"
+          />
+        </HStack>
       </CardHeader>
-      <CardContent className="grid grid-cols-3 gap-4 pt-4">
-        {items.map((item, index) => (
-          <div key={index} className="space-y-1">
-            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-              {item.label}
-            </p>
-            <p className="text-xl font-black">{item.value}</p>
-            {item.change !== undefined && (
-              <p
-                className={cn(
-                  'text-[10px] font-bold',
-                  item.change >= 0 ? 'text-green-500' : 'text-red-500',
-                )}
+      <CardContent>
+        <Grid cols={3} gap={4} className="pt-4">
+          {items.map((item, index) => (
+            <Stack key={index} gap={1}>
+              <Text
+                size="xs"
+                muted
+                className="text-[10px] font-medium uppercase tracking-wider"
               >
-                {item.change >= 0 ? '+' : ''}
-                {item.change} {item.changeLabel}
-              </p>
-            )}
-          </div>
-        ))}
+                {item.label}
+              </Text>
+              <Text size="xl" className="font-black">
+                {item.value}
+              </Text>
+              {item.change !== undefined && (
+                <Text
+                  size="xs"
+                  className={cn(
+                    'text-[10px] font-bold',
+                    item.change >= 0 ? 'text-green-500' : 'text-red-500',
+                  )}
+                >
+                  {item.change >= 0 ? '+' : ''}
+                  {item.change} {item.changeLabel}
+                </Text>
+              )}
+            </Stack>
+          ))}
+        </Grid>
       </CardContent>
-    </Card>
+    </CardPrimitive>
   )
 }
 
@@ -122,7 +143,7 @@ export const AttendanceSummaryCards = ({
   }, [attendanceRecords])
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <Grid gap={4} className="md:grid-cols-3">
       <SummaryCard
         title="Daily Summary"
         icon={Tick01Icon}
@@ -158,6 +179,6 @@ export const AttendanceSummaryCards = ({
           // Placeholder for more detailed stats if needed later
         ]}
       />
-    </div>
+    </Grid>
   )
 }

@@ -15,6 +15,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from '@/components/ui/input-group'
+import { Box, HStack } from '@/components/primitives'
 
 interface UsersToolbarProps {
   handleExportCSV: () => void
@@ -25,22 +26,33 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
     useUsersStore()
 
   return (
-    <div className="mb-4 flex flex-col gap-4 px-8 sm:flex-row sm:items-center sm:justify-between">
+    <HStack
+      align="center"
+      className="mb-4 flex-col gap-4 px-8 sm:flex-row sm:justify-between space-y-4 sm:space-y-0"
+    >
       <Tabs value={view} onValueChange={(value: ViewMode) => setView(value)}>
         <TabsList>
-          <TabsTrigger value="table" className="gap-2">
-            <HugeiconsIcon icon={TableIcon} className="size-4" />
-            Table
+          <TabsTrigger value="table">
+            <HStack gap={1} p={0}>
+              <HugeiconsIcon icon={TableIcon} className="size-4" />
+              Table
+            </HStack>
           </TabsTrigger>
-          <TabsTrigger value="board" className="gap-2">
-            <HugeiconsIcon icon={LayoutGridIcon} className="size-4" />
-            Board
+          <TabsTrigger value="board">
+            <HStack gap={1} p={0}>
+              <HugeiconsIcon icon={LayoutGridIcon} className="size-4" />
+              Board
+            </HStack>
           </TabsTrigger>
         </TabsList>
       </Tabs>
 
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:w-auto sm:pb-0">
-        <div className="relative flex-1 sm:w-64">
+      <HStack
+        align="center"
+        gap={2}
+        className="overflow-x-auto pb-2 sm:w-auto sm:pb-0"
+      >
+        <Box className="relative flex-1 sm:w-64">
           <InputGroup>
             <InputGroupInput
               value={search}
@@ -51,7 +63,7 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
               <HugeiconsIcon icon={Search01Icon} />
             </InputGroupAddon>
           </InputGroup>
-        </div>
+        </Box>
 
         <Button
           variant="outline"
@@ -71,7 +83,7 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
           Add User
           <HugeiconsIcon icon={Add01Icon} className="size-4" />
         </Button>
-      </div>
-    </div>
+      </HStack>
+    </HStack>
   )
 }

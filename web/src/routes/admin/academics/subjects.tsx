@@ -44,6 +44,7 @@ import { SubjectAssignToGradeDialog } from '@/features/academics/subjects/compon
 import { SubjectAssignToStreamDialog } from '@/features/academics/subjects/components/subject-assign-to-stream-dialog'
 import { SubjectEnrollStudentDialog } from '@/features/academics/subjects/components/subject-enroll-student-dialog'
 import { SubjectEnrollmentsDialog } from '@/features/academics/subjects/components/subject-enrollments-dialog'
+import { Stack } from '@/components/primitives'
 
 export const Route = createFileRoute('/admin/academics/subjects')({
   component: SubjectsPage,
@@ -236,7 +237,7 @@ function SubjectsPage() {
   })
 
   return (
-    <div className="flex h-full flex-col bg-background">
+    <Stack gap={0} className="h-full bg-background">
       <SubjectsHeader />
       <SubjectsToolbar
         onExport={() =>
@@ -389,6 +390,6 @@ function SubjectsPage() {
         open={!!subjectToViewEnrollments}
         onOpenChange={() => setSubjectToViewEnrollments(null)}
       />
-    </div>
+    </Stack>
   )
 }
