@@ -1,11 +1,11 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { FloppyDiskIcon } from '@hugeicons/core-free-icons'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 import { termFormSchema } from '../schemas'
 import type { TermFormValues } from '../schemas'
+import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/select'
 import { getAllAcademicYearsOptions } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 interface TermAddDialogProps {
   open: boolean
@@ -40,44 +41,25 @@ export function TermAddDialog({
   onConfirm,
   isSubmitting,
 }: TermAddDialogProps) {
-  const form = useForm<TermFormValues>({
-    resolver: zodResolver(termFormSchema),
-    defaultValues: {
-      name: '',
-      start_date: '',
-      end_date: '',
-      academic_year_id: '',
-      term_number: 1,
-    },
-  })
-
   const { data: academicYearsData } = useQuery(
     getAllAcademicYearsOptions({ client: authClient }),
   )
   const academicYears = academicYearsData?.data || []
 
-  const handleSubmit = (data: TermFormValues) => {
-    // The date inputs directly return strings in 'YYYY-MM-DD' format,
-    // which is compatible with z.iso.date().
-    onConfirm(data)
-  }
+  const preload = React.useCallback(
+    (form: UseFormReturn<TermFormValues, unknown, TermFormValues>) => {
+      if (!open) {
+        form.reset()
+      }
+    },
+    [open],
+  )
 
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(val) => {
-        if (!val) form.reset()
-        onOpenChange(val)
-      }}
-    >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add New Term</DialogTitle>
-        </DialogHeader>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="grid gap-4 py-4"
-        >
+  const config = defineFormConfig(termFormSchema, {
+    structure: [],
+    extras: {
+      top: (form) => (
+        <>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
               Name
@@ -168,24 +150,55 @@ export function TermAddDialog({
               </p>
             )}
           </div>
-          <DialogFooter className="mt-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <Spinner className="mr-2" />
-              ) : (
-                <HugeiconsIcon icon={FloppyDiskIcon} className="size-4 mr-2" />
-              )}
-              Add Term
-            </Button>
-          </DialogFooter>
-        </form>
+        </>
+      ),
+      bottom: (
+        <DialogFooter className="mt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Spinner className="mr-2" />
+            ) : (
+              <HugeiconsIcon icon={FloppyDiskIcon} className="size-4 mr-2" />
+            )}
+            Add Term
+          </Button>
+        </DialogFooter>
+      ),
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={(val) => onOpenChange(val)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add New Term</DialogTitle>
+        </DialogHeader>
+        <FormBuilder
+          schema={termFormSchema}
+          config={config}
+          defaultValues={{
+            name: '',
+            start_date: '',
+            end_date: '',
+            academic_year_id: '',
+            term_number: 1,
+          }}
+          onSubmit={(values) => onConfirm(values)}
+          preload={preload}
+          isLoading={isSubmitting}
+          showErrorSummary={false}
+          toastErrors={false}
+          showSuccessAlert={false}
+          actions={[]}
+          className="grid gap-4 py-4"
+        />
       </DialogContent>
     </Dialog>
   )

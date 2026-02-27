@@ -1,10 +1,10 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick01Icon } from '@hugeicons/core-free-icons'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import * as React from 'react'
 import { useQueries } from '@tanstack/react-query'
 import type { StaffResponse } from '@/lib/api/types.gen'
 import type { z } from 'zod'
+import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -28,6 +28,7 @@ import {
   getAllSubjectsOptions,
 } from '@/lib/api/@tanstack/react-query.gen'
 import { zAssignSubjectToTeacherRequest } from '@/lib/api/zod.gen'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 type FormValues = z.infer<typeof zAssignSubjectToTeacherRequest>
 
@@ -46,14 +47,6 @@ export function StaffAssignSubjectDialog({
   onConfirm,
   isSubmitting,
 }: StaffAssignSubjectDialogProps) {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(zAssignSubjectToTeacherRequest),
-    defaultValues: {
-      subject_id: '',
-      academic_year_id: '',
-    },
-  })
-
   const [academicYearsQuery, subjectsQuery] = useQueries({
     queries: [
       {
@@ -67,28 +60,20 @@ export function StaffAssignSubjectDialog({
   const academicYears = academicYearsQuery.data?.data || []
   const subjects = subjectsQuery.data?.data || []
 
-  const handleSubmit = (data: FormValues) => {
-    if (staff) {
-      onConfirm(staff.id, data)
-    }
-  }
+  const preload = React.useCallback(
+    (form: UseFormReturn<FormValues, unknown, FormValues>) => {
+      if (!open) {
+        form.reset()
+      }
+    },
+    [open],
+  )
 
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(val) => {
-        if (!val) form.reset()
-        onOpenChange(val)
-      }}
-    >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Assign Subject to {staff?.name}</DialogTitle>
-        </DialogHeader>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="grid gap-4 py-4"
-        >
+  const config = defineFormConfig(zAssignSubjectToTeacherRequest, {
+    structure: [],
+    extras: {
+      top: (form) => (
+        <>
           <p className="text-sm text-muted-foreground">
             Assign{' '}
             <span className="font-medium text-foreground">{staff?.name}</span>{' '}
@@ -148,24 +133,51 @@ export function StaffAssignSubjectDialog({
               </p>
             )}
           </div>
-          <DialogFooter className="mt-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <Spinner className="mr-2" />
-              ) : (
-                <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
-              )}
-              Assign Subject
-            </Button>
-          </DialogFooter>
-        </form>
+        </>
+      ),
+      bottom: (
+        <DialogFooter className="mt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Spinner className="mr-2" />
+            ) : (
+              <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
+            )}
+            Assign Subject
+          </Button>
+        </DialogFooter>
+      ),
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={(val) => onOpenChange(val)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Assign Subject to {staff?.name}</DialogTitle>
+        </DialogHeader>
+        <FormBuilder
+          schema={zAssignSubjectToTeacherRequest}
+          config={config}
+          defaultValues={{ subject_id: '', academic_year_id: '' }}
+          onSubmit={(values) => {
+            if (staff) onConfirm(staff.id, values)
+          }}
+          preload={preload}
+          isLoading={isSubmitting}
+          showErrorSummary={false}
+          toastErrors={false}
+          showSuccessAlert={false}
+          actions={[]}
+          className="grid gap-4 py-4"
+        />
       </DialogContent>
     </Dialog>
   )

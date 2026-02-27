@@ -1,8 +1,6 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { FloppyDiskIcon } from '@hugeicons/core-free-icons'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
+import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { DAYS_OF_WEEK } from '../constants'
 import { timetableEntryFormSchema } from '../schemas'
@@ -13,6 +11,7 @@ import type {
   TimetableResponse,
 } from '@/lib/api/types.gen'
 import type { TimetableEntryFormValues } from '../schemas'
+import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -33,6 +32,7 @@ import {
 } from '@/components/ui/select'
 import { authClient } from '@/lib/clients'
 import { getAllSubjectsOptions } from '@/lib/api/@tanstack/react-query.gen'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 interface TimetableEditDialogProps {
   timetableEntry: TimetableResponse | null
@@ -55,63 +55,44 @@ export function TimetableEditDialog({
   classes,
   staff,
 }: TimetableEditDialogProps) {
-  const form = useForm<TimetableEntryFormValues>({
-    resolver: zodResolver(timetableEntryFormSchema),
-    defaultValues: {
-      class_id: '',
-      subject_id: '',
-      teacher_id: '',
-      academic_year_id: '',
-      day_of_week: '',
-      start_time: '',
-      end_time: '',
-      room: '',
-      period_number: 1,
-    },
-  })
-
   const { data: subjectsData } = useQuery({
     ...getAllSubjectsOptions({ client: authClient }),
     staleTime: Infinity,
   })
   const subjects = subjectsData?.data || []
 
-  useEffect(() => {
-    if (timetableEntry) {
-      form.reset({
-        class_id: timetableEntry.class_id,
-        subject_id: timetableEntry.subject_id,
-        teacher_id: timetableEntry.teacher_id,
-        academic_year_id: timetableEntry.academic_year_id,
-        day_of_week: timetableEntry.day_of_week,
-        start_time: timetableEntry.start_time,
-        end_time: timetableEntry.end_time,
-        room: timetableEntry.room || '',
-        period_number: timetableEntry.period_number,
-      })
-    }
-  }, [timetableEntry, form])
+  const preload = React.useCallback(
+    (
+      form: UseFormReturn<
+        TimetableEntryFormValues,
+        unknown,
+        TimetableEntryFormValues
+      >,
+    ) => {
+      if (timetableEntry) {
+        form.reset({
+          class_id: timetableEntry.class_id,
+          subject_id: timetableEntry.subject_id,
+          teacher_id: timetableEntry.teacher_id,
+          academic_year_id: timetableEntry.academic_year_id,
+          day_of_week: timetableEntry.day_of_week,
+          start_time: timetableEntry.start_time,
+          end_time: timetableEntry.end_time,
+          room: timetableEntry.room || '',
+          period_number: timetableEntry.period_number,
+        })
+      } else if (!open) {
+        form.reset()
+      }
+    },
+    [timetableEntry, open],
+  )
 
-  const handleSubmit = (data: TimetableEntryFormValues) => {
-    onConfirm(data)
-  }
-
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(val) => {
-        if (!val) form.reset()
-        onOpenChange(val)
-      }}
-    >
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Edit Timetable Entry</DialogTitle>
-        </DialogHeader>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="grid gap-4 py-4"
-        >
+  const config = defineFormConfig(timetableEntryFormSchema, {
+    structure: [],
+    extras: {
+      top: (form) => (
+        <>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="class_id" className="text-right">
               Class
@@ -308,24 +289,59 @@ export function TimetableEditDialog({
               </p>
             )}
           </div>
-          <DialogFooter className="mt-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <Spinner className="mr-2" />
-              ) : (
-                <HugeiconsIcon icon={FloppyDiskIcon} className="size-4 mr-2" />
-              )}
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </form>
+        </>
+      ),
+      bottom: (
+        <DialogFooter className="mt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Spinner className="mr-2" />
+            ) : (
+              <HugeiconsIcon icon={FloppyDiskIcon} className="size-4 mr-2" />
+            )}
+            Save Changes
+          </Button>
+        </DialogFooter>
+      ),
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={(val) => onOpenChange(val)}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Edit Timetable Entry</DialogTitle>
+        </DialogHeader>
+        <FormBuilder
+          schema={timetableEntryFormSchema}
+          config={config}
+          defaultValues={{
+            class_id: '',
+            subject_id: '',
+            teacher_id: '',
+            academic_year_id: '',
+            day_of_week: '',
+            start_time: '',
+            end_time: '',
+            room: '',
+            period_number: 1,
+          }}
+          onSubmit={(values) => onConfirm(values)}
+          preload={preload}
+          isLoading={isSubmitting}
+          showErrorSummary={false}
+          toastErrors={false}
+          showSuccessAlert={false}
+          actions={[]}
+          className="grid gap-4 py-4"
+        />
       </DialogContent>
     </Dialog>
   )

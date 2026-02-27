@@ -6,13 +6,12 @@ import {
 } from '@hugeicons/core-free-icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import type { z } from 'zod'
 import type {
   StudentGuardianResponse,
   StudentResponse,
 } from '@/lib/api/types.gen'
+import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -32,6 +31,7 @@ import {
 import { zCreateStudentGuardianRequest } from '@/lib/api/zod.gen'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 const guardianFormSchema = zCreateStudentGuardianRequest.omit({
   student_id: true,
@@ -51,17 +51,6 @@ export function StudentGuardiansDialog({
   onOpenChange,
 }: StudentGuardiansDialogProps) {
   const queryClient = useQueryClient()
-  const form = useForm<GuardianFormValues>({
-    resolver: zodResolver(guardianFormSchema),
-    defaultValues: {
-      id: '',
-      name: '',
-      relationship: '',
-      phone: '',
-      address: '',
-      email: '',
-    },
-  })
 
   const {
     data: guardiansData,
@@ -79,13 +68,6 @@ export function StudentGuardiansDialog({
 
   const addGuardian = useMutation({
     ...addGuardianToStudentMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Guardian added successfully.')
-      queryClient.invalidateQueries({
-        queryKey: ['getAllGuardiansForStudent', { student_id: student?.id }],
-      })
-      form.reset()
-    },
     onError: (error) => {
       toast.error(`Failed to add guardian: ${error.message || 'Unknown error'}`)
     },
@@ -106,14 +88,98 @@ export function StudentGuardiansDialog({
     },
   })
 
-  const onSubmit = (data: GuardianFormValues) => {
+  const onSubmit = (
+    data: GuardianFormValues,
+    form: UseFormReturn<GuardianFormValues, unknown, GuardianFormValues>,
+  ) => {
     if (student) {
-      addGuardian.mutate({
-        path: { student_id: student.id },
-        body: { ...data, student_id: student.id },
-      })
+      addGuardian.mutate(
+        {
+          path: { student_id: student.id },
+          body: { ...data, student_id: student.id },
+        },
+        {
+          onSuccess: () => {
+            toast.success('Guardian added successfully.')
+            queryClient.invalidateQueries({
+              queryKey: [
+                'getAllGuardiansForStudent',
+                { student_id: student?.id },
+              ],
+            })
+            form.reset()
+          },
+        },
+      )
     }
   }
+
+  const config = defineFormConfig(guardianFormSchema, {
+    structure: [],
+    extras: {
+      top: (form) => (
+        <>
+          <h4 className="text-sm font-semibold">Add New Guardian</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="guardian_id">NIC / ID</Label>
+              <Input
+                id="guardian_id"
+                {...form.register('id')}
+                placeholder="Guardian ID"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="guardian_name">Full Name</Label>
+              <Input
+                id="guardian_name"
+                {...form.register('name')}
+                placeholder="Full Name"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="relationship">Relationship</Label>
+              <Input
+                id="relationship"
+                {...form.register('relationship')}
+                placeholder="e.g. Father, Mother"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                {...form.register('phone')}
+                placeholder="Phone Number"
+              />
+            </div>
+            <div className="col-span-2 space-y-1">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                {...form.register('address')}
+                placeholder="Residential Address"
+              />
+            </div>
+          </div>
+        </>
+      ),
+      bottom: (
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={addGuardian.isPending}
+        >
+          {addGuardian.isPending ? (
+            <Spinner className="mr-2" />
+          ) : (
+            <HugeiconsIcon icon={Add01Icon} className="size-4 mr-2" />
+          )}
+          Add Guardian
+        </Button>
+      ),
+    },
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -183,66 +249,25 @@ export function StudentGuardiansDialog({
 
           {/* Add Guardian Form */}
           <ScrollArea className="flex-1">
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
+            <FormBuilder
+              schema={guardianFormSchema}
+              config={config}
+              defaultValues={{
+                id: '',
+                name: '',
+                relationship: '',
+                phone: '',
+                address: '',
+                email: '',
+              }}
+              onSubmit={onSubmit}
+              isLoading={addGuardian.isPending}
+              showErrorSummary={false}
+              toastErrors={false}
+              showSuccessAlert={false}
+              actions={[]}
               className="space-y-4 p-4 border rounded-xl bg-muted/30"
-            >
-              <h4 className="text-sm font-semibold">Add New Guardian</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label htmlFor="guardian_id">NIC / ID</Label>
-                  <Input
-                    id="guardian_id"
-                    {...form.register('id')}
-                    placeholder="Guardian ID"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="guardian_name">Full Name</Label>
-                  <Input
-                    id="guardian_name"
-                    {...form.register('name')}
-                    placeholder="Full Name"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="relationship">Relationship</Label>
-                  <Input
-                    id="relationship"
-                    {...form.register('relationship')}
-                    placeholder="e.g. Father, Mother"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input
-                    id="phone"
-                    {...form.register('phone')}
-                    placeholder="Phone Number"
-                  />
-                </div>
-                <div className="col-span-2 space-y-1">
-                  <Label htmlFor="address">Address</Label>
-                  <Input
-                    id="address"
-                    {...form.register('address')}
-                    placeholder="Residential Address"
-                  />
-                </div>
-              </div>
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={addGuardian.isPending}
-              >
-                {addGuardian.isPending ? (
-                  <Spinner className="mr-2" />
-                ) : (
-                  <HugeiconsIcon icon={Add01Icon} className="size-4 mr-2" />
-                )}
-                Add Guardian
-              </Button>
-            </form>
+            />
           </ScrollArea>
         </div>
       </DialogContent>

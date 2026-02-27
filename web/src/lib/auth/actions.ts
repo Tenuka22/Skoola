@@ -37,10 +37,10 @@ export const loginFn = createServerFn({ method: 'POST' })
         },
       })
 
-      if (!loginResponse.data?.token) {
+      if (!loginResponse.data) {
         return {
           success: false,
-          error: 'Login failed: No token received from API.',
+          error: 'Login failed: Please verify the credentiaals.',
         }
       }
 

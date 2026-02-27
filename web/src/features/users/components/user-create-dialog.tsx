@@ -1,8 +1,7 @@
 import * as React from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { signUpSchema } from '../../auth/schemas'
 import type { SignUpFormValues } from '../../auth/schemas'
+import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -12,9 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 interface UserCreateDialogProps {
   open: boolean
@@ -29,24 +27,68 @@ export function UserCreateDialog({
   onConfirm,
   isSubmitting,
 }: UserCreateDialogProps) {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<SignUpFormValues>({
-    resolver: zodResolver(signUpSchema),
+  const preload = React.useCallback(
+    (form: UseFormReturn<SignUpFormValues, unknown, SignUpFormValues>) => {
+      if (open) {
+        form.reset()
+      }
+    },
+    [open],
+  )
+
+  const config = defineFormConfig(signUpSchema, {
+    structure: [
+      [
+        {
+          field: 'name',
+          type: 'input',
+          label: 'Full Name',
+          placeholder: 'John Doe',
+        },
+      ],
+      [
+        {
+          field: 'email',
+          type: 'input',
+          label: 'Email Address',
+          placeholder: 'john@example.com',
+        },
+      ],
+      [
+        {
+          field: 'password',
+          type: 'input',
+          label: 'Password',
+          inputType: 'password',
+        },
+      ],
+      [
+        {
+          field: 'confirmPassword',
+          type: 'input',
+          label: 'Confirm Password',
+          inputType: 'password',
+        },
+      ],
+    ],
+    extras: {
+      bottom: (
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Spinner className="mr-2 h-4 w-4" />}
+            Create Account
+          </Button>
+        </DialogFooter>
+      ),
+    },
   })
-
-  React.useEffect(() => {
-    if (open) {
-      reset()
-    }
-  }, [open, reset])
-
-  const onSubmit = (data: SignUpFormValues) => {
-    onConfirm(data)
-  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -57,66 +99,18 @@ export function UserCreateDialog({
             Add a new user to the organization.
           </DialogDescription>
         </DialogHeader>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
-            <Input id="name" {...register('name')} placeholder="John Doe" />
-            {errors.name && (
-              <p className="text-sm text-destructive">{errors.name.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
-            <Input
-              id="email"
-              {...register('email')}
-              placeholder="john@example.com"
-            />
-            {errors.email && (
-              <p className="text-sm text-destructive">{errors.email.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" {...register('password')} />
-            {errors.password && (
-              <p className="text-sm text-destructive">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              {...register('confirmPassword')}
-            />
-            {errors.confirmPassword && (
-              <p className="text-sm text-destructive">
-                {errors.confirmPassword.message}
-              </p>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && <Spinner className="mr-2 h-4 w-4" />}
-              Create Account
-            </Button>
-          </DialogFooter>
-        </form>
+        <FormBuilder
+          schema={signUpSchema}
+          config={config}
+          onSubmit={(values) => onConfirm(values)}
+          preload={preload}
+          isLoading={isSubmitting}
+          showErrorSummary={false}
+          toastErrors={false}
+          showSuccessAlert={false}
+          actions={[]}
+          className="space-y-4 pt-4"
+        />
       </DialogContent>
     </Dialog>
   )

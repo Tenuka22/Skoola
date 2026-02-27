@@ -1,10 +1,9 @@
 import * as React from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useMarkStaffAttendanceBulk, useUpdateStaffAttendance } from '../api'
 import { ALL_ATTENDANCE_STATUSES } from '../types'
 import type { z } from 'zod'
 import type { StaffAttendanceWithMember } from '../types'
+import type { UseFormReturn } from 'react-hook-form'
 import { zMarkStaffAttendanceRequest } from '@/lib/api/zod.gen'
 import {
   Dialog,
@@ -15,7 +14,6 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
@@ -31,6 +29,7 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 const attendanceSchema = zMarkStaffAttendanceRequest.omit({ date: true })
 
@@ -52,26 +51,135 @@ export const MarkStaffAttendanceDialog = ({
   const markBulkMutation = useMarkStaffAttendanceBulk()
   const updateMutation = useUpdateStaffAttendance()
 
-  const form = useForm<AttendanceFormValues>({
-    resolver: zodResolver(attendanceSchema),
-    defaultValues: {
-      status: 'Present',
-      time_in: '',
-      time_out: '',
-      remarks: '',
+  const preload = React.useCallback(
+    (
+      form: UseFormReturn<AttendanceFormValues, unknown, AttendanceFormValues>,
+    ) => {
+      if (attendance) {
+        form.reset({
+          status: attendance.status,
+          time_in: attendance.time_in ?? '',
+          time_out: attendance.time_out ?? '',
+          remarks: attendance.remarks ?? '',
+        })
+      } else if (!open) {
+        form.reset()
+      }
+    },
+    [attendance, open],
+  )
+
+  const config = defineFormConfig(attendanceSchema, {
+    structure: [],
+    extras: {
+      top: (form) => (
+        <>
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground">
+                  Status
+                </FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="rounded-xl border-2 h-10 font-bold">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {ALL_ATTENDANCE_STATUSES.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status === 'HalfDay' ? 'Half Day' : status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="time_in"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground">
+                    Time In
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="time"
+                      {...field}
+                      value={field.value ?? ''}
+                      className="rounded-xl border-2 h-10 font-bold"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="time_out"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground">
+                    Time Out
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="time"
+                      {...field}
+                      value={field.value ?? ''}
+                      className="rounded-xl border-2 h-10 font-bold"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <FormField
+            control={form.control}
+            name="remarks"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground">
+                  Remarks
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    value={field.value ?? ''}
+                    className="rounded-xl border-2 font-bold min-h-[100px]"
+                    placeholder="Add any notes here..."
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </>
+      ),
+      bottom: (
+        <div className="flex justify-end pt-4">
+          <Button
+            type="submit"
+            className="rounded-xl px-8 font-bold h-10"
+            disabled={markBulkMutation.isPending || updateMutation.isPending}
+          >
+            Save Attendance
+          </Button>
+        </div>
+      ),
     },
   })
-
-  React.useEffect(() => {
-    if (attendance) {
-      form.reset({
-        status: attendance.status,
-        time_in: attendance.time_in ?? '',
-        time_out: attendance.time_out ?? '',
-        remarks: attendance.remarks ?? '',
-      })
-    }
-  }, [attendance, form])
 
   const onSubmit = (values: AttendanceFormValues) => {
     if (!attendance) return
@@ -122,115 +230,24 @@ export const MarkStaffAttendanceDialog = ({
             Mark daily attendance for {attendance?.staff?.name}.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 pt-4"
-          >
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground">
-                    Status
-                  </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="rounded-xl border-2 h-10 font-bold">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {ALL_ATTENDANCE_STATUSES.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {status === 'HalfDay' ? 'Half Day' : status}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="time_in"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground">
-                      Time In
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="time"
-                        {...field}
-                        value={field.value ?? ''}
-                        className="rounded-xl border-2 h-10 font-bold"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="time_out"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground">
-                      Time Out
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="time"
-                        {...field}
-                        value={field.value ?? ''}
-                        className="rounded-xl border-2 h-10 font-bold"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="remarks"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground">
-                    Remarks
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      value={field.value ?? ''}
-                      className="rounded-xl border-2 font-bold min-h-[100px]"
-                      placeholder="Add any notes here..."
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex justify-end pt-4">
-              <Button
-                type="submit"
-                className="rounded-xl px-8 font-bold h-10"
-                disabled={
-                  markBulkMutation.isPending || updateMutation.isPending
-                }
-              >
-                Save Attendance
-              </Button>
-            </div>
-          </form>
-        </Form>
+        <FormBuilder
+          schema={attendanceSchema}
+          config={config}
+          defaultValues={{
+            status: 'Present',
+            time_in: '',
+            time_out: '',
+            remarks: '',
+          }}
+          onSubmit={(values) => onSubmit(values)}
+          preload={preload}
+          isLoading={markBulkMutation.isPending || updateMutation.isPending}
+          showErrorSummary={false}
+          toastErrors={false}
+          showSuccessAlert={false}
+          actions={[]}
+          className="space-y-4 pt-4"
+        />
       </DialogContent>
     </Dialog>
   )

@@ -1,11 +1,11 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick01Icon } from '@hugeicons/core-free-icons'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { assignSubjectToGradeSchema } from '../schemas'
 import type { SubjectResponse } from '@/lib/api/types.gen'
 import type { z } from 'zod'
+import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/select'
 import { authClient } from '@/lib/clients'
 import { getAllGradeLevelsOptions } from '@/lib/api/@tanstack/react-query.gen'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 type FormValues = z.infer<typeof assignSubjectToGradeSchema>
 
@@ -43,40 +44,29 @@ export function SubjectAssignToGradeDialog({
   onConfirm,
   isSubmitting,
 }: SubjectAssignToGradeDialogProps) {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(assignSubjectToGradeSchema),
-    defaultValues: {
-      grade_id: '',
-      subject_id: subject?.id || '',
-    },
-  })
-
   const { data: gradeLevelsData } = useQuery(
     getAllGradeLevelsOptions({ client: authClient }),
   )
   const gradeLevels = gradeLevelsData?.data || []
 
-  const handleSubmit = (data: FormValues) => {
-    onConfirm(data.grade_id)
-  }
+  const preload = React.useCallback(
+    (form: UseFormReturn<FormValues, unknown, FormValues>) => {
+      if (!open) {
+        form.reset()
+        return
+      }
+      if (subject) {
+        form.setValue('subject_id', subject.id)
+      }
+    },
+    [open, subject],
+  )
 
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(val) => {
-        if (!val) form.reset()
-        if (val && subject) form.setValue('subject_id', subject.id)
-        onOpenChange(val)
-      }}
-    >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Assign Subject to Grade Level</DialogTitle>
-        </DialogHeader>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="grid gap-4 py-4"
-        >
+  const config = defineFormConfig(assignSubjectToGradeSchema, {
+    structure: [],
+    extras: {
+      top: (form) => (
+        <>
           <p className="text-sm text-muted-foreground">
             Assign{' '}
             <span className="font-medium text-foreground">
@@ -109,24 +99,52 @@ export function SubjectAssignToGradeDialog({
               </p>
             )}
           </div>
-          <DialogFooter className="mt-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <Spinner className="mr-2" />
-              ) : (
-                <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
-              )}
-              Assign
-            </Button>
-          </DialogFooter>
-        </form>
+        </>
+      ),
+      bottom: (
+        <DialogFooter className="mt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Spinner className="mr-2" />
+            ) : (
+              <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
+            )}
+            Assign
+          </Button>
+        </DialogFooter>
+      ),
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={(val) => onOpenChange(val)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Assign Subject to Grade Level</DialogTitle>
+        </DialogHeader>
+        <FormBuilder
+          schema={assignSubjectToGradeSchema}
+          config={config}
+          defaultValues={{
+            grade_id: '',
+            subject_id: subject?.id || '',
+          }}
+          onSubmit={(values) => onConfirm(values.grade_id)}
+          preload={preload}
+          isLoading={isSubmitting}
+          showErrorSummary={false}
+          toastErrors={false}
+          showSuccessAlert={false}
+          actions={[]}
+          className="grid gap-4 py-4"
+        />
       </DialogContent>
     </Dialog>
   )

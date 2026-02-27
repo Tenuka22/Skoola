@@ -1,10 +1,10 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick01Icon } from '@hugeicons/core-free-icons'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { classFormSchema } from '../schemas'
 import type { ClassFormValues } from '../schemas'
+import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -29,6 +29,7 @@ import {
   getAllGradeLevelsOptions,
 } from '@/lib/api/@tanstack/react-query.gen'
 import { zMedium } from '@/lib/api/zod.gen'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 interface ClassAddDialogProps {
   open: boolean
@@ -45,18 +46,6 @@ export function ClassAddDialog({
   onConfirm,
   isSubmitting,
 }: ClassAddDialogProps) {
-  const form = useForm<ClassFormValues>({
-    resolver: zodResolver(classFormSchema),
-    defaultValues: {
-      id: '',
-      section_name: '',
-      grade_id: '',
-      academic_year_id: '',
-      max_capacity: 40,
-      medium: 'English',
-    },
-  })
-
   const { data: academicYearsData } = useQuery(
     getAllAcademicYearsOptions({ client: authClient }),
   )
@@ -67,26 +56,20 @@ export function ClassAddDialog({
   )
   const gradeLevels = gradeLevelsData?.data || []
 
-  const handleSubmit = (data: ClassFormValues) => {
-    onConfirm(data)
-  }
+  const preload = React.useCallback(
+    (form: UseFormReturn<ClassFormValues, unknown, ClassFormValues>) => {
+      if (!open) {
+        form.reset()
+      }
+    },
+    [open],
+  )
 
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(val) => {
-        if (!val) form.reset()
-        onOpenChange(val)
-      }}
-    >
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Add New Class</DialogTitle>
-        </DialogHeader>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="grid gap-4 py-4"
-        >
+  const config = defineFormConfig(classFormSchema, {
+    structure: [],
+    extras: {
+      top: (form) => (
+        <>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="id" className="text-right">
               ID
@@ -204,24 +187,56 @@ export function ClassAddDialog({
               className="col-span-3"
             />
           </div>
-          <DialogFooter className="mt-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <Spinner className="mr-2" />
-              ) : (
-                <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
-              )}
-              Add Class
-            </Button>
-          </DialogFooter>
-        </form>
+        </>
+      ),
+      bottom: (
+        <DialogFooter className="mt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Spinner className="mr-2" />
+            ) : (
+              <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
+            )}
+            Add Class
+          </Button>
+        </DialogFooter>
+      ),
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={(val) => onOpenChange(val)}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add New Class</DialogTitle>
+        </DialogHeader>
+        <FormBuilder
+          schema={classFormSchema}
+          config={config}
+          defaultValues={{
+            id: '',
+            section_name: '',
+            grade_id: '',
+            academic_year_id: '',
+            max_capacity: 40,
+            medium: 'English',
+          }}
+          onSubmit={(values) => onConfirm(values)}
+          preload={preload}
+          isLoading={isSubmitting}
+          showErrorSummary={false}
+          toastErrors={false}
+          showSuccessAlert={false}
+          actions={[]}
+          className="grid gap-4 py-4"
+        />
       </DialogContent>
     </Dialog>
   )

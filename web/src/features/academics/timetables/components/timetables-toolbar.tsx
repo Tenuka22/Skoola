@@ -7,12 +7,8 @@ import {
   User02Icon,
 } from '@hugeicons/core-free-icons'
 import { useTimetablesStore } from '../store'
-import {
-  DAYS_OF_WEEK,
-  
-  isTimetableViewMode
-} from '../constants'
-import type {TimetableViewMode} from '../constants';
+import { DAYS_OF_WEEK, isTimetableViewMode } from '../constants'
+import type { TimetableViewMode } from '../constants'
 import type {
   AcademicYearResponse,
   ClassResponse,

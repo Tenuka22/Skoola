@@ -1,7 +1,6 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick01Icon } from '@hugeicons/core-free-icons'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import * as React from 'react'
 import { useQueries } from '@tanstack/react-query'
 import type { z } from 'zod'
 import type {
@@ -10,6 +9,7 @@ import type {
   GradeLevelResponse,
   StudentResponse,
 } from '@/lib/api/types.gen'
+import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -35,6 +35,7 @@ import {
   getAllGradeLevelsOptions,
 } from '@/lib/api/@tanstack/react-query.gen'
 import { zCreateStudentClassAssignmentRequest } from '@/lib/api/zod.gen'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 const formSchema = zCreateStudentClassAssignmentRequest.omit({
   student_id: true,
@@ -58,16 +59,6 @@ export function StudentAssignClassDialog({
   onConfirm,
   isSubmitting,
 }: StudentAssignClassDialogProps) {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      class_id: '',
-      academic_year_id: '',
-      grade_id: '',
-      from_date: new Date().toISOString().split('T')[0],
-    },
-  })
-
   const [academicYearsQuery, classesQuery, gradeLevelsQuery] = useQueries({
     queries: [
       {
@@ -86,28 +77,20 @@ export function StudentAssignClassDialog({
   const classes = classesQuery.data?.data || []
   const gradeLevels = gradeLevelsQuery.data?.data || []
 
-  const handleSubmit = (data: FormValues) => {
-    if (student) {
-      onConfirm(student.id, data)
-    }
-  }
+  const preload = React.useCallback(
+    (form: UseFormReturn<FormValues, unknown, FormValues>) => {
+      if (!open) {
+        form.reset()
+      }
+    },
+    [open],
+  )
 
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(val) => {
-        if (!val) form.reset()
-        onOpenChange(val)
-      }}
-    >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Assign Class to {student?.name_english}</DialogTitle>
-        </DialogHeader>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="grid gap-4 py-4"
-        >
+  const config = defineFormConfig(formSchema, {
+    structure: [],
+    extras: {
+      top: (form) => (
+        <>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="grade_id" className="text-right">
               Grade
@@ -187,24 +170,56 @@ export function StudentAssignClassDialog({
               className="col-span-3"
             />
           </div>
-          <DialogFooter className="mt-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <Spinner className="mr-2" />
-              ) : (
-                <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
-              )}
-              Assign Class
-            </Button>
-          </DialogFooter>
-        </form>
+        </>
+      ),
+      bottom: (
+        <DialogFooter className="mt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Spinner className="mr-2" />
+            ) : (
+              <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
+            )}
+            Assign Class
+          </Button>
+        </DialogFooter>
+      ),
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={(val) => onOpenChange(val)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Assign Class to {student?.name_english}</DialogTitle>
+        </DialogHeader>
+        <FormBuilder
+          schema={formSchema}
+          config={config}
+          defaultValues={{
+            class_id: '',
+            academic_year_id: '',
+            grade_id: '',
+            from_date: new Date().toISOString().split('T')[0],
+          }}
+          onSubmit={(values) => {
+            if (student) onConfirm(student.id, values)
+          }}
+          preload={preload}
+          isLoading={isSubmitting}
+          showErrorSummary={false}
+          toastErrors={false}
+          showSuccessAlert={false}
+          actions={[]}
+          className="grid gap-4 py-4"
+        />
       </DialogContent>
     </Dialog>
   )

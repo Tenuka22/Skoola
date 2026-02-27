@@ -3,10 +3,9 @@ import { Calendar01Icon, FloppyDiskIcon } from '@hugeicons/core-free-icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import type { LeaveBalanceResponse, StaffResponse } from '@/lib/api/types.gen'
 import type { z } from 'zod'
+import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -26,6 +25,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { zApplyLeaveRequest } from '@/lib/api/zod.gen'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 type LeaveFormValues = z.infer<typeof zApplyLeaveRequest>
 
@@ -41,15 +41,6 @@ export function StaffLeaveDialog({
   onOpenChange,
 }: StaffLeaveDialogProps) {
   const queryClient = useQueryClient()
-  const form = useForm<LeaveFormValues>({
-    resolver: zodResolver(zApplyLeaveRequest),
-    defaultValues: {
-      leave_type: 'Sick',
-      from_date: format(new Date(), 'yyyy-MM-dd'),
-      to_date: format(new Date(), 'yyyy-MM-dd'),
-      reason: '',
-    },
-  })
 
   const {
     data: balanceData,
@@ -66,13 +57,6 @@ export function StaffLeaveDialog({
 
   const applyLeave = useMutation({
     ...applyForLeaveMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Leave application submitted successfully.')
-      queryClient.invalidateQueries({
-        queryKey: ['viewLeaveBalance', { staff_id: staff?.id }],
-      })
-      form.reset()
-    },
     onError: (error) => {
       toast.error(
         `Failed to apply for leave: ${error.message || 'Unknown error'}`,
@@ -80,16 +64,98 @@ export function StaffLeaveDialog({
     },
   })
 
-  const onSubmit = (data: LeaveFormValues) => {
+  const onSubmit = (
+    data: LeaveFormValues,
+    form: UseFormReturn<LeaveFormValues, unknown, LeaveFormValues>,
+  ) => {
     if (staff) {
-      applyLeave.mutate({
-        path: { staff_id: staff.id },
-        body: data,
-      })
+      applyLeave.mutate(
+        {
+          path: { staff_id: staff.id },
+          body: data,
+        },
+        {
+          onSuccess: () => {
+            toast.success('Leave application submitted successfully.')
+            queryClient.invalidateQueries({
+              queryKey: ['viewLeaveBalance', { staff_id: staff?.id }],
+            })
+            form.reset()
+          },
+        },
+      )
     }
   }
 
   const balances = balanceData || []
+
+  const config = defineFormConfig(zApplyLeaveRequest, {
+    structure: [],
+    extras: {
+      top: (form) => (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="leave_type">Leave Type</Label>
+            <Input
+              id="leave_type"
+              {...form.register('leave_type')}
+              placeholder="e.g. Sick, Casual"
+            />
+            {form.formState.errors.leave_type && (
+              <p className="text-xs text-red-500">
+                {form.formState.errors.leave_type.message}
+              </p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="from_date">From Date</Label>
+            <Input id="from_date" type="date" {...form.register('from_date')} />
+            {form.formState.errors.from_date && (
+              <p className="text-xs text-red-500">
+                {form.formState.errors.from_date.message}
+              </p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="to_date">To Date</Label>
+            <Input id="to_date" type="date" {...form.register('to_date')} />
+            {form.formState.errors.to_date && (
+              <p className="text-xs text-red-500">
+                {form.formState.errors.to_date.message}
+              </p>
+            )}
+          </div>
+          <div className="col-span-2 space-y-2">
+            <Label htmlFor="reason">Reason</Label>
+            <Input
+              id="reason"
+              placeholder="Brief reason for leave"
+              {...form.register('reason')}
+            />
+            {form.formState.errors.reason && (
+              <p className="text-xs text-red-500">
+                {form.formState.errors.reason.message}
+              </p>
+            )}
+          </div>
+        </div>
+      ),
+      bottom: (
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={applyLeave.isPending}
+        >
+          {applyLeave.isPending ? (
+            <Spinner className="mr-2" />
+          ) : (
+            <HugeiconsIcon icon={FloppyDiskIcon} className="size-4 mr-2" />
+          )}
+          Submit Application
+        </Button>
+      ),
+    },
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -136,80 +202,23 @@ export function StaffLeaveDialog({
               Apply for New Leave
             </h3>
             <ScrollArea className="flex-1">
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
+              <FormBuilder
+                schema={zApplyLeaveRequest}
+                config={config}
+                defaultValues={{
+                  leave_type: 'Sick',
+                  from_date: format(new Date(), 'yyyy-MM-dd'),
+                  to_date: format(new Date(), 'yyyy-MM-dd'),
+                  reason: '',
+                }}
+                onSubmit={onSubmit}
+                isLoading={applyLeave.isPending}
+                showErrorSummary={false}
+                toastErrors={false}
+                showSuccessAlert={false}
+                actions={[]}
                 className="space-y-4 p-4 border rounded-xl bg-muted/30"
-              >
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="leave_type">Leave Type</Label>
-                    <Input
-                      id="leave_type"
-                      {...form.register('leave_type')}
-                      placeholder="e.g. Sick, Casual"
-                    />
-                    {form.formState.errors.leave_type && (
-                      <p className="text-xs text-red-500">
-                        {form.formState.errors.leave_type.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="from_date">From Date</Label>
-                    <Input
-                      id="from_date"
-                      type="date"
-                      {...form.register('from_date')}
-                    />
-                    {form.formState.errors.from_date && (
-                      <p className="text-xs text-red-500">
-                        {form.formState.errors.from_date.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="to_date">To Date</Label>
-                    <Input
-                      id="to_date"
-                      type="date"
-                      {...form.register('to_date')}
-                    />
-                    {form.formState.errors.to_date && (
-                      <p className="text-xs text-red-500">
-                        {form.formState.errors.to_date.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="col-span-2 space-y-2">
-                    <Label htmlFor="reason">Reason</Label>
-                    <Input
-                      id="reason"
-                      placeholder="Brief reason for leave"
-                      {...form.register('reason')}
-                    />
-                    {form.formState.errors.reason && (
-                      <p className="text-xs text-red-500">
-                        {form.formState.errors.reason.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={applyLeave.isPending}
-                >
-                  {applyLeave.isPending ? (
-                    <Spinner className="mr-2" />
-                  ) : (
-                    <HugeiconsIcon
-                      icon={FloppyDiskIcon}
-                      className="size-4 mr-2"
-                    />
-                  )}
-                  Submit Application
-                </Button>
-              </form>
+              />
             </ScrollArea>
           </div>
         </div>

@@ -1,5 +1,3 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircle } from '@hugeicons/core-free-icons'
 import { useMutation } from '@tanstack/react-query'
@@ -8,39 +6,32 @@ import { signUpSchema } from '../schemas'
 import { ActiveSessions } from './active-sessions'
 import type { SignUpFormValues } from '../schemas'
 import type { AuthStorage } from '@/lib/auth/session'
+import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { signUpFn } from '@/lib/auth/actions'
 import { Spinner } from '@/components/ui/spinner'
+import {
+  FormBuilder,
+  defineFormConfig,
+  normalizeErrorMessage,
+} from '@/components/form-builder'
 
 export function SignUpForm({
   authStorage,
 }: {
   authStorage: AuthStorage | null
 }) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    setError: setFormError,
-  } = useForm<SignUpFormValues>({
-    resolver: zodResolver(signUpSchema),
-  })
-
   const signUpMutation = useMutation({
     mutationFn: signUpFn,
   })
 
   const navigate = useNavigate()
 
-  const onSubmit = async (data: SignUpFormValues) => {
+  const onSubmit = async (
+    data: SignUpFormValues,
+    form: UseFormReturn<SignUpFormValues, unknown, SignUpFormValues>,
+  ) => {
     try {
       const result = await signUpMutation.mutateAsync({
         data: {
@@ -51,96 +42,105 @@ export function SignUpForm({
       })
 
       if (result?.success) {
-        navigate({ to: '/login' })
+        setTimeout(() => {
+          navigate({ from: '/login' })
+        }, 2000)
         return
       }
 
       if (result?.error) {
-        setFormError('root.serverError', {
+        form.setError('root.serverError', {
           type: 'server',
-          message: result.error,
+          message: normalizeErrorMessage(result.error),
         })
       }
     } catch (err: unknown) {
       console.error('Sign Up error in component:', err)
-      setFormError('root.serverError', {
+      form.setError('root.serverError', {
         type: 'server',
         message:
           err instanceof Error
-            ? err.message
+            ? normalizeErrorMessage(err.message)
             : 'Sign Up failed due to an unknown error.',
       })
     }
   }
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <ActiveSessions authStorage={authStorage} />
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor="name">Full Name</FieldLabel>
-          <Input
-            id="name"
-            placeholder="John Doe"
-            {...register('name')}
-            aria-invalid={!!errors.name}
-          />
-          <FieldError errors={[errors.name]} />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input
-            id="email"
-            type="email"
-            placeholder="m@example.com"
-            {...register('email')}
-            aria-invalid={!!errors.email}
-          />
-          <FieldError errors={[errors.email]} />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="password">Password</FieldLabel>
-          <Input
-            id="password"
-            type="password"
-            {...register('password')}
-            aria-invalid={!!errors.password}
-          />
-          <FieldError errors={[errors.password]} />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
-          <Input
-            id="confirmPassword"
-            type="password"
-            {...register('confirmPassword')}
-            aria-invalid={!!errors.confirmPassword}
-          />
-          <FieldError errors={[errors.confirmPassword]} />
-        </Field>
-
-        {(signUpMutation.error || errors.root?.serverError) && (
+  const config = defineFormConfig(signUpSchema, {
+    structure: [
+      [
+        {
+          field: 'name',
+          type: 'input',
+          label: 'Full Name',
+          placeholder: 'John Doe',
+        },
+      ],
+      [
+        {
+          field: 'email',
+          type: 'input',
+          label: 'Email',
+          inputType: 'email',
+          placeholder: 'm@example.com',
+        },
+      ],
+      [
+        {
+          field: 'password',
+          type: 'input',
+          label: 'Password',
+          inputType: 'password',
+        },
+      ],
+      [
+        {
+          field: 'confirmPassword',
+          type: 'input',
+          label: 'Confirm Password',
+          inputType: 'password',
+        },
+      ],
+    ],
+    extras: {
+      top: <ActiveSessions authStorage={authStorage} />,
+      afterFields: (form) =>
+        signUpMutation.error || form.formState.errors.root?.serverError ? (
           <Alert variant="destructive">
             <HugeiconsIcon icon={AlertCircle} className="h-4 w-4" />
             <AlertDescription>
-              {signUpMutation.error?.message ||
-                errors.root?.serverError?.message}
+              {normalizeErrorMessage(
+                signUpMutation.error?.message ||
+                  form.formState.errors.root?.serverError?.message ||
+                  'Sign Up failed. Please try again.',
+              )}
             </AlertDescription>
           </Alert>
-        )}
-
+        ) : null,
+      bottom: (
         <Button
           type="submit"
           className="w-full gap-2"
-          disabled={isSubmitting || signUpMutation.isPending}
+          disabled={signUpMutation.isPending}
         >
-          {(isSubmitting || signUpMutation.isPending) && <Spinner />}
+          {signUpMutation.isPending && <Spinner />}
           Sign Up
         </Button>
-      </FieldGroup>
-    </form>
+      ),
+    },
+  })
+
+  return (
+    <FormBuilder
+      schema={signUpSchema}
+      config={config}
+      onSubmit={onSubmit}
+      isLoading={signUpMutation.isPending}
+      showErrorSummary={false}
+      toastErrors={false}
+      showSuccessAlert={false}
+      actions={[]}
+      className="space-y-4"
+    />
   )
 }

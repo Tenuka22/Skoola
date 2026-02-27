@@ -1,12 +1,11 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick01Icon } from '@hugeicons/core-free-icons'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
+import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { updateTeacherAssignmentFormSchema } from '../schemas'
 import type { ClassAssignmentRow } from './class-assignments-table-columns'
 import type { UpdateTeacherAssignmentFormValues } from '../schemas'
+import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -26,6 +25,7 @@ import {
 } from '@/components/ui/select'
 import { authClient } from '@/lib/clients'
 import { getAllStaffOptions } from '@/lib/api/@tanstack/react-query.gen'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 interface EditTeacherAssignmentDialogProps {
   assignment: ClassAssignmentRow | null
@@ -42,46 +42,35 @@ export function EditTeacherAssignmentDialog({
   onConfirm,
   isSubmitting,
 }: EditTeacherAssignmentDialogProps) {
-  const form = useForm<UpdateTeacherAssignmentFormValues>({
-    resolver: zodResolver(updateTeacherAssignmentFormSchema),
-    defaultValues: {
-      teacher_id: '',
-    },
-  })
-
   const { data: staffData } = useQuery(
     getAllStaffOptions({ client: authClient }),
   )
   const staff = staffData?.data || []
 
-  useEffect(() => {
-    if (assignment) {
-      form.reset({
-        teacher_id: assignment.teacher_id,
-      })
-    }
-  }, [assignment, form])
+  const preload = React.useCallback(
+    (
+      form: UseFormReturn<
+        UpdateTeacherAssignmentFormValues,
+        unknown,
+        UpdateTeacherAssignmentFormValues
+      >,
+    ) => {
+      if (assignment) {
+        form.reset({
+          teacher_id: assignment.teacher_id,
+        })
+      } else if (!open) {
+        form.reset()
+      }
+    },
+    [assignment, open],
+  )
 
-  const handleSubmit = (data: UpdateTeacherAssignmentFormValues) => {
-    onConfirm(data)
-  }
-
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(val) => {
-        if (!val) form.reset()
-        onOpenChange(val)
-      }}
-    >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit Teacher Assignment</DialogTitle>
-        </DialogHeader>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="grid gap-4 py-4"
-        >
+  const config = defineFormConfig(updateTeacherAssignmentFormSchema, {
+    structure: [],
+    extras: {
+      top: (form) => (
+        <>
           <p className="text-sm text-muted-foreground">
             Update the teacher for the assignment:
             <span className="font-medium text-foreground ml-1">
@@ -115,24 +104,49 @@ export function EditTeacherAssignmentDialog({
               </p>
             )}
           </div>
-          <DialogFooter className="mt-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <Spinner className="mr-2" />
-              ) : (
-                <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
-              )}
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </form>
+        </>
+      ),
+      bottom: (
+        <DialogFooter className="mt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Spinner className="mr-2" />
+            ) : (
+              <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
+            )}
+            Save Changes
+          </Button>
+        </DialogFooter>
+      ),
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={(val) => onOpenChange(val)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Teacher Assignment</DialogTitle>
+        </DialogHeader>
+        <FormBuilder
+          schema={updateTeacherAssignmentFormSchema}
+          config={config}
+          defaultValues={{ teacher_id: '' }}
+          onSubmit={(values) => onConfirm(values)}
+          preload={preload}
+          isLoading={isSubmitting}
+          showErrorSummary={false}
+          toastErrors={false}
+          showSuccessAlert={false}
+          actions={[]}
+          className="grid gap-4 py-4"
+        />
       </DialogContent>
     </Dialog>
   )

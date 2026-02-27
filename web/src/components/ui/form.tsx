@@ -135,12 +135,60 @@ const FormDescription = React.forwardRef<
 })
 FormDescription.displayName = 'FormDescription'
 
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function getMessageFromUnknown(value: unknown): string | null {
+  if (!isObject(value)) return null
+  const message = value.message
+  return typeof message === 'string' ? message : null
+}
+
+function normalizeErrorMessage(message: unknown): string {
+  if (typeof message === 'string') {
+    const trimmed = message.trim()
+    if (!trimmed.startsWith('[') && !trimmed.startsWith('{')) {
+      return message
+    }
+
+    try {
+      const parsed: unknown = JSON.parse(trimmed)
+      if (Array.isArray(parsed)) {
+        const array: unknown[] = parsed
+        const first = array[0]
+        const messageFromArray = getMessageFromUnknown(first)
+        if (messageFromArray) return messageFromArray
+      }
+      const messageFromObject = getMessageFromUnknown(parsed)
+      if (messageFromObject) return messageFromObject
+    } catch {
+      const match = trimmed.match(/"message"\\s*:\\s*"([^"]+)"/)
+      if (match?.[1]) return match[1]
+      return message
+    }
+
+    return message
+  }
+
+  if (Array.isArray(message)) {
+    const array: unknown[] = message
+    const messageFromArray = getMessageFromUnknown(array[0])
+    if (messageFromArray) return messageFromArray
+  }
+
+  const messageFromObject = getMessageFromUnknown(message)
+  if (messageFromObject) return messageFromObject
+
+  return ''
+}
+
 const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
-  const body = error ? String(error?.message) : children
+  const body = error ? normalizeErrorMessage(error?.message) : children
 
   if (!body) {
     return null

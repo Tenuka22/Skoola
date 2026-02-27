@@ -1,5 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
 import { useQuery } from '@tanstack/react-query'
 import type {
   AcademicYearResponse,
@@ -17,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
@@ -38,6 +35,7 @@ import {
   getAllSubjectsOptions,
 } from '@/lib/api/@tanstack/react-query.gen'
 import { zCreateClassSubjectTeacherRequest } from '@/lib/api/zod.gen'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 interface AssignTeacherDialogProps {
   open: boolean
@@ -56,16 +54,6 @@ export function AssignTeacherDialog({
   academicYears,
   classes,
 }: AssignTeacherDialogProps) {
-  const form = useForm<CreateClassSubjectTeacherRequest>({
-    resolver: zodResolver(zCreateClassSubjectTeacherRequest),
-    defaultValues: {
-      class_id: '',
-      subject_id: '',
-      teacher_id: '',
-      academic_year_id: '',
-    },
-  })
-
   const { data: staffData } = useQuery({
     ...getAllStaffOptions({
       client: authClient,
@@ -82,122 +70,146 @@ export function AssignTeacherDialog({
   })
   const subjects = subjectsData?.data || []
 
+  const config = defineFormConfig(zCreateClassSubjectTeacherRequest, {
+    structure: [],
+    extras: {
+      top: (form) => (
+        <>
+          <FormField
+            control={form.control}
+            name="class_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Class</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a class" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {classes.map((cls) => (
+                      <SelectItem key={cls.id} value={cls.id}>
+                        {cls.section_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="subject_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Subject</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a subject" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {subjects.map((subject: SubjectResponse) => (
+                      <SelectItem key={subject.id} value={subject.id}>
+                        {subject.subject_name_en}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="teacher_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Teacher</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a teacher" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {teachers.map((teacher: StaffResponse) => (
+                      <SelectItem key={teacher.id} value={teacher.id}>
+                        {teacher.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="academic_year_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Academic Year</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an academic year" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {academicYears.map((year) => (
+                      <SelectItem key={year.id} value={year.id}>
+                        {year.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </>
+      ),
+      bottom: (
+        <DialogFooter className="pt-4">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? <Spinner className="mr-2" /> : null}
+            Assign Teacher
+          </Button>
+        </DialogFooter>
+      ),
+    },
+  })
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Assign Teacher to Class</DialogTitle>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onConfirm)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="class_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Class</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a class" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {classes.map((cls) => (
-                        <SelectItem key={cls.id} value={cls.id}>
-                          {cls.section_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="subject_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subject</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a subject" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {subjects.map((subject: SubjectResponse) => (
-                        <SelectItem key={subject.id} value={subject.id}>
-                          {subject.subject_name_en}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="teacher_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Teacher</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a teacher" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {teachers.map((teacher: StaffResponse) => (
-                        <SelectItem key={teacher.id} value={teacher.id}>
-                          {teacher.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="academic_year_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Academic Year</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an academic year" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {academicYears.map((year) => (
-                        <SelectItem key={year.id} value={year.id}>
-                          {year.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter className="pt-4">
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <Spinner className="mr-2" /> : null}
-                Assign Teacher
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        <FormBuilder
+          schema={zCreateClassSubjectTeacherRequest}
+          config={config}
+          defaultValues={{
+            class_id: '',
+            subject_id: '',
+            teacher_id: '',
+            academic_year_id: '',
+          }}
+          onSubmit={(values) => onConfirm(values)}
+          isLoading={isSubmitting}
+          showErrorSummary={false}
+          toastErrors={false}
+          showSuccessAlert={false}
+          actions={[]}
+          className="space-y-4"
+        />
       </DialogContent>
     </Dialog>
   )

@@ -1,10 +1,10 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick01Icon } from '@hugeicons/core-free-icons'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import * as React from 'react'
 import { assignSubjectToStreamSchema } from '../schemas'
 import type { SubjectResponse } from '@/lib/api/types.gen'
 import type { z } from 'zod'
+import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 type FormValues = z.infer<typeof assignSubjectToStreamSchema>
 
@@ -40,14 +41,6 @@ export function SubjectAssignToStreamDialog({
   onConfirm,
   isSubmitting,
 }: SubjectAssignToStreamDialogProps) {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(assignSubjectToStreamSchema),
-    defaultValues: {
-      stream_id: '',
-      subject_id: subject?.id || '',
-    },
-  })
-
   // TODO: Fetch streams from backend once implemented
   const streams = [
     { id: 'stream-1', name: 'Science' },
@@ -55,27 +48,24 @@ export function SubjectAssignToStreamDialog({
     { id: 'stream-3', name: 'Commerce' },
   ]
 
-  const handleSubmit = (data: FormValues) => {
-    onConfirm(data.stream_id)
-  }
+  const preload = React.useCallback(
+    (form: UseFormReturn<FormValues, unknown, FormValues>) => {
+      if (!open) {
+        form.reset()
+        return
+      }
+      if (subject) {
+        form.setValue('subject_id', subject.id)
+      }
+    },
+    [open, subject],
+  )
 
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(val) => {
-        if (!val) form.reset()
-        if (val && subject) form.setValue('subject_id', subject.id)
-        onOpenChange(val)
-      }}
-    >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Assign Subject to Stream</DialogTitle>
-        </DialogHeader>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="grid gap-4 py-4"
-        >
+  const config = defineFormConfig(assignSubjectToStreamSchema, {
+    structure: [],
+    extras: {
+      top: (form) => (
+        <>
           <p className="text-sm text-muted-foreground">
             Assign{' '}
             <span className="font-medium text-foreground">
@@ -108,24 +98,52 @@ export function SubjectAssignToStreamDialog({
               </p>
             )}
           </div>
-          <DialogFooter className="mt-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <Spinner className="mr-2" />
-              ) : (
-                <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
-              )}
-              Assign
-            </Button>
-          </DialogFooter>
-        </form>
+        </>
+      ),
+      bottom: (
+        <DialogFooter className="mt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Spinner className="mr-2" />
+            ) : (
+              <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
+            )}
+            Assign
+          </Button>
+        </DialogFooter>
+      ),
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={(val) => onOpenChange(val)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Assign Subject to Stream</DialogTitle>
+        </DialogHeader>
+        <FormBuilder
+          schema={assignSubjectToStreamSchema}
+          config={config}
+          defaultValues={{
+            stream_id: '',
+            subject_id: subject?.id || '',
+          }}
+          onSubmit={(values) => onConfirm(values.stream_id)}
+          preload={preload}
+          isLoading={isSubmitting}
+          showErrorSummary={false}
+          toastErrors={false}
+          showSuccessAlert={false}
+          actions={[]}
+          className="grid gap-4 py-4"
+        />
       </DialogContent>
     </Dialog>
   )
