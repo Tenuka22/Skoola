@@ -58,7 +58,7 @@ export function UsersListContainer({
   return (
       <Tabs defaultValue="table" value={view}>
         <TabsContent value="table" className="flex w-full">
-          <div className="overflow-y-auto w- flex-1">
+          <div className="overflow-y-auto w-0 flex-1">
             <DataTable
               columns={columns}
               data={usersQuery.data?.data || []}
