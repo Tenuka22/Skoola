@@ -3,15 +3,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  Alert01Icon,
   Cancel01Icon,
-  Delete02Icon,
   Tick01Icon,
+  Shield01Icon,
 } from '@hugeicons/core-free-icons'
 import { useRBACStore } from '../store'
 import { rbacApi } from '../api'
 import { isPermissionEnum } from '../utils/permissions'
-import { PermissionPalette } from './permission-palette'
+import { PermissionList } from './permission-list'
+import type { PermissionEnum } from '@/lib/api/types.gen'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,7 +21,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
 
 export function RoleEditorDialog() {
   const { selectedRoleId, isRoleEditorOpen, setIsRoleEditorOpen } =
@@ -50,11 +49,7 @@ export function RoleEditorDialog() {
       toast.success('Permission assigned to role')
     },
     onError: (err) => {
-      if (err instanceof Error) {
-        toast.error(err.message)
-      } else {
-        toast.error('Failed to assign permission to role')
-      }
+      toast.error(err instanceof Error ? err.message : 'Failed to assign permission')
     },
   })
 
@@ -67,112 +62,78 @@ export function RoleEditorDialog() {
       toast.success('Permission removed from role')
     },
     onError: (err) => {
-      if (err instanceof Error) {
-        toast.error(err.message)
-      } else {
-        toast.error('Failed to remove permission from role')
-      }
+      toast.error(err instanceof Error ? err.message : 'Failed to remove permission')
     },
   })
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    const droppedPermission = e.dataTransfer.getData('permission')
-    if (
-      selectedRoleId &&
-      isPermissionEnum(droppedPermission) &&
-      !assignedPermissions.includes(droppedPermission)
-    ) {
+  const handleTogglePermission = (permission: PermissionEnum, checked: boolean) => {
+    if (!selectedRoleId) return
+
+    if (checked) {
       assignPerm.mutate({
-        path: { role_id: selectedRoleId || '' },
-        body: { permission: droppedPermission },
+        path: { role_id: selectedRoleId },
+        body: { permission },
+      })
+    } else {
+      unassignPerm.mutate({
+        path: { role_id: selectedRoleId },
+        body: { permission },
       })
     }
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-  }
-
   return (
     <Dialog open={isRoleEditorOpen} onOpenChange={setIsRoleEditorOpen}>
-      <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 gap-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-4 border-b">
-          <DialogTitle className="text-2xl flex items-center gap-2">
-            Editing Role: <span className="text-primary">{selectedRoleId}</span>
-          </DialogTitle>
-          <p className="text-sm text-muted-foreground mt-1">
-            Permissions assigned to this role apply to all users with this role.
-          </p>
+      <DialogContent className="max-w-2xl h-[85vh] flex flex-col p-0 gap-0 overflow-hidden border-none">
+        <DialogHeader className="p-4 pb-3">
+          <div className="flex items-center gap-4">
+            <div className="size-10 flex items-center justify-center">
+              <HugeiconsIcon icon={Shield01Icon} className="size-6 text-primary" />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <DialogTitle className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                Configure Role: <span className="text-primary">{selectedRoleId}</span>
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground">
+                Baseline permissions for all users assigned to the {selectedRoleId} role.
+              </p>
+            </div>
+          </div>
         </DialogHeader>
 
-        <div className="flex-1 flex min-h-0 overflow-hidden">
-          {/* Assigned Permissions */}
-          <div
-            className="w-1/2 flex flex-col p-6 gap-4 border-r overflow-hidden"
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-sm flex items-center gap-2">
-                Assigned Permissions
-                <Badge variant="secondary">{assignedPermissions.length}</Badge>
-              </h3>
-            </div>
-
-            <ScrollArea className="flex-1 border rounded-lg bg-muted/5 p-4">
-              {assignedPermissions.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
-                  <HugeiconsIcon
-                    icon={Alert01Icon}
-                    className="size-8 mb-2 opacity-20"
-                  />
-                  <p className="text-sm">No permissions assigned</p>
-                  <p className="text-xs">Drag from the right to assign</p>
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {assignedPermissions.map((perm) => (
-                    <Badge
-                      key={perm}
-                      className="flex items-center gap-1 pl-2 pr-1 py-1"
-                    >
-                      {perm}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-4 p-0 h-4 w-4 hover:bg-destructive/20 hover:text-destructive"
-                        onClick={() =>
-                          unassignPerm.mutate({
-                            path: { role_id: selectedRoleId || '' },
-                            body: { permission: perm },
-                          })
-                        }
-                      >
-                        <HugeiconsIcon icon={Delete02Icon} className="size-3" />
-                      </Button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
+        <div className="flex-1 min-h-0 overflow-hidden p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-[13px] uppercase tracking-wider text-foreground/60 flex items-center gap-2">
+              Permissions Management
+            </h3>
+            <Badge variant="secondary" className="font-mono">
+              {assignedPermissions.length} ASSIGNED
+            </Badge>
           </div>
-
-          {/* Palette */}
-          <div className="w-1/2 flex flex-col p-6 gap-4 bg-muted/5 overflow-hidden">
-            <h3 className="font-semibold text-sm">Available Permissions</h3>
-            <PermissionPalette />
+          
+          <div className="h-full pb-8">
+            <PermissionList 
+              assignedPermissions={assignedPermissions}
+              onToggle={handleTogglePermission}
+            />
           </div>
         </div>
 
-        <DialogFooter className="p-4 border-t bg-muted/5">
-          <Button variant="outline" onClick={() => setIsRoleEditorOpen(false)}>
+        <DialogFooter className="p-4">
+          <Button 
+            variant="outline" 
+            className="px-6 h-11"
+            onClick={() => setIsRoleEditorOpen(false)}
+          >
             <HugeiconsIcon icon={Cancel01Icon} className="size-4 mr-2" />
-            Close
+            Cancel
           </Button>
-          <Button onClick={() => setIsRoleEditorOpen(false)}>
+          <Button 
+            className="px-8 h-11 font-semibold"
+            onClick={() => setIsRoleEditorOpen(false)}
+          >
             <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
-            Done
+            Save Configuration
           </Button>
         </DialogFooter>
       </DialogContent>

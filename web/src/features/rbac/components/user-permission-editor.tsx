@@ -2,11 +2,20 @@ import * as React from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert01Icon, Delete02Icon, UserIcon } from '@hugeicons/core-free-icons'
+import {
+  Alert01Icon,
+  Delete02Icon,
+  Layers01Icon,
+  UserIcon,
+} from '@hugeicons/core-free-icons'
 import { rbacApi } from '../api'
 import { isPermissionEnum, isRoleEnum } from '../utils/permissions'
-import { PermissionPalette } from './permission-palette'
+import { PermissionList } from './permission-list'
 import type { RoleEnum, UserResponse } from '@/lib/api/types.gen'
+import { z } from 'zod'
+import { zPermissionEnum } from '@/lib/api/zod.gen'
+
+type PermissionEnum = z.infer<typeof zPermissionEnum>
 import { authClient } from '@/lib/clients'
 import {
   getAllStaffOptions,
@@ -38,9 +47,10 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
   )
   const staffMember = staffList?.data.find((s) => s.email === user.email)
 
-  const { data: rawPermissions = '' } = useQuery(
-    rbacApi.getUserPermissionsOptions(user.id),
-  )
+  const { data: rawPermissions = '' } = useQuery({
+    ...rbacApi.getUserPermissionsOptions(user.id),
+    enabled: !!user.id,
+  })
 
   const directPermissions = React.useMemo(
     () =>
@@ -63,15 +73,12 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
       queryClient.invalidateQueries({
         queryKey: ['getUserPermissions', { user_id: user.id }],
       })
-      toast.success('Permission assigned')
+      toast.success('Permission assigned directly')
     },
-    onError: (err) => {
-      if (err instanceof Error) {
-        toast.error(err.message)
-      } else {
-        toast.error('Failed to assign permission')
-      }
-    },
+    onError: (err) =>
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to assign permission',
+      ),
   })
 
   const unassignPerm = useMutation({
@@ -80,16 +87,32 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
       queryClient.invalidateQueries({
         queryKey: ['getUserPermissions', { user_id: user.id }],
       })
-      toast.success('Permission removed')
+      toast.success('Direct permission removed')
     },
-    onError: (err) => {
-      if (err instanceof Error) {
-        toast.error(err.message)
-      } else {
-        toast.error('Failed to remove permission')
-      }
-    },
+    onError: (err) =>
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to remove permission',
+      ),
   })
+
+  const handleTogglePermission = (
+    permission: PermissionEnum,
+    checked: boolean,
+  ) => {
+    if (isFullAdmin) return
+
+    if (checked) {
+      assignPerm.mutate({
+        path: { user_id: user.id },
+        body: { permission },
+      })
+    } else {
+      unassignPerm.mutate({
+        path: { user_id: user.id },
+        body: { permission },
+      })
+    }
+  }
 
   const assignSet = useMutation({
     ...rbacApi.assignSetToStaffMutation(),
@@ -99,13 +122,8 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
       })
       toast.success('Permission set assigned')
     },
-    onError: (err) => {
-      if (err instanceof Error) {
-        toast.error(err.message)
-      } else {
-        toast.error('Failed to assign permission set')
-      }
-    },
+    onError: (err) =>
+      toast.error(err instanceof Error ? err.message : 'Failed to assign set'),
   })
 
   const unassignSet = useMutation({
@@ -116,51 +134,19 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
       })
       toast.success('Permission set removed')
     },
-    onError: (err) => {
-      if (err instanceof Error) {
-        toast.error(err.message)
-      } else {
-        toast.error('Failed to remove permission set')
-      }
-    },
+    onError: (err) =>
+      toast.error(err instanceof Error ? err.message : 'Failed to remove set'),
   })
 
   const updateRole = useMutation({
     ...updateUserMutation({ client: authClient }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['getAllUsers'] })
-      toast.success('Role updated')
+      toast.success('User role updated')
     },
-    onError: (err) => {
-      if (err instanceof Error) {
-        toast.error(err.message)
-      } else {
-        toast.error('Failed to update role')
-      }
-    },
+    onError: (err) =>
+      toast.error(err instanceof Error ? err.message : 'Failed to update role'),
   })
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    const permission = e.dataTransfer.getData('permission')
-    if (isPermissionEnum(permission)) {
-      if (directPermissions.includes(permission)) {
-        toast.info('User already has this permission assigned directly.')
-        return
-      }
-
-      // Basic inheritance check (simplified)
-      // In a real app, we'd check if the role already has it
-      assignPerm.mutate({
-        path: { user_id: user.id },
-        body: { permission },
-      })
-    }
-  }
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-  }
 
   const handleAssignPermissionSet = (value: string | null) => {
     if (!value || !staffMember) return
@@ -190,25 +176,39 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
   ]
 
   return (
-    <div className="flex flex-col h-full gap-4">
-      <Card>
-        <CardHeader className="pb-3">
+    <div className="flex flex-col h-full gap-6 animate-in fade-in duration-500">
+      <Card className="border-none shadow-none bg-muted/30 rounded-2xl overflow-hidden">
+        <CardHeader className="p-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="flex items-center gap-4">
+              <div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-sm">
                 <HugeiconsIcon
                   icon={UserIcon}
-                  className="size-5 text-primary"
+                  className="size-7 text-primary"
                 />
               </div>
-              <div>
-                <CardTitle className="text-lg">{user.email}</CardTitle>
-                <p className="text-sm text-muted-foreground">ID: {user.id}</p>
+              <div className="flex flex-col gap-0.5">
+                <CardTitle className="text-xl font-bold tracking-tight">
+                  {user.email}
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono text-muted-foreground opacity-70">
+                    ID: {user.id}
+                  </span>
+                  {staffMember && (
+                    <Badge
+                      variant="outline"
+                      className="h-4 text-[9px] px-1 bg-green-500/5 text-green-600 border-green-500/20 font-bold uppercase tracking-widest"
+                    >
+                      LINKED STAFF
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
-            <div className="flex flex-col items-end gap-1">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Primary Role
+            <div className="flex flex-col items-end gap-2">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mr-1">
+                Security Role
               </span>
               <Select
                 value={user.role || 'Guest'}
@@ -221,12 +221,16 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
                   }
                 }}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[200px] h-11 rounded-xl bg-background border-muted-foreground/10 focus:ring-primary/20 font-medium">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-xl border-muted-foreground/10 shadow-xl">
                   {roles.map((role) => (
-                    <SelectItem key={role} value={role}>
+                    <SelectItem
+                      key={role}
+                      value={role}
+                      className="rounded-lg m-1"
+                    >
                       {role}
                     </SelectItem>
                   ))}
@@ -237,156 +241,116 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
         </CardHeader>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 flex-1 min-h-0">
-        <div className="flex flex-col gap-4 overflow-hidden">
-          {isFullAdmin && (
-            <Card className="bg-primary/5 border-primary/20 border-2 border-dashed overflow-hidden">
-              <CardContent className="p-6 flex flex-col items-center text-center gap-2">
-                <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-                  <HugeiconsIcon
-                    icon={Alert01Icon}
-                    className="size-6 text-primary"
-                  />
-                </div>
-                <h3 className="text-lg font-bold text-primary italic">
-                  Full System Administrative Access
+      <div className="gap-6 flex-1 min-h-0">
+        <div className=" flex flex-col gap-6 overflow-hidden">
+          {isFullAdmin ? (
+            <div className="flex-1 flex flex-col items-center justify-center p-8 border-2 border-dashed border-primary/30 rounded-3xl bg-primary/5 text-center gap-4">
+              <div className="size-20 rounded-full bg-primary/10 flex items-center justify-center shadow-inner">
+                <HugeiconsIcon
+                  icon={Alert01Icon}
+                  className="size-10 text-primary"
+                />
+              </div>
+              <div className="max-w-md">
+                <h3 className="text-xl font-bold text-primary tracking-tight">
+                  Superuser Privilege Active
                 </h3>
-                <p className="text-sm text-muted-foreground max-w-md">
-                  This user has the <span className="font-bold">FullAdmin</span>{' '}
-                  role, granting them absolute permissions across every module
-                  in the system. Individual permission management is bypassed.
+                <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                  This user is designated as a{' '}
+                  <span className="font-bold text-foreground">FullAdmin</span>.
+                  They possess absolute system authority, bypassing all granular
+                  permission checks.
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col gap-4 border border-muted-foreground/10 rounded-2xl bg-muted/5 p-6 overflow-hidden shadow-inner-sm">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-bold text-[13px] uppercase tracking-wider text-foreground/60 flex items-center gap-2">
+                  Direct Permissions
+                </h3>
+                <Badge
+                  variant="outline"
+                  className="bg-primary/5 text-primary border-primary/20 font-mono"
+                >
+                  {directPermissions.length} ASSIGNED
+                </Badge>
+              </div>
+
+              <div className="flex-1 min-h-0">
+                <PermissionList
+                  assignedPermissions={directPermissions}
+                  onToggle={handleTogglePermission}
+                />
+              </div>
+            </div>
           )}
 
-          <Card
-            className="border-dashed border-2 bg-muted/5 flex-1 flex flex-col overflow-hidden"
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-          >
-            <CardHeader className="py-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                Direct Permissions
-                <Badge variant="outline" className="font-mono">
-                  {directPermissions.length}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1 overflow-hidden p-0 px-6 pb-6">
-              <ScrollArea className="h-full pr-4">
-                {directPermissions.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-32 text-muted-foreground border-2 border-dashed rounded-lg">
-                    <HugeiconsIcon
-                      icon={Alert01Icon}
-                      className="size-8 mb-2 opacity-20"
-                    />
-                    <p className="text-sm">
-                      Drag permissions here to assign directly
-                    </p>
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {directPermissions.map((perm) => (
-                      <Badge
-                        key={perm}
-                        variant="secondary"
-                        className="flex items-center gap-1 pl-2 pr-1 py-1"
-                      >
-                        {perm}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-4 p-0 h-4 w-4 hover:bg-destructive/20 hover:text-destructive"
-                          onClick={() =>
-                            unassignPerm.mutate({
-                              path: { user_id: user.id },
-                              body: { permission: perm },
-                            })
-                          }
-                        >
-                          <HugeiconsIcon
-                            icon={Delete02Icon}
-                            className="size-3"
-                          />
-                        </Button>
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </ScrollArea>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-muted/5 border-dashed border-2">
-            <CardHeader className="py-3">
-              <CardTitle className="text-sm flex items-center justify-between">
-                Permission Sets
-                <div className="flex items-center gap-2">
-                  {staffMember ? (
-                    <Badge
-                      variant="outline"
-                      className="text-[10px] text-green-500 border-green-500/20"
-                    >
-                      Staff Link Active
-                    </Badge>
-                  ) : (
-                    <Badge
-                      variant="outline"
-                      className="text-[10px] text-muted-foreground"
-                    >
-                      No Staff Link
-                    </Badge>
-                  )}
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-6 pb-6">
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-wrap gap-2">
+          <div className=" flex flex-col gap-6 overflow-hidden">
+            {/* Permission Sets Card */}
+            <Card className="flex-1 border border-muted-foreground/10 rounded-2xl bg-card shadow-sm overflow-hidden flex flex-col">
+              <CardHeader className="py-4 px-6 border-b bg-muted/30">
+                <CardTitle className="text-[13px] font-bold uppercase tracking-wider text-foreground/60 flex items-center justify-between">
+                  Linked Permission Sets
+                  <Badge variant="secondary" className="font-mono h-5 px-1.5">
+                    {userPermissionSets.length}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 flex-1 overflow-hidden flex flex-col">
+                <ScrollArea className="flex-1 p-6">
                   {userPermissionSets.length === 0 ? (
-                    <p className="text-xs text-muted-foreground italic">
-                      No permission sets assigned.
-                    </p>
+                    <div className="flex flex-col items-center justify-center py-12 text-center opacity-40">
+                      <HugeiconsIcon
+                        icon={Layers01Icon}
+                        className="size-10 mb-3"
+                      />
+                      <p className="text-sm font-medium">No sets assigned</p>
+                    </div>
                   ) : (
-                    userPermissionSets.map((set) => (
-                      <Badge
-                        key={set.id}
-                        variant="secondary"
-                        className="gap-1.5 pl-2 pr-1 py-1"
-                      >
-                        <div className="size-1.5 rounded-full bg-orange-500" />
-                        {set.name}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-4 p-0 h-4 w-4 hover:bg-destructive/20 hover:text-destructive"
-                          onClick={() =>
-                            unassignSet.mutate({
-                              path: {
-                                staff_id: staffMember?.id || '',
-                                set_id: set.id,
-                              },
-                            })
-                          }
+                    <div className="grid grid-cols-1 gap-2">
+                      {userPermissionSets.map((set) => (
+                        <div
+                          key={set.id}
+                          className="flex items-center justify-between gap-3 p-3 rounded-xl border border-muted-foreground/5 bg-muted/20 group"
                         >
-                          <HugeiconsIcon
-                            icon={Delete02Icon}
-                            className="size-3"
-                          />
-                        </Button>
-                      </Badge>
-                    ))
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="size-2 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
+                            <span className="text-[13px] font-semibold truncate">
+                              {set.name}
+                            </span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-7 rounded-md opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
+                            onClick={() =>
+                              unassignSet.mutate({
+                                path: {
+                                  staff_id: staffMember?.id || '',
+                                  set_id: set.id,
+                                },
+                              })
+                            }
+                          >
+                            <HugeiconsIcon
+                              icon={Delete02Icon}
+                              className="size-3.5"
+                            />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
                   )}
-                </div>
+                </ScrollArea>
 
                 {staffMember && (
-                  <div className="pt-2 border-t border-dashed">
+                  <div className="p-6 bg-muted/10 border-t border-muted-foreground/5">
                     <Select onValueChange={handleAssignPermissionSet}>
-                      <SelectTrigger className="h-8 text-xs">
-                        <SelectValue placeholder="Assign a permission set..." />
+                      <SelectTrigger className="h-10 rounded-xl bg-background border-muted-foreground/10 text-xs font-medium focus:ring-primary/20">
+                        <SelectValue placeholder="Add permission set..." />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="rounded-xl border-muted-foreground/10">
                         {allPermissionSets
                           .filter(
                             (s) =>
@@ -398,7 +362,7 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
                             <SelectItem
                               key={set.id}
                               value={set.id}
-                              className="text-xs"
+                              className="text-xs rounded-lg m-1"
                             >
                               {set.name}
                             </SelectItem>
@@ -407,54 +371,30 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
                     </Select>
                   </div>
                 )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Inheritance Indicators Legend */}
-          <div className="flex items-center gap-4 px-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <div className="size-2 rounded-full bg-primary" />
-              Direct
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="size-2 rounded-full bg-green-500" />
-              Role
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="size-2 rounded-full bg-orange-500" />
-              Set
-            </div>
-          </div>
-
-          <Card className="flex flex-col h-[250px]">
-            <CardHeader className="py-3">
-              <CardTitle className="text-sm">
-                Available Permissions Palette
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1 overflow-hidden p-0 px-6 pb-6">
-              <PermissionPalette />
-            </CardContent>
-          </Card>
-
-          {/* Audit Trail Widget Placeholder */}
-          <Card className="bg-muted/30 border-none shadow-none mt-auto">
-            <CardContent className="p-4 flex items-center justify-between text-xs">
+              </CardContent>
+            </Card>
+            {/* Inheritance Legend */}
+            <div className="flex items-center justify-center gap-6 px-4 py-3 border border-muted-foreground/10 rounded-2xl bg-muted/5">
               <div className="flex items-center gap-2">
-                <div className="size-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-muted-foreground font-medium">
-                  Last modified: 2 hours ago by Admin
+                <div className="size-2 rounded-full bg-primary shadow-[0_0_6px_rgba(var(--primary),0.4)]" />
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  Direct
                 </span>
               </div>
-              <Button
-                variant="link"
-                className="h-auto p-0 text-xs text-primary font-semibold"
-              >
-                View Audit Trail
-              </Button>
-            </CardContent>
-          </Card>
+              <div className="flex items-center gap-2">
+                <div className="size-2 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.4)]" />
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  Role
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="size-2 rounded-full bg-orange-500 shadow-[0_0_6px_rgba(249,115,22,0.4)]" />
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  Set
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
