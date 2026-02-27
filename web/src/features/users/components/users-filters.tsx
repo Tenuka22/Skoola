@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { HStack } from '@/components/primitives'
 
 export function UsersFilters() {
   const {
@@ -33,16 +34,17 @@ export function UsersFilters() {
   } = useUsersStore()
 
   return (
-    <div className="mb-6 flex items-center gap-3 overflow-x-auto px-8 pb-2">
+    <HStack p={0}>
       <Select
         value={statusFilter}
         onValueChange={(value) => setStatusFilter(value || 'all')}
       >
         <SelectTrigger className="w-fit min-w-32">
-          <div className="flex items-center gap-2">
-            <HugeiconsIcon icon={FilterIcon} className="size-3.5" />
+            <HStack gap={1} p={0}>
+
+            <HugeiconsIcon icon={FilterIcon} className="size-4" />
             <SelectValue placeholder="Status" className="capitalize" />
-          </div>
+</HStack>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Status</SelectItem>
@@ -55,8 +57,12 @@ export function UsersFilters() {
         value={authFilter}
         onValueChange={(value) => setAuthFilter(value || 'all')}
       >
-        <SelectTrigger className="w-fit min-w-32">
-          <SelectValue placeholder="Auth Method" className="capitalize" />
+         <SelectTrigger className="w-fit min-w-32">
+            <HStack gap={1} p={0}>
+
+            <HugeiconsIcon icon={FilterIcon} className="size-4" />
+            <SelectValue placeholder="Auth Method" className="capitalize" />
+</HStack>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Auth Methods</SelectItem>
@@ -78,13 +84,12 @@ export function UsersFilters() {
             <Button
               variant="outline"
               className={cn(
-                'justify-start text-left font-normal',
-                !createdAfter && 'text-muted-foreground',
+                  !createdAfter && 'text-muted-foreground',
               )}
             >
               <HugeiconsIcon
                 icon={Calendar01Icon}
-                className="mr-2 h-3.5 w-3.5"
+                className="mr-2 h-4"
               />
               {createdAfter
                 ? format(new Date(createdAfter), 'PPP')
@@ -110,7 +115,6 @@ export function UsersFilters() {
             <Button
               variant="outline"
               className={cn(
-                'justify-start text-left font-normal',
                 !createdBefore && 'text-muted-foreground',
               )}
             >
@@ -140,7 +144,7 @@ export function UsersFilters() {
         createdAfter ||
         createdBefore) && (
         <Button
-          variant="ghost"
+          variant="destructive" size="sm"
           onClick={() => {
             setStatusFilter('all')
             setAuthFilter('all')
@@ -148,9 +152,9 @@ export function UsersFilters() {
             setCreatedBefore(null)
           }}
         >
-          Reset
+          Reset Filters
         </Button>
       )}
-    </div>
+    </HStack>
   )
 }

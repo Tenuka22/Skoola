@@ -56,10 +56,9 @@ export function UsersListContainer({
   const updatingUserId = updateMutation.variables?.path?.user_id
 
   return (
-    <div className="flex-1 px-8 py-4 space-y-4">
       <Tabs defaultValue="table" value={view}>
-        <TabsContent value="table" className="mt-0">
-          <div className="overflow-hidden rounded-xl border border-border/60 bg-background shadow-sm">
+        <TabsContent value="table" className="flex w-full">
+          <div className="overflow-y-auto w- flex-1">
             <DataTable
               columns={columns}
               data={usersQuery.data?.data || []}
@@ -83,7 +82,7 @@ export function UsersListContainer({
 
         <TabsContent value="board">
           <UserBoardView
-            users={usersQuery.data?.data}
+            users={usersQuery.data?.data ?? []}
             isLoading={usersQuery.isFetching}
             onEdit={(user) => setUserToEdit(user)}
             onDelete={(id) => setUserToDelete(id)}
@@ -100,6 +99,5 @@ export function UsersListContainer({
           />
         </TabsContent>
       </Tabs>
-    </div>
   )
 }

@@ -233,7 +233,7 @@ function Users() {
   })
 
   return (
-    <Stack gap={0} className="h-full bg-background">
+    <Stack gap={4} p={8} className="h-full">
       <UsersHeader />
       <UsersToolbar
         handleExportCSV={() =>

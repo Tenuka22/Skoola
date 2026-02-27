@@ -2,6 +2,7 @@ import { format } from 'date-fns'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Calendar01Icon,
+  CloudCog,
   Copy01Icon,
   Delete02Icon,
   LockIcon,
@@ -31,11 +32,22 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 
-import { Box, Grid, HStack, Stack, Text } from '@/components/primitives'
+
+import {  Grid, HStack, Stack, Text } from '@/components/primitives'
+import { Link } from '@tanstack/react-router'
+import { useUsersStore } from '../store'
 
 interface UserBoardViewProps {
-  users: Array<UserResponse> | undefined
+  users: Array<UserResponse> 
   isLoading?: boolean
   onEdit: (user: UserResponse) => void
   onDelete: (id: string) => void
@@ -57,6 +69,9 @@ export function UserBoardView({
   isUpdating,
   updatingUserId,
 }: UserBoardViewProps) {
+    const {  setIsCreateUserOpen } =
+      useUsersStore()
+
   if (isLoading) {
     return (
       <Grid cols={4} gap={4}>
@@ -67,17 +82,32 @@ export function UserBoardView({
     )
   }
 
-  if (!users?.length) {
-    return (
-      <Box
-        p={6}
-        rounded="xl"
-        className="flex h-64 items-center justify-center border border-dashed"
-      >
-        <Text muted>No users found</Text>
-      </Box>
-    )
-  }
+if (!users?.length) {
+  return (
+    <Empty className="border border-dashed w-auto">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <HugeiconsIcon icon={CloudCog} />
+        </EmptyMedia>
+        <EmptyTitle>No User Found</EmptyTitle>
+        <EmptyDescription>
+          Add users or share your app to get started.
+        </EmptyDescription>
+      </EmptyHeader>
+
+      <EmptyContent className='flex-row justify-center'>
+        <Link to="/sign-up">
+          <Button variant="outline" size="sm">
+            Sign Up A User
+          </Button>
+        </Link>
+        <Button variant="default" size="sm" onClick={() => setIsCreateUserOpen(true)}>
+          Create a user
+          </Button>
+      </EmptyContent>
+    </Empty>
+  )
+}
 
   return (
     <Grid cols={4} gap={4}>
@@ -90,37 +120,69 @@ export function UserBoardView({
         const initials = name.substring(0, 2).toUpperCase()
 
         const createdAt = new Date(user.created_at)
-        const updatedAt = new Date(user.updated_at)
         const lockUntil = user.lockout_until
           ? new Date(user.lockout_until)
           : null
 
-        const isLocked = lockUntil ? lockUntil > new Date() : false
+
         const isBeingUpdated = isUpdating && updatingUserId === user.id
 
-        return (
-          <Card key={user.id}>
-            <CardHeader className="flex flex-row items-start justify-between">
-              <Stack gap={1} align="center">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
-                  />
-                  <AvatarFallback className="text-xs font-bold">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                <Badge variant="secondary" className="text-xs">
-                  {user.role}
-                </Badge>
-              </Stack>
-              <Stack p={0} gap={0}>
-                <CardTitle>{name}</CardTitle>
-                <Text size="xs" muted className="truncate">
-                  {user.email}
-                </Text>
-              </Stack>
+        const isLocked = lockUntil ? lockUntil > new Date() : false
 
+        return (
+       <Card key={user.id} className="p-3">
+  <HStack align="start" justify="between" gap={3}>
+    <HStack align="start" gap={3} className="">
+      <Avatar className="h-8 w-8">
+        <AvatarImage
+          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+        />
+        <AvatarFallback className="text-[10px] font-semibold">
+          {initials}
+        </AvatarFallback>
+      </Avatar>
+
+      <Stack gap={1} >
+        <HStack gap={2} align="center">
+          <Text size="sm" className='truncate'>
+            {name}
+          </Text>
+          <Badge
+            variant="secondary"
+            className="text-[10px] px-1.5 py-0"
+          >
+            {user.role}
+          </Badge>
+        </HStack>
+
+        <Text size="xs" muted className="truncate">
+          {user.email}
+        </Text>
+<HStack>
+
+          <Text size="xs" muted>
+            {format(createdAt, 'MMM d, yyyy')}
+          </Text>
+       <Badge
+        variant="outline"
+        className={`text-[10px] px-1.5 py-0 ${
+          isLocked
+            ? 'text-red-500'
+            : user.is_verified
+              ? 'text-green-500'
+              : 'text-amber-500'
+        }`}
+      >
+        {isLocked ? 'Locked' : user.is_verified ? 'Active' : 'Pending'}
+      </Badge>
+</HStack>
+      </Stack>
+    </HStack>
+
+    <HStack align="center" gap={2}>
+     
+
+   
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
@@ -220,58 +282,15 @@ export function UserBoardView({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </CardHeader>
-
-            <CardContent>
-              <Stack gap={1}>
-                <HStack gap={2}>
-                  <HugeiconsIcon
-                    icon={Calendar01Icon}
-                    className="size-3.5 text-muted-foreground"
-                  />
-                  <Text size="xs" muted>
-                    Joined {format(createdAt, 'MMM d, yyyy')}
-                  </Text>
-                </HStack>
-
-                <Text size="xs" muted>
-                  Updated {format(updatedAt, 'MMM d, yyyy')}
-                </Text>
-
-                <Text size="xs" muted className="font-mono">
-                  ID: {user.id.slice(0, 8)}...
-                </Text>
-              </Stack>
-            </CardContent>
-
-            <CardFooter className="flex flex-row flex-wrap items-center justify-between">
-              {isLocked && lockUntil && (
-                <Badge variant="destructive" className="text-xs">
-                  Locked until {format(lockUntil, 'MMM d, yyyy')}
-                </Badge>
-              )}
-
-              <Badge
-                variant="outline"
-                className={`text-xs ${
-                  isLocked
-                    ? 'text-red-500'
-                    : user.is_verified
-                      ? 'text-green-500'
-                      : 'text-amber-500'
-                }`}
-              >
-                {isLocked ? 'Locked' : user.is_verified ? 'Active' : 'Pending'}
-              </Badge>
-            </CardFooter>
-          </Card>
+    </HStack>
+  </HStack>
+</Card>
         )
       })}
     </Grid>
   )
 }
 
-/* ---------------- Skeleton ---------------- */
 
 function CardSkeleton() {
   return (
