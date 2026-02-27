@@ -15,14 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
@@ -63,51 +55,37 @@ export function AcademicYearEditDialog({
   )
 
   const config = defineFormConfig(academicYearFormSchema, {
-    structure: [],
+    structure: [
+      [
+        {
+          field: 'id',
+          type: 'input',
+          label: 'ID',
+          disabled: true,
+        },
+        {
+          field: 'name',
+          type: 'input',
+          label: 'Name',
+          placeholder: 'e.g., 2024-2025',
+        },
+      ],
+      [
+        {
+          field: 'start_date',
+          type: 'input',
+          label: 'Start Date',
+          inputType: 'date',
+        },
+        {
+          field: 'end_date',
+          type: 'input',
+          label: 'End Date',
+          inputType: 'date',
+        },
+      ],
+    ],
     extras: {
-      top: (form) => (
-        <>
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., 2024-2025" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="start_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Start Date</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="end_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>End Date</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </>
-      ),
       bottom: (
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
@@ -134,6 +112,12 @@ export function AcademicYearEditDialog({
         <FormBuilder
           schema={academicYearFormSchema}
           config={config}
+          defaultValues={{
+            id: '',
+            name: '',
+            start_date: '',
+            end_date: '',
+          }}
           onSubmit={(values) => onConfirm(values)}
           preload={preload}
           isLoading={isSubmitting}

@@ -13,7 +13,7 @@ export const mapStaffResponseToCreateStaffValues = (
     phone: staff.phone,
     nic: staff.nic,
     dob: staff.dob,
-    gender: staff.gender,
+    gender: staff.gender as StaffFormValues['gender'],
     address: staff.address,
   }
 }

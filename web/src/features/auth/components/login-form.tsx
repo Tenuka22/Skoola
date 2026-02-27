@@ -34,9 +34,10 @@ export function LoginForm({
         {
           field: 'email',
           type: 'input',
-          label: 'Email',
+          label: 'Email Address',
           inputType: 'email',
           placeholder: 'm@example.com',
+          description: 'We will never share your email with anyone else.',
         },
       ],
       [
@@ -46,6 +47,7 @@ export function LoginForm({
           label: 'Password',
           inputType: 'password',
           placeholder: '**********',
+          description: 'Enter your secure password.',
         },
       ],
     ],

@@ -14,16 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { authClient } from '@/lib/clients'
 import {
   getAllAcademicYearsOptions,
@@ -78,123 +69,66 @@ export function ClassEditDialog({
   )
 
   const config = defineFormConfig(classFormSchema, {
-    structure: [],
+    structure: [
+      [
+        {
+          field: 'id',
+          type: 'input',
+          label: 'ID',
+          disabled: true,
+        },
+        {
+          field: 'section_name',
+          type: 'input',
+          label: 'Section Name',
+          placeholder: 'e.g. A',
+        },
+      ],
+      [
+        {
+          field: 'grade_id',
+          type: 'select',
+          label: 'Grade',
+          placeholder: 'Select a grade level',
+          items: gradeLevels.map((gl) => ({
+            label: gl.grade_name,
+            value: gl.id,
+          })),
+          parse: (value) => value,
+        },
+        {
+          field: 'academic_year_id',
+          type: 'select',
+          label: 'Academic Year',
+          placeholder: 'Select an academic year',
+          items: academicYears.map((ay) => ({
+            label: ay.name,
+            value: ay.id,
+          })),
+          parse: (value) => value,
+        },
+      ],
+      [
+        {
+          field: 'medium',
+          type: 'select',
+          label: 'Medium',
+          placeholder: 'Select medium',
+          items: mediums.map((m) => ({
+            label: m,
+            value: m,
+          })),
+          parse: (value) => zMedium.parse(value),
+        },
+        {
+          field: 'max_capacity',
+          type: 'input',
+          label: 'Max Capacity',
+          inputType: 'number',
+        },
+      ],
+    ],
     extras: {
-      top: (form) => (
-        <>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="id" className="text-right">
-              ID
-            </Label>
-            <Input
-              id="id"
-              {...form.register('id')}
-              disabled
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="section_name" className="text-right text-xs">
-              Section Name
-            </Label>
-            <Input
-              id="section_name"
-              {...form.register('section_name')}
-              className="col-span-3"
-            />
-            {form.formState.errors.section_name && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.section_name.message}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="grade_id" className="text-right">
-              Grade
-            </Label>
-            <Select
-              onValueChange={(value) => form.setValue('grade_id', value || '')}
-              value={form.watch('grade_id')}
-            >
-              <SelectTrigger id="grade_id" className="col-span-3">
-                <SelectValue placeholder="Select a grade level" />
-              </SelectTrigger>
-              <SelectContent>
-                {gradeLevels.map((gl) => (
-                  <SelectItem key={gl.id} value={gl.id}>
-                    {gl.grade_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {form.formState.errors.grade_id && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.grade_id.message}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="academic_year_id" className="text-right text-xs">
-              Academic Year
-            </Label>
-            <Select
-              onValueChange={(value) =>
-                form.setValue('academic_year_id', value || '')
-              }
-              value={form.watch('academic_year_id')}
-            >
-              <SelectTrigger id="academic_year_id" className="col-span-3">
-                <SelectValue placeholder="Select an academic year" />
-              </SelectTrigger>
-              <SelectContent>
-                {academicYears.map((ay) => (
-                  <SelectItem key={ay.id} value={ay.id}>
-                    {ay.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {form.formState.errors.academic_year_id && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.academic_year_id.message}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="medium" className="text-right">
-              Medium
-            </Label>
-            <Select
-              onValueChange={(value) =>
-                form.setValue('medium', value ?? 'English')
-              }
-              value={form.watch('medium')}
-            >
-              <SelectTrigger id="medium" className="col-span-3">
-                <SelectValue placeholder="Select medium" />
-              </SelectTrigger>
-              <SelectContent>
-                {mediums.map((m) => (
-                  <SelectItem key={m} value={m}>
-                    {m}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="max_capacity" className="text-right text-xs">
-              Max Capacity
-            </Label>
-            <Input
-              id="max_capacity"
-              type="number"
-              {...form.register('max_capacity', { valueAsNumber: true })}
-              className="col-span-3"
-            />
-          </div>
-        </>
-      ),
       bottom: (
         <DialogFooter className="mt-4">
           <Button

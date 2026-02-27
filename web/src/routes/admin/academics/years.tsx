@@ -222,7 +222,13 @@ function AcademicYearsPage() {
         open={store.isCreateYearOpen}
         onOpenChange={setIsCreateYearOpen}
         onConfirm={(data: AcademicYearFormValues) =>
-          createYear.mutate({ body: data })
+          createYear.mutate({
+            body: {
+              ...data,
+              year_start: new Date(data.start_date).getTime(),
+              year_end: new Date(data.end_date).getTime(),
+            } as any,
+          })
         }
         isSubmitting={createYear.isPending}
       />
@@ -235,7 +241,11 @@ function AcademicYearsPage() {
           store.yearToEdit &&
           updateYear.mutate({
             path: { id: store.yearToEdit.id },
-            body: data,
+            body: {
+              ...data,
+              year_start: new Date(data.start_date).getTime(),
+              year_end: new Date(data.end_date).getTime(),
+            } as any,
           })
         }
         isSubmitting={updateYear.isPending}

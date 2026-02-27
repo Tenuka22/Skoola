@@ -13,10 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
-import { Checkbox } from '@/components/ui/checkbox'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
 interface SubjectEditDialogProps {
@@ -53,83 +50,49 @@ export function SubjectEditDialog({
   )
 
   const config = defineFormConfig(subjectFormSchema, {
-    structure: [],
+    structure: [
+      [
+        {
+          field: 'id',
+          type: 'input',
+          label: 'ID',
+          disabled: true,
+        },
+        {
+          field: 'subject_code',
+          type: 'input',
+          label: 'Code',
+          placeholder: 'e.g. MAT101',
+        },
+      ],
+      [
+        {
+          field: 'subject_name_en',
+          type: 'input',
+          label: 'Name (EN)',
+        },
+      ],
+      [
+        {
+          field: 'subject_name_si',
+          type: 'input',
+          label: 'Name (SI)',
+        },
+        {
+          field: 'subject_name_ta',
+          type: 'input',
+          label: 'Name (TA)',
+        },
+      ],
+      [
+        {
+          field: 'is_core',
+          type: 'checkbox',
+          label: 'Is Core Subject',
+        },
+      ],
+    ],
     extras: {
-      top: (form) => (
-        <>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="id" className="text-right">
-              ID
-            </Label>
-            <Input
-              id="id"
-              {...form.register('id')}
-              disabled
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="subject_code" className="text-right">
-              Code
-            </Label>
-            <Input
-              id="subject_code"
-              {...form.register('subject_code')}
-              className="col-span-3"
-            />
-            {form.formState.errors.subject_code && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.subject_code.message}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="subject_name_en" className="text-right">
-              Name (EN)
-            </Label>
-            <Input
-              id="subject_name_en"
-              {...form.register('subject_name_en')}
-              className="col-span-3"
-            />
-            {form.formState.errors.subject_name_en && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.subject_name_en.message}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="subject_name_si" className="text-right text-xs">
-              Name (SI)
-            </Label>
-            <Input
-              id="subject_name_si"
-              {...form.register('subject_name_si')}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="subject_name_ta" className="text-right text-xs">
-              Name (TA)
-            </Label>
-            <Input
-              id="subject_name_ta"
-              {...form.register('subject_name_ta')}
-              className="col-span-3"
-            />
-          </div>
-          <div className="flex items-center space-x-2 pl-[120px]">
-            <Checkbox
-              id="is_core"
-              checked={form.watch('is_core') === true}
-              onCheckedChange={(checked) =>
-                form.setValue('is_core', checked === true)
-              }
-            />
-            <Label htmlFor="is_core">Is Core Subject</Label>
-          </div>
-        </>
-      ),
       bottom: (
         <DialogFooter className="mt-4">
           <Button
