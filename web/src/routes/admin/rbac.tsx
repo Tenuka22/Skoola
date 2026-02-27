@@ -13,7 +13,7 @@ import { PermissionSetsTab } from '../../features/rbac/components/permission-set
 import { RoleEditorDialog } from '../../features/rbac/components/role-editor-dialog'
 import { isRBACActiveTab } from '@/features/rbac/utils/permissions'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { HStack, Stack, Text } from '@/components/primitives'
+import { Box, HStack, Stack, Text } from '@/components/primitives'
 
 export const Route = createFileRoute('/admin/rbac')({
   component: RBACPage,
@@ -35,7 +35,7 @@ function RBACPage() {
         }}
         className="h-full flex flex-col"
       >
-        <div className="px-8 mb-4">
+        <Box px={8} className="mb-4">
           <TabsList className="w-full sm:w-fit justify-start bg-transparent p-0 border-b rounded-none h-auto gap-6">
             <TabsTrigger
               value="users"
@@ -65,9 +65,9 @@ function RBACPage() {
               </HStack>
             </TabsTrigger>
           </TabsList>
-        </div>
+        </Box>
 
-        <div className="flex-1 overflow-hidden px-8 py-4">
+        <Box px={8} py={4} className="flex-1 overflow-hidden">
           <TabsContent
             value="users"
             className="h-full mt-0 focus-visible:outline-none"
@@ -86,7 +86,7 @@ function RBACPage() {
           >
             <PermissionSetsTab />
           </TabsContent>
-        </div>
+        </Box>
       </Tabs>
       <RoleEditorDialog />
     </Stack>

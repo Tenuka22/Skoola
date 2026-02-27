@@ -14,15 +14,22 @@ import {
 } from '@/components/ui/accordion'
 import { Box, HStack, Stack, Text } from '@/components/primitives'
 import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 interface PermissionListProps {
   assignedPermissions: Array<PermissionEnum>
+  inheritedPermissions?: Array<{
+    permission: PermissionEnum
+    source: 'role' | 'set'
+    sourceName?: string
+  }>
   onToggle: (permission: PermissionEnum, checked: boolean) => void
   isReadOnly?: boolean
 }
 
 export function PermissionList({
   assignedPermissions,
+  inheritedPermissions = [],
   onToggle,
   isReadOnly = false,
 }: PermissionListProps) {
@@ -43,6 +50,10 @@ export function PermissionList({
     () => PERMISSION_CATEGORIES.map((c) => c.name),
     [],
   )
+
+  const getInheritanceDetails = (permission: PermissionEnum) => {
+    return inheritedPermissions.filter((ip) => ip.permission === permission)
+  }
 
   return (
     <Stack gap={4} className="h-full">
@@ -70,7 +81,7 @@ export function PermissionList({
               <AccordionTrigger className="py-2 px-2 hover:no-underline rounded-md hover:bg-muted/50 transition-colors">
                 <HStack justify="between" className="w-full">
                   <HStack gap={2}>
-                    <Text className="font-bold tracking-tight">
+                    <Text className="font-bold tracking-tight text-zinc-200">
                       {category.name}
                     </Text>
                     <Badge variant="secondary" className="h-5">
@@ -82,13 +93,21 @@ export function PermissionList({
               <AccordionContent className="px-2 pb-2 pt-0">
                 <Stack gap={1} className="mt-2">
                   {category.permissions.map((permission) => {
-                    const isChecked = assignedPermissions.includes(permission)
+                    const isDirectlyAssigned =
+                      assignedPermissions.includes(permission)
+                    const details = getInheritanceDetails(permission)
+                    const isInherited = details.length > 0
+                    const isChecked = isDirectlyAssigned || isInherited
+
                     return (
                       <HStack
                         key={permission}
                         align="center"
                         gap={3}
-                        className="p-2 rounded-md hover:bg-muted/50"
+                        className={cn(
+                          'p-2 rounded-md transition-colors',
+                          isChecked ? 'bg-primary/5' : 'hover:bg-muted/50',
+                        )}
                       >
                         <Checkbox
                           id={`perm-${permission}`}
@@ -96,14 +115,47 @@ export function PermissionList({
                           onCheckedChange={(checked) =>
                             onToggle(permission, !!checked)
                           }
-                          disabled={isReadOnly}
+                          disabled={isReadOnly || isInherited}
+                          className={cn(
+                            isInherited &&
+                              'data-[state=checked]:bg-muted data-[state=checked]:text-muted-foreground opacity-70',
+                          )}
                         />
-                        <label
-                          htmlFor={`perm-${permission}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1 py-1"
-                        >
-                          {permission}
-                        </label>
+                        <Stack gap={0} className="flex-1 py-1">
+                          <label
+                            htmlFor={`perm-${permission}`}
+                            className={cn(
+                              'text-sm font-medium leading-none cursor-pointer',
+                              isInherited && 'text-muted-foreground',
+                              isReadOnly && 'cursor-default',
+                            )}
+                          >
+                            {permission}
+                          </label>
+                          {isInherited && (
+                            <HStack gap={1} className="mt-1 flex-wrap">
+                              {details.map((d, i) => (
+                                <Badge
+                                  key={i}
+                                  variant="outline"
+                                  className="text-[10px] py-0 h-4 bg-muted/30 border-muted-foreground/20 text-muted-foreground font-normal"
+                                >
+                                  {d.source === 'role'
+                                    ? `Role: ${d.sourceName}`
+                                    : `Set: ${d.sourceName}`}
+                                </Badge>
+                              ))}
+                            </HStack>
+                          )}
+                        </Stack>
+                        {isDirectlyAssigned && !isInherited && (
+                          <Badge
+                            variant="default"
+                            className="bg-primary/10 text-primary border-primary/20 text-[10px] h-4 py-0"
+                          >
+                            Direct
+                          </Badge>
+                        )}
                       </HStack>
                     )
                   })}

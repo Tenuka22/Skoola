@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
@@ -83,6 +83,47 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
         .filter(Boolean),
     [rawDirectPermissions],
   )
+
+  const { data: rolePermissionsRes } = useQuery({
+    ...rbacApi.getRolePermissionsOptions(user.role),
+    enabled: !!user.role,
+  })
+
+  const setPermissionsResults = useQueries({
+    queries: userPermissionSets.map((set: UserSet) => ({
+      ...rbacApi.getSetPermissionsOptions(set.id),
+      enabled: !!set.id,
+    })),
+  })
+
+  const inheritedPermissions = React.useMemo(() => {
+    const inherited: Array<{
+      permission: PermissionEnum
+      source: 'role' | 'set'
+      sourceName?: string
+    }> = []
+
+    if (rolePermissionsRes?.permissions) {
+      rolePermissionsRes.permissions.filter(isPermissionEnum).forEach((p) => {
+        inherited.push({ permission: p, source: 'role', sourceName: user.role })
+      })
+    }
+
+    setPermissionsResults.forEach((res, index) => {
+      const set = userPermissionSets[index]
+      if (res.data?.permissions) {
+        res.data.permissions.filter(isPermissionEnum).forEach((p) => {
+          inherited.push({
+            permission: p,
+            source: 'set',
+            sourceName: set.name,
+          })
+        })
+      }
+    })
+
+    return inherited
+  }, [rolePermissionsRes, setPermissionsResults, userPermissionSets, user.role])
 
   const updateUserRole = useMutation({
     ...rbacApi.updateUserMutation(),
@@ -265,22 +306,22 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
         </Card>
       ) : (
         <Grid cols={2} gap={6}>
-          {/* Direct Permissions */}
-          <Card className="h-full">
-            <CardHeader>
+          <Card className="h-full flex flex-col">
+            <Box p={6} className="border-b">
               <HStack justify="between">
-                <CardTitle>Direct Permissions</CardTitle>
+                <Heading size="h4">User Permissions</Heading>
                 <Badge variant="secondary" className="font-mono">
-                  {directPermissions.length} Assigned
+                  {directPermissions.length} Direct
                 </Badge>
               </HStack>
-            </CardHeader>
-            <CardContent className="h-[55vh]">
+            </Box>
+            <Box p={6} className="flex-1 min-h-0">
               <PermissionList
                 assignedPermissions={directPermissions}
+                inheritedPermissions={inheritedPermissions}
                 onToggle={handleToggleDirectPermission}
               />
-            </CardContent>
+            </Box>
           </Card>
 
           {/* Linked Permission Sets */}
@@ -381,26 +422,31 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
               </CardContent>
             </Card>
 
-            <Card className="bg-muted/50 border-dashed">
-              <CardHeader>
-                <CardTitle>Permission Inheritance</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <HStack justify="around">
-                  <HStack gap={2}>
-                    <Box className="size-2.5 rounded-full bg-primary" />
-                    <Text size="sm">Direct</Text>
+            <Card className="border-dashed">
+              <Box p={6}>
+                <Stack gap={4}>
+                  <Heading size="h4">Permission Inheritance</Heading>
+                  <HStack justify="around" className="bg-background/50 p-4 rounded-lg border">
+                    <HStack gap={2}>
+                      <Box className="size-2.5 rounded-full bg-primary" />
+                      <Text size="sm">Direct</Text>
+                    </HStack>
+                    <HStack gap={2}>
+                      <Box className="size-2.5 rounded-full bg-zinc-600" />
+                      <Text size="sm">Inherent (Role/Set)</Text>
+                    </HStack>
+                    <HStack gap={2}>
+                      <Badge variant="outline" className="text-[10px] py-0 h-4 bg-muted/30">
+                        Label
+                      </Badge>
+                      <Text size="sm">Source info</Text>
+                    </HStack>
                   </HStack>
-                  <HStack gap={2}>
-                    <Box className="size-2.5 rounded-full bg-green-500" />
-                    <Text size="sm">From Role</Text>
-                  </HStack>
-                  <HStack gap={2}>
-                    <Box className="size-2.5 rounded-full bg-orange-500" />
-                    <Text size="sm">From Set</Text>
-                  </HStack>
-                </HStack>
-              </CardContent>
+                  <Text size="xs" muted>
+                    Permissions inherited from roles or sets are locked and cannot be removed directly from the user editor.
+                  </Text>
+                </Stack>
+              </Box>
             </Card>
           </Stack>
         </Grid>

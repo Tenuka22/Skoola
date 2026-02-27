@@ -26,7 +26,7 @@ import {
   ComboboxItem,
   ComboboxList,
 } from '@/components/ui/combobox'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Box,
@@ -174,10 +174,10 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
     <Stack gap={6} className="animate-in fade-in duration-300">
       {isEditingInfo ? (
         <Card>
-          <CardHeader>
+          <Box p={6} className="border-b">
             <Heading size="h3">Edit Set Details</Heading>
-          </CardHeader>
-          <CardContent>
+          </Box>
+          <Box p={6}>
             <FormBuilder
               schema={updatePermissionSetSchema}
               config={formConfig}
@@ -204,118 +204,122 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
               showErrorSummary={false}
               className="space-y-4"
             />
-          </CardContent>
+          </Box>
         </Card>
       ) : (
-        <Stack gap={2}>
-          <HStack align="start" justify="between">
-            <Heading size="h2" className="group">
-              {set.name}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => setIsEditingInfo(true)}
-              >
-                <HugeiconsIcon
-                  icon={Edit01Icon}
-                  className="size-4 text-primary"
-                />
-              </Button>
-            </Heading>
-          </HStack>
-          <Text muted className="max-w-3xl">
-            {set.description || 'No description provided.'}
-          </Text>
-          <HStack gap={6} className="pt-2">
-            <HStack gap={2}>
-              <HugeiconsIcon
-                icon={Layers01Icon}
-                className="size-4 text-muted-foreground"
-              />
-              <Text size="sm" muted>
-                <Text className="font-bold text-foreground">
-                  {assignedPermissions.length}
-                </Text>{' '}
-                permissions
-              </Text>
+        <Box p={6} rounded="xl" bg="bg-card" className="border shadow-sm">
+          <Stack gap={3}>
+            <HStack align="center" justify="between">
+              <Heading size="h2" className="group">
+                {set.name}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => setIsEditingInfo(true)}
+                >
+                  <HugeiconsIcon
+                    icon={Edit01Icon}
+                    className="size-4 text-primary"
+                  />
+                </Button>
+              </Heading>
             </HStack>
-            <HStack gap={2}>
-              <HugeiconsIcon
-                icon={UserGroupIcon}
-                className="size-4 text-muted-foreground"
-              />
-              <Text size="sm" muted>
-                <Text className="font-bold text-foreground">
-                  {members.length}
-                </Text>{' '}
-                assigned users
-              </Text>
+            <Text size="base" muted className="max-w-3xl leading-relaxed">
+              {set.description || 'No description provided.'}
+            </Text>
+            <HStack gap={6} className="pt-2">
+              <HStack gap={2}>
+                <Box className="p-1 rounded bg-primary/10">
+                  <HugeiconsIcon
+                    icon={Layers01Icon}
+                    className="size-3.5 text-primary"
+                  />
+                </Box>
+                <Text size="sm" muted>
+                  <Text className="font-bold text-foreground" size="sm">
+                    {assignedPermissions.length}
+                  </Text>{' '}
+                  permissions
+                </Text>
+              </HStack>
+              <HStack gap={2}>
+                <Box className="p-1 rounded bg-secondary/80">
+                  <HugeiconsIcon
+                    icon={UserGroupIcon}
+                    className="size-3.5 text-secondary-foreground"
+                  />
+                </Box>
+                <Text size="sm" muted>
+                  <Text className="font-bold text-foreground" size="sm">
+                    {members.length}
+                  </Text>{' '}
+                  assigned users
+                </Text>
+              </HStack>
             </HStack>
-          </HStack>
-        </Stack>
+          </Stack>
+        </Box>
       )}
 
       <Grid cols={5} gap={6} className="min-h-0">
-        <Card className="col-span-3">
-          <CardHeader>
+        <Card className="col-span-3 flex flex-col h-[70vh]">
+          <Box p={6} className="border-b">
             <HStack justify="between">
-              <CardTitle>Permissions</CardTitle>
+              <Heading size="h4">Set Permissions</Heading>
               <Badge variant="secondary" className="font-mono">
                 {assignedPermissions.length} Assigned
               </Badge>
             </HStack>
-          </CardHeader>
-          <CardContent className="h-[55vh]">
+          </Box>
+          <Box p={6} className="flex-1 min-h-0">
             <PermissionList
               assignedPermissions={assignedPermissions}
               onToggle={handleTogglePermission}
             />
-          </CardContent>
+          </Box>
         </Card>
 
-        <Card className="col-span-2">
-          <CardHeader>
-            <Stack gap={2}>
+        <Card className="col-span-2 flex flex-col h-[70vh]">
+          <Box p={6} className="border-b">
+            <Stack gap={4}>
               <HStack justify="between">
-                <CardTitle>Assigned Users</CardTitle>
+                <Heading size="h4">Assigned Users</Heading>
                 <Badge variant="secondary" className="font-mono">
-                  {members.length} Users
+                  {members.length} Total
                 </Badge>
               </HStack>
-              <Box className="pt-2">
-                <Combobox
-                  onValueChange={(userId) => {
-                    if (typeof userId === 'string') {
-                      assignSetToUser.mutate({
-                        path: { staff_id: userId, set_id: set.id },
-                      })
-                    }
-                  }}
-                >
-                  <ComboboxInput
-                    placeholder="Search users by email..."
-                    className="h-8 py-0 px-2 text-xs"
-                    showTrigger={false}
-                  />
-                  <ComboboxContent>
-                    <ComboboxList className="text-xs">
-                      {availableUsers.length === 0 ? (
-                        <ComboboxEmpty>No more users available</ComboboxEmpty>
-                      ) : (
-                        availableUsers.map((u) => (
-                          <ComboboxItem key={u.id} value={u.id}>
-                            {u.email}
-                          </ComboboxItem>
-                        ))
-                      )}
-                    </ComboboxList>
-                  </ComboboxContent>
-                </Combobox>
-              </Box>
+              <Combobox
+                onValueChange={(userId) => {
+                  if (typeof userId === 'string') {
+                    assignSetToUser.mutate({
+                      path: { staff_id: userId, set_id: set.id },
+                    })
+                  }
+                }}
+              >
+                <ComboboxInput
+                  placeholder="Assign a user by email..."
+                  className="h-9 px-3 text-sm bg-muted/30"
+                  showTrigger={true}
+                />
+                <ComboboxContent>
+                  <ComboboxList className="text-sm">
+                    {availableUsers.length === 0 ? (
+                      <ComboboxEmpty>No more users available</ComboboxEmpty>
+                    ) : (
+                      availableUsers.map((u) => (
+                        <ComboboxItem key={u.id} value={u.id}>
+                          {u.email}
+                        </ComboboxItem>
+                      ))
+                    )}
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
             </Stack>
-          </CardHeader>
-          <CardContent className="h-[55vh] p-0">
+          </Box>
+          <Box className="flex-1 min-h-0">
             <ScrollArea className="h-full">
               <Stack p={6} gap={2}>
                 {isLoadingMembers ? (
@@ -390,7 +394,7 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
                 )}
               </Stack>
             </ScrollArea>
-          </CardContent>
+          </Box>
         </Card>
       </Grid>
     </Stack>
