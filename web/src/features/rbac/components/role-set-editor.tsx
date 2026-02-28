@@ -333,8 +333,7 @@ export function RoleSetEditor({ set }: RoleSetEditorProps) {
                     icon={Search01Icon}
                     className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
                   />
-                  // eslint-disable-next-line
-                  @typescript-eslint/no-unsafe-assignment
+
                   <Input
                     placeholder="Search roles..."
                     className="pl-9 h-10"
