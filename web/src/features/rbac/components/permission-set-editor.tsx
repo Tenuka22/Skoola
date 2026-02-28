@@ -3,12 +3,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  Delete02Icon,
   Edit01Icon,
   Layers01Icon,
-  Search01Icon,
   UserGroupIcon,
-  UserIcon,
 } from '@hugeicons/core-free-icons'
 import { updatePermissionSetSchema } from '../schemas'
 import { rbacApi } from '../api'
@@ -19,8 +16,6 @@ import type { PermissionEnum, UserSet } from '@/lib/api/types.gen'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Checkbox } from '@/components/ui/checkbox'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Card,
@@ -33,12 +28,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Box, HStack, Heading, Stack, Text } from '@/components/primitives'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Empty,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
@@ -98,17 +87,6 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
           .queryKey,
       })
       toast.success('Permission removed')
-    },
-    onError: (err) => toast.error(err.message),
-  })
-
-  const unassignSetFromUser = useMutation({
-    ...rbacApi.unassignSetFromStaffMutation(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getSetMembersOptions(set.id).queryKey,
-      })
-      toast.success('User removed from set')
     },
     onError: (err) => toast.error(err.message),
   })

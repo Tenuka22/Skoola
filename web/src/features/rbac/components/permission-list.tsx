@@ -4,7 +4,6 @@ import { Search01Icon } from '@hugeicons/core-free-icons'
 import { PERMISSION_CATEGORIES } from '../utils/constants'
 import type { PermissionEnum } from '@/lib/api/types.gen'
 import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Accordion,

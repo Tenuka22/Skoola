@@ -2,13 +2,12 @@ import * as React from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Cancel01Icon, Shield01Icon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon } from '@hugeicons/core-free-icons'
 import { useRBACStore } from '../store'
 import { rbacApi } from '../api'
 import { isPermissionEnum } from '../utils/permissions'
 import { PermissionList } from './permission-list'
 import type { PermissionEnum } from '@/lib/api/types.gen'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -18,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Box, HStack, Stack, Text } from '@/components/primitives'
+import { HStack } from '@/components/primitives'
 
 export function RoleEditorDialog() {
   const { selectedRoleId, isRoleEditorOpen, setIsRoleEditorOpen } =

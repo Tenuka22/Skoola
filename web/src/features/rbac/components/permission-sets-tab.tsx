@@ -11,7 +11,6 @@ import { useRBACStore } from '../store'
 import { rbacApi } from '../api'
 import { PermissionSetEditor } from './permission-set-editor'
 import { CreatePermissionSetDialog } from './create-permission-set-dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Box, HStack, Stack, Text } from '@/components/primitives'
@@ -25,7 +24,6 @@ import {
 } from '@/components/ui/empty'
 import {
   Card,
-  CardAction,
   CardDescription,
   CardHeader,
   CardTitle,

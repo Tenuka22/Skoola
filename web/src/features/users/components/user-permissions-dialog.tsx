@@ -21,7 +21,6 @@ import {
 } from '@/lib/api/@tanstack/react-query.gen'
 import { zPermissionEnum } from '@/lib/api/zod.gen'
 import { Checkbox } from '@/components/ui/checkbox'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Spinner } from '@/components/ui/spinner'
 import { Badge } from '@/components/ui/badge'
 

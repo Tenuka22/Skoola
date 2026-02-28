@@ -8,9 +8,7 @@ import { isPermissionEnum } from '../utils/permissions'
 import type { RoleEnum } from '@/lib/api/types.gen'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-} from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { RoleEnumSchema } from '@/lib/api/schemas.gen'
 import { Grid, HStack, Stack, Text } from '@/components/primitives'
 import { cn } from '@/lib/utils'

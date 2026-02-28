@@ -3,14 +3,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  Delete02Icon,
   Edit01Icon,
   Layers01Icon,
-  Shield01Icon,
   Search01Icon,
+  Shield01Icon,
 } from '@hugeicons/core-free-icons'
 import { updateRoleSetSchema } from '../schemas'
 import { rbacApi } from '../api'
+import { isPermissionEnum } from '../utils/permissions'
+import { PermissionList } from './permission-list'
 import type { UpdateRoleSetInput as UpdateRoleSetValues } from '../schemas'
 import type { PermissionEnum, RoleSet } from '@/lib/api/types.gen'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
@@ -36,7 +37,6 @@ import { RoleEnumSchema } from '@/lib/api/schemas.gen'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { cn } from '@/lib/utils'
 import {
   Select,
   SelectContent,
@@ -45,8 +45,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { isPermissionEnum } from '../utils/permissions'
-import { PermissionList } from './permission-list'
 
 interface RoleSetEditorProps {
   set: RoleSet
@@ -137,10 +135,13 @@ export function RoleSetEditor({ set }: RoleSetEditorProps) {
     enabled: !!set.id,
   })
 
-  const assignedRoles = React.useMemo(() => {
+  const assignedRoles: Array<string> = React.useMemo(() => {
     if (!rawRoles) return []
 
-    return Array.isArray(rawRoles) ? rawRoles : []
+    // Ensure rawRoles is treated as an array of strings
+    return Array.isArray(rawRoles)
+      ? rawRoles.filter((role: unknown) => typeof role === 'string')
+      : []
   }, [rawRoles])
 
   const [selectedRole, setSelectedRole] = React.useState<string | undefined>()
@@ -189,7 +190,7 @@ export function RoleSetEditor({ set }: RoleSetEditorProps) {
   const allRoles = RoleEnumSchema.enum
   const assignedRoleSet = new Set(assignedRoles)
 
-  const [searchRoles, setSearchRoles] = React.useState('')
+  const [searchRoles, setSearchRoles] = React.useState<string>('')
 
   const filteredRoles = React.useMemo(() => {
     if (!searchRoles) return allRoles
@@ -332,64 +333,64 @@ export function RoleSetEditor({ set }: RoleSetEditorProps) {
                     icon={Search01Icon}
                     className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
                   />
+                  // eslint-disable-next-line
+                  @typescript-eslint/no-unsafe-assignment
                   <Input
                     placeholder="Search roles..."
                     className="pl-9 h-10"
-                    value={searchRoles}
-                    onChange={(e) => setSearchRoles(e.target.value)}
+                    value={searchRoles || ''}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setSearchRoles(e.target.value)
+                    }
                   />
                 </Box>
                 <ScrollArea className="h-[25rem] rounded-md border">
                   <Stack gap={1} p={2}>
-                    {isLoadingRoles
-                      ? (
-                          Array.from({ length: 8 }).map((_, i) => (
-                            <Skeleton key={i} className="h-10 w-full" />
-                          ))
+                    {isLoadingRoles ? (
+                      Array.from({ length: 8 }).map((_, i) => (
+                        <Skeleton key={i} className="h-10 w-full" />
+                      ))
+                    ) : filteredRoles.length === 0 ? (
+                      <Text className="text-center text-sm text-muted-foreground py-4">
+                        No roles found.
+                      </Text>
+                    ) : (
+                      filteredRoles.map((role) => {
+                        const isAssigned = assignedRoleSet.has(role)
+                        return (
+                          <HStack
+                            key={role}
+                            align="center"
+                            gap={3}
+                            className="p-2 rounded-md hover:bg-muted/50 transition-colors"
+                          >
+                            <Checkbox
+                              id={`role-${role}`}
+                              checked={isAssigned}
+                              onCheckedChange={(checked: boolean) => {
+                                if (checked) {
+                                  assignRole.mutate({
+                                    path: { role_set_id: set.id },
+                                    body: { role_id: role },
+                                  })
+                                } else {
+                                  unassignRole.mutate({
+                                    path: { role_set_id: set.id },
+                                    body: { role_id: role },
+                                  })
+                                }
+                              }}
+                            />
+                            <label
+                              htmlFor={`role-${role}`}
+                              className="text-sm font-medium leading-none cursor-pointer flex-1"
+                            >
+                              {role}
+                            </label>
+                          </HStack>
                         )
-                      : filteredRoles.length === 0
-                        ? (
-                          <Text className="text-center text-sm text-muted-foreground py-4">
-                            No roles found.
-                          </Text>
-                          )
-                        : (
-                            filteredRoles.map((role) => {
-                              const isAssigned = assignedRoleSet.has(role)
-                              return (
-                                <HStack
-                                  key={role}
-                                  align="center"
-                                  gap={3}
-                                  className="p-2 rounded-md hover:bg-muted/50 transition-colors"
-                                >
-                                  <Checkbox
-                                    id={`role-${role}`}
-                                    checked={isAssigned}
-                                    onCheckedChange={(checked) => {
-                                      if (checked) {
-                                        assignRole.mutate({
-                                          path: { role_set_id: set.id },
-                                          body: { role_id: role },
-                                        })
-                                      } else {
-                                        unassignRole.mutate({
-                                          path: { role_set_id: set.id },
-                                          body: { role_id: role },
-                                        })
-                                      }
-                                    }}
-                                  />
-                                  <label
-                                    htmlFor={`role-${role}`}
-                                    className="text-sm font-medium leading-none cursor-pointer flex-1"
-                                  >
-                                    {role}
-                                  </label>
-                                </HStack>
-                              )
-                            })
-                          )}
+                      })
+                    )}
                   </Stack>
                 </ScrollArea>
               </Stack>
@@ -408,7 +409,7 @@ export function RoleSetEditor({ set }: RoleSetEditorProps) {
             <CardContent>
               <Stack gap={4}>
                 <Select
-                  onValueChange={(v) => setSelectedRole(v)}
+                  onValueChange={(v) => setSelectedRole(v ?? undefined)}
                   value={selectedRole}
                   disabled={assignedRoles.length === 0}
                 >
@@ -424,25 +425,23 @@ export function RoleSetEditor({ set }: RoleSetEditorProps) {
                   </SelectContent>
                 </Select>
 
-                {selectedRole
-                  ? (
-                      <PermissionsForRoleEditor role={selectedRole} />
-                    )
-                  : (
-                      <Empty className="border-dashed rounded-lg p-8">
-                        <EmptyHeader>
-                          <EmptyMedia variant="icon">
-                            <HugeiconsIcon icon={Shield01Icon} />
-                          </EmptyMedia>
-                          <EmptyTitle>No Role Selected</EmptyTitle>
-                          <Text>
-                            {assignedRoles.length > 0
-                              ? 'Select a role to see its permissions.'
-                              : 'Add roles to this set first to manage their permissions.'}
-                          </Text>
-                        </EmptyHeader>
-                      </Empty>
-                    )}
+                {selectedRole ? (
+                  <PermissionsForRoleEditor role={selectedRole} />
+                ) : (
+                  <Empty className="border-dashed rounded-lg p-8">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <HugeiconsIcon icon={Shield01Icon} />
+                      </EmptyMedia>
+                      <EmptyTitle>No Role Selected</EmptyTitle>
+                      <Text>
+                        {assignedRoles.length > 0
+                          ? 'Select a role to see its permissions.'
+                          : 'Add roles to this set first to manage their permissions.'}
+                      </Text>
+                    </EmptyHeader>
+                  </Empty>
+                )}
               </Stack>
             </CardContent>
           </Card>

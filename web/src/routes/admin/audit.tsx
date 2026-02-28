@@ -13,7 +13,6 @@ import type { AuditLogResponse } from '@/lib/api/types.gen'
 import { authClient } from '@/lib/clients'
 import { getAllAuditLogsOptions } from '@/lib/api/@tanstack/react-query.gen'
 import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 
