@@ -109,7 +109,7 @@ export function UserPermissionsDialog({
 
   return (
     <Dialog open={!!user} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
+      <DialogContent className="max-h-[85vh] w-full h-full overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Manage Permissions</DialogTitle>
           <DialogDescription>
