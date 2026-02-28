@@ -57,9 +57,16 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .wrap(Authenticated)
             .route("/", web::get().to(permission_sets::get_all_permission_sets))
             .route("/", web::post().to(permission_sets::create_permission_set))
-            .route("/{permission_set_id}", web::put().to(permission_sets::update_permission_set))
-            .route("/{permission_set_id}", web::delete().to(permission_sets::delete_permission_set))
-            .route("/{permission_set_id}/users", web::get().to(permission_sets::get_user_set_members)),
+            .route("/{user_set_id}", web::put().to(permission_sets::update_permission_set))
+            .route("/{user_set_id}", web::delete().to(permission_sets::delete_permission_set))
+            .route("/{user_set_id}/users", web::get().to(permission_sets::get_user_set_members))
+            .service(
+                web::scope("/{user_set_id}/permissions")
+                    .wrap(PermissionVerification { required_permission: PermissionEnum::PermissionSetManage })
+                    .route("", web::get().to(user_set_permissions::get_user_set_permissions))
+                    .route("", web::post().to(user_set_permissions::assign_permission_to_user_set))
+                    .route("", web::delete().to(user_set_permissions::unassign_permission_from_user_set)),
+            ),
     )
     .service(
         web::scope("/roles/{role_id}/permissions")
@@ -68,14 +75,6 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(role_permissions::get_role_permissions))
             .route("", web::post().to(role_permissions::assign_permission_to_role))
             .route("", web::delete().to(role_permissions::unassign_permission_from_role)),
-    )
-    .service(
-        web::scope("/user-sets/{user_set_id}/permissions")
-            .wrap(PermissionVerification { required_permission: PermissionEnum::PermissionSetManage })
-            .wrap(Authenticated)
-            .route("", web::get().to(user_set_permissions::get_user_set_permissions))
-            .route("", web::post().to(user_set_permissions::assign_permission_to_user_set))
-            .route("", web::delete().to(user_set_permissions::unassign_permission_from_user_set)),
     )
     .service(
         web::scope("/role-sets")
