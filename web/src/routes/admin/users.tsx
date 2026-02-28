@@ -11,7 +11,10 @@ import { toast } from 'sonner'
 import { UserCreateDialog } from '../../features/users/components/user-create-dialog'
 import { UserModals } from '../../features/users/components/user-modals'
 import { UserToolbar } from '../../features/users/components/user-toolbar'
-import { getUserColumns } from '../../features/users/components/user-table-columns'
+import {
+  UserContextMenuItems,
+  getUserColumns,
+} from '../../features/users/components/user-table-columns'
 import { UsersFilters } from '../../features/users/components/users-filters'
 import { UsersHeader } from '../../features/users/components/users-header'
 import { UsersListContainer } from '../../features/users/components/users-list-container'
@@ -45,8 +48,6 @@ function Users() {
   const store = useUsersStore()
   const { search, setDebouncedSearch } = store
 
-  const limit = 10
-
   React.useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search)
@@ -56,6 +57,7 @@ function Users() {
 
   const {
     page,
+    limit,
     statusFilter,
     authFilter,
     createdAfter,
@@ -230,6 +232,7 @@ function Users() {
     setUserToManagePermissions: store.setUserToManagePermissions,
     isUpdating: updateUser.isPending,
     updatingUserId: updateUser.variables?.path?.user_id ?? null,
+    showProfilePictures: store.showProfilePictures,
   })
 
   return (
@@ -259,6 +262,36 @@ function Users() {
         updateMutation={updateUser}
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
+        contextMenuItems={(row) => {
+          return (
+            <UserContextMenuItems
+              user={row}
+            onToggleVerify={(user) =>
+              updateUser.mutate({
+                path: { user_id: user.id },
+                body: { is_verified: !user.is_verified },
+              })
+            }
+            onToggleLock={(user) => {
+              if (user.lockout_until) {
+                updateUser.mutate({
+                  path: { user_id: user.id },
+                  body: {
+                    lockout_until: null,
+                  },
+                })
+              } else {
+                store.setUserToLock(user)
+              }
+            }}
+            setUserToDelete={store.setUserToDelete}
+            setUserToEdit={store.setUserToEdit}
+            setUserToManagePermissions={store.setUserToManagePermissions}
+            isUpdating={updateUser.isPending}
+            updatingUserId={updateUser.variables?.path?.user_id ?? null}
+          />
+          )
+        }}
       />
 
       <UserToolbar

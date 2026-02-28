@@ -39,9 +39,9 @@ export function StaffToolbar({ onExport }: StaffToolbarProps) {
             <HugeiconsIcon icon={TableIcon} className="size-4" />
             Table
           </TabsTrigger>
-          <TabsTrigger value="board" className="gap-2">
+          <TabsTrigger value="grid" className="gap-2">
             <HugeiconsIcon icon={LayoutGridIcon} className="size-4" />
-            Board
+            Grid
           </TabsTrigger>
         </TabsList>
       </Tabs>

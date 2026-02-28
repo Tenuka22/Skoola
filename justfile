@@ -2,26 +2,26 @@ set shell := ["bash", "-cu"]
 set windows-shell := ["powershell", "-Command"]
 
 dev-backend:
-    cd backend && cargo run --bin backend
+    clear && cd backend && cargo run --bin backend
 
 run-backend:
-    cd backend && cargo run --bin backend --release
+    clear && cd backend && cargo run --bin backend --release
 
 fetch-run-backend:
-    cd backend && bash build_and_fetch.sh && ./backend
+    clear && cd backend && bash build_and_fetch.sh && ./backend
 
 cloud-run-backend:
-    cd backend && ./backend
+    clear && cd backend && ./backend
 
 
 dev-backend-hr:
-    cd backend && cargo watch -x run
+    clear && cd backend && cargo watch -x run
 
 check-backend:
-    cd backend && cargo check
+    clear && cd backend && cargo check
 
 check-web:
-    cd web && bun run tsc
+    clear && cd web && bun run tsc
 
 lint-web:
     cd web && bun run check

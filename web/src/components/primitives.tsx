@@ -270,7 +270,7 @@ export const Text = React.forwardRef<HTMLDivElement, TextProps>(
 Text.displayName = 'Text'
 Text.displayName = 'Text'
 
-const headingVariants = cva('font-bold tracking-tight text-zinc-100', {
+const headingVariants = cva('font-bold tracking-tight text-foreground/90', {
   variants: {
     size: {
       h1: 'text-4xl',

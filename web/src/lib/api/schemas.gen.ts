@@ -5913,6 +5913,22 @@ export const RoleSetGetRoleResponseSchema = {
   },
 } as const
 
+export const RoleSetGetRoleResponseSchema = {
+    title: 'RoleSetGetRoleResponse',
+    type: 'object',
+    required: [
+        'roles'
+    ],
+    properties: {
+        roles: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    }
+} as const;
+
 export const RoleSetRoleRequestSchema = {
   title: 'RoleSetRoleRequest',
   type: 'object',

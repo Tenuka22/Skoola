@@ -4,7 +4,16 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 
 export const QueryProvider = ({ children }: { children: ReactNode }) => {
-  const [queryClient] = useState(() => new QueryClient())
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+          },
+        },
+      }),
+  )
 
   return (
     <QueryClientProvider client={queryClient}>

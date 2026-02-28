@@ -3121,6 +3121,13 @@ export const zRoleSetGetRoleResponse = z.object({
 })
 
 /**
+ * RoleSetGetRoleResponse
+ */
+export const zRoleSetGetRoleResponse = z.object({
+    roles: z.array(z.string())
+});
+
+/**
  * RoleSetRoleRequest
  */
 export const zRoleSetRoleRequest = z.object({
@@ -5230,7 +5237,11 @@ export const zGetRoleSetRolesData = z.object({
   query: z.optional(z.never()),
 })
 
+<<<<<<< HEAD
 export const zGetRoleSetRolesResponse = zRoleSetGetRoleResponse
+=======
+export const zGetRoleSetRolesResponse = zRoleSetGetRoleResponse;
+>>>>>>> 2780fcf (feat: Refactor theme management to use `next-themes` and update user views from board to grid, alongside various UI and API enhancements.)
 
 export const zAssignRoleToRoleSetData = z.object({
   body: zRoleSetRoleRequest,
