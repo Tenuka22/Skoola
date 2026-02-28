@@ -26,10 +26,11 @@ jobs:
 
             - name: Build Release Binary
               run: cargo build --release
+              working-directory: backend
 
             - name: Upload Binary as Artifact
               uses: actions/upload-artifact@v4
               with:
                   name: my-binary
-                  path: target/release/backend # change this
+                  path: backend/target/release/backend # change this
                   retention-days: 7
