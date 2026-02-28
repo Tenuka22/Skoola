@@ -4,22 +4,25 @@ This document outlines the core design best practices, layout strategies, and co
 
 ## Core Philosophy: The Primitive-First Approach
 
-The UI architecture completely rejects arbitrary margins or ad-hoc Tailwind styling in favor of a **Constraint-based Layout** driven by primitive components (`Stack`, `HStack`, `Box`, `Grid`, `Container`). 
+The UI architecture completely rejects arbitrary margins or ad-hoc Tailwind styling in favor of a **Constraint-based Layout** driven by primitive components (`Stack`, `HStack`, `Box`, `Grid`, `Container`).
 
 ### 1. Zero Margins Rule
+
 - **Never use Tailwind margin classes** (`ml-4`, `mt-2`, `m-4`, etc.).
 - Separation between elements is entirely handled by the `gap` property in parent layout primitives (`Stack` or `HStack`).
 - This enforces a strict top-down layout structure where parents control spacing.
 
 ### 2. Spacing and Compact Design
+
 - **Compactness**: The default go-to size for standard gaps is `gap={4}` (for main page sections) or `gap={1}`/`gap={2}` for highly compact inline elements (like filters or badges).
 - Standard page padding is often `p={8}` (e.g., main `Stack` in `users.tsx`).
 - Sub-components often strip padding completely `p={0}` and rely on their parents, or use minimal padding like `px-2 py-0.5` for compact badges.
 - Icons are sized compactly, usually using `size-4` (or `h-3.5 w-3.5`).
 
 ### 3. Shadcn/UI Components (The "No Extra" Rule)
+
 - Shadcn components reside in `@/components/ui/`.
-- **No Overwriting Styles**: They are used strictly "as is". Do not add arbitrary Tailwind styles to override the native design of Shadcn components. Using the core styles maintains the unified system aesthetic. 
+- **No Overwriting Styles**: They are used strictly "as is". Do not add arbitrary Tailwind styles to override the native design of Shadcn components. Using the core styles maintains the unified system aesthetic.
 - **Do not wrap or heavily restyle them**. Instead of overriding elements, compose them natively with primitives if layouts inside them need adjusting. For example, replacing a default Trigger content with an `<HStack>` instead of attempting to hack `flex` onto the trigger itself:
   ```tsx
   <SelectTrigger className="w-fit min-w-32">
@@ -31,6 +34,7 @@ The UI architecture completely rejects arbitrary margins or ad-hoc Tailwind styl
   ```
 
 ### 4. Typography
+
 - Always use the semantic `<Heading>` and `<Text>` primitives over basic HTML tags (`h1`, `p`, `span`).
 - Example usage:
   ```tsx
@@ -42,8 +46,10 @@ The UI architecture completely rejects arbitrary margins or ad-hoc Tailwind styl
 ## Example Patterns from Child Components
 
 ### Page Layout / Root Container (`users.tsx`)
+
 **The Root Application view should always be wrapped natively with standard padding and a full height container.**
 This ensures that your application has a consistent breathing room, and elements scale appropriately as children limits are applied:
+
 ```tsx
 <Stack gap={4} p={8} className="h-full">
   <HeaderComponent />
@@ -54,7 +60,9 @@ This ensures that your application has a consistent breathing room, and elements
 ```
 
 ### Table & DataGrid Responsiveness (`users-list-container.tsx`)
+
 Table and DataGrid containers handle their own internal overflow to stop wide columns from breaking the layout. When rendering a Data table (e.g. inside a `TabsContent`), you force the container to calculate its own width properly while maintaining flex sizing by using `className="overflow-y-auto w-0 flex-1"` on the wrapper div:
+
 ```tsx
 <TabsContent value="table" className="flex w-full">
   <div className="overflow-y-auto w-0 flex-1">
@@ -68,48 +76,75 @@ Table and DataGrid containers handle their own internal overflow to stop wide co
 ```
 
 ### Headers (`users-header.tsx`)
+
 Headers compose tightly with counts/badges, taking advantage of `gap={1}` for vertical stacking and `variant="secondary"` tags:
+
 ```tsx
 <Stack gap={1}>
   <HStack>
     <Heading size="h2">...</Heading>
-    <Badge variant="secondary" className="rounded-md bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground hover:bg-muted">
+    <Badge
+      variant="secondary"
+      className="rounded-md bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground hover:bg-muted"
+    >
       24 Total
     </Badge>
   </HStack>
-  <Text muted as="p">...</Text>
+  <Text muted as="p">
+    ...
+  </Text>
 </Stack>
 ```
 
 ### Filters and Toolbars (`users-filters.tsx`)
+
 - Inline controls layout using `<HStack p={0}>`.
 - For Selects and Popovers, keep `SelectTrigger` or `Button` compact.
 - Use `HugeiconsIcon` standardly with `size-4` for consistency.
 - Standard secondary action buttons use `variant="outline"` or `variant="destructive" size="sm"`.
 
 ### Empty State Pattern
+
 When a data set is empty, use the `Empty` component suite to provide a consistent, friendly placeholder.
+
 - Structure: `<Empty>` → `<EmptyHeader>` (icon & title) → `<EmptyDescription>` → `<EmptyContent>` (actions).
 - Use `HugeiconsIcon` for the visual cue and `Button`/`Link` for primary actions.
 - Keep the layout compact and centered, matching the page padding (`p={8}`) and using `h-full` containers.
 
 Example (from `user-board-view.tsx`):
+
 ```tsx
 <Empty className="border border-dashed w-auto">
   <EmptyHeader>
-    <EmptyMedia variant="icon"><HugeiconsIcon icon={CloudCog} /></EmptyMedia>
+    <EmptyMedia variant="icon">
+      <HugeiconsIcon icon={CloudCog} />
+    </EmptyMedia>
     <EmptyTitle>No User Found</EmptyTitle>
-    <EmptyDescription>Add users or share your app to get started.</EmptyDescription>
+    <EmptyDescription>
+      Add users or share your app to get started.
+    </EmptyDescription>
   </EmptyHeader>
   <EmptyContent className="flex-row justify-center">
-    <Link to="/sign-up"><Button variant="outline" size="sm">Sign Up A User</Button></Link>
-    <Button variant="default" size="sm" onClick={() => setIsCreateUserOpen(true)}>Create a user</Button>
+    <Link to="/sign-up">
+      <Button variant="outline" size="sm">
+        Sign Up A User
+      </Button>
+    </Link>
+    <Button
+      variant="default"
+      size="sm"
+      onClick={() => setIsCreateUserOpen(true)}
+    >
+      Create a user
+    </Button>
   </EmptyContent>
 </Empty>
 ```
 
 ### Compact Board/Card View Patterns (`user-board-view.tsx`)
+
 **Board views prioritize information density and immediate action.** Cards avoid the full Shadcn `CardHeader`/`CardContent` overhead in favor of a direct layout using `p-3` and primitives:
+
 - Use `<Card className="p-3">` for the root.
 - Use an outer `<HStack align="start" justify="between" gap={3}>` to separate content from actions.
 - Use a nested `<HStack align="start" gap={3}>` for the avatar and info stack.
@@ -117,6 +152,7 @@ Example (from `user-board-view.tsx`):
 - Status badges inside cards should be extremely compact (`text-[10px] px-1.5 py-0`).
 
 Example Structure:
+
 ```tsx
 <Card className="p-3">
   <HStack align="start" justify="between" gap={3}>
@@ -127,10 +163,14 @@ Example Structure:
           <Text size="sm">Name</Text>
           <Badge>Role</Badge>
         </HStack>
-        <Text size="xs" muted>Email</Text>
+        <Text size="xs" muted>
+          Email
+        </Text>
         <HStack gap={2}>
-           <Text size="xs" muted>Date</Text>
-           <Badge variant="outline">Status</Badge>
+          <Text size="xs" muted>
+            Date
+          </Text>
+          <Badge variant="outline">Status</Badge>
         </HStack>
       </Stack>
     </HStack>
@@ -140,9 +180,11 @@ Example Structure:
 ```
 
 ## Summary
+
 When building UI for Skoola:
+
 1. Wrap everything in a `Stack` or `HStack`.
-2. Control spacing via `gap`. 
+2. Control spacing via `gap`.
 3. Remove all margins.
 4. Use standard typography primitives.
 5. Inherit the compact, dark-mode native Shadcn defaults without bloating them with custom utilities.
