@@ -1,5 +1,5 @@
 use actix_web::web;
-use actix_web::web::Json;
+use apistos::web::Json;
 use apistos::{ApiComponent, api_operation};
 use diesel::prelude::*;
 use schemars::JsonSchema;
