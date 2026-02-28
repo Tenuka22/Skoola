@@ -13,3 +13,8 @@ pub struct UpdateRoleRequest {
     pub name: String,
     pub parent_id: Option<String>,
 }
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct RoleSetGetRoleResponse {
+    pub roles: Vec<String>,
+}

@@ -10,7 +10,7 @@ use crate::{
     AppState,
     database::tables::{RoleSet, RoleSetRole},
     errors::APIError,
-    models::MessageResponse,
+    models::{MessageResponse, auth::RoleSetGetRoleResponse},
     schema::{role_set_roles, role_sets},
 };
 
@@ -125,7 +125,7 @@ pub async fn delete_role_set(
 pub async fn get_role_set_roles(
     data: web::Data<AppState>,
     role_set_id: web::Path<String>,
-) -> Result<Json<Vec<String>>, APIError> {
+) -> Result<Json<RoleSetGetRoleResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let roles = role_set_roles::table
         .filter(role_set_roles::role_set_id.eq(role_set_id.into_inner()))
