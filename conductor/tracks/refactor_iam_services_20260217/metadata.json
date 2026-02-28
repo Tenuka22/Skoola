@@ -1,8 +1,0 @@
-{
-  "track_id": "refactor_iam_services_20260217",
-  "type": "refactor",
-  "status": "new",
-  "created_at": "2026-02-17T15:00:00Z",
-  "updated_at": "2026-02-17T15:00:00Z",
-  "description": "Refactor backend IAM services to a function-based approach with improved error handling, logging, and reduced abstractions."
-}

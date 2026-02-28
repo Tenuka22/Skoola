@@ -1,8 +1,0 @@
-{
-  "track_id": "database_seed_fn_20260221",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-02-21T06:00:00Z",
-  "updated_at": "2026-02-21T06:00:00Z",
-  "description": "I need a full database Seed fn to be implemented and replace my old one, Also the see can only be called from the cargo run --bin seed and not using the http endpoint, So I need real life details and real names and real data. Also there should be thousands of items cus It;s need to be a real school, I need users to be generated with roles separately with the password from the config. The logic is in the seed but could improve, A full seed means all the roles and users must be correctly seeded according to real life, If needed create vec[] of real things that you can randomly pass. @backend/src/schema.rs should help you but using diels first generate the schema."
-}

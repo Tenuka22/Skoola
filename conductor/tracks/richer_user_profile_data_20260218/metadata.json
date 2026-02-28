@@ -1,8 +1,0 @@
-{
-  "track_id": "richer_user_profile_data_20260218",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-02-18T12:00:00Z",
-  "updated_at": "2026-02-18T12:00:00Z",
-  "description": "Implement a richer user and profile data structure by creating a central 'profiles' table."
-}
