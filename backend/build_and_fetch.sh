@@ -80,10 +80,24 @@ echo "📦 Downloading artifact from run $LAST_RUN_ID..."
 # Clean up old binary/directory to avoid confusion
 rm -f "$BINARY_NAME"
 rm -rf "$BINARY_NAME/"
+rm -rf "my-binary/"
 
-gh run download "$LAST_RUN_ID" --repo "$REPO" --name "$BINARY_NAME" --dir .
+# Try the new artifact name first
+if ! gh run download "$LAST_RUN_ID" --repo "$REPO" --name "$BINARY_NAME" --dir . 2>/dev/null; then
+  echo "⚠️ Artifact '$BINARY_NAME' not found. Trying fallback 'my-binary'..."
+  if ! gh run download "$LAST_RUN_ID" --repo "$REPO" --name "my-binary" --dir . 2>/dev/null; then
+    echo "❌ Neither '$BINARY_NAME' nor 'my-binary' artifacts were found!"
+    ls -la
+    exit 1
+  fi
+  # If downloaded as 'my-binary', move it
+  if [[ -d "my-binary" && -f "my-binary/$BINARY_NAME" ]]; then
+    mv "my-binary/$BINARY_NAME" .
+    rmdir "my-binary"
+  fi
+fi
 
-# If the artifact was downloaded into a directory named after it
+# If the artifact was downloaded into a directory named 'backend'
 if [[ -d "$BINARY_NAME" && -f "$BINARY_NAME/$BINARY_NAME" ]]; then
   mv "$BINARY_NAME/$BINARY_NAME" .
   rmdir "$BINARY_NAME"
