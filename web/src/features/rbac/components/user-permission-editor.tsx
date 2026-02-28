@@ -9,9 +9,10 @@ import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Alert01Icon,
-  Delete02Icon,
+  CheckmarkCircle02Icon,
   Layers01Icon,
-  UserIcon,
+  Shield01Icon,
+  ViewIcon,
 } from '@hugeicons/core-free-icons'
 import { rbacApi } from '../api'
 import {
@@ -19,6 +20,7 @@ import {
   isPermissionEnum,
   isRoleEnum,
 } from '../utils/permissions'
+import { ALL_PERMISSION_ENUM_VALUES } from '../utils/constants'
 import { PermissionList } from './permission-list'
 import type {
   PermissionEnum,
@@ -28,16 +30,17 @@ import type {
   UserSet,
 } from '@/lib/api/types.gen'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
 import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from '@/components/ui/combobox'
+  Card,
+  CardAction,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Select,
   SelectContent,
@@ -45,7 +48,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Box,
   Grid,
@@ -54,6 +56,14 @@ import {
   Stack,
   Text,
 } from '@/components/primitives'
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
 
 interface UserPermissionEditorProps {
   user: UserResponse
@@ -73,7 +83,7 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
 
   const { data: allPermissionSets = [] } = useQuery({
     ...rbacApi.getSetsOptions(),
-    select: (data) => data || [], // Ensure it fits UserSet[]
+    select: (data) => data || [],
   })
 
   const { data: userPermissionSets = [] } = useQuery({
@@ -164,7 +174,7 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
   const assignSetToStaff = useMutation({
     ...rbacApi.assignSetToStaffMutation(),
     onSuccess: () => {
-      toast.success('Permission set assigned to staff member')
+      toast.success('Permission set assigned')
       queryClient.invalidateQueries({
         queryKey: rbacApi.getStaffPermissionSetsOptions(staffMember?.id || '')
           .queryKey,
@@ -176,7 +186,7 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
   const unassignSetFromStaff = useMutation({
     ...rbacApi.unassignSetFromStaffMutation(),
     onSuccess: () => {
-      toast.success('Permission set unassigned from staff member')
+      toast.success('Permission set unassigned')
       queryClient.invalidateQueries({
         queryKey: rbacApi.getStaffPermissionSetsOptions(staffMember?.id || '')
           .queryKey,
@@ -209,7 +219,7 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
 
   const handleAssignSet = (setId: string) => {
     if (!staffMember) {
-      toast.info('Cannot assign set: User is not linked to a staff member.')
+      toast.info('User is not linked to a staff member.')
       return
     }
     assignSetToStaff.mutate({
@@ -224,50 +234,57 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
     })
   }
 
-  const availableSets =
-    allPermissionSets?.filter(
-      (s: UserSet) => !userPermissionSets.some((us: UserSet) => us.id === s.id),
-    ) || []
+  const name = user.email
+    .split('@')[0]
+    .replace(/[._]/g, ' ')
+    .replace(/\b\w/g, (l) => l.toUpperCase())
+  const initials = name.substring(0, 2).toUpperCase()
+
+  const [searchTerm, setSearchTerm] = React.useState('')
+  const filteredPermissionSets = React.useMemo(() => {
+    if (!searchTerm) {
+      return allPermissionSets
+    }
+    const lowerCaseSearchTerm = searchTerm.toLowerCase()
+    return allPermissionSets.filter((set) =>
+      set.name.toLowerCase().includes(lowerCaseSearchTerm),
+    )
+  }, [allPermissionSets, searchTerm])
 
   return (
-    <Stack gap={6} className="animate-in fade-in duration-300">
+    <Stack gap={4} p={0}>
       <Card>
         <CardHeader>
-          <HStack justify="between" align="start">
-            <HStack gap={4}>
-              <Box
-                p={3}
-                rounded="lg"
-                className="bg-muted border dark:bg-zinc-800"
-              >
-                <HugeiconsIcon
-                  icon={UserIcon}
-                  className="size-8 text-primary"
+          <HStack justify="between" align="center" p={0}>
+            <HStack gap={3}>
+              <Avatar className="h-11 w-11 border border-border/50">
+                <AvatarImage
+                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
                 />
-              </Box>
-              <Stack gap={1}>
-                <Heading size="h3">{user.email}</Heading>
-                <Text size="sm" muted>
-                  ID: {user.id}
-                </Text>
-                {staffMember && (
-                  <Badge
-                    variant="outline"
-                    className="w-fit border-green-600/50 bg-green-500/10 text-green-600"
-                  >
-                    Linked to Staff Member
-                  </Badge>
-                )}
+                <AvatarFallback className="text-[10px] font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <Stack gap={0}>
+                <CardTitle>{user.email}</CardTitle>
+
+                <HStack gap={2} align="center">
+                  <Text size="xs" className="truncate" muted>
+                    ID: {user.id}
+                  </Text>
+                  {staffMember && (
+                    <Badge
+                      variant="outline"
+                      className="h-4 text-[10px] px-1 bg-green-500/10 text-green-600 border-green-600/20"
+                    >
+                      Staff Linked
+                    </Badge>
+                  )}
+                </HStack>
               </Stack>
             </HStack>
 
-            <Stack gap={2} className="items-end">
-              <Text
-                size="xs"
-                className="font-bold uppercase tracking-wider text-muted-foreground"
-              >
-                Security Role
-              </Text>
+            <CardAction>
               <Select
                 value={user.role || 'Guest'}
                 onValueChange={(val) => {
@@ -275,8 +292,11 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
                 }}
                 disabled={updateUserRole.isPending}
               >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue />
+                <SelectTrigger className="w-35 h-8">
+                  <HStack gap={2} p={0}>
+                    <HugeiconsIcon icon={Shield01Icon} className="size-4" />
+                    <SelectValue />
+                  </HStack>
                 </SelectTrigger>
                 <SelectContent>
                   {ALL_ROLE_ENUM_VALUES.map((role) => (
@@ -286,182 +306,243 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
                   ))}
                 </SelectContent>
               </Select>
-            </Stack>
+            </CardAction>
           </HStack>
         </CardHeader>
       </Card>
 
       {isFullAdmin ? (
-        <Card className="border-primary/50 bg-primary/5 text-center">
-          <CardContent>
-            <Stack align="center" p={8} gap={4}>
-              <HugeiconsIcon
-                icon={Alert01Icon}
-                className="size-10 text-primary"
-              />
-              <Heading size="h3" className="text-primary">
-                Superuser Privilege Active
-              </Heading>
-              <Text className="max-w-md text-primary/90" muted>
-                This user is a FullAdmin. They possess absolute system
-                authority, bypassing all granular permission checks.
-              </Text>
-            </Stack>
-          </CardContent>
+        <Card className="border-primary/50 bg-primary/5 p-8">
+          <Stack align="center" gap={3}>
+            <HugeiconsIcon icon={Alert01Icon} className="size-8 text-primary" />
+            <Heading size="h4" className="text-primary">
+              Superuser Active
+            </Heading>
+            <Text size="sm" className="max-w-md text-center" muted>
+              FullAdmin role grants absolute system authority, bypassing
+              granular checks.
+            </Text>
+          </Stack>
         </Card>
       ) : (
-        <Grid cols={2} gap={6}>
-          <Card className="h-full flex flex-col">
-            <Box p={6} className="border-b">
-              <HStack justify="between">
-                <Heading size="h4">User Permissions</Heading>
-                <Badge variant="secondary" className="font-mono">
-                  {directPermissions.length} Direct
-                </Badge>
+        <Tabs defaultValue="overview" className="flex-1 flex flex-col min-h-0">
+          <TabsList className="w-fit mb-2">
+            <TabsTrigger value="overview">
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon icon={ViewIcon} className="size-4" />
+                <span>Overview</span>
               </HStack>
-            </Box>
-            <Box p={6} className="flex-1 min-h-0">
-              <PermissionList
-                assignedPermissions={directPermissions}
-                inheritedPermissions={inheritedPermissions}
-                onToggle={handleToggleDirectPermission}
-              />
-            </Box>
-          </Card>
+            </TabsTrigger>
+            <TabsTrigger value="groups">
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon icon={Layers01Icon} className="size-4" />
+                <span>Groups & Sets</span>
+              </HStack>
+            </TabsTrigger>
+            <TabsTrigger value="direct">
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon icon={Shield01Icon} className="size-4" />
+                <span>Direct Access</span>
+              </HStack>
+            </TabsTrigger>
+          </TabsList>
 
-          {/* Linked Permission Sets */}
-          <Stack gap={6}>
+          <TabsContent value="overview">
             <Card>
               <CardHeader>
-                <HStack justify="between">
-                  <CardTitle>Linked Sets</CardTitle>
-                  <Badge variant="secondary" className="font-mono">
-                    {userPermissionSets.length} Linked
-                  </Badge>
-                </HStack>
-              </CardHeader>
-              <CardContent>
-                <Stack gap={4}>
-                  <ScrollArea className="h-48">
-                    <Stack gap={2}>
-                      {userPermissionSets.length === 0 ? (
-                        <Stack
-                          align="center"
-                          className="py-8 text-center"
-                          gap={2}
-                        >
-                          <HugeiconsIcon
-                            icon={Layers01Icon}
-                            className="size-8 text-muted-foreground/70"
-                          />
-                          <Text
-                            size="sm"
-                            className="font-medium text-muted-foreground"
-                          >
-                            No sets linked
-                          </Text>
-                        </Stack>
-                      ) : (
-                        userPermissionSets.map((set: UserSet) => (
-                          <HStack
-                            key={set.id}
-                            p={2}
-                            justify="between"
-                            className="rounded-md bg-muted/50 group"
-                          >
-                            <HStack gap={2}>
-                              <HugeiconsIcon
-                                icon={Layers01Icon}
-                                className="size-4 text-muted-foreground"
-                              />
-                              <Text className="font-semibold" size="sm">
-                                {set.name}
-                              </Text>
-                            </HStack>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-7 opacity-0 group-hover:opacity-100"
-                              onClick={() => handleUnassignSet(set.id)}
-                            >
-                              <HugeiconsIcon
-                                icon={Delete02Icon}
-                                className="size-4 text-destructive"
-                              />
-                            </Button>
-                          </HStack>
-                        ))
-                      )}
+                <Stack gap={4} className="h-full">
+                  <HStack justify="between">
+                    <Stack gap={0}>
+                      <CardTitle>Permission Grid</CardTitle>
+                      <CardDescription>
+                        Real-time view of all effective permissions.
+                      </CardDescription>
                     </Stack>
-                  </ScrollArea>
-
-                  {staffMember && (
-                    <Combobox
-                      onValueChange={(setId) => {
-                        if (typeof setId === 'string') handleAssignSet(setId)
-                      }}
-                    >
-                      <ComboboxInput
-                        placeholder="Link a permission set..."
-                        className="h-9 px-3 text-sm"
-                        showTrigger={true}
-                      />
-                      <ComboboxContent>
-                        <ComboboxList>
-                          {availableSets.length === 0 ? (
-                            <ComboboxEmpty>
-                              No more sets available
-                            </ComboboxEmpty>
-                          ) : (
-                            availableSets.map((set: UserSet) => (
-                              <ComboboxItem key={set.id} value={set.id}>
-                                {set.name}
-                              </ComboboxItem>
-                            ))
-                          )}
-                        </ComboboxList>
-                      </ComboboxContent>
-                    </Combobox>
-                  )}
-                </Stack>
-              </CardContent>
-            </Card>
-
-            <Card className="border-dashed">
-              <Box p={6}>
-                <Stack gap={4}>
-                  <Heading size="h4">Permission Inheritance</Heading>
-                  <HStack
-                    justify="around"
-                    className="bg-background/50 p-4 rounded-lg border"
-                  >
-                    <HStack gap={2}>
-                      <Box className="size-2.5 rounded-full bg-primary" />
-                      <Text size="sm">Direct</Text>
-                    </HStack>
-                    <HStack gap={2}>
-                      <Box className="size-2.5 rounded-full bg-zinc-600" />
-                      <Text size="sm">Inherent (Role/Set)</Text>
-                    </HStack>
-                    <HStack gap={2}>
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] py-0 h-4 bg-muted/30"
-                      >
-                        Label
-                      </Badge>
-                      <Text size="sm">Source info</Text>
+                    <HStack gap={3}>
+                      <HStack gap={2}>
+                        <Box className="size-2 rounded-full bg-primary" />
+                        <Text size="xs" muted>
+                          Active
+                        </Text>
+                      </HStack>
+                      <HStack gap={2}>
+                        <Box className="size-2 rounded-full bg-muted border" />
+                        <Text size="xs" muted>
+                          Denied
+                        </Text>
+                      </HStack>
                     </HStack>
                   </HStack>
-                  <Text size="xs" muted>
-                    Permissions inherited from roles or sets are locked and
-                    cannot be removed directly from the user editor.
-                  </Text>
+
+                  <Grid cols={4} gap={2} p={0}>
+                    {ALL_PERMISSION_ENUM_VALUES.map((p) => {
+                      const isDirect = directPermissions.includes(p)
+                      const inherited = inheritedPermissions.filter(
+                        (ip) => ip.permission === p,
+                      )
+                      const isActive = isDirect || inherited.length > 0
+
+                      return (
+                        <Box
+                          key={p}
+                          p={2}
+                          rounded="md"
+                          className={cn(
+                            'border',
+                            isActive
+                              ? 'bg-primary/5 border-primary/20'
+                              : 'bg-muted/10 border-muted-foreground/20 opacity-40 grayscale',
+                          )}
+                        >
+                          <Stack gap={2}>
+                            <HStack justify="between">
+                              <Text
+                                size="xs"
+                                className={cn(
+                                  'font-medium truncate',
+                                  isActive
+                                    ? 'text-foreground'
+                                    : 'text-muted-foreground',
+                                )}
+                              >
+                                {p}
+                              </Text>
+                              {isActive && (
+                                <HugeiconsIcon
+                                  icon={CheckmarkCircle02Icon}
+                                  className="size-3 text-primary shrink-0"
+                                />
+                              )}
+                            </HStack>
+                            {isActive && (
+                              <HStack gap={1} className="flex-wrap">
+                                {isDirect && (
+                                  <Badge
+                                    variant="default"
+                                    className="h-3 text-[8px] px-1 font-normal bg-primary/20 text-primary border-0"
+                                  >
+                                    Direct
+                                  </Badge>
+                                )}
+                                {inherited.map((inh, i) => (
+                                  <Badge
+                                    key={i}
+                                    variant="secondary"
+                                    className="h-3 text-[8px] px-1 font-normal opacity-80"
+                                  >
+                                    {inh.source === 'role' ? 'Role' : 'Set'}
+                                  </Badge>
+                                ))}
+                              </HStack>
+                            )}
+                          </Stack>
+                        </Box>
+                      )
+                    })}
+                  </Grid>
                 </Stack>
-              </Box>
+              </CardHeader>
             </Card>
-          </Stack>
-        </Grid>
+          </TabsContent>
+
+          <TabsContent value="groups">
+            <Card className="p-4 flex flex-col">
+              <Stack gap={4} className="flex-1">
+                <Stack gap={1}>
+                  <Heading size="h4">Linked Permission Sets</Heading>
+                  <Text size="xs" muted>
+                    Assign or remove reusable permission groups from staff.
+                  </Text>
+                  <Input
+                    placeholder="Search permission sets..."
+                    className="h-8 text-xs w-full mt-2"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </Stack>
+
+                <Stack gap={2}>
+                  {filteredPermissionSets.length === 0 ? (
+                    <Empty className="py-8 border-0">
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <HugeiconsIcon icon={Layers01Icon} />
+                        </EmptyMedia>
+                        <EmptyTitle className="text-sm">
+                          No permission sets available
+                        </EmptyTitle>
+                      </EmptyHeader>
+                    </Empty>
+                  ) : (
+                    allPermissionSets.map((set) => {
+                      const isLinked = userPermissionSets.some(
+                        (us: UserSet) => us.id === set.id,
+                      )
+                      return (
+                        <HStack
+                          key={set.id}
+                          p={2}
+                          justify="between"
+                          className="rounded-md bg-muted/50 group border border-transparent hover:border-border transition-all"
+                        >
+                          <HStack gap={2} className="min-w-0">
+                            <Checkbox
+                              id={`set-${set.id}`}
+                              checked={isLinked}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  handleAssignSet(set.id)
+                                } else {
+                                  handleUnassignSet(set.id)
+                                }
+                              }}
+                            />
+                            <label
+                              htmlFor={`set-${set.id}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1 truncate"
+                            >
+                              {set.name}
+                            </label>
+                          </HStack>
+                        </HStack>
+                      )
+                    })
+                  )}
+                </Stack>
+              </Stack>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="direct">
+            <Card>
+              <CardHeader>
+                <Stack gap={4} className="flex-1">
+                  <HStack justify="between">
+                    <Stack gap={0}>
+                      <CardTitle>Direct Permissions</CardTitle>
+                      <CardDescription>
+                        Assign granular access directly to this user.
+                      </CardDescription>
+                    </Stack>
+                    <Badge
+                      variant="secondary"
+                      className="font-mono text-[10px] h-5"
+                    >
+                      {directPermissions.length} Direct
+                    </Badge>
+                  </HStack>
+                  <Box className="flex-1 min-h-0">
+                    <PermissionList
+                      assignedPermissions={directPermissions}
+                      inheritedPermissions={inheritedPermissions}
+                      onToggle={handleToggleDirectPermission}
+                    />
+                  </Box>
+                </Stack>
+              </CardHeader>
+            </Card>
+          </TabsContent>
+        </Tabs>
       )}
     </Stack>
   )

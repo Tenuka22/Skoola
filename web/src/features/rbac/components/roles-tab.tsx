@@ -8,9 +8,12 @@ import { isPermissionEnum } from '../utils/permissions'
 import type { RoleEnum } from '@/lib/api/types.gen'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+} from '@/components/ui/card'
 import { RoleEnumSchema } from '@/lib/api/schemas.gen'
 import { Grid, HStack, Stack, Text } from '@/components/primitives'
+import { cn } from '@/lib/utils'
 
 export function RolesTab() {
   const { setSelectedRoleId, setIsRoleEditorOpen } = useRBACStore()
@@ -59,36 +62,41 @@ function RoleCard({
             : `System role defining baseline permissions and access levels for all ${role.toLowerCase()} users.`
 
   return (
-    <Card>
-      <CardHeader>
-        <HStack align="start" justify="between">
-          <Stack gap={2}>
-            <HStack align="center" gap={3}>
-              <HugeiconsIcon icon={Shield01Icon} className="size-5" />
-              <CardTitle>{role}</CardTitle>
-            </HStack>
-            <Badge variant="secondary" className="w-fit">
-              {isLoading ? 'Loading...' : `${permissionCount} Permissions`}
-            </Badge>
-          </Stack>
-        </HStack>
-      </CardHeader>
-      <CardContent>
-        <Stack gap={4}>
-          <Text size="sm" muted>
-            {description}
-          </Text>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onManage}
-            className="gap-2 self-start"
-          >
-            <HugeiconsIcon icon={Settings01Icon} className="size-4" />
-            Configure Role
-          </Button>
+    <Card
+      className={cn(
+        'p-3',
+        role === 'FullAdmin' && 'bg-red-500/10',
+        role === 'Admin' && 'bg-yellow-500/10',
+      )}
+    >
+      <HStack align="start" justify="between" gap={3}>
+        <Stack gap={1}>
+          <HStack gap={2} align="center">
+            <HugeiconsIcon icon={Shield01Icon} />
+            <Text size="sm" className="font-medium">
+              {role}
+            </Text>
+          </HStack>
+          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 w-fit">
+            {isLoading ? 'Loading...' : `${permissionCount} Permissions`}
+          </Badge>
         </Stack>
-      </CardContent>
+
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onManage}
+          className="gap-2 self-start"
+        >
+          <HugeiconsIcon icon={Settings01Icon} className="size-4" />
+          Configure
+        </Button>
+      </HStack>
+      <Stack gap={4} className="mt-3">
+        <Text size="sm" muted>
+          {description}
+        </Text>
+      </Stack>
     </Card>
   )
 }

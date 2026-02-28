@@ -241,8 +241,8 @@ const textVariants = cva('', {
       '2xl': 'text-2xl',
     },
     muted: {
-      true: 'text-zinc-400',
-      false: 'text-zinc-100',
+      true: 'text-muted-foreground',
+      false: '',
     },
   },
   defaultVariants: {

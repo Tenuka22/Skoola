@@ -55,7 +55,7 @@ export function CreatePermissionSetDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button size="sm" className="h-8 gap-1.5 px-3">
+          <Button className="gap-2 w-full">
             <HugeiconsIcon icon={Add01Icon} className="size-4" />
             New Set
           </Button>

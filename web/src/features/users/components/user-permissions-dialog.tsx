@@ -128,28 +128,26 @@ export function UserPermissionsDialog({
               <p className="text-sm font-medium">Current Role:</p>
               <Badge variant="secondary">{user?.role}</Badge>
             </div>
-            <ScrollArea className="h-72">
-              <div className="grid grid-cols-2 gap-4 p-1">
-                {allPermissions.map((permission) => (
-                  <div key={permission} className="flex items-center gap-2">
-                    <Checkbox
-                      id={permission}
-                      checked={selectedPermissions.includes(permission)}
-                      onCheckedChange={(checked) => {
-                        setSelectedPermissions((prev) =>
-                          checked
-                            ? [...prev, permission]
-                            : prev.filter((p) => p !== permission),
-                        )
-                      }}
-                    />
-                    <label htmlFor={permission} className="text-sm">
-                      {permission}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
+            <div className="grid grid-cols-2 gap-4 p-1">
+              {allPermissions.map((permission) => (
+                <div key={permission} className="flex items-center gap-2">
+                  <Checkbox
+                    id={permission}
+                    checked={selectedPermissions.includes(permission)}
+                    onCheckedChange={(checked) => {
+                      setSelectedPermissions((prev) =>
+                        checked
+                          ? [...prev, permission]
+                          : prev.filter((p) => p !== permission),
+                      )
+                    }}
+                  />
+                  <label htmlFor={permission} className="text-sm">
+                    {permission}
+                  </label>
+                </div>
+              ))}
+            </div>
           </>
         )}
 

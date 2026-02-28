@@ -6,6 +6,7 @@ import {
   Delete02Icon,
   Edit01Icon,
   Layers01Icon,
+  Search01Icon,
   UserGroupIcon,
   UserIcon,
 } from '@hugeicons/core-free-icons'
@@ -18,25 +19,28 @@ import type { PermissionEnum, UserSet } from '@/lib/api/types.gen'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from '@/components/ui/combobox'
-import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
-  Box,
-  Grid,
-  HStack,
-  Heading,
-  Stack,
-  Text,
-} from '@/components/primitives'
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Box, HStack, Heading, Stack, Text } from '@/components/primitives'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty'
+import { cn } from '@/lib/utils'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 interface PermissionSetEditorProps {
   set: UserSet
@@ -98,17 +102,6 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
     onError: (err) => toast.error(err.message),
   })
 
-  const assignSetToUser = useMutation({
-    ...rbacApi.assignSetToStaffMutation(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getSetMembersOptions(set.id).queryKey,
-      })
-      toast.success('User assigned to set')
-    },
-    onError: (err) => toast.error(err.message),
-  })
-
   const unassignSetFromUser = useMutation({
     ...rbacApi.unassignSetFromStaffMutation(),
     onSuccess: () => {
@@ -119,17 +112,6 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
     },
     onError: (err) => toast.error(err.message),
   })
-
-  // To add a member, we need the list of all users to pick from
-  // We fetch a larger batch to support the combobox picker
-  const { data: allUsersRes } = useQuery(
-    rbacApi.getAllUsersOptions({ limit: 100 }),
-  )
-  const allUsers = allUsersRes?.data || []
-
-  const availableUsers = allUsers.filter(
-    (u) => !members.some((m) => m.id === u.id),
-  )
 
   const handleTogglePermission = (
     permission: PermissionEnum,
@@ -150,7 +132,7 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
 
   const handleSaveInfo = (values: UpdatePermissionSetValues) => {
     updateSet.mutate({
-      path: { permission_set_id: set.id },
+      path: { user_set_id: set.id },
       body: { name: values.name, description: values.description },
     })
   }
@@ -207,15 +189,29 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
           </Box>
         </Card>
       ) : (
-        <Box p={6} rounded="xl" bg="bg-card" className="border shadow-sm">
-          <Stack gap={3}>
-            <HStack align="center" justify="between">
-              <Heading size="h2" className="group">
-                {set.name}
+        <Card>
+          <CardHeader>
+            <HStack justify="between" align="center">
+              <HStack gap={3}>
+                <HugeiconsIcon
+                  icon={Layers01Icon}
+                  className="size-11 text-primary"
+                />
+                <Stack gap={0}>
+                  <CardTitle>{set.name}</CardTitle>
+                  <HStack gap={2} align="center">
+                    <Text size="xs" className="truncate" muted>
+                      ID: {set.id}
+                    </Text>
+                  </HStack>
+                </Stack>
+              </HStack>
+
+              <CardAction>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-8 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="size-8"
                   onClick={() => setIsEditingInfo(true)}
                 >
                   <HugeiconsIcon
@@ -223,11 +219,11 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
                     className="size-4 text-primary"
                   />
                 </Button>
-              </Heading>
+              </CardAction>
             </HStack>
-            <Text size="base" muted className="max-w-3xl leading-relaxed">
+            <CardDescription className="max-w-3xl leading-relaxed pt-2">
               {set.description || 'No description provided.'}
-            </Text>
+            </CardDescription>
             <HStack gap={6} className="pt-2">
               <HStack gap={2}>
                 <Box className="p-1 rounded bg-primary/10">
@@ -258,145 +254,111 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
                 </Text>
               </HStack>
             </HStack>
-          </Stack>
-        </Box>
+          </CardHeader>
+        </Card>
       )}
 
-      <Grid cols={5} gap={6} className="min-h-0">
-        <Card className="col-span-3 flex flex-col h-[70vh]">
-          <Box p={6} className="border-b">
-            <HStack justify="between">
-              <Heading size="h4">Set Permissions</Heading>
-              <Badge variant="secondary" className="font-mono">
-                {assignedPermissions.length} Assigned
-              </Badge>
+      <Tabs defaultValue="permissions" className="flex-1 flex flex-col min-h-0">
+        <TabsList className="w-fit mb-2">
+          <TabsTrigger value="permissions">
+            <HStack gap={2} p={0}>
+              <HugeiconsIcon icon={Layers01Icon} className="size-4" />
+              <span>Permissions</span>
             </HStack>
-          </Box>
-          <Box p={6} className="flex-1 min-h-0">
-            <PermissionList
-              assignedPermissions={assignedPermissions}
-              onToggle={handleTogglePermission}
-            />
-          </Box>
-        </Card>
+          </TabsTrigger>
+          <TabsTrigger value="assigned-users">
+            <HStack gap={2} p={0}>
+              <HugeiconsIcon icon={UserGroupIcon} className="size-4" />
+              <span>Assigned Users</span>
+            </HStack>
+          </TabsTrigger>
+        </TabsList>
 
-        <Card className="col-span-2 flex flex-col h-[70vh]">
-          <Box p={6} className="border-b">
-            <Stack gap={4}>
+        <TabsContent value="permissions" className="min-h-0">
+          <Card className="flex flex-col h-full">
+            <CardHeader>
               <HStack justify="between">
-                <Heading size="h4">Assigned Users</Heading>
+                <CardTitle>Set Permissions</CardTitle>
                 <Badge variant="secondary" className="font-mono">
-                  {members.length} Total
+                  {assignedPermissions.length} Assigned
                 </Badge>
               </HStack>
-              <Combobox
-                onValueChange={(userId) => {
-                  if (typeof userId === 'string') {
-                    assignSetToUser.mutate({
-                      path: { staff_id: userId, set_id: set.id },
-                    })
-                  }
-                }}
-              >
-                <ComboboxInput
-                  placeholder="Assign a user by email..."
-                  className="h-9 px-3 text-sm bg-muted/30"
-                  showTrigger={true}
-                />
-                <ComboboxContent>
-                  <ComboboxList className="text-sm">
-                    {availableUsers.length === 0 ? (
-                      <ComboboxEmpty>No more users available</ComboboxEmpty>
-                    ) : (
-                      availableUsers.map((u) => (
-                        <ComboboxItem key={u.id} value={u.id}>
-                          {u.email}
-                        </ComboboxItem>
-                      ))
-                    )}
-                  </ComboboxList>
-                </ComboboxContent>
-              </Combobox>
-            </Stack>
-          </Box>
-          <Box className="flex-1 min-h-0">
-            <ScrollArea className="h-full">
-              <Stack p={6} gap={2}>
+            </CardHeader>
+            <CardContent>
+              <PermissionList
+                assignedPermissions={assignedPermissions}
+                onToggle={handleTogglePermission}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="assigned-users" className="min-h-0">
+          <Card className="flex flex-col h-full">
+            <CardHeader className="border-b">
+              <Stack gap={2}>
+                <HStack justify="between">
+                  <CardTitle>Assigned Users</CardTitle>
+                  <Badge variant="secondary" className="font-mono">
+                    {members.length} Total
+                  </Badge>
+                </HStack>
                 {isLoadingMembers ? (
-                  Array.from({ length: 3 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12" />
-                  ))
-                ) : members.length === 0 ? (
-                  <Stack align="center" className="py-12 text-center" gap={2}>
-                    <HugeiconsIcon
-                      icon={UserIcon}
-                      className="size-8 text-muted-foreground"
-                    />
-                    <Text
-                      size="sm"
-                      className="font-medium text-muted-foreground"
-                    >
-                      No users assigned
-                    </Text>
+                  <Stack gap={2}>
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
                   </Stack>
                 ) : (
-                  members.map((member) => (
-                    <HStack
-                      key={member.id}
-                      gap={3}
-                      p={2}
-                      align="center"
-                      className="group/member"
-                    >
-                      <Box
-                        p={2}
-                        rounded="full"
-                        className="bg-muted/70 dark:bg-zinc-800"
-                      >
-                        <HugeiconsIcon
-                          icon={UserIcon}
-                          className="size-4 text-primary"
-                        />
-                      </Box>
-                      <Stack gap={0} className="min-w-0 flex-1">
-                        <Text className="text-sm font-medium truncate">
-                          {member.email}
+                  <ScrollArea className="h-60">
+                    <Stack gap={1} p={2}>
+                      {members.length === 0 ? (
+                        <Text className="text-center text-sm text-muted-foreground py-4">
+                          No users assigned to this set.
                         </Text>
-                        <Text
-                          size="xs"
-                          muted
-                          className="uppercase font-mono tracking-tighter"
-                        >
-                          ID: {member.id.split('-')[0]}...
-                        </Text>
-                      </Stack>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 opacity-0 group-hover/member:opacity-100 transition-opacity hover:bg-destructive/10"
-                        onClick={() => {
-                          if (
-                            confirm(`Remove ${member.email} from this set?`)
-                          ) {
-                            unassignSetFromUser.mutate({
-                              path: { staff_id: member.id, set_id: set.id },
-                            })
-                          }
-                        }}
-                      >
-                        <HugeiconsIcon
-                          icon={Delete02Icon}
-                          className="size-4 text-destructive"
-                        />
-                      </Button>
-                    </HStack>
-                  ))
+                      ) : (
+                        members.map((user) => {
+                          const name = user.email
+                            .split('@')[0]
+                            .replace(/[._]/g, ' ')
+                            .replace(/\b\w/g, (l) => l.toUpperCase())
+                          const initials = name.substring(0, 2).toUpperCase()
+
+                          return (
+                            <HStack
+                              key={user.id}
+                              align="center"
+                              gap={3}
+                              className={cn(
+                                'p-2 rounded-md transition-colors hover:bg-muted/50',
+                              )}
+                            >
+                              <Avatar className="h-8 w-8 border border-border/50">
+                                <AvatarImage
+                                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                                />
+                                <AvatarFallback className="text-[10px] font-semibold">
+                                  {initials}
+                                </AvatarFallback>
+                              </Avatar>
+                              <label
+                                htmlFor={`user-${user.id}`}
+                                className="text-sm font-medium leading-none cursor-pointer"
+                              >
+                                {user.email}
+                              </label>
+                            </HStack>
+                          )
+                        })
+                      )}
+                    </Stack>
+                  </ScrollArea>
                 )}
               </Stack>
-            </ScrollArea>
-          </Box>
-        </Card>
-      </Grid>
+            </CardHeader>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </Stack>
   )
 }

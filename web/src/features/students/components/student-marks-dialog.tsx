@@ -72,36 +72,34 @@ export function StudentMarksDialog({
               No academic marks found for this student.
             </p>
           ) : (
-            <ScrollArea className="flex-1 border rounded-lg">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/50 sticky top-0">
-                  <tr>
-                    <th className="p-3 text-left">Exam</th>
-                    <th className="p-3 text-left">Subject</th>
-                    <th className="p-3 text-right">Marks</th>
-                    <th className="p-3 text-center">Status</th>
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 sticky top-0">
+                <tr>
+                  <th className="p-3 text-left">Exam</th>
+                  <th className="p-3 text-left">Subject</th>
+                  <th className="p-3 text-right">Marks</th>
+                  <th className="p-3 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {marks.map((mark: StudentMarkResponse, index: number) => (
+                  <tr key={index}>
+                    <td className="p-3">{mark.exam_id}</td>
+                    <td className="p-3">{mark.subject_id}</td>
+                    <td className="p-3 text-right font-medium">
+                      {mark.marks_obtained}
+                    </td>
+                    <td className="p-3 text-center">
+                      <Badge
+                        variant={mark.is_absent ? 'destructive' : 'secondary'}
+                      >
+                        {mark.is_absent ? 'Absent' : 'Present'}
+                      </Badge>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {marks.map((mark: StudentMarkResponse, index: number) => (
-                    <tr key={index}>
-                      <td className="p-3">{mark.exam_id}</td>
-                      <td className="p-3">{mark.subject_id}</td>
-                      <td className="p-3 text-right font-medium">
-                        {mark.marks_obtained}
-                      </td>
-                      <td className="p-3 text-center">
-                        <Badge
-                          variant={mark.is_absent ? 'destructive' : 'secondary'}
-                        >
-                          {mark.is_absent ? 'Absent' : 'Present'}
-                        </Badge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </ScrollArea>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
         <Button onClick={() => onOpenChange(false)} className="mt-4">

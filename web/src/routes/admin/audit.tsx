@@ -64,77 +64,71 @@ function AuditLogsPage() {
         />
       </div>
 
-      <ScrollArea className="flex-1 border rounded-xl bg-card">
-        {isLoading ? (
-          <div className="grid place-items-center h-64">
-            <Spinner />
-          </div>
-        ) : isError ? (
-          <div className="grid place-items-center h-64 text-center">
-            <HugeiconsIcon
-              icon={AlertCircleIcon}
-              className="size-12 text-destructive opacity-50"
-            />
-            <p className="mt-4 text-muted-foreground">Error: {error.message}</p>
-          </div>
-        ) : filteredLogs.length === 0 ? (
-          <p className="text-center text-muted-foreground italic py-12">
-            No audit logs found.
-          </p>
-        ) : (
-          <div className="divide-y">
-            {filteredLogs.map((log: AuditLogResponse) => (
-              <div
-                key={log.id}
-                className="p-4 hover:bg-muted/50 transition-colors flex items-start gap-4"
-              >
-                <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                  <HugeiconsIcon
-                    icon={ActivityIcon}
-                    className="size-4 text-primary"
-                  />
-                </div>
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="col-span-1 space-y-1">
-                    <p className="text-sm font-semibold">{log.action_type}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(new Date(log.timestamp), 'PPP p')}
-                    </p>
-                  </div>
-                  <div className="col-span-1 space-y-1">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Table
-                    </span>
-                    <p className="text-sm font-mono">{log.table_name}</p>
-                  </div>
-                  <div className="col-span-1 space-y-1">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      User
-                    </span>
-                    <p className="text-sm">{log.user_id}</p>
-                  </div>
-                  <div className="col-span-1 flex items-center justify-end">
-                    <Badge variant="outline" className="font-mono text-[10px]">
-                      PK: {log.record_pk}
-                    </Badge>
-                  </div>
-                  {log.old_value_json && (
-                    <div className="col-span-full mt-2 p-3 bg-muted rounded-lg overflow-x-auto">
-                      <pre className="text-[10px] text-muted-foreground">
-                        {JSON.stringify(
-                          JSON.parse(log.old_value_json),
-                          null,
-                          2,
-                        )}
-                      </pre>
-                    </div>
-                  )}
-                </div>
+      {isLoading ? (
+        <div className="grid place-items-center h-64">
+          <Spinner />
+        </div>
+      ) : isError ? (
+        <div className="grid place-items-center h-64 text-center">
+          <HugeiconsIcon
+            icon={AlertCircleIcon}
+            className="size-12 text-destructive opacity-50"
+          />
+          <p className="mt-4 text-muted-foreground">Error: {error.message}</p>
+        </div>
+      ) : filteredLogs.length === 0 ? (
+        <p className="text-center text-muted-foreground italic py-12">
+          No audit logs found.
+        </p>
+      ) : (
+        <div className="divide-y">
+          {filteredLogs.map((log: AuditLogResponse) => (
+            <div
+              key={log.id}
+              className="p-4 hover:bg-muted/50 transition-colors flex items-start gap-4"
+            >
+              <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
+                <HugeiconsIcon
+                  icon={ActivityIcon}
+                  className="size-4 text-primary"
+                />
               </div>
-            ))}
-          </div>
-        )}
-      </ScrollArea>
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="col-span-1 space-y-1">
+                  <p className="text-sm font-semibold">{log.action_type}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {format(new Date(log.timestamp), 'PPP p')}
+                  </p>
+                </div>
+                <div className="col-span-1 space-y-1">
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Table
+                  </span>
+                  <p className="text-sm font-mono">{log.table_name}</p>
+                </div>
+                <div className="col-span-1 space-y-1">
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    User
+                  </span>
+                  <p className="text-sm">{log.user_id}</p>
+                </div>
+                <div className="col-span-1 flex items-center justify-end">
+                  <Badge variant="outline" className="font-mono text-[10px]">
+                    PK: {log.record_pk}
+                  </Badge>
+                </div>
+                {log.old_value_json && (
+                  <div className="col-span-full mt-2 p-3 bg-muted rounded-lg overflow-x-auto">
+                    <pre className="text-[10px] text-muted-foreground">
+                      {JSON.stringify(JSON.parse(log.old_value_json), null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -201,25 +201,23 @@ export function StaffLeaveDialog({
               <HugeiconsIcon icon={Calendar01Icon} className="size-4" />
               Apply for New Leave
             </h3>
-            <ScrollArea className="flex-1">
-              <FormBuilder
-                schema={zApplyLeaveRequest}
-                config={config}
-                defaultValues={{
-                  leave_type: 'Sick',
-                  from_date: format(new Date(), 'yyyy-MM-dd'),
-                  to_date: format(new Date(), 'yyyy-MM-dd'),
-                  reason: '',
-                }}
-                onSubmit={onSubmit}
-                isLoading={applyLeave.isPending}
-                showErrorSummary={false}
-                toastErrors={false}
-                showSuccessAlert={false}
-                actions={[]}
-                className="space-y-4 p-4 border rounded-xl bg-muted/30"
-              />
-            </ScrollArea>
+            <FormBuilder
+              schema={zApplyLeaveRequest}
+              config={config}
+              defaultValues={{
+                leave_type: 'Sick',
+                from_date: format(new Date(), 'yyyy-MM-dd'),
+                to_date: format(new Date(), 'yyyy-MM-dd'),
+                reason: '',
+              }}
+              onSubmit={onSubmit}
+              isLoading={applyLeave.isPending}
+              showErrorSummary={false}
+              toastErrors={false}
+              showSuccessAlert={false}
+              actions={[]}
+              className="space-y-4 p-4 border rounded-xl bg-muted/30"
+            />
           </div>
         </div>
       </DialogContent>

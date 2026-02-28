@@ -10,13 +10,30 @@ import { useRBACStore } from '../store'
 import { rbacApi } from '../api'
 import { UserPermissionEditor } from './user-permission-editor'
 import { useDebounce } from '@/hooks/use-debounce'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Box, HStack, Heading, Stack, Text } from '@/components/primitives'
+import { Box, HStack, Stack, Text } from '@/components/primitives'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@/components/ui/input-group'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 const PAGE_SIZE = 15
 
@@ -51,152 +68,155 @@ export function UsersTab() {
   }, [users, selectedUser, setSelectedUserId])
 
   return (
-    <div className="h-full flex flex-col overflow-hidden rounded-xl border border-border/60 bg-background shadow-sm">
-      <HStack className="h-full" align="start">
-        {/* Left Panel: Users List */}
-        <Stack gap={4} className="w-[350px] shrink-0 h-full border-r">
-          <Stack gap={1} p={4} className="border-b">
-            <Heading size="h4">Users Directory</Heading>
-            <Text size="sm" muted>
-              Select a user to manage their access.
-            </Text>
-          </Stack>
+    <Card>
+      <CardHeader>
+        <HStack className="h-full" align="start" p={0} gap={0}>
+          <Stack gap={4}>
+            <Stack gap={0} p={0}>
+              <CardTitle>Users Directory</CardTitle>
+              <CardDescription>Manage granular access.</CardDescription>
+            </Stack>
 
-          <Box px={4}>
-            <Box className="relative">
-              <HugeiconsIcon
-                icon={Search01Icon}
-                className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
-              />
-              <Input
-                placeholder="Search users by email..."
-                className="pl-9"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+            <Box p={0}>
+              <InputGroup>
+                <InputGroupInput
+                  placeholder="Search email..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="h-9 text-xs"
+                />
+                <InputGroupAddon align="inline-start">
+                  <HugeiconsIcon icon={Search01Icon} className="size-3.5" />
+                </InputGroupAddon>
+              </InputGroup>
             </Box>
-          </Box>
 
-          <ScrollArea className="flex-1">
-            <Stack p={4} className="pt-0">
+            <Stack gap={1} p={0} className="min-w-72">
               {isLoading ? (
-                <Stack gap={2}>
-                  {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-                    <Skeleton key={i} className="h-16 rounded-lg" />
+                <Stack gap={2} p={2}>
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <Skeleton key={i} className="h-12 rounded-lg" />
                   ))}
                 </Stack>
               ) : users.length === 0 ? (
-                <Stack
-                  align="center"
-                  className="justify-center py-12 text-center"
-                  gap={2}
-                >
-                  <HugeiconsIcon
-                    icon={UserGroupIcon}
-                    className="size-8 text-muted-foreground"
-                  />
-                  <Text size="sm" className="font-medium text-muted-foreground">
-                    No users found
-                  </Text>
-                </Stack>
+                <Empty className="border-0 w-full justify-center py-12">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <HugeiconsIcon icon={UserGroupIcon} />
+                    </EmptyMedia>
+                    <EmptyTitle className="text-sm">No users found</EmptyTitle>
+                  </EmptyHeader>
+                </Empty>
               ) : (
-                <Stack gap={2}>
-                  {users.map((user) => (
-                    <button
+                users.map((user) => {
+                  const name = user.email
+                    .split('@')[0]
+                    .replace(/[._]/g, ' ')
+                    .replace(/\b\w/g, (l) => l.toUpperCase())
+                  const initials = name.substring(0, 2).toUpperCase()
+
+                  return (
+                    <Button
+                      variant={
+                        selectedUserId === user.id ? 'secondary' : 'ghost'
+                      }
                       key={user.id}
                       onClick={() => setSelectedUserId(user.id)}
-                      className={cn(
-                        'w-full text-left p-3 rounded-lg transition-colors',
-                        selectedUserId === user.id
-                          ? 'bg-muted'
-                          : 'hover:bg-muted/50',
-                      )}
+                      className={cn('w-full justify-start h-11')}
                     >
-                      <HStack justify="between">
-                        <Stack gap={0} className="min-w-0">
-                          <Text className="font-semibold text-sm truncate">
-                            {user.email}
-                          </Text>
-                          <Text
-                            size="xs"
-                            muted
-                            className="font-mono truncate opacity-70"
-                          >
-                            ID: {user.id}
-                          </Text>
-                        </Stack>
+                      <HStack justify="between" p={1} className="w-full">
+                        <HStack>
+                          <Avatar className="h-8 w-8 border border-border/50">
+                            <AvatarImage
+                              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                            />
+                            <AvatarFallback className="text-[10px] font-semibold">
+                              {initials}
+                            </AvatarFallback>
+                          </Avatar>
+                          <Stack gap={0} className="text-left">
+                            <Text size="sm" className="capitalize truncate">
+                              {user.email.split('@')[0]}
+                            </Text>
+                            <Text
+                              size="xs"
+                              muted
+                              className="truncate font-mono"
+                            >
+                              {user.email.split('@')[1]}
+                            </Text>
+                          </Stack>
+                        </HStack>
                         <Badge
                           variant={
-                            selectedUserId === user.id ? 'default' : 'secondary'
+                            selectedUserId === user.id ? 'default' : 'outline'
                           }
-                          className="text-[10px] h-5 font-mono uppercase"
+                          className="text-[10px] h-4 px-1 uppercase font-bold shrink-0 ml-2"
                         >
-                          {user.role}
+                          {user.role === 'FullAdmin' ? 'Admin' : user.role}
                         </Badge>
                       </HStack>
-                    </button>
-                  ))}
-                </Stack>
+                    </Button>
+                  )
+                })
               )}
             </Stack>
-          </ScrollArea>
 
-          {totalPages > 1 && (
-            <HStack align="center" justify="between" p={4} className="border-t">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                disabled={page === 0}
+            {totalPages > 1 && (
+              <HStack
+                align="center"
+                justify="between"
+                p={3}
+                className="border-t"
               >
-                Previous
-              </Button>
-              <Text size="sm" muted>
-                Page {page + 1} of {totalPages}
-              </Text>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => p + 1)}
-                disabled={page + 1 >= totalPages}
-              >
-                Next
-              </Button>
-            </HStack>
-          )}
-        </Stack>
+                <Button
+                  variant="outline"
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                >
+                  Prev
+                </Button>
+                <Text className="text-[10px] font-medium" muted>
+                  {page + 1} / {totalPages}
+                </Text>
+                <Button
+                  variant="outline"
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={page + 1 >= totalPages}
+                >
+                  Next
+                </Button>
+              </HStack>
+            )}
+          </Stack>
 
-        {/* Right Panel: User Editor */}
-        <Box className="flex-1 h-full overflow-y-auto">
-          <Box p={6}>
+          <Box className="flex-1 h-full" p={4}>
             {selectedUser ? (
               <UserPermissionEditor user={selectedUser} key={selectedUser.id} />
             ) : isLoading ? (
               <Stack gap={4}>
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-64 w-full" />
+                <Skeleton className="h-16 w-full" />
                 <Skeleton className="h-64 w-full" />
               </Stack>
             ) : (
-              <Stack
-                align="center"
-                justify="center"
-                className="h-[60vh] text-center"
-                gap={2}
-              >
-                <HugeiconsIcon
-                  icon={UserIcon}
-                  className="size-12 text-muted-foreground/50"
-                />
-                <Heading size="h3">No User Selected</Heading>
-                <Text muted>
-                  Select a user from the directory to manage them.
-                </Text>
-              </Stack>
+              <Empty className="border-0 w-full h-full justify-center">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <HugeiconsIcon
+                      icon={UserIcon}
+                      className="size-12 opacity-20"
+                    />
+                  </EmptyMedia>
+                  <EmptyTitle className="text-lg">Select a user</EmptyTitle>
+                  <EmptyDescription className="text-sm">
+                    Pick a directory entry to manage permissions.
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
             )}
           </Box>
-        </Box>
-      </HStack>
-    </div>
+        </HStack>
+      </CardHeader>
+    </Card>
   )
 }

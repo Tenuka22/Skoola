@@ -162,32 +162,30 @@ export function StaffPermissionSetsDialog({
                 No sets assigned.
               </p>
             ) : (
-              <ScrollArea className="flex-1 border rounded-lg p-4">
-                <div className="flex flex-wrap gap-2">
-                  {staffSets.map((set: UserSet) => (
-                    <Badge
-                      key={set.id}
-                      variant="secondary"
-                      className="pl-3 pr-1 py-1 gap-2"
+              <div className="flex flex-wrap gap-2">
+                {staffSets.map((set: UserSet) => (
+                  <Badge
+                    key={set.id}
+                    variant="secondary"
+                    className="pl-3 pr-1 py-1 gap-2"
+                  >
+                    {set.name}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-4 p-0 hover:bg-destructive/20 hover:text-destructive"
+                      onClick={() =>
+                        staff &&
+                        unassignSet.mutate({
+                          path: { staff_id: staff.id, set_id: set.id },
+                        })
+                      }
                     >
-                      {set.name}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-4 p-0 hover:bg-destructive/20 hover:text-destructive"
-                        onClick={() =>
-                          staff &&
-                          unassignSet.mutate({
-                            path: { staff_id: staff.id, set_id: set.id },
-                          })
-                        }
-                      >
-                        <HugeiconsIcon icon={Delete02Icon} className="size-3" />
-                      </Button>
-                    </Badge>
-                  ))}
-                </div>
-              </ScrollArea>
+                      <HugeiconsIcon icon={Delete02Icon} className="size-3" />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
             )}
           </div>
         </div>

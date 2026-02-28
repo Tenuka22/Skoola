@@ -4,12 +4,17 @@ import {
   assignPermissionToRoleMutation,
   assignPermissionToUserMutation,
   assignPermissionToUserSetMutation,
+  assignRoleToRoleSetMutation,
   createPermissionSetMutation,
+  createRoleSetMutation,
   deletePermissionSetMutation,
+  deleteRoleSetMutation,
   getAllPermissionSetsOptions,
+  getAllRoleSetsOptions,
   getAllStaffOptions,
   getAllUsersOptions,
   getRolePermissionsOptions,
+  getRoleSetRolesOptions,
   getStaffPermissionSetsOptions,
   getUserPermissionsOptions,
   getUserSetMembersOptions,
@@ -18,7 +23,9 @@ import {
   unassignPermissionFromUserMutation,
   unassignPermissionFromUserSetMutation,
   unassignPermissionSetFromStaffMutation,
+  unassignRoleFromRoleSetMutation,
   updatePermissionSetMutation,
+  updateRoleSetMutation,
   updateUserMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
@@ -57,8 +64,25 @@ export const rbacApi = {
   getSetMembersOptions: (setId: string) =>
     getUserSetMembersOptions({
       client: authClient,
-      path: { permission_set_id: setId },
+      path: { user_set_id: setId },
     }),
+
+  // Role Sets
+  getRoleSetsOptions: () => getAllRoleSetsOptions({ client: authClient }),
+  createRoleSetMutation: () => createRoleSetMutation({ client: authClient }),
+  deleteRoleSetMutation: () => deleteRoleSetMutation({ client: authClient }),
+  updateRoleSetMutation: () => updateRoleSetMutation({ client: authClient }),
+
+  // Roles within a Role Set
+  getRoleSetRolesOptions: (roleSetId: string) =>
+    getRoleSetRolesOptions({
+      client: authClient,
+      path: { role_set_id: roleSetId },
+    }),
+  assignRoleToRoleSetMutation: () =>
+    assignRoleToRoleSetMutation({ client: authClient }),
+  unassignRoleFromRoleSetMutation: () =>
+    unassignRoleFromRoleSetMutation({ client: authClient }),
 
   // Role Permissions
   getRolePermissionsOptions: (role: string) =>

@@ -225,40 +225,38 @@ export function StaffAttendanceDialog({
                 No attendance records found.
               </p>
             ) : (
-              <ScrollArea className="flex-1 border rounded-lg">
-                <div className="divide-y">
-                  {attendanceRecords.map(
-                    (record: StaffAttendanceResponse, index: number) => (
-                      <div
-                        key={index}
-                        className="p-3 flex items-center justify-between text-sm"
-                      >
-                        <div className="flex flex-col">
-                          <span className="font-medium">
-                            {format(new Date(record.date), 'PPP')}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {record.time_in && `In: ${record.time_in}`}{' '}
-                            {record.time_out && `| Out: ${record.time_out}`}
-                          </span>
-                        </div>
-                        <Badge
-                          variant="secondary"
-                          className={
-                            record.status === 'Present'
-                              ? 'bg-green-500/10 text-green-600 border-green-500/20'
-                              : record.status === 'Absent'
-                                ? 'bg-red-500/10 text-red-600 border-red-500/20'
-                                : 'bg-blue-500/10 text-blue-600 border-blue-500/20'
-                          }
-                        >
-                          {record.status}
-                        </Badge>
+              <div className="divide-y">
+                {attendanceRecords.map(
+                  (record: StaffAttendanceResponse, index: number) => (
+                    <div
+                      key={index}
+                      className="p-3 flex items-center justify-between text-sm"
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-medium">
+                          {format(new Date(record.date), 'PPP')}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {record.time_in && `In: ${record.time_in}`}{' '}
+                          {record.time_out && `| Out: ${record.time_out}`}
+                        </span>
                       </div>
-                    ),
-                  )}
-                </div>
-              </ScrollArea>
+                      <Badge
+                        variant="secondary"
+                        className={
+                          record.status === 'Present'
+                            ? 'bg-green-500/10 text-green-600 border-green-500/20'
+                            : record.status === 'Absent'
+                              ? 'bg-red-500/10 text-red-600 border-red-500/20'
+                              : 'bg-blue-500/10 text-blue-600 border-blue-500/20'
+                        }
+                      >
+                        {record.status}
+                      </Badge>
+                    </div>
+                  ),
+                )}
+              </div>
             )}
           </div>
         </div>

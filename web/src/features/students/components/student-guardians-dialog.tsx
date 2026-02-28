@@ -209,66 +209,62 @@ export function StudentGuardiansDialog({
                 No guardians linked to this student.
               </p>
             ) : (
-              <ScrollArea className="flex-1 border rounded-lg">
-                <div className="divide-y">
-                  {guardians.map((guardian: StudentGuardianResponse) => (
-                    <div
-                      key={guardian.id}
-                      className="p-3 flex items-center justify-between"
-                    >
-                      <div className="flex flex-col">
-                        <span className="font-medium text-sm">
-                          {guardian.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {guardian.relationship} | {guardian.phone}
-                        </span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 text-destructive hover:bg-destructive/10"
-                        onClick={() =>
-                          student &&
-                          removeGuardian.mutate({
-                            path: {
-                              student_id: student.id,
-                              guardian_id: guardian.id,
-                            },
-                          })
-                        }
-                      >
-                        <HugeiconsIcon icon={Delete02Icon} className="size-4" />
-                      </Button>
+              <div className="divide-y">
+                {guardians.map((guardian: StudentGuardianResponse) => (
+                  <div
+                    key={guardian.id}
+                    className="p-3 flex items-center justify-between"
+                  >
+                    <div className="flex flex-col">
+                      <span className="font-medium text-sm">
+                        {guardian.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {guardian.relationship} | {guardian.phone}
+                      </span>
                     </div>
-                  ))}
-                </div>
-              </ScrollArea>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 text-destructive hover:bg-destructive/10"
+                      onClick={() =>
+                        student &&
+                        removeGuardian.mutate({
+                          path: {
+                            student_id: student.id,
+                            guardian_id: guardian.id,
+                          },
+                        })
+                      }
+                    >
+                      <HugeiconsIcon icon={Delete02Icon} className="size-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 
           {/* Add Guardian Form */}
-          <ScrollArea className="flex-1">
-            <FormBuilder
-              schema={guardianFormSchema}
-              config={config}
-              defaultValues={{
-                id: '',
-                name: '',
-                relationship: '',
-                phone: '',
-                address: '',
-                email: '',
-              }}
-              onSubmit={onSubmit}
-              isLoading={addGuardian.isPending}
-              showErrorSummary={false}
-              toastErrors={false}
-              showSuccessAlert={false}
-              actions={[]}
-              className="space-y-4 p-4 border rounded-xl bg-muted/30"
-            />
-          </ScrollArea>
+          <FormBuilder
+            schema={guardianFormSchema}
+            config={config}
+            defaultValues={{
+              id: '',
+              name: '',
+              relationship: '',
+              phone: '',
+              address: '',
+              email: '',
+            }}
+            onSubmit={onSubmit}
+            isLoading={addGuardian.isPending}
+            showErrorSummary={false}
+            toastErrors={false}
+            showSuccessAlert={false}
+            actions={[]}
+            className="space-y-4 p-4 border rounded-xl bg-muted/30"
+          />
         </div>
       </DialogContent>
     </Dialog>
