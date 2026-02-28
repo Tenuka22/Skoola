@@ -151,9 +151,19 @@ pub async fn get_staff_permission_sets(
     let mut conn = data.db_pool.get()?;
     let staff_id_inner = staff_id.into_inner();
 
+    use crate::schema::{staff, user_profiles};
+
+    // Find the user_id associated with this staff_id
+    let user_id: String = staff::table
+        .find(&staff_id_inner)
+        .inner_join(user_profiles::table.on(staff::profile_id.eq(user_profiles::profile_id.nullable())))
+        .select(user_profiles::user_id)
+        .first(&mut conn)
+        .map_err(|_| APIError::not_found("User not found for this staff member"))?;
+
     let sets = user_set_users::table
         .inner_join(user_sets::table)
-        .filter(user_set_users::user_id.eq(staff_id_inner))
+        .filter(user_set_users::user_id.eq(user_id))
         .select(UserSet::as_select())
         .load::<UserSet>(&mut conn)?;
 
@@ -173,8 +183,18 @@ pub async fn assign_permission_set_to_staff(
     let mut conn = data.db_pool.get()?;
     let (staff_id, set_id) = path.into_inner();
 
+    use crate::schema::{staff, user_profiles};
+
+    // Find the user_id associated with this staff_id
+    let user_id: String = staff::table
+        .find(&staff_id)
+        .inner_join(user_profiles::table.on(staff::profile_id.eq(user_profiles::profile_id.nullable())))
+        .select(user_profiles::user_id)
+        .first(&mut conn)
+        .map_err(|_| APIError::not_found("User not found for this staff member"))?;
+
     let new_assignment = UserSetUser {
-        user_id: staff_id,
+        user_id,
         user_set_id: set_id,
     };
 
@@ -200,9 +220,19 @@ pub async fn unassign_permission_set_from_staff(
     let mut conn = data.db_pool.get()?;
     let (staff_id, set_id) = path.into_inner();
 
+    use crate::schema::{staff, user_profiles};
+
+    // Find the user_id associated with this staff_id
+    let user_id: String = staff::table
+        .find(&staff_id)
+        .inner_join(user_profiles::table.on(staff::profile_id.eq(user_profiles::profile_id.nullable())))
+        .select(user_profiles::user_id)
+        .first(&mut conn)
+        .map_err(|_| APIError::not_found("User not found for this staff member"))?;
+
     diesel::delete(
         user_set_users::table
-            .filter(user_set_users::user_id.eq(staff_id))
+            .filter(user_set_users::user_id.eq(user_id))
             .filter(user_set_users::user_set_id.eq(set_id)),
     )
     .execute(&mut conn)?;
