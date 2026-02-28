@@ -1,10 +1,10 @@
 use actix_web::web;
-use apistos::web::Json;
 use apistos::{ApiComponent, api_operation};
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use web::Json;
 
 use crate::{
     AppState,
@@ -37,9 +37,7 @@ pub struct RoleSetRoleRequest {
     tag = "role_sets",
     operation_id = "get_all_role_sets"
 )]
-pub async fn get_all_role_sets(
-    data: web::Data<AppState>,
-) -> Result<Json<Vec<RoleSet>>, APIError> {
+pub async fn get_all_role_sets(data: web::Data<AppState>) -> Result<Json<Vec<RoleSet>>, APIError> {
     let mut conn = data.db_pool.get()?;
     let sets = role_sets::table
         .select(RoleSet::as_select())
