@@ -19,6 +19,7 @@ use crate::schema::{
     student_period_attendance, student_previous_schools, students, subject_enrollments,
     substitutions, teacher_class_assignments, teacher_subject_assignments, uniform_issues,
     uniform_items, user_permissions, user_set_permissions, user_set_users, user_sets, users,
+    role_sets, role_set_roles,
 };
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone)]
@@ -406,6 +407,45 @@ pub struct UserSet {
     pub id: String,
     pub name: String,
     pub description: Option<String>,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+)]
+#[diesel(table_name = role_sets)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct RoleSet {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+)]
+#[diesel(table_name = role_set_roles)]
+#[diesel(belongs_to(RoleSet))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+#[diesel(primary_key(role_set_id, role_id))]
+pub struct RoleSetRole {
+    pub role_set_id: String,
+    pub role_id: String,
 }
 
 #[derive(

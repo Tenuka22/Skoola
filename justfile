@@ -11,7 +11,7 @@ dev-backend-hr:
     cd backend; cargo watch -x run
 
 check-backend:
-    cd backend; RUSTC_WRAPPER= cargo check
+    cd backend; cargo check
 
 check-web:
     cd web; bun run tsc;

@@ -2,6 +2,9 @@ name: Web Lint
 
 on: [push]
 
+permissions:
+  contents: write
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -15,6 +18,17 @@ jobs:
           
       - name: Install dependencies
         run: cd web && bun install
-        
+      
+      
       - name: Run lint
         run: cd web && bun run check
+        
+      - name: Commit and push if changed
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git config --global user.name 'github-actions[bot]'
+            git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add .
+            git commit -m "chore(lint): auto format code"
+            git push
+          fi

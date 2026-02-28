@@ -1,7 +1,7 @@
 use crate::database::enums::PermissionEnum;
 use crate::handlers::auth::{
     login, logout, oauth, permission_sets, profile, refresh, register, request_password_reset,
-    reset_password, role_permissions, user_set_permissions, verification,
+    reset_password, role_permissions, role_sets, user_set_permissions, verification,
 };
 use crate::utils::jwt::Authenticated;
 use crate::utils::permission_verification::PermissionVerification;
@@ -76,5 +76,17 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(user_set_permissions::get_user_set_permissions))
             .route("", web::post().to(user_set_permissions::assign_permission_to_user_set))
             .route("", web::delete().to(user_set_permissions::unassign_permission_from_user_set)),
+    )
+    .service(
+        web::scope("/role-sets")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::RoleManage })
+            .route("/", web::get().to(role_sets::get_all_role_sets))
+            .route("/", web::post().to(role_sets::create_role_set))
+            .route("/{role_set_id}", web::put().to(role_sets::update_role_set))
+            .route("/{role_set_id}", web::delete().to(role_sets::delete_role_set))
+            .route("/{role_set_id}/roles", web::get().to(role_sets::get_role_set_roles))
+            .route("/{role_set_id}/roles", web::post().to(role_sets::assign_role_to_role_set))
+            .route("/{role_set_id}/roles", web::delete().to(role_sets::unassign_role_from_role_set)),
     );
 }
