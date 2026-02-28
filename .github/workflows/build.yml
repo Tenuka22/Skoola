@@ -3,6 +3,8 @@ name: Build Rust Binary
 on:
     push:
         branches: [main]
+        paths:
+            - "backend/**"
     workflow_dispatch:
 
 jobs:
@@ -21,8 +23,8 @@ jobs:
                   path: |
                       ~/.cargo/registry
                       ~/.cargo/git
-                      target/
-                  key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+                      backend/target
+                  key: ${{ runner.os }}-cargo-${{ hashFiles('backend/Cargo.lock') }}
 
             - name: Build Release Binary
               run: cargo build --release
@@ -32,5 +34,5 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   name: my-binary
-                  path: backend/target/release/backend # change this
+                  path: backend/target/release/backend
                   retention-days: 7
