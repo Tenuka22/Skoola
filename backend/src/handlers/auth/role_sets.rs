@@ -127,11 +127,15 @@ pub async fn get_role_set_roles(
     role_set_id: web::Path<String>,
 ) -> Result<Json<RoleSetGetRoleResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
+
+    let role_set_id = role_set_id.into_inner();
+
     let roles = role_set_roles::table
-        .filter(role_set_roles::role_set_id.eq(role_set_id.into_inner()))
+        .filter(role_set_roles::role_set_id.eq(role_set_id))
         .select(role_set_roles::role_id)
         .load::<String>(&mut conn)?;
-    Ok(Json(roles))
+
+    Ok(Json(RoleSetGetRoleResponse { roles }))
 }
 
 #[api_operation(
