@@ -78,8 +78,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/role-sets")
-            .wrap(Authenticated)
             .wrap(PermissionVerification { required_permission: PermissionEnum::RoleManage })
+            .wrap(Authenticated)
             .route("/", web::get().to(role_sets::get_all_role_sets))
             .route("/", web::post().to(role_sets::create_role_set))
             .route("/{role_set_id}", web::put().to(role_sets::update_role_set))
