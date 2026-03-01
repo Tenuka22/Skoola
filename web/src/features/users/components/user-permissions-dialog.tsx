@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { authClient } from '@/lib/clients'
 import {
@@ -41,7 +42,10 @@ function humanizeAction(permission: string, prefix: string): string {
 function groupPermissions(
   permissions: ReadonlyArray<PermissionEnum>,
 ): Map<string, Array<{ key: PermissionEnum; action: string }>> {
-  const groups = new Map<string, Array<{ key: PermissionEnum; action: string }>>()
+  const groups = new Map<
+    string,
+    Array<{ key: PermissionEnum; action: string }>
+  >()
 
   for (const perm of permissions) {
     // Find the prefix (e.g., "User", "Role", "Permission", "Staff", "PermissionSet")
@@ -138,7 +142,10 @@ export function UserPermissionsDialog({
   }
 
   const allPermissions = zPermissionEnum.options
-  const grouped = React.useMemo(() => groupPermissions(allPermissions), [allPermissions])
+  const grouped = React.useMemo(
+    () => groupPermissions(allPermissions),
+    [allPermissions],
+  )
 
   const changedCount =
     selectedPermissions.filter((p) => !initialPermissions.includes(p)).length +
@@ -147,7 +154,9 @@ export function UserPermissionsDialog({
   const handleToggleGroup = (groupPerms: Array<PermissionEnum>) => {
     const allSelected = groupPerms.every((p) => selectedPermissions.includes(p))
     if (allSelected) {
-      setSelectedPermissions((prev) => prev.filter((p) => !groupPerms.includes(p)))
+      setSelectedPermissions((prev) =>
+        prev.filter((p) => !groupPerms.includes(p)),
+      )
     } else {
       setSelectedPermissions((prev) => [
         ...prev,
@@ -158,11 +167,7 @@ export function UserPermissionsDialog({
 
   return (
     <Dialog open={!!user} onOpenChange={(open) => !open && onClose()}>
-<<<<<<< HEAD
-      <DialogContent className="max-h-[85vh] w-full h-full overflow-y-auto">
-=======
       <DialogContent className="sm:max-w-[640px]">
->>>>>>> 2780fcf (feat: Refactor theme management to use `next-themes` and update user views from board to grid, alongside various UI and API enhancements.)
         <DialogHeader>
           <DialogTitle>Manage Permissions</DialogTitle>
           <DialogDescription>
@@ -178,15 +183,23 @@ export function UserPermissionsDialog({
         ) : (
           <>
             {/* User meta bar */}
-            <HStack gap={3} align="center" className="bg-muted/30 border border-border/50 rounded-lg px-4 py-3">
+            <HStack
+              gap={3}
+              align="center"
+              className="bg-muted/30 border border-border/50 rounded-lg px-4 py-3"
+            >
               <div className="flex items-center gap-2 flex-1">
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Role</span>
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Role
+                </span>
                 <Badge variant="secondary" className="font-medium">
                   {user?.role}
                 </Badge>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Selected</span>
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Selected
+                </span>
                 <Badge variant="outline" className="font-mono tabular-nums">
                   {selectedPermissions.length}/{allPermissions.length}
                 </Badge>
@@ -201,8 +214,10 @@ export function UserPermissionsDialog({
                   const selectedInGroup = groupKeys.filter((k) =>
                     selectedPermissions.includes(k),
                   ).length
-                  const allInGroupSelected = selectedInGroup === groupKeys.length
-                  const someInGroupSelected = selectedInGroup > 0 && !allInGroupSelected
+                  const allInGroupSelected =
+                    selectedInGroup === groupKeys.length
+                  const someInGroupSelected =
+                    selectedInGroup > 0 && !allInGroupSelected
 
                   return (
                     <div
@@ -210,9 +225,7 @@ export function UserPermissionsDialog({
                       className="rounded-lg border border-border/40 overflow-hidden"
                     >
                       {/* Group header */}
-                      <label
-                        className="flex items-center gap-3 px-4 py-2.5 bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors select-none"
-                      >
+                      <label className="flex items-center gap-3 px-4 py-2.5 bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors select-none">
                         <Checkbox
                           checked={allInGroupSelected}
                           indeterminate={someInGroupSelected}
@@ -279,7 +292,9 @@ export function UserPermissionsDialog({
             {assignPermission.isPending || unassignPermission.isPending ? (
               <Spinner className="mr-2" />
             ) : null}
-            {changedCount > 0 ? `Save ${changedCount} change${changedCount > 1 ? 's' : ''}` : 'Save'}
+            {changedCount > 0
+              ? `Save ${changedCount} change${changedCount > 1 ? 's' : ''}`
+              : 'Save'}
           </Button>
         </DialogFooter>
       </DialogContent>
