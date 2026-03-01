@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { HStack, Stack, Text } from '@/components/primitives'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface StudentAttendanceCardProps {
   student: {
@@ -53,8 +54,19 @@ export function StudentAttendanceCard({
     'Excused',
   ]
 
+  const handleStatusClick = (e: React.MouseEvent, s: AttendanceStatus) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onStatusChange(s)
+  }
+
   return (
-    <Card className="p-3">
+    <Card
+      className={cn(
+        'p-3 transition-all duration-200 border-2',
+        status ? 'border-primary/20 shadow-md' : 'border-transparent',
+      )}
+    >
       <Stack gap={2}>
         {/* Header Info */}
         <HStack align="start" gap={3}>
@@ -75,9 +87,10 @@ export function StudentAttendanceCard({
               {status && (
                 <Badge
                   variant="secondary"
-                  className={`px-1.5 py-0 text-[10px] border-none ${getStatusColor(
-                    status,
-                  )}`}
+                  className={cn(
+                    'px-1.5 py-0 text-[10px] border-none animate-in fade-in zoom-in duration-300',
+                    getStatusColor(status),
+                  )}
                 >
                   {status}
                 </Badge>
@@ -91,14 +104,15 @@ export function StudentAttendanceCard({
           {statuses.map((s) => (
             <Button
               key={s}
-              variant={status === s ? 'secondary' : 'ghost'}
+              variant={status === s ? 'secondary' : 'outline'}
               size="sm"
-              className={`flex-1 h-7 text-xs px-0 ${
+              className={cn(
+                'flex-1 h-8 text-xs px-0 font-bold transition-all',
                 status === s
                   ? getStatusColor(s)
-                  : 'text-zinc-400 hover:text-zinc-200'
-              }`}
-              onClick={() => onStatusChange(s)}
+                  : 'text-muted-foreground hover:text-foreground border-muted',
+              )}
+              onClick={(e) => handleStatusClick(e, s)}
             >
               {s.charAt(0)}
             </Button>

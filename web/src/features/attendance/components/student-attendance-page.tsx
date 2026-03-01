@@ -10,10 +10,11 @@ import {
   Search01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { addDays, format, subDays } from 'date-fns'
+import { addDays, format, isFuture, isToday, subDays } from 'date-fns'
 import * as React from 'react'
 import {
   useClasses,
+  useEnrichedStudentAttendance,
   useGenerateStudentAttendanceReport,
   useStudentAttendance,
   useStudentsInClass,
@@ -21,7 +22,12 @@ import {
 import { AttendanceSummaryCards } from './attendance-summary-cards'
 import { MarkStudentAttendanceDialog } from './mark-student-attendance-dialog'
 import { studentAttendanceColumns } from './student-attendance-columns'
+import type {
+  EnrichedStudentAttendance,
+  StudentAttendanceResponse,
+} from '@/lib/api/types.gen'
 import type { StudentAttendanceWithMember } from '../types'
+
 import { Spinner } from '@/components/ui/spinner'
 import {
   Select,
@@ -49,10 +55,16 @@ export const StudentAttendancePage = () => {
   const formattedDateForDisplay = format(date, 'EEEE, dd MMMM')
 
   const { data: classesData, isLoading: isClassesLoading } = useClasses()
-  const { data: studentsData, isLoading: isStudentsLoading } =
-    useStudentsInClass(selectedClassId, formattedDateForApi)
-  const { isLoading: isAttendanceLoading, refetch: refetchAttendance } =
-    useStudentAttendance(selectedClassId, formattedDateForApi)
+  const { data: enrichedData, isLoading: isEnrichedLoading } =
+    useEnrichedStudentAttendance(selectedClassId, formattedDateForApi)
+  const { data: studentsData } = useStudentsInClass(
+    selectedClassId,
+    formattedDateForApi,
+  )
+  const { refetch: refetchAttendance } = useStudentAttendance(
+    selectedClassId,
+    formattedDateForApi,
+  )
   const { data: reportData, isLoading: isReportLoading } =
     useGenerateStudentAttendanceReport(
       selectedClassId,
@@ -61,8 +73,15 @@ export const StudentAttendancePage = () => {
       shouldFetchReport,
     )
 
-  const handlePrevDay = () => setDate((d) => subDays(d, 1))
-  const handleNextDay = () => setDate((d) => addDays(d, 1))
+  const handlePrevDay = () => {
+    setDate((d) => subDays(d, 1))
+  }
+
+  const handleNextDay = () => {
+    if (!isToday(date)) {
+      setDate((d) => addDays(d, 1))
+    }
+  }
 
   const handleMarkAttendance = (attendance: StudentAttendanceWithMember) => {
     setSelectedAttendance(attendance)
@@ -107,18 +126,45 @@ export const StudentAttendancePage = () => {
     }))
   }, [])
 
-  const mergedData: Array<StudentAttendanceWithMember> = React.useMemo(() => {
-    if (!studentsData) return []
-    return studentsData.map((attendance) => ({
-      ...attendance,
-      student: {
-        id: attendance.student_id,
-        name_english: attendance.student_id,
-        admission_number: attendance.student_id,
-      },
-    }))
-  }, [studentsData])
+  const mergedData = React.useMemo(() => {
+    if (!enrichedData) return []
+    return enrichedData.map((item: EnrichedStudentAttendance) => {
+      const existingRecord = studentsData?.find(
+        (r: StudentAttendanceResponse) => r.student_id === item.student_id,
+      )
+      const finalAttendance: StudentAttendanceResponse = {
+        id: existingRecord?.id ?? `temp-${item.student_id}`,
+        student_id: item.student_id,
+        class_id: selectedClassId,
+        date: formattedDateForApi,
+        status: existingRecord?.status || item.status || 'Present',
+        remarks: existingRecord?.remarks ?? null,
+        marked_by: existingRecord?.marked_by ?? '',
+        created_at: existingRecord?.created_at || new Date().toISOString(),
+        updated_at: existingRecord?.updated_at || new Date().toISOString(),
+        is_locked: existingRecord?.is_locked || false,
+      }
 
+      const obj: StudentAttendanceWithMember = {
+        id: finalAttendance.id,
+        student_id: finalAttendance.student_id,
+        class_id: finalAttendance.class_id,
+        date: finalAttendance.date,
+        status: finalAttendance.status,
+        remarks: finalAttendance.remarks,
+        marked_by: finalAttendance.marked_by,
+        created_at: finalAttendance.created_at,
+        updated_at: finalAttendance.updated_at,
+        is_locked: finalAttendance.is_locked,
+        student: {
+          id: item.student_id,
+          name_english: item.student_name,
+          admission_number: item.student_id.substring(0, 8).toUpperCase(),
+        },
+      }
+      return obj
+    })
+  }, [enrichedData, studentsData, selectedClassId, formattedDateForApi])
   const filteredData = React.useMemo(() => {
     return mergedData.filter(
       (item) =>
@@ -137,6 +183,8 @@ export const StudentAttendancePage = () => {
       setSelectedClassId(classesData.data[0].id)
     }
   }, [classesData, selectedClassId])
+
+  const isFutureDate = isFuture(date) && !isToday(date)
 
   if (isClassesLoading) {
     return (
@@ -180,6 +228,7 @@ export const StudentAttendancePage = () => {
               size="icon"
               className="size-8 rounded-lg"
               onClick={handleNextDay}
+              disabled={isToday(date)}
             >
               <HugeiconsIcon icon={ArrowRight01Icon} className="size-4" />
             </Button>
@@ -190,7 +239,7 @@ export const StudentAttendancePage = () => {
             variant="outline"
             className="rounded-xl border-2 font-bold h-10"
             onClick={handleExportReport}
-            disabled={isReportLoading || !selectedClassId}
+            disabled={isReportLoading || !selectedClassId || isFutureDate}
           >
             {isReportLoading ? (
               <Spinner className="mr-2 size-4" />
@@ -272,7 +321,7 @@ export const StudentAttendancePage = () => {
           </HStack>
         </CardHeader>
         <CardContent className="p-0">
-          {isStudentsLoading || isAttendanceLoading ? (
+          {isEnrichedLoading ? (
             <Box className="flex h-32 items-center justify-center">
               <Spinner className="size-6" />
             </Box>

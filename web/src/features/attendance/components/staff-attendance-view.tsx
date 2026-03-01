@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { format } from 'date-fns'
+import { format, isFuture, isToday } from 'date-fns'
 import {
   Calendar01Icon,
   Download01Icon,
@@ -132,6 +132,9 @@ export function StaffAttendanceView() {
     )
   })
 
+  const isFutureDate =
+    isFuture(new Date(staffDate)) && !isToday(new Date(staffDate))
+
   return (
     <Stack gap={4} p={8} className="h-full w-full">
       {/* Header & Toolbar */}
@@ -153,7 +156,9 @@ export function StaffAttendanceView() {
           </Button>
           <Button
             onClick={handleSave}
-            disabled={markBulkMutation.isPending || !staffList.length}
+            disabled={
+              markBulkMutation.isPending || !staffList.length || isFutureDate
+            }
           >
             {markBulkMutation.isPending ? 'Saving...' : 'Save Attendance'}
           </Button>
@@ -202,6 +207,7 @@ export function StaffAttendanceView() {
                 date && setStaffDate(format(date, 'yyyy-MM-dd'))
               }
               initialFocus
+              disabled={(date) => isFuture(date) && !isToday(date)}
             />
           </PopoverContent>
         </Popover>

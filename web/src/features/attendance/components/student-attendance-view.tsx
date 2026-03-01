@@ -1,11 +1,12 @@
 import * as React from 'react'
-import { format } from 'date-fns'
+import { format, isFuture, isToday } from 'date-fns'
 import {
   Calendar01Icon,
   Download01Icon,
   Search01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { toast } from 'sonner'
 
 import { useAttendanceStore } from '../store'
 import {
@@ -86,7 +87,17 @@ export function StudentAttendanceView() {
   const markBulkMutation = useMarkStudentAttendanceBulk()
 
   const handleSave = () => {
-    if (!studentClassId || !user?.id) return
+    if (!studentClassId || !user?.id) {
+      toast.error('Class and user session are required to save attendance.')
+      return
+    }
+
+    const selectedDate = new Date(studentDate)
+
+    if (isFuture(selectedDate) && !isToday(selectedDate)) {
+      toast.error('Attendance cannot be marked for a future date.')
+      return
+    }
 
     const records = Object.entries(localAttendance).map(
       ([student_id, status]) => ({
@@ -95,8 +106,14 @@ export function StudentAttendanceView() {
         date: studentDate,
         class_id: studentClassId,
         marked_by: user.id,
+        remarks: '', // Default empty remarks for quick marking
       }),
     )
+
+    if (records.length === 0) {
+      toast.info('No attendance changes to save.')
+      return
+    }
 
     markBulkMutation.mutate({
       body: { attendance_records: records },
@@ -140,6 +157,9 @@ export function StudentAttendanceView() {
     })
   }, [attendanceData, studentSearch])
 
+  const isFutureDate =
+    isFuture(new Date(studentDate)) && !isToday(new Date(studentDate))
+
   return (
     <Stack gap={4} p={8} className="h-full w-full">
       {/* Header & Toolbar */}
@@ -162,7 +182,10 @@ export function StudentAttendanceView() {
           <Button
             onClick={handleSave}
             disabled={
-              markBulkMutation.isPending || !studentClassId || !attendanceData
+              markBulkMutation.isPending ||
+              !studentClassId ||
+              !attendanceData ||
+              isFutureDate
             }
           >
             {markBulkMutation.isPending ? 'Saving...' : 'Save Attendance'}
@@ -230,6 +253,7 @@ export function StudentAttendanceView() {
                 date && setStudentDate(format(date, 'yyyy-MM-dd'))
               }
               initialFocus
+              disabled={(date) => isFuture(date) && !isToday(date)}
             />
           </PopoverContent>
         </Popover>

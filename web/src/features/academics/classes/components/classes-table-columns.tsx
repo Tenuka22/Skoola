@@ -3,6 +3,7 @@ import {
   Delete02Icon,
   MoreVerticalIcon,
   PencilEdit01Icon,
+  UserGroupIcon,
 } from '@hugeicons/core-free-icons'
 import { useQuery } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -25,11 +26,13 @@ import { Checkbox } from '@/components/ui/checkbox'
 interface GetClassesColumnsProps {
   onEdit: (classItem: ClassResponse) => void
   onDelete: (id: string) => void
+  onAssignStudents: (classItem: ClassResponse) => void
 }
 
 export function useClassesColumns({
   onEdit,
   onDelete,
+  onAssignStudents,
 }: GetClassesColumnsProps): Array<ColumnDef<ClassResponse>> {
   const { data: academicYearsData } = useQuery(
     getAllAcademicYearsOptions({ client: authClient }),
@@ -121,6 +124,10 @@ export function useClassesColumns({
                   className="size-4 mr-2"
                 />
                 Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAssignStudents(classItem)}>
+                <HugeiconsIcon icon={UserGroupIcon} className="size-4 mr-2" />
+                Assign Students
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onDelete(classItem.id)}>
                 <HugeiconsIcon icon={Delete02Icon} className="size-4 mr-2" />

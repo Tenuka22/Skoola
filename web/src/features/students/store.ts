@@ -62,6 +62,8 @@ interface StudentsState {
   setStudentToManageAttendanceFor: (student: StudentResponse | null) => void
   setIsMarksOpen: (open: boolean) => void
   setStudentToManageMarksFor: (student: StudentResponse | null) => void
+  isBulkAssignClassOpen: boolean
+  setIsBulkAssignClassOpen: (open: boolean) => void
 }
 
 export const useStudentsStore = create<StudentsState>((set) => ({
@@ -89,6 +91,9 @@ export const useStudentsStore = create<StudentsState>((set) => ({
   studentToManageAttendanceFor: null,
   isMarksOpen: false,
   studentToManageMarksFor: null,
+  isBulkAssignClassOpen: false,
+  setIsBulkAssignClassOpen: (isBulkAssignClassOpen) =>
+    set({ isBulkAssignClassOpen }),
 
   setPage: (page) => set({ page }),
   setSearch: (search) => set({ search }),

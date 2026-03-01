@@ -1,7 +1,11 @@
 'use client'
 
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
+import {
+  Delete02Icon,
+  PencilEdit01Icon,
+  School01Icon,
+} from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
@@ -10,12 +14,14 @@ interface StudentToolbarProps {
   selectedStudents: Set<string>
   onBulkDelete: () => void
   onBulkEdit: () => void
+  onBulkAssignClass: () => void
 }
 
 export function StudentToolbar({
   selectedStudents,
   onBulkDelete,
   onBulkEdit,
+  onBulkAssignClass,
 }: StudentToolbarProps) {
   if (selectedStudents.size === 0) return null
 
@@ -29,6 +35,11 @@ export function StudentToolbar({
         <Button variant="outline" onClick={onBulkEdit}>
           <HugeiconsIcon icon={PencilEdit01Icon} className="mr-2 size-4" />
           Edit
+        </Button>
+
+        <Button variant="outline" onClick={onBulkAssignClass}>
+          <HugeiconsIcon icon={School01Icon} className="mr-2 size-4" />
+          Assign Class
         </Button>
 
         <Button onClick={onBulkDelete} variant="destructive">

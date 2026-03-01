@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { addDays, format, subDays } from 'date-fns'
+import { addDays, format, isFuture, isToday, subDays } from 'date-fns'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   ArrowLeft01Icon,
@@ -18,6 +18,10 @@ import { staffAttendanceColumns } from './staff-attendance-columns'
 import { AttendanceSummaryCards } from './attendance-summary-cards'
 import { MarkStaffAttendanceDialog } from './mark-staff-attendance-dialog'
 import type { StaffAttendanceWithMember } from '../types'
+import type {
+  StaffAttendanceResponse,
+  StaffResponse,
+} from '@/lib/api/types.gen'
 import { DataTable } from '@/components/ui/data-table'
 import {
   Select,
@@ -45,8 +49,15 @@ export const StaffAttendancePage = () => {
     useStaffAttendance(formattedDateForApi)
   const { data: staffData, isLoading: isStaffLoading } = useStaffList()
 
-  const handlePrevDay = () => setDate((d) => subDays(d, 1))
-  const handleNextDay = () => setDate((d) => addDays(d, 1))
+  const handlePrevDay = () => {
+    setDate((d) => subDays(d, 1))
+  }
+
+  const handleNextDay = () => {
+    if (!isToday(date)) {
+      setDate((d) => addDays(d, 1))
+    }
+  }
 
   const handleMarkAttendance = (attendance: StaffAttendanceWithMember) => {
     setSelectedAttendance(attendance)
@@ -62,21 +73,40 @@ export const StaffAttendancePage = () => {
     }))
   }, [])
 
-  const mergedData: Array<StaffAttendanceWithMember> = React.useMemo(() => {
+  const mergedData = React.useMemo(() => {
     if (!staffData?.data) return []
     return staffData.data.map((staff) => {
-      const attendance = attendanceData?.find((a) => a.staff_id === staff.id)
-      return {
-        ...(attendance ?? {
-          id: `temp-${staff.id}`,
-          staff_id: staff.id,
-          date: formattedDateForApi,
-          status: 'Absent', // Default status if not marked
-          created_at: '',
-          updated_at: '',
-        }),
-        staff,
+      const attendance: StaffAttendanceResponse | undefined =
+        attendanceData?.find((a) => a.staff_id === staff.id)
+
+      const defaultAttendance: StaffAttendanceResponse = {
+        id: `temp-${staff.id}`,
+        staff_id: staff.id,
+        date: formattedDateForApi,
+        status: 'Absent',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        time_in: null,
+        time_out: null,
+        remarks: null,
       }
+
+      const finalAttendance: StaffAttendanceResponse =
+        attendance ?? defaultAttendance
+
+      const mergedItem: StaffAttendanceWithMember = {
+        id: finalAttendance.id,
+        staff_id: finalAttendance.staff_id,
+        date: finalAttendance.date,
+        status: finalAttendance.status,
+        created_at: finalAttendance.created_at,
+        updated_at: finalAttendance.updated_at,
+        time_in: finalAttendance.time_in,
+        time_out: finalAttendance.time_out,
+        remarks: finalAttendance.remarks,
+        staff: staff,
+      }
+      return mergedItem
     })
   }, [staffData, attendanceData, formattedDateForApi])
 
@@ -87,6 +117,8 @@ export const StaffAttendancePage = () => {
         item.staff?.employee_id.toLowerCase().includes(search.toLowerCase()),
     )
   }, [mergedData, search])
+
+  const isFutureDate = isFuture(date) && !isToday(date)
 
   if (isStaffLoading && !staffData) {
     return (
@@ -130,6 +162,7 @@ export const StaffAttendancePage = () => {
               size="icon"
               className="size-8 rounded-lg"
               onClick={handleNextDay}
+              disabled={isToday(date)}
             >
               <HugeiconsIcon icon={ArrowRight01Icon} className="size-4" />
             </Button>
@@ -143,7 +176,7 @@ export const StaffAttendancePage = () => {
             <HugeiconsIcon icon={Download02Icon} className="mr-2 size-4" />
             Attendance Report
           </Button>
-          <Button className="rounded-xl font-bold h-10">
+          <Button className="rounded-xl font-bold h-10" disabled={isFutureDate}>
             <HugeiconsIcon icon={PlusSignIcon} className="mr-2 size-4" />
             Add Attendance
           </Button>

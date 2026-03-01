@@ -232,10 +232,16 @@ export function getUserColumns({
             )}
             <Stack gap={0}>
               <HStack gap={2} align="center">
-                <Text size="sm" className="font-medium text-foreground capitalize">
+                <Text
+                  size="sm"
+                  className="font-medium text-foreground capitalize"
+                >
                   {name}
                 </Text>
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
+                <Badge
+                  variant="secondary"
+                  className="text-[10px] px-1.5 py-0 h-4"
+                >
                   {user.role}
                 </Badge>
               </HStack>
@@ -400,21 +406,26 @@ export function getUserColumns({
         const isBeingUpdated = isUpdating && updatingUserId === user.id
 
         return (
-          <DropdownMenu >
+          <DropdownMenu>
             <DropdownMenuTrigger
               render={
                 <Button
                   variant="ghost"
                   className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
                 >
-                  <HugeiconsIcon icon={MoreHorizontalCircle01Icon} className="h-4 w-4" />
+                  <HugeiconsIcon
+                    icon={MoreHorizontalCircle01Icon}
+                    className="h-4 w-4"
+                  />
                   <span className="sr-only">Open menu</span>
                 </Button>
               }
             />
 
             <DropdownMenuContent align="end" className="min-w-40 ">
-              <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground truncate max-w-xs">{user.email}</div>
+              <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground truncate max-w-xs">
+                {user.email}
+              </div>
               <DropdownMenuSeparator />
 
               <DropdownMenuItem

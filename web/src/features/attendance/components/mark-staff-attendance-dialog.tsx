@@ -1,4 +1,6 @@
-import * as React from 'react'
+import { useCallback } from 'react'
+import { toast } from 'sonner'
+import { isFuture, isToday } from 'date-fns'
 import { useMarkStaffAttendanceBulk, useUpdateStaffAttendance } from '../api'
 import { ALL_ATTENDANCE_STATUSES } from '../types'
 import type { z } from 'zod'
@@ -51,7 +53,7 @@ export const MarkStaffAttendanceDialog = ({
   const markBulkMutation = useMarkStaffAttendanceBulk()
   const updateMutation = useUpdateStaffAttendance()
 
-  const preload = React.useCallback(
+  const preload = useCallback(
     (
       form: UseFormReturn<AttendanceFormValues, unknown, AttendanceFormValues>,
     ) => {
@@ -183,6 +185,13 @@ export const MarkStaffAttendanceDialog = ({
 
   const onSubmit = (values: AttendanceFormValues) => {
     if (!attendance) return
+
+    const selectedDate = new Date(date)
+
+    if (isFuture(selectedDate) && !isToday(selectedDate)) {
+      toast.error('Attendance cannot be marked for a future date.')
+      return
+    }
 
     if (attendance.created_at) {
       // Update existing record

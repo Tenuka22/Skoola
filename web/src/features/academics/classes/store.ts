@@ -25,6 +25,10 @@ interface ClassesStore {
   setGradeId: (gradeId: string | null) => void
   academicYearId: string | null
   setAcademicYearId: (academicYearId: string | null) => void
+  isAssignStudentsOpen: boolean
+  setIsAssignStudentsOpen: (isOpen: boolean) => void
+  classToAssignStudentsFor: ClassResponse | null
+  setClassToAssignStudentsFor: (classItem: ClassResponse | null) => void
 }
 
 export const useClassesStore = create<ClassesStore>((set) => ({
@@ -51,4 +55,9 @@ export const useClassesStore = create<ClassesStore>((set) => ({
   setGradeId: (gradeId) => set({ gradeId, page: 1 }),
   academicYearId: null,
   setAcademicYearId: (academicYearId) => set({ academicYearId, page: 1 }),
+  isAssignStudentsOpen: false,
+  setIsAssignStudentsOpen: (isOpen) => set({ isAssignStudentsOpen: isOpen }),
+  classToAssignStudentsFor: null,
+  setClassToAssignStudentsFor: (classItem) =>
+    set({ classToAssignStudentsFor: classItem }),
 }))

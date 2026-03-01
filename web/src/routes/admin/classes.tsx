@@ -26,6 +26,7 @@ import { ClassesListContainer } from '@/features/academics/classes/components/cl
 import { useClassesColumns } from '@/features/academics/classes/components/classes-table-columns'
 import { ClassAddDialog } from '@/features/academics/classes/components/class-add-dialog'
 import { ClassEditDialog } from '@/features/academics/classes/components/class-edit-dialog'
+import { ClassAssignStudentsDialog } from '@/features/academics/classes/components/class-assign-students-dialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -66,6 +67,10 @@ function ClassesPage() {
     setIsCreateClassOpen,
     isBulkDeleteOpen,
     setIsBulkDeleteOpen,
+    isAssignStudentsOpen,
+    setIsAssignStudentsOpen,
+    classToAssignStudentsFor,
+    setClassToAssignStudentsFor,
   } = store
 
   const sortBy = sorting[0]?.id
@@ -164,6 +169,10 @@ function ClassesPage() {
   const columns = useClassesColumns({
     onEdit: setClassToEdit,
     onDelete: setClassToDelete,
+    onAssignStudents: (classItem) => {
+      setClassToAssignStudentsFor(classItem)
+      setIsAssignStudentsOpen(true)
+    },
   })
 
   return (
@@ -207,6 +216,12 @@ function ClassesPage() {
           })
         }
         isSubmitting={updateClass.isPending}
+      />
+
+      <ClassAssignStudentsDialog
+        classItem={classToAssignStudentsFor}
+        open={isAssignStudentsOpen}
+        onOpenChange={setIsAssignStudentsOpen}
       />
 
       <AlertDialog

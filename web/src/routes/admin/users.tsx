@@ -266,30 +266,30 @@ function Users() {
           return (
             <UserContextMenuItems
               user={row}
-            onToggleVerify={(user) =>
-              updateUser.mutate({
-                path: { user_id: user.id },
-                body: { is_verified: !user.is_verified },
-              })
-            }
-            onToggleLock={(user) => {
-              if (user.lockout_until) {
+              onToggleVerify={(user) =>
                 updateUser.mutate({
                   path: { user_id: user.id },
-                  body: {
-                    lockout_until: null,
-                  },
+                  body: { is_verified: !user.is_verified },
                 })
-              } else {
-                store.setUserToLock(user)
               }
-            }}
-            setUserToDelete={store.setUserToDelete}
-            setUserToEdit={store.setUserToEdit}
-            setUserToManagePermissions={store.setUserToManagePermissions}
-            isUpdating={updateUser.isPending}
-            updatingUserId={updateUser.variables?.path?.user_id ?? null}
-          />
+              onToggleLock={(user) => {
+                if (user.lockout_until) {
+                  updateUser.mutate({
+                    path: { user_id: user.id },
+                    body: {
+                      lockout_until: null,
+                    },
+                  })
+                } else {
+                  store.setUserToLock(user)
+                }
+              }}
+              setUserToDelete={store.setUserToDelete}
+              setUserToEdit={store.setUserToEdit}
+              setUserToManagePermissions={store.setUserToManagePermissions}
+              isUpdating={updateUser.isPending}
+              updatingUserId={updateUser.variables?.path?.user_id ?? null}
+            />
           )
         }}
       />

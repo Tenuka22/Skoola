@@ -16,6 +16,7 @@ import { StudentGuardiansDialog } from '../../features/students/components/stude
 import { StudentAttendanceDialog } from '../../features/students/components/student-attendance-dialog'
 import { StudentMarksDialog } from '../../features/students/components/student-marks-dialog'
 import { StudentToolbar } from '../../features/students/components/student-toolbar'
+import { StudentBulkAssignClassDialog } from '../../features/students/components/student-bulk-assign-class-dialog'
 import { getStudentColumns } from '../../features/students/components/student-table-columns'
 import { StudentFilters } from '../../features/students/components/student-filters'
 import { StudentHeader } from '../../features/students/components/student-header'
@@ -76,6 +77,8 @@ function StudentsPage() {
     isMarksOpen,
     setIsMarksOpen,
     studentToManageMarksFor,
+    isBulkAssignClassOpen,
+    setIsBulkAssignClassOpen,
   } = store
 
   const sortBy = sorting[0]?.id
@@ -186,7 +189,10 @@ function StudentsPage() {
     onEdit: store.setStudentToEdit,
     onDelete: store.setStudentToDelete,
     onUploadPhoto: store.setStudentToUploadPhotoFor,
-    onAssignClass: store.setStudentToAssignClassFor,
+    onAssignClass: (student) => {
+      store.setStudentToAssignClassFor(student)
+      store.setIsAssignClassOpen(true)
+    },
     onManageGuardians: store.setStudentToManageGuardiansFor,
     onManageAttendance: store.setStudentToManageAttendanceFor,
     onManageMarks: store.setStudentToManageMarksFor,
@@ -224,6 +230,7 @@ function StudentsPage() {
         selectedStudents={selectedStudents}
         onBulkDelete={() => setIsBulkDeleteOpen(true)}
         onBulkEdit={() => setIsBulkEditOpen(true)}
+        onBulkAssignClass={() => setIsBulkAssignClassOpen(true)}
       />
 
       <StudentModals
@@ -292,6 +299,12 @@ function StudentsPage() {
         student={studentToManageMarksFor}
         open={isMarksOpen}
         onOpenChange={setIsMarksOpen}
+      />
+
+      <StudentBulkAssignClassDialog
+        selectedStudentIds={selectedStudents}
+        open={isBulkAssignClassOpen}
+        onOpenChange={setIsBulkAssignClassOpen}
       />
     </div>
   )

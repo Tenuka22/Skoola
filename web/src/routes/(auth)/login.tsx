@@ -28,7 +28,10 @@ function Login() {
       <LoginForm authStorage={authStorage} />
       <div className="mt-5 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}
-        <Link to="/sign-up" className="font-medium text-foreground hover:underline underline-offset-4 transition-colors">
+        <Link
+          to="/sign-up"
+          className="font-medium text-foreground hover:underline underline-offset-4 transition-colors"
+        >
           Sign up
         </Link>
       </div>

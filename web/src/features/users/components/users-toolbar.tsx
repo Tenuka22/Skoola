@@ -68,11 +68,13 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
       <HStack align="center" gap={2}>
         {/* Search Bar */}
         <div className="relative group">
-          <div className={cn(
-            'flex items-center gap-2 h-9 w-72 rounded-lg border border-border/60 bg-background px-3 transition-all duration-200',
-            'focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20 focus-within:w-80',
-            'hover:border-border',
-          )}>
+          <div
+            className={cn(
+              'flex items-center gap-2 h-9 w-72 rounded-lg border border-border/60 bg-background px-3 transition-all duration-200',
+              'focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20 focus-within:w-80',
+              'hover:border-border',
+            )}
+          >
             <HugeiconsIcon
               icon={Search01Icon}
               className="size-4 text-muted-foreground shrink-0"

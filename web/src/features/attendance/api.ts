@@ -8,22 +8,20 @@ import {
   getAllClassesOptions,
   getAllStaffOptions,
   getAttendanceByClassAndDateOptions,
-  getAttendanceByClassAndDateQueryKey,
   getEnrichedStudentListOptions,
   getStaffAttendanceByDateOptions,
-  getStaffAttendanceByDateQueryKey,
   markStaffAttendanceBulkMutation,
   updateStaffAttendanceMutation,
   updateStudentAttendanceMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
 
 export const useStaffAttendance = (date: string) => {
-  return useQuery(
-    getStaffAttendanceByDateOptions({
+  return useQuery({
+    ...getStaffAttendanceByDateOptions({
       client: authClient,
       query: { date },
     }),
-  )
+  })
 }
 
 export const useStaffList = (
@@ -50,7 +48,16 @@ export const useMarkStaffAttendanceBulk = () => {
     onSuccess: () => {
       toast.success('Attendance marked successfully')
       queryClient.invalidateQueries({
-        queryKey: getStaffAttendanceByDateQueryKey({ query: { date: '' } }),
+        predicate: (query) => {
+          const firstKey = query.queryKey[0]
+          if (firstKey && typeof firstKey === 'object' && '_id' in firstKey) {
+            return (
+              typeof firstKey._id === 'string' &&
+              firstKey._id === 'getStaffAttendanceByDate'
+            )
+          }
+          return false
+        },
       })
     },
     onError: (error) => {
@@ -69,7 +76,16 @@ export const useUpdateStaffAttendance = () => {
     onSuccess: () => {
       toast.success('Attendance updated successfully')
       queryClient.invalidateQueries({
-        queryKey: getStaffAttendanceByDateQueryKey({ query: { date: '' } }),
+        predicate: (query) => {
+          const firstKey = query.queryKey[0]
+          if (firstKey && typeof firstKey === 'object' && '_id' in firstKey) {
+            return (
+              typeof firstKey._id === 'string' &&
+              firstKey._id === 'getStaffAttendanceByDate'
+            )
+          }
+          return false
+        },
       })
     },
     onError: (error) => {
@@ -123,9 +139,18 @@ export const useMarkStudentAttendanceBulk = () => {
     onSuccess: () => {
       toast.success('Attendance marked successfully')
       queryClient.invalidateQueries({
-        queryKey: getAttendanceByClassAndDateQueryKey({
-          path: { class_id: '', date: '' },
-        }),
+        predicate: (query) => {
+          const firstKey = query.queryKey[0]
+          if (firstKey && typeof firstKey === 'object' && '_id' in firstKey) {
+            const id = firstKey._id
+            return (
+              typeof id === 'string' &&
+              (id === 'getAttendanceByClassAndDate' ||
+                id === 'getEnrichedStudentList')
+            )
+          }
+          return false
+        },
       })
     },
     onError: (error) => {
@@ -144,9 +169,18 @@ export const useUpdateStudentAttendance = () => {
     onSuccess: () => {
       toast.success('Attendance updated successfully')
       queryClient.invalidateQueries({
-        queryKey: getAttendanceByClassAndDateQueryKey({
-          path: { class_id: '', date: '' },
-        }),
+        predicate: (query) => {
+          const firstKey = query.queryKey[0]
+          if (firstKey && typeof firstKey === 'object' && '_id' in firstKey) {
+            const id = firstKey._id
+            return (
+              typeof id === 'string' &&
+              (id === 'getAttendanceByClassAndDate' ||
+                id === 'getEnrichedStudentList')
+            )
+          }
+          return false
+        },
       })
     },
     onError: (error) => {

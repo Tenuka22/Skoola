@@ -37,7 +37,11 @@ export function AuthLayout({ title, description, children }: AuthLayoutProps) {
               <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
             </svg>
           </div>
-          <Text size="sm" muted className="font-medium tracking-wide uppercase text-[10px] letter-spacing-wider">
+          <Text
+            size="sm"
+            muted
+            className="font-medium tracking-wide uppercase text-[10px] letter-spacing-wider"
+          >
             Skoola
           </Text>
         </div>
@@ -45,7 +49,9 @@ export function AuthLayout({ title, description, children }: AuthLayoutProps) {
         <CardPrimitive className="p-0 w-full border-border/50 bg-card shadow-xl shadow-black/3 dark:shadow-black/30 rounded-2xl overflow-hidden">
           <CardHeader className="pb-2 pt-7 px-7 space-y-1.5">
             <CardTitle>
-              <Heading size="h4" className="tracking-tight font-semibold">{title}</Heading>
+              <Heading size="h4" className="tracking-tight font-semibold">
+                {title}
+              </Heading>
             </CardTitle>
             {description && (
               <CardDescription>

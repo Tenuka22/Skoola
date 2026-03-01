@@ -17,6 +17,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminStudentsRouteImport } from './routes/admin/students'
 import { Route as AdminStaffRouteImport } from './routes/admin/staff'
 import { Route as AdminRbacRouteImport } from './routes/admin/rbac'
+import { Route as AdminGradesRouteImport } from './routes/admin/grades'
 import { Route as AdminClassesRouteImport } from './routes/admin/classes'
 import { Route as AdminAuditRouteImport } from './routes/admin/audit'
 import { Route as AdminAcademicsRouteImport } from './routes/admin/academics'
@@ -28,7 +29,6 @@ import { Route as AdminAttendanceStaffRouteImport } from './routes/admin/attenda
 import { Route as AdminAcademicsTimetablesRouteImport } from './routes/admin/academics/timetables'
 import { Route as AdminAcademicsTermsRouteImport } from './routes/admin/academics/terms'
 import { Route as AdminAcademicsSubjectsRouteImport } from './routes/admin/academics/subjects'
-import { Route as AdminAcademicsGradeLevelsRouteImport } from './routes/admin/academics/grade-levels'
 import { Route as AdminAcademicsClassAssignmentsRouteImport } from './routes/admin/academics/class-assignments'
 
 const AdminRoute = AdminRouteImport.update({
@@ -69,6 +69,11 @@ const AdminStaffRoute = AdminStaffRouteImport.update({
 const AdminRbacRoute = AdminRbacRouteImport.update({
   id: '/rbac',
   path: '/rbac',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminGradesRoute = AdminGradesRouteImport.update({
+  id: '/grades',
+  path: '/grades',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminClassesRoute = AdminClassesRouteImport.update({
@@ -127,12 +132,6 @@ const AdminAcademicsSubjectsRoute = AdminAcademicsSubjectsRouteImport.update({
   path: '/subjects',
   getParentRoute: () => AdminAcademicsRoute,
 } as any)
-const AdminAcademicsGradeLevelsRoute =
-  AdminAcademicsGradeLevelsRouteImport.update({
-    id: '/grade-levels',
-    path: '/grade-levels',
-    getParentRoute: () => AdminAcademicsRoute,
-  } as any)
 const AdminAcademicsClassAssignmentsRoute =
   AdminAcademicsClassAssignmentsRouteImport.update({
     id: '/class-assignments',
@@ -149,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/admin/academics': typeof AdminAcademicsRouteWithChildren
   '/admin/audit': typeof AdminAuditRoute
   '/admin/classes': typeof AdminClassesRoute
+  '/admin/grades': typeof AdminGradesRoute
   '/admin/rbac': typeof AdminRbacRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/students': typeof AdminStudentsRoute
@@ -156,7 +156,6 @@ export interface FileRoutesByFullPath {
   '/admin/years': typeof AdminYearsRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/academics/class-assignments': typeof AdminAcademicsClassAssignmentsRoute
-  '/admin/academics/grade-levels': typeof AdminAcademicsGradeLevelsRoute
   '/admin/academics/subjects': typeof AdminAcademicsSubjectsRoute
   '/admin/academics/terms': typeof AdminAcademicsTermsRoute
   '/admin/academics/timetables': typeof AdminAcademicsTimetablesRoute
@@ -171,6 +170,7 @@ export interface FileRoutesByTo {
   '/admin/academics': typeof AdminAcademicsRouteWithChildren
   '/admin/audit': typeof AdminAuditRoute
   '/admin/classes': typeof AdminClassesRoute
+  '/admin/grades': typeof AdminGradesRoute
   '/admin/rbac': typeof AdminRbacRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/students': typeof AdminStudentsRoute
@@ -178,7 +178,6 @@ export interface FileRoutesByTo {
   '/admin/years': typeof AdminYearsRoute
   '/admin': typeof AdminIndexRoute
   '/admin/academics/class-assignments': typeof AdminAcademicsClassAssignmentsRoute
-  '/admin/academics/grade-levels': typeof AdminAcademicsGradeLevelsRoute
   '/admin/academics/subjects': typeof AdminAcademicsSubjectsRoute
   '/admin/academics/terms': typeof AdminAcademicsTermsRoute
   '/admin/academics/timetables': typeof AdminAcademicsTimetablesRoute
@@ -195,6 +194,7 @@ export interface FileRoutesById {
   '/admin/academics': typeof AdminAcademicsRouteWithChildren
   '/admin/audit': typeof AdminAuditRoute
   '/admin/classes': typeof AdminClassesRoute
+  '/admin/grades': typeof AdminGradesRoute
   '/admin/rbac': typeof AdminRbacRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/students': typeof AdminStudentsRoute
@@ -202,7 +202,6 @@ export interface FileRoutesById {
   '/admin/years': typeof AdminYearsRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/academics/class-assignments': typeof AdminAcademicsClassAssignmentsRoute
-  '/admin/academics/grade-levels': typeof AdminAcademicsGradeLevelsRoute
   '/admin/academics/subjects': typeof AdminAcademicsSubjectsRoute
   '/admin/academics/terms': typeof AdminAcademicsTermsRoute
   '/admin/academics/timetables': typeof AdminAcademicsTimetablesRoute
@@ -220,6 +219,7 @@ export interface FileRouteTypes {
     | '/admin/academics'
     | '/admin/audit'
     | '/admin/classes'
+    | '/admin/grades'
     | '/admin/rbac'
     | '/admin/staff'
     | '/admin/students'
@@ -227,7 +227,6 @@ export interface FileRouteTypes {
     | '/admin/years'
     | '/admin/'
     | '/admin/academics/class-assignments'
-    | '/admin/academics/grade-levels'
     | '/admin/academics/subjects'
     | '/admin/academics/terms'
     | '/admin/academics/timetables'
@@ -242,6 +241,7 @@ export interface FileRouteTypes {
     | '/admin/academics'
     | '/admin/audit'
     | '/admin/classes'
+    | '/admin/grades'
     | '/admin/rbac'
     | '/admin/staff'
     | '/admin/students'
@@ -249,7 +249,6 @@ export interface FileRouteTypes {
     | '/admin/years'
     | '/admin'
     | '/admin/academics/class-assignments'
-    | '/admin/academics/grade-levels'
     | '/admin/academics/subjects'
     | '/admin/academics/terms'
     | '/admin/academics/timetables'
@@ -265,6 +264,7 @@ export interface FileRouteTypes {
     | '/admin/academics'
     | '/admin/audit'
     | '/admin/classes'
+    | '/admin/grades'
     | '/admin/rbac'
     | '/admin/staff'
     | '/admin/students'
@@ -272,7 +272,6 @@ export interface FileRouteTypes {
     | '/admin/years'
     | '/admin/'
     | '/admin/academics/class-assignments'
-    | '/admin/academics/grade-levels'
     | '/admin/academics/subjects'
     | '/admin/academics/terms'
     | '/admin/academics/timetables'
@@ -344,6 +343,13 @@ declare module '@tanstack/react-router' {
       path: '/rbac'
       fullPath: '/admin/rbac'
       preLoaderRoute: typeof AdminRbacRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/grades': {
+      id: '/admin/grades'
+      path: '/grades'
+      fullPath: '/admin/grades'
+      preLoaderRoute: typeof AdminGradesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/classes': {
@@ -423,13 +429,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAcademicsSubjectsRouteImport
       parentRoute: typeof AdminAcademicsRoute
     }
-    '/admin/academics/grade-levels': {
-      id: '/admin/academics/grade-levels'
-      path: '/grade-levels'
-      fullPath: '/admin/academics/grade-levels'
-      preLoaderRoute: typeof AdminAcademicsGradeLevelsRouteImport
-      parentRoute: typeof AdminAcademicsRoute
-    }
     '/admin/academics/class-assignments': {
       id: '/admin/academics/class-assignments'
       path: '/class-assignments'
@@ -442,7 +441,6 @@ declare module '@tanstack/react-router' {
 
 interface AdminAcademicsRouteChildren {
   AdminAcademicsClassAssignmentsRoute: typeof AdminAcademicsClassAssignmentsRoute
-  AdminAcademicsGradeLevelsRoute: typeof AdminAcademicsGradeLevelsRoute
   AdminAcademicsSubjectsRoute: typeof AdminAcademicsSubjectsRoute
   AdminAcademicsTermsRoute: typeof AdminAcademicsTermsRoute
   AdminAcademicsTimetablesRoute: typeof AdminAcademicsTimetablesRoute
@@ -450,7 +448,6 @@ interface AdminAcademicsRouteChildren {
 
 const AdminAcademicsRouteChildren: AdminAcademicsRouteChildren = {
   AdminAcademicsClassAssignmentsRoute: AdminAcademicsClassAssignmentsRoute,
-  AdminAcademicsGradeLevelsRoute: AdminAcademicsGradeLevelsRoute,
   AdminAcademicsSubjectsRoute: AdminAcademicsSubjectsRoute,
   AdminAcademicsTermsRoute: AdminAcademicsTermsRoute,
   AdminAcademicsTimetablesRoute: AdminAcademicsTimetablesRoute,
@@ -464,6 +461,7 @@ interface AdminRouteChildren {
   AdminAcademicsRoute: typeof AdminAcademicsRouteWithChildren
   AdminAuditRoute: typeof AdminAuditRoute
   AdminClassesRoute: typeof AdminClassesRoute
+  AdminGradesRoute: typeof AdminGradesRoute
   AdminRbacRoute: typeof AdminRbacRoute
   AdminStaffRoute: typeof AdminStaffRoute
   AdminStudentsRoute: typeof AdminStudentsRoute
@@ -478,6 +476,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAcademicsRoute: AdminAcademicsRouteWithChildren,
   AdminAuditRoute: AdminAuditRoute,
   AdminClassesRoute: AdminClassesRoute,
+  AdminGradesRoute: AdminGradesRoute,
   AdminRbacRoute: AdminRbacRoute,
   AdminStaffRoute: AdminStaffRoute,
   AdminStudentsRoute: AdminStudentsRoute,

@@ -98,7 +98,10 @@ export function UserCreateDialog({
         <div className="flex flex-col border-b border-border/40 bg-muted/20 p-6 pb-6">
           <div className="flex gap-4 items-start">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20">
-              <HugeiconsIcon icon={UserAdd01Icon} className="size-5 text-primary" />
+              <HugeiconsIcon
+                icon={UserAdd01Icon}
+                className="size-5 text-primary"
+              />
             </div>
             <Stack gap={1} className="pt-1">
               <DialogTitle className="text-xl">Create User</DialogTitle>
