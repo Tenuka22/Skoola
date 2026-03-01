@@ -2,12 +2,12 @@ import { Suspense, useMemo, useState } from 'react'
 import { addDays, format } from 'date-fns'
 import { Calendar as CalendarIcon, Download } from 'lucide-react'
 import * as papaparse from 'papaparse'
-import type { ColumnDef } from '@tanstack/react-table'
 import {
   useGenerateStudentAttendanceReport,
   useSuspenseClasses,
   useSuspenseGenerateStudentAttendanceReport,
 } from '../api'
+import type { ColumnDef } from '@tanstack/react-table'
 import type { StudentAttendanceReportResponse } from '@/lib/api/types.gen'
 import type { DateRange } from 'react-day-picker'
 import { Box, HStack, Heading, Stack, Text } from '@/components/primitives'
@@ -280,4 +280,3 @@ export function AttendanceReportPage() {
     </Stack>
   )
 }
-

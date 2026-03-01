@@ -175,7 +175,10 @@ export const StaffAttendancePage = () => {
               <span>Attendance Report</span>
             </HStack>
           </Button>
-          <Button className="rounded-xl font-bold h-10 px-4" disabled={isFutureDate}>
+          <Button
+            className="rounded-xl font-bold h-10 px-4"
+            disabled={isFutureDate}
+          >
             <HStack gap={2} p={0}>
               <HugeiconsIcon icon={PlusSignIcon} className="size-4" />
               <span>Add Attendance</span>
@@ -274,4 +277,3 @@ export const StaffAttendancePage = () => {
     </Stack>
   )
 }
-

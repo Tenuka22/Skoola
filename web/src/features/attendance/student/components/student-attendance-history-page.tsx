@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import { addDays, format } from 'date-fns'
 import { useMatch } from '@tanstack/react-router'
-import type { ColumnDef } from '@tanstack/react-table'
 import {
   useSuspenseAttendanceByStudent,
   useSuspenseCalculateStudentAttendancePercentage,
@@ -9,6 +8,7 @@ import {
 } from '../../api'
 import { IssueExitPassDialog } from './issue-exit-pass-dialog'
 import { SubmitExcuseDialog } from './submit-excuse-dialog'
+import type { ColumnDef } from '@tanstack/react-table'
 import type { DateRange, DayProps } from 'react-day-picker'
 import type { StudentAttendanceResponse } from '@/lib/api/types.gen'
 import { Box, HStack, Heading, Stack, Text } from '@/components/primitives'
@@ -52,15 +52,16 @@ export function StudentAttendanceHistoryPage() {
     path: { student_id: studentId },
   })
 
-  const { data: attendanceHistory, isFetching } = useSuspenseAttendanceByStudent({
-    path: { student_id: studentId },
-    query: {
-      from_date: dateRange?.from
-        ? format(dateRange.from, 'yyyy-MM-dd')
-        : undefined,
-      to_date: dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : undefined,
-    },
-  })
+  const { data: attendanceHistory, isFetching } =
+    useSuspenseAttendanceByStudent({
+      path: { student_id: studentId },
+      query: {
+        from_date: dateRange?.from
+          ? format(dateRange.from, 'yyyy-MM-dd')
+          : undefined,
+        to_date: dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : undefined,
+      },
+    })
 
   const { data: attendancePercentage } =
     useSuspenseCalculateStudentAttendancePercentage({
@@ -102,7 +103,10 @@ export function StudentAttendanceHistoryPage() {
         cell: ({ row }) => (
           <Badge
             variant="outline"
-            className={cn('rounded-lg font-bold border', getStatusColor(row.original.status))}
+            className={cn(
+              'rounded-lg font-bold border',
+              getStatusColor(row.original.status),
+            )}
           >
             {row.original.status}
           </Badge>
@@ -167,11 +171,18 @@ export function StudentAttendanceHistoryPage() {
               </AvatarFallback>
             </Avatar>
             <Stack gap={1}>
-              <Heading size="h2" className="font-black">{student.name_english}</Heading>
-              <Text muted className="font-bold tracking-widest uppercase text-xs">{student.admission_number}</Text>
+              <Heading size="h2" className="font-black">
+                {student.name_english}
+              </Heading>
+              <Text
+                muted
+                className="font-bold tracking-widest uppercase text-xs"
+              >
+                {student.admission_number}
+              </Text>
             </Stack>
           </HStack>
-          <Button 
+          <Button
             className="rounded-xl font-bold h-10 px-6 shadow-lg shadow-primary/20"
             onClick={() => setIsIssuePassOpen(true)}
           >
@@ -182,7 +193,10 @@ export function StudentAttendanceHistoryPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card className="border-none shadow-xl bg-card">
             <CardHeader className="pb-2">
-              <Text muted className="text-[10px] font-black uppercase tracking-widest">
+              <Text
+                muted
+                className="text-[10px] font-black uppercase tracking-widest"
+              >
                 Attendance Percentage
               </Text>
             </CardHeader>
@@ -196,7 +210,9 @@ export function StudentAttendanceHistoryPage() {
 
         <Card className="border-none shadow-xl bg-card overflow-hidden">
           <CardHeader className="bg-muted/20 border-b px-6 py-4">
-            <CardTitle className="text-sm font-bold">Attendance History Map</CardTitle>
+            <CardTitle className="text-sm font-bold">
+              Attendance History Map
+            </CardTitle>
           </CardHeader>
           <CardContent className="flex gap-8 p-6">
             <Calendar
@@ -217,11 +233,14 @@ export function StudentAttendanceHistoryPage() {
                       {status && (
                         <Badge
                           className={cn(
-                            "absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 p-0 rounded-full border-none",
-                            status === 'Present' ? "bg-green-500" : 
-                            status === 'Absent' ? "bg-red-500" : 
-                            status === 'Late' ? "bg-orange-500" : 
-                            "bg-blue-500"
+                            'absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 p-0 rounded-full border-none',
+                            status === 'Present'
+                              ? 'bg-green-500'
+                              : status === 'Absent'
+                                ? 'bg-red-500'
+                                : status === 'Late'
+                                  ? 'bg-orange-500'
+                                  : 'bg-blue-500',
                           )}
                         />
                       )}
@@ -231,32 +250,47 @@ export function StudentAttendanceHistoryPage() {
               }}
             />
             <Stack gap={4} className="border-l pl-8 border-border/40">
-              <Text size="xs" className="font-black uppercase tracking-widest text-muted-foreground">Legend</Text>
+              <Text
+                size="xs"
+                className="font-black uppercase tracking-widest text-muted-foreground"
+              >
+                Legend
+              </Text>
               <Stack gap={2}>
                 <HStack gap={3} align="center">
                   <div className="size-2 rounded-full bg-green-500 shadow-sm shadow-green-500/40" />{' '}
-                  <Text size="xs" className="font-bold">Present</Text>
+                  <Text size="xs" className="font-bold">
+                    Present
+                  </Text>
                 </HStack>
                 <HStack gap={3} align="center">
                   <div className="size-2 rounded-full bg-red-500 shadow-sm shadow-red-500/40" />{' '}
-                  <Text size="xs" className="font-bold">Absent</Text>
+                  <Text size="xs" className="font-bold">
+                    Absent
+                  </Text>
                 </HStack>
                 <HStack gap={3} align="center">
                   <div className="size-2 rounded-full bg-orange-500 shadow-sm shadow-orange-500/40" />{' '}
-                  <Text size="xs" className="font-bold">Late</Text>
+                  <Text size="xs" className="font-bold">
+                    Late
+                  </Text>
                 </HStack>
                 <HStack gap={3} align="center">
                   <div className="size-2 rounded-full bg-blue-500 shadow-sm shadow-blue-500/40" />{' '}
-                  <Text size="xs" className="font-bold">Excused</Text>
+                  <Text size="xs" className="font-bold">
+                    Excused
+                  </Text>
                 </HStack>
               </Stack>
             </Stack>
           </CardContent>
         </Card>
-        
+
         <Card className="border-none shadow-xl bg-card overflow-hidden">
           <CardHeader className="bg-muted/20 border-b px-6 py-4">
-            <CardTitle className="text-sm font-bold">Attendance Records</CardTitle>
+            <CardTitle className="text-sm font-bold">
+              Attendance Records
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <DataTable
@@ -277,4 +311,3 @@ export function StudentAttendanceHistoryPage() {
     </>
   )
 }
-

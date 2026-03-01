@@ -10,7 +10,7 @@ import type {
   UseMutationResult,
   UseQueryResult,
 } from '@tanstack/react-query'
-import type {Options} from '@/lib/api/sdk.gen';
+import type { Options } from '@/lib/api/sdk.gen'
 import type {
   BulkMarkStudentAttendanceData,
   BulkMarkStudentAttendanceResponse,

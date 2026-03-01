@@ -347,7 +347,6 @@ export const StudentAttendancePage = () => {
         </CardContent>
       </Card>
 
-
       <MarkStudentAttendanceDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}

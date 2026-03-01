@@ -5,8 +5,8 @@ import {
 } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
-import type { ColumnDef } from '@tanstack/react-table'
 import { StaffAttendanceActions } from './staff-attendance-actions'
+import type { ColumnDef } from '@tanstack/react-table'
 import type {
   AttendanceStatus,
   StaffAttendanceResponse,
@@ -137,7 +137,11 @@ export function StaffAttendanceTable({ date }: { date: Date }) {
             </Avatar>
             <Stack gap={0.5}>
               <Text className="font-medium">{row.original.name}</Text>
-              <Text size="xs" muted className="font-medium uppercase tracking-tight">
+              <Text
+                size="xs"
+                muted
+                className="font-medium uppercase tracking-tight"
+              >
                 {row.original.employee_id}
               </Text>
             </Stack>
@@ -212,4 +216,3 @@ export function StaffAttendanceTable({ date }: { date: Date }) {
     </Card>
   )
 }
-

@@ -3,8 +3,8 @@ import { Suspense, useMemo, useState } from 'react'
 import { addDays, format } from 'date-fns'
 import { Calendar as CalendarIcon, Download } from 'lucide-react'
 import * as papaparse from 'papaparse'
-import type { ColumnDef } from '@tanstack/react-table'
 import { useSuspenseClasses } from '../api'
+import type { ColumnDef } from '@tanstack/react-table'
 import type { StudentAttendanceReportResponse } from '@/lib/api/types.gen'
 import type { DateRange } from 'react-day-picker'
 import { Box, HStack, Heading, Stack, Text } from '@/components/primitives'
@@ -51,7 +51,10 @@ function Filters({
 }) {
   const { data: classes } = useSuspenseClasses()
   return (
-    <HStack justify="between" className="px-6 py-5 border-b bg-muted/20 flex-wrap gap-4">
+    <HStack
+      justify="between"
+      className="px-6 py-5 border-b bg-muted/20 flex-wrap gap-4"
+    >
       <HStack gap={2} className="flex-wrap">
         <Select
           value={selectedClassId}
@@ -106,7 +109,9 @@ function Filters({
           </PopoverContent>
         </Popover>
         <div className="flex items-center gap-2 bg-background border rounded-xl px-3 h-10 shadow-sm">
-          <Text size="xs" muted className="font-bold uppercase tracking-wider">Threshold %</Text>
+          <Text size="xs" muted className="font-bold uppercase tracking-wider">
+            Threshold %
+          </Text>
           <Input
             type="number"
             placeholder="Threshold %"
@@ -314,4 +319,3 @@ export function LowAttendancePage() {
     </Stack>
   )
 }
-

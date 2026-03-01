@@ -67,11 +67,7 @@ export function StudentAttendanceFilters({
               <HStack gap={2} p={0}>
                 <CalendarIcon className="size-4" />
                 <span>
-                  {selectedDate ? (
-                    format(selectedDate, 'PPP')
-                  ) : (
-                    'Pick a date'
-                  )}
+                  {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
                 </span>
               </HStack>
             </Button>
@@ -101,4 +97,3 @@ export function StudentAttendanceFilters({
     </HStack>
   )
 }
-

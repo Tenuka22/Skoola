@@ -78,11 +78,15 @@ function StudentActions() {
             align="center"
             className="p-4 rounded-xl border bg-muted/5 border-border/40"
           >
-            <Text className="font-bold text-sm">Send Absence Notifications</Text>
+            <Text className="font-bold text-sm">
+              Send Absence Notifications
+            </Text>
             <HStack gap={3}>
               <Select
                 value={selectedClassId}
-                onValueChange={(value) => setSelectedClassId(value ?? undefined)}
+                onValueChange={(value) =>
+                  setSelectedClassId(value ?? undefined)
+                }
               >
                 <SelectTrigger className="w-[240px] rounded-xl h-10 ring-1 ring-border">
                   <SelectValue placeholder="Select a class" />
@@ -117,13 +121,15 @@ function StudentActions() {
               </Button>
             </HStack>
           </HStack>
-          
+
           <HStack
             justify="between"
             align="center"
             className="p-4 rounded-xl border bg-muted/5 border-border/40"
           >
-            <Text className="font-bold text-sm">Sync Pre-approved Absences</Text>
+            <Text className="font-bold text-sm">
+              Sync Pre-approved Absences
+            </Text>
             <HStack gap={3}>
               <CalendarInput
                 value={syncAbsenceDate}
@@ -142,7 +148,7 @@ function StudentActions() {
               </Button>
             </HStack>
           </HStack>
-          
+
           <HStack
             justify="between"
             align="center"
@@ -167,7 +173,7 @@ function StudentActions() {
               </Button>
             </HStack>
           </HStack>
-          
+
           <HStack
             justify="between"
             align="center"
@@ -322,7 +328,9 @@ function StaffActions() {
           </HStack>
           {suggestedTeacher && (
             <Box className="px-4 py-2 bg-primary/10 rounded-lg border border-primary/20">
-              <Text size="xs" className="font-bold text-primary">Suggested: {suggestedTeacher.name}</Text>
+              <Text size="xs" className="font-bold text-primary">
+                Suggested: {suggestedTeacher.name}
+              </Text>
             </Box>
           )}
 
@@ -371,7 +379,9 @@ function StaffActions() {
               <Button
                 className="rounded-xl font-bold h-10"
                 onClick={handleCreate}
-                disabled={!createTimetableId || !originalTeacherId || isCreating}
+                disabled={
+                  !createTimetableId || !originalTeacherId || isCreating
+                }
               >
                 {isCreating ? 'Creating...' : 'Create'}
               </Button>
@@ -403,7 +413,9 @@ function EmergencyActions() {
           align="center"
           className="p-4 rounded-xl border bg-muted/5 border-border/40"
         >
-          <Text className="font-bold text-sm">Initiate Emergency Roll Call</Text>
+          <Text className="font-bold text-sm">
+            Initiate Emergency Roll Call
+          </Text>
           <HStack gap={3}>
             <Input
               placeholder="Event Name (e.g., Fire Drill)"
@@ -429,7 +441,9 @@ export function AttendanceActionsPage() {
   return (
     <Stack gap={6} p={8} className="h-full">
       <Stack gap={1}>
-        <Heading size="h2" className="font-black">Attendance Actions</Heading>
+        <Heading size="h2" className="font-black">
+          Attendance Actions
+        </Heading>
         <Text muted as="p">
           Perform bulk actions and trigger automated processes for attendance.
         </Text>
@@ -444,4 +458,3 @@ export function AttendanceActionsPage() {
     </Stack>
   )
 }
-

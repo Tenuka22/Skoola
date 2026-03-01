@@ -165,7 +165,9 @@ export function StudentAttendanceView() {
       {/* Header & Toolbar */}
       <HStack className="justify-between wrap gap-4 w-full">
         <Stack gap={1}>
-          <Heading size="h2" className="font-black">Student Attendance</Heading>
+          <Heading size="h2" className="font-black">
+            Student Attendance
+          </Heading>
           <Text muted as="p">
             Manage daily roll call and evaluate student attendance records.
           </Text>
@@ -243,11 +245,9 @@ export function StudentAttendanceView() {
                 <HStack gap={2} p={0}>
                   <HugeiconsIcon icon={Calendar01Icon} className="size-4" />
                   <span>
-                    {studentDate ? (
-                      format(new Date(studentDate), 'PPP')
-                    ) : (
-                      'Pick a date'
-                    )}
+                    {studentDate
+                      ? format(new Date(studentDate), 'PPP')
+                      : 'Pick a date'}
                   </span>
                 </HStack>
               </Button>
@@ -284,7 +284,9 @@ export function StudentAttendanceView() {
           </Empty>
         ) : isLoadingAttendance ? (
           <Box className="flex h-[400px] items-center justify-center">
-            <Text muted className="font-bold">Loading students...</Text>
+            <Text muted className="font-bold">
+              Loading students...
+            </Text>
           </Box>
         ) : filteredRecords.length === 0 ? (
           <Empty className="border border-dashed w-auto mt-8 h-64 flex flex-col justify-center rounded-xl bg-muted/5">
@@ -323,4 +325,3 @@ export function StudentAttendanceView() {
     </Stack>
   )
 }
-

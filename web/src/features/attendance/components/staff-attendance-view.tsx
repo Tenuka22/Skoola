@@ -140,7 +140,9 @@ export function StaffAttendanceView() {
       {/* Header & Toolbar */}
       <HStack className="justify-between wrap gap-4 w-full">
         <Stack gap={1}>
-          <Heading size="h2" className="font-black">Staff Attendance</Heading>
+          <Heading size="h2" className="font-black">
+            Staff Attendance
+          </Heading>
           <Text muted as="p">
             Manage daily attendance for teachers and administrative staff.
           </Text>
@@ -197,11 +199,9 @@ export function StaffAttendanceView() {
                 <HStack gap={2} p={0}>
                   <HugeiconsIcon icon={Calendar01Icon} className="size-4" />
                   <span>
-                    {staffDate ? (
-                      format(new Date(staffDate), 'PPP')
-                    ) : (
-                      'Pick a date'
-                    )}
+                    {staffDate
+                      ? format(new Date(staffDate), 'PPP')
+                      : 'Pick a date'}
                   </span>
                 </HStack>
               </Button>
@@ -225,7 +225,9 @@ export function StaffAttendanceView() {
       <Box className="flex-1 overflow-y-auto">
         {isLoadingStaff || isLoadingAttendance ? (
           <Box className="flex h-[400px] items-center justify-center">
-            <Text muted className="font-bold">Loading staff...</Text>
+            <Text muted className="font-bold">
+              Loading staff...
+            </Text>
           </Box>
         ) : filteredStaff.length === 0 ? (
           <Empty className="border border-dashed w-auto mt-8 h-64 flex flex-col justify-center rounded-xl bg-muted/5">
@@ -261,4 +263,3 @@ export function StaffAttendanceView() {
     </Stack>
   )
 }
-
