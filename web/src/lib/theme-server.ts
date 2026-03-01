@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getCookie, setCookie } from '@tanstack/react-start/server'
-import { isThemeName, type ThemeName } from './themes-data'
+import { isThemeName } from './themes-data'
 
 const THEME_COOKIE_NAME = 'skoola-theme'
 

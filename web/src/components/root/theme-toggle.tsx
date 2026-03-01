@@ -1,5 +1,5 @@
 import { Monitor, Moon, Palette, Sun } from 'lucide-react'
-import { themes, isThemeName } from '../../lib/themes-data'
+import { isThemeName, themes } from '../../lib/themes-data'
 import { useTheme } from '../providers/theme-provider'
 import {
   DropdownMenu,

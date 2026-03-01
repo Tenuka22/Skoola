@@ -3,7 +3,8 @@ import {
   useTheme as useNextTheme,
 } from 'next-themes'
 import { createContext, useContext, useEffect, useState } from 'react'
-import { themes, isThemeName, type ThemeName } from '../../lib/themes-data'
+import { isThemeName, themes } from '../../lib/themes-data'
+import type { ThemeName } from '../../lib/themes-data'
 import type { ReactNode } from 'react'
 import { setThemeServer } from '@/lib/theme-server'
 
@@ -37,7 +38,7 @@ export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
 
   useEffect(() => {
     // Set cookie via server function for persistence
-    setThemeServer(theme)
+    setThemeServer({ data: theme })
     document.documentElement.setAttribute('data-theme', theme)
 
     // Inject styles
