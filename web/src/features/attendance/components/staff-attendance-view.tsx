@@ -136,25 +136,29 @@ export function StaffAttendanceView() {
     isFuture(new Date(staffDate)) && !isToday(new Date(staffDate))
 
   return (
-    <Stack gap={4} p={8} className="h-full w-full">
+    <Stack gap={6} p={8} className="h-full w-full">
       {/* Header & Toolbar */}
       <HStack className="justify-between wrap gap-4 w-full">
         <Stack gap={1}>
-          <Heading size="h2">Staff Attendance</Heading>
+          <Heading size="h2" className="font-black">Staff Attendance</Heading>
           <Text muted as="p">
             Manage daily attendance for teachers and administrative staff.
           </Text>
         </Stack>
-        <HStack gap={2}>
+        <HStack gap={3}>
           <Button
             variant="outline"
             onClick={handleExportCSV}
             disabled={!staffList.length}
+            className="rounded-xl font-bold h-10 px-4"
           >
-            <HugeiconsIcon icon={Download01Icon} className="mr-2 size-4" />
-            Export CSV
+            <HStack gap={2} p={0}>
+              <HugeiconsIcon icon={Download01Icon} className="size-4" />
+              <span>Export CSV</span>
+            </HStack>
           </Button>
           <Button
+            className="rounded-xl font-bold h-10 px-6"
             onClick={handleSave}
             disabled={
               markBulkMutation.isPending || !staffList.length || isFutureDate
@@ -165,20 +169,20 @@ export function StaffAttendanceView() {
         </HStack>
       </HStack>
 
-      <HStack className="justify-between p-0">
-        <div className="relative max-w-sm">
+      <HStack className="justify-between p-0" gap={4}>
+        <Box className="relative group flex-1 max-w-sm">
           <HugeiconsIcon
             icon={Search01Icon}
-            className="absolute left-2.5 top-2.5 size-4 text-muted-foreground"
+            className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary"
           />
           <Input
             type="search"
             placeholder="Search staff..."
-            className="pl-8 ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent w-[300px]"
+            className="border-none bg-background/50 pl-10 ring-1 ring-border focus-visible:ring-2 focus-visible:ring-primary shadow-sm rounded-xl h-10 w-full"
             value={staffSearch}
             onChange={(e) => setStaffSearch(e.target.value)}
           />
-        </div>
+        </Box>
 
         <Popover>
           <PopoverTrigger
@@ -186,16 +190,20 @@ export function StaffAttendanceView() {
               <Button
                 variant={'outline'}
                 className={cn(
-                  'w-[240px] justify-start text-left font-normal',
+                  'w-[240px] justify-start text-left font-bold rounded-xl h-10 shadow-sm ring-1 ring-border',
                   !staffDate && 'text-muted-foreground',
                 )}
               >
-                <HugeiconsIcon icon={Calendar01Icon} className="mr-2 size-4" />
-                {staffDate ? (
-                  format(new Date(staffDate), 'PPP')
-                ) : (
-                  <span>Pick a date</span>
-                )}
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={Calendar01Icon} className="size-4" />
+                  <span>
+                    {staffDate ? (
+                      format(new Date(staffDate), 'PPP')
+                    ) : (
+                      'Pick a date'
+                    )}
+                  </span>
+                </HStack>
               </Button>
             }
           />
@@ -216,11 +224,11 @@ export function StaffAttendanceView() {
       {/* Grid Content */}
       <Box className="flex-1 overflow-y-auto">
         {isLoadingStaff || isLoadingAttendance ? (
-          <Text className="text-center mt-8 text-muted-foreground">
-            Loading staff...
-          </Text>
+          <Box className="flex h-[400px] items-center justify-center">
+            <Text muted className="font-bold">Loading staff...</Text>
+          </Box>
         ) : filteredStaff.length === 0 ? (
-          <Empty className="border border-dashed w-auto mt-8 h-64 flex flex-col justify-center">
+          <Empty className="border border-dashed w-auto mt-8 h-64 flex flex-col justify-center rounded-xl bg-muted/5">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <HugeiconsIcon icon={Search01Icon} />
@@ -253,3 +261,4 @@ export function StaffAttendanceView() {
     </Stack>
   )
 }
+

@@ -195,7 +195,7 @@ export const StudentAttendancePage = () => {
   }
 
   return (
-    <Stack gap={6} className="p-6">
+    <Stack gap={6} p={8} className="h-full">
       <HStack
         align="center"
         className="flex-col md:flex-row md:justify-between space-y-4 md:space-y-0"
@@ -237,30 +237,34 @@ export const StudentAttendancePage = () => {
         <HStack gap={3}>
           <Button
             variant="outline"
-            className="rounded-xl border-2 font-bold h-10"
+            className="rounded-xl border-2 font-bold h-10 px-4"
             onClick={handleExportReport}
             disabled={isReportLoading || !selectedClassId || isFutureDate}
           >
-            {isReportLoading ? (
-              <Spinner className="mr-2 size-4" />
-            ) : (
-              <HugeiconsIcon icon={Download02Icon} className="mr-2 size-4" />
-            )}
-            Export Class Report
+            <HStack gap={2} p={0}>
+              {isReportLoading ? (
+                <Spinner className="size-4" />
+              ) : (
+                <HugeiconsIcon icon={Download02Icon} className="size-4" />
+              )}
+              <span>Export Class Report</span>
+            </HStack>
           </Button>
         </HStack>
       </HStack>
 
       <HStack gap={4}>
         <HStack
-          gap={2}
+          gap={1}
           rounded="xl"
           className="bg-background border p-1 shadow-sm"
         >
-          <HugeiconsIcon
-            icon={Book01Icon}
-            className="ml-2 size-4 text-muted-foreground"
-          />
+          <Box p={0} className="pl-2">
+            <HugeiconsIcon
+              icon={Book01Icon}
+              className="size-4 text-muted-foreground"
+            />
+          </Box>
           <Select
             value={selectedClassId}
             onValueChange={(value) => setSelectedClassId(value ?? '')}
@@ -304,10 +308,12 @@ export const StudentAttendancePage = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-10 rounded-xl font-bold"
+                className="h-10 rounded-xl font-bold px-4"
               >
-                <HugeiconsIcon icon={FilterIcon} className="mr-2 size-4" />
-                Advance Filter
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={FilterIcon} className="size-4" />
+                  <span>Advance Filter</span>
+                </HStack>
               </Button>
             </HStack>
             <Button
@@ -340,6 +346,7 @@ export const StudentAttendancePage = () => {
           )}
         </CardContent>
       </Card>
+
 
       <MarkStudentAttendanceDialog
         open={isDialogOpen}

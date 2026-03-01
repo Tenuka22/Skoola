@@ -1,5 +1,6 @@
 import type {
   AttendanceStatus,
+  ExitReason,
   StaffAttendanceResponse,
   StaffResponse,
   StudentAttendanceResponse,
@@ -16,6 +17,19 @@ export const ALL_ATTENDANCE_STATUSES: Array<AttendanceStatus> = [
 
 export function isAttendanceStatus(value: string): value is AttendanceStatus {
   return ALL_ATTENDANCE_STATUSES.some((v) => v === value)
+}
+
+export const ALL_EXIT_REASONS: Array<ExitReason> = [
+  'Medical',
+  'Personal',
+  'Disciplinary',
+  'Dismissal',
+  'FamilyEvent',
+  'Other',
+]
+
+export function isExitReason(value: string): value is ExitReason {
+  return ALL_EXIT_REASONS.some((v) => v === value)
 }
 
 export interface StaffAttendanceWithMember extends StaffAttendanceResponse {

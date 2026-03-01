@@ -1,5 +1,7 @@
 {
   "include": [
+    "src",
+    "src/features",
     "**/*.ts",
     "**/*.tsx",
     "eslint.config.js",

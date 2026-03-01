@@ -126,7 +126,7 @@ export const StaffAttendancePage = () => {
   }
 
   return (
-    <Stack gap={6} className="p-6">
+    <Stack gap={6} p={8} className="h-full">
       <HStack
         align="center"
         className="flex-col md:flex-row md:justify-between space-y-4 md:space-y-0"
@@ -168,14 +168,18 @@ export const StaffAttendancePage = () => {
         <HStack gap={3}>
           <Button
             variant="outline"
-            className="rounded-xl border-2 font-bold h-10"
+            className="rounded-xl border-2 font-bold h-10 px-4"
           >
-            <HugeiconsIcon icon={Download02Icon} className="mr-2 size-4" />
-            Attendance Report
+            <HStack gap={2} p={0}>
+              <HugeiconsIcon icon={Download02Icon} className="size-4" />
+              <span>Attendance Report</span>
+            </HStack>
           </Button>
-          <Button className="rounded-xl font-bold h-10" disabled={isFutureDate}>
-            <HugeiconsIcon icon={PlusSignIcon} className="mr-2 size-4" />
-            Add Attendance
+          <Button className="rounded-xl font-bold h-10 px-4" disabled={isFutureDate}>
+            <HStack gap={2} p={0}>
+              <HugeiconsIcon icon={PlusSignIcon} className="size-4" />
+              <span>Add Attendance</span>
+            </HStack>
           </Button>
         </HStack>
       </HStack>
@@ -207,10 +211,12 @@ export const StaffAttendancePage = () => {
                 rounded="xl"
                 className="bg-background border p-1 shadow-sm"
               >
-                <HugeiconsIcon
-                  icon={Calendar01Icon}
-                  className="ml-2 size-4 text-muted-foreground"
-                />
+                <Box p={0} className="pl-2">
+                  <HugeiconsIcon
+                    icon={Calendar01Icon}
+                    className="size-4 text-muted-foreground"
+                  />
+                </Box>
                 <Select defaultValue="today">
                   <SelectTrigger className="h-8 border-none bg-transparent text-[11px] font-black uppercase tracking-wider focus:ring-0 w-[120px]">
                     <SelectValue placeholder="Date Range" />
@@ -226,10 +232,12 @@ export const StaffAttendancePage = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-10 rounded-xl font-bold"
+                className="h-10 rounded-xl font-bold px-4"
               >
-                <HugeiconsIcon icon={FilterIcon} className="mr-2 size-4" />
-                Advance Filter
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={FilterIcon} className="size-4" />
+                  <span>Advance Filter</span>
+                </HStack>
               </Button>
             </HStack>
             <Button
@@ -266,3 +274,4 @@ export const StaffAttendancePage = () => {
     </Stack>
   )
 }
+

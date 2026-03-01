@@ -252,6 +252,39 @@ function AdminLayout() {
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link to="/admin/attendance/actions">
+                  <SidebarMenuButton
+                    tooltip="Attendance Actions"
+                    className="hover:bg-accent/50 transition-colors"
+                  >
+                    <HugeiconsIcon icon={Calendar02Icon} size={18} />
+                    <span className="font-medium">Actions</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link to="/admin/attendance/low-attendance">
+                  <SidebarMenuButton
+                    tooltip="Low Attendance Report"
+                    className="hover:bg-accent/50 transition-colors"
+                  >
+                    <HugeiconsIcon icon={Calendar01Icon} size={18} />
+                    <span className="font-medium">Low Attendance</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link to="/admin/attendance/report">
+                  <SidebarMenuButton
+                    tooltip="Attendance Report"
+                    className="hover:bg-accent/50 transition-colors"
+                  >
+                    <HugeiconsIcon icon={Calendar01Icon} size={18} />
+                    <span className="font-medium">Report</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>

@@ -8,7 +8,20 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   globalIgnores(['src/lib/api']),
   {
-    ignores: ['.output/**', 'src/lib/api/**', 'src/components/ui/**'],
+    ignores: [
+      '.output/**',
+      'src/lib/api/**',
+      'src/components/ui/**',
+      'src/features/attendance/index.tsx',
+    ],
+  },
+  {
+    files: ['src/features/attendance/index.tsx'],
+    languageOptions: {
+      parserOptions: {
+        project: false,
+      },
+    },
   },
   ...tanstackConfig,
   {

@@ -161,25 +161,29 @@ export function StudentAttendanceView() {
     isFuture(new Date(studentDate)) && !isToday(new Date(studentDate))
 
   return (
-    <Stack gap={4} p={8} className="h-full w-full">
+    <Stack gap={6} p={8} className="h-full w-full">
       {/* Header & Toolbar */}
       <HStack className="justify-between wrap gap-4 w-full">
         <Stack gap={1}>
-          <Heading size="h2">Student Attendance</Heading>
+          <Heading size="h2" className="font-black">Student Attendance</Heading>
           <Text muted as="p">
             Manage daily roll call and evaluate student attendance records.
           </Text>
         </Stack>
-        <HStack gap={2}>
+        <HStack gap={3}>
           <Button
             variant="outline"
             onClick={handleExportCSV}
             disabled={!attendanceData?.length}
+            className="rounded-xl font-bold h-10 px-4"
           >
-            <HugeiconsIcon icon={Download01Icon} className="mr-2 size-4" />
-            Export CSV
+            <HStack gap={2} p={0}>
+              <HugeiconsIcon icon={Download01Icon} className="size-4" />
+              <span>Export CSV</span>
+            </HStack>
           </Button>
           <Button
+            className="rounded-xl font-bold h-10 px-6"
             onClick={handleSave}
             disabled={
               markBulkMutation.isPending ||
@@ -193,27 +197,27 @@ export function StudentAttendanceView() {
         </HStack>
       </HStack>
 
-      <HStack className="justify-between p-0">
-        <HStack gap={2}>
-          <div className="relative max-w-sm">
+      <HStack className="justify-between p-0" gap={4}>
+        <HStack gap={3} className="flex-1 max-w-2xl">
+          <Box className="relative group flex-1 max-w-sm">
             <HugeiconsIcon
               icon={Search01Icon}
-              className="absolute left-2.5 top-2.5 size-4 text-muted-foreground"
+              className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary"
             />
             <Input
               type="search"
               placeholder="Search students..."
-              className="pl-8 ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
+              className="border-none bg-background/50 pl-10 ring-1 ring-border focus-visible:ring-2 focus-visible:ring-primary shadow-sm rounded-xl h-10 w-full"
               value={studentSearch}
               onChange={(e) => setStudentSearch(e.target.value)}
             />
-          </div>
+          </Box>
 
           <Select
             value={studentClassId || ''}
             onValueChange={setStudentClassId}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[200px] rounded-xl h-10 ring-1 ring-border font-bold">
               <SelectValue placeholder="Select Class" />
             </SelectTrigger>
             <SelectContent>
@@ -232,16 +236,20 @@ export function StudentAttendanceView() {
               <Button
                 variant={'outline'}
                 className={cn(
-                  'w-[240px] justify-start text-left font-normal',
+                  'w-[240px] justify-start text-left font-bold rounded-xl h-10 shadow-sm ring-1 ring-border',
                   !studentDate && 'text-muted-foreground',
                 )}
               >
-                <HugeiconsIcon icon={Calendar01Icon} className="mr-2 size-4" />
-                {studentDate ? (
-                  format(new Date(studentDate), 'PPP')
-                ) : (
-                  <span>Pick a date</span>
-                )}
+                <HStack gap={2} p={0}>
+                  <HugeiconsIcon icon={Calendar01Icon} className="size-4" />
+                  <span>
+                    {studentDate ? (
+                      format(new Date(studentDate), 'PPP')
+                    ) : (
+                      'Pick a date'
+                    )}
+                  </span>
+                </HStack>
               </Button>
             }
           />
@@ -262,7 +270,7 @@ export function StudentAttendanceView() {
       {/* Grid Content */}
       <Box className="flex-1 overflow-y-auto">
         {!studentClassId ? (
-          <Empty className="border border-dashed w-auto mt-8 h-64 flex flex-col justify-center">
+          <Empty className="border border-dashed w-auto mt-8 h-64 flex flex-col justify-center rounded-xl bg-muted/5">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <HugeiconsIcon icon={Calendar01Icon} />
@@ -275,11 +283,11 @@ export function StudentAttendanceView() {
             </EmptyHeader>
           </Empty>
         ) : isLoadingAttendance ? (
-          <Text className="text-center mt-8 text-muted-foreground">
-            Loading students...
-          </Text>
+          <Box className="flex h-[400px] items-center justify-center">
+            <Text muted className="font-bold">Loading students...</Text>
+          </Box>
         ) : filteredRecords.length === 0 ? (
-          <Empty className="border border-dashed w-auto mt-8 h-64 flex flex-col justify-center">
+          <Empty className="border border-dashed w-auto mt-8 h-64 flex flex-col justify-center rounded-xl bg-muted/5">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <HugeiconsIcon icon={Search01Icon} />
@@ -315,3 +323,4 @@ export function StudentAttendanceView() {
     </Stack>
   )
 }
+

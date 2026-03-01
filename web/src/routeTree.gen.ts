@@ -26,10 +26,14 @@ import { Route as authProfileRouteImport } from './routes/(auth)/profile'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as AdminAttendanceStudentsRouteImport } from './routes/admin/attendance/students'
 import { Route as AdminAttendanceStaffRouteImport } from './routes/admin/attendance/staff'
+import { Route as AdminAttendanceReportRouteImport } from './routes/admin/attendance/report'
+import { Route as AdminAttendanceLowAttendanceRouteImport } from './routes/admin/attendance/low-attendance'
+import { Route as AdminAttendanceActionsRouteImport } from './routes/admin/attendance/actions'
 import { Route as AdminAcademicsTimetablesRouteImport } from './routes/admin/academics/timetables'
 import { Route as AdminAcademicsTermsRouteImport } from './routes/admin/academics/terms'
 import { Route as AdminAcademicsSubjectsRouteImport } from './routes/admin/academics/subjects'
 import { Route as AdminAcademicsClassAssignmentsRouteImport } from './routes/admin/academics/class-assignments'
+import { Route as AdminAttendanceStudentStudentIdRouteImport } from './routes/admin/attendance/student.$studentId'
 
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
@@ -116,6 +120,22 @@ const AdminAttendanceStaffRoute = AdminAttendanceStaffRouteImport.update({
   path: '/attendance/staff',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAttendanceReportRoute = AdminAttendanceReportRouteImport.update({
+  id: '/attendance/report',
+  path: '/attendance/report',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAttendanceLowAttendanceRoute =
+  AdminAttendanceLowAttendanceRouteImport.update({
+    id: '/attendance/low-attendance',
+    path: '/attendance/low-attendance',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminAttendanceActionsRoute = AdminAttendanceActionsRouteImport.update({
+  id: '/attendance/actions',
+  path: '/attendance/actions',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAcademicsTimetablesRoute =
   AdminAcademicsTimetablesRouteImport.update({
     id: '/timetables',
@@ -138,6 +158,12 @@ const AdminAcademicsClassAssignmentsRoute =
     path: '/class-assignments',
     getParentRoute: () => AdminAcademicsRoute,
   } as any)
+const AdminAttendanceStudentStudentIdRoute =
+  AdminAttendanceStudentStudentIdRouteImport.update({
+    id: '/attendance/student/$studentId',
+    path: '/attendance/student/$studentId',
+    getParentRoute: () => AdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -159,8 +185,12 @@ export interface FileRoutesByFullPath {
   '/admin/academics/subjects': typeof AdminAcademicsSubjectsRoute
   '/admin/academics/terms': typeof AdminAcademicsTermsRoute
   '/admin/academics/timetables': typeof AdminAcademicsTimetablesRoute
+  '/admin/attendance/actions': typeof AdminAttendanceActionsRoute
+  '/admin/attendance/low-attendance': typeof AdminAttendanceLowAttendanceRoute
+  '/admin/attendance/report': typeof AdminAttendanceReportRoute
   '/admin/attendance/staff': typeof AdminAttendanceStaffRoute
   '/admin/attendance/students': typeof AdminAttendanceStudentsRoute
+  '/admin/attendance/student/$studentId': typeof AdminAttendanceStudentStudentIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -181,8 +211,12 @@ export interface FileRoutesByTo {
   '/admin/academics/subjects': typeof AdminAcademicsSubjectsRoute
   '/admin/academics/terms': typeof AdminAcademicsTermsRoute
   '/admin/academics/timetables': typeof AdminAcademicsTimetablesRoute
+  '/admin/attendance/actions': typeof AdminAttendanceActionsRoute
+  '/admin/attendance/low-attendance': typeof AdminAttendanceLowAttendanceRoute
+  '/admin/attendance/report': typeof AdminAttendanceReportRoute
   '/admin/attendance/staff': typeof AdminAttendanceStaffRoute
   '/admin/attendance/students': typeof AdminAttendanceStudentsRoute
+  '/admin/attendance/student/$studentId': typeof AdminAttendanceStudentStudentIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -205,8 +239,12 @@ export interface FileRoutesById {
   '/admin/academics/subjects': typeof AdminAcademicsSubjectsRoute
   '/admin/academics/terms': typeof AdminAcademicsTermsRoute
   '/admin/academics/timetables': typeof AdminAcademicsTimetablesRoute
+  '/admin/attendance/actions': typeof AdminAttendanceActionsRoute
+  '/admin/attendance/low-attendance': typeof AdminAttendanceLowAttendanceRoute
+  '/admin/attendance/report': typeof AdminAttendanceReportRoute
   '/admin/attendance/staff': typeof AdminAttendanceStaffRoute
   '/admin/attendance/students': typeof AdminAttendanceStudentsRoute
+  '/admin/attendance/student/$studentId': typeof AdminAttendanceStudentStudentIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -230,8 +268,12 @@ export interface FileRouteTypes {
     | '/admin/academics/subjects'
     | '/admin/academics/terms'
     | '/admin/academics/timetables'
+    | '/admin/attendance/actions'
+    | '/admin/attendance/low-attendance'
+    | '/admin/attendance/report'
     | '/admin/attendance/staff'
     | '/admin/attendance/students'
+    | '/admin/attendance/student/$studentId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -252,8 +294,12 @@ export interface FileRouteTypes {
     | '/admin/academics/subjects'
     | '/admin/academics/terms'
     | '/admin/academics/timetables'
+    | '/admin/attendance/actions'
+    | '/admin/attendance/low-attendance'
+    | '/admin/attendance/report'
     | '/admin/attendance/staff'
     | '/admin/attendance/students'
+    | '/admin/attendance/student/$studentId'
   id:
     | '__root__'
     | '/'
@@ -275,8 +321,12 @@ export interface FileRouteTypes {
     | '/admin/academics/subjects'
     | '/admin/academics/terms'
     | '/admin/academics/timetables'
+    | '/admin/attendance/actions'
+    | '/admin/attendance/low-attendance'
+    | '/admin/attendance/report'
     | '/admin/attendance/staff'
     | '/admin/attendance/students'
+    | '/admin/attendance/student/$studentId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -408,6 +458,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAttendanceStaffRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/attendance/report': {
+      id: '/admin/attendance/report'
+      path: '/attendance/report'
+      fullPath: '/admin/attendance/report'
+      preLoaderRoute: typeof AdminAttendanceReportRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/attendance/low-attendance': {
+      id: '/admin/attendance/low-attendance'
+      path: '/attendance/low-attendance'
+      fullPath: '/admin/attendance/low-attendance'
+      preLoaderRoute: typeof AdminAttendanceLowAttendanceRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/attendance/actions': {
+      id: '/admin/attendance/actions'
+      path: '/attendance/actions'
+      fullPath: '/admin/attendance/actions'
+      preLoaderRoute: typeof AdminAttendanceActionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/academics/timetables': {
       id: '/admin/academics/timetables'
       path: '/timetables'
@@ -435,6 +506,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/academics/class-assignments'
       preLoaderRoute: typeof AdminAcademicsClassAssignmentsRouteImport
       parentRoute: typeof AdminAcademicsRoute
+    }
+    '/admin/attendance/student/$studentId': {
+      id: '/admin/attendance/student/$studentId'
+      path: '/attendance/student/$studentId'
+      fullPath: '/admin/attendance/student/$studentId'
+      preLoaderRoute: typeof AdminAttendanceStudentStudentIdRouteImport
+      parentRoute: typeof AdminRoute
     }
   }
 }
@@ -468,8 +546,12 @@ interface AdminRouteChildren {
   AdminUsersRoute: typeof AdminUsersRoute
   AdminYearsRoute: typeof AdminYearsRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminAttendanceActionsRoute: typeof AdminAttendanceActionsRoute
+  AdminAttendanceLowAttendanceRoute: typeof AdminAttendanceLowAttendanceRoute
+  AdminAttendanceReportRoute: typeof AdminAttendanceReportRoute
   AdminAttendanceStaffRoute: typeof AdminAttendanceStaffRoute
   AdminAttendanceStudentsRoute: typeof AdminAttendanceStudentsRoute
+  AdminAttendanceStudentStudentIdRoute: typeof AdminAttendanceStudentStudentIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -483,8 +565,12 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminUsersRoute: AdminUsersRoute,
   AdminYearsRoute: AdminYearsRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminAttendanceActionsRoute: AdminAttendanceActionsRoute,
+  AdminAttendanceLowAttendanceRoute: AdminAttendanceLowAttendanceRoute,
+  AdminAttendanceReportRoute: AdminAttendanceReportRoute,
   AdminAttendanceStaffRoute: AdminAttendanceStaffRoute,
   AdminAttendanceStudentsRoute: AdminAttendanceStudentsRoute,
+  AdminAttendanceStudentStudentIdRoute: AdminAttendanceStudentStudentIdRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
