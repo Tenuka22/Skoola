@@ -1,4 +1,9 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import {
+  HeadContent,
+  Scripts,
+  createRootRoute,
+  useLoaderData,
+} from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
@@ -8,8 +13,16 @@ import { QueryProvider } from '@/components/providers/query-provider'
 import { NotFound } from '@/components/root/not-found'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from '@/components/ui/sonner'
+import { themes } from '@/lib/themes-data'
+import { getThemeServer } from '@/lib/theme-server'
 
 export const Route = createRootRoute({
+  loader: async () => {
+    const theme = await getThemeServer()
+    return {
+      theme,
+    }
+  },
   head: () => ({
     meta: [
       {
@@ -36,18 +49,32 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { theme } = useLoaderData({ from: Route.id })
+  const themeData = themes[theme]
+
   return (
-    <html lang="en">
+    <html lang="en" data-theme={theme}>
       <head>
         <script
           crossOrigin="anonymous"
           src="https://tweakcn.com/live-preview.min.js"
         />
         <HeadContent />
+        {themeData && (
+          <style
+            id="skoola-theme-styles"
+            dangerouslySetInnerHTML={{
+              __html: `
+                :root { ${themeData.root} }
+                .dark { ${themeData.dark} }
+              `,
+            }}
+          />
+        )}
       </head>
       <body>
         <QueryProvider>
-          <ThemeProvider>
+          <ThemeProvider initialTheme={theme}>
             <Toaster />
             <TooltipProvider>{children}</TooltipProvider>
           </ThemeProvider>

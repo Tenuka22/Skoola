@@ -18,10 +18,7 @@ import { staffAttendanceColumns } from './staff-attendance-columns'
 import { AttendanceSummaryCards } from './attendance-summary-cards'
 import { MarkStaffAttendanceDialog } from './mark-staff-attendance-dialog'
 import type { StaffAttendanceWithMember } from '../types'
-import type {
-  StaffAttendanceResponse,
-  StaffResponse,
-} from '@/lib/api/types.gen'
+import type { StaffAttendanceResponse } from '@/lib/api/types.gen'
 import { DataTable } from '@/components/ui/data-table'
 import {
   Select,
