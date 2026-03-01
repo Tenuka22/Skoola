@@ -4,7 +4,6 @@ import type { UpdateUserValues } from '../schemas'
 import type { User } from '../types'
 import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
-import { DialogFooter } from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/spinner'
 import { zRoleEnum } from '@/lib/api/zod.gen'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
@@ -70,18 +69,21 @@ export function UserEditForm({
           field: 'is_verified',
           type: 'switch',
           label: 'Verified',
-          labelClassName: 'text-base',
+          description: 'User can log in and access authorized areas.',
         },
+      ],
+      [
         {
           field: 'lockout_until',
           type: 'date-picker',
           label: 'Lockout Until',
+          description: 'Prevent user from logging in until this date.',
         },
       ],
     ],
     extras: {
       bottom: (
-        <DialogFooter>
+        <div className="flex items-center justify-end gap-2 border-t border-border/40 bg-muted/20 px-6 py-4 mt-8 -mx-6 -mb-6">
           <Button
             type="button"
             variant="outline"
@@ -93,7 +95,7 @@ export function UserEditForm({
             {isSubmitting && <Spinner className="mr-2 h-4 w-4" />}
             Save Changes
           </Button>
-        </DialogFooter>
+        </div>
       ),
     },
   })

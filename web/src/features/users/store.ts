@@ -9,6 +9,7 @@ export type ViewMode = ListViewMode
 
 interface UsersState {
   page: number
+  limit: number
   search: string
   debouncedSearch: string
   statusFilter: string
@@ -25,8 +26,10 @@ interface UsersState {
   userToEdit: UserResponse | null
   userToLock: UserResponse | null
   userToManagePermissions: UserResponse | null
+  showProfilePictures: boolean
 
   setPage: (page: number) => void
+  setLimit: (limit: number) => void
   setSearch: (search: string) => void
   setDebouncedSearch: (search: string) => void
   setStatusFilter: (filter: string) => void
@@ -49,10 +52,12 @@ interface UsersState {
   setUserToEdit: (user: UserResponse | null) => void
   setUserToLock: (user: UserResponse | null) => void
   setUserToManagePermissions: (user: UserResponse | null) => void
+  setShowProfilePictures: (show: boolean) => void
 }
 
 export const useUsersStore = create<UsersState>((set) => ({
   page: 1,
+  limit: 10,
   search: '',
   debouncedSearch: '',
   statusFilter: 'all',
@@ -69,8 +74,10 @@ export const useUsersStore = create<UsersState>((set) => ({
   userToEdit: null,
   userToLock: null,
   userToManagePermissions: null,
+  showProfilePictures: true,
 
   setPage: (page) => set({ page }),
+  setLimit: (limit) => set({ limit, page: 1 }),
   setSearch: (search) => set({ search }),
   setDebouncedSearch: (debouncedSearch) => set({ debouncedSearch, page: 1 }),
   setStatusFilter: (statusFilter) => set({ statusFilter, page: 1 }),
@@ -99,4 +106,5 @@ export const useUsersStore = create<UsersState>((set) => ({
   setUserToLock: (userToLock) => set({ userToLock }),
   setUserToManagePermissions: (userToManagePermissions) =>
     set({ userToManagePermissions }),
+  setShowProfilePictures: (showProfilePictures) => set({ showProfilePictures }),
 }))

@@ -2327,6 +2327,13 @@ export type RoleSetGetRoleResponse = {
 }
 
 /**
+ * RoleSetGetRoleResponse
+ */
+export type RoleSetGetRoleResponse = {
+    roles: Array<string>;
+};
+
+/**
  * RoleSetRoleRequest
  */
 export type RoleSetRoleRequest = {
@@ -6991,8 +6998,13 @@ export type GetRoleSetRolesErrors = {
 }
 
 export type GetRoleSetRolesResponses = {
+<<<<<<< HEAD
   200: RoleSetGetRoleResponse
 }
+=======
+    200: RoleSetGetRoleResponse;
+};
+>>>>>>> 2780fcf (feat: Refactor theme management to use `next-themes` and update user views from board to grid, alongside various UI and API enhancements.)
 
 export type GetRoleSetRolesResponse =
   GetRoleSetRolesResponses[keyof GetRoleSetRolesResponses]

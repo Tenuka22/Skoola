@@ -23,12 +23,12 @@ function SignUp() {
   return (
     <AuthLayout
       title="Create an account"
-      description="Enter your information to create an account"
+      description="Get started with your free account"
     >
       <SignUpForm authStorage={authStorage} />
-      <div className="mt-4 text-center text-sm">
+      <div className="mt-5 text-center text-sm text-muted-foreground">
         Already have an account?{' '}
-        <Link to="/login" className="underline">
+        <Link to="/login" className="font-medium text-foreground hover:underline underline-offset-4 transition-colors">
           Sign in
         </Link>
       </div>

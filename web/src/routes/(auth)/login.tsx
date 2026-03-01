@@ -23,12 +23,12 @@ function Login() {
   return (
     <AuthLayout
       title="Welcome back"
-      description="Enter your email to sign in to your account"
+      description="Sign in to your account to continue"
     >
       <LoginForm authStorage={authStorage} />
-      <div className="mt-4 text-center text-sm">
+      <div className="mt-5 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}
-        <Link to="/sign-up" className="underline">
+        <Link to="/sign-up" className="font-medium text-foreground hover:underline underline-offset-4 transition-colors">
           Sign up
         </Link>
       </div>

@@ -102,12 +102,18 @@ pub async fn get_all_users(
     let mut count_query = users::table.into_boxed();
 
     if let Some(search_term) = &query.search {
-        let pattern = format!("%{}%", search_term);
-        let filter_expression = users::email
-            .like(pattern.clone())
-            .or(users::id.like(pattern));
-        data_query = data_query.filter(filter_expression.clone());
-        count_query = count_query.filter(filter_expression);
+        let term = search_term.trim();
+        if !term.is_empty() {
+            for word in term.split_whitespace() {
+                let pattern = format!("%{}%", word);
+                let filter_expression = users::email
+                    .like(pattern.clone())
+                    .or(users::id.like(pattern.clone()))
+                    .or(users::role.like(pattern));
+                data_query = data_query.filter(filter_expression.clone());
+                count_query = count_query.filter(filter_expression);
+            }
+        }
     }
 
     if let Some(verified) = query.is_verified {

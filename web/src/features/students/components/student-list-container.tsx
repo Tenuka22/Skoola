@@ -1,5 +1,5 @@
 import { useStudentsStore } from '../store'
-import { StudentBoardView } from './student-board-view'
+import { StudentGridView } from './student-grid-view'
 import type {
   ColumnDef,
   RowSelectionState,
@@ -58,7 +58,7 @@ export function StudentListContainer({
 
   return (
     <div className="px-8 py-4 space-y-4">
-      <StudentBoardView
+      <StudentGridView
         students={students}
         isLoading={studentsQuery.isFetching}
         onEdit={(student) => setStudentToEdit(student)}

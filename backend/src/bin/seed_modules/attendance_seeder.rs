@@ -187,8 +187,9 @@ impl SeedModule for AttendanceSeeder {
                     exit_time: NaiveTime::from_hms_opt(14, rng.gen_range(0..=59), 0).unwrap(),
                     reason_type: vec![
                         ExitReason::Medical,
-                        ExitReason::FamilyEvent,
-                        ExitReason::Other,
+                        ExitReason::Personal,
+                        ExitReason::Disciplinary,
+                        ExitReason::Dismissal,
                     ]
                     .choose(&mut rng)
                     .unwrap()
@@ -221,7 +222,7 @@ impl SeedModule for AttendanceSeeder {
                     end_date,
                     reason_type: vec![
                         PreApprovedReason::FamilyEvent,
-                        PreApprovedReason::Medical,
+                        PreApprovedReason::Sick,
                         PreApprovedReason::Other,
                     ]
                     .choose(&mut rng)

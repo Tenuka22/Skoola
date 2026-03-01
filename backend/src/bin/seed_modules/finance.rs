@@ -380,7 +380,6 @@ impl SeedModule for FinanceSeeder {
                 component_type: vec![
                     ComponentType::Allowance,
                     ComponentType::Deduction,
-                    ComponentType::Bonus,
                 ]
                 .choose(&mut rng)
                 .unwrap()

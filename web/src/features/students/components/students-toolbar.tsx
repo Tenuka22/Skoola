@@ -25,16 +25,16 @@ export function StudentsToolbar({ onExport }: StudentsToolbarProps) {
     useStudentsStore()
 
   return (
-    <div className="mb-4 flex flex-col gap-4 px-8 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <Tabs value={view} onValueChange={(value: ViewMode) => setView(value)}>
-        <TabsList>
+        <TabsList className="bg-muted/50 p-1">
           <TabsTrigger value="table" className="gap-2">
             <HugeiconsIcon icon={TableIcon} className="size-4" />
             Table
           </TabsTrigger>
-          <TabsTrigger value="board" className="gap-2">
+          <TabsTrigger value="grid" className="gap-2">
             <HugeiconsIcon icon={LayoutGridIcon} className="size-4" />
-            Board
+            Grid
           </TabsTrigger>
         </TabsList>
       </Tabs>

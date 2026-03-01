@@ -1,5 +1,5 @@
 import { useStaffStore } from '../store'
-import { StaffBoardView } from './staff-board-view'
+import { StaffGridView } from './staff-grid-view'
 import type {
   ColumnDef,
   RowSelectionState,
@@ -55,9 +55,9 @@ export function StaffListContainer({
         </div>
       </TabsContent>
 
-      <TabsContent value="board">
+      <TabsContent value="grid">
         <Stack gap={4}>
-          <StaffBoardView
+          <StaffGridView
             staff={staffMembers}
             isLoading={staffQuery.isFetching}
             onEdit={(staff) => setStaffToEdit(staff)}
