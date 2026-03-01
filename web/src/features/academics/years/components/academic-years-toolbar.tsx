@@ -1,40 +1,45 @@
-'use client'
-
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Download01Icon, Search01Icon } from '@hugeicons/core-free-icons'
+import {
+  Add01Icon,
+  Download01Icon,
+  Search01Icon,
+} from '@hugeicons/core-free-icons'
 import { useAcademicYearsStore } from '../store'
 import { Button } from '@/components/ui/button'
-import {
-  InputGroup,
-  InputGroupInput,
-  InputGroupText,
-} from '@/components/ui/input-group'
+import { Input } from '@/components/ui/input'
+import { HStack } from '@/components/primitives'
 
 interface AcademicYearsToolbarProps {
   onExport: () => void
 }
 
 export function AcademicYearsToolbar({ onExport }: AcademicYearsToolbarProps) {
-  const { search, setSearch } = useAcademicYearsStore()
+  const { search, setSearch, setIsCreateYearOpen } = useAcademicYearsStore()
 
   return (
-    <div className="flex items-center justify-between p-4">
-      <div className="w-full max-w-sm">
-        <InputGroup>
-          <InputGroupText>
-            <HugeiconsIcon icon={Search01Icon} className="size-4" />
-          </InputGroupText>
-          <InputGroupInput
-            placeholder="Search by name or year..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </InputGroup>
+    <HStack justify="between">
+      <div className="relative">
+        <HugeiconsIcon
+          icon={Search01Icon}
+          className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+        />
+        <Input
+          placeholder="Search academic years..."
+          className="w-72 pl-9"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
-      <Button variant="outline" onClick={onExport}>
-        <HugeiconsIcon icon={Download01Icon} className="mr-2 size-4" />
-        Export
-      </Button>
-    </div>
+      <HStack gap={2}>
+        <Button variant="outline" onClick={onExport}>
+          <HugeiconsIcon icon={Download01Icon} className="size-4 mr-2" />
+          Export
+        </Button>
+        <Button onClick={() => setIsCreateYearOpen(true)}>
+          <HugeiconsIcon icon={Add01Icon} className="size-4 mr-2" />
+          Add Year
+        </Button>
+      </HStack>
+    </HStack>
   )
 }

@@ -5,6 +5,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import type { ClassResponse, PaginatedClassResponse } from '@/lib/api/types.gen'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { DataTable } from '@/components/ui/data-table'
+import { Stack, Text } from '@/components/primitives'
 
 interface ClassesListContainerProps {
   query: UseQueryResult<PaginatedClassResponse, Error>
@@ -24,58 +25,60 @@ export function ClassesListContainer({
 
   if (isLoading) {
     return (
-      <div className="grid flex-1 place-items-center">
-        <p className="text-sm text-muted-foreground">Loading classes...</p>
-      </div>
+      <Stack align="center" justify="center" className="flex-1">
+        <Text size="sm" muted>
+          Loading classes...
+        </Text>
+      </Stack>
     )
   }
 
   if (isError) {
     return (
-      <div className="grid flex-1 place-items-center px-4 py-8 text-center">
+      <Stack align="center" justify="center" gap={2} className="flex-1">
         <HugeiconsIcon
           icon={AlertCircleIcon}
           className="size-12 text-destructive"
         />
-        <p className="text-sm text-muted-foreground mt-2">
+        <Text size="sm" muted>
           Error: {error.message}
-        </p>
-      </div>
+        </Text>
+      </Stack>
     )
   }
 
   if (!data || data.data.length === 0) {
     return (
-      <div className="grid flex-1 place-items-center px-4 py-8 text-center">
+      <Stack align="center" justify="center" gap={2} className="flex-1">
         <HugeiconsIcon
           icon={AlertCircleIcon}
           className="size-12 text-muted-foreground"
         />
-        <p className="text-sm text-muted-foreground mt-2">No classes found.</p>
-      </div>
+        <Text size="sm" muted>
+          No classes found.
+        </Text>
+      </Stack>
     )
   }
 
   return (
-    <div className="relative flex-1 flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto">
-        <DataTable
-          columns={columns}
-          data={data.data}
-          sorting={sorting}
-          onSortingChange={setSorting}
-          rowSelection={rowSelection}
-          onRowSelectionChange={setRowSelection}
-          pageIndex={page - 1}
-          pageSize={data.limit}
-          pageCount={data.total_pages}
-          canNextPage={page < data.total_pages}
-          canPreviousPage={page > 1}
-          fetchNextPage={() => setPage(page + 1)}
-          fetchPreviousPage={() => setPage(page - 1)}
-          isLoading={isLoading}
-        />
-      </div>
+    <div className="overflow-y-auto flex-1">
+      <DataTable
+        columns={columns}
+        data={data.data}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
+        pageIndex={page - 1}
+        pageSize={data.limit}
+        pageCount={data.total_pages}
+        canNextPage={page < data.total_pages}
+        canPreviousPage={page > 1}
+        fetchNextPage={() => setPage(page + 1)}
+        fetchPreviousPage={() => setPage(page - 1)}
+        isLoading={isLoading}
+      />
     </div>
   )
 }

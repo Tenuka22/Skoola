@@ -6,6 +6,7 @@ import {
   Calendar01Icon,
   Calendar02Icon,
   Home01Icon,
+  SchoolIcon,
   Shield01Icon,
   User02Icon,
   UserGroupIcon,
@@ -157,6 +158,22 @@ function AdminLayout() {
           <SidebarGroup>
             <SidebarGroupLabel>Academics</SidebarGroupLabel>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <Link to="/admin/classes">
+                  <SidebarMenuButton tooltip="Classes">
+                    <HugeiconsIcon icon={SchoolIcon} />
+                    <span>Classes</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link to="/admin/years">
+                  <SidebarMenuButton tooltip="Academic Years">
+                    <HugeiconsIcon icon={Calendar01Icon} />
+                    <span>Academic Years</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <Link to="/admin/students">
                   <SidebarMenuButton tooltip="Students">

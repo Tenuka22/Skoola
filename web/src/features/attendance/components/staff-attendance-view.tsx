@@ -2,12 +2,31 @@ import * as React from 'react'
 import { format } from 'date-fns'
 import {
   Calendar01Icon,
-  Search01Icon,
   Download01Icon,
+  Search01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { Stack, HStack, Grid, Heading, Text, Box } from '@/components/primitives'
+import { useAttendanceStore } from '../store'
+import {
+  useMarkStaffAttendanceBulk,
+  useStaffAttendance,
+  useStaffList,
+} from '../api'
+import { StaffAttendanceCard } from './staff-attendance-card'
+import type {
+  AttendanceStatus,
+  StaffAttendanceResponse,
+  StaffResponse,
+} from '@/lib/api/types.gen'
+import {
+  Box,
+  Grid,
+  HStack,
+  Heading,
+  Stack,
+  Text,
+} from '@/components/primitives'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -18,21 +37,12 @@ import {
 import { Calendar } from '@/components/ui/calendar'
 import {
   Empty,
+  EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-  EmptyDescription,
 } from '@/components/ui/empty'
 import { cn } from '@/lib/utils'
-
-import { useAttendanceStore } from '../store'
-import {
-  useStaffList,
-  useStaffAttendance,
-  useMarkStaffAttendanceBulk,
-} from '../api'
-import { StaffAttendanceCard } from './staff-attendance-card'
-import type { AttendanceStatus } from '@/lib/api/types.gen'
 
 export function StaffAttendanceView() {
   const { staffDate, setStaffDate, staffSearch, setStaffSearch } =
@@ -40,7 +50,7 @@ export function StaffAttendanceView() {
 
   // Fetch all staff members to list them
   const { data: staffData, isLoading: isLoadingStaff } = useStaffList()
-  const staffList = staffData?.data || []
+  const staffList = React.useMemo(() => staffData?.data || [], [staffData])
 
   // Fetch existing attendance records for the date
   const { data: attendanceData, isLoading: isLoadingAttendance } =
@@ -59,9 +69,9 @@ export function StaffAttendanceView() {
 
       // If attendance data exists, map it
       if (attendanceData) {
-        attendanceData.forEach((record: any) => {
+        attendanceData.forEach((record: StaffAttendanceResponse) => {
           if (record.staff_id && record.status) {
-            initial[record.staff_id] = record.status as AttendanceStatus
+            initial[record.staff_id] = record.status
           }
         })
       }
@@ -89,8 +99,8 @@ export function StaffAttendanceView() {
     if (!staffList.length) return
     const csvRows = [
       ['Staff Name', 'Email', 'Status', 'Date'],
-      ...staffList.map((staff: any) => [
-        staff.name_english || 'Unknown',
+      ...staffList.map((staff: StaffResponse) => [
+        staff.name || 'Unknown',
         staff.email || 'N/A',
         localAttendance[staff.id] || 'Not Marked',
         format(new Date(staffDate), 'yyyy-MM-dd'),
@@ -113,11 +123,11 @@ export function StaffAttendanceView() {
     setLocalAttendance((prev) => ({ ...prev, [staffId]: status }))
   }
 
-  const filteredStaff = staffList.filter((staff: any) => {
+  const filteredStaff = staffList.filter((staff: StaffResponse) => {
     if (!staffSearch) return true
     const searchLower = staffSearch.toLowerCase()
     return (
-      staff.name_english?.toLowerCase().includes(searchLower) ||
+      staff.name?.toLowerCase().includes(searchLower) ||
       staff.email?.toLowerCase().includes(searchLower)
     )
   })
@@ -221,12 +231,14 @@ export function StaffAttendanceView() {
             className="sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
             gap={4}
           >
-            {filteredStaff.map((staff: any) => (
+            {filteredStaff.map((staff: StaffResponse) => (
               <StaffAttendanceCard
                 key={staff.id}
                 staff={staff}
                 status={localAttendance[staff.id]}
-                onStatusChange={(status) => handleStatusChange(staff.id, status)}
+                onStatusChange={(status) =>
+                  handleStatusChange(staff.id, status)
+                }
               />
             ))}
           </Grid>
@@ -235,4 +247,3 @@ export function StaffAttendanceView() {
     </Stack>
   )
 }
-

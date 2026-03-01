@@ -38,7 +38,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Stack } from '@/components/primitives'
 
-export const Route = createFileRoute('/admin/academics/classes')({
+export const Route = createFileRoute('/admin/classes')({
   component: ClassesPage,
 })
 
@@ -59,6 +59,8 @@ function ClassesPage() {
     page,
     sorting,
     debouncedSearch,
+    gradeId,
+    academicYearId,
     setClassToEdit,
     setClassToDelete,
     setIsCreateClassOpen,
@@ -78,6 +80,8 @@ function ClassesPage() {
         search: debouncedSearch,
         sort_by: sortBy,
         sort_order: sortOrder,
+        grade_id: gradeId ?? undefined,
+        academic_year_id: academicYearId ?? undefined,
       },
     }),
     placeholderData: keepPreviousData,
@@ -163,7 +167,7 @@ function ClassesPage() {
   })
 
   return (
-    <Stack gap={0} className="h-full bg-background">
+    <Stack gap={4} p={8} className="h-full bg-background">
       <ClassesHeader />
       <ClassesToolbar
         onExport={() =>

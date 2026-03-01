@@ -2,12 +2,27 @@ import * as React from 'react'
 import { format } from 'date-fns'
 import {
   Calendar01Icon,
-  Search01Icon,
   Download01Icon,
+  Search01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { Stack, HStack, Grid, Heading, Text, Box } from '@/components/primitives'
+import { useAttendanceStore } from '../store'
+import {
+  useClasses,
+  useEnrichedStudentAttendance,
+  useMarkStudentAttendanceBulk,
+} from '../api'
+import { StudentAttendanceCard } from './student-attendance-card'
+import type { AttendanceStatus, ClassResponse } from '@/lib/api/types.gen'
+import {
+  Box,
+  Grid,
+  HStack,
+  Heading,
+  Stack,
+  Text,
+} from '@/components/primitives'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -25,22 +40,13 @@ import {
 import { Calendar } from '@/components/ui/calendar'
 import {
   Empty,
+  EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-  EmptyDescription,
 } from '@/components/ui/empty'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/use-auth'
-
-import { useAttendanceStore } from '../store'
-import {
-  useClasses,
-  useStudentAttendance,
-  useMarkStudentAttendanceBulk,
-} from '../api'
-import { StudentAttendanceCard } from './student-attendance-card'
-import type { AttendanceStatus } from '@/lib/api/types.gen'
 
 export function StudentAttendanceView() {
   const { user } = useAuth()
@@ -54,10 +60,10 @@ export function StudentAttendanceView() {
   } = useAttendanceStore()
 
   const { data: classesData } = useClasses()
-  const classes = classesData?.data || []
+  const classes: Array<ClassResponse> = classesData?.data || []
 
   const { data: attendanceData, isLoading: isLoadingAttendance } =
-    useStudentAttendance(studentClassId || '', studentDate)
+    useEnrichedStudentAttendance(studentClassId || '', studentDate)
 
   // Map to hold local edits before saving
   const [localAttendance, setLocalAttendance] = React.useState<
@@ -68,9 +74,9 @@ export function StudentAttendanceView() {
   React.useEffect(() => {
     if (attendanceData) {
       const initial: Record<string, AttendanceStatus> = {}
-      attendanceData.forEach((record: any) => {
+      attendanceData.forEach((record) => {
         if (record.student_id && record.status) {
-          initial[record.student_id] = record.status as AttendanceStatus
+          initial[record.student_id] = record.status
         }
       })
       setLocalAttendance(initial)
@@ -100,10 +106,9 @@ export function StudentAttendanceView() {
   const handleExportCSV = () => {
     if (!attendanceData) return
     const csvRows = [
-      ['Student Name', 'Admission No', 'Status', 'Date'],
-      ...attendanceData.map((r: any) => [
-        r.student?.name_english || 'Unknown',
-        r.student?.admission_number || 'N/A',
+      ['Student Name', 'Status', 'Date'],
+      ...attendanceData.map((r) => [
+        r.student_name || 'Unknown',
         localAttendance[r.student_id] || 'Not Marked',
         format(new Date(studentDate), 'yyyy-MM-dd'),
       ]),
@@ -125,17 +130,15 @@ export function StudentAttendanceView() {
     setLocalAttendance((prev) => ({ ...prev, [studentId]: status }))
   }
 
-  // Filter out records where student is undefined or doesn't match search
-  const filteredRecords =
-    attendanceData?.filter((record: any) => {
-      if (!record.student) return false
+  // Filter out records where student name doesn't match search
+  const filteredRecords = React.useMemo(() => {
+    const records = attendanceData || []
+    return records.filter((record) => {
       if (!studentSearch) return true
       const searchLower = studentSearch.toLowerCase()
-      return (
-        record.student.name_english?.toLowerCase().includes(searchLower) ||
-        record.student.admission_number?.toLowerCase().includes(searchLower)
-      )
-    }) || []
+      return record.student_name.toLowerCase().includes(searchLower)
+    })
+  }, [attendanceData, studentSearch])
 
   return (
     <Stack gap={4} p={8} className="h-full w-full">
@@ -183,14 +186,17 @@ export function StudentAttendanceView() {
             />
           </div>
 
-          <Select value={studentClassId || ''} onValueChange={setStudentClassId}>
+          <Select
+            value={studentClassId || ''}
+            onValueChange={setStudentClassId}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select Class" />
             </SelectTrigger>
             <SelectContent>
-              {classes.map((c: any) => (
+              {classes.map((c) => (
                 <SelectItem key={c.id} value={c.id}>
-                  {c.name}
+                  {c.section_name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -266,10 +272,13 @@ export function StudentAttendanceView() {
             className="sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
             gap={4}
           >
-            {filteredRecords.map((record: any) => (
+            {filteredRecords.map((record) => (
               <StudentAttendanceCard
                 key={record.student_id}
-                student={record.student}
+                student={{
+                  id: record.student_id,
+                  name_english: record.student_name,
+                }}
                 status={localAttendance[record.student_id]}
                 onStatusChange={(status) =>
                   handleStatusChange(record.student_id, status)
@@ -282,4 +291,3 @@ export function StudentAttendanceView() {
     </Stack>
   )
 }
-

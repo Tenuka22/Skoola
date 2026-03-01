@@ -20,6 +20,7 @@ import {
   getAllAcademicYearsOptions,
   getAllGradeLevelsOptions,
 } from '@/lib/api/@tanstack/react-query.gen'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface GetClassesColumnsProps {
   onEdit: (classItem: ClassResponse) => void
@@ -44,20 +45,16 @@ export function useClassesColumns({
     {
       id: 'select',
       header: ({ table }) => (
-        <input
-          type="checkbox"
+        <Checkbox
           checked={table.getIsAllPageRowsSelected()}
-          onChange={(value) =>
-            table.toggleAllPageRowsSelected(!!value.target.checked)
-          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
         />
       ),
       cell: ({ row }) => (
-        <input
-          type="checkbox"
+        <Checkbox
           checked={row.getIsSelected()}
-          onChange={(value) => row.toggleSelected(!!value.target.checked)}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
         />
       ),

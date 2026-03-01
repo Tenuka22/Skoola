@@ -40,7 +40,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Stack } from '@/components/primitives'
 
-export const Route = createFileRoute('/admin/academics/years')({
+export const Route = createFileRoute('/admin/years')({
   component: AcademicYearsPage,
 })
 
@@ -187,7 +187,7 @@ function AcademicYearsPage() {
   })
 
   return (
-    <Stack gap={0} className="h-full bg-background">
+    <Stack gap={4} p={8} className="h-full bg-background">
       <AcademicYearsHeader />
       <AcademicYearsToolbar
         onExport={() =>
@@ -227,9 +227,9 @@ function AcademicYearsPage() {
             body: {
               id: data.id,
               name: data.name,
-              year_start: new Date(data.start_date).getTime(),
-              year_end: new Date(data.end_date).getTime(),
-              current: data.current,
+              year_start: new Date(data.start_date).getFullYear(),
+              year_end: new Date(data.end_date).getFullYear(),
+              current: !!data.current,
             },
           })
         }
@@ -246,9 +246,9 @@ function AcademicYearsPage() {
             path: { id: store.yearToEdit.id },
             body: {
               name: data.name,
-              year_start: new Date(data.start_date).getTime(),
-              year_end: new Date(data.end_date).getTime(),
-              current: data.current,
+              year_start: new Date(data.start_date).getFullYear(),
+              year_end: new Date(data.end_date).getFullYear(),
+              current: !!data.current,
             },
           })
         }

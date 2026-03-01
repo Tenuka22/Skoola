@@ -9,6 +9,7 @@ import {
   getAllStaffOptions,
   getAttendanceByClassAndDateOptions,
   getAttendanceByClassAndDateQueryKey,
+  getEnrichedStudentListOptions,
   getStaffAttendanceByDateOptions,
   getStaffAttendanceByDateQueryKey,
   markStaffAttendanceBulkMutation,
@@ -100,6 +101,15 @@ export const useStudentAttendance = (classId: string, date: string) => {
     getAttendanceByClassAndDateOptions({
       client: authClient,
       path: { class_id: classId, date },
+    }),
+  )
+}
+
+export const useEnrichedStudentAttendance = (classId: string, date: string) => {
+  return useQuery(
+    getEnrichedStudentListOptions({
+      client: authClient,
+      path: { class_id: classId, date: date },
     }),
   )
 }

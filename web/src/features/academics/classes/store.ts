@@ -21,6 +21,10 @@ interface ClassesStore {
   setClassToDelete: (id: string | null) => void
   isBulkDeleteOpen: boolean
   setIsBulkDeleteOpen: (isOpen: boolean) => void
+  gradeId: string | null
+  setGradeId: (gradeId: string | null) => void
+  academicYearId: string | null
+  setAcademicYearId: (academicYearId: string | null) => void
 }
 
 export const useClassesStore = create<ClassesStore>((set) => ({
@@ -43,4 +47,8 @@ export const useClassesStore = create<ClassesStore>((set) => ({
   setClassToDelete: (id) => set({ classToDelete: id }),
   isBulkDeleteOpen: false,
   setIsBulkDeleteOpen: (isOpen) => set({ isBulkDeleteOpen: isOpen }),
+  gradeId: null,
+  setGradeId: (gradeId) => set({ gradeId, page: 1 }),
+  academicYearId: null,
+  setAcademicYearId: (academicYearId) => set({ academicYearId, page: 1 }),
 }))

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { SortingState } from '@tanstack/react-table'
-import type { AcademicYearResponse } from '@/lib/api'
+import type { AcademicYearResponse } from '@/lib/api/types.gen'
 
 interface AcademicYearsState {
   page: number

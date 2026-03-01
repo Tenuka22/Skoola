@@ -218,7 +218,7 @@ impl Default for SeedCountConfig {
             students: 4000,
             guardians: 2000,
             classes: 200,
-            academic_years: 3,
+            academic_years: 5,
             grade_levels: 13,
             subjects: 20,
             terms: 3,
