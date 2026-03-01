@@ -261,7 +261,10 @@ export function UserGridView({
 
                         <Stack gap={1} className="min-w-0 flex-1">
                           <HStack gap={2} align="center">
-                            <Text size="sm" className="font-semibold truncate capitalize">
+                            <Text
+                              size="sm"
+                              className="font-semibold truncate capitalize"
+                            >
                               {name}
                             </Text>
                           </HStack>
@@ -279,7 +282,10 @@ export function UserGridView({
                               size="icon-sm"
                               className="opacity-0 group-hover:opacity-100 transition-opacity -mr-1 -mt-1 shrink-0"
                             >
-                              <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                              <HugeiconsIcon
+                                icon={MoreVerticalIcon}
+                                size={16}
+                              />
                             </Button>
                           }
                         />
@@ -291,7 +297,10 @@ export function UserGridView({
                             }}
                           >
                             <HStack gap={2} p={0}>
-                              <HugeiconsIcon icon={Copy01Icon} className="size-4 opacity-70" />
+                              <HugeiconsIcon
+                                icon={Copy01Icon}
+                                className="size-4 opacity-70"
+                              />
                               <span>Copy ID</span>
                             </HStack>
                           </DropdownMenuItem>
@@ -302,7 +311,10 @@ export function UserGridView({
                             }}
                           >
                             <HStack gap={2} p={0}>
-                              <HugeiconsIcon icon={Copy01Icon} className="size-4 opacity-70" />
+                              <HugeiconsIcon
+                                icon={Copy01Icon}
+                                className="size-4 opacity-70"
+                              />
                               <span>Copy Email</span>
                             </HStack>
                           </DropdownMenuItem>
@@ -311,13 +323,21 @@ export function UserGridView({
 
                           <DropdownMenuItem onClick={() => onEdit(user)}>
                             <HStack gap={2} p={0}>
-                              <HugeiconsIcon icon={PencilEdit01Icon} className="size-4 opacity-70" />
+                              <HugeiconsIcon
+                                icon={PencilEdit01Icon}
+                                className="size-4 opacity-70"
+                              />
                               <span>Edit</span>
                             </HStack>
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onManagePermissions(user)}>
+                          <DropdownMenuItem
+                            onClick={() => onManagePermissions(user)}
+                          >
                             <HStack gap={2} p={0}>
-                              <HugeiconsIcon icon={Shield02Icon} className="size-4 opacity-70" />
+                              <HugeiconsIcon
+                                icon={Shield02Icon}
+                                className="size-4 opacity-70"
+                              />
                               <span>Permissions</span>
                             </HStack>
                           </DropdownMenuItem>
@@ -332,9 +352,14 @@ export function UserGridView({
                               {isBeingUpdated ? (
                                 <Spinner className="size-4" />
                               ) : (
-                                <HugeiconsIcon icon={Tick01Icon} className="size-4 opacity-70" />
+                                <HugeiconsIcon
+                                  icon={Tick01Icon}
+                                  className="size-4 opacity-70"
+                                />
                               )}
-                              <span>{user.is_verified ? 'Unverify' : 'Verify'}</span>
+                              <span>
+                                {user.is_verified ? 'Unverify' : 'Verify'}
+                              </span>
                             </HStack>
                           </DropdownMenuItem>
                           <DropdownMenuItem
@@ -345,7 +370,10 @@ export function UserGridView({
                               {isBeingUpdated ? (
                                 <Spinner className="size-4" />
                               ) : (
-                                <HugeiconsIcon icon={LockIcon} className="size-4 opacity-70" />
+                                <HugeiconsIcon
+                                  icon={LockIcon}
+                                  className="size-4 opacity-70"
+                                />
                               )}
                               <span>{isLocked ? 'Unlock' : 'Lock'}</span>
                             </HStack>
@@ -358,7 +386,10 @@ export function UserGridView({
                             className="text-destructive focus:text-destructive"
                           >
                             <HStack gap={2} p={0}>
-                              <HugeiconsIcon icon={Delete02Icon} className="size-4 opacity-70" />
+                              <HugeiconsIcon
+                                icon={Delete02Icon}
+                                className="size-4 opacity-70"
+                              />
                               <span>Delete</span>
                             </HStack>
                           </DropdownMenuItem>
@@ -381,12 +412,18 @@ export function UserGridView({
                           variant="outline"
                           className={`text-[10px] px-1.5 py-0 h-5 font-medium border ${statusColor}`}
                         >
-                          <span className={`inline-block h-1.5 w-1.5 rounded-full mr-1 ${statusDot}`} />
+                          <span
+                            className={`inline-block h-1.5 w-1.5 rounded-full mr-1 ${statusDot}`}
+                          />
                           {statusLabel}
                         </Badge>
                       </HStack>
 
-                      <HStack gap={1} align="center" className="text-muted-foreground">
+                      <HStack
+                        gap={1}
+                        align="center"
+                        className="text-muted-foreground"
+                      >
                         <HugeiconsIcon icon={Calendar03Icon} size={12} />
                         <Text size="xs" muted className="text-[11px]">
                           {format(createdAt, 'MMM d, yyyy')}
@@ -409,13 +446,23 @@ export function UserGridView({
 
 function CardSkeleton({ index = 0 }: { index?: number }) {
   const widthClasses = [
-    'w-[110px]', 'w-[90px]', 'w-[140px]', 'w-[120px]', 'w-[100px]', 'w-[130px]'
-  ];
+    'w-[110px]',
+    'w-[90px]',
+    'w-[140px]',
+    'w-[120px]',
+    'w-[100px]',
+    'w-[130px]',
+  ]
   const emailWidths = [
-    'w-[160px]', 'w-[140px]', 'w-[180px]', 'w-[150px]', 'w-[170px]', 'w-[130px]'
-  ];
-  const w1 = widthClasses[index % widthClasses.length];
-  const w2 = emailWidths[(index + 3) % emailWidths.length];
+    'w-[160px]',
+    'w-[140px]',
+    'w-[180px]',
+    'w-[150px]',
+    'w-[170px]',
+    'w-[130px]',
+  ]
+  const w1 = widthClasses[index % widthClasses.length]
+  const w2 = emailWidths[(index + 3) % emailWidths.length]
 
   return (
     <Card className="overflow-hidden border-border/50">

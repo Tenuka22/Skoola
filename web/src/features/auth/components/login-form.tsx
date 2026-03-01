@@ -72,7 +72,11 @@ export function LoginForm({
               <span className="w-full border-t" />
             </Box>
             <HStack align="center" className="relative justify-center">
-              <Text size="xs" muted className="bg-card px-2 uppercase tracking-widest text-[10px]">
+              <Text
+                size="xs"
+                muted
+                className="bg-card px-2 uppercase tracking-widest text-[10px]"
+              >
                 or
               </Text>
             </HStack>
@@ -84,7 +88,10 @@ export function LoginForm({
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button variant="outline" className="w-full h-9 text-[13px] gap-2 font-normal hover:bg-accent transition-colors">
+              <Button
+                variant="outline"
+                className="w-full h-9 text-[13px] gap-2 font-normal hover:bg-accent transition-colors"
+              >
                 <svg className="h-4 w-4" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"
@@ -111,7 +118,10 @@ export function LoginForm({
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button variant="outline" className="w-full h-9 text-[13px] gap-2 font-normal hover:bg-accent transition-colors">
+              <Button
+                variant="outline"
+                className="w-full h-9 text-[13px] gap-2 font-normal hover:bg-accent transition-colors"
+              >
                 <svg className="h-4 w-4" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"

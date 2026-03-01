@@ -126,10 +126,24 @@ export function UsersListContainer({
             <div className="flex items-center justify-between py-4 px-4">
               <div className="flex items-center space-x-6 lg:space-x-8">
                 <div className="text-xs font-medium text-muted-foreground whitespace-nowrap hidden sm:block">
-                  Showing <span className="text-foreground">{(page - 1) * limit + 1}</span> to <span className="text-foreground">{Math.min(page * limit, usersQuery.data?.total || 0)}</span> of <span className="text-foreground">{usersQuery.data?.total || 0}</span> results
+                  Showing{' '}
+                  <span className="text-foreground">
+                    {(page - 1) * limit + 1}
+                  </span>{' '}
+                  to{' '}
+                  <span className="text-foreground">
+                    {Math.min(page * limit, usersQuery.data?.total || 0)}
+                  </span>{' '}
+                  of{' '}
+                  <span className="text-foreground">
+                    {usersQuery.data?.total || 0}
+                  </span>{' '}
+                  results
                 </div>
                 <div className="flex items-center space-x-2">
-                  <p className="text-xs font-medium text-muted-foreground whitespace-nowrap hidden sm:block">Cards per page</p>
+                  <p className="text-xs font-medium text-muted-foreground whitespace-nowrap hidden sm:block">
+                    Cards per page
+                  </p>
                   <Select
                     value={`${limit}`}
                     onValueChange={(value) => setLimit(Number(value))}
@@ -139,7 +153,10 @@ export function UsersListContainer({
                     </SelectTrigger>
                     <SelectContent side="top">
                       {[10, 20, 30, 40, 50].map((pageSizeOption) => (
-                        <SelectItem key={pageSizeOption} value={`${pageSizeOption}`}>
+                        <SelectItem
+                          key={pageSizeOption}
+                          value={`${pageSizeOption}`}
+                        >
                           {pageSizeOption}
                         </SelectItem>
                       ))}
@@ -151,18 +168,26 @@ export function UsersListContainer({
               <Pagination className="mx-0 w-auto justify-end">
                 <PaginationContent>
                   <PaginationItem>
-                    <PaginationPrevious 
-                      className={cn(page <= 1 || usersQuery.isFetching ? 'pointer-events-none opacity-50' : 'cursor-pointer')}
-                      onClick={page > 1 && !usersQuery.isFetching ? () => setPage(page - 1) : undefined}
+                    <PaginationPrevious
+                      className={cn(
+                        page <= 1 || usersQuery.isFetching
+                          ? 'pointer-events-none opacity-50'
+                          : 'cursor-pointer',
+                      )}
+                      onClick={
+                        page > 1 && !usersQuery.isFetching
+                          ? () => setPage(page - 1)
+                          : undefined
+                      }
                     />
                   </PaginationItem>
-                  
+
                   <div className="hidden sm:flex items-center">
                     {(() => {
-                      const currentPage = page;
-                      const pageCount = usersQuery.data?.total_pages || 1;
-                      const maxVisiblePages = 5;
-                      
+                      const currentPage = page
+                      const pageCount = usersQuery.data?.total_pages || 1
+                      const maxVisiblePages = 5
+
                       if (pageCount <= maxVisiblePages) {
                         return Array.from({ length: pageCount }).map((_, i) => (
                           <PaginationItem key={i}>
@@ -178,7 +203,7 @@ export function UsersListContainer({
                       }
 
                       const pages = []
-                      
+
                       pages.push(
                         <PaginationItem key={1}>
                           <PaginationLink
@@ -188,14 +213,14 @@ export function UsersListContainer({
                           >
                             1
                           </PaginationLink>
-                        </PaginationItem>
+                        </PaginationItem>,
                       )
 
                       if (currentPage > 3) {
                         pages.push(
                           <PaginationItem key="ellipsis-start">
                             <PaginationEllipsis />
-                          </PaginationItem>
+                          </PaginationItem>,
                         )
                       }
 
@@ -212,7 +237,7 @@ export function UsersListContainer({
                             >
                               {i}
                             </PaginationLink>
-                          </PaginationItem>
+                          </PaginationItem>,
                         )
                       }
 
@@ -220,7 +245,7 @@ export function UsersListContainer({
                         pages.push(
                           <PaginationItem key="ellipsis-end">
                             <PaginationEllipsis />
-                          </PaginationItem>
+                          </PaginationItem>,
                         )
                       }
 
@@ -233,20 +258,32 @@ export function UsersListContainer({
                           >
                             {pageCount}
                           </PaginationLink>
-                        </PaginationItem>
+                        </PaginationItem>,
                       )
 
                       return pages
                     })()}
                   </div>
                   <PaginationItem className="sm:hidden">
-                    <span className="text-sm px-4">Page {page} of {usersQuery.data?.total_pages || 1}</span>
+                    <span className="text-sm px-4">
+                      Page {page} of {usersQuery.data?.total_pages || 1}
+                    </span>
                   </PaginationItem>
-                  
+
                   <PaginationItem>
-                    <PaginationNext 
-                      className={cn(page >= (usersQuery.data?.total_pages || 1) || usersQuery.isFetching ? 'pointer-events-none opacity-50' : 'cursor-pointer')}
-                      onClick={page < (usersQuery.data?.total_pages || 1) && !usersQuery.isFetching ? () => setPage(page + 1) : undefined}
+                    <PaginationNext
+                      className={cn(
+                        page >= (usersQuery.data?.total_pages || 1) ||
+                          usersQuery.isFetching
+                          ? 'pointer-events-none opacity-50'
+                          : 'cursor-pointer',
+                      )}
+                      onClick={
+                        page < (usersQuery.data?.total_pages || 1) &&
+                        !usersQuery.isFetching
+                          ? () => setPage(page + 1)
+                          : undefined
+                      }
                     />
                   </PaginationItem>
                 </PaginationContent>

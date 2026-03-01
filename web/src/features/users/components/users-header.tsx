@@ -20,21 +20,24 @@ export function UsersHeader() {
     <Stack gap={1}>
       <HStack className="justify-between items-start">
         <HStack>
-        <Heading size="h2">User management</Heading>
-        <Badge
-          variant="secondary"
-          className="rounded-md bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground hover:bg-muted"
-        >
-          {stats?.total_users || 0} Total
-        </Badge>
+          <Heading size="h2">User management</Heading>
+          <Badge
+            variant="secondary"
+            className="rounded-md bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground hover:bg-muted"
+          >
+            {stats?.total_users || 0} Total
+          </Badge>
         </HStack>
         <div className="flex items-center space-x-2">
-          <Switch 
-            id="show-profile-pictures" 
-            checked={showProfilePictures} 
-            onCheckedChange={setShowProfilePictures} 
+          <Switch
+            id="show-profile-pictures"
+            checked={showProfilePictures}
+            onCheckedChange={setShowProfilePictures}
           />
-          <Label htmlFor="show-profile-pictures" className="text-sm font-medium text-muted-foreground cursor-pointer select-none">
+          <Label
+            htmlFor="show-profile-pictures"
+            className="text-sm font-medium text-muted-foreground cursor-pointer select-none"
+          >
             Show profile pictures
           </Label>
         </div>

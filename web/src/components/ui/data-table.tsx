@@ -117,10 +117,16 @@ export function DataTable<TData extends { id: string | number }, TValue>({
         <Table>
           <TableHeader className="bg-muted/30">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent border-b-border/40">
+              <TableRow
+                key={headerGroup.id}
+                className="hover:bg-transparent border-b-border/40"
+              >
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="h-11 font-semibold text-foreground/80">
+                    <TableHead
+                      key={header.id}
+                      className="h-11 font-semibold text-foreground/80"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -141,24 +147,31 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                     // Create some visual variation in skeleton widths
                     // but keep it deterministic based on row/col index
                     const widthClasses = [
-                      'w-1/3', 'w-1/2', 'w-3/4', 'w-full', 'w-2/3', 'w-4/5'
-                    ];
-                    let w1 = widthClasses[(index + colIndex) % widthClasses.length];
-                    let w2 = widthClasses[(index * colIndex + 1) % widthClasses.length];
+                      'w-1/3',
+                      'w-1/2',
+                      'w-3/4',
+                      'w-full',
+                      'w-2/3',
+                      'w-4/5',
+                    ]
+                    let w1 =
+                      widthClasses[(index + colIndex) % widthClasses.length]
+                    let w2 =
+                      widthClasses[(index * colIndex + 1) % widthClasses.length]
 
                     return (
                       <TableCell key={colIndex} className="py-4 align-middle">
                         {colIndex === 0 ? (
-                           <div className="flex items-center gap-3">
-                             <Skeleton className="size-8 rounded-full bg-muted/50 shrink-0" />
-                             <div className="flex flex-col gap-1.5 w-full">
-                               <Skeleton className={`h-4 ${w1} bg-muted/50`} />
-                               <Skeleton className={`h-3 ${w2} bg-muted/40`} />
-                             </div>
-                           </div>
+                          <div className="flex items-center gap-3">
+                            <Skeleton className="size-8 rounded-full bg-muted/50 shrink-0" />
+                            <div className="flex flex-col gap-1.5 w-full">
+                              <Skeleton className={`h-4 ${w1} bg-muted/50`} />
+                              <Skeleton className={`h-3 ${w2} bg-muted/40`} />
+                            </div>
+                          </div>
                         ) : colIndex === columns.length - 1 ? (
                           <div className="flex justify-end pr-2">
-                             <Skeleton className="h-8 w-8 rounded-md bg-muted/50" />
+                            <Skeleton className="h-8 w-8 rounded-md bg-muted/50" />
                           </div>
                         ) : (
                           <Skeleton className={`h-5 ${w1} bg-muted/50`} />
@@ -215,10 +228,18 @@ export function DataTable<TData extends { id: string | number }, TValue>({
       <div className="flex items-center justify-between py-4 px-2">
         <div className="flex items-center space-x-6 lg:space-x-8">
           <div className="text-xs font-medium text-muted-foreground whitespace-nowrap hidden sm:block">
-            Showing <span className="text-foreground">{pageIndex * pageSize + 1}</span> to <span className="text-foreground">{Math.min((pageIndex + 1) * pageSize, data.length)}</span> of <span className="text-foreground">{data.length}</span> results
+            Showing{' '}
+            <span className="text-foreground">{pageIndex * pageSize + 1}</span>{' '}
+            to{' '}
+            <span className="text-foreground">
+              {Math.min((pageIndex + 1) * pageSize, data.length)}
+            </span>{' '}
+            of <span className="text-foreground">{data.length}</span> results
           </div>
           <div className="flex items-center space-x-2">
-            <p className="text-xs font-medium text-muted-foreground whitespace-nowrap hidden sm:block">Rows per page</p>
+            <p className="text-xs font-medium text-muted-foreground whitespace-nowrap hidden sm:block">
+              Rows per page
+            </p>
             <Select
               value={`${pageSize}`}
               onValueChange={(value) => {
@@ -244,24 +265,34 @@ export function DataTable<TData extends { id: string | number }, TValue>({
         <Pagination className="mx-0 w-auto justify-end">
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious 
-                className={cn(!canPreviousPage || isLoading ? 'pointer-events-none opacity-50' : 'cursor-pointer')}
-                onClick={canPreviousPage && !isLoading ? fetchPreviousPage : undefined}
+              <PaginationPrevious
+                className={cn(
+                  !canPreviousPage || isLoading
+                    ? 'pointer-events-none opacity-50'
+                    : 'cursor-pointer',
+                )}
+                onClick={
+                  canPreviousPage && !isLoading ? fetchPreviousPage : undefined
+                }
               />
             </PaginationItem>
-            
+
             {/* Numbered Pagination */}
             <div className="hidden sm:flex items-center">
               {(() => {
                 const currentPage = pageIndex + 1
                 const maxVisiblePages = 5
-                
+
                 if (pageCount <= maxVisiblePages) {
                   return Array.from({ length: pageCount }).map((_, i) => (
                     <PaginationItem key={i}>
                       <PaginationLink
                         isActive={currentPage === i + 1}
-                        onClick={() => onPageIndexChange ? onPageIndexChange(i) : table.setPageIndex(i)}
+                        onClick={() =>
+                          onPageIndexChange
+                            ? onPageIndexChange(i)
+                            : table.setPageIndex(i)
+                        }
                         className="cursor-pointer"
                       >
                         {i + 1}
@@ -271,25 +302,29 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                 }
 
                 const pages = []
-                
+
                 // Always show first page
                 pages.push(
                   <PaginationItem key={0}>
                     <PaginationLink
                       isActive={currentPage === 1}
-                      onClick={() => onPageIndexChange ? onPageIndexChange(0) : table.setPageIndex(0)}
+                      onClick={() =>
+                        onPageIndexChange
+                          ? onPageIndexChange(0)
+                          : table.setPageIndex(0)
+                      }
                       className="cursor-pointer"
                     >
                       1
                     </PaginationLink>
-                  </PaginationItem>
+                  </PaginationItem>,
                 )
 
                 if (currentPage > 3) {
                   pages.push(
                     <PaginationItem key="ellipsis-start">
                       <PaginationEllipsis />
-                    </PaginationItem>
+                    </PaginationItem>,
                   )
                 }
 
@@ -302,12 +337,16 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                     <PaginationItem key={i - 1}>
                       <PaginationLink
                         isActive={currentPage === i}
-                        onClick={() => onPageIndexChange ? onPageIndexChange(i - 1) : table.setPageIndex(i - 1)}
+                        onClick={() =>
+                          onPageIndexChange
+                            ? onPageIndexChange(i - 1)
+                            : table.setPageIndex(i - 1)
+                        }
                         className="cursor-pointer"
                       >
                         {i}
                       </PaginationLink>
-                    </PaginationItem>
+                    </PaginationItem>,
                   )
                 }
 
@@ -315,7 +354,7 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                   pages.push(
                     <PaginationItem key="ellipsis-end">
                       <PaginationEllipsis />
-                    </PaginationItem>
+                    </PaginationItem>,
                   )
                 }
 
@@ -324,12 +363,16 @@ export function DataTable<TData extends { id: string | number }, TValue>({
                   <PaginationItem key={pageCount - 1}>
                     <PaginationLink
                       isActive={currentPage === pageCount}
-                      onClick={() => onPageIndexChange ? onPageIndexChange(pageCount - 1) : table.setPageIndex(pageCount - 1)}
+                      onClick={() =>
+                        onPageIndexChange
+                          ? onPageIndexChange(pageCount - 1)
+                          : table.setPageIndex(pageCount - 1)
+                      }
                       className="cursor-pointer"
                     >
                       {pageCount}
                     </PaginationLink>
-                  </PaginationItem>
+                  </PaginationItem>,
                 )
 
                 return pages
@@ -337,12 +380,18 @@ export function DataTable<TData extends { id: string | number }, TValue>({
             </div>
             {/* Mobile fallback indicator */}
             <PaginationItem className="sm:hidden">
-              <span className="text-sm px-4">Page {pageIndex + 1} of {pageCount}</span>
+              <span className="text-sm px-4">
+                Page {pageIndex + 1} of {pageCount}
+              </span>
             </PaginationItem>
-            
+
             <PaginationItem>
-              <PaginationNext 
-                className={cn(!canNextPage || isLoading ? 'pointer-events-none opacity-50' : 'cursor-pointer')}
+              <PaginationNext
+                className={cn(
+                  !canNextPage || isLoading
+                    ? 'pointer-events-none opacity-50'
+                    : 'cursor-pointer',
+                )}
                 onClick={canNextPage && !isLoading ? fetchNextPage : undefined}
               />
             </PaginationItem>

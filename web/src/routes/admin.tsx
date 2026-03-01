@@ -119,8 +119,13 @@ function AdminLayout() {
               gap={0}
               className="flex-1 text-left leading-tight group-has-data-[collapsible=icon]/sidebar-wrapper:hidden"
             >
-              <Text className="truncate font-semibold tracking-tight">Skoola</Text>
-              <Text size="xs" className="truncate text-muted-foreground font-medium">
+              <Text className="truncate font-semibold tracking-tight">
+                Skoola
+              </Text>
+              <Text
+                size="xs"
+                className="truncate text-muted-foreground font-medium"
+              >
                 Admin Console
               </Text>
             </Stack>
@@ -134,7 +139,10 @@ function AdminLayout() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <Link to="/admin">
-                  <SidebarMenuButton tooltip="Dashboard" className="hover:bg-accent/50 transition-colors">
+                  <SidebarMenuButton
+                    tooltip="Dashboard"
+                    className="hover:bg-accent/50 transition-colors"
+                  >
                     <HugeiconsIcon icon={Home01Icon} size={18} />
                     <span className="font-medium">Dashboard</span>
                   </SidebarMenuButton>
@@ -142,7 +150,10 @@ function AdminLayout() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Link to="/admin/users">
-                  <SidebarMenuButton tooltip="Users" className="hover:bg-accent/50 transition-colors">
+                  <SidebarMenuButton
+                    tooltip="Users"
+                    className="hover:bg-accent/50 transition-colors"
+                  >
                     <HugeiconsIcon icon={UserGroupIcon} size={18} />
                     <span className="font-medium">Users</span>
                   </SidebarMenuButton>
@@ -150,7 +161,10 @@ function AdminLayout() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Link to="/admin/rbac">
-                  <SidebarMenuButton tooltip="Access Control" className="hover:bg-accent/50 transition-colors">
+                  <SidebarMenuButton
+                    tooltip="Access Control"
+                    className="hover:bg-accent/50 transition-colors"
+                  >
                     <HugeiconsIcon icon={Shield01Icon} size={18} />
                     <span className="font-medium">Access Control</span>
                   </SidebarMenuButton>
@@ -181,7 +195,10 @@ function AdminLayout() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Link to="/admin/students">
-                  <SidebarMenuButton tooltip="Students" className="hover:bg-accent/50 transition-colors">
+                  <SidebarMenuButton
+                    tooltip="Students"
+                    className="hover:bg-accent/50 transition-colors"
+                  >
                     <HugeiconsIcon icon={User02Icon} size={18} />
                     <span className="font-medium">Students</span>
                   </SidebarMenuButton>
@@ -189,7 +206,10 @@ function AdminLayout() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Link to="/admin/staff">
-                  <SidebarMenuButton tooltip="Staff" className="hover:bg-accent/50 transition-colors">
+                  <SidebarMenuButton
+                    tooltip="Staff"
+                    className="hover:bg-accent/50 transition-colors"
+                  >
                     <HugeiconsIcon icon={Briefcase01Icon} size={18} />
                     <span className="font-medium">Staff</span>
                   </SidebarMenuButton>
@@ -204,7 +224,10 @@ function AdminLayout() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <Link to="/admin/attendance/staff">
-                  <SidebarMenuButton tooltip="Staff Attendance" className="hover:bg-accent/50 transition-colors">
+                  <SidebarMenuButton
+                    tooltip="Staff Attendance"
+                    className="hover:bg-accent/50 transition-colors"
+                  >
                     <HugeiconsIcon icon={Calendar01Icon} size={18} />
                     <span className="font-medium">Staff</span>
                   </SidebarMenuButton>
@@ -212,7 +235,10 @@ function AdminLayout() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Link to="/admin/attendance/students">
-                  <SidebarMenuButton tooltip="Student Attendance" className="hover:bg-accent/50 transition-colors">
+                  <SidebarMenuButton
+                    tooltip="Student Attendance"
+                    className="hover:bg-accent/50 transition-colors"
+                  >
                     <HugeiconsIcon icon={Calendar02Icon} size={18} />
                     <span className="font-medium">Students</span>
                   </SidebarMenuButton>

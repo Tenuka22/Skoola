@@ -1,4 +1,7 @@
-import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from 'next-themes'
+import {
+  ThemeProvider as NextThemesProvider,
+  useTheme as useNextTheme,
+} from 'next-themes'
 import type { ReactNode } from 'react'
 
 type ThemeProviderProps = {
@@ -7,11 +10,11 @@ type ThemeProviderProps = {
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return (
-    <NextThemesProvider 
-      attribute="class" 
-      defaultTheme="system" 
-      enableSystem 
-      disableTransitionOnChange 
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
       {...props}
     >
       {children}
