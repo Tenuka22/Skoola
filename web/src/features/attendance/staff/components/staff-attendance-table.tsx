@@ -20,7 +20,7 @@ import {
   syncStaffLeavesMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { HStack, Stack, Text } from '@/components/primitives'
+import { Box, HStack, Stack, Text } from '@/components/primitives'
 import {
   Select,
   SelectContent,
@@ -135,7 +135,7 @@ export function StaffAttendanceTable({ date }: { date: Date }) {
                 {row.original.name?.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <Stack gap={0.5}>
+            <Stack gap={1}>
               <Text className="font-medium">{row.original.name}</Text>
               <Text
                 size="xs"

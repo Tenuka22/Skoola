@@ -2,7 +2,7 @@ import { format } from 'date-fns'
 import { Calendar as CalendarIcon, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import { Box, HStack } from '@/components/primitives'
+import { HStack } from '@/components/primitives'
 import {
   Popover,
   PopoverContent,

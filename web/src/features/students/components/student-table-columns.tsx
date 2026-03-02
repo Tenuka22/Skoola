@@ -7,6 +7,7 @@ import {
   Chart01Icon,
   Delete02Icon,
   Menu01Icon,
+  Note01Icon,
   PencilEdit01Icon,
   School01Icon,
   Upload01Icon,
@@ -35,6 +36,7 @@ interface GetStudentColumnsProps {
   onManageGuardians: (student: StudentResponse) => void
   onManageAttendance: (student: StudentResponse) => void
   onManageMarks: (student: StudentResponse) => void
+  onManageBehavior: (student: StudentResponse) => void
 }
 
 export const getStudentColumns = ({
@@ -45,6 +47,7 @@ export const getStudentColumns = ({
   onManageGuardians,
   onManageAttendance,
   onManageMarks,
+  onManageBehavior,
 }: GetStudentColumnsProps): Array<ColumnDef<StudentResponse>> => [
   {
     id: 'select',
@@ -218,6 +221,10 @@ export const getStudentColumns = ({
             <DropdownMenuItem onClick={() => onManageMarks(student)}>
               <HugeiconsIcon icon={Chart01Icon} className="mr-2 size-4" />
               Academic Marks
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onManageBehavior(student)}>
+              <HugeiconsIcon icon={Note01Icon} className="mr-2 size-4" />
+              Student Behavior
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

@@ -15,6 +15,7 @@ import { StudentAssignClassDialog } from '../../features/students/components/stu
 import { StudentGuardiansDialog } from '../../features/students/components/student-guardians-dialog'
 import { StudentAttendanceDialog } from '../../features/students/components/student-attendance-dialog'
 import { StudentMarksDialog } from '../../features/students/components/student-marks-dialog'
+import { StudentBehaviorDialog } from '../../features/behavior-management/components/student-behavior-dialog'
 import { StudentToolbar } from '../../features/students/components/student-toolbar'
 import { StudentBulkAssignClassDialog } from '../../features/students/components/student-bulk-assign-class-dialog'
 import { getStudentColumns } from '../../features/students/components/student-table-columns'
@@ -77,6 +78,9 @@ function StudentsPage() {
     isMarksOpen,
     setIsMarksOpen,
     studentToManageMarksFor,
+    isBehaviorOpen,
+    setIsBehaviorOpen,
+    studentToManageBehaviorFor,
     isBulkAssignClassOpen,
     setIsBulkAssignClassOpen,
   } = store
@@ -196,6 +200,10 @@ function StudentsPage() {
     onManageGuardians: store.setStudentToManageGuardiansFor,
     onManageAttendance: store.setStudentToManageAttendanceFor,
     onManageMarks: store.setStudentToManageMarksFor,
+    onManageBehavior: (student) => {
+      store.setStudentToManageBehaviorFor(student)
+      store.setIsBehaviorOpen(true)
+    },
   })
 
   const totalStudents = studentsQuery.data?.total ?? 0
@@ -299,6 +307,12 @@ function StudentsPage() {
         student={studentToManageMarksFor}
         open={isMarksOpen}
         onOpenChange={setIsMarksOpen}
+      />
+
+      <StudentBehaviorDialog
+        student={studentToManageBehaviorFor}
+        open={isBehaviorOpen}
+        onOpenChange={setIsBehaviorOpen}
       />
 
       <StudentBulkAssignClassDialog

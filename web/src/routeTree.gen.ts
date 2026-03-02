@@ -19,11 +19,13 @@ import { Route as AdminStaffRouteImport } from './routes/admin/staff'
 import { Route as AdminRbacRouteImport } from './routes/admin/rbac'
 import { Route as AdminGradesRouteImport } from './routes/admin/grades'
 import { Route as AdminClassesRouteImport } from './routes/admin/classes'
+import { Route as AdminBehaviorRouteImport } from './routes/admin/behavior'
 import { Route as AdminAuditRouteImport } from './routes/admin/audit'
 import { Route as AdminAcademicsRouteImport } from './routes/admin/academics'
 import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as authProfileRouteImport } from './routes/(auth)/profile'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as AdminBehaviorIndexRouteImport } from './routes/admin/behavior/index'
 import { Route as AdminAttendanceStudentsRouteImport } from './routes/admin/attendance/students'
 import { Route as AdminAttendanceStaffRouteImport } from './routes/admin/attendance/staff'
 import { Route as AdminAttendanceReportRouteImport } from './routes/admin/attendance/report'
@@ -85,6 +87,11 @@ const AdminClassesRoute = AdminClassesRouteImport.update({
   path: '/classes',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBehaviorRoute = AdminBehaviorRouteImport.update({
+  id: '/behavior',
+  path: '/behavior',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -109,6 +116,11 @@ const authLoginRoute = authLoginRouteImport.update({
   id: '/(auth)/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminBehaviorIndexRoute = AdminBehaviorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminBehaviorRoute,
 } as any)
 const AdminAttendanceStudentsRoute = AdminAttendanceStudentsRouteImport.update({
   id: '/attendance/students',
@@ -173,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof authSignUpRoute
   '/admin/academics': typeof AdminAcademicsRouteWithChildren
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/behavior': typeof AdminBehaviorRouteWithChildren
   '/admin/classes': typeof AdminClassesRoute
   '/admin/grades': typeof AdminGradesRoute
   '/admin/rbac': typeof AdminRbacRoute
@@ -190,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/admin/attendance/report': typeof AdminAttendanceReportRoute
   '/admin/attendance/staff': typeof AdminAttendanceStaffRoute
   '/admin/attendance/students': typeof AdminAttendanceStudentsRoute
+  '/admin/behavior/': typeof AdminBehaviorIndexRoute
   '/admin/attendance/student/$studentId': typeof AdminAttendanceStudentStudentIdRoute
 }
 export interface FileRoutesByTo {
@@ -216,6 +230,7 @@ export interface FileRoutesByTo {
   '/admin/attendance/report': typeof AdminAttendanceReportRoute
   '/admin/attendance/staff': typeof AdminAttendanceStaffRoute
   '/admin/attendance/students': typeof AdminAttendanceStudentsRoute
+  '/admin/behavior': typeof AdminBehaviorIndexRoute
   '/admin/attendance/student/$studentId': typeof AdminAttendanceStudentStudentIdRoute
 }
 export interface FileRoutesById {
@@ -227,6 +242,7 @@ export interface FileRoutesById {
   '/(auth)/sign-up': typeof authSignUpRoute
   '/admin/academics': typeof AdminAcademicsRouteWithChildren
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/behavior': typeof AdminBehaviorRouteWithChildren
   '/admin/classes': typeof AdminClassesRoute
   '/admin/grades': typeof AdminGradesRoute
   '/admin/rbac': typeof AdminRbacRoute
@@ -244,6 +260,7 @@ export interface FileRoutesById {
   '/admin/attendance/report': typeof AdminAttendanceReportRoute
   '/admin/attendance/staff': typeof AdminAttendanceStaffRoute
   '/admin/attendance/students': typeof AdminAttendanceStudentsRoute
+  '/admin/behavior/': typeof AdminBehaviorIndexRoute
   '/admin/attendance/student/$studentId': typeof AdminAttendanceStudentStudentIdRoute
 }
 export interface FileRouteTypes {
@@ -256,6 +273,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/admin/academics'
     | '/admin/audit'
+    | '/admin/behavior'
     | '/admin/classes'
     | '/admin/grades'
     | '/admin/rbac'
@@ -273,6 +291,7 @@ export interface FileRouteTypes {
     | '/admin/attendance/report'
     | '/admin/attendance/staff'
     | '/admin/attendance/students'
+    | '/admin/behavior/'
     | '/admin/attendance/student/$studentId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -299,6 +318,7 @@ export interface FileRouteTypes {
     | '/admin/attendance/report'
     | '/admin/attendance/staff'
     | '/admin/attendance/students'
+    | '/admin/behavior'
     | '/admin/attendance/student/$studentId'
   id:
     | '__root__'
@@ -309,6 +329,7 @@ export interface FileRouteTypes {
     | '/(auth)/sign-up'
     | '/admin/academics'
     | '/admin/audit'
+    | '/admin/behavior'
     | '/admin/classes'
     | '/admin/grades'
     | '/admin/rbac'
@@ -326,6 +347,7 @@ export interface FileRouteTypes {
     | '/admin/attendance/report'
     | '/admin/attendance/staff'
     | '/admin/attendance/students'
+    | '/admin/behavior/'
     | '/admin/attendance/student/$studentId'
   fileRoutesById: FileRoutesById
 }
@@ -409,6 +431,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminClassesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/behavior': {
+      id: '/admin/behavior'
+      path: '/behavior'
+      fullPath: '/admin/behavior'
+      preLoaderRoute: typeof AdminBehaviorRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/audit': {
       id: '/admin/audit'
       path: '/audit'
@@ -443,6 +472,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/behavior/': {
+      id: '/admin/behavior/'
+      path: '/'
+      fullPath: '/admin/behavior/'
+      preLoaderRoute: typeof AdminBehaviorIndexRouteImport
+      parentRoute: typeof AdminBehaviorRoute
     }
     '/admin/attendance/students': {
       id: '/admin/attendance/students'
@@ -535,9 +571,22 @@ const AdminAcademicsRouteWithChildren = AdminAcademicsRoute._addFileChildren(
   AdminAcademicsRouteChildren,
 )
 
+interface AdminBehaviorRouteChildren {
+  AdminBehaviorIndexRoute: typeof AdminBehaviorIndexRoute
+}
+
+const AdminBehaviorRouteChildren: AdminBehaviorRouteChildren = {
+  AdminBehaviorIndexRoute: AdminBehaviorIndexRoute,
+}
+
+const AdminBehaviorRouteWithChildren = AdminBehaviorRoute._addFileChildren(
+  AdminBehaviorRouteChildren,
+)
+
 interface AdminRouteChildren {
   AdminAcademicsRoute: typeof AdminAcademicsRouteWithChildren
   AdminAuditRoute: typeof AdminAuditRoute
+  AdminBehaviorRoute: typeof AdminBehaviorRouteWithChildren
   AdminClassesRoute: typeof AdminClassesRoute
   AdminGradesRoute: typeof AdminGradesRoute
   AdminRbacRoute: typeof AdminRbacRoute
@@ -557,6 +606,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAcademicsRoute: AdminAcademicsRouteWithChildren,
   AdminAuditRoute: AdminAuditRoute,
+  AdminBehaviorRoute: AdminBehaviorRouteWithChildren,
   AdminClassesRoute: AdminClassesRoute,
   AdminGradesRoute: AdminGradesRoute,
   AdminRbacRoute: AdminRbacRoute,

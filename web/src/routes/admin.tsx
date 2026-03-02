@@ -6,6 +6,7 @@ import {
   Calendar01Icon,
   Calendar02Icon,
   Home01Icon,
+  Note01Icon,
   SchoolIcon,
   Shield01Icon,
   User02Icon,
@@ -220,6 +221,17 @@ function AdminLayout() {
                   >
                     <HugeiconsIcon icon={Briefcase01Icon} size={18} />
                     <span className="font-medium">Staff</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link to="/admin/behavior">
+                  <SidebarMenuButton
+                    tooltip="Behavior"
+                    className="hover:bg-accent/50 transition-colors"
+                  >
+                    <HugeiconsIcon icon={Note01Icon} size={18} />
+                    <span className="font-medium">Behavior</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
