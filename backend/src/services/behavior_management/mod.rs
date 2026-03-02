@@ -143,6 +143,7 @@ pub async fn record_behavior_incident(
         points_awarded: req.points_awarded,
     };
 
+
     diesel::insert_into(behavior_incidents::table)
         .values(&new_incident)
         .execute(&mut conn)?;

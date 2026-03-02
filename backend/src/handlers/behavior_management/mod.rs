@@ -87,7 +87,7 @@ pub struct RecordBehaviorIncidentRequest {
     pub incident_type_id: String,
     #[validate(length(min = 1, message = "Description cannot be empty"))]
     pub description: String,
-    pub incident_date: NaiveDateTime,
+    pub incident_date: NaiveDate,
     pub points_awarded: i32,
 }
 
@@ -97,7 +97,7 @@ pub struct UpdateBehaviorIncidentRequest {
     pub reported_by_user_id: Option<String>,
     pub incident_type_id: Option<String>,
     pub description: Option<String>,
-    pub incident_date: Option<NaiveDateTime>,
+    pub incident_date: Option<NaiveDate>,
     pub points_awarded: Option<i32>,
 }
 

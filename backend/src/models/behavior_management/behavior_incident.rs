@@ -10,7 +10,7 @@ pub struct BehaviorIncident {
     pub reported_by_user_id: String,
     pub incident_type_id: String,
     pub description: String,
-    pub incident_date: NaiveDateTime,
+    pub incident_date: NaiveDate,
     pub points_awarded: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -24,6 +24,6 @@ pub struct NewBehaviorIncident {
     pub reported_by_user_id: String,
     pub incident_type_id: String,
     pub description: String,
-    pub incident_date: NaiveDateTime,
+    pub incident_date: NaiveDate,
     pub points_awarded: i32,
 }
