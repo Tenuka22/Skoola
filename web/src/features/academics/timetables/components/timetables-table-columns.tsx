@@ -31,9 +31,10 @@ export interface TimetableEntryRow extends Record<string, unknown> {
   startTime: string
   endTime: string
   room: string
+  periodNumber: number
   academicYearName: string
-  // Original IDs for mutations
-  originalTimetableEntry: TimetableResponse
+  // Original entry for mutations and visual view
+  raw: TimetableResponse
 }
 
 export function mapTimetableEntriesForTable(
@@ -60,8 +61,9 @@ export function mapTimetableEntriesForTable(
       startTime: entry.start_time,
       endTime: entry.end_time,
       room: entry.room || 'N/A',
+      periodNumber: entry.period_number,
       academicYearName: academicYear?.name || 'N/A',
-      originalTimetableEntry: entry,
+      raw: entry,
     }
   })
 }
@@ -153,7 +155,7 @@ export function getTimetableColumns({
     {
       id: 'actions',
       cell: ({ row }) => {
-        const entry = row.original.originalTimetableEntry
+        const entry = row.original.raw
 
         return (
           <DropdownMenu>

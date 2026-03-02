@@ -203,6 +203,14 @@ function AdminLayout() {
                 </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
+                <Link to="/admin/academics/timetables">
+                  <SidebarMenuButton tooltip="Timetables">
+                    <HugeiconsIcon icon={Calendar02Icon} />
+                    <span>Timetables</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
                 <Link to="/admin/students">
                   <SidebarMenuButton
                     tooltip="Students"

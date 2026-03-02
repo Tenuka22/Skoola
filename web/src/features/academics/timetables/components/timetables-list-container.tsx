@@ -1,6 +1,7 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon } from '@hugeicons/core-free-icons'
 import { useTimetablesStore } from '../store'
+import { TimetablesVisualView } from './timetables-visual-view'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { TimetableResponse } from '@/lib/api/types.gen'
 import type { TimetableEntryRow } from './timetables-table-columns'
@@ -18,7 +19,7 @@ export function TimetablesListContainer({
   columns,
   data,
 }: TimetablesListContainerProps) {
-  const { page, sorting, setSorting } = useTimetablesStore()
+  const { page, sorting, setSorting, isGridView } = useTimetablesStore()
   const { isLoading, isError, error } = query
 
   if (isLoading) {
@@ -31,7 +32,7 @@ export function TimetablesListContainer({
 
   if (isError) {
     return (
-      <div className="grid flex-1 place-items-center px-4 py-8 text-center border rounded-lg">
+      <div className="grid flex-1 place-items-center px-4 py-8 text-center border rounded-lg m-8">
         <HugeiconsIcon
           icon={AlertCircleIcon}
           className="size-12 text-destructive"
@@ -45,7 +46,7 @@ export function TimetablesListContainer({
 
   if (data.length === 0) {
     return (
-      <div className="grid flex-1 place-items-center px-4 py-8 text-center border rounded-lg">
+      <div className="grid flex-1 place-items-center px-4 py-8 text-center border rounded-lg m-8">
         <HugeiconsIcon
           icon={AlertCircleIcon}
           className="size-12 text-muted-foreground opacity-20"
@@ -57,9 +58,13 @@ export function TimetablesListContainer({
     )
   }
 
+  if (isGridView) {
+    return <TimetablesVisualView data={data} />
+  }
+
   return (
     <div className="relative flex-1 flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto px-8 pb-8">
         <DataTable
           columns={columns}
           data={data}

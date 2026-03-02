@@ -3,7 +3,9 @@ import {
   Add01Icon,
   Calendar02Icon,
   Download01Icon,
+  LayoutGridIcon,
   Search01Icon,
+  TableIcon,
   User02Icon,
 } from '@hugeicons/core-free-icons'
 import { useTimetablesStore } from '../store'
@@ -26,6 +28,7 @@ import {
 import { Label } from '@/components/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
+import { HStack } from '@/components/primitives'
 
 interface TimetablesToolbarProps {
   onExport: () => void
@@ -60,31 +63,63 @@ export function TimetablesToolbar({
   viewMode,
   setViewMode,
 }: TimetablesToolbarProps) {
-  const { search, setSearch, setIsCreateTimetableEntryOpen } =
-    useTimetablesStore()
+  const {
+    search,
+    setSearch,
+    setIsCreateTimetableEntryOpen,
+    isGridView,
+    setIsGridView,
+  } = useTimetablesStore()
 
   return (
     <div className="flex flex-col gap-4 px-8 py-4">
       <div className="flex items-center justify-between">
-        <div className="relative">
-          <HugeiconsIcon
-            icon={Search01Icon}
-            className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
-          />
-          <Input
-            placeholder="Search timetables..."
-            className="w-72 pl-9"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        <HStack gap={4}>
+          <div className="relative">
+            <HugeiconsIcon
+              icon={Search01Icon}
+              className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+            />
+            <Input
+              placeholder="Search timetables..."
+              className="w-72 pl-9"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          <ToggleGroup
+            value={[isGridView ? 'grid' : 'list']}
+            onValueChange={(val) => {
+              if (val.length > 0) setIsGridView(val[0] === 'grid')
+            }}
+            className="border p-1 rounded-lg bg-muted/50"
+          >
+            <ToggleGroupItem
+              value="grid"
+              size="sm"
+              className="px-2.5 data-[state=on]:bg-background data-[state=on]:shadow-sm"
+              title="Grid View"
+            >
+              <HugeiconsIcon icon={LayoutGridIcon} className="size-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="list"
+              size="sm"
+              className="px-2.5 data-[state=on]:bg-background data-[state=on]:shadow-sm"
+              title="List View"
+            >
+              <HugeiconsIcon icon={TableIcon} className="size-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </HStack>
+
         <div className="flex items-center gap-2">
           <ToggleGroup
             value={[viewMode]}
-            onValueChange={(value: Array<string>) => {
-              const selectedMode = value[0]
-              if (selectedMode && isTimetableViewMode(selectedMode)) {
-                setViewMode(selectedMode)
+            onValueChange={(val) => {
+              if (val.length > 0 && isTimetableViewMode(val[0])) {
+                setViewMode(val[0])
               }
             }}
             className="border p-1 rounded-lg bg-muted/50"

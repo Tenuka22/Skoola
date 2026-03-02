@@ -22,6 +22,8 @@ interface TimetablesStore {
   setSelectedDayOfWeek: (day: string | undefined) => void
   viewMode: TimetableViewMode
   setViewMode: (mode: TimetableViewMode) => void
+  isGridView: boolean
+  setIsGridView: (isGrid: boolean) => void
   isCreateTimetableEntryOpen: boolean
   setIsCreateTimetableEntryOpen: (isOpen: boolean) => void
   timetableEntryToEdit: TimetableResponse | null
@@ -52,6 +54,8 @@ export const useTimetablesStore = create<TimetablesStore>((set) => ({
   setSelectedDayOfWeek: (day) => set({ selectedDayOfWeek: day }),
   viewMode: 'class',
   setViewMode: (mode) => set({ viewMode: mode }),
+  isGridView: true,
+  setIsGridView: (isGrid) => set({ isGridView: isGrid }),
   isCreateTimetableEntryOpen: false,
   setIsCreateTimetableEntryOpen: (isOpen) =>
     set({ isCreateTimetableEntryOpen: isOpen }),

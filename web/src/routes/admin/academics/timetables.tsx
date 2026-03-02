@@ -19,6 +19,7 @@ import {
   getAllAcademicYearsOptions,
   getAllClassesOptions,
   getAllStaffOptions,
+  getAllSubjectsOptions,
   getTimetableByClassAndDayQueryKey,
   getTimetableByTeacherQueryKey,
   updateTimetableEntryMutation as updateTimetableEntryFn,
@@ -80,16 +81,24 @@ function TimetablesPage() {
   } = store
 
   // Fetch all academic years, classes, and staff for filters and display
-  const [academicYearsQuery, classesQuery, staffQuery] = useQueries({
-    queries: [
-      {
-        ...getAllAcademicYearsOptions({ client: authClient }),
-        staleTime: Infinity,
-      },
-      { ...getAllClassesOptions({ client: authClient }), staleTime: Infinity },
-      { ...getAllStaffOptions({ client: authClient }), staleTime: Infinity },
-    ],
-  })
+  const [academicYearsQuery, classesQuery, staffQuery, subjectsQuery] =
+    useQueries({
+      queries: [
+        {
+          ...getAllAcademicYearsOptions({ client: authClient }),
+          staleTime: Infinity,
+        },
+        {
+          ...getAllClassesOptions({ client: authClient }),
+          staleTime: Infinity,
+        },
+        { ...getAllStaffOptions({ client: authClient }), staleTime: Infinity },
+        {
+          ...getAllSubjectsOptions({ client: authClient }),
+          staleTime: Infinity,
+        },
+      ],
+    })
 
   const academicYears = React.useMemo(
     () => academicYearsQuery.data?.data || [],
@@ -102,6 +111,10 @@ function TimetablesPage() {
   const staff = React.useMemo(
     () => staffQuery.data?.data || [],
     [staffQuery.data],
+  )
+  const subjects = React.useMemo(
+    () => subjectsQuery.data?.data || [],
+    [subjectsQuery.data],
   )
 
   // Set default academic year if not already set
@@ -188,6 +201,15 @@ function TimetablesPage() {
         },
       }),
     })
+    queryClient.invalidateQueries({
+      queryKey: getTimetableByTeacherQueryKey({
+        client: authClient,
+        path: {
+          teacher_id: selectedTeacherId ?? '',
+          academic_year_id: selectedAcademicYearId ?? '',
+        },
+      }),
+    })
   }
 
   const createMutation = useMutation({
@@ -239,8 +261,9 @@ function TimetablesPage() {
       academicYears,
       classes,
       staff,
+      subjects,
     )
-  }, [timetableQuery.data, academicYears, classes, staff])
+  }, [timetableQuery.data, academicYears, classes, staff, subjects])
 
   const columns = getTimetableColumns({
     onEdit: setTimetableEntryToEdit,

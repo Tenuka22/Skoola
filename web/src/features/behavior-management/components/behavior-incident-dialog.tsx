@@ -96,13 +96,14 @@ export function BehaviorIncidentDialog({
 
   const onSubmit = (data: BehaviorIncidentFormValues) => {
     // Append :00 to ensure seconds are present if not already there
-    const formattedDate = data.incident_date.length === 16 
-      ? `${data.incident_date}:00` 
-      : data.incident_date
-    
+    const formattedDate =
+      data.incident_date.length === 16
+        ? `${data.incident_date}:00`
+        : data.incident_date
+
     onConfirm({
       ...data,
-      incident_date: formattedDate
+      incident_date: formattedDate,
     })
   }
 
