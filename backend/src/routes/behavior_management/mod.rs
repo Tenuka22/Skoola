@@ -10,10 +10,20 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .wrap(Authenticated)
             .service(
                 web::resource("")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::BehaviorIncidentTypeCreate,
-                    })
-                    .route(web::post().to(create_behavior_incident_type)),
+                    .route(
+                        web::post()
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::BehaviorIncidentTypeCreate,
+                            })
+                            .to(create_behavior_incident_type),
+                    )
+                    .route(
+                        web::get()
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::BehaviorIncidentTypeRead,
+                            })
+                            .to(get_all_behavior_incident_types),
+                    ),
             )
             .service(
                 web::resource("/{type_id}")
@@ -21,13 +31,6 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                         required_permission: PermissionEnum::BehaviorIncidentTypeRead,
                     })
                     .route(web::get().to(get_behavior_incident_type_by_id)),
-            )
-            .service(
-                web::resource("")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::BehaviorIncidentTypeRead,
-                    })
-                    .route(web::get().to(get_all_behavior_incident_types)),
             )
             .service(
                 web::resource("/{type_id}")
