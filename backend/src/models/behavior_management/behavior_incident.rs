@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::{NaiveDate, NaiveDateTime};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
