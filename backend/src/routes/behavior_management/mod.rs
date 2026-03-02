@@ -69,24 +69,27 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             )
             .service(
                 web::resource("/{incident_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::BehaviorIncidentRead,
-                    })
-                    .route(web::get().to(get_behavior_incident_by_id)),
-            )
-            .service(
-                web::resource("/{incident_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::BehaviorIncidentUpdate,
-                    })
-                    .route(web::put().to(update_behavior_incident)),
-            )
-            .service(
-                web::resource("/{incident_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::BehaviorIncidentDelete,
-                    })
-                    .route(web::delete().to(delete_behavior_incident)),
+                    .route(
+                        web::get()
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::BehaviorIncidentRead,
+                            })
+                            .to(get_behavior_incident_by_id),
+                    )
+                    .route(
+                        web::put()
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::BehaviorIncidentUpdate,
+                            })
+                            .to(update_behavior_incident),
+                    )
+                    .route(
+                        web::delete()
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::BehaviorIncidentDelete,
+                            })
+                            .to(delete_behavior_incident),
+                    ),
             ),
     );
 }
