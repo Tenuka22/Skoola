@@ -27,24 +27,27 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             )
             .service(
                 web::resource("/{type_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::BehaviorIncidentTypeRead,
-                    })
-                    .route(web::get().to(get_behavior_incident_type_by_id)),
-            )
-            .service(
-                web::resource("/{type_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::BehaviorIncidentTypeUpdate,
-                    })
-                    .route(web::put().to(update_behavior_incident_type)),
-            )
-            .service(
-                web::resource("/{type_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::BehaviorIncidentTypeDelete,
-                    })
-                    .route(web::delete().to(delete_behavior_incident_type)),
+                    .route(
+                        web::get()
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::BehaviorIncidentTypeRead,
+                            })
+                            .to(get_behavior_incident_type_by_id),
+                    )
+                    .route(
+                        web::put()
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::BehaviorIncidentTypeUpdate,
+                            })
+                            .to(update_behavior_incident_type),
+                    )
+                    .route(
+                        web::delete()
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::BehaviorIncidentTypeDelete,
+                            })
+                            .to(delete_behavior_incident_type),
+                    ),
             ),
     )
     .service(
