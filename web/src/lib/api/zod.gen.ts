@@ -7688,9 +7688,18 @@ export const zCalculateMonthlyStaffAttendancePercentageData = z.object({
       .max(2147483647, {
         error: 'Invalid value: Expected int32 to be <= 2147483647',
       }),
+<<<<<<< HEAD
     month: z.int().gte(0).max(4294967295, {
       error: 'Invalid value: Expected uint32 to be <= 4294967295',
     }),
+=======
+    month: z
+      .int()
+      .gte(0)
+      .max(4294967295, {
+        error: 'Invalid value: Expected uint32 to be <= 4294967295',
+      }),
+>>>>>>> e96b71f427f42b60dad35fc155c9d664b1ac40aa
   }),
   query: z.optional(z.never()),
 })
