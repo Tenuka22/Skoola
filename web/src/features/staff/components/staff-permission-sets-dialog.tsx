@@ -5,8 +5,7 @@ import {
   Delete02Icon,
   Layers01Icon,
 } from '@hugeicons/core-free-icons'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
 import type { StaffResponse, UserSet } from '@/lib/api/types.gen'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,13 +16,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/spinner'
-import { authClient } from '@/lib/clients'
-import {
-  assignPermissionSetToStaffMutation,
-  getAllPermissionSetsOptions,
-  getStaffPermissionSetsOptions,
-  unassignPermissionSetFromStaffMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { Badge } from '@/components/ui/badge'
 import {
   Select,
@@ -33,6 +25,12 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
+import {
+  getPermissionSetsQueryOptions,
+  getStaffPermissionSetsQueryOptions,
+  useAssignPermissionSetToStaff,
+  useUnassignPermissionSetFromStaff,
+} from '@/features/rbac/api'
 
 interface StaffPermissionSetsDialogProps {
   staff: StaffResponse | null
@@ -45,52 +43,24 @@ export function StaffPermissionSetsDialog({
   open,
   onOpenChange,
 }: StaffPermissionSetsDialogProps) {
-  const queryClient = useQueryClient()
-
-  const { data: allSetsData } = useQuery(
-    getAllPermissionSetsOptions({ client: authClient }),
-  )
-  const allSets = allSetsData || []
+  const { data: allSets = [] } = useQuery(getPermissionSetsQueryOptions())
 
   const {
-    data: staffSetsData,
+    data: staffSets = [],
     isLoading,
     isError,
     error,
   } = useQuery({
-    ...getStaffPermissionSetsOptions({
-      client: authClient,
+    ...getStaffPermissionSetsQueryOptions({
       path: { staff_id: staff?.id ?? '' },
     }),
     enabled: !!staff,
-  })
-  const staffSets = staffSetsData || []
-
-  const assignSet = useMutation({
-    ...assignPermissionSetToStaffMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Permission set assigned.')
-      queryClient.invalidateQueries({
-        queryKey: ['getStaffPermissionSets', { staff_id: staff?.id }],
-      })
-    },
-    onError: (error) => {
-      toast.error(`Failed to assign set: ${error.message || 'Unknown error'}`)
-    },
+    // Removed select: (data) => data.user_sets || [],
   })
 
-  const unassignSet = useMutation({
-    ...unassignPermissionSetFromStaffMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Permission set removed.')
-      queryClient.invalidateQueries({
-        queryKey: ['getStaffPermissionSets', { staff_id: staff?.id }],
-      })
-    },
-    onError: (error) => {
-      toast.error(`Failed to remove set: ${error.message || 'Unknown error'}`)
-    },
-  })
+  const assignSet = useAssignPermissionSetToStaff()
+
+  const unassignSet = useUnassignPermissionSetFromStaff()
 
   const handleAssignSet = React.useCallback(
     (value: string | null) => {

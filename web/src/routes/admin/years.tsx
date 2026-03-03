@@ -1,27 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import * as React from 'react'
-import { toast } from 'sonner'
-import { format } from 'date-fns'
 
 import type { AcademicYearFormValues } from '@/features/academics/years/schemas'
-import { authClient } from '@/lib/clients'
+import type { AcademicYearResponse } from '@/lib/api/types.gen'
 import { handleExportCSV } from '@/lib/export'
-import {
-  bulkDeleteAcademicYearsMutation,
-  createAcademicYearMutation,
-  deleteAcademicYearMutation,
-  getAllAcademicYearsOptions,
-  getAllAcademicYearsQueryKey,
-  setCurrentAcademicYearMutation,
-  updateAcademicYearMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
-import { useAcademicYearsStore } from '@/features/academics/years/store'
 import { AcademicYearsHeader } from '@/features/academics/years/components/academic-years-header'
 import { AcademicYearsToolbar } from '@/features/academics/years/components/academic-years-toolbar'
 import { AcademicYearsListContainer } from '@/features/academics/years/components/academic-years-list-container'
@@ -39,139 +22,53 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Stack } from '@/components/primitives'
+import {
+  getAllAcademicYearsQueryOptions,
+  useBulkDeleteAcademicYears,
+  useCreateAcademicYear,
+  useDeleteAcademicYear,
+  useSetCurrentAcademicYear,
+  useUpdateAcademicYear,
+} from '@/features/academics/years/api'
+import { useAcademicYearsSearchParams } from '@/features/academics/years/search-params'
 
 export const Route = createFileRoute('/admin/years')({
   component: AcademicYearsPage,
 })
 
 function AcademicYearsPage() {
-  const store = useAcademicYearsStore()
-  const { search, setDebouncedSearch } = store
+  const { page, limit, search, sortBy, sortOrder } =
+    useAcademicYearsSearchParams()
 
-  const limit = 10
-
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(search)
-    }, 400)
-    return () => clearTimeout(handler)
-  }, [search, setDebouncedSearch])
-
-  const {
-    page,
-    sorting,
-    debouncedSearch,
-    setYearToEdit,
-    setYearToDelete,
-    setIsCreateYearOpen,
-    isBulkDeleteOpen,
-    setIsBulkDeleteOpen,
-  } = store
-
-  const sortBy = sorting[0]?.id
-  const sortOrder = sorting[0]?.desc ? 'desc' : 'asc'
+  const [yearToDelete, setYearToDelete] = React.useState<string | null>(null)
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = React.useState(false)
+  const [isCreateYearOpen, setIsCreateYearOpen] = React.useState(false)
+  const [yearToEdit, setYearToEdit] =
+    React.useState<AcademicYearResponse | null>(null)
 
   const yearsQuery = useQuery({
-    ...getAllAcademicYearsOptions({
-      client: authClient,
+    ...getAllAcademicYearsQueryOptions({
       query: {
-        page,
-        limit,
-        search: debouncedSearch,
-        sort_by: sortBy,
-        sort_order: sortOrder,
+        page: page ?? 1,
+        limit: limit ?? 10,
+        search: search ?? undefined,
+        sort_by: sortBy ?? 'year_start',
+        sort_order:
+          sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : 'desc',
       },
     }),
     placeholderData: keepPreviousData,
   })
 
-  const queryClient = useQueryClient()
-  const invalidateQueries = () => {
-    queryClient.invalidateQueries({
-      queryKey: getAllAcademicYearsQueryKey(),
-    })
-  }
+  const createYear = useCreateAcademicYear()
 
-  const createYear = useMutation({
-    ...createAcademicYearMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Academic year created successfully.')
-      invalidateQueries()
-      setIsCreateYearOpen(false)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to create academic year: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const updateYear = useUpdateAcademicYear()
 
-  const updateYear = useMutation({
-    ...updateAcademicYearMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Academic year updated successfully.')
-      invalidateQueries()
-      setYearToEdit(null)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to update academic year: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const deleteYear = useDeleteAcademicYear()
 
-  const deleteYear = useMutation({
-    ...deleteAcademicYearMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Academic year deleted successfully.')
-      invalidateQueries()
-      setYearToDelete(null)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to delete academic year: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const setCurrentYear = useSetCurrentAcademicYear()
 
-  const setCurrentYear = useMutation({
-    ...setCurrentAcademicYearMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Academic year set as current.')
-      invalidateQueries()
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to set academic year: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
-
-  const bulkDeleteYears = useMutation({
-    ...bulkDeleteAcademicYearsMutation({
-      client: authClient,
-    }),
-    onSuccess: (_, variables) => {
-      const count = variables.body?.academic_year_ids?.length ?? 0
-      toast.success(`Successfully deleted ${count} academic years.`)
-      invalidateQueries()
-      setIsBulkDeleteOpen(false)
-      setRowSelection({})
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to delete academic years: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const bulkDeleteYears = useBulkDeleteAcademicYears()
 
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
@@ -199,18 +96,17 @@ function AcademicYearsPage() {
               { header: 'Name', accessor: 'name' },
               {
                 header: 'Start Date',
-                accessor: (year) =>
-                  format(new Date(String(year.year_start)), 'yyyy-MM-dd'),
+                accessor: (year) => String(year.year_start),
               },
               {
                 header: 'End Date',
-                accessor: (year) =>
-                  format(new Date(String(year.year_end)), 'yyyy-MM-dd'),
+                accessor: (year) => String(year.year_end),
               },
               { header: 'Is Current', accessor: 'current' },
             ],
           )
         }
+        setIsCreateYearOpen={setIsCreateYearOpen}
       />
       <AcademicYearsListContainer
         query={yearsQuery}
@@ -220,43 +116,57 @@ function AcademicYearsPage() {
       />
 
       <AcademicYearAddDialog
-        open={store.isCreateYearOpen}
+        open={isCreateYearOpen}
         onOpenChange={setIsCreateYearOpen}
         onConfirm={(data: AcademicYearFormValues) =>
-          createYear.mutate({
-            body: {
-              id: data.id,
-              name: data.name,
-              year_start: new Date(data.start_date).getFullYear(),
-              year_end: new Date(data.end_date).getFullYear(),
-              current: !!data.current,
+          createYear.mutate(
+            {
+              body: {
+                id: data.id,
+                name: data.name,
+                year_start: new Date(data.start_date).getFullYear(),
+                year_end: new Date(data.end_date).getFullYear(),
+                current: !!data.current,
+              },
             },
-          })
+            {
+              onSuccess: () => {
+                setIsCreateYearOpen(false)
+              },
+            },
+          )
         }
         isSubmitting={createYear.isPending}
       />
 
       <AcademicYearEditDialog
-        year={store.yearToEdit}
-        open={!!store.yearToEdit}
+        year={yearToEdit}
+        open={!!yearToEdit}
         onOpenChange={() => setYearToEdit(null)}
         onConfirm={(data: AcademicYearFormValues) =>
-          store.yearToEdit &&
-          updateYear.mutate({
-            path: { id: store.yearToEdit.id },
-            body: {
-              name: data.name,
-              year_start: new Date(data.start_date).getFullYear(),
-              year_end: new Date(data.end_date).getFullYear(),
-              current: !!data.current,
+          yearToEdit &&
+          updateYear.mutate(
+            {
+              path: { id: yearToEdit.id },
+              body: {
+                name: data.name,
+                year_start: new Date(data.start_date).getFullYear(),
+                year_end: new Date(data.end_date).getFullYear(),
+                current: !!data.current,
+              },
             },
-          })
+            {
+              onSuccess: () => {
+                setYearToEdit(null)
+              },
+            },
+          )
         }
         isSubmitting={updateYear.isPending}
       />
 
       <AlertDialog
-        open={!!store.yearToDelete}
+        open={!!yearToDelete}
         onOpenChange={() => setYearToDelete(null)}
       >
         <AlertDialogContent>
@@ -271,8 +181,15 @@ function AcademicYearsPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() =>
-                store.yearToDelete &&
-                deleteYear.mutate({ path: { id: store.yearToDelete } })
+                yearToDelete &&
+                deleteYear.mutate(
+                  { path: { id: yearToDelete } },
+                  {
+                    onSuccess: () => {
+                      setYearToDelete(null)
+                    },
+                  },
+                )
               }
             >
               Delete
@@ -294,9 +211,17 @@ function AcademicYearsPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                bulkDeleteYears.mutate({
-                  body: { academic_year_ids: Array.from(selectedYears) },
-                })
+                bulkDeleteYears.mutate(
+                  {
+                    body: { academic_year_ids: Array.from(selectedYears) },
+                  },
+                  {
+                    onSuccess: () => {
+                      setIsBulkDeleteOpen(false)
+                      setRowSelection({})
+                    },
+                  },
+                )
               }}
             >
               Delete All

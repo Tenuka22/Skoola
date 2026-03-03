@@ -6,7 +6,6 @@ import {
   MoreVerticalIcon,
   PencilEdit01Icon,
 } from '@hugeicons/core-free-icons'
-import { useStaffStore } from '../store'
 import type { StaffResponse } from '@/lib/api/types.gen'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -39,6 +38,7 @@ interface StaffGridViewProps {
   isLoading?: boolean
   onEdit: (staff: StaffResponse) => void
   onDelete: (id: string) => void
+  setIsCreateStaffOpen: (open: boolean) => void
 }
 
 export function StaffGridView({
@@ -46,9 +46,8 @@ export function StaffGridView({
   isLoading,
   onEdit,
   onDelete,
+  setIsCreateStaffOpen,
 }: StaffGridViewProps) {
-  const { setIsCreateStaffOpen } = useStaffStore()
-
   if (isLoading) {
     return (
       <Grid

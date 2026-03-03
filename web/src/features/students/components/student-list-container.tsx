@@ -1,4 +1,4 @@
-import { useStudentsStore } from '../store'
+import { useStudentsSearchParams } from '../search-params'
 import { StudentGridView } from './student-grid-view'
 import type {
   ColumnDef,
@@ -20,6 +20,8 @@ interface StudentListContainerProps {
   limit: number
   rowSelection: RowSelectionState
   setRowSelection: (updater: Updater<RowSelectionState>) => void
+  setStudentToEdit: (student: StudentResponse | null) => void
+  setStudentToDelete: (id: string | null) => void
 }
 
 export function StudentListContainer({
@@ -28,9 +30,11 @@ export function StudentListContainer({
   limit,
   rowSelection,
   setRowSelection,
+  setStudentToEdit,
+  setStudentToDelete,
 }: StudentListContainerProps) {
-  const { view, page, setPage, setStudentToEdit, setStudentToDelete } =
-    useStudentsStore()
+  const { view, page, setPage, sortBy, setSortBy, sortOrder, setSortOrder } =
+    useStudentsSearchParams()
 
   const students = studentsQuery.data?.data ?? []
   const totalPages = studentsQuery.data?.total_pages ?? 0
@@ -41,13 +45,27 @@ export function StudentListContainer({
         <DataTable<StudentResponse, unknown>
           columns={columns}
           data={students}
-          pageIndex={page - 1}
+          pageIndex={(page ?? 1) - 1}
           pageSize={limit}
           pageCount={totalPages}
-          canNextPage={page < totalPages}
-          canPreviousPage={page > 1}
-          fetchNextPage={() => setPage(page + 1)}
-          fetchPreviousPage={() => setPage(page - 1)}
+          canNextPage={(page ?? 1) < totalPages}
+          canPreviousPage={(page ?? 1) > 1}
+          fetchNextPage={() => setPage((page ?? 1) + 1)}
+          fetchPreviousPage={() => setPage((page ?? 1) - 1)}
+          sorting={[{ id: sortBy ?? 'created_at', desc: sortOrder === 'desc' }]}
+          onSortingChange={(updaterOrValue) => {
+            const newSorting =
+              typeof updaterOrValue === 'function'
+                ? updaterOrValue([
+                    { id: sortBy ?? 'created_at', desc: sortOrder === 'desc' },
+                  ])
+                : updaterOrValue
+            const firstSort = newSorting[0]
+            if (firstSort) {
+              setSortBy(firstSort.id)
+              setSortOrder(firstSort.desc ? 'desc' : 'asc')
+            }
+          }}
           rowSelection={rowSelection}
           onRowSelectionChange={setRowSelection}
           isLoading={studentsQuery.isFetching}
@@ -69,19 +87,19 @@ export function StudentListContainer({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPage(Math.max(1, page - 1))}
-            disabled={page === 1 || studentsQuery.isLoading}
+            onClick={() => setPage(Math.max(1, (page ?? 1) - 1))}
+            disabled={(page ?? 1) === 1 || studentsQuery.isLoading}
           >
             Previous
           </Button>
           <div className="text-sm font-medium">
-            Page {page} of {totalPages}
+            Page {page ?? 1} of {totalPages}
           </div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setPage(Math.min(totalPages, page + 1))}
-            disabled={page === totalPages || studentsQuery.isLoading}
+            onClick={() => setPage(Math.min(totalPages, (page ?? 1) + 1))}
+            disabled={(page ?? 1) === totalPages || studentsQuery.isLoading}
           >
             Next
           </Button>

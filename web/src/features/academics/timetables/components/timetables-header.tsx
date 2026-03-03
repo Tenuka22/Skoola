@@ -1,16 +1,15 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { CalendarCheckIn01Icon } from '@hugeicons/core-free-icons'
-import { useQueries } from '@tanstack/react-query'
+import { useQueries, useQuery } from '@tanstack/react-query'
 import * as React from 'react'
-import { useTimetablesStore } from '../store'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useTimetablesSearchParams } from '../search-params'
 import {
-  getAllAcademicYearsOptions,
-  getAllClassesOptions,
-  getTimetableByClassAndDayOptions,
-  getTimetableByTeacherOptions,
-} from '@/lib/api/@tanstack/react-query.gen'
-import { authClient } from '@/lib/clients'
+  getTimetableByClassAndDayQueryOptions,
+  getTimetableByTeacherQueryOptions,
+} from '../api'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { getAllAcademicYearsQueryOptions } from '@/features/academics/years/api'
+import { getAllClassesQueryOptions } from '@/features/academics/classes/api'
 
 export function TimetablesHeader() {
   const {
@@ -19,26 +18,25 @@ export function TimetablesHeader() {
     selectedDayOfWeek,
     selectedTeacherId,
     viewMode,
-  } = useTimetablesStore()
+  } = useTimetablesSearchParams()
 
-  const [academicYearsQuery, classesQuery] = useQueries({
-    queries: [
-      {
-        ...getAllAcademicYearsOptions({ client: authClient }),
-        staleTime: Infinity,
-      },
-      { ...getAllClassesOptions({ client: authClient }), staleTime: Infinity },
-    ],
+  const { data: academicYearsData } = useQuery({
+    ...getAllAcademicYearsQueryOptions(),
+    staleTime: Infinity,
   })
 
-  const academicYears = academicYearsQuery.data?.data || []
-  const classes = classesQuery.data?.data || []
+  const { data: classesData } = useQuery({
+    ...getAllClassesQueryOptions(),
+    staleTime: Infinity,
+  })
+
+  const academicYears = academicYearsData?.data || []
+  const classes = classesData?.data || []
 
   const timetableQuery = useQueries({
     queries: [
       {
-        ...getTimetableByClassAndDayOptions({
-          client: authClient,
+        ...getTimetableByClassAndDayQueryOptions({
           path: {
             class_id: selectedClassId ?? '',
             day_of_week: selectedDayOfWeek ?? '',
@@ -53,8 +51,7 @@ export function TimetablesHeader() {
         staleTime: 5 * 60 * 1000, // 5 minutes
       },
       {
-        ...getTimetableByTeacherOptions({
-          client: authClient,
+        ...getTimetableByTeacherQueryOptions({
           path: {
             teacher_id: selectedTeacherId ?? '',
             academic_year_id: selectedAcademicYearId ?? '',

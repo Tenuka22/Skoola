@@ -4,8 +4,13 @@ import {
   Delete02Icon,
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
+
+import {
+  getGuardiansForStudentQueryOptions,
+  useAddGuardianToStudent,
+  useRemoveGuardianFromStudent,
+} from '../api'
 import type { z } from 'zod'
 import type {
   StudentGuardianResponse,
@@ -21,12 +26,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/spinner'
-import { authClient } from '@/lib/clients'
-import {
-  addGuardianToStudentMutation,
-  getAllGuardiansForStudentOptions,
-  removeGuardianFromStudentMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { zCreateStudentGuardianRequest } from '@/lib/api/zod.gen'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -49,43 +48,22 @@ export function StudentGuardiansDialog({
   open,
   onOpenChange,
 }: StudentGuardiansDialogProps) {
-  const queryClient = useQueryClient()
-
   const {
     data: guardiansData,
     isLoading,
     isError,
     error,
   } = useQuery({
-    ...getAllGuardiansForStudentOptions({
-      client: authClient,
+    ...getGuardiansForStudentQueryOptions({
       path: { student_id: student?.id ?? '' },
     }),
     enabled: !!student,
   })
   const guardians = guardiansData || []
 
-  const addGuardian = useMutation({
-    ...addGuardianToStudentMutation({ client: authClient }),
-    onError: (error) => {
-      toast.error(`Failed to add guardian: ${error.message || 'Unknown error'}`)
-    },
-  })
+  const addGuardian = useAddGuardianToStudent()
 
-  const removeGuardian = useMutation({
-    ...removeGuardianFromStudentMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Guardian removed successfully.')
-      queryClient.invalidateQueries({
-        queryKey: ['getAllGuardiansForStudent', { student_id: student?.id }],
-      })
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to remove guardian: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const removeGuardian = useRemoveGuardianFromStudent()
 
   const onSubmit = (
     data: GuardianFormValues,
@@ -99,13 +77,6 @@ export function StudentGuardiansDialog({
         },
         {
           onSuccess: () => {
-            toast.success('Guardian added successfully.')
-            queryClient.invalidateQueries({
-              queryKey: [
-                'getAllGuardiansForStudent',
-                { student_id: student?.id },
-              ],
-            })
             form.reset()
           },
         },

@@ -4,16 +4,20 @@ import {
   Download01Icon,
   Search01Icon,
 } from '@hugeicons/core-free-icons'
-import { useSubjectsStore } from '../store'
+import { useSubjectsSearchParams } from '../search-params'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 interface SubjectsToolbarProps {
   onExport: () => void
+  setIsCreateSubjectOpen: (open: boolean) => void
 }
 
-export function SubjectsToolbar({ onExport }: SubjectsToolbarProps) {
-  const { search, setSearch, setIsCreateSubjectOpen } = useSubjectsStore()
+export function SubjectsToolbar({
+  onExport,
+  setIsCreateSubjectOpen,
+}: SubjectsToolbarProps) {
+  const { search, setSearch } = useSubjectsSearchParams()
 
   return (
     <div className="flex items-center justify-between px-8 py-4">
@@ -25,7 +29,7 @@ export function SubjectsToolbar({ onExport }: SubjectsToolbarProps) {
         <Input
           placeholder="Search subjects..."
           className="w-72 pl-9"
-          value={search}
+          value={search ?? ''}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>

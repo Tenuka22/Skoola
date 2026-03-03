@@ -1,11 +1,13 @@
 import * as React from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon } from '@hugeicons/core-free-icons'
-import { useRBACStore } from '../store'
-import { rbacApi } from '../api'
+import { useRBACSearchParams } from '../search-params'
 import { isPermissionEnum } from '../utils/permissions'
+import {
+  useAssignPermissionToRole,
+  useUnassignPermissionFromRole,
+} from '../api'
 import { PermissionList } from './permission-list'
 import type { PermissionEnum } from '@/lib/api/types.gen'
 import { Button } from '@/components/ui/button'
@@ -18,14 +20,18 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { HStack } from '@/components/primitives'
+import { getRolePermissionsOptions } from '@/lib/api/@tanstack/react-query.gen'
+import { authClient } from '@/lib/clients'
 
 export function RoleEditorDialog() {
   const { selectedRoleId, isRoleEditorOpen, setIsRoleEditorOpen } =
-    useRBACStore()
-  const queryClient = useQueryClient()
+    useRBACSearchParams()
 
   const { data: rawPermissions } = useQuery({
-    ...rbacApi.getRolePermissionsOptions(selectedRoleId || ''),
+    ...getRolePermissionsOptions({
+      client: authClient,
+      path: { role_id: selectedRoleId || '' },
+    }),
     enabled: !!selectedRoleId,
   })
 
@@ -34,37 +40,8 @@ export function RoleEditorDialog() {
     return perms.filter(isPermissionEnum)
   }, [rawPermissions])
 
-  const assignPerm = useMutation({
-    ...rbacApi.assignPermissionToRoleMutation(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getRolePermissionsOptions(selectedRoleId || '')
-          .queryKey,
-      })
-      toast.success('Permission assigned to role')
-    },
-    onError: (err) => {
-      toast.error(
-        err instanceof Error ? err.message : 'Failed to assign permission',
-      )
-    },
-  })
-
-  const unassignPerm = useMutation({
-    ...rbacApi.unassignPermissionFromRoleMutation(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getRolePermissionsOptions(selectedRoleId || '')
-          .queryKey,
-      })
-      toast.success('Permission removed from role')
-    },
-    onError: (err) => {
-      toast.error(
-        err instanceof Error ? err.message : 'Failed to remove permission',
-      )
-    },
-  })
+  const assignPerm = useAssignPermissionToRole()
+  const unassignPerm = useUnassignPermissionFromRole()
 
   const handleTogglePermission = (
     permission: PermissionEnum,
@@ -86,7 +63,10 @@ export function RoleEditorDialog() {
   }
 
   return (
-    <Dialog open={isRoleEditorOpen} onOpenChange={setIsRoleEditorOpen}>
+    <Dialog
+      open={isRoleEditorOpen ?? false}
+      onOpenChange={(open) => setIsRoleEditorOpen(open)}
+    >
       <DialogContent className="max-w-2xl min-w-72 h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Configure Role : {selectedRoleId}</DialogTitle>

@@ -1,52 +1,39 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import * as React from 'react'
 
 import type { TermFormValues } from '@/features/academics/terms/schemas'
-import { authClient } from '@/lib/clients'
-import { createTermMutation } from '@/lib/api/@tanstack/react-query.gen'
-import { useTermsStore } from '@/features/academics/terms/store'
 import { TermsHeader } from '@/features/academics/terms/components/terms-header'
 import { TermsToolbar } from '@/features/academics/terms/components/terms-toolbar'
 import { TermAddDialog } from '@/features/academics/terms/components/term-add-dialog'
+import { useCreateTerm } from '@/features/academics/terms/api'
 
 export const Route = createFileRoute('/admin/academics/terms')({
   component: TermsPage,
 })
 
 function TermsPage() {
-  const store = useTermsStore()
-  const { setIsCreateTermOpen } = store
+  const [isCreateTermOpen, setIsCreateTermOpen] = React.useState(false)
 
-  const queryClient = useQueryClient()
-  // There is no getAllTerms, so we'll just invalidate academic years
-  const invalidateQueries = () => {
-    queryClient.invalidateQueries({ queryKey: ['getAllAcademicYears'] })
-  }
-
-  const createTerm = useMutation({
-    ...createTermMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Term created successfully.')
-      invalidateQueries()
-      setIsCreateTermOpen(false)
-    },
-    onError: (error) => {
-      toast.error(`Failed to create term: ${error.message || 'Unknown error'}`)
-    },
-  })
+  const createTerm = useCreateTerm()
 
   return (
     <div className="flex h-full flex-col bg-background">
       <TermsHeader />
-      <TermsToolbar />
+      <TermsToolbar setIsCreateTermOpen={setIsCreateTermOpen} />
 
       <TermAddDialog
-        open={store.isCreateTermOpen}
+        open={isCreateTermOpen}
         onOpenChange={setIsCreateTermOpen}
-        onConfirm={(data: TermFormValues) => createTerm.mutate({ body: data })}
+        onConfirm={(data: TermFormValues) =>
+          createTerm.mutate(
+            { body: data },
+            {
+              onSuccess: () => {
+                setIsCreateTermOpen(false)
+              },
+            },
+          )
+        }
         isSubmitting={createTerm.isPending}
       />
     </div>

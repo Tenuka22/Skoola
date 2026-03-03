@@ -6,9 +6,9 @@ import {
   SchoolIcon,
   User02Icon,
 } from '@hugeicons/core-free-icons'
-import { useTimetablesStore } from '../store'
 import { DAYS_OF_WEEK } from '../constants'
 import type { TimetableEntryRow } from './timetables-table-columns'
+import type { TimetableResponse } from '@/lib/api/types.gen'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Box, Grid, HStack, Stack, Text } from '@/components/primitives'
@@ -18,11 +18,15 @@ const TIMETABLE_COLS = 8
 
 interface TimetablesVisualViewProps {
   data: Array<TimetableEntryRow>
+  viewMode: string
+  setTimetableEntryToEdit: (entry: TimetableResponse | null) => void
 }
 
-export function TimetablesVisualView({ data }: TimetablesVisualViewProps) {
-  const { viewMode, setTimetableEntryToEdit } = useTimetablesStore()
-
+export function TimetablesVisualView({
+  data,
+  viewMode,
+  setTimetableEntryToEdit,
+}: TimetablesVisualViewProps) {
   // Get unique periods from data to determine grid rows
   const periods = React.useMemo(() => {
     const p = new Set<number>()

@@ -1,8 +1,7 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Upload01Icon } from '@hugeicons/core-free-icons'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import * as React from 'react'
+import { useUploadStaffPhoto } from '../api'
 import type { StaffResponse } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,11 +14,6 @@ import {
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import { Input } from '@/components/ui/input'
-import { authClient } from '@/lib/clients'
-import {
-  getAllStaffQueryKey,
-  uploadStaffPhotoMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
 
 interface StaffPhotoUploadDialogProps {
   staff: StaffResponse | null
@@ -32,21 +26,9 @@ export function StaffPhotoUploadDialog({
   open,
   onOpenChange,
 }: StaffPhotoUploadDialogProps) {
-  const queryClient = useQueryClient()
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null)
 
-  const uploadPhoto = useMutation({
-    ...uploadStaffPhotoMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Staff photo uploaded successfully.')
-      queryClient.invalidateQueries({ queryKey: getAllStaffQueryKey() })
-      onOpenChange(false)
-      setSelectedFile(null)
-    },
-    onError: (error) => {
-      toast.error(`Failed to upload photo: ${error.message || 'Unknown error'}`)
-    },
-  })
+  const uploadPhoto = useUploadStaffPhoto()
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -59,14 +41,20 @@ export function StaffPhotoUploadDialog({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
     if (staff && selectedFile) {
-      const formData = new FormData()
-      formData.append('photo', selectedFile)
-      uploadPhoto.mutate({
-        path: { staff_id: staff.id },
-        body: {
-          photo: selectedFile,
+      uploadPhoto.mutate(
+        {
+          path: { staff_id: staff.id },
+          body: {
+            photo: selectedFile,
+          },
         },
-      })
+        {
+          onSuccess: () => {
+            onOpenChange(false)
+            setSelectedFile(null)
+          },
+        },
+      )
     }
   }
 

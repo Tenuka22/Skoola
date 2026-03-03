@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Settings01Icon, Shield01Icon } from '@hugeicons/core-free-icons'
 import * as React from 'react'
-import { useRBACStore } from '../store'
-import { rbacApi } from '../api'
+import { useRBACSearchParams } from '../search-params'
 import { isPermissionEnum } from '../utils/permissions'
+import { getRolePermissionsQueryOptions } from '../api'
 import type { RoleEnum } from '@/lib/api/types.gen'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,7 +14,7 @@ import { Grid, HStack, Stack, Text } from '@/components/primitives'
 import { cn } from '@/lib/utils'
 
 export function RolesTab() {
-  const { setSelectedRoleId, setIsRoleEditorOpen } = useRBACStore()
+  const { setSelectedRoleId, setIsRoleEditorOpen } = useRBACSearchParams()
 
   return (
     <Grid cols={3} gap={6}>
@@ -39,9 +39,9 @@ function RoleCard({
   role: RoleEnum
   onManage: () => void
 }) {
-  const { data: rawPermissions, isLoading } = useQuery({
-    ...rbacApi.getRolePermissionsOptions(role),
-  })
+  const { data: rawPermissions, isLoading } = useQuery(
+    getRolePermissionsQueryOptions({ path: { role_id: role } }),
+  )
 
   const permissionCount = React.useMemo(() => {
     const perms = rawPermissions?.permissions || []

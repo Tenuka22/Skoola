@@ -1,7 +1,15 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Suspense, useMemo, useState } from 'react'
 import { format } from 'date-fns'
-import { useClasses, useStaffList } from '../api'
+import {
+  getDiscrepancyCheckQueryOptions,
+  useCreateSubstitution,
+  useInitiateEmergencyRollCall,
+  useSendAbsenceNotifications,
+  useSuggestSubstitute,
+  useSyncPreApprovedAbsences,
+  useSyncSchoolBusiness,
+} from '../api'
 import type { StaffResponse } from '@/lib/api/types.gen'
 import { Box, HStack, Heading, Stack, Text } from '@/components/primitives'
 import {
@@ -20,44 +28,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  createSubstitutionMutation,
-  initiateEmergencyRollCallMutation,
-  runDiscrepancyCheckOptions,
-  sendAbsenceNotificationsMutation,
-  suggestSubstituteMutation,
-  syncPreApprovedAbsencesMutation,
-  syncSchoolBusinessMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { CalendarInput } from '@/components/ui/calendar-input'
 import { FullPageSpinner } from '@/components/ui/full-page-spinner'
-import { authClient } from '@/lib/clients'
+import { getAllClassesQueryOptions } from '@/features/academics/classes/api'
+import { getAllStaffQueryOptions } from '@/features/staff/api'
 
 function StudentActions() {
-  const { data: classes } = useClasses()
+  const { data: classes } = useQuery(getAllClassesQueryOptions())
   const [selectedClassId, setSelectedClassId] = useState<string | undefined>()
   const [notificationDate, setNotificationDate] = useState<Date>(new Date())
   const [syncAbsenceDate, setSyncAbsenceDate] = useState<Date>(new Date())
   const [syncBusinessDate, setSyncBusinessDate] = useState<Date>(new Date())
   const [discrepancyDate, setDiscrepancyDate] = useState<Date>(new Date())
 
-  const { mutate: sendNotifications, isPending: isSending } = useMutation(
-    sendAbsenceNotificationsMutation({ client: authClient }),
-  )
-  const { mutate: syncAbsences, isPending: isSyncingAbsences } = useMutation(
-    syncPreApprovedAbsencesMutation({ client: authClient }),
-  )
-  const { mutate: syncBusiness, isPending: isSyncingBusiness } = useMutation(
-    syncSchoolBusinessMutation({ client: authClient }),
-  )
+  const { mutate: sendNotifications, isPending: isSending } =
+    useSendAbsenceNotifications()
+  const { mutate: syncAbsences, isPending: isSyncingAbsences } =
+    useSyncPreApprovedAbsences()
+  const { mutate: syncBusiness, isPending: isSyncingBusiness } =
+    useSyncSchoolBusiness()
 
   const {
     refetch: refetchDiscrepancyCheck,
     isFetching: isRunningCheck,
     error: discrepancyCheckError,
   } = useQuery({
-    ...runDiscrepancyCheckOptions({
-      client: authClient,
+    ...getDiscrepancyCheckQueryOptions({
       path: { date: format(discrepancyDate, 'yyyy-MM-dd') },
     }),
     enabled: false,
@@ -230,7 +226,9 @@ function StaffActions() {
     [],
   )
 
-  const { data: teachers } = useStaffList({ staff_type: 'Teaching' })
+  const { data: teachers } = useQuery(
+    getAllStaffQueryOptions({ query: { staff_type: 'Teaching' } }),
+  )
 
   const [suggestDate, setSuggestDate] = useState<Date>(new Date())
   const [selectedTimetableId, setSelectedTimetableId] = useState<
@@ -247,12 +245,8 @@ function StaffActions() {
     string | undefined
   >()
 
-  const { mutate: suggest, isPending: isSuggesting } = useMutation(
-    suggestSubstituteMutation({ client: authClient }),
-  )
-  const { mutate: create, isPending: isCreating } = useMutation(
-    createSubstitutionMutation({ client: authClient }),
-  )
+  const { mutate: suggest, isPending: isSuggesting } = useSuggestSubstitute()
+  const { mutate: create, isPending: isCreating } = useCreateSubstitution()
 
   const handleSuggest = () => {
     if (!selectedTimetableId) return
@@ -395,9 +389,7 @@ function StaffActions() {
 
 function EmergencyActions() {
   const [eventName, setEventName] = useState('')
-  const { mutate: initiate, isPending } = useMutation(
-    initiateEmergencyRollCallMutation({ client: authClient }),
-  )
+  const { mutate: initiate, isPending } = useInitiateEmergencyRollCall()
 
   return (
     <Card className="border-none shadow-xl bg-card overflow-hidden">

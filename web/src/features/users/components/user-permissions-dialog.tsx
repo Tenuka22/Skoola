@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import type { PermissionEnum, UserResponse } from '@/lib/api/types.gen'
 import {
@@ -14,17 +14,16 @@ import {
 } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
-import { authClient } from '@/lib/clients'
-import {
-  assignPermissionToUserMutation,
-  getUserPermissionsOptions,
-  unassignPermissionFromUserMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { zPermissionEnum } from '@/lib/api/zod.gen'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Spinner } from '@/components/ui/spinner'
 import { Badge } from '@/components/ui/badge'
 import { HStack } from '@/components/primitives'
+import {
+  getUserPermissionsQueryOptions,
+  useAssignPermissionToUser,
+  useUnassignPermissionFromUser,
+} from '@/features/rbac/api'
 
 interface UserPermissionsDialogProps {
   user: UserResponse | null
@@ -77,8 +76,7 @@ export function UserPermissionsDialog({
   >([])
 
   const { data: userPermissions, isLoading } = useQuery({
-    ...getUserPermissionsOptions({
-      client: authClient,
+    ...getUserPermissionsQueryOptions({
       path: {
         user_id: user?.id ?? '',
       },
@@ -97,17 +95,9 @@ export function UserPermissionsDialog({
     }
   }, [userPermissions])
 
-  const assignPermission = useMutation({
-    ...assignPermissionToUserMutation({
-      client: authClient,
-    }),
-  })
+  const assignPermission = useAssignPermissionToUser()
 
-  const unassignPermission = useMutation({
-    ...unassignPermissionFromUserMutation({
-      client: authClient,
-    }),
-  })
+  const unassignPermission = useUnassignPermissionFromUser()
 
   const handleSave = async () => {
     if (!user) return

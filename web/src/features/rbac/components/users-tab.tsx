@@ -6,8 +6,7 @@ import {
   UserGroupIcon,
   UserIcon,
 } from '@hugeicons/core-free-icons'
-import { useRBACStore } from '../store'
-import { rbacApi } from '../api'
+import { useRBACSearchParams } from '../search-params'
 import { UserPermissionEditor } from './user-permission-editor'
 import { useDebounce } from '@/hooks/use-debounce'
 import { Badge } from '@/components/ui/badge'
@@ -34,20 +33,23 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { getUsersQueryOptions } from '@/features/users/api'
 
 const PAGE_SIZE = 15
 
 export function UsersTab() {
   const [search, setSearch] = React.useState('')
   const debouncedSearch = useDebounce(search, 300)
-  const { selectedUserId, setSelectedUserId } = useRBACStore()
+  const { selectedUserId, setSelectedUserId } = useRBACSearchParams()
   const [page, setPage] = React.useState(0)
 
   const { data: usersData, isLoading } = useQuery(
-    rbacApi.getAllUsersOptions({
-      limit: PAGE_SIZE,
-      page,
-      search: debouncedSearch || undefined,
+    getUsersQueryOptions({
+      query: {
+        limit: PAGE_SIZE,
+        page: page + 1,
+        search: debouncedSearch || undefined,
+      },
     }),
   )
 
@@ -62,10 +64,10 @@ export function UsersTab() {
   }, [debouncedSearch, setSelectedUserId])
 
   React.useEffect(() => {
-    if (users.length > 0 && !selectedUser) {
+    if (users.length > 0 && !selectedUser && !selectedUserId) {
       setSelectedUserId(users[0].id)
     }
-  }, [users, selectedUser, setSelectedUserId])
+  }, [users, selectedUser, setSelectedUserId, selectedUserId])
 
   return (
     <Card>

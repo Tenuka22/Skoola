@@ -1,16 +1,17 @@
 import { useMemo, useState } from 'react'
 import { addDays, format } from 'date-fns'
 import { useMatch } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import {
-  useSuspenseAttendanceByStudent,
-  useSuspenseCalculateStudentAttendancePercentage,
-  useSuspenseStudentById,
+  getAttendanceByStudentQueryOptions,
+  getStudentAttendancePercentageQueryOptions,
 } from '../../api'
 import { IssueExitPassDialog } from './issue-exit-pass-dialog'
 import { SubmitExcuseDialog } from './submit-excuse-dialog'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { DateRange, DayProps } from 'react-day-picker'
 import type { StudentAttendanceResponse } from '@/lib/api/types.gen'
+import { getStudentByIdQueryOptions } from '@/features/students/api'
 import { HStack, Heading, Stack, Text } from '@/components/primitives'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -48,12 +49,14 @@ export function StudentAttendanceHistoryPage() {
     to: new Date(),
   })
 
-  const { data: student } = useSuspenseStudentById({
-    path: { student_id: studentId },
-  })
+  const { data: student } = useSuspenseQuery(
+    getStudentByIdQueryOptions({
+      path: { student_id: studentId },
+    }),
+  )
 
-  const { data: attendanceHistory, isFetching } =
-    useSuspenseAttendanceByStudent({
+  const { data: attendanceHistory } = useSuspenseQuery(
+    getAttendanceByStudentQueryOptions({
       path: { student_id: studentId },
       query: {
         from_date: dateRange?.from
@@ -61,22 +64,28 @@ export function StudentAttendanceHistoryPage() {
           : undefined,
         to_date: dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : undefined,
       },
-    })
+    }),
+  )
 
-  const { data: attendancePercentage } =
-    useSuspenseCalculateStudentAttendancePercentage({
+  const { data: attendancePercentage } = useSuspenseQuery(
+    getStudentAttendancePercentageQueryOptions({
       path: { student_id: studentId },
       query: {
         from_date: format(dateRange?.from || new Date(), 'yyyy-MM-dd'),
         to_date: format(dateRange?.to || new Date(), 'yyyy-MM-dd'),
       },
-    })
+    }),
+  )
 
-  const attendanceByDate = new Map(
-    attendanceHistory.map((rec) => [
-      format(new Date(rec.date), 'yyyy-MM-dd'),
-      rec.status,
-    ]),
+  const attendanceByDate = useMemo(
+    () =>
+      new Map(
+        attendanceHistory.map((rec) => [
+          format(new Date(rec.date), 'yyyy-MM-dd'),
+          rec.status,
+        ]),
+      ),
+    [attendanceHistory],
   )
 
   const openExcuseDialog = (recordId: string) => {
@@ -296,7 +305,6 @@ export function StudentAttendanceHistoryPage() {
             <DataTable
               columns={columns}
               data={dataForTable}
-              isLoading={isFetching}
               pageIndex={0}
               pageSize={dataForTable.length}
               pageCount={1}

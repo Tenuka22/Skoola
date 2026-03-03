@@ -10,11 +10,10 @@ import {
 
 import { format } from 'date-fns'
 import type { AuditLogResponse } from '@/lib/api/types.gen'
-import { authClient } from '@/lib/clients'
-import { getAllAuditLogsOptions } from '@/lib/api/@tanstack/react-query.gen'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
+import { getAllAuditLogsQueryOptions } from '@/features/audit/api'
 
 export const Route = createFileRoute('/admin/audit')({
   component: AuditLogsPage,
@@ -24,15 +23,11 @@ function AuditLogsPage() {
   const [search, setSearch] = React.useState('')
 
   const {
-    data: auditLogsData,
+    data: auditLogs = [],
     isLoading,
     isError,
     error,
-  } = useQuery({
-    ...getAllAuditLogsOptions({ client: authClient }),
-  })
-
-  const auditLogs = auditLogsData || []
+  } = useQuery(getAllAuditLogsQueryOptions())
 
   const filteredLogs = auditLogs.filter(
     (log: AuditLogResponse) =>

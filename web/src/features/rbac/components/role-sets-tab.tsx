@@ -1,14 +1,13 @@
 import * as React from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Delete02Icon,
   HierarchyIcon,
   Search01Icon,
 } from '@hugeicons/core-free-icons'
-import { useRBACStore } from '../store'
-import { rbacApi } from '../api'
+import { useRBACSearchParams } from '../search-params'
+import { getRoleSetsQueryOptions, useDeleteRoleSet } from '../api'
 import { RoleSetEditor } from './role-set-editor'
 import { CreateRoleSetDialog } from './create-role-set-dialog'
 import { Input } from '@/components/ui/input'
@@ -26,22 +25,11 @@ import {
 
 export function RoleSetsTab() {
   const [search, setSearch] = React.useState('')
-  const { selectedRoleSetId, setSelectedRoleSetId } = useRBACStore()
-  const queryClient = useQueryClient()
+  const { selectedRoleSetId, setSelectedRoleSetId } = useRBACSearchParams()
 
-  const { data: sets = [], isLoading } = useQuery(rbacApi.getRoleSetsOptions())
+  const { data: sets = [], isLoading } = useQuery(getRoleSetsQueryOptions())
 
-  const deleteSet = useMutation({
-    ...rbacApi.deleteRoleSetMutation(),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['getAllRoleSets'] })
-      if (selectedRoleSetId === variables.path.role_set_id) {
-        setSelectedRoleSetId(null)
-      }
-      toast.success('Role set deleted')
-    },
-    onError: (err) => toast.error(err.message),
-  })
+  const deleteSet = useDeleteRoleSet()
 
   const filteredSets =
     sets?.filter((s) => s.name.toLowerCase().includes(search.toLowerCase())) ||
@@ -125,9 +113,18 @@ export function RoleSetsTab() {
                             `Are you sure you want to delete "${set.name}"? This action cannot be undone.`,
                           )
                         ) {
-                          deleteSet.mutate({
-                            path: { role_set_id: set.id },
-                          })
+                          deleteSet.mutate(
+                            {
+                              path: { role_set_id: set.id },
+                            },
+                            {
+                              onSuccess: () => {
+                                if (selectedRoleSetId === set.id) {
+                                  setSelectedRoleSetId(null)
+                                }
+                              },
+                            },
+                          )
                         }
                       }}
                     >

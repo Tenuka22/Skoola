@@ -1,15 +1,14 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircle } from '@hugeicons/core-free-icons'
-import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { signUpSchema } from '../schemas'
+import { useSignUp } from '../api'
 import { ActiveSessions } from './active-sessions'
 import type { SignUpFormValues } from '../schemas'
 import type { AuthStorage } from '@/lib/auth/session'
 import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { signUpFn } from '@/lib/auth/actions'
 import { Spinner } from '@/components/ui/spinner'
 import {
   FormBuilder,
@@ -22,9 +21,7 @@ export function SignUpForm({
 }: {
   authStorage: AuthStorage | null
 }) {
-  const signUpMutation = useMutation({
-    mutationFn: signUpFn,
-  })
+  const signUpMutation = useSignUp()
 
   const navigate = useNavigate()
 

@@ -1,6 +1,7 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon } from '@hugeicons/core-free-icons'
 import { useQuery } from '@tanstack/react-query'
+import { getStudentMarksQueryOptions } from '../api'
 import type { StudentMarkResponse, StudentResponse } from '@/lib/api/types.gen'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,8 +12,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/spinner'
-import { authClient } from '@/lib/clients'
-import { getStudentMarksByStudentIdOptions } from '@/lib/api/@tanstack/react-query.gen'
 import { Badge } from '@/components/ui/badge'
 
 interface StudentMarksDialogProps {
@@ -32,8 +31,7 @@ export function StudentMarksDialog({
     isError,
     error,
   } = useQuery({
-    ...getStudentMarksByStudentIdOptions({
-      client: authClient,
+    ...getStudentMarksQueryOptions({
       path: { student_id: student?.id ?? '' },
     }),
     enabled: !!student,

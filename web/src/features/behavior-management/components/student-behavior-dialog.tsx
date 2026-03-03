@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import {
   Add01Icon,
@@ -8,8 +8,14 @@ import {
   PencilEdit01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { toast } from 'sonner'
 
+import {
+  getAllBehaviorIncidentTypesQueryOptions,
+  getStudentBehaviorIncidentsQueryOptions,
+  useDeleteBehaviorIncident,
+  useRecordBehaviorIncident,
+  useUpdateBehaviorIncident,
+} from '../api'
 import { BehaviorIncidentDialog } from './behavior-incident-dialog'
 import type {
   BehaviorIncidentResponse,
@@ -27,15 +33,6 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Spinner } from '@/components/ui/spinner'
-import {
-  deleteBehaviorIncidentMutation,
-  getAllBehaviorIncidentTypesOptions,
-  getStudentBehaviorIncidentsOptions,
-  getStudentBehaviorIncidentsQueryKey,
-  recordBehaviorIncidentMutation,
-  updateBehaviorIncidentMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
-import { authClient } from '@/lib/clients'
 import { HStack, Stack, Text } from '@/components/primitives'
 
 interface StudentBehaviorDialogProps {
@@ -49,77 +46,29 @@ export function StudentBehaviorDialog({
   open,
   onOpenChange,
 }: StudentBehaviorDialogProps) {
-  const queryClient = useQueryClient()
   const [isRecordOpen, setIsRecordOpen] = React.useState(false)
   const [incidentToEdit, setIncidentToEdit] =
     React.useState<BehaviorIncidentResponse | null>(null)
 
   const { data: incidents, isLoading } = useQuery({
-    ...getStudentBehaviorIncidentsOptions({
-      client: authClient,
+    ...getStudentBehaviorIncidentsQueryOptions({
       path: { student_id: student?.id ?? '' },
     }),
     enabled: !!student && open,
   })
 
   const { data: typesData } = useQuery({
-    ...getAllBehaviorIncidentTypesOptions({ client: authClient }),
+    ...getAllBehaviorIncidentTypesQueryOptions(),
     enabled: open,
   })
 
   const types = typesData || []
 
-  const invalidateIncidents = () => {
-    if (student) {
-      queryClient.invalidateQueries({
-        queryKey: getStudentBehaviorIncidentsQueryKey({
-          client: authClient,
-          path: { student_id: student.id },
-        }),
-      })
-    }
-  }
+  const recordMutation = useRecordBehaviorIncident()
 
-  const recordMutation = useMutation({
-    ...recordBehaviorIncidentMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Behavior incident recorded successfully.')
-      invalidateIncidents()
-      setIsRecordOpen(false)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to record incident: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const updateMutation = useUpdateBehaviorIncident()
 
-  const updateMutation = useMutation({
-    ...updateBehaviorIncidentMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Behavior incident updated successfully.')
-      invalidateIncidents()
-      setIncidentToEdit(null)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to update incident: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
-
-  const deleteMutation = useMutation({
-    ...deleteBehaviorIncidentMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Behavior incident deleted successfully.')
-      invalidateIncidents()
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to delete incident: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const deleteMutation = useDeleteBehaviorIncident()
 
   const getTypeName = (typeId: string) => {
     return types.find((t) => t.id === typeId)?.type_name || 'Unknown Type'
@@ -233,9 +182,16 @@ export function StudentBehaviorDialog({
           open={isRecordOpen}
           onOpenChange={setIsRecordOpen}
           onConfirm={(data: BehaviorIncidentFormValues) =>
-            recordMutation.mutate({
-              body: { ...data, student_id: student?.id ?? '' },
-            })
+            recordMutation.mutate(
+              {
+                body: { ...data, student_id: student?.id ?? '' },
+              },
+              {
+                onSuccess: () => {
+                  setIsRecordOpen(false)
+                },
+              },
+            )
           }
           isSubmitting={recordMutation.isPending}
         />
@@ -247,10 +203,17 @@ export function StudentBehaviorDialog({
           onOpenChange={() => setIncidentToEdit(null)}
           onConfirm={(data: BehaviorIncidentFormValues) =>
             incidentToEdit &&
-            updateMutation.mutate({
-              path: { incident_id: incidentToEdit.id },
-              body: data,
-            })
+            updateMutation.mutate(
+              {
+                path: { incident_id: incidentToEdit.id },
+                body: data,
+              },
+              {
+                onSuccess: () => {
+                  setIncidentToEdit(null)
+                },
+              },
+            )
           }
           isSubmitting={updateMutation.isPending}
         />

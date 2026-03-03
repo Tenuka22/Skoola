@@ -1,25 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import * as React from 'react'
-import { toast } from 'sonner'
 
 import type { ClassFormValues } from '@/features/academics/classes/schemas'
-import { authClient } from '@/lib/clients'
+import type { ClassResponse } from '@/lib/api/types.gen'
 import { handleExportCSV } from '@/lib/export'
-import {
-  bulkDeleteClassesMutation,
-  createClassMutation,
-  deleteClassMutation,
-  getAllClassesOptions,
-  getAllClassesQueryKey,
-  updateClassMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
-import { useClassesStore } from '@/features/academics/classes/store'
 import { ClassesHeader } from '@/features/academics/classes/components/classes-header'
 import { ClassesToolbar } from '@/features/academics/classes/components/classes-toolbar'
 import { ClassesListContainer } from '@/features/academics/classes/components/classes-list-container'
@@ -38,53 +23,42 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Stack } from '@/components/primitives'
+import {
+  getAllClassesQueryOptions,
+  useBulkDeleteClasses,
+  useCreateClass,
+  useDeleteClass,
+  useUpdateClass,
+} from '@/features/academics/classes/api'
+import { useClassesSearchParams } from '@/features/academics/classes/search-params'
 
 export const Route = createFileRoute('/admin/classes')({
   component: ClassesPage,
 })
 
 function ClassesPage() {
-  const store = useClassesStore()
-  const { search, setDebouncedSearch } = store
+  const { page, limit, search, gradeId, academicYearId, sortBy, sortOrder } =
+    useClassesSearchParams()
 
-  const limit = 10
-
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(search)
-    }, 400)
-    return () => clearTimeout(handler)
-  }, [search, setDebouncedSearch])
-
-  const {
-    page,
-    sorting,
-    debouncedSearch,
-    gradeId,
-    academicYearId,
-    setClassToEdit,
-    setClassToDelete,
-    setIsCreateClassOpen,
-    isBulkDeleteOpen,
-    setIsBulkDeleteOpen,
-    isAssignStudentsOpen,
-    setIsAssignStudentsOpen,
-    classToAssignStudentsFor,
-    setClassToAssignStudentsFor,
-  } = store
-
-  const sortBy = sorting[0]?.id
-  const sortOrder = sorting[0]?.desc ? 'desc' : 'asc'
+  const [classToDelete, setClassToDelete] = React.useState<string | null>(null)
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = React.useState(false)
+  const [isCreateClassOpen, setIsCreateClassOpen] = React.useState(false)
+  const [classToEdit, setClassToEdit] = React.useState<ClassResponse | null>(
+    null,
+  )
+  const [isAssignStudentsOpen, setIsAssignStudentsOpen] = React.useState(false)
+  const [classToAssignStudentsFor, setClassToAssignStudentsFor] =
+    React.useState<ClassResponse | null>(null)
 
   const classesQuery = useQuery({
-    ...getAllClassesOptions({
-      client: authClient,
+    ...getAllClassesQueryOptions({
       query: {
-        page,
-        limit,
-        search: debouncedSearch,
-        sort_by: sortBy,
-        sort_order: sortOrder,
+        page: page ?? 1,
+        limit: limit ?? 10,
+        search: search ?? undefined,
+        sort_by: sortBy ?? 'created_at',
+        sort_order:
+          sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : 'desc',
         grade_id: gradeId ?? undefined,
         academic_year_id: academicYearId ?? undefined,
       },
@@ -92,72 +66,13 @@ function ClassesPage() {
     placeholderData: keepPreviousData,
   })
 
-  const queryClient = useQueryClient()
-  const invalidateQueries = () => {
-    queryClient.invalidateQueries({
-      queryKey: getAllClassesQueryKey(),
-    })
-  }
+  const createClass = useCreateClass()
 
-  const createClass = useMutation({
-    ...createClassMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Class created successfully.')
-      invalidateQueries()
-      setIsCreateClassOpen(false)
-    },
-    onError: (error) => {
-      toast.error(`Failed to create class: ${error.message || 'Unknown error'}`)
-    },
-  })
+  const updateClass = useUpdateClass()
 
-  const updateClass = useMutation({
-    ...updateClassMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Class updated successfully.')
-      invalidateQueries()
-      setClassToEdit(null)
-    },
-    onError: (error) => {
-      toast.error(`Failed to update class: ${error.message || 'Unknown error'}`)
-    },
-  })
+  const deleteClass = useDeleteClass()
 
-  const deleteClass = useMutation({
-    ...deleteClassMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Class deleted successfully.')
-      invalidateQueries()
-      setClassToDelete(null)
-    },
-    onError: (error) => {
-      toast.error(`Failed to delete class: ${error.message || 'Unknown error'}`)
-    },
-  })
-
-  const bulkDeleteClasses = useMutation({
-    ...bulkDeleteClassesMutation({
-      client: authClient,
-    }),
-    onSuccess: (_, variables) => {
-      const count = variables.body?.class_ids?.length ?? 0
-      toast.success(`Successfully deleted ${count} classes.`)
-      invalidateQueries()
-      setIsBulkDeleteOpen(false)
-      setRowSelection({})
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to delete classes: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const bulkDeleteClasses = useBulkDeleteClasses()
 
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
@@ -187,6 +102,7 @@ function ClassesPage() {
             { header: 'Academic Year', accessor: 'academic_year_id' },
           ])
         }
+        setIsCreateClassOpen={setIsCreateClassOpen}
       />
       <ClassesListContainer
         query={classesQuery}
@@ -196,24 +112,38 @@ function ClassesPage() {
       />
 
       <ClassAddDialog
-        open={store.isCreateClassOpen}
+        open={isCreateClassOpen}
         onOpenChange={setIsCreateClassOpen}
         onConfirm={(data: ClassFormValues) =>
-          createClass.mutate({ body: data })
+          createClass.mutate(
+            { body: data },
+            {
+              onSuccess: () => {
+                setIsCreateClassOpen(false)
+              },
+            },
+          )
         }
         isSubmitting={createClass.isPending}
       />
 
       <ClassEditDialog
-        classItem={store.classToEdit}
-        open={!!store.classToEdit}
+        classItem={classToEdit}
+        open={!!classToEdit}
         onOpenChange={() => setClassToEdit(null)}
         onConfirm={(data: ClassFormValues) =>
-          store.classToEdit &&
-          updateClass.mutate({
-            path: { id: store.classToEdit.id },
-            body: data,
-          })
+          classToEdit &&
+          updateClass.mutate(
+            {
+              path: { id: classToEdit.id },
+              body: data,
+            },
+            {
+              onSuccess: () => {
+                setClassToEdit(null)
+              },
+            },
+          )
         }
         isSubmitting={updateClass.isPending}
       />
@@ -225,7 +155,7 @@ function ClassesPage() {
       />
 
       <AlertDialog
-        open={!!store.classToDelete}
+        open={!!classToDelete}
         onOpenChange={() => setClassToDelete(null)}
       >
         <AlertDialogContent>
@@ -240,8 +170,15 @@ function ClassesPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() =>
-                store.classToDelete &&
-                deleteClass.mutate({ path: { id: store.classToDelete } })
+                classToDelete &&
+                deleteClass.mutate(
+                  { path: { id: classToDelete } },
+                  {
+                    onSuccess: () => {
+                      setClassToDelete(null)
+                    },
+                  },
+                )
               }
             >
               Delete
@@ -263,9 +200,17 @@ function ClassesPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                bulkDeleteClasses.mutate({
-                  body: { class_ids: Array.from(selectedClasses) },
-                })
+                bulkDeleteClasses.mutate(
+                  {
+                    body: { class_ids: Array.from(selectedClasses) },
+                  },
+                  {
+                    onSuccess: () => {
+                      setIsBulkDeleteOpen(false)
+                      setRowSelection({})
+                    },
+                  },
+                )
               }}
             >
               Delete All

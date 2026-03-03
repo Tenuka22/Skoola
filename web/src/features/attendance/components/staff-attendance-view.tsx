@@ -7,11 +7,11 @@ import {
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { useAttendanceStore } from '../store'
+import { useQuery } from '@tanstack/react-query'
+import { useAttendanceSearchParams } from '../search-params'
 import {
+  getStaffAttendanceQueryOptions,
   useMarkStaffAttendanceBulk,
-  useStaffAttendance,
-  useStaffList,
 } from '../api'
 import { StaffAttendanceCard } from './staff-attendance-card'
 import type {
@@ -43,18 +43,26 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty'
 import { cn } from '@/lib/utils'
+import { getAllStaffQueryOptions } from '@/features/staff/api'
 
 export function StaffAttendanceView() {
-  const { staffDate, setStaffDate, staffSearch, setStaffSearch } =
-    useAttendanceStore()
+  const { date: staffDate, setDate: setStaffDate } = useAttendanceSearchParams()
+  const [staffSearch, setStaffSearch] = React.useState('')
 
   // Fetch all staff members to list them
-  const { data: staffData, isLoading: isLoadingStaff } = useStaffList()
+  const { data: staffData, isLoading: isLoadingStaff } = useQuery(
+    getAllStaffQueryOptions({
+      query: { limit: 100 },
+    }),
+  )
   const staffList = React.useMemo(() => staffData?.data || [], [staffData])
 
   // Fetch existing attendance records for the date
-  const { data: attendanceData, isLoading: isLoadingAttendance } =
-    useStaffAttendance(staffDate)
+  const { data: attendanceData, isLoading: isLoadingAttendance } = useQuery(
+    getStaffAttendanceQueryOptions({
+      query: { date: staffDate ?? format(new Date(), 'yyyy-MM-dd') },
+    }),
+  )
 
   const markBulkMutation = useMarkStaffAttendanceBulk()
 
@@ -84,14 +92,17 @@ export function StaffAttendanceView() {
       ([staff_id, status]) => ({
         staff_id,
         status,
-        date: staffDate,
+        date: staffDate ?? format(new Date(), 'yyyy-MM-dd'),
       }),
     )
 
     if (records.length === 0) return
 
     markBulkMutation.mutate({
-      body: { attendance_records: records, date: staffDate },
+      body: {
+        attendance_records: records,
+        date: staffDate ?? format(new Date(), 'yyyy-MM-dd'),
+      },
     })
   }
 
@@ -103,7 +114,7 @@ export function StaffAttendanceView() {
         staff.name || 'Unknown',
         staff.email || 'N/A',
         localAttendance[staff.id] || 'Not Marked',
-        format(new Date(staffDate), 'yyyy-MM-dd'),
+        format(new Date(staffDate ?? new Date()), 'yyyy-MM-dd'),
       ]),
     ]
 
@@ -132,8 +143,9 @@ export function StaffAttendanceView() {
     )
   })
 
-  const isFutureDate =
-    isFuture(new Date(staffDate)) && !isToday(new Date(staffDate))
+  const isFutureDate = staffDate
+    ? isFuture(new Date(staffDate)) && !isToday(new Date(staffDate))
+    : false
 
   return (
     <Stack gap={6} p={8} className="h-full w-full">
@@ -210,7 +222,7 @@ export function StaffAttendanceView() {
           <PopoverContent className="w-auto p-0" align="end">
             <Calendar
               mode="single"
-              selected={new Date(staffDate)}
+              selected={staffDate ? new Date(staffDate) : new Date()}
               onSelect={(date) =>
                 date && setStaffDate(format(date, 'yyyy-MM-dd'))
               }

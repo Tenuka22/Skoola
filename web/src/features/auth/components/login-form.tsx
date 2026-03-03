@@ -1,8 +1,8 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircle } from '@hugeicons/core-free-icons'
-import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { loginSchema } from '../schemas'
+import { useLogin } from '../api'
 import { ActiveSessions } from './active-sessions'
 import type { LoginFormValues } from '../schemas'
 import type { AuthStorage } from '@/lib/auth/session'
@@ -10,7 +10,6 @@ import type { UseFormReturn } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { env } from '@/lib/env'
-import { loginFn } from '@/lib/auth/actions'
 import {
   FormBuilder,
   defineFormConfig,
@@ -23,9 +22,7 @@ export function LoginForm({
 }: {
   authStorage: AuthStorage | null
 }) {
-  const loginMutation = useMutation({
-    mutationFn: loginFn,
-  })
+  const loginMutation = useLogin()
 
   const navigate = useNavigate()
 

@@ -1,7 +1,7 @@
 import { Calendar01Icon, FilterIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { format } from 'date-fns'
-import { useStudentsStore } from '../store'
+import { useStudentsSearchParams } from '../search-params'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +31,7 @@ export function StudentFilters() {
     setCreatedAfter,
     createdBefore,
     setCreatedBefore,
-  } = useStudentsStore()
+  } = useStudentsSearchParams()
 
   const studentStatuses = zStudentStatus.options
 
@@ -59,8 +59,10 @@ export function StudentFilters() {
             <DropdownMenuLabel>Student Status</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup
-              value={statusFilter}
-              onValueChange={setStatusFilter}
+              value={statusFilter ?? 'all'}
+              onValueChange={(val: string) =>
+                setStatusFilter(val === 'all' ? null : val)
+              }
             >
               <DropdownMenuRadioItem value="all">
                 All Status

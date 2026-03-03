@@ -4,16 +4,20 @@ import {
   Download01Icon,
   Search01Icon,
 } from '@hugeicons/core-free-icons'
-import { useGradeLevelsStore } from '../store'
+import { useGradeLevelsSearchParams } from '../search-params'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 interface GradeLevelsToolbarProps {
   onExport: () => void
+  setIsCreateGradeLevelOpen: (open: boolean) => void
 }
 
-export function GradeLevelsToolbar({ onExport }: GradeLevelsToolbarProps) {
-  const { search, setSearch, setIsCreateGradeLevelOpen } = useGradeLevelsStore()
+export function GradeLevelsToolbar({
+  onExport,
+  setIsCreateGradeLevelOpen,
+}: GradeLevelsToolbarProps) {
+  const { search, setSearch } = useGradeLevelsSearchParams()
 
   return (
     <div className="flex items-center justify-between px-8 py-4">
@@ -25,7 +29,7 @@ export function GradeLevelsToolbar({ onExport }: GradeLevelsToolbarProps) {
         <Input
           placeholder="Search grade levels..."
           className="w-72 pl-9"
-          value={search}
+          value={search ?? ''}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>

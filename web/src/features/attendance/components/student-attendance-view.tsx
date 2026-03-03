@@ -8,10 +8,10 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { toast } from 'sonner'
 
-import { useAttendanceStore } from '../store'
+import { useQuery } from '@tanstack/react-query'
+import { useAttendanceSearchParams } from '../search-params'
 import {
-  useClasses,
-  useEnrichedStudentAttendance,
+  getEnrichedStudentAttendanceQueryOptions,
   useMarkStudentAttendanceBulk,
 } from '../api'
 import { StudentAttendanceCard } from './student-attendance-card'
@@ -48,23 +48,30 @@ import {
 } from '@/components/ui/empty'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/use-auth'
+import { getAllClassesQueryOptions } from '@/features/academics/classes/api'
 
 export function StudentAttendanceView() {
   const { user } = useAuth()
   const {
-    studentDate,
-    setStudentDate,
-    studentClassId,
-    setStudentClassId,
-    studentSearch,
-    setStudentSearch,
-  } = useAttendanceStore()
+    date: studentDate,
+    setDate: setStudentDate,
+    classId: studentClassId,
+    setClassId: setStudentClassId,
+  } = useAttendanceSearchParams()
+  const [studentSearch, setStudentSearch] = React.useState('')
 
-  const { data: classesData } = useClasses()
+  const { data: classesData } = useQuery(getAllClassesQueryOptions())
   const classes: Array<ClassResponse> = classesData?.data || []
 
-  const { data: attendanceData, isLoading: isLoadingAttendance } =
-    useEnrichedStudentAttendance(studentClassId || '', studentDate)
+  const { data: attendanceData, isLoading: isLoadingAttendance } = useQuery({
+    ...getEnrichedStudentAttendanceQueryOptions({
+      path: {
+        class_id: studentClassId || '',
+        date: studentDate ?? format(new Date(), 'yyyy-MM-dd'),
+      },
+    }),
+    enabled: !!studentClassId,
+  })
 
   // Map to hold local edits before saving
   const [localAttendance, setLocalAttendance] = React.useState<
@@ -92,7 +99,7 @@ export function StudentAttendanceView() {
       return
     }
 
-    const selectedDate = new Date(studentDate)
+    const selectedDate = new Date(studentDate ?? new Date())
 
     if (isFuture(selectedDate) && !isToday(selectedDate)) {
       toast.error('Attendance cannot be marked for a future date.')
@@ -103,7 +110,7 @@ export function StudentAttendanceView() {
       ([student_id, status]) => ({
         student_id,
         status,
-        date: studentDate,
+        date: studentDate ?? format(new Date(), 'yyyy-MM-dd'),
         class_id: studentClassId,
         marked_by: user.id,
         remarks: '', // Default empty remarks for quick marking
@@ -127,7 +134,7 @@ export function StudentAttendanceView() {
       ...attendanceData.map((r) => [
         r.student_name || 'Unknown',
         localAttendance[r.student_id] || 'Not Marked',
-        format(new Date(studentDate), 'yyyy-MM-dd'),
+        format(new Date(studentDate ?? new Date()), 'yyyy-MM-dd'),
       ]),
     ]
 
@@ -157,8 +164,9 @@ export function StudentAttendanceView() {
     })
   }, [attendanceData, studentSearch])
 
-  const isFutureDate =
-    isFuture(new Date(studentDate)) && !isToday(new Date(studentDate))
+  const isFutureDate = studentDate
+    ? isFuture(new Date(studentDate)) && !isToday(new Date(studentDate))
+    : false
 
   return (
     <Stack gap={6} p={8} className="h-full w-full">
@@ -217,7 +225,7 @@ export function StudentAttendanceView() {
 
           <Select
             value={studentClassId || ''}
-            onValueChange={setStudentClassId}
+            onValueChange={(val) => setStudentClassId(val)}
           >
             <SelectTrigger className="w-[200px] rounded-xl h-10 ring-1 ring-border font-bold">
               <SelectValue placeholder="Select Class" />
@@ -256,7 +264,7 @@ export function StudentAttendanceView() {
           <PopoverContent className="w-auto p-0" align="end">
             <Calendar
               mode="single"
-              selected={new Date(studentDate)}
+              selected={studentDate ? new Date(studentDate) : new Date()}
               onSelect={(date) =>
                 date && setStudentDate(format(date, 'yyyy-MM-dd'))
               }

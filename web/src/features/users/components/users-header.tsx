@@ -1,20 +1,21 @@
 import { useQuery } from '@tanstack/react-query'
-import { useUsersStore } from '../store'
 
+import { getUserStatsQueryOptions } from '../api/get-user-stats'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { getUserStatisticsOptions } from '@/lib/api/@tanstack/react-query.gen'
-import { authClient } from '@/lib/clients'
 import { HStack, Heading, Stack, Text } from '@/components/primitives'
 
-export function UsersHeader() {
-  const { data: stats } = useQuery(
-    getUserStatisticsOptions({
-      client: authClient,
-    }),
-  )
-  const { showProfilePictures, setShowProfilePictures } = useUsersStore()
+interface UsersHeaderProps {
+  showProfilePictures: boolean
+  setShowProfilePictures: (show: boolean) => void
+}
+
+export function UsersHeader({
+  showProfilePictures,
+  setShowProfilePictures,
+}: UsersHeaderProps) {
+  const { data: stats } = useQuery(getUserStatsQueryOptions())
 
   return (
     <Stack gap={1}>

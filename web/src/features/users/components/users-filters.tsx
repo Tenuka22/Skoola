@@ -1,8 +1,8 @@
 import { Calendar01Icon, FilterIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { format } from 'date-fns'
-import { useUsersStore } from '../store'
 import { USER_AUTH_METHODS } from '../constants'
+import { useUsersSearchParams } from '../search-params'
 import { cn } from '@/lib/utils'
 
 import { Button } from '@/components/ui/button'
@@ -31,12 +31,12 @@ export function UsersFilters() {
     setCreatedAfter,
     createdBefore,
     setCreatedBefore,
-  } = useUsersStore()
+  } = useUsersSearchParams()
 
   return (
     <HStack p={0}>
       <Select
-        value={statusFilter}
+        value={statusFilter ?? 'all'}
         onValueChange={(value) => setStatusFilter(value || 'all')}
       >
         <SelectTrigger className="w-fit min-w-32">
@@ -53,7 +53,7 @@ export function UsersFilters() {
       </Select>
 
       <Select
-        value={authFilter}
+        value={authFilter ?? 'all'}
         onValueChange={(value) => setAuthFilter(value || 'all')}
       >
         <SelectTrigger className="w-fit min-w-32">

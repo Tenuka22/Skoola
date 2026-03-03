@@ -1,8 +1,8 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon } from '@hugeicons/core-free-icons'
-import { useTimetablesStore } from '../store'
+import * as React from 'react'
 import { TimetablesVisualView } from './timetables-visual-view'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import type { TimetableResponse } from '@/lib/api/types.gen'
 import type { TimetableEntryRow } from './timetables-table-columns'
 import type { UseQueryResult } from '@tanstack/react-query'
@@ -12,14 +12,20 @@ interface TimetablesListContainerProps {
   query: UseQueryResult<Array<TimetableResponse>, Error>
   columns: Array<ColumnDef<TimetableEntryRow>>
   data: Array<TimetableEntryRow>
+  isGridView: boolean
+  viewMode: string
+  onEdit: (entry: TimetableResponse | null) => void
 }
 
 export function TimetablesListContainer({
   query,
   columns,
   data,
+  isGridView,
+  viewMode,
+  onEdit,
 }: TimetablesListContainerProps) {
-  const { page, sorting, setSorting, isGridView } = useTimetablesStore()
+  const [sorting, setSorting] = React.useState<SortingState>([])
   const { isLoading, isError, error } = query
 
   if (isLoading) {
@@ -59,7 +65,13 @@ export function TimetablesListContainer({
   }
 
   if (isGridView) {
-    return <TimetablesVisualView data={data} />
+    return (
+      <TimetablesVisualView
+        data={data}
+        viewMode={viewMode}
+        setTimetableEntryToEdit={onEdit}
+      />
+    )
   }
 
   return (
@@ -70,7 +82,7 @@ export function TimetablesListContainer({
           data={data}
           sorting={sorting}
           onSortingChange={setSorting}
-          pageIndex={page - 1}
+          pageIndex={0}
           pageSize={data.length || 10}
           pageCount={1}
           canNextPage={false}

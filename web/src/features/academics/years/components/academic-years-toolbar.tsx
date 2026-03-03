@@ -4,17 +4,21 @@ import {
   Download01Icon,
   Search01Icon,
 } from '@hugeicons/core-free-icons'
-import { useAcademicYearsStore } from '../store'
+import { useAcademicYearsSearchParams } from '../search-params'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { HStack } from '@/components/primitives'
 
 interface AcademicYearsToolbarProps {
   onExport: () => void
+  setIsCreateYearOpen: (open: boolean) => void
 }
 
-export function AcademicYearsToolbar({ onExport }: AcademicYearsToolbarProps) {
-  const { search, setSearch, setIsCreateYearOpen } = useAcademicYearsStore()
+export function AcademicYearsToolbar({
+  onExport,
+  setIsCreateYearOpen,
+}: AcademicYearsToolbarProps) {
+  const { search, setSearch } = useAcademicYearsSearchParams()
 
   return (
     <HStack justify="between">
@@ -26,7 +30,7 @@ export function AcademicYearsToolbar({ onExport }: AcademicYearsToolbarProps) {
         <Input
           placeholder="Search academic years..."
           className="w-72 pl-9"
-          value={search}
+          value={search ?? ''}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>

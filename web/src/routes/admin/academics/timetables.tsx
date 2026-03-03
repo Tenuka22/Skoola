@@ -1,34 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  keepPreviousData,
-  useMutation,
-  useQueries,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { keepPreviousData, useQueries, useQuery } from '@tanstack/react-query'
 import * as React from 'react'
-import { toast } from 'sonner'
 
 import type { TimetableResponse } from '@/lib/api/types.gen'
 import type { TimetableEntryFormValues } from '@/features/academics/timetables/schemas'
 import { authClient } from '@/lib/clients'
 import { handleExportCSV } from '@/lib/export'
 import {
-  createTimetableEntryMutation as createTimetableEntryFn,
-  deleteTimetableEntryMutation as deleteTimetableEntryFn,
   getAllAcademicYearsOptions,
   getAllClassesOptions,
   getAllStaffOptions,
   getAllSubjectsOptions,
-  getTimetableByClassAndDayQueryKey,
-  getTimetableByTeacherQueryKey,
-  updateTimetableEntryMutation as updateTimetableEntryFn,
 } from '@/lib/api/@tanstack/react-query.gen'
-import {
-  getTimetableByClassAndDay,
-  getTimetableByTeacher,
-} from '@/lib/api/sdk.gen'
-import { useTimetablesStore } from '@/features/academics/timetables/store'
 import { TimetablesHeader } from '@/features/academics/timetables/components/timetables-header'
 import { TimetablesToolbar } from '@/features/academics/timetables/components/timetables-toolbar'
 import { TimetablesListContainer } from '@/features/academics/timetables/components/timetables-list-container'
@@ -48,22 +31,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { useTimetablesSearchParams } from '@/features/academics/timetables/search-params'
+import {
+  getTimetableQueryOptions,
+  useCreateTimetableEntry,
+  useDeleteTimetableEntry,
+  useUpdateTimetableEntry,
+} from '@/features/academics/timetables/api'
 
 export const Route = createFileRoute('/admin/academics/timetables')({
   component: TimetablesPage,
 })
 
 function TimetablesPage() {
-  const store = useTimetablesStore()
-  const { search, setDebouncedSearch } = store
-
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(search)
-    }, 400)
-    return () => clearTimeout(handler)
-  }, [search, setDebouncedSearch])
-
   const {
     selectedAcademicYearId,
     setSelectedAcademicYearId,
@@ -73,12 +53,18 @@ function TimetablesPage() {
     setSelectedTeacherId,
     selectedDayOfWeek,
     setSelectedDayOfWeek,
-    setIsCreateTimetableEntryOpen,
-    setTimetableEntryToEdit,
-    setTimetableEntryToDelete,
     viewMode,
     setViewMode,
-  } = store
+  } = useTimetablesSearchParams()
+
+  const [isCreateTimetableEntryOpen, setIsCreateTimetableEntryOpen] =
+    React.useState(false)
+  const [timetableEntryToEdit, setTimetableEntryToEdit] =
+    React.useState<TimetableResponse | null>(null)
+  const [timetableEntryToDelete, setTimetableEntryToDelete] = React.useState<
+    string | null
+  >(null)
+  const [isGridView, setIsGridView] = React.useState(true)
 
   // Fetch all academic years, classes, and staff for filters and display
   const [academicYearsQuery, classesQuery, staffQuery, subjectsQuery] =
@@ -126,53 +112,15 @@ function TimetablesPage() {
   }, [academicYears, selectedAcademicYearId, setSelectedAcademicYearId])
 
   // Fetch timetable entries based on view mode and selected filters
-  const timetableQuery = useQuery<Array<TimetableResponse>, Error>({
-    queryKey:
-      viewMode === 'class'
-        ? getTimetableByClassAndDayQueryKey({
-            client: authClient,
-            path: {
-              class_id: selectedClassId ?? '',
-              day_of_week: selectedDayOfWeek ?? '',
-              academic_year_id: selectedAcademicYearId ?? '',
-            },
-          })
-        : getTimetableByTeacherQueryKey({
-            client: authClient,
-            path: {
-              teacher_id: selectedTeacherId ?? '',
-              academic_year_id: selectedAcademicYearId ?? '',
-            },
-          }),
-    queryFn: async ({ signal }) => {
-      if (viewMode === 'class') {
-        if (!selectedClassId || !selectedDayOfWeek || !selectedAcademicYearId)
-          return []
-        const res = await getTimetableByClassAndDay({
-          client: authClient,
-          path: {
-            class_id: selectedClassId,
-            day_of_week: selectedDayOfWeek,
-            academic_year_id: selectedAcademicYearId,
-          },
-          signal,
-          throwOnError: true,
-        })
-        return res.data || []
-      } else {
-        if (!selectedTeacherId || !selectedAcademicYearId) return []
-        const res = await getTimetableByTeacher({
-          client: authClient,
-          path: {
-            teacher_id: selectedTeacherId,
-            academic_year_id: selectedAcademicYearId,
-          },
-          signal,
-          throwOnError: true,
-        })
-        return res.data || []
-      }
-    },
+  const timetableQuery = useQuery({
+    ...getTimetableQueryOptions({
+      viewMode:
+        viewMode === 'class' || viewMode === 'teacher' ? viewMode : 'class',
+      classId: selectedClassId ?? undefined,
+      dayOfWeek: selectedDayOfWeek ?? undefined,
+      teacherId: selectedTeacherId ?? undefined,
+      academicYearId: selectedAcademicYearId ?? undefined,
+    }),
     enabled:
       !!selectedAcademicYearId &&
       ((viewMode === 'class' && !!selectedClassId && !!selectedDayOfWeek) ||
@@ -180,79 +128,11 @@ function TimetablesPage() {
     placeholderData: keepPreviousData,
   })
 
-  const queryClient = useQueryClient()
-  const invalidateQueries = () => {
-    queryClient.invalidateQueries({
-      queryKey: getTimetableByClassAndDayQueryKey({
-        client: authClient,
-        path: {
-          class_id: selectedClassId ?? '',
-          day_of_week: selectedDayOfWeek ?? '',
-          academic_year_id: selectedAcademicYearId ?? '',
-        },
-      }),
-    })
-    queryClient.invalidateQueries({
-      queryKey: getTimetableByTeacherQueryKey({
-        client: authClient,
-        path: {
-          teacher_id: selectedTeacherId ?? '',
-          academic_year_id: selectedAcademicYearId ?? '',
-        },
-      }),
-    })
-    queryClient.invalidateQueries({
-      queryKey: getTimetableByTeacherQueryKey({
-        client: authClient,
-        path: {
-          teacher_id: selectedTeacherId ?? '',
-          academic_year_id: selectedAcademicYearId ?? '',
-        },
-      }),
-    })
-  }
+  const createMutation = useCreateTimetableEntry()
 
-  const createMutation = useMutation({
-    ...createTimetableEntryFn({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Timetable entry created successfully.')
-      invalidateQueries()
-      setIsCreateTimetableEntryOpen(false)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to create timetable entry: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const updateMutation = useUpdateTimetableEntry()
 
-  const updateMutation = useMutation({
-    ...updateTimetableEntryFn({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Timetable entry updated successfully.')
-      invalidateQueries()
-      setTimetableEntryToEdit(null)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to update timetable entry: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
-
-  const deleteMutation = useMutation({
-    ...deleteTimetableEntryFn({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Timetable entry deleted successfully.')
-      invalidateQueries()
-      setTimetableEntryToDelete(null)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to delete timetable entry: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const deleteMutation = useDeleteTimetableEntry()
 
   const mappedTimetableEntries = React.useMemo(() => {
     if (!timetableQuery.data) return []
@@ -277,16 +157,20 @@ function TimetablesPage() {
         academicYears={academicYears}
         classes={classes}
         staff={staff}
-        selectedAcademicYearId={selectedAcademicYearId}
-        setSelectedAcademicYearId={setSelectedAcademicYearId}
-        selectedClassId={selectedClassId}
-        setSelectedClassId={setSelectedClassId}
-        selectedTeacherId={selectedTeacherId}
-        setSelectedTeacherId={setSelectedTeacherId}
-        selectedDayOfWeek={selectedDayOfWeek}
-        setSelectedDayOfWeek={setSelectedDayOfWeek}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
+        selectedAcademicYearId={selectedAcademicYearId ?? undefined}
+        setSelectedAcademicYearId={(val) =>
+          setSelectedAcademicYearId(val ?? null)
+        }
+        selectedClassId={selectedClassId ?? undefined}
+        setSelectedClassId={(val) => setSelectedClassId(val ?? null)}
+        selectedTeacherId={selectedTeacherId ?? undefined}
+        setSelectedTeacherId={(val) => setSelectedTeacherId(val ?? null)}
+        selectedDayOfWeek={selectedDayOfWeek ?? undefined}
+        setSelectedDayOfWeek={(val) => setSelectedDayOfWeek(val ?? null)}
+        viewMode={
+          viewMode === 'class' || viewMode === 'teacher' ? viewMode : 'class'
+        }
+        setViewMode={(mode) => setViewMode(mode)}
         onExport={() =>
           handleExportCSV(mappedTimetableEntries, 'timetables_export.csv', [
             { header: 'Class', accessor: 'className' },
@@ -298,18 +182,31 @@ function TimetablesPage() {
             { header: 'Academic Year', accessor: 'academicYearName' },
           ])
         }
+        setIsCreateTimetableEntryOpen={setIsCreateTimetableEntryOpen}
+        isGridView={isGridView}
+        setIsGridView={setIsGridView}
       />
       <TimetablesListContainer
         query={timetableQuery}
         columns={columns}
         data={mappedTimetableEntries}
+        isGridView={isGridView}
+        viewMode={viewMode || 'class'}
+        onEdit={setTimetableEntryToEdit}
       />
 
       <TimetableAddDialog
-        open={store.isCreateTimetableEntryOpen}
+        open={isCreateTimetableEntryOpen}
         onOpenChange={setIsCreateTimetableEntryOpen}
         onConfirm={(data: TimetableEntryFormValues) =>
-          createMutation.mutate({ body: data })
+          createMutation.mutate(
+            { body: data },
+            {
+              onSuccess: () => {
+                setIsCreateTimetableEntryOpen(false)
+              },
+            },
+          )
         }
         isSubmitting={createMutation.isPending}
         academicYears={academicYears}
@@ -318,15 +215,22 @@ function TimetablesPage() {
       />
 
       <TimetableEditDialog
-        timetableEntry={store.timetableEntryToEdit}
-        open={!!store.timetableEntryToEdit}
+        timetableEntry={timetableEntryToEdit}
+        open={!!timetableEntryToEdit}
         onOpenChange={() => setTimetableEntryToEdit(null)}
         onConfirm={(data: TimetableEntryFormValues) =>
-          store.timetableEntryToEdit &&
-          updateMutation.mutate({
-            path: { id: store.timetableEntryToEdit.id },
-            body: data,
-          })
+          timetableEntryToEdit &&
+          updateMutation.mutate(
+            {
+              path: { id: timetableEntryToEdit.id },
+              body: data,
+            },
+            {
+              onSuccess: () => {
+                setTimetableEntryToEdit(null)
+              },
+            },
+          )
         }
         isSubmitting={updateMutation.isPending}
         academicYears={academicYears}
@@ -335,7 +239,7 @@ function TimetablesPage() {
       />
 
       <AlertDialog
-        open={!!store.timetableEntryToDelete}
+        open={!!timetableEntryToDelete}
         onOpenChange={() => setTimetableEntryToDelete(null)}
       >
         <AlertDialogContent>
@@ -350,10 +254,17 @@ function TimetablesPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() =>
-                store.timetableEntryToDelete &&
-                deleteMutation.mutate({
-                  path: { id: store.timetableEntryToDelete },
-                })
+                timetableEntryToDelete &&
+                deleteMutation.mutate(
+                  {
+                    path: { id: timetableEntryToDelete },
+                  },
+                  {
+                    onSuccess: () => {
+                      setTimetableEntryToDelete(null)
+                    },
+                  },
+                )
               }
             >
               Delete

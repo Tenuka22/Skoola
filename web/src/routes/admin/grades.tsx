@@ -1,25 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import * as React from 'react'
-import { toast } from 'sonner'
 
 import type { GradeLevelFormValues } from '@/features/academics/grade-levels/schemas'
-import { authClient } from '@/lib/clients'
+import type { GradeLevelResponse } from '@/lib/api/types.gen'
 import { handleExportCSV } from '@/lib/export'
-import {
-  bulkDeleteGradeLevelsMutation,
-  createGradeLevelMutation,
-  deleteGradeLevelMutation,
-  getAllGradeLevelsOptions,
-  getAllGradeLevelsQueryKey,
-  updateGradeLevelMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
-import { useGradeLevelsStore } from '@/features/academics/grade-levels/store'
 import { GradeLevelsHeader } from '@/features/academics/grade-levels/components/grade-levels-header'
 import { GradeLevelsToolbar } from '@/features/academics/grade-levels/components/grade-levels-toolbar'
 import { GradeLevelsListContainer } from '@/features/academics/grade-levels/components/grade-levels-list-container'
@@ -37,124 +22,53 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Stack } from '@/components/primitives'
+import {
+  getAllGradeLevelsQueryOptions,
+  useBulkDeleteGradeLevels,
+  useCreateGradeLevel,
+  useDeleteGradeLevel,
+  useUpdateGradeLevel,
+} from '@/features/academics/grade-levels/api'
+import { useGradeLevelsSearchParams } from '@/features/academics/grade-levels/search-params'
 
 export const Route = createFileRoute('/admin/grades')({
   component: GradeLevelsPage,
 })
 
 function GradeLevelsPage() {
-  const store = useGradeLevelsStore()
-  const { search, setDebouncedSearch } = store
+  const { page, limit, search, sortBy, sortOrder } =
+    useGradeLevelsSearchParams()
 
-  const limit = 10
-
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(search)
-    }, 400)
-    return () => clearTimeout(handler)
-  }, [search, setDebouncedSearch])
-
-  const {
-    page,
-    sorting,
-    debouncedSearch,
-    setGradeLevelToEdit,
-    setGradeLevelToDelete,
-    setIsCreateGradeLevelOpen,
-    isBulkDeleteOpen,
-    setIsBulkDeleteOpen,
-  } = store
-
-  const sortBy = sorting[0]?.id
-  const sortOrder = sorting[0]?.desc ? 'desc' : 'asc'
+  const [gradeLevelToDelete, setGradeLevelToDelete] = React.useState<
+    string | null
+  >(null)
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = React.useState(false)
+  const [isCreateGradeLevelOpen, setIsCreateGradeLevelOpen] =
+    React.useState(false)
+  const [gradeLevelToEdit, setGradeLevelToEdit] =
+    React.useState<GradeLevelResponse | null>(null)
 
   const gradeLevelsQuery = useQuery({
-    ...getAllGradeLevelsOptions({
-      client: authClient,
+    ...getAllGradeLevelsQueryOptions({
       query: {
-        page,
-        limit,
-        search: debouncedSearch,
-        sort_by: sortBy,
-        sort_order: sortOrder,
+        page: page ?? 1,
+        limit: limit ?? 10,
+        search: search ?? undefined,
+        sort_by: sortBy ?? 'grade_number',
+        sort_order:
+          sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : 'asc',
       },
     }),
     placeholderData: keepPreviousData,
   })
 
-  const queryClient = useQueryClient()
-  const invalidateQueries = () => {
-    queryClient.invalidateQueries({
-      queryKey: getAllGradeLevelsQueryKey(),
-    })
-  }
+  const createGradeLevel = useCreateGradeLevel()
 
-  const createGradeLevel = useMutation({
-    ...createGradeLevelMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Grade level created successfully.')
-      invalidateQueries()
-      setIsCreateGradeLevelOpen(false)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to create grade level: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const updateGradeLevel = useUpdateGradeLevel()
 
-  const updateGradeLevel = useMutation({
-    ...updateGradeLevelMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Grade level updated successfully.')
-      invalidateQueries()
-      setGradeLevelToEdit(null)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to update grade level: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const deleteGradeLevel = useDeleteGradeLevel()
 
-  const deleteGradeLevel = useMutation({
-    ...deleteGradeLevelMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Grade level deleted successfully.')
-      invalidateQueries()
-      setGradeLevelToDelete(null)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to delete grade level: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
-
-  const bulkDeleteGradeLevels = useMutation({
-    ...bulkDeleteGradeLevelsMutation({
-      client: authClient,
-    }),
-    onSuccess: (_, variables) => {
-      const count = variables.body?.grade_level_ids?.length ?? 0
-      toast.success(`Successfully deleted ${count} grade levels.`)
-      invalidateQueries()
-      setIsBulkDeleteOpen(false)
-      setRowSelection({})
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to delete grade levels: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const bulkDeleteGradeLevels = useBulkDeleteGradeLevels()
 
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
@@ -184,6 +98,7 @@ function GradeLevelsPage() {
             ],
           )
         }
+        setIsCreateGradeLevelOpen={setIsCreateGradeLevelOpen}
       />
       <GradeLevelsListContainer
         query={gradeLevelsQuery}
@@ -193,30 +108,44 @@ function GradeLevelsPage() {
       />
 
       <GradeLevelAddDialog
-        open={store.isCreateGradeLevelOpen}
+        open={isCreateGradeLevelOpen}
         onOpenChange={setIsCreateGradeLevelOpen}
         onConfirm={(data: GradeLevelFormValues) =>
-          createGradeLevel.mutate({ body: data })
+          createGradeLevel.mutate(
+            { body: data },
+            {
+              onSuccess: () => {
+                setIsCreateGradeLevelOpen(false)
+              },
+            },
+          )
         }
         isSubmitting={createGradeLevel.isPending}
       />
 
       <GradeLevelEditDialog
-        gradeLevel={store.gradeLevelToEdit}
-        open={!!store.gradeLevelToEdit}
+        gradeLevel={gradeLevelToEdit}
+        open={!!gradeLevelToEdit}
         onOpenChange={() => setGradeLevelToEdit(null)}
         onConfirm={(data: GradeLevelFormValues) =>
-          store.gradeLevelToEdit &&
-          updateGradeLevel.mutate({
-            path: { id: store.gradeLevelToEdit.id },
-            body: data,
-          })
+          gradeLevelToEdit &&
+          updateGradeLevel.mutate(
+            {
+              path: { id: gradeLevelToEdit.id },
+              body: data,
+            },
+            {
+              onSuccess: () => {
+                setGradeLevelToEdit(null)
+              },
+            },
+          )
         }
         isSubmitting={updateGradeLevel.isPending}
       />
 
       <AlertDialog
-        open={!!store.gradeLevelToDelete}
+        open={!!gradeLevelToDelete}
         onOpenChange={() => setGradeLevelToDelete(null)}
       >
         <AlertDialogContent>
@@ -231,10 +160,17 @@ function GradeLevelsPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() =>
-                store.gradeLevelToDelete &&
-                deleteGradeLevel.mutate({
-                  path: { id: store.gradeLevelToDelete },
-                })
+                gradeLevelToDelete &&
+                deleteGradeLevel.mutate(
+                  {
+                    path: { id: gradeLevelToDelete },
+                  },
+                  {
+                    onSuccess: () => {
+                      setGradeLevelToDelete(null)
+                    },
+                  },
+                )
               }
             >
               Delete
@@ -256,9 +192,17 @@ function GradeLevelsPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                bulkDeleteGradeLevels.mutate({
-                  body: { grade_level_ids: Array.from(selectedGradeLevels) },
-                })
+                bulkDeleteGradeLevels.mutate(
+                  {
+                    body: { grade_level_ids: Array.from(selectedGradeLevels) },
+                  },
+                  {
+                    onSuccess: () => {
+                      setIsBulkDeleteOpen(false)
+                      setRowSelection({})
+                    },
+                  },
+                )
               }}
             >
               Delete All

@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Edit01Icon,
@@ -8,8 +7,14 @@ import {
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
 import { updatePermissionSetSchema } from '../schemas'
-import { rbacApi } from '../api'
 import { isPermissionEnum } from '../utils/permissions'
+import {
+  getUserSetMembersQueryOptions,
+  getUserSetPermissionsQueryOptions,
+  useAssignPermissionToUserSet,
+  useUnassignPermissionFromUserSet,
+  useUpdatePermissionSet,
+} from '../api'
 import { PermissionList } from './permission-list'
 import type { UpdatePermissionSetInput as UpdatePermissionSetValues } from '../schemas'
 import type { PermissionEnum, UserSet } from '@/lib/api/types.gen'
@@ -36,17 +41,17 @@ interface PermissionSetEditorProps {
 }
 
 export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
-  const queryClient = useQueryClient()
   const [isEditingInfo, setIsEditingInfo] = React.useState(false)
 
   React.useEffect(() => {
     setIsEditingInfo(false)
   }, [set.id])
 
-  const { data: rawPermissions } = useQuery({
-    ...rbacApi.getSetPermissionsOptions(set.id),
-    enabled: !!set.id,
-  })
+  const { data: rawPermissions } = useQuery(
+    getUserSetPermissionsQueryOptions({
+      path: { user_set_id: set.id },
+    }),
+  )
 
   const assignedPermissions = React.useMemo(() => {
     const perms = rawPermissions?.permissions || []
@@ -54,42 +59,15 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
   }, [rawPermissions])
 
   const { data: members = [], isLoading: isLoadingMembers } = useQuery(
-    rbacApi.getSetMembersOptions(set.id),
+    getUserSetMembersQueryOptions({
+      path: { user_set_id: set.id },
+    }),
   )
 
-  const updateSet = useMutation({
-    ...rbacApi.updateSetMutation(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['getAllPermissionSets'] })
-      setIsEditingInfo(false)
-      toast.success('Permission set updated')
-    },
-    onError: (err) => toast.error(err.message),
-  })
+  const updateSet = useUpdatePermissionSet()
 
-  const assignPerm = useMutation({
-    ...rbacApi.assignPermissionToSetMutation(),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getSetPermissionsOptions(variables.path.user_set_id)
-          .queryKey,
-      })
-      toast.success('Permission added')
-    },
-    onError: (err) => toast.error(err.message),
-  })
-
-  const unassignPerm = useMutation({
-    ...rbacApi.unassignPermissionFromSetMutation(),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getSetPermissionsOptions(variables.path.user_set_id)
-          .queryKey,
-      })
-      toast.success('Permission removed')
-    },
-    onError: (err) => toast.error(err.message),
-  })
+  const assignPerm = useAssignPermissionToUserSet()
+  const unassignPerm = useUnassignPermissionFromUserSet()
 
   const handleTogglePermission = (
     permission: PermissionEnum,
@@ -109,10 +87,17 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
   }
 
   const handleSaveInfo = (values: UpdatePermissionSetValues) => {
-    updateSet.mutate({
-      path: { user_set_id: set.id },
-      body: { name: values.name, description: values.description },
-    })
+    updateSet.mutate(
+      {
+        path: { user_set_id: set.id },
+        body: { name: values.name, description: values.description },
+      },
+      {
+        onSuccess: () => {
+          setIsEditingInfo(false)
+        },
+      },
+    )
   }
 
   const formConfig = defineFormConfig(updatePermissionSetSchema, {

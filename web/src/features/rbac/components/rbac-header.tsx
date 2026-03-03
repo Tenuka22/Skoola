@@ -1,9 +1,9 @@
-import { useRBACStore } from '../store'
+import { useRBACSearchParams } from '../search-params'
 import { Badge } from '@/components/ui/badge'
 import { HStack, Heading, Stack, Text } from '@/components/primitives'
 
 export function RBACHeader() {
-  const { activeTab } = useRBACStore()
+  const { activeTab } = useRBACSearchParams()
 
   const getHeaderInfo = () => {
     switch (activeTab) {

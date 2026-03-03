@@ -4,10 +4,13 @@ import {
   CalendarCheckIn01Icon,
   FloppyDiskIcon,
 } from '@hugeicons/core-free-icons'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import * as React from 'react'
-import { toast } from 'sonner'
+import {
+  getStudentAttendanceByStudentQueryOptions,
+  useMarkIndividualStudentAttendance,
+} from '../api'
 import type {
   AttendanceStatus,
   StudentAttendanceResponse,
@@ -22,11 +25,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/spinner'
-import { authClient } from '@/lib/clients'
-import {
-  getAttendanceByStudentOptions,
-  markIndividualStudentAttendanceMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { Badge } from '@/components/ui/badge'
 import {
   Select,
@@ -53,7 +51,6 @@ export function StudentAttendanceDialog({
   open,
   onOpenChange,
 }: StudentAttendanceDialogProps) {
-  const queryClient = useQueryClient()
   const [date, setDate] = React.useState(format(new Date(), 'yyyy-MM-dd'))
   const [status, setStatus] = React.useState<AttendanceStatus>('Present')
   const [remarks, setRemarks] = React.useState('')
@@ -64,27 +61,13 @@ export function StudentAttendanceDialog({
     isError,
     error,
   } = useQuery({
-    ...getAttendanceByStudentOptions({
-      client: authClient,
+    ...getStudentAttendanceByStudentQueryOptions({
       path: { student_id: student?.id ?? '' },
     }),
     enabled: !!student,
   })
 
-  const markAttendance = useMutation({
-    ...markIndividualStudentAttendanceMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Attendance marked successfully.')
-      queryClient.invalidateQueries({
-        queryKey: ['getAttendanceByStudent', { student_id: student?.id }],
-      })
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to mark attendance: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const markAttendance = useMarkIndividualStudentAttendance()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

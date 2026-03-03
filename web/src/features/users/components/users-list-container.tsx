@@ -1,4 +1,5 @@
-import { useUsersStore } from '../store'
+import * as React from 'react'
+import { useUsersSearchParams } from '../search-params'
 import { UserGridView } from './user-grid-view'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -46,6 +47,11 @@ interface UsersListContainerProps {
       | ((prev: Record<string, boolean>) => Record<string, boolean>),
   ) => void
   contextMenuItems?: (row: UserResponse) => React.ReactNode
+  setUserToEdit: (user: UserResponse | null) => void
+  setUserToDelete: (id: string | null) => void
+  setUserToLock: (user: UserResponse | null) => void
+  setUserToManagePermissions: (user: UserResponse | null) => void
+  onCreateUser: () => void
 }
 
 export function UsersListContainer({
@@ -56,41 +62,61 @@ export function UsersListContainer({
   rowSelection,
   setRowSelection,
   contextMenuItems,
+  setUserToEdit,
+  setUserToDelete,
+  setUserToLock,
+  setUserToManagePermissions,
+  onCreateUser,
 }: UsersListContainerProps) {
   const {
     page,
     view,
-    sorting,
-    columnVisibility,
     setPage,
-    setSorting,
-    setColumnVisibility,
-    setUserToEdit,
-    setUserToDelete,
-    setUserToLock,
-    setUserToManagePermissions,
     setLimit,
-  } = useUsersStore()
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+  } = useUsersSearchParams()
+
+  const [columnVisibility, setColumnVisibility] = React.useState({})
 
   const isUpdating = updateMutation.isPending
   const updatingUserId = updateMutation.variables?.path?.user_id
 
   return (
-    <Tabs defaultValue="table" value={view}>
+    <Tabs defaultValue="table" value={view ?? 'table'}>
       <TabsContent value="table" className="flex w-full">
         <div className="overflow-y-auto w-0 flex-1">
           <DataTable
             columns={columns}
             data={usersQuery.data?.data || []}
-            pageIndex={page - 1}
+            pageIndex={(page || 1) - 1}
             pageSize={limit}
             pageCount={usersQuery.data?.total_pages || 0}
-            canPreviousPage={page > 1}
-            canNextPage={page < (usersQuery.data?.total_pages || 0)}
-            fetchPreviousPage={() => setPage(page - 1)}
-            fetchNextPage={() => setPage(page + 1)}
-            sorting={sorting}
-            onSortingChange={setSorting}
+            canPreviousPage={(page || 1) > 1}
+            canNextPage={(page || 1) < (usersQuery.data?.total_pages || 0)}
+            fetchPreviousPage={() => setPage((page || 1) - 1)}
+            fetchNextPage={() => setPage((page || 1) + 1)}
+            sorting={[
+              { id: sortBy ?? 'created_at', desc: sortOrder === 'desc' },
+            ]}
+            onSortingChange={(updaterOrValue) => {
+              const newSorting =
+                typeof updaterOrValue === 'function'
+                  ? updaterOrValue([
+                      {
+                        id: sortBy ?? 'created_at',
+                        desc: sortOrder === 'desc',
+                      },
+                    ])
+                  : updaterOrValue
+              const firstSort = newSorting[0]
+              if (firstSort) {
+                setSortBy(firstSort.id)
+                setSortOrder(firstSort.desc ? 'desc' : 'asc')
+              }
+            }}
             columnVisibility={columnVisibility}
             onColumnVisibilityChange={setColumnVisibility}
             rowSelection={rowSelection}
@@ -120,6 +146,7 @@ export function UsersListContainer({
           onManagePermissions={(user) => setUserToManagePermissions(user)}
           isUpdating={isUpdating}
           updatingUserId={updatingUserId}
+          onCreateUser={onCreateUser}
         />
         {(usersQuery.data?.data?.length || 0) > 0 && (
           <div className="rounded-lg border border-border/40 bg-card shadow-sm mt-4">
@@ -128,11 +155,11 @@ export function UsersListContainer({
                 <div className="text-xs font-medium text-muted-foreground whitespace-nowrap hidden sm:block">
                   Showing{' '}
                   <span className="text-foreground">
-                    {(page - 1) * limit + 1}
+                    {((page || 1) - 1) * limit + 1}
                   </span>{' '}
                   to{' '}
                   <span className="text-foreground">
-                    {Math.min(page * limit, usersQuery.data?.total || 0)}
+                    {Math.min((page || 1) * limit, usersQuery.data?.total || 0)}
                   </span>{' '}
                   of{' '}
                   <span className="text-foreground">
@@ -170,13 +197,13 @@ export function UsersListContainer({
                   <PaginationItem>
                     <PaginationPrevious
                       className={cn(
-                        page <= 1 || usersQuery.isFetching
+                        (page || 1) <= 1 || usersQuery.isFetching
                           ? 'pointer-events-none opacity-50'
                           : 'cursor-pointer',
                       )}
                       onClick={
-                        page > 1 && !usersQuery.isFetching
-                          ? () => setPage(page - 1)
+                        (page || 1) > 1 && !usersQuery.isFetching
+                          ? () => setPage((page || 1) - 1)
                           : undefined
                       }
                     />
@@ -184,7 +211,7 @@ export function UsersListContainer({
 
                   <div className="hidden sm:flex items-center">
                     {(() => {
-                      const currentPage = page
+                      const currentPage = page || 1
                       const pageCount = usersQuery.data?.total_pages || 1
                       const maxVisiblePages = 5
 
@@ -266,22 +293,22 @@ export function UsersListContainer({
                   </div>
                   <PaginationItem className="sm:hidden">
                     <span className="text-sm px-4">
-                      Page {page} of {usersQuery.data?.total_pages || 1}
+                      Page {page || 1} of {usersQuery.data?.total_pages || 1}
                     </span>
                   </PaginationItem>
 
                   <PaginationItem>
                     <PaginationNext
                       className={cn(
-                        page >= (usersQuery.data?.total_pages || 1) ||
+                        (page || 1) >= (usersQuery.data?.total_pages || 1) ||
                           usersQuery.isFetching
                           ? 'pointer-events-none opacity-50'
                           : 'cursor-pointer',
                       )}
                       onClick={
-                        page < (usersQuery.data?.total_pages || 1) &&
+                        (page || 1) < (usersQuery.data?.total_pages || 1) &&
                         !usersQuery.isFetching
-                          ? () => setPage(page + 1)
+                          ? () => setPage((page || 1) + 1)
                           : undefined
                       }
                     />

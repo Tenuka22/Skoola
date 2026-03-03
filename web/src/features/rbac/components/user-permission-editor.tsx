@@ -1,10 +1,5 @@
 import * as React from 'react'
-import {
-  useMutation,
-  useQueries,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { useQueries, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
@@ -14,13 +9,23 @@ import {
   Shield01Icon,
   ViewIcon,
 } from '@hugeicons/core-free-icons'
-import { rbacApi } from '../api'
 import {
   ALL_ROLE_ENUM_VALUES,
   isPermissionEnum,
   isRoleEnum,
 } from '../utils/permissions'
 import { ALL_PERMISSION_ENUM_VALUES } from '../utils/constants'
+import {
+  getPermissionSetsQueryOptions,
+  getRolePermissionsQueryOptions,
+  getStaffPermissionSetsQueryOptions,
+  getUserPermissionsQueryOptions,
+  getUserSetPermissionsQueryOptions,
+  useAssignPermissionSetToStaff,
+  useAssignPermissionToUser,
+  useUnassignPermissionFromUser,
+  useUnassignPermissionSetFromStaff,
+} from '../api'
 import { PermissionList } from './permission-list'
 import type {
   PermissionEnum,
@@ -64,31 +69,35 @@ import {
 } from '@/components/ui/empty'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
+import { getAllStaffQueryOptions } from '@/features/staff/api'
+import { useUpdateUser } from '@/features/users/api'
 
 interface UserPermissionEditorProps {
   user: UserResponse
 }
 
 export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
-  const queryClient = useQueryClient()
   const isFullAdmin = user.role === 'FullAdmin'
 
-  const { data: staffList } = useQuery(rbacApi.getAllStaffOptions())
+  const { data: staffList } = useQuery(
+    getAllStaffQueryOptions({ query: { limit: 100 } }),
+  )
   const staffMember = staffList?.data.find((s: Staff) => s.email === user.email)
 
-  const { data: rawDirectPermissions } = useQuery({
-    ...rbacApi.getUserPermissionsOptions(user.id),
-    enabled: !!user.id,
-  })
+  const { data: rawDirectPermissions } = useQuery(
+    getUserPermissionsQueryOptions({ path: { user_id: user.id } }),
+  )
 
-  const { data: allPermissionSets = [] } = useQuery({
-    ...rbacApi.getSetsOptions(),
-    select: (data) => data || [],
-  })
+  const { data: allPermissionSets = [] } = useQuery(
+    getPermissionSetsQueryOptions(),
+  )
 
   const { data: userPermissionSets = [] } = useQuery({
-    ...rbacApi.getStaffPermissionSetsOptions(staffMember?.id || ''),
+    ...getStaffPermissionSetsQueryOptions({
+      path: { staff_id: staffMember?.id || '' },
+    }),
     enabled: !!staffMember,
+    // Removed select: (data) => data.user_sets || [], as data is already UserSet[]
   })
 
   const directPermissions = React.useMemo(
@@ -99,14 +108,15 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
     [rawDirectPermissions],
   )
 
-  const { data: rolePermissionsRes } = useQuery({
-    ...rbacApi.getRolePermissionsOptions(user.role),
+  const { data: rolePermissions = [] } = useQuery({
+    ...getRolePermissionsQueryOptions({ path: { role_id: user.role } }),
     enabled: !!user.role,
+    select: (data) => data?.permissions || [], // Re-added select function
   })
 
   const setPermissionsResults = useQueries({
     queries: userPermissionSets.map((set: UserSet) => ({
-      ...rbacApi.getSetPermissionsOptions(set.id),
+      ...getUserSetPermissionsQueryOptions({ path: { user_set_id: set.id } }),
       enabled: !!set.id,
     })),
   })
@@ -118,8 +128,8 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
       sourceName?: string
     }> = []
 
-    if (rolePermissionsRes?.permissions) {
-      rolePermissionsRes.permissions.filter(isPermissionEnum).forEach((p) => {
+    if (rolePermissions.length > 0) {
+      rolePermissions.filter(isPermissionEnum).forEach((p) => {
         inherited.push({ permission: p, source: 'role', sourceName: user.role })
       })
     }
@@ -138,62 +148,15 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
     })
 
     return inherited
-  }, [rolePermissionsRes, setPermissionsResults, userPermissionSets, user.role])
+  }, [rolePermissions, setPermissionsResults, userPermissionSets, user.role])
 
-  const updateUserRole = useMutation({
-    ...rbacApi.updateUserMutation(),
-    onSuccess: () => {
-      toast.success("User's role updated successfully")
-      queryClient.invalidateQueries({ queryKey: ['getAllUsers'] })
-    },
-    onError: (err: Error) => toast.error(err.message),
-  })
+  const updateUserRole = useUpdateUser()
 
-  const assignDirectPermission = useMutation({
-    ...rbacApi.assignPermissionToUserMutation(),
-    onSuccess: () => {
-      toast.success('Direct permission assigned')
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getUserPermissionsOptions(user.id).queryKey,
-      })
-    },
-    onError: (err: Error) => toast.error(err.message),
-  })
+  const assignDirectPermission = useAssignPermissionToUser()
+  const unassignDirectPermission = useUnassignPermissionFromUser()
 
-  const unassignDirectPermission = useMutation({
-    ...rbacApi.unassignPermissionFromUserMutation(),
-    onSuccess: () => {
-      toast.success('Direct permission removed')
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getUserPermissionsOptions(user.id).queryKey,
-      })
-    },
-    onError: (err: Error) => toast.error(err.message),
-  })
-
-  const assignSetToStaff = useMutation({
-    ...rbacApi.assignSetToStaffMutation(),
-    onSuccess: () => {
-      toast.success('Permission set assigned')
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getStaffPermissionSetsOptions(staffMember?.id || '')
-          .queryKey,
-      })
-    },
-    onError: (err: Error) => toast.error(err.message),
-  })
-
-  const unassignSetFromStaff = useMutation({
-    ...rbacApi.unassignSetFromStaffMutation(),
-    onSuccess: () => {
-      toast.success('Permission set unassigned')
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getStaffPermissionSetsOptions(staffMember?.id || '')
-          .queryKey,
-      })
-    },
-    onError: (err: Error) => toast.error(err.message),
-  })
+  const assignSetToStaff = useAssignPermissionSetToStaff()
+  const unassignSetFromStaff = useUnassignPermissionSetFromStaff()
 
   const handleRoleChange = (role: RoleEnum) => {
     updateUserRole.mutate({ path: { user_id: user.id }, body: { role } })

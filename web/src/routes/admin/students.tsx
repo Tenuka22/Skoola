@@ -1,12 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import * as React from 'react'
-import { toast } from 'sonner'
 
 import { StudentAddDialog } from '../../features/students/components/student-add-dialog'
 import { StudentModals } from '../../features/students/components/student-modals'
@@ -22,79 +16,69 @@ import { getStudentColumns } from '../../features/students/components/student-ta
 import { StudentFilters } from '../../features/students/components/student-filters'
 import { StudentHeader } from '../../features/students/components/student-header'
 import { StudentListContainer } from '../../features/students/components/student-list-container'
-import { StudentsToolbar } from '../../features/students/components/students-toolbar'
-import { useStudentsStore } from '../../features/students/store'
+import { StudentsToolbar as StudentsToolbarComponent } from '../../features/students/components/students-toolbar'
 import { handleExportCSV } from '../../lib/export'
-import { authClient } from '../../lib/clients'
 import { isStudentStatus } from '../../features/students/utils/student-guards'
-import type { UpdateStudentRequest } from '@/lib/api/types.gen'
+import type { StudentResponse, UpdateStudentRequest } from '@/lib/api/types.gen'
 import {
-  assignStudentToClassMutation,
-  createStudentMutation,
-  deleteStudentMutation,
-  getAllStudentsOptions,
-  getAllStudentsQueryKey,
-  updateStudentMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
+  getAllStudentsQueryOptions,
+  useAssignStudentToClass,
+  useCreateStudent,
+  useDeleteStudent,
+  useUpdateStudent,
+} from '@/features/students/api'
+import { useStudentsSearchParams } from '@/features/students/search-params'
 
 export const Route = createFileRoute('/admin/students')({
   component: StudentsPage,
 })
 
 function StudentsPage() {
-  const store = useStudentsStore()
-  const { search, setDebouncedSearch } = store
-  const limit = 10
-
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(search)
-    }, 400)
-    return () => clearTimeout(handler)
-  }, [search, setDebouncedSearch])
-
   const {
     page,
+    limit,
+    search,
     statusFilter,
-    sorting,
-    debouncedSearch,
     createdAfter,
     createdBefore,
-    setIsBulkDeleteOpen,
-    setIsBulkEditOpen,
-    setIsCreateStudentOpen,
-    isUploadPhotoOpen,
-    setIsUploadPhotoOpen,
-    studentToUploadPhotoFor,
-    isAssignClassOpen,
-    setIsAssignClassOpen,
-    studentToAssignClassFor,
-    isGuardiansOpen,
-    setIsGuardiansOpen,
-    studentToManageGuardiansFor,
-    isAttendanceOpen,
-    setIsAttendanceOpen,
-    studentToManageAttendanceFor,
-    isMarksOpen,
-    setIsMarksOpen,
-    studentToManageMarksFor,
-    isBehaviorOpen,
-    setIsBehaviorOpen,
-    studentToManageBehaviorFor,
-    isBulkAssignClassOpen,
-    setIsBulkAssignClassOpen,
-  } = store
+    sortBy,
+    sortOrder,
+  } = useStudentsSearchParams()
 
-  const sortBy = sorting[0]?.id
-  const sortOrder = sorting[0]?.desc ? 'desc' : 'asc'
+  const [studentToDelete, setStudentToDelete] = React.useState<string | null>(
+    null,
+  )
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = React.useState(false)
+  const [isCreateStudentOpen, setIsCreateStudentOpen] = React.useState(false)
+  const [studentToEdit, setStudentToEdit] =
+    React.useState<StudentResponse | null>(null)
+  const [isUploadPhotoOpen, setIsUploadPhotoOpen] = React.useState(false)
+  const [studentToUploadPhotoFor, setStudentToUploadPhotoFor] =
+    React.useState<StudentResponse | null>(null)
+  const [isAssignClassOpen, setIsAssignClassOpen] = React.useState(false)
+  const [studentToAssignClassFor, setStudentToAssignClassFor] =
+    React.useState<StudentResponse | null>(null)
+  const [isGuardiansOpen, setIsGuardiansOpen] = React.useState(false)
+  const [studentToManageGuardiansFor, setStudentToManageGuardiansFor] =
+    React.useState<StudentResponse | null>(null)
+  const [isAttendanceOpen, setIsAttendanceOpen] = React.useState(false)
+  const [studentToManageAttendanceFor, setStudentToManageAttendanceFor] =
+    React.useState<StudentResponse | null>(null)
+  const [isMarksOpen, setIsMarksOpen] = React.useState(false)
+  const [studentToManageMarksFor, setStudentToManageMarksFor] =
+    React.useState<StudentResponse | null>(null)
+  const [isBehaviorOpen, setIsBehaviorOpen] = React.useState(false)
+  const [studentToManageBehaviorFor, setStudentToManageBehaviorFor] =
+    React.useState<StudentResponse | null>(null)
+  const [isBulkAssignClassOpen, setIsBulkAssignClassOpen] =
+    React.useState(false)
 
   const studentsQuery = useQuery({
-    ...getAllStudentsOptions({
-      client: authClient,
+    ...getAllStudentsQueryOptions({
       query: {
-        page,
-        limit,
-        search: debouncedSearch,
+        page: page ?? 1,
+        limit: limit ?? 10,
+        search: search ?? undefined,
         status:
           statusFilter === 'all'
             ? undefined
@@ -103,84 +87,21 @@ function StudentsPage() {
               : undefined,
         created_after: createdAfter ?? undefined,
         created_before: createdBefore ?? undefined,
-        sort_by: sortBy,
-        sort_order: sortOrder,
+        sort_by: sortBy ?? 'created_at',
+        sort_order:
+          sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : 'desc',
       },
     }),
     placeholderData: keepPreviousData,
   })
 
-  const queryClient = useQueryClient()
-  const invalidateStudents = () => {
-    queryClient.invalidateQueries({
-      queryKey: getAllStudentsQueryKey(),
-    })
-  }
+  const deleteStudent = useDeleteStudent()
 
-  const deleteStudent = useMutation({
-    ...deleteStudentMutation({
-      client: authClient,
-    }),
-    onSuccess: (_, variables) => {
-      const identifier = variables?.path.student_id || 'Student'
-      toast.success(`Successfully deleted ${identifier}.`)
-      invalidateStudents()
-      store.setStudentToDelete(null)
-    },
-    onError: (error, variables) => {
-      const identifier = variables?.path.student_id || 'Student'
-      toast.error(
-        `Failed to delete ${identifier}: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const createStudent = useCreateStudent()
 
-  const createStudent = useMutation({
-    ...createStudentMutation({
-      client: authClient,
-    }),
-    onSuccess: (_, variables) => {
-      const identifier = variables?.body.name_english || 'New student'
-      toast.success(`Student ${identifier} created successfully.`)
-      invalidateStudents()
-      store.setIsCreateStudentOpen(false)
-    },
-    onError: (error, variables) => {
-      const identifier = variables?.body.name_english || 'Student'
-      toast.error(
-        `Failed to create ${identifier}: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const updateStudent = useUpdateStudent()
 
-  const updateStudent = useMutation({
-    ...updateStudentMutation({
-      client: authClient,
-    }),
-    onSuccess: (_, variables) => {
-      const identifier = variables?.path.student_id || 'Student'
-      toast.success(`Successfully updated ${identifier}.`)
-      invalidateStudents()
-      store.setStudentToEdit(null)
-    },
-    onError: (error, variables) => {
-      const identifier = variables?.path.student_id || 'Student'
-      toast.error(
-        `Failed to update ${identifier}: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
-
-  const assignClass = useMutation({
-    ...assignStudentToClassMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Class assigned successfully.')
-      setIsAssignClassOpen(false)
-    },
-    onError: (error) => {
-      toast.error(`Failed to assign class: ${error.message || 'Unknown error'}`)
-    },
-  })
+  const assignClass = useAssignStudentToClass()
 
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
@@ -190,19 +111,31 @@ function StudentsPage() {
   }, [rowSelection])
 
   const columns = getStudentColumns({
-    onEdit: store.setStudentToEdit,
-    onDelete: store.setStudentToDelete,
-    onUploadPhoto: store.setStudentToUploadPhotoFor,
-    onAssignClass: (student) => {
-      store.setStudentToAssignClassFor(student)
-      store.setIsAssignClassOpen(true)
+    onEdit: setStudentToEdit,
+    onDelete: setStudentToDelete,
+    onUploadPhoto: (student) => {
+      setStudentToUploadPhotoFor(student)
+      setIsUploadPhotoOpen(true)
     },
-    onManageGuardians: store.setStudentToManageGuardiansFor,
-    onManageAttendance: store.setStudentToManageAttendanceFor,
-    onManageMarks: store.setStudentToManageMarksFor,
+    onAssignClass: (student) => {
+      setStudentToAssignClassFor(student)
+      setIsAssignClassOpen(true)
+    },
+    onManageGuardians: (student) => {
+      setStudentToManageGuardiansFor(student)
+      setIsGuardiansOpen(true)
+    },
+    onManageAttendance: (student) => {
+      setStudentToManageAttendanceFor(student)
+      setIsAttendanceOpen(true)
+    },
+    onManageMarks: (student) => {
+      setStudentToManageMarksFor(student)
+      setIsMarksOpen(true)
+    },
     onManageBehavior: (student) => {
-      store.setStudentToManageBehaviorFor(student)
-      store.setIsBehaviorOpen(true)
+      setStudentToManageBehaviorFor(student)
+      setIsBehaviorOpen(true)
     },
   })
 
@@ -211,7 +144,7 @@ function StudentsPage() {
   return (
     <div className="flex h-full flex-col bg-background">
       <StudentHeader totalStudents={totalStudents} />
-      <StudentsToolbar
+      <StudentsToolbarComponent
         onExport={() =>
           handleExportCSV(
             studentsQuery.data?.data || [],
@@ -224,52 +157,77 @@ function StudentsPage() {
             ],
           )
         }
+        setIsCreateStudentOpen={setIsCreateStudentOpen}
       />
       <StudentFilters />
       <StudentListContainer
         studentsQuery={studentsQuery}
         columns={columns}
-        limit={limit}
+        limit={limit ?? 10}
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
+        setStudentToEdit={setStudentToEdit}
+        setStudentToDelete={setStudentToDelete}
       />
 
       <StudentToolbar
         selectedStudents={selectedStudents}
         onBulkDelete={() => setIsBulkDeleteOpen(true)}
-        onBulkEdit={() => setIsBulkEditOpen(true)}
+        onBulkEdit={() => {}}
         onBulkAssignClass={() => setIsBulkAssignClassOpen(true)}
       />
 
       <StudentModals
-        studentToDelete={store.studentToDelete}
-        setStudentToDelete={store.setStudentToDelete}
+        studentToDelete={studentToDelete}
+        setStudentToDelete={setStudentToDelete}
         onDeleteConfirm={(id) =>
-          deleteStudent.mutate({ path: { student_id: id } })
+          deleteStudent.mutate(
+            { path: { student_id: id } },
+            {
+              onSuccess: () => {
+                setStudentToDelete(null)
+              },
+            },
+          )
         }
-        isBulkDeleteOpen={store.isBulkDeleteOpen}
+        isBulkDeleteOpen={isBulkDeleteOpen}
         setIsBulkDeleteOpen={setIsBulkDeleteOpen}
         onBulkDeleteConfirm={() => {
-          toast.warning('Bulk delete is not implemented yet.')
           setIsBulkDeleteOpen(false)
         }}
         selectedCount={selectedStudents.size}
-        studentToEdit={store.studentToEdit}
-        setStudentToEdit={store.setStudentToEdit}
+        studentToEdit={studentToEdit}
+        setStudentToEdit={setStudentToEdit}
         onEditConfirm={(values: UpdateStudentRequest) =>
-          store.studentToEdit &&
-          updateStudent.mutate({
-            path: { student_id: store.studentToEdit.id },
-            body: values,
-          })
+          studentToEdit &&
+          updateStudent.mutate(
+            {
+              path: { student_id: studentToEdit.id },
+              body: values,
+            },
+            {
+              onSuccess: () => {
+                setStudentToEdit(null)
+              },
+            },
+          )
         }
         isEditing={updateStudent.isPending}
       />
 
       <StudentAddDialog
-        isAddOpen={store.isCreateStudentOpen}
+        isAddOpen={isCreateStudentOpen}
         setIsAddOpen={setIsCreateStudentOpen}
-        onAddConfirm={(values) => createStudent.mutate({ body: values })}
+        onAddConfirm={(values) =>
+          createStudent.mutate(
+            { body: values },
+            {
+              onSuccess: () => {
+                setIsCreateStudentOpen(false)
+              },
+            },
+          )
+        }
         isAdding={createStudent.isPending}
       />
 
@@ -284,9 +242,16 @@ function StudentsPage() {
         open={isAssignClassOpen}
         onOpenChange={setIsAssignClassOpen}
         onConfirm={(studentId, data) =>
-          assignClass.mutate({
-            body: { ...data, student_id: studentId },
-          })
+          assignClass.mutate(
+            {
+              body: { ...data, student_id: studentId },
+            },
+            {
+              onSuccess: () => {
+                setIsAssignClassOpen(false)
+              },
+            },
+          )
         }
         isSubmitting={assignClass.isPending}
       />

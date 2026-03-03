@@ -6,7 +6,6 @@ import {
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useRBACStore } from '../../features/rbac/store'
 import { RBACHeader } from '../../features/rbac/components/rbac-header'
 import { UsersTab } from '../../features/rbac/components/users-tab'
 import { RolesTab } from '../../features/rbac/components/roles-tab'
@@ -16,20 +15,21 @@ import { RoleEditorDialog } from '../../features/rbac/components/role-editor-dia
 import { isRBACActiveTab } from '@/features/rbac/utils/permissions'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { HStack, Stack, Text } from '@/components/primitives'
+import { useRBACSearchParams } from '@/features/rbac/search-params'
 
 export const Route = createFileRoute('/admin/rbac')({
   component: RBACPage,
 })
 
 function RBACPage() {
-  const { activeTab, setActiveTab } = useRBACStore()
+  const { activeTab, setActiveTab } = useRBACSearchParams()
 
   return (
     <Stack gap={4} p={8}>
       <RBACHeader />
 
       <Tabs
-        value={activeTab}
+        value={activeTab ?? 'users'}
         onValueChange={(val) => {
           if (typeof val === 'string' && isRBACActiveTab(val)) {
             setActiveTab(val)

@@ -1,13 +1,12 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon } from '@hugeicons/core-free-icons'
-import { useTermsStore } from '../store'
 import { Button } from '@/components/ui/button'
 
-interface TermsToolbarProps {}
+interface TermsToolbarProps {
+  setIsCreateTermOpen: (open: boolean) => void
+}
 
-export function TermsToolbar(_props: TermsToolbarProps) {
-  const { setIsCreateTermOpen } = useTermsStore()
-
+export function TermsToolbar({ setIsCreateTermOpen }: TermsToolbarProps) {
   return (
     <div className="flex items-center justify-end px-8 py-4">
       <Button onClick={() => setIsCreateTermOpen(true)}>

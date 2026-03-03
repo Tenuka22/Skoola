@@ -1,8 +1,7 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Upload01Icon } from '@hugeicons/core-free-icons'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import * as React from 'react'
+import { useUploadStudentPhoto } from '../api'
 import type { StudentResponse } from '@/features/students/types'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,11 +14,6 @@ import {
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import { Input } from '@/components/ui/input'
-import { authClient } from '@/lib/clients'
-import {
-  getAllStudentsQueryKey,
-  uploadStudentPhotoMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
 
 interface StudentPhotoUploadDialogProps {
   student: StudentResponse | null
@@ -32,21 +26,9 @@ export function StudentPhotoUploadDialog({
   open,
   onOpenChange,
 }: StudentPhotoUploadDialogProps) {
-  const queryClient = useQueryClient()
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null)
 
-  const uploadPhoto = useMutation({
-    ...uploadStudentPhotoMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Student photo uploaded successfully.')
-      queryClient.invalidateQueries({ queryKey: getAllStudentsQueryKey() })
-      onOpenChange(false)
-      setSelectedFile(null)
-    },
-    onError: (error) => {
-      toast.error(`Failed to upload photo: ${error.message || 'Unknown error'}`)
-    },
-  })
+  const uploadPhoto = useUploadStudentPhoto()
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -59,14 +41,20 @@ export function StudentPhotoUploadDialog({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
     if (student && selectedFile) {
-      const formData = new FormData()
-      formData.append('photo', selectedFile)
-      uploadPhoto.mutate({
-        path: { student_id: student.id },
-        body: {
-          photo: selectedFile,
+      uploadPhoto.mutate(
+        {
+          path: { student_id: student.id },
+          body: {
+            photo: selectedFile,
+          },
         },
-      })
+        {
+          onSuccess: () => {
+            onOpenChange(false)
+            setSelectedFile(null)
+          },
+        },
+      )
     }
   }
 

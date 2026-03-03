@@ -1,0 +1,6 @@
+export * from './get-timetable-by-class-and-day'
+export * from './get-timetable-by-teacher'
+export * from './get-timetable'
+export * from './create-timetable-entry'
+export * from './update-timetable-entry'
+export * from './delete-timetable-entry'

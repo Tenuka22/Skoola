@@ -1,11 +1,11 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Calendar01Icon, FloppyDiskIcon } from '@hugeicons/core-free-icons'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { toast } from 'sonner'
+import { getViewLeaveBalanceQueryOptions, useApplyForLeave } from '../api'
 import type { LeaveBalanceResponse, StaffResponse } from '@/lib/api/types.gen'
-import type { z } from 'zod'
 import type { UseFormReturn } from 'react-hook-form'
+import type { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -15,11 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/spinner'
-import { authClient } from '@/lib/clients'
-import {
-  applyForLeaveMutation,
-  viewLeaveBalanceOptions,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -39,29 +34,19 @@ export function StaffLeaveDialog({
   open,
   onOpenChange,
 }: StaffLeaveDialogProps) {
-  const queryClient = useQueryClient()
-
   const {
     data: balanceData,
     isLoading,
     isError,
     error,
   } = useQuery({
-    ...viewLeaveBalanceOptions({
-      client: authClient,
+    ...getViewLeaveBalanceQueryOptions({
       path: { staff_id: staff?.id ?? '' },
     }),
     enabled: !!staff,
   })
 
-  const applyLeave = useMutation({
-    ...applyForLeaveMutation({ client: authClient }),
-    onError: (error) => {
-      toast.error(
-        `Failed to apply for leave: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const applyLeave = useApplyForLeave()
 
   const onSubmit = (
     data: LeaveFormValues,
@@ -75,10 +60,6 @@ export function StaffLeaveDialog({
         },
         {
           onSuccess: () => {
-            toast.success('Leave application submitted successfully.')
-            queryClient.invalidateQueries({
-              queryKey: ['viewLeaveBalance', { staff_id: staff?.id }],
-            })
             form.reset()
           },
         },

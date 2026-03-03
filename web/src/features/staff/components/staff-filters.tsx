@@ -1,6 +1,6 @@
 import { FilterIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useStaffStore } from '../store'
+import { useStaffSearchParams } from '../search-params'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +21,7 @@ export function StaffFilters() {
     setStaffTypeFilter,
     employmentStatusFilter,
     setEmploymentStatusFilter,
-  } = useStaffStore()
+  } = useStaffSearchParams()
 
   const staffTypes = zStaffType.options
   const employmentStatuses = zEmploymentStatus.options
@@ -48,8 +48,10 @@ export function StaffFilters() {
             <DropdownMenuSeparator />
 
             <DropdownMenuRadioGroup
-              value={staffTypeFilter}
-              onValueChange={setStaffTypeFilter}
+              value={staffTypeFilter ?? 'all'}
+              onValueChange={(val: string) =>
+                setStaffTypeFilter(val === 'all' ? null : val)
+              }
             >
               <DropdownMenuRadioItem value="all">
                 All Roles
@@ -86,8 +88,10 @@ export function StaffFilters() {
             <DropdownMenuSeparator />
 
             <DropdownMenuRadioGroup
-              value={employmentStatusFilter}
-              onValueChange={setEmploymentStatusFilter}
+              value={employmentStatusFilter ?? 'all'}
+              onValueChange={(val: string) =>
+                setEmploymentStatusFilter(val === 'all' ? null : val)
+              }
             >
               <DropdownMenuRadioItem value="all">
                 All Status

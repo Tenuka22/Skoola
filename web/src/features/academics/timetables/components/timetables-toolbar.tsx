@@ -8,7 +8,7 @@ import {
   TableIcon,
   User02Icon,
 } from '@hugeicons/core-free-icons'
-import { useTimetablesStore } from '../store'
+import { useTimetablesSearchParams } from '../search-params'
 import { DAYS_OF_WEEK, isTimetableViewMode } from '../constants'
 import type { TimetableViewMode } from '../constants'
 import type {
@@ -45,6 +45,9 @@ interface TimetablesToolbarProps {
   setSelectedDayOfWeek: (day: string | undefined) => void
   viewMode: TimetableViewMode
   setViewMode: (mode: TimetableViewMode) => void
+  setIsCreateTimetableEntryOpen: (open: boolean) => void
+  isGridView: boolean
+  setIsGridView: (isGrid: boolean) => void
 }
 
 export function TimetablesToolbar({
@@ -62,14 +65,11 @@ export function TimetablesToolbar({
   setSelectedDayOfWeek,
   viewMode,
   setViewMode,
+  setIsCreateTimetableEntryOpen,
+  isGridView,
+  setIsGridView,
 }: TimetablesToolbarProps) {
-  const {
-    search,
-    setSearch,
-    setIsCreateTimetableEntryOpen,
-    isGridView,
-    setIsGridView,
-  } = useTimetablesStore()
+  const { search, setSearch } = useTimetablesSearchParams()
 
   return (
     <div className="flex flex-col gap-4 px-8 py-4">
@@ -83,7 +83,7 @@ export function TimetablesToolbar({
             <Input
               placeholder="Search timetables..."
               className="w-72 pl-9"
-              value={search}
+              value={search ?? ''}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
@@ -91,7 +91,8 @@ export function TimetablesToolbar({
           <ToggleGroup
             value={[isGridView ? 'grid' : 'list']}
             onValueChange={(val) => {
-              if (val.length > 0) setIsGridView(val[0] === 'grid')
+              const actualVal = Array.isArray(val) ? val[0] : val
+              if (actualVal) setIsGridView(actualVal === 'grid')
             }}
             className="border p-1 rounded-lg bg-muted/50"
           >
@@ -118,8 +119,9 @@ export function TimetablesToolbar({
           <ToggleGroup
             value={[viewMode]}
             onValueChange={(val) => {
-              if (val.length > 0 && isTimetableViewMode(val[0])) {
-                setViewMode(val[0])
+              const actualVal = Array.isArray(val) ? val[0] : val
+              if (actualVal && isTimetableViewMode(actualVal)) {
+                setViewMode(actualVal)
               }
             }}
             className="border p-1 rounded-lg bg-muted/50"

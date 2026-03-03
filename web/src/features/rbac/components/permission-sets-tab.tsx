@@ -1,14 +1,13 @@
 import * as React from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Delete02Icon,
   Layers01Icon,
   Search01Icon,
 } from '@hugeicons/core-free-icons'
-import { useRBACStore } from '../store'
-import { rbacApi } from '../api'
+import { useRBACSearchParams } from '../search-params'
+import { getPermissionSetsQueryOptions, useDeletePermissionSet } from '../api'
 import { PermissionSetEditor } from './permission-set-editor'
 import { CreatePermissionSetDialog } from './create-permission-set-dialog'
 import { Button } from '@/components/ui/button'
@@ -36,22 +35,14 @@ import {
 
 export function PermissionSetsTab() {
   const [search, setSearch] = React.useState('')
-  const { selectedPermissionSetId, setSelectedPermissionSetId } = useRBACStore()
-  const queryClient = useQueryClient()
+  const { selectedPermissionSetId, setSelectedPermissionSetId } =
+    useRBACSearchParams()
 
-  const { data: sets = [], isLoading } = useQuery(rbacApi.getSetsOptions())
+  const { data: sets = [], isLoading } = useQuery(
+    getPermissionSetsQueryOptions(),
+  )
 
-  const deleteSet = useMutation({
-    ...rbacApi.deleteSetMutation(),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['getAllPermissionSets'] })
-      if (selectedPermissionSetId === variables.path.user_set_id) {
-        setSelectedPermissionSetId(null)
-      }
-      toast.success('Permission set deleted')
-    },
-    onError: (err) => toast.error(err.message),
-  })
+  const deleteSet = useDeletePermissionSet()
 
   const filteredSets =
     sets?.filter((s) => s.name.toLowerCase().includes(search.toLowerCase())) ||
@@ -138,10 +129,20 @@ export function PermissionSetsTab() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => {
-                            deleteSet.mutate({
-                              path: { user_set_id: set.id },
-                            })
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            deleteSet.mutate(
+                              {
+                                path: { user_set_id: set.id },
+                              },
+                              {
+                                onSuccess: () => {
+                                  if (selectedPermissionSetId === set.id) {
+                                    setSelectedPermissionSetId(null)
+                                  }
+                                },
+                              },
+                            )
                           }}
                         >
                           <HugeiconsIcon

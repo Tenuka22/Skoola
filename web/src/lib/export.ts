@@ -17,8 +17,7 @@ export const handleExportCSV = <T extends Record<string, unknown>>(
     (data.length
       ? Object.keys(data[0]).map((key) => ({
           header: key,
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          accessor: key as keyof T,
+          accessor: key,
         }))
       : [])
 
@@ -38,14 +37,24 @@ export const handleExportCSV = <T extends Record<string, unknown>>(
   const headers = cols.map((c) => c.header)
   const rows = data.map((row) =>
     cols.map((col) => {
-      let value: unknown
+      let value: string | number | boolean | null | undefined
       if (typeof col.accessor === 'function') {
         value = col.accessor(row)
       } else {
-        value = row[col.accessor]
+        const rawValue: unknown = row[col.accessor]
+        if (
+          rawValue === null ||
+          rawValue === undefined ||
+          typeof rawValue === 'string' ||
+          typeof rawValue === 'number' ||
+          typeof rawValue === 'boolean'
+        ) {
+          value = rawValue
+        } else {
+          value = String(rawValue)
+        }
       }
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      return value as string | number | boolean | null | undefined
+      return value
     }),
   )
 

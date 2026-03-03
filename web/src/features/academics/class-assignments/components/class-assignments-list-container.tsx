@@ -1,7 +1,7 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon } from '@hugeicons/core-free-icons'
-import { useClassAssignmentsStore } from '../store'
-import type { ColumnDef } from '@tanstack/react-table'
+import * as React from 'react'
+import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import type { SubjectResponse } from '@/lib/api/types.gen'
 import type { ClassAssignmentRow } from './class-assignments-table-columns'
 import type { UseQueryResult } from '@tanstack/react-query'
@@ -18,7 +18,8 @@ export function ClassAssignmentsListContainer({
   columns,
   data,
 }: ClassAssignmentsListContainerProps) {
-  const { page, setPage, sorting, setSorting } = useClassAssignmentsStore()
+  const [page, setPage] = React.useState(1)
+  const [sorting, setSorting] = React.useState<SortingState>([])
   const { isLoading, isError, error } = query
 
   if (isLoading) {

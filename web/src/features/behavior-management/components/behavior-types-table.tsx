@@ -1,8 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Delete02Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { toast } from 'sonner'
-import { useBehaviorStore } from '../store'
+import * as React from 'react'
+import {
+  getAllBehaviorIncidentTypesQueryOptions,
+  useDeleteBehaviorIncidentType,
+} from '../api'
+import type { BehaviorIncidentTypeResponse } from '@/lib/api/types.gen'
 import {
   Table,
   TableBody,
@@ -14,11 +18,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import {
-  deleteBehaviorIncidentTypeMutation,
-  getAllBehaviorIncidentTypesOptions,
-} from '@/lib/api/@tanstack/react-query.gen'
-import { authClient } from '@/lib/clients'
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -29,29 +28,18 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
-export function BehaviorTypesTable() {
-  const store = useBehaviorStore()
-  const queryClient = useQueryClient()
+interface BehaviorTypesTableProps {
+  setTypeToEdit: (type: BehaviorIncidentTypeResponse | null) => void
+}
 
-  const { data: types, isLoading } = useQuery({
-    ...getAllBehaviorIncidentTypesOptions({ client: authClient }),
-  })
+export function BehaviorTypesTable({ setTypeToEdit }: BehaviorTypesTableProps) {
+  const [typeToDelete, setTypeToDelete] = React.useState<string | null>(null)
 
-  const deleteMutation = useMutation({
-    ...deleteBehaviorIncidentTypeMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Behavior type deleted successfully.')
-      queryClient.invalidateQueries({
-        queryKey: ['getAllBehaviorIncidentTypes'],
-      })
-      store.setTypeToDelete(null)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to delete behavior type: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const { data: types, isLoading } = useQuery(
+    getAllBehaviorIncidentTypesQueryOptions(),
+  )
+
+  const deleteMutation = useDeleteBehaviorIncidentType()
 
   if (isLoading) {
     return (
@@ -93,7 +81,7 @@ export function BehaviorTypesTable() {
                       variant="ghost"
                       size="icon"
                       className="size-8"
-                      onClick={() => store.setTypeToEdit(type)}
+                      onClick={() => setTypeToEdit(type)}
                     >
                       <HugeiconsIcon
                         icon={PencilEdit01Icon}
@@ -104,7 +92,7 @@ export function BehaviorTypesTable() {
                       variant="ghost"
                       size="icon"
                       className="size-8 text-destructive hover:text-destructive"
-                      onClick={() => store.setTypeToDelete(type.id)}
+                      onClick={() => setTypeToDelete(type.id)}
                     >
                       <HugeiconsIcon icon={Delete02Icon} className="size-4" />
                     </Button>
@@ -117,8 +105,8 @@ export function BehaviorTypesTable() {
       </Table>
 
       <AlertDialog
-        open={!!store.typeToDelete}
-        onOpenChange={() => store.setTypeToDelete(null)}
+        open={!!typeToDelete}
+        onOpenChange={() => setTypeToDelete(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -132,8 +120,15 @@ export function BehaviorTypesTable() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() =>
-                store.typeToDelete &&
-                deleteMutation.mutate({ path: { type_id: store.typeToDelete } })
+                typeToDelete &&
+                deleteMutation.mutate(
+                  { path: { type_id: typeToDelete } },
+                  {
+                    onSuccess: () => {
+                      setTypeToDelete(null)
+                    },
+                  },
+                )
               }
             >
               Delete

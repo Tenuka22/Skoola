@@ -1,32 +1,27 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { UserStarIcon } from '@hugeicons/core-free-icons'
-import { useQueries } from '@tanstack/react-query'
-import { useClassAssignmentsStore } from '../store'
+import { useQuery } from '@tanstack/react-query'
+import { useClassAssignmentsSearchParams } from '../search-params'
+import { getSubjectsByClassQueryOptions } from '../api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { getSubjectsByClassOptions } from '@/lib/api/@tanstack/react-query.gen'
-import { authClient } from '@/lib/clients'
 import { Grid, HStack, Heading, Stack, Text } from '@/components/primitives'
 
 export function ClassAssignmentsHeader() {
-  const { selectedClassId, selectedAcademicYearId } = useClassAssignmentsStore()
+  const { selectedClassId, selectedAcademicYearId } =
+    useClassAssignmentsSearchParams()
 
-  const [assignmentsQuery] = useQueries({
-    queries: [
-      {
-        ...getSubjectsByClassOptions({
-          client: authClient,
-          path: {
-            class_id: selectedClassId ?? '',
-            academic_year_id: selectedAcademicYearId ?? '',
-          },
-        }),
-        enabled: !!selectedClassId && !!selectedAcademicYearId,
-        staleTime: 5 * 60 * 1000, // 5 minutes
+  const { data: assignments } = useQuery({
+    ...getSubjectsByClassQueryOptions({
+      path: {
+        class_id: selectedClassId ?? '',
+        academic_year_id: selectedAcademicYearId ?? '',
       },
-    ],
+    }),
+    enabled: !!selectedClassId && !!selectedAcademicYearId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   })
 
-  const totalAssignments = assignmentsQuery.data?.length ?? 0
+  const totalAssignments = assignments?.length ?? 0
 
   return (
     <Stack gap={4} className="p-8">

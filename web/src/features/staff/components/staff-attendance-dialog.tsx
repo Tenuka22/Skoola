@@ -4,10 +4,13 @@ import {
   CalendarCheckIn01Icon,
   FloppyDiskIcon,
 } from '@hugeicons/core-free-icons'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import * as React from 'react'
-import { toast } from 'sonner'
+import {
+  getStaffAttendanceByMemberQueryOptions,
+  useMarkStaffAttendanceDaily,
+} from '../api'
 import type {
   AttendanceStatus,
   StaffAttendanceResponse,
@@ -22,11 +25,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/spinner'
-import { authClient } from '@/lib/clients'
-import {
-  getStaffAttendanceByStaffMemberOptions,
-  markStaffAttendanceDailyMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { Badge } from '@/components/ui/badge'
 import {
   Select,
@@ -53,7 +51,6 @@ export function StaffAttendanceDialog({
   open,
   onOpenChange,
 }: StaffAttendanceDialogProps) {
-  const queryClient = useQueryClient()
   const [date, setDate] = React.useState(format(new Date(), 'yyyy-MM-dd'))
   const [status, setStatus] = React.useState<AttendanceStatus>('Present')
   const [timeIn, setTimeIn] = React.useState('')
@@ -66,27 +63,13 @@ export function StaffAttendanceDialog({
     isError,
     error,
   } = useQuery({
-    ...getStaffAttendanceByStaffMemberOptions({
-      client: authClient,
+    ...getStaffAttendanceByMemberQueryOptions({
       path: { staff_id: staff?.id ?? '' },
     }),
     enabled: !!staff,
   })
 
-  const markAttendance = useMutation({
-    ...markStaffAttendanceDailyMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Attendance marked successfully.')
-      queryClient.invalidateQueries({
-        queryKey: ['getStaffAttendanceByStaffMember', { staff_id: staff?.id }],
-      })
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to mark attendance: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const markAttendance = useMarkStaffAttendanceDaily()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

@@ -6,7 +6,7 @@ import {
   Search01Icon,
 } from '@hugeicons/core-free-icons'
 import { useQuery } from '@tanstack/react-query'
-import { useClassesStore } from '../store'
+import { useClassesSearchParams } from '../search-params'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { HStack } from '@/components/primitives'
@@ -25,18 +25,21 @@ import {
 
 interface ClassesToolbarProps {
   onExport: () => void
+  setIsCreateClassOpen: (open: boolean) => void
 }
 
-export function ClassesToolbar({ onExport }: ClassesToolbarProps) {
+export function ClassesToolbar({
+  onExport,
+  setIsCreateClassOpen,
+}: ClassesToolbarProps) {
   const {
     search,
     setSearch,
-    setIsCreateClassOpen,
     gradeId,
     setGradeId,
     academicYearId,
     setAcademicYearId,
-  } = useClassesStore()
+  } = useClassesSearchParams()
 
   const { data: academicYears } = useQuery({
     ...getAllAcademicYearsOptions({ client: authClient }),
@@ -57,7 +60,7 @@ export function ClassesToolbar({ onExport }: ClassesToolbarProps) {
           <Input
             placeholder="Search classes..."
             className="w-72 pl-9"
-            value={search}
+            value={search ?? ''}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>

@@ -1,10 +1,8 @@
 import * as React from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon } from '@hugeicons/core-free-icons'
-import { rbacApi } from '../api'
 import { createPermissionSetSchema } from '../schemas'
+import { useCreatePermissionSet } from '../api'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,17 +15,8 @@ import {
 
 export function CreatePermissionSetDialog() {
   const [open, setOpen] = React.useState(false)
-  const queryClient = useQueryClient()
 
-  const createSet = useMutation({
-    ...rbacApi.createSetMutation(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['getAllPermissionSets'] })
-      setOpen(false)
-      toast.success('Permission set created')
-    },
-    onError: (err) => toast.error(err.message),
-  })
+  const createSet = useCreatePermissionSet()
 
   const config = defineFormConfig(createPermissionSetSchema, {
     structure: [
@@ -69,7 +58,14 @@ export function CreatePermissionSetDialog() {
           schema={createPermissionSetSchema}
           config={config}
           onSubmit={(values) => {
-            createSet.mutate({ body: values })
+            createSet.mutate(
+              { body: values },
+              {
+                onSuccess: () => {
+                  setOpen(false)
+                },
+              },
+            )
           }}
           isLoading={createSet.isPending}
           actions={[

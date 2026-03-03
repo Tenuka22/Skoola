@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Edit01Icon,
@@ -9,8 +8,16 @@ import {
   Shield01Icon,
 } from '@hugeicons/core-free-icons'
 import { updateRoleSetSchema } from '../schemas'
-import { rbacApi } from '../api'
 import { isPermissionEnum } from '../utils/permissions'
+import {
+  getRolePermissionsQueryOptions,
+  getRoleSetRolesQueryOptions,
+  useAssignPermissionToRole,
+  useAssignRoleToRoleSet,
+  useUnassignPermissionFromRole,
+  useUnassignRoleFromRoleSet,
+  useUpdateRoleSet,
+} from '../api'
 import { PermissionList } from './permission-list'
 import type { UpdateRoleSetInput as UpdateRoleSetValues } from '../schemas'
 import type { PermissionEnum, RoleSet } from '@/lib/api/types.gen'
@@ -51,10 +58,8 @@ interface RoleSetEditorProps {
 }
 
 function PermissionsForRoleEditor({ role }: { role: string }) {
-  const queryClient = useQueryClient()
-
   const { data: rawPermissions, isLoading } = useQuery({
-    ...rbacApi.getRolePermissionsOptions(role),
+    ...getRolePermissionsQueryOptions({ path: { role_id: role } }),
     enabled: !!role,
   })
 
@@ -63,29 +68,8 @@ function PermissionsForRoleEditor({ role }: { role: string }) {
     return perms.filter(isPermissionEnum)
   }, [rawPermissions])
 
-  const assignPerm = useMutation({
-    ...rbacApi.assignPermissionToRoleMutation(),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getRolePermissionsOptions(variables.path.role_id)
-          .queryKey,
-      })
-      toast.success('Permission assigned to role')
-    },
-    onError: (err) => toast.error(err.message),
-  })
-
-  const unassignPerm = useMutation({
-    ...rbacApi.unassignPermissionFromRoleMutation(),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getRolePermissionsOptions(variables.path.role_id)
-          .queryKey,
-      })
-      toast.success('Permission removed from role')
-    },
-    onError: (err) => toast.error(err.message),
-  })
+  const assignPerm = useAssignPermissionToRole()
+  const unassignPerm = useUnassignPermissionFromRole()
 
   const handleTogglePermission = (
     permission: PermissionEnum,
@@ -123,17 +107,17 @@ function PermissionsForRoleEditor({ role }: { role: string }) {
 }
 
 export function RoleSetEditor({ set }: RoleSetEditorProps) {
-  const queryClient = useQueryClient()
   const [isEditingInfo, setIsEditingInfo] = React.useState(false)
 
   React.useEffect(() => {
     setIsEditingInfo(false)
   }, [set.id])
 
-  const { data: rawRoles, isLoading: isLoadingRoles } = useQuery({
-    ...rbacApi.getRoleSetRolesOptions(set.id),
-    enabled: !!set.id,
-  })
+  const { data: rawRoles, isLoading: isLoadingRoles } = useQuery(
+    getRoleSetRolesQueryOptions({
+      path: { role_set_id: set.id },
+    }),
+  )
 
   const assignedRoles: Array<string> = React.useMemo(() => {
     if (!rawRoles) return []
@@ -155,37 +139,10 @@ export function RoleSetEditor({ set }: RoleSetEditorProps) {
     }
   }, [assignedRoles, selectedRole])
 
-  const updateSet = useMutation({
-    ...rbacApi.updateRoleSetMutation(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['getAllRoleSets'] })
-      setIsEditingInfo(false)
-      toast.success('Role set updated')
-    },
-    onError: (err) => toast.error(err.message),
-  })
+  const updateSet = useUpdateRoleSet()
 
-  const assignRole = useMutation({
-    ...rbacApi.assignRoleToRoleSetMutation(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getRoleSetRolesOptions(set.id).queryKey,
-      })
-      toast.success('Role added to set')
-    },
-    onError: (err) => toast.error(err.message),
-  })
-
-  const unassignRole = useMutation({
-    ...rbacApi.unassignRoleFromRoleSetMutation(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: rbacApi.getRoleSetRolesOptions(set.id).queryKey,
-      })
-      toast.success('Role removed from set')
-    },
-    onError: (err) => toast.error(err.message),
-  })
+  const assignRole = useAssignRoleToRoleSet()
+  const unassignRole = useUnassignRoleFromRoleSet()
 
   const allRoles = RoleEnumSchema.enum
   const assignedRoleSet = new Set(assignedRoles)
@@ -201,10 +158,17 @@ export function RoleSetEditor({ set }: RoleSetEditorProps) {
   }, [searchRoles, allRoles])
 
   const handleSaveInfo = (values: UpdateRoleSetValues) => {
-    updateSet.mutate({
-      path: { role_set_id: set.id },
-      body: { name: values.name, description: values.description },
-    })
+    updateSet.mutate(
+      {
+        path: { role_set_id: set.id },
+        body: { name: values.name, description: values.description },
+      },
+      {
+        onSuccess: () => {
+          setIsEditingInfo(false)
+        },
+      },
+    )
   }
 
   const formConfig = defineFormConfig(updateRoleSetSchema, {

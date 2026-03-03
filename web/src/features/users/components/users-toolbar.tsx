@@ -8,8 +8,7 @@ import {
   TableIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useUsersStore } from '../store'
-import type { ViewMode } from '../store'
+import { useUsersSearchParams } from '../search-params'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { HStack } from '@/components/primitives'
@@ -17,11 +16,14 @@ import { cn } from '@/lib/utils'
 
 interface UsersToolbarProps {
   handleExportCSV: () => void
+  setIsCreateUserOpen: (open: boolean) => void
 }
 
-export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
-  const { view, setView, search, setSearch, setIsCreateUserOpen } =
-    useUsersStore()
+export function UsersToolbar({
+  handleExportCSV,
+  setIsCreateUserOpen,
+}: UsersToolbarProps) {
+  const { view, setView, search, setSearch } = useUsersSearchParams()
   const inputRef = React.useRef<HTMLInputElement>(null)
 
   // Keyboard shortcuts
@@ -48,7 +50,10 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
 
   return (
     <HStack align="center" justify="between" className="mb-6">
-      <Tabs value={view} onValueChange={(value: ViewMode) => setView(value)}>
+      <Tabs
+        value={view ?? 'table'}
+        onValueChange={(value: string) => setView(value)}
+      >
         <TabsList className="bg-muted/50 p-1">
           <TabsTrigger value="table">
             <HStack gap={1} p={0}>
@@ -82,7 +87,7 @@ export function UsersToolbar({ handleExportCSV }: UsersToolbarProps) {
             <input
               ref={inputRef}
               type="text"
-              value={search}
+              value={search ?? ''}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search users..."
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"

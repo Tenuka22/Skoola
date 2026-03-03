@@ -6,8 +6,7 @@ import {
   TableIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useStaffStore } from '../store'
-import type { StaffViewMode } from '../store'
+import { useStaffSearchParams } from '../search-params'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,11 +18,14 @@ import { Box, HStack } from '@/components/primitives'
 
 interface StaffToolbarProps {
   onExport: () => void
+  setIsCreateStaffOpen: (open: boolean) => void
 }
 
-export function StaffToolbar({ onExport }: StaffToolbarProps) {
-  const { view, setView, search, setSearch, setIsCreateStaffOpen } =
-    useStaffStore()
+export function StaffToolbar({
+  onExport,
+  setIsCreateStaffOpen,
+}: StaffToolbarProps) {
+  const { view, setView, search, setSearch } = useStaffSearchParams()
 
   return (
     <HStack
@@ -31,8 +33,8 @@ export function StaffToolbar({ onExport }: StaffToolbarProps) {
       className="flex-col gap-4 sm:flex-row sm:justify-between"
     >
       <Tabs
-        value={view}
-        onValueChange={(value: StaffViewMode) => setView(value)}
+        value={view ?? 'table'}
+        onValueChange={(value: string) => setView(value)}
       >
         <TabsList>
           <TabsTrigger value="table" className="gap-2">
@@ -54,7 +56,7 @@ export function StaffToolbar({ onExport }: StaffToolbarProps) {
         <Box className="relative flex-1 sm:w-64">
           <InputGroup>
             <InputGroupInput
-              value={search}
+              value={search ?? ''}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search staff..."
             />

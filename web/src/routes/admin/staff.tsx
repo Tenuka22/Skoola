@@ -1,12 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import * as React from 'react'
-import { toast } from 'sonner'
 
 import { StaffHeader } from '../../features/staff/components/staff-header'
 import { StaffToolbar } from '../../features/staff/components/staff-toolbar'
@@ -16,9 +10,7 @@ import { getStaffColumns } from '../../features/staff/components/staff-table-col
 import { StaffAddDialog } from '../../features/staff/components/staff-add-dialog'
 import { StaffDeleteDialog } from '../../features/staff/components/staff-delete-dialog'
 import { StaffEditDialog } from '../../features/staff/components/staff-edit-dialog'
-import { useStaffStore } from '../../features/staff/store'
 import { handleExportCSV } from '../../lib/export'
-import { authClient } from '../../lib/clients'
 import {
   isEmploymentStatus,
   isStaffType,
@@ -26,6 +18,7 @@ import {
 import { StaffBulkActionsToolbar } from '../../features/staff/components/staff-bulk-actions-toolbar'
 import { StaffBulkEditDialog } from '../../features/staff/components/staff-bulk-edit-dialog'
 import type { BulkEditStaffFormValues } from '@/features/staff/schemas'
+import type { StaffResponse } from '@/lib/api/types.gen'
 import { StaffPhotoUploadDialog } from '@/features/staff/components/staff-photo-upload-dialog'
 import { StaffAssignClassDialog } from '@/features/staff/components/staff-assign-class-dialog'
 import { StaffAssignSubjectDialog } from '@/features/staff/components/staff-assign-subject-dialog'
@@ -43,75 +36,69 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import {
-  assignClassToTeacherMutation,
-  assignSubjectToTeacherMutation,
-  bulkDeleteStaffMutation,
-  bulkUpdateStaffMutation,
-  createStaffMutation,
-  deleteStaffMutation,
-  getAllStaffOptions,
-  getAllStaffQueryKey,
-  updateStaffMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { Stack } from '@/components/primitives'
+import {
+  getAllStaffQueryOptions,
+  useAssignClassToTeacher,
+  useAssignSubjectToTeacher,
+  useBulkDeleteStaff,
+  useBulkUpdateStaff,
+  useCreateStaff,
+  useDeleteStaff,
+  useUpdateStaff,
+} from '@/features/staff/api'
+import { useStaffSearchParams } from '@/features/staff/search-params'
 
 export const Route = createFileRoute('/admin/staff')({
   component: StaffPage,
 })
 
 function StaffPage() {
-  const store = useStaffStore()
-  const { search, setDebouncedSearch } = store
-
-  const limit = 10
-
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(search)
-    }, 400)
-    return () => clearTimeout(handler)
-  }, [search, setDebouncedSearch])
-
   const {
     page,
+    limit,
+    search,
     staffTypeFilter,
     employmentStatusFilter,
-    debouncedSearch,
-    isBulkDeleteOpen,
-    setIsBulkDeleteOpen,
-    isBulkEditOpen,
-    setIsBulkEditOpen,
-    isUploadPhotoOpen,
-    setIsUploadPhotoOpen,
-    staffToUploadPhotoFor,
-    isAssignClassOpen,
-    setIsAssignClassOpen,
-    staffToAssignClassFor,
-    isAssignSubjectOpen,
-    setIsAssignSubjectOpen,
-    staffToAssignSubjectFor,
-    isWorkloadOpen,
-    setIsWorkloadOpen,
-    staffToViewWorkloadFor,
-    isAttendanceOpen,
-    setIsAttendanceOpen,
-    staffToManageAttendanceFor,
-    isLeavesOpen,
-    setIsLeavesOpen,
-    staffToManageLeavesFor,
-    isPermissionSetsOpen,
-    setIsPermissionSetsOpen,
-    staffToManagePermissionSetsFor,
-  } = store
+    sortBy,
+    sortOrder,
+  } = useStaffSearchParams()
+
+  const [staffToDelete, setStaffToDelete] = React.useState<string | null>(null)
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = React.useState(false)
+  const [isBulkEditOpen, setIsBulkEditOpen] = React.useState(false)
+  const [isCreateStaffOpen, setIsCreateStaffOpen] = React.useState(false)
+  const [staffToEdit, setStaffToEdit] = React.useState<StaffResponse | null>(
+    null,
+  )
+  const [isUploadPhotoOpen, setIsUploadPhotoOpen] = React.useState(false)
+  const [staffToUploadPhotoFor, setStaffToUploadPhotoFor] =
+    React.useState<StaffResponse | null>(null)
+  const [isAssignClassOpen, setIsAssignClassOpen] = React.useState(false)
+  const [staffToAssignClassFor, setStaffToAssignClassFor] =
+    React.useState<StaffResponse | null>(null)
+  const [isAssignSubjectOpen, setIsAssignSubjectOpen] = React.useState(false)
+  const [staffToAssignSubjectFor, setStaffToAssignSubjectFor] =
+    React.useState<StaffResponse | null>(null)
+  const [isWorkloadOpen, setIsWorkloadOpen] = React.useState(false)
+  const [staffToViewWorkloadFor, setStaffToViewWorkloadFor] =
+    React.useState<StaffResponse | null>(null)
+  const [isAttendanceOpen, setIsAttendanceOpen] = React.useState(false)
+  const [staffToManageAttendanceFor, setStaffToManageAttendanceFor] =
+    React.useState<StaffResponse | null>(null)
+  const [isLeavesOpen, setIsLeavesOpen] = React.useState(false)
+  const [staffToManageLeavesFor, setStaffToManageLeavesFor] =
+    React.useState<StaffResponse | null>(null)
+  const [isPermissionSetsOpen, setIsPermissionSetsOpen] = React.useState(false)
+  const [staffToManagePermissionSetsFor, setStaffToManagePermissionSetsFor] =
+    React.useState<StaffResponse | null>(null)
 
   const staffQuery = useQuery({
-    ...getAllStaffOptions({
-      client: authClient,
+    ...getAllStaffQueryOptions({
       query: {
-        page,
-        limit,
-        search: debouncedSearch,
+        page: page ?? 1,
+        limit: limit ?? 10,
+        search: search ?? undefined,
         staff_type:
           staffTypeFilter === 'all'
             ? undefined
@@ -124,130 +111,59 @@ function StaffPage() {
             : isEmploymentStatus(employmentStatusFilter)
               ? employmentStatusFilter
               : undefined,
+        sort_by: sortBy ?? 'created_at',
+        sort_order:
+          sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : 'desc',
       },
     }),
     placeholderData: keepPreviousData,
   })
 
-  const queryClient = useQueryClient()
-  const invalidateStaff = () => {
-    queryClient.invalidateQueries({
-      queryKey: getAllStaffQueryKey(),
-    })
-  }
+  const deleteStaff = useDeleteStaff()
 
-  const deleteStaff = useMutation({
-    ...deleteStaffMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success(`Staff member deleted successfully.`)
-      invalidateStaff()
-      store.setStaffToDelete(null)
-    },
-    onError: (error) => {
-      toast.error(`Failed to delete staff: ${error.message || 'Unknown error'}`)
-    },
-  })
+  const createStaff = useCreateStaff()
 
-  const createStaff = useMutation({
-    ...createStaffMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success(`Staff member created successfully.`)
-      invalidateStaff()
-      store.setIsCreateStaffOpen(false)
-    },
-    onError: (error) => {
-      toast.error(`Failed to create staff: ${error.message || 'Unknown error'}`)
-    },
-  })
+  const updateStaff = useUpdateStaff()
 
-  const updateStaff = useMutation({
-    ...updateStaffMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success(`Staff member updated successfully.`)
-      invalidateStaff()
-      store.setStaffToEdit(null)
-    },
-    onError: (error) => {
-      toast.error(`Failed to update staff: ${error.message || 'Unknown error'}`)
-    },
-  })
+  const bulkDeleteStaff = useBulkDeleteStaff()
 
-  const bulkDeleteStaff = useMutation({
-    ...bulkDeleteStaffMutation({
-      client: authClient,
-    }),
-    onSuccess: (_, variables) => {
-      const count = variables.body?.staff_ids?.length ?? 0
-      toast.success(`Successfully deleted ${count} staff members.`)
-      invalidateStaff()
-      setIsBulkDeleteOpen(false)
-      setRowSelection({})
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to delete staff members: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const bulkUpdateStaff = useBulkUpdateStaff()
 
-  const bulkUpdateStaff = useMutation({
-    ...bulkUpdateStaffMutation({
-      client: authClient,
-    }),
-    onSuccess: (_, variables) => {
-      const count = variables.body?.staff_ids?.length ?? 0
-      toast.success(`Successfully updated ${count} staff members.`)
-      invalidateStaff()
-      setIsBulkEditOpen(false)
-      setRowSelection({})
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to update staff members: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const assignClass = useAssignClassToTeacher()
 
-  const assignClass = useMutation({
-    ...assignClassToTeacherMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Class assigned successfully.')
-      setIsAssignClassOpen(false)
-    },
-    onError: (error) => {
-      toast.error(`Failed to assign class: ${error.message || 'Unknown error'}`)
-    },
-  })
-
-  const assignSubject = useMutation({
-    ...assignSubjectToTeacherMutation({ client: authClient }),
-    onSuccess: () => {
-      toast.success('Subject assigned successfully.')
-      setIsAssignSubjectOpen(false)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to assign subject: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const assignSubject = useAssignSubjectToTeacher()
 
   const columns = getStaffColumns({
-    onEdit: store.setStaffToEdit,
-    onDelete: store.setStaffToDelete,
-    onUploadPhoto: store.setStaffToUploadPhotoFor,
-    onAssignClass: store.setStaffToAssignClassFor,
-    onAssignSubject: store.setStaffToAssignSubjectFor,
-    onViewWorkload: store.setStaffToViewWorkloadFor,
-    onManageAttendance: store.setStaffToManageAttendanceFor,
-    onManageLeaves: store.setStaffToManageLeavesFor,
-    onManagePermissions: store.setStaffToManagePermissionSetsFor,
+    onEdit: setStaffToEdit,
+    onDelete: setStaffToDelete,
+    onUploadPhoto: (staff) => {
+      setStaffToUploadPhotoFor(staff)
+      setIsUploadPhotoOpen(true)
+    },
+    onAssignClass: (staff) => {
+      setStaffToAssignClassFor(staff)
+      setIsAssignClassOpen(true)
+    },
+    onAssignSubject: (staff) => {
+      setStaffToAssignSubjectFor(staff)
+      setIsAssignSubjectOpen(true)
+    },
+    onViewWorkload: (staff) => {
+      setStaffToViewWorkloadFor(staff)
+      setIsWorkloadOpen(true)
+    },
+    onManageAttendance: (staff) => {
+      setStaffToManageAttendanceFor(staff)
+      setIsAttendanceOpen(true)
+    },
+    onManageLeaves: (staff) => {
+      setStaffToManageLeavesFor(staff)
+      setIsLeavesOpen(true)
+    },
+    onManagePermissions: (staff) => {
+      setStaffToManagePermissionSetsFor(staff)
+      setIsPermissionSetsOpen(true)
+    },
   })
 
   const [rowSelection, setRowSelection] = React.useState<
@@ -270,6 +186,7 @@ function StaffPage() {
             { header: 'Status', accessor: 'employment_status' },
           ])
         }
+        setIsCreateStaffOpen={setIsCreateStaffOpen}
       />
       <StaffFilters />
       <StaffListContainer
@@ -277,6 +194,9 @@ function StaffPage() {
         columns={columns}
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
+        setStaffToEdit={setStaffToEdit}
+        setStaffToDelete={setStaffToDelete}
+        setIsCreateStaffOpen={setIsCreateStaffOpen}
       />
 
       <StaffBulkActionsToolbar
@@ -286,9 +206,18 @@ function StaffPage() {
       />
 
       <StaffDeleteDialog
-        staffToDeleteId={store.staffToDelete}
-        setStaffToDeleteId={store.setStaffToDelete}
-        onDeleteConfirm={(id) => deleteStaff.mutate({ path: { staff_id: id } })}
+        staffToDeleteId={staffToDelete}
+        setStaffToDeleteId={setStaffToDelete}
+        onDeleteConfirm={(id) =>
+          deleteStaff.mutate(
+            { path: { staff_id: id } },
+            {
+              onSuccess: () => {
+                setStaffToDelete(null)
+              },
+            },
+          )
+        }
       />
 
       <AlertDialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
@@ -305,9 +234,17 @@ function StaffPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                bulkDeleteStaff.mutate({
-                  body: { staff_ids: Array.from(selectedStaff) },
-                })
+                bulkDeleteStaff.mutate(
+                  {
+                    body: { staff_ids: Array.from(selectedStaff) },
+                  },
+                  {
+                    onSuccess: () => {
+                      setIsBulkDeleteOpen(false)
+                      setRowSelection({})
+                    },
+                  },
+                )
               }}
             >
               Delete All
@@ -320,30 +257,54 @@ function StaffPage() {
         open={isBulkEditOpen}
         onOpenChange={setIsBulkEditOpen}
         onConfirm={(data: BulkEditStaffFormValues) =>
-          bulkUpdateStaff.mutate({
-            body: { staff_ids: Array.from(selectedStaff), ...data },
-          })
+          bulkUpdateStaff.mutate(
+            {
+              body: { staff_ids: Array.from(selectedStaff), ...data },
+            },
+            {
+              onSuccess: () => {
+                setIsBulkEditOpen(false)
+                setRowSelection({})
+              },
+            },
+          )
         }
         selectedCount={selectedStaff.size}
         isSubmitting={bulkUpdateStaff.isPending}
       />
 
       <StaffAddDialog
-        isAddOpen={store.isCreateStaffOpen}
-        setIsAddOpen={store.setIsCreateStaffOpen}
-        onAddConfirm={(values) => createStaff.mutate({ body: values })}
+        isAddOpen={isCreateStaffOpen}
+        setIsAddOpen={setIsCreateStaffOpen}
+        onAddConfirm={(values) =>
+          createStaff.mutate(
+            { body: values },
+            {
+              onSuccess: () => {
+                setIsCreateStaffOpen(false)
+              },
+            },
+          )
+        }
         isAdding={createStaff.isPending}
       />
 
       <StaffEditDialog
-        staffToEdit={store.staffToEdit}
-        setStaffToEdit={store.setStaffToEdit}
+        staffToEdit={staffToEdit}
+        setStaffToEdit={setStaffToEdit}
         onEditConfirm={(values) =>
-          store.staffToEdit &&
-          updateStaff.mutate({
-            path: { staff_id: store.staffToEdit.id },
-            body: values,
-          })
+          staffToEdit &&
+          updateStaff.mutate(
+            {
+              path: { staff_id: staffToEdit.id },
+              body: values,
+            },
+            {
+              onSuccess: () => {
+                setStaffToEdit(null)
+              },
+            },
+          )
         }
         isEditing={updateStaff.isPending}
       />
@@ -359,10 +320,17 @@ function StaffPage() {
         open={isAssignClassOpen}
         onOpenChange={setIsAssignClassOpen}
         onConfirm={(staffId, data) =>
-          assignClass.mutate({
-            path: { teacher_id: staffId },
-            body: data,
-          })
+          assignClass.mutate(
+            {
+              path: { teacher_id: staffId },
+              body: data,
+            },
+            {
+              onSuccess: () => {
+                setIsAssignClassOpen(false)
+              },
+            },
+          )
         }
         isSubmitting={assignClass.isPending}
       />
@@ -372,10 +340,17 @@ function StaffPage() {
         open={isAssignSubjectOpen}
         onOpenChange={setIsAssignSubjectOpen}
         onConfirm={(staffId, data) =>
-          assignSubject.mutate({
-            path: { teacher_id: staffId },
-            body: data,
-          })
+          assignSubject.mutate(
+            {
+              path: { teacher_id: staffId },
+              body: data,
+            },
+            {
+              onSuccess: () => {
+                setIsAssignSubjectOpen(false)
+              },
+            },
+          )
         }
         isSubmitting={assignSubject.isPending}
       />

@@ -1,29 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import * as React from 'react'
-import { toast } from 'sonner'
 
 import type { SubjectFormValues } from '@/features/academics/subjects/schemas'
 import type { SubjectResponse } from '@/lib/api/types.gen'
-import { authClient } from '@/lib/clients'
 import { handleExportCSV } from '@/lib/export'
-import {
-  assignSubjectToGradeMutation,
-  assignSubjectToStreamMutation,
-  bulkDeleteSubjectsMutation,
-  createSubjectMutation,
-  deleteSubjectMutation,
-  enrollStudentInSubjectMutation,
-  getAllSubjectsOptions,
-  getAllSubjectsQueryKey,
-  updateSubjectMutation,
-} from '@/lib/api/@tanstack/react-query.gen'
-import { useSubjectsStore } from '@/features/academics/subjects/store'
 import { SubjectsHeader } from '@/features/academics/subjects/components/subjects-header'
 import { SubjectsToolbar } from '@/features/academics/subjects/components/subjects-toolbar'
 import { SubjectsListContainer } from '@/features/academics/subjects/components/subjects-list-container'
@@ -45,180 +26,68 @@ import { SubjectAssignToStreamDialog } from '@/features/academics/subjects/compo
 import { SubjectEnrollStudentDialog } from '@/features/academics/subjects/components/subject-enroll-student-dialog'
 import { SubjectEnrollmentsDialog } from '@/features/academics/subjects/components/subject-enrollments-dialog'
 import { Stack } from '@/components/primitives'
+import {
+  getAllSubjectsQueryOptions,
+  useAssignSubjectToGrade,
+  useAssignSubjectToStream,
+  useBulkDeleteSubjects,
+  useCreateSubject,
+  useDeleteSubject,
+  useEnrollStudentInSubject,
+  useUpdateSubject,
+} from '@/features/academics/subjects/api'
+import { useSubjectsSearchParams } from '@/features/academics/subjects/search-params'
 
 export const Route = createFileRoute('/admin/academics/subjects')({
   component: SubjectsPage,
 })
 
 function SubjectsPage() {
-  const store = useSubjectsStore()
-  const { search, setDebouncedSearch } = store
+  const { page, limit, search, sortBy, sortOrder } = useSubjectsSearchParams()
 
-  const limit = 10
-
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(search)
-    }, 400)
-    return () => clearTimeout(handler)
-  }, [search, setDebouncedSearch])
-
-  const {
-    page,
-    sorting,
-    debouncedSearch,
-    setSubjectToEdit,
-    setSubjectToDelete,
-    setIsCreateSubjectOpen,
-    isBulkDeleteOpen,
-    setIsBulkDeleteOpen,
-    subjectToAssignToGrade,
-    setSubjectToAssignToGrade,
-    subjectToAssignToStream,
-    setSubjectToAssignToStream,
-    subjectToEnrollStudent,
-    setSubjectToEnrollStudent,
-    subjectToViewEnrollments,
-    setSubjectToViewEnrollments,
-  } = store
-
-  const sortBy = sorting[0]?.id
-  const sortOrder = sorting[0]?.desc ? 'desc' : 'asc'
+  const [subjectToDelete, setSubjectToDelete] = React.useState<string | null>(
+    null,
+  )
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = React.useState(false)
+  const [isCreateSubjectOpen, setIsCreateSubjectOpen] = React.useState(false)
+  const [subjectToEdit, setSubjectToEdit] =
+    React.useState<SubjectResponse | null>(null)
+  const [subjectToAssignToGrade, setSubjectToAssignToGrade] =
+    React.useState<SubjectResponse | null>(null)
+  const [subjectToAssignToStream, setSubjectToAssignToStream] =
+    React.useState<SubjectResponse | null>(null)
+  const [subjectToEnrollStudent, setSubjectToEnrollStudent] =
+    React.useState<SubjectResponse | null>(null)
+  const [subjectToViewEnrollments, setSubjectToViewEnrollments] =
+    React.useState<SubjectResponse | null>(null)
 
   const subjectsQuery = useQuery({
-    ...getAllSubjectsOptions({
-      client: authClient,
+    ...getAllSubjectsQueryOptions({
       query: {
-        page,
-        limit,
-        search: debouncedSearch,
-        sort_by: sortBy,
-        sort_order: sortOrder,
+        page: page ?? 1,
+        limit: limit ?? 10,
+        search: search ?? undefined,
+        sort_by: sortBy ?? 'subject_name_en',
+        sort_order:
+          sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : 'asc',
       },
     }),
     placeholderData: keepPreviousData,
   })
 
-  const queryClient = useQueryClient()
-  const invalidateQueries = () => {
-    queryClient.invalidateQueries({
-      queryKey: getAllSubjectsQueryKey(),
-    })
-  }
+  const createSubject = useCreateSubject()
 
-  const createSubject = useMutation({
-    ...createSubjectMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Subject created successfully.')
-      invalidateQueries()
-      setIsCreateSubjectOpen(false)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to create subject: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const updateSubject = useUpdateSubject()
 
-  const updateSubject = useMutation({
-    ...updateSubjectMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Subject updated successfully.')
-      invalidateQueries()
-      setSubjectToEdit(null)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to update subject: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const deleteSubject = useDeleteSubject()
 
-  const deleteSubject = useMutation({
-    ...deleteSubjectMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Subject deleted successfully.')
-      invalidateQueries()
-      setSubjectToDelete(null)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to delete subject: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const bulkDeleteSubjects = useBulkDeleteSubjects()
 
-  const bulkDeleteSubjects = useMutation({
-    ...bulkDeleteSubjectsMutation({
-      client: authClient,
-    }),
-    onSuccess: (_, variables) => {
-      const count = variables.body?.subject_ids?.length ?? 0
-      toast.success(`Successfully deleted ${count} subjects.`)
-      invalidateQueries()
-      setIsBulkDeleteOpen(false)
-      setRowSelection({})
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to delete subjects: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const assignSubjectToGrade = useAssignSubjectToGrade()
 
-  const assignSubjectToGrade = useMutation({
-    ...assignSubjectToGradeMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Subject assigned to grade successfully.')
-      invalidateQueries()
-      setSubjectToAssignToGrade(null)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to assign subject to grade: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const assignSubjectToStream = useAssignSubjectToStream()
 
-  const assignSubjectToStream = useMutation({
-    ...assignSubjectToStreamMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Subject assigned to stream successfully.')
-      invalidateQueries()
-      setSubjectToAssignToStream(null)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to assign subject to stream: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
-
-  const enrollStudentInSubject = useMutation({
-    ...enrollStudentInSubjectMutation({
-      client: authClient,
-    }),
-    onSuccess: () => {
-      toast.success('Student enrolled in subject successfully.')
-      invalidateQueries()
-      setSubjectToEnrollStudent(null)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to enroll student in subject: ${error.message || 'Unknown error'}`,
-      )
-    },
-  })
+  const enrollStudentInSubject = useEnrollStudentInSubject()
 
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
@@ -255,6 +124,7 @@ function SubjectsPage() {
             ],
           )
         }
+        setIsCreateSubjectOpen={setIsCreateSubjectOpen}
       />
       <SubjectsListContainer
         query={subjectsQuery}
@@ -264,30 +134,44 @@ function SubjectsPage() {
       />
 
       <SubjectAddDialog
-        open={store.isCreateSubjectOpen}
+        open={isCreateSubjectOpen}
         onOpenChange={setIsCreateSubjectOpen}
         onConfirm={(data: SubjectFormValues) =>
-          createSubject.mutate({ body: data })
+          createSubject.mutate(
+            { body: data },
+            {
+              onSuccess: () => {
+                setIsCreateSubjectOpen(false)
+              },
+            },
+          )
         }
         isSubmitting={createSubject.isPending}
       />
 
       <SubjectEditDialog
-        subject={store.subjectToEdit}
-        open={!!store.subjectToEdit}
+        subject={subjectToEdit}
+        open={!!subjectToEdit}
         onOpenChange={() => setSubjectToEdit(null)}
         onConfirm={(data: SubjectFormValues) =>
-          store.subjectToEdit &&
-          updateSubject.mutate({
-            path: { id: store.subjectToEdit.id },
-            body: data,
-          })
+          subjectToEdit &&
+          updateSubject.mutate(
+            {
+              path: { id: subjectToEdit.id },
+              body: data,
+            },
+            {
+              onSuccess: () => {
+                setSubjectToEdit(null)
+              },
+            },
+          )
         }
         isSubmitting={updateSubject.isPending}
       />
 
       <AlertDialog
-        open={!!store.subjectToDelete}
+        open={!!subjectToDelete}
         onOpenChange={() => setSubjectToDelete(null)}
       >
         <AlertDialogContent>
@@ -302,8 +186,15 @@ function SubjectsPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() =>
-                store.subjectToDelete &&
-                deleteSubject.mutate({ path: { id: store.subjectToDelete } })
+                subjectToDelete &&
+                deleteSubject.mutate(
+                  { path: { id: subjectToDelete } },
+                  {
+                    onSuccess: () => {
+                      setSubjectToDelete(null)
+                    },
+                  },
+                )
               }
             >
               Delete
@@ -325,9 +216,17 @@ function SubjectsPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                bulkDeleteSubjects.mutate({
-                  body: { subject_ids: Array.from(selectedSubjects) },
-                })
+                bulkDeleteSubjects.mutate(
+                  {
+                    body: { subject_ids: Array.from(selectedSubjects) },
+                  },
+                  {
+                    onSuccess: () => {
+                      setIsBulkDeleteOpen(false)
+                      setRowSelection({})
+                    },
+                  },
+                )
               }}
             >
               Delete All
@@ -342,12 +241,19 @@ function SubjectsPage() {
         onOpenChange={() => setSubjectToAssignToGrade(null)}
         onConfirm={(gradeId) =>
           subjectToAssignToGrade &&
-          assignSubjectToGrade.mutate({
-            body: {
-              subject_id: subjectToAssignToGrade.id,
-              grade_id: gradeId,
+          assignSubjectToGrade.mutate(
+            {
+              body: {
+                subject_id: subjectToAssignToGrade.id,
+                grade_id: gradeId,
+              },
             },
-          })
+            {
+              onSuccess: () => {
+                setSubjectToAssignToGrade(null)
+              },
+            },
+          )
         }
         isSubmitting={assignSubjectToGrade.isPending}
       />
@@ -358,12 +264,19 @@ function SubjectsPage() {
         onOpenChange={() => setSubjectToAssignToStream(null)}
         onConfirm={(streamId) =>
           subjectToAssignToStream &&
-          assignSubjectToStream.mutate({
-            body: {
-              subject_id: subjectToAssignToStream.id,
-              stream_id: streamId,
+          assignSubjectToStream.mutate(
+            {
+              body: {
+                subject_id: subjectToAssignToStream.id,
+                stream_id: streamId,
+              },
             },
-          })
+            {
+              onSuccess: () => {
+                setSubjectToAssignToStream(null)
+              },
+            },
+          )
         }
         isSubmitting={assignSubjectToStream.isPending}
       />
@@ -374,13 +287,20 @@ function SubjectsPage() {
         onOpenChange={() => setSubjectToEnrollStudent(null)}
         onConfirm={(studentId, academicYearId) =>
           subjectToEnrollStudent &&
-          enrollStudentInSubject.mutate({
-            body: {
-              subject_id: subjectToEnrollStudent.id,
-              student_id: studentId,
-              academic_year_id: academicYearId,
+          enrollStudentInSubject.mutate(
+            {
+              body: {
+                subject_id: subjectToEnrollStudent.id,
+                student_id: studentId,
+                academic_year_id: academicYearId,
+              },
             },
-          })
+            {
+              onSuccess: () => {
+                setSubjectToEnrollStudent(null)
+              },
+            },
+          )
         }
         isSubmitting={enrollStudentInSubject.isPending}
       />

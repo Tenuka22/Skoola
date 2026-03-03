@@ -1,7 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
-import { useMutation } from '@tanstack/react-query'
 import {
   getActiveSessionServer,
   getAuthStorageServer,
@@ -17,7 +16,6 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { logoutFn } from '@/lib/auth/actions'
 import {
   Empty,
   EmptyContent,
@@ -25,13 +23,12 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@/components/ui/empty'
-import { getUserPermissions } from '@/lib/api/sdk.gen'
-import { authClient } from '@/lib/clients'
 import { Badge } from '@/components/ui/badge'
+import { getUserPermissionsQueryOptions, useLogout } from '@/features/auth/api'
 
 export const Route = createFileRoute('/(auth)/profile')({
   component: ProfilePage,
-  loader: async () => {
+  loader: async ({ context }) => {
     try {
       const activeSession = await getActiveSessionServer()
       const authStorage = await getAuthStorageServer()
@@ -44,12 +41,12 @@ export const Route = createFileRoute('/(auth)/profile')({
 
       if (activeSession?.user.id) {
         try {
-          const userPermissionsRes = await getUserPermissions({
-            path: { user_id: activeSession?.user.id },
-            client: authClient,
-          })
-          const processedPermissions =
-            userPermissionsRes.data?.permissions || []
+          const userPermissionsRes = await context.queryClient.ensureQueryData(
+            getUserPermissionsQueryOptions({
+              path: { user_id: activeSession.user.id },
+            }),
+          )
+          const processedPermissions = userPermissionsRes.permissions || []
           return {
             activeSession,
             otherSessions,
@@ -88,12 +85,9 @@ function ProfilePage() {
   const authStorage = data.authStorage ?? []
   const permissions = data.userPermissions ?? []
 
-  const { mutateAsync: handleLogoutUser, isPending } = useMutation({
-    mutationFn: async () => {
-      await logoutFn()
-      window.location.reload()
-    },
-  })
+  const logoutMutation = useLogout()
+  const handleLogoutUser = logoutMutation.mutateAsync
+  const isPending = logoutMutation.isPending
 
   if (!activeSession || !authStorage)
     return (

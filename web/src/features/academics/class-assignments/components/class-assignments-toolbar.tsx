@@ -4,7 +4,7 @@ import {
   Plug01Icon,
   Search01Icon,
 } from '@hugeicons/core-free-icons'
-import { useClassAssignmentsStore } from '../store'
+import { useClassAssignmentsSearchParams } from '../search-params'
 import type { AcademicYearResponse, ClassResponse } from '@/lib/api/types.gen'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,6 +25,7 @@ interface ClassAssignmentsToolbarProps {
   setSelectedAcademicYearId: (id: string | undefined) => void
   selectedClassId: string | undefined
   setSelectedClassId: (id: string | undefined) => void
+  setIsAssignTeacherOpen: (open: boolean) => void
 }
 
 export function ClassAssignmentsToolbar({
@@ -35,9 +36,9 @@ export function ClassAssignmentsToolbar({
   setSelectedAcademicYearId,
   selectedClassId,
   setSelectedClassId,
+  setIsAssignTeacherOpen,
 }: ClassAssignmentsToolbarProps) {
-  const { search, setSearch, setIsAssignTeacherOpen } =
-    useClassAssignmentsStore()
+  const { search, setSearch } = useClassAssignmentsSearchParams()
 
   return (
     <div className="flex flex-col gap-4 px-8 py-4">
@@ -50,7 +51,7 @@ export function ClassAssignmentsToolbar({
           <Input
             placeholder="Search assignments..."
             className="w-72 pl-9"
-            value={search}
+            value={search ?? ''}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>

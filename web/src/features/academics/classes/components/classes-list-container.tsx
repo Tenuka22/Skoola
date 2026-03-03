@@ -1,6 +1,6 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon } from '@hugeicons/core-free-icons'
-import { useClassesStore } from '../store'
+import { useClassesSearchParams } from '../search-params'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { ClassResponse, PaginatedClassResponse } from '@/lib/api/types.gen'
 import type { UseQueryResult } from '@tanstack/react-query'
@@ -20,7 +20,8 @@ export function ClassesListContainer({
   rowSelection,
   setRowSelection,
 }: ClassesListContainerProps) {
-  const { page, setPage, sorting, setSorting } = useClassesStore()
+  const { page, setPage, sortBy, setSortBy, sortOrder, setSortOrder } =
+    useClassesSearchParams()
   const { data, isLoading, isError, error } = query
 
   if (isLoading) {
@@ -66,17 +67,29 @@ export function ClassesListContainer({
       <DataTable
         columns={columns}
         data={data.data}
-        sorting={sorting}
-        onSortingChange={setSorting}
+        sorting={[{ id: sortBy ?? 'created_at', desc: sortOrder === 'desc' }]}
+        onSortingChange={(updaterOrValue) => {
+          const newSorting =
+            typeof updaterOrValue === 'function'
+              ? updaterOrValue([
+                  { id: sortBy ?? 'created_at', desc: sortOrder === 'desc' },
+                ])
+              : updaterOrValue
+          const firstSort = newSorting[0]
+          if (firstSort) {
+            setSortBy(firstSort.id)
+            setSortOrder(firstSort.desc ? 'desc' : 'asc')
+          }
+        }}
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
-        pageIndex={page - 1}
+        pageIndex={(page ?? 1) - 1}
         pageSize={data.limit}
         pageCount={data.total_pages}
-        canNextPage={page < data.total_pages}
-        canPreviousPage={page > 1}
-        fetchNextPage={() => setPage(page + 1)}
-        fetchPreviousPage={() => setPage(page - 1)}
+        canNextPage={(page ?? 1) < data.total_pages}
+        canPreviousPage={(page ?? 1) > 1}
+        fetchNextPage={() => setPage((page ?? 1) + 1)}
+        fetchPreviousPage={() => setPage((page ?? 1) - 1)}
         isLoading={isLoading}
       />
     </div>

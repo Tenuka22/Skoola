@@ -6,8 +6,7 @@ import {
   TableIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useStudentsStore } from '../store'
-import type { ViewMode } from '../store'
+import { useStudentsSearchParams } from '../search-params'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,15 +17,21 @@ import {
 
 interface StudentsToolbarProps {
   onExport: () => void
+  setIsCreateStudentOpen: (open: boolean) => void
 }
 
-export function StudentsToolbar({ onExport }: StudentsToolbarProps) {
-  const { view, setView, search, setSearch, setIsCreateStudentOpen } =
-    useStudentsStore()
+export function StudentsToolbar({
+  onExport,
+  setIsCreateStudentOpen,
+}: StudentsToolbarProps) {
+  const { view, setView, search, setSearch } = useStudentsSearchParams()
 
   return (
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <Tabs value={view} onValueChange={(value: ViewMode) => setView(value)}>
+      <Tabs
+        value={view ?? 'table'}
+        onValueChange={(value: string) => setView(value)}
+      >
         <TabsList className="bg-muted/50 p-1">
           <TabsTrigger value="table" className="gap-2">
             <HugeiconsIcon icon={TableIcon} className="size-4" />
@@ -43,7 +48,7 @@ export function StudentsToolbar({ onExport }: StudentsToolbarProps) {
         <div className="relative flex-1 sm:w-64">
           <InputGroup>
             <InputGroupInput
-              value={search}
+              value={search ?? ''}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search students..."
             />

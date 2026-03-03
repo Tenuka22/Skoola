@@ -13,7 +13,6 @@ import {
 } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
 import { Link } from '@tanstack/react-router'
-import { useUsersStore } from '../store'
 import type { UserResponse } from '@/lib/api/types.gen'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -56,6 +55,7 @@ interface UserGridViewProps {
   onManagePermissions: (user: UserResponse) => void
   isUpdating?: boolean
   updatingUserId?: string | null
+  onCreateUser: () => void
 }
 
 export function UserGridView({
@@ -69,9 +69,8 @@ export function UserGridView({
   onManagePermissions,
   isUpdating,
   updatingUserId,
+  onCreateUser,
 }: UserGridViewProps) {
-  const { setIsCreateUserOpen } = useUsersStore()
-
   if (isLoading) {
     return (
       <Grid cols={4} gap={4}>
@@ -101,11 +100,7 @@ export function UserGridView({
               Sign Up A User
             </Button>
           </Link>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => setIsCreateUserOpen(true)}
-          >
+          <Button variant="default" size="sm" onClick={onCreateUser}>
             Create a user
           </Button>
         </EmptyContent>

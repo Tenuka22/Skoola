@@ -1,10 +1,8 @@
 import * as React from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon } from '@hugeicons/core-free-icons'
-import { rbacApi } from '../api'
 import { createRoleSetSchema } from '../schemas'
+import { useCreateRoleSet } from '../api'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,17 +16,8 @@ import { HStack, Text } from '@/components/primitives'
 
 export function CreateRoleSetDialog() {
   const [open, setOpen] = React.useState(false)
-  const queryClient = useQueryClient()
 
-  const createSet = useMutation({
-    ...rbacApi.createRoleSetMutation(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['getAllRoleSets'] })
-      setOpen(false)
-      toast.success('Role set created')
-    },
-    onError: (err) => toast.error(err.message),
-  })
+  const createSet = useCreateRoleSet()
 
   const config = defineFormConfig(createRoleSetSchema, {
     structure: [
@@ -72,7 +61,14 @@ export function CreateRoleSetDialog() {
           schema={createRoleSetSchema}
           config={config}
           onSubmit={(values) => {
-            createSet.mutate({ body: values })
+            createSet.mutate(
+              { body: values },
+              {
+                onSuccess: () => {
+                  setOpen(false)
+                },
+              },
+            )
           }}
           isLoading={createSet.isPending}
           actions={[

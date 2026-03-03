@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { behaviorIncidentSchema } from '../schemas'
+import { getAllBehaviorIncidentTypesQueryOptions } from '../api'
 import type { BehaviorIncidentFormValues } from '../schemas'
 import type {
   BehaviorIncidentResponse,
@@ -34,8 +35,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { getAllBehaviorIncidentTypesOptions } from '@/lib/api/@tanstack/react-query.gen'
-import { authClient } from '@/lib/clients'
 
 interface BehaviorIncidentDialogProps {
   student: StudentResponse | null
@@ -55,7 +54,7 @@ export function BehaviorIncidentDialog({
   isSubmitting,
 }: BehaviorIncidentDialogProps) {
   const { data: typesData } = useQuery({
-    ...getAllBehaviorIncidentTypesOptions({ client: authClient }),
+    ...getAllBehaviorIncidentTypesQueryOptions(),
     enabled: open,
   })
 

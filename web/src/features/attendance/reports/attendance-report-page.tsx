@@ -1,12 +1,10 @@
-import { Suspense, useMemo, useState } from 'react'
-import { addDays, format } from 'date-fns'
+import { Suspense, useMemo } from 'react'
+import { format } from 'date-fns'
 import { Calendar as CalendarIcon, Download } from 'lucide-react'
 import * as papaparse from 'papaparse'
-import {
-  useGenerateStudentAttendanceReport,
-  useSuspenseClasses,
-  useSuspenseGenerateStudentAttendanceReport,
-} from '../api'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { getAttendanceReportQueryOptions } from '../api'
+import { useAttendanceSearchParams } from '../search-params'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { StudentAttendanceReportResponse } from '@/lib/api/types.gen'
 import type { DateRange } from 'react-day-picker'
@@ -29,6 +27,7 @@ import { cn } from '@/lib/utils'
 import { DataTable } from '@/components/ui/data-table'
 import { FullPageSpinner } from '@/components/ui/full-page-spinner'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { getAllClassesQueryOptions } from '@/features/academics/classes/api'
 
 function Filters({
   selectedClassId,
@@ -39,19 +38,19 @@ function Filters({
   isExporting,
 }: {
   selectedClassId?: string
-  onClassChange: (classId: string | undefined) => void
+  onClassChange: (classId: string | null) => void
   dateRange?: DateRange
   onDateChange: (range?: DateRange) => void
   onExport: () => void
   isExporting: boolean
 }) {
-  const { data: classes } = useSuspenseClasses()
+  const { data: classes } = useSuspenseQuery(getAllClassesQueryOptions())
   return (
     <HStack justify="between" className="px-6 py-5 border-b bg-muted/20">
       <HStack gap={2}>
         <Select
-          value={selectedClassId}
-          onValueChange={(value) => onClassChange(value ?? undefined)}
+          value={selectedClassId ?? ''}
+          onValueChange={(value) => onClassChange(value || null)}
         >
           <SelectTrigger className="w-[280px] rounded-xl h-10 ring-1 ring-border">
             <SelectValue placeholder="Select a class" />
@@ -66,30 +65,32 @@ function Filters({
         </Select>
 
         <Popover>
-          <PopoverTrigger>
-            <Button
-              id="date"
-              variant={'outline'}
-              className={cn(
-                'w-[300px] justify-start text-left font-normal rounded-xl h-10',
-                !dateRange && 'text-muted-foreground',
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {dateRange?.from ? (
-                dateRange.to ? (
-                  <>
-                    {format(dateRange.from, 'LLL dd, y')} -{' '}
-                    {format(dateRange.to, 'LLL dd, y')}
-                  </>
+          <PopoverTrigger
+            render={
+              <Button
+                id="date"
+                variant={'outline'}
+                className={cn(
+                  'w-[300px] justify-start text-left font-normal rounded-xl h-10',
+                  !dateRange && 'text-muted-foreground',
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dateRange?.from ? (
+                  dateRange.to ? (
+                    <>
+                      {format(dateRange.from, 'LLL dd, y')} -{' '}
+                      {format(dateRange.to, 'LLL dd, y')}
+                    </>
+                  ) : (
+                    format(dateRange.from, 'LLL dd, y')
+                  )
                 ) : (
-                  format(dateRange.from, 'LLL dd, y')
-                )
-              ) : (
-                <span>Pick a date range</span>
-              )}
-            </Button>
-          </PopoverTrigger>
+                  <span>Pick a date range</span>
+                )}
+              </Button>
+            }
+          />
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               initialFocus
@@ -125,10 +126,10 @@ function ReportTable({
   fromDate: string
   toDate: string
 }) {
-  const { data: report } = useSuspenseGenerateStudentAttendanceReport(
-    classId,
-    fromDate,
-    toDate,
+  const { data: report } = useSuspenseQuery(
+    getAttendanceReportQueryOptions({
+      query: { class_id: classId, from_date: fromDate, to_date: toDate },
+    }),
   )
 
   const columns = useMemo<
@@ -189,24 +190,33 @@ function ReportTable({
 }
 
 export function AttendanceReportPage() {
-  const [selectedClassId, setSelectedClassId] = useState<string | undefined>()
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: addDays(new Date(), -30),
-    to: new Date(),
+  const {
+    classId: selectedClassId,
+    setClassId: setSelectedClassId,
+    fromDate,
+    setFromDate,
+    toDate,
+    setToDate,
+  } = useAttendanceSearchParams()
+
+  const dateRange = useMemo<DateRange | undefined>(
+    () => ({
+      from: fromDate ? new Date(fromDate) : undefined,
+      to: toDate ? new Date(toDate) : undefined,
+    }),
+    [fromDate, toDate],
+  )
+
+  const { data: reportData, isFetching: isExportDataFetching } = useQuery({
+    ...getAttendanceReportQueryOptions({
+      query: {
+        class_id: selectedClassId || '',
+        from_date: fromDate || '',
+        to_date: toDate || '',
+      },
+    }),
+    enabled: !!(selectedClassId && fromDate && toDate),
   })
-
-  const fromDate = dateRange?.from
-    ? format(dateRange.from, 'yyyy-MM-dd')
-    : undefined
-  const toDate = dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : undefined
-
-  const { data: reportData, isFetching: isExportDataFetching } =
-    useGenerateStudentAttendanceReport(
-      selectedClassId || '',
-      fromDate || '',
-      toDate || '',
-      !!(selectedClassId && fromDate && toDate),
-    )
 
   const handleExport = () => {
     if (!reportData || !selectedClassId || !fromDate || !toDate) {
@@ -237,6 +247,11 @@ export function AttendanceReportPage() {
     document.body.removeChild(link)
   }
 
+  const handleDateChange = (range?: DateRange) => {
+    setFromDate(range?.from ? format(range.from, 'yyyy-MM-dd') : null)
+    setToDate(range?.to ? format(range.to, 'yyyy-MM-dd') : null)
+  }
+
   return (
     <Stack gap={6} p={8} className="h-full">
       <Stack gap={1}>
@@ -250,10 +265,10 @@ export function AttendanceReportPage() {
         <CardHeader className="p-0">
           <Suspense fallback={<FullPageSpinner />}>
             <Filters
-              selectedClassId={selectedClassId}
+              selectedClassId={selectedClassId ?? undefined}
               onClassChange={setSelectedClassId}
               dateRange={dateRange}
-              onDateChange={setDateRange}
+              onDateChange={handleDateChange}
               onExport={handleExport}
               isExporting={isExportDataFetching}
             />
