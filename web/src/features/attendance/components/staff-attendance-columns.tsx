@@ -1,12 +1,14 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Image01Icon, Location01Icon } from '@hugeicons/core-free-icons'
-import type { CellContext, ColumnDef } from '@tanstack/react-table'
+import type { CellContext } from '@tanstack/react-table'
 import type { StaffAttendanceWithMember } from '../types'
 import type { AttendanceStatus } from '@/lib/api/types.gen'
+import type { DataTableColumnDef } from '@/components/data-table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { getColumnMeta } from '@/components/data-table'
 
 export const getStatusColor = (status: AttendanceStatus) => {
   switch (status) {
@@ -26,7 +28,7 @@ export const getStatusColor = (status: AttendanceStatus) => {
 }
 
 export const staffAttendanceColumns: Array<
-  ColumnDef<StaffAttendanceWithMember, unknown>
+  DataTableColumnDef<StaffAttendanceWithMember, unknown>
 > = [
   {
     id: 'staff_name',
@@ -141,7 +143,8 @@ export const staffAttendanceColumns: Array<
       row,
       column,
     }: CellContext<StaffAttendanceWithMember, unknown>) => {
-      const onMarkAttendance = column.columnDef.meta?.onMarkAttendance
+      const meta = getColumnMeta(column)
+      const onMarkAttendance = meta?.onMarkAttendance
       return onMarkAttendance ? (
         <Button
           variant="ghost"

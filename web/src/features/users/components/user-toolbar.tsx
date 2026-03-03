@@ -6,8 +6,8 @@ import {
   PencilEdit01Icon,
   Tick01Icon,
 } from '@hugeicons/core-free-icons'
-
 import type { User } from '../types'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { HStack } from '@/components/primitives'
@@ -18,6 +18,8 @@ interface UserToolbarProps {
   onBulkDelete: () => void
   onBulkEdit: () => void
   users?: Array<User>
+  floating?: boolean
+  className?: string
 }
 
 export function UserToolbar({
@@ -25,12 +27,18 @@ export function UserToolbar({
   onBulkVerify,
   onBulkDelete,
   onBulkEdit,
+  floating = true,
+  className,
 }: UserToolbarProps) {
   if (selectedUsers.size === 0) return null
 
+  const containerClass = floating
+    ? 'fixed bottom-6 left-1/2 z-50 -translate-x-1/2'
+    : 'w-full'
+
   return (
-    <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
-      <ButtonGroup>
+    <div className={cn(containerClass, className)}>
+      <ButtonGroup className="w-full justify-center">
         <Button variant="outline" disabled>
           {selectedUsers.size} Selected
         </Button>

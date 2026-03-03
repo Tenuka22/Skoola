@@ -1,4 +1,10 @@
-import { Monitor, Moon, Palette, Sun } from 'lucide-react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import {
+  Monitor as MonitorIcon,
+  Moon as MoonIcon,
+  Palette as PaletteIcon,
+  Sun as SunIcon,
+} from '@hugeicons/core-free-icons'
 import { isThemeName, themes } from '../../lib/themes-data'
 import { useTheme } from '../providers/theme-provider'
 import {
@@ -22,8 +28,14 @@ export const ThemeToggle = () => {
       <DropdownMenuTrigger
         render={
           <Button variant="outline" size="icon-lg" className="rounded-full">
-            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <HugeiconsIcon
+              icon={SunIcon}
+              className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+            />
+            <HugeiconsIcon
+              icon={MoonIcon}
+              className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+            />
             <span className="sr-only">Toggle theme</span>
           </Button>
         }
@@ -45,7 +57,7 @@ export const ThemeToggle = () => {
               mode === 'light' && 'bg-accent text-accent-foreground',
             )}
           >
-            <Sun className="mr-2 h-4 w-4" />
+            <HugeiconsIcon icon={SunIcon} className="mr-2 h-4 w-4" />
             Light
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -54,7 +66,7 @@ export const ThemeToggle = () => {
               mode === 'dark' && 'bg-accent text-accent-foreground',
             )}
           >
-            <Moon className="mr-2 h-4 w-4" />
+            <HugeiconsIcon icon={MoonIcon} className="mr-2 h-4 w-4" />
             Dark
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -63,7 +75,7 @@ export const ThemeToggle = () => {
               mode === 'system' && 'bg-accent text-accent-foreground',
             )}
           >
-            <Monitor className="mr-2 h-4 w-4" />
+            <HugeiconsIcon icon={MonitorIcon} className="mr-2 h-4 w-4" />
             System
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -90,7 +102,7 @@ export const ThemeToggle = () => {
                 )}
               >
                 <HStack gap={2} p={0}>
-                  <Palette className="h-4 w-4" />
+                  <HugeiconsIcon icon={PaletteIcon} className="h-4 w-4" />
                   {t}
                 </HStack>
               </DropdownMenuItem>

@@ -1,7 +1,11 @@
 import { Suspense, useMemo } from 'react'
 import { format } from 'date-fns'
-import { Calendar as CalendarIcon, Download } from 'lucide-react'
-import * as papaparse from 'papaparse'
+import { HugeiconsIcon } from '@hugeicons/react'
+import {
+  Calendar as CalendarIcon,
+  Download as DownloadIcon,
+} from '@hugeicons/core-free-icons'
+import { stringify as serializeCsv } from 'csv-stringify/browser/esm/sync'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { getAttendanceReportQueryOptions } from '../api'
 import { useAttendanceSearchParams } from '../search-params'
@@ -24,7 +28,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import { DataTable } from '@/components/ui/data-table'
+import { DataTable } from '@/components/data-table'
 import { FullPageSpinner } from '@/components/ui/full-page-spinner'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { getAllClassesQueryOptions } from '@/features/academics/classes/api'
@@ -75,7 +79,7 @@ function Filters({
                   !dateRange && 'text-muted-foreground',
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <HugeiconsIcon icon={CalendarIcon} className="mr-2 h-4 w-4" />
                 {dateRange?.from ? (
                   dateRange.to ? (
                     <>
@@ -110,7 +114,7 @@ function Filters({
         disabled={isExporting || !selectedClassId}
         className="rounded-xl font-bold h-10 px-4"
       >
-        <Download className="mr-2 h-4 w-4" />
+        <HugeiconsIcon icon={DownloadIcon} className="mr-2 h-4 w-4" />
         Export CSV
       </Button>
     </HStack>
@@ -233,7 +237,7 @@ export function AttendanceReportPage() {
       'Total Days': row.total_days,
       'Attendance Percentage': row.percentage.toFixed(2) + '%',
     }))
-    const csv = papaparse.unparse(dataToExport)
+    const csv = serializeCsv(dataToExport, { header: true })
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     const url = URL.createObjectURL(blob)

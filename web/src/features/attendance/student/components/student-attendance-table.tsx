@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { getStudentAttendanceColumns } from './student-attendance-columns'
 import type { LocalEnrichedStudentAttendance } from './student-attendance-columns'
 import type { AttendanceStatus } from '@/lib/api/types.gen'
-import { DataTable } from '@/components/ui/data-table'
+import { DataTable } from '@/components/data-table'
 import {
   getAllStudentsOptions,
   getEnrichedStudentListOptions,
@@ -67,10 +67,7 @@ export function StudentAttendanceTable({
   }))
 
   return (
-    <DataTable<
-      LocalEnrichedStudentAttendance & { id: string | number },
-      unknown
-    >
+    <DataTable<LocalEnrichedStudentAttendance & { id: string | number }>
       columns={columns}
       data={dataForTable}
       isLoading={isLoading || isEnrichedListFetching}

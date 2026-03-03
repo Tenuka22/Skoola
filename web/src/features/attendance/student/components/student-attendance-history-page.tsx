@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Calendar } from '@/components/ui/calendar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { DataTable } from '@/components/ui/data-table'
+import { DataTable } from '@/components/data-table'
 import { cn } from '@/lib/utils'
 
 function getStatusColor(status: string) {

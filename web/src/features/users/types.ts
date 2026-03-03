@@ -3,6 +3,9 @@ import type {
   UserResponse,
   UserStatsResponse,
 } from '@/lib/api/types.gen'
+import type { UserAuthMethod } from './constants'
 
-export type User = UserResponse
+export type User = UserResponse & {
+  auth_method?: UserAuthMethod | string | null
+}
 export type { PaginatedUserResponse, UserStatsResponse }

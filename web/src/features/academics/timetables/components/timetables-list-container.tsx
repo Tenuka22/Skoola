@@ -1,20 +1,30 @@
-import { HugeiconsIcon } from '@hugeicons/react'
-import { AlertCircleIcon } from '@hugeicons/core-free-icons'
 import * as React from 'react'
 import { TimetablesVisualView } from './timetables-visual-view'
-import type { ColumnDef, SortingState } from '@tanstack/react-table'
 import type { TimetableResponse } from '@/lib/api/types.gen'
 import type { TimetableEntryRow } from './timetables-table-columns'
 import type { UseQueryResult } from '@tanstack/react-query'
-import { DataTable } from '@/components/ui/data-table'
+import type {
+  DataTableColumnDef,
+  DataTableToolbarContext,
+} from '@/components/data-table'
+import { DataTable } from '@/components/data-table'
 
 interface TimetablesListContainerProps {
   query: UseQueryResult<Array<TimetableResponse>, Error>
-  columns: Array<ColumnDef<TimetableEntryRow>>
+  columns: Array<DataTableColumnDef<TimetableEntryRow, unknown>>
   data: Array<TimetableEntryRow>
   isGridView: boolean
   viewMode: string
   onEdit: (entry: TimetableResponse | null) => void
+  onFetchFullData?: () => Promise<Array<TimetableEntryRow>>
+  onAdd?: () => void
+  onAddLabel?: string
+  toolbar?: (
+    context: DataTableToolbarContext<TimetableEntryRow>,
+  ) => React.ReactNode
+  onImportCSV?: (rows: Array<Record<string, unknown>>) => void
+  onImportJSON?: (rows: Array<Record<string, unknown>>) => void
+  extraActions?: React.ReactNode
 }
 
 export function TimetablesListContainer({
@@ -24,50 +34,37 @@ export function TimetablesListContainer({
   isGridView,
   viewMode,
   onEdit,
+  onFetchFullData,
+  onAdd,
+  onAddLabel,
+  toolbar,
+  onImportCSV,
+  onImportJSON,
+  extraActions,
 }: TimetablesListContainerProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const { isLoading, isError, error } = query
+  const [sorting, setSorting] = React.useState<
+    Array<{ id: string; desc: boolean }>
+  >([])
+  const [search, setSearch] = React.useState('')
+  const { isLoading } = query
 
-  if (isLoading) {
-    return (
-      <div className="grid flex-1 place-items-center py-8">
-        <p className="text-sm text-muted-foreground">Loading timetables...</p>
-      </div>
-    )
-  }
+  const [columnVisibility, setColumnVisibility] = React.useState({})
 
-  if (isError) {
-    return (
-      <div className="grid flex-1 place-items-center px-4 py-8 text-center border rounded-lg m-8">
-        <HugeiconsIcon
-          icon={AlertCircleIcon}
-          className="size-12 text-destructive"
-        />
-        <p className="text-sm text-muted-foreground mt-2">
-          Error: {error?.message}
-        </p>
-      </div>
+  const filteredData = React.useMemo(() => {
+    if (!search) return data
+    const s = search.toLowerCase()
+    return data.filter(
+      (item) =>
+        item.subjectName?.toLowerCase().includes(s) ||
+        item.teacherName?.toLowerCase().includes(s) ||
+        item.className?.toLowerCase().includes(s),
     )
-  }
-
-  if (data.length === 0) {
-    return (
-      <div className="grid flex-1 place-items-center px-4 py-8 text-center border rounded-lg m-8">
-        <HugeiconsIcon
-          icon={AlertCircleIcon}
-          className="size-12 text-muted-foreground opacity-20"
-        />
-        <p className="text-sm text-muted-foreground mt-2">
-          No timetable entries found for the selected criteria.
-        </p>
-      </div>
-    )
-  }
+  }, [data, search])
 
   if (isGridView) {
     return (
       <TimetablesVisualView
-        data={data}
+        data={filteredData}
         viewMode={viewMode}
         setTimetableEntryToEdit={onEdit}
       />
@@ -75,21 +72,44 @@ export function TimetablesListContainer({
   }
 
   return (
-    <div className="relative flex-1 flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto px-8 pb-8">
+    <div className="relative flex-1 flex flex-col overflow-hidden h-full">
+      <div className="flex-1 overflow-y-auto">
         <DataTable
           columns={columns}
-          data={data}
-          sorting={sorting}
-          onSortingChange={setSorting}
+          data={filteredData}
           pageIndex={0}
-          pageSize={data.length || 10}
+          pageSize={filteredData.length || 10}
           pageCount={1}
           canNextPage={false}
           canPreviousPage={false}
           fetchNextPage={() => {}}
           fetchPreviousPage={() => {}}
+          sorting={sorting}
+          onSortingChange={(updaterOrValue) => {
+            const nextSorting =
+              typeof updaterOrValue === 'function'
+                ? updaterOrValue(sorting)
+                : updaterOrValue
+            setSorting(nextSorting)
+          }}
+          columnVisibility={columnVisibility}
+          onColumnVisibilityChange={setColumnVisibility}
           isLoading={isLoading}
+          onPageSizeChange={() => {}}
+          onPageIndexChange={() => {}}
+          showDefaultToolbar={true}
+          toolbar={toolbar}
+          onFetchFullData={onFetchFullData}
+          onImportCSV={onImportCSV}
+          onImportJSON={onImportJSON}
+          onAdd={onAdd}
+          onAddLabel={onAddLabel}
+          enableSelection
+          enablePinning
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search timetable..."
+          extraActions={extraActions}
         />
       </div>
     </div>

@@ -1,12 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import * as React from 'react'
 
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Delete02Icon } from '@hugeicons/core-free-icons'
 import type { SubjectFormValues } from '@/features/academics/subjects/schemas'
 import type { SubjectResponse } from '@/lib/api/types.gen'
-import { handleExportCSV } from '@/lib/export'
 import { SubjectsHeader } from '@/features/academics/subjects/components/subjects-header'
-import { SubjectsToolbar } from '@/features/academics/subjects/components/subjects-toolbar'
 import { SubjectsListContainer } from '@/features/academics/subjects/components/subjects-list-container'
 import { getSubjectsColumns } from '@/features/academics/subjects/components/subjects-table-columns'
 import { SubjectAddDialog } from '@/features/academics/subjects/components/subject-add-dialog'
@@ -37,12 +41,14 @@ import {
   useUpdateSubject,
 } from '@/features/academics/subjects/api'
 import { useSubjectsSearchParams } from '@/features/academics/subjects/search-params'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/admin/academics/subjects')({
   component: SubjectsPage,
 })
 
 function SubjectsPage() {
+  const queryClient = useQueryClient()
   const { page, limit, search, sortBy, sortOrder } = useSubjectsSearchParams()
 
   const [subjectToDelete, setSubjectToDelete] = React.useState<string | null>(
@@ -69,32 +75,58 @@ function SubjectsPage() {
         search: search ?? undefined,
         sort_by: sortBy ?? 'subject_name_en',
         sort_order:
-          sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : 'asc',
+          sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : 'desc',
       },
     }),
     placeholderData: keepPreviousData,
   })
 
   const createSubject = useCreateSubject()
-
   const updateSubject = useUpdateSubject()
-
   const deleteSubject = useDeleteSubject()
-
   const bulkDeleteSubjects = useBulkDeleteSubjects()
-
   const assignSubjectToGrade = useAssignSubjectToGrade()
-
   const assignSubjectToStream = useAssignSubjectToStream()
-
   const enrollStudentInSubject = useEnrollStudentInSubject()
 
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
   >({})
-  const selectedSubjects = React.useMemo(() => {
-    return new Set(Object.keys(rowSelection).filter((key) => rowSelection[key]))
-  }, [rowSelection])
+
+  const fetchFullData = React.useCallback(async () => {
+    const options = getAllSubjectsQueryOptions({
+      query: {
+        page: 1,
+        limit: 1000,
+        search: search ?? undefined,
+        sort_by: sortBy ?? 'subject_name_en',
+        sort_order: sortOrder === 'desc' ? 'desc' : 'asc',
+      },
+    })
+
+    if (!options.queryFn) return []
+    const response = await options.queryFn({
+      queryKey: options.queryKey,
+      meta: undefined,
+      client: queryClient,
+      signal: new AbortSignal(),
+    })
+    return response.data || []
+  }, [search, sortBy, sortOrder, queryClient])
+
+  const facetedFilters = React.useMemo(
+    () => [
+      {
+        columnId: 'is_core',
+        title: 'Type',
+        options: [
+          { label: 'Core', value: 'true' },
+          { label: 'Elective', value: 'false' },
+        ],
+      },
+    ],
+    [],
+  )
 
   const columns = getSubjectsColumns({
     onEdit: setSubjectToEdit,
@@ -106,31 +138,27 @@ function SubjectsPage() {
   })
 
   return (
-    <Stack gap={0} className="h-full bg-background">
+    <Stack gap={4} p={8} className="h-full bg-background">
       <SubjectsHeader />
-      <SubjectsToolbar
-        onExport={() =>
-          handleExportCSV(
-            subjectsQuery.data?.data || [],
-            'subjects_export.csv',
-            [
-              { header: 'ID', accessor: 'id' },
-              { header: 'Name', accessor: 'subject_name_en' },
-              { header: 'Code', accessor: 'subject_code' },
-              {
-                header: 'Is Core',
-                accessor: (s: SubjectResponse) => (s.is_core ? 'Yes' : 'No'),
-              },
-            ],
-          )
-        }
-        setIsCreateSubjectOpen={setIsCreateSubjectOpen}
-      />
       <SubjectsListContainer
         query={subjectsQuery}
         columns={columns}
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
+        onFetchFullData={fetchFullData}
+        facetedFilters={facetedFilters}
+        onAdd={() => setIsCreateSubjectOpen(true)}
+        onAddLabel="Add Subject"
+        bulkActions={({ selectedRows }) => (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setIsBulkDeleteOpen(true)}
+          >
+            <HugeiconsIcon icon={Delete02Icon} className="size-4 mr-2" />
+            Delete Selected ({selectedRows.length})
+          </Button>
+        )}
       />
 
       <SubjectAddDialog
@@ -209,16 +237,20 @@ function SubjectsPage() {
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete{' '}
-              {selectedSubjects.size} subjects.
+              {Object.keys(rowSelection).filter((k) => rowSelection[k]).length}{' '}
+              subjects.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
+                const ids = Object.keys(rowSelection).filter(
+                  (k) => rowSelection[k],
+                )
                 bulkDeleteSubjects.mutate(
                   {
-                    body: { subject_ids: Array.from(selectedSubjects) },
+                    body: { subject_ids: ids },
                   },
                   {
                     onSuccess: () => {

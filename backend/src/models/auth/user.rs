@@ -76,6 +76,7 @@ pub struct UserResponse {
     pub email: String,
     pub is_verified: bool,
     pub role: RoleEnum,
+    pub auth_method: String,
     pub lockout_until: Option<NaiveDateTime>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -83,11 +84,20 @@ pub struct UserResponse {
 
 impl From<User> for UserResponse {
     fn from(user: User) -> Self {
+        let auth_method = if user.google_id.is_some() {
+            "Google".to_string()
+        } else if user.github_id.is_some() {
+            "GitHub".to_string()
+        } else {
+            "Password".to_string()
+        };
+
         UserResponse {
             id: user.id,
             email: user.email,
             is_verified: user.is_verified,
             role: user.role,
+            auth_method,
             lockout_until: user.lockout_until,
             created_at: user.created_at,
             updated_at: user.updated_at,
@@ -97,11 +107,20 @@ impl From<User> for UserResponse {
 
 impl From<crate::database::tables::User> for UserResponse {
     fn from(user: crate::database::tables::User) -> Self {
+        let auth_method = if user.google_id.is_some() {
+            "Google".to_string()
+        } else if user.github_id.is_some() {
+            "GitHub".to_string()
+        } else {
+            "Password".to_string()
+        };
+
         UserResponse {
             id: user.id,
             email: user.email,
             is_verified: user.is_verified,
             role: user.role,
+            auth_method,
             lockout_until: user.lockout_until,
             created_at: user.created_at,
             updated_at: user.updated_at,

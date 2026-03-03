@@ -1,11 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { keepPreviousData, useQueries, useQuery } from '@tanstack/react-query'
 import * as React from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import {
+  Calendar02Icon,
+  LayoutGridIcon,
+  TableIcon,
+  User02Icon,
+} from '@hugeicons/core-free-icons'
 
 import type { TimetableResponse } from '@/lib/api/types.gen'
 import type { TimetableEntryFormValues } from '@/features/academics/timetables/schemas'
 import { authClient } from '@/lib/clients'
-import { handleExportCSV } from '@/lib/export'
 import {
   getAllAcademicYearsOptions,
   getAllClassesOptions,
@@ -38,6 +44,9 @@ import {
   useDeleteTimetableEntry,
   useUpdateTimetableEntry,
 } from '@/features/academics/timetables/api'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { cn } from '@/lib/utils'
+import { HStack } from '@/components/primitives'
 
 export const Route = createFileRoute('/admin/academics/timetables')({
   component: TimetablesPage,
@@ -129,9 +138,7 @@ function TimetablesPage() {
   })
 
   const createMutation = useCreateTimetableEntry()
-
   const updateMutation = useUpdateTimetableEntry()
-
   const deleteMutation = useDeleteTimetableEntry()
 
   const mappedTimetableEntries = React.useMemo(() => {
@@ -144,6 +151,10 @@ function TimetablesPage() {
       subjects,
     )
   }, [timetableQuery.data, academicYears, classes, staff, subjects])
+
+  const fetchFullData = React.useCallback(async () => {
+    return mappedTimetableEntries
+  }, [mappedTimetableEntries])
 
   const columns = getTimetableColumns({
     onEdit: setTimetableEntryToEdit,
@@ -170,21 +181,6 @@ function TimetablesPage() {
         viewMode={
           viewMode === 'class' || viewMode === 'teacher' ? viewMode : 'class'
         }
-        setViewMode={(mode) => setViewMode(mode)}
-        onExport={() =>
-          handleExportCSV(mappedTimetableEntries, 'timetables_export.csv', [
-            { header: 'Class', accessor: 'className' },
-            { header: 'Subject', accessor: 'subjectName' },
-            { header: 'Teacher', accessor: 'teacherName' },
-            { header: 'Day', accessor: 'dayOfWeek' },
-            { header: 'Start Time', accessor: 'startTime' },
-            { header: 'End Time', accessor: 'endTime' },
-            { header: 'Academic Year', accessor: 'academicYearName' },
-          ])
-        }
-        setIsCreateTimetableEntryOpen={setIsCreateTimetableEntryOpen}
-        isGridView={isGridView}
-        setIsGridView={setIsGridView}
       />
       <TimetablesListContainer
         query={timetableQuery}
@@ -193,6 +189,68 @@ function TimetablesPage() {
         isGridView={isGridView}
         viewMode={viewMode || 'class'}
         onEdit={setTimetableEntryToEdit}
+        onFetchFullData={fetchFullData}
+        onAdd={() => setIsCreateTimetableEntryOpen(true)}
+        onAddLabel="Add Entry"
+        extraActions={
+          <HStack gap={2}>
+            <ToggleGroup
+              value={[isGridView ? 'grid' : 'list']}
+              onValueChange={(val) => {
+                const value = Array.isArray(val) ? val[0] : val
+                if (value) setIsGridView(value === 'grid')
+              }}
+              className="border p-1 rounded-lg bg-muted/50"
+            >
+              <ToggleGroupItem
+                value="grid"
+                size="sm"
+                className="px-2.5 h-7 data-[state=on]:bg-background data-[state=on]:shadow-sm"
+                title="Grid View"
+              >
+                <HugeiconsIcon icon={LayoutGridIcon} className="size-3.5" />
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="list"
+                size="sm"
+                className="px-2.5 h-7 data-[state=on]:bg-background data-[state=on]:shadow-sm"
+                title="List View"
+              >
+                <HugeiconsIcon icon={TableIcon} className="size-3.5" />
+              </ToggleGroupItem>
+            </ToggleGroup>
+
+            <ToggleGroup
+              value={[viewMode || 'class']}
+              onValueChange={(val) => {
+                const value = Array.isArray(val) ? val[0] : val
+                if (value === 'class' || value === 'teacher') setViewMode(value)
+              }}
+              className="border p-1 rounded-lg bg-muted/50"
+            >
+              <ToggleGroupItem
+                value="class"
+                className={cn(
+                  'px-3 py-1 h-7 text-[10px] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
+                  viewMode === 'class' && 'shadow-sm',
+                )}
+              >
+                <HugeiconsIcon icon={Calendar02Icon} className="size-3 mr-1" />
+                Class
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="teacher"
+                className={cn(
+                  'px-3 py-1 h-7 text-[10px] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
+                  viewMode === 'teacher' && 'shadow-sm',
+                )}
+              >
+                <HugeiconsIcon icon={User02Icon} className="size-3 mr-1" />
+                Teacher
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </HStack>
+        }
       />
 
       <TimetableAddDialog

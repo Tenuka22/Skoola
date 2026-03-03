@@ -6,8 +6,8 @@ import {
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
 import { useQuery } from '@tanstack/react-query'
-import type { ColumnDef } from '@tanstack/react-table'
 import type { ClassResponse } from '@/lib/api/types.gen'
+import type { DataTableColumnDef } from '@/components/data-table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,7 +21,7 @@ import {
   getAllAcademicYearsOptions,
   getAllGradeLevelsOptions,
 } from '@/lib/api/@tanstack/react-query.gen'
-import { Checkbox } from '@/components/ui/checkbox'
+import { DataTableColumnHeader } from '@/components/data-table'
 
 interface GetClassesColumnsProps {
   onEdit: (classItem: ClassResponse) => void
@@ -33,7 +33,7 @@ export function useClassesColumns({
   onEdit,
   onDelete,
   onAssignStudents,
-}: GetClassesColumnsProps): Array<ColumnDef<ClassResponse>> {
+}: GetClassesColumnsProps): Array<DataTableColumnDef<ClassResponse>> {
   const { data: academicYearsData } = useQuery(
     getAllAcademicYearsOptions({ client: authClient }),
   )
@@ -46,34 +46,19 @@ export function useClassesColumns({
 
   return [
     {
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
       accessorKey: 'section_name',
-      header: 'Name',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Name" />
+      ),
       cell: ({ row }) => (
         <div className="font-medium">{row.original.section_name}</div>
       ),
     },
     {
       accessorKey: 'grade_id',
-      header: 'Grade Level',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Grade Level" />
+      ),
       cell: ({ row }) => {
         const gradeLevel = gradeLevels.find(
           (gl) => gl.id === row.original.grade_id,
@@ -87,7 +72,9 @@ export function useClassesColumns({
     },
     {
       accessorKey: 'academic_year_id',
-      header: 'Academic Year',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Academic Year" />
+      ),
       cell: ({ row }) => {
         const academicYear = academicYears.find(
           (ay) => ay.id === row.original.academic_year_id,
@@ -101,6 +88,7 @@ export function useClassesColumns({
     },
     {
       id: 'actions',
+      header: 'Actions',
       cell: ({ row }) => {
         const classItem = row.original
 

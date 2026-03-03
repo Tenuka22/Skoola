@@ -8,8 +8,8 @@ import {
   PencilEdit01Icon,
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
-import type { ColumnDef } from '@tanstack/react-table'
 import type { SubjectResponse } from '@/lib/api/types.gen'
+import type { DataTableColumnDef } from '@/components/data-table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,8 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { DataTableColumnHeader } from '@/components/ui/data-table-column-header'
-import { Checkbox } from '@/components/ui/checkbox'
+import { DataTableColumnHeader } from '@/components/data-table'
 
 interface GetSubjectsColumnsProps {
   onEdit: (subject: SubjectResponse) => void
@@ -38,27 +37,8 @@ export function getSubjectsColumns({
   onAssignToStream,
   onEnrollStudent,
   onViewEnrollments,
-}: GetSubjectsColumnsProps): Array<ColumnDef<SubjectResponse>> {
+}: GetSubjectsColumnsProps): Array<DataTableColumnDef<SubjectResponse>> {
   return [
-    {
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: 'subject_name_en',
       header: ({ column }) => (
@@ -67,6 +47,7 @@ export function getSubjectsColumns({
       cell: ({ row }) => (
         <div className="font-medium">{row.original.subject_name_en}</div>
       ),
+      meta: { isPinned: 'left' },
     },
     {
       accessorKey: 'subject_code',
@@ -90,6 +71,7 @@ export function getSubjectsColumns({
     },
     {
       id: 'actions',
+      header: 'Actions',
       cell: ({ row }) => {
         const subject = row.original
 
@@ -140,6 +122,7 @@ export function getSubjectsColumns({
           </DropdownMenu>
         )
       },
+      meta: { isPinned: 'right' },
     },
   ]
 }

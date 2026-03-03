@@ -1,13 +1,15 @@
 import { getStatusColor } from './staff-attendance-columns'
-import type { CellContext, ColumnDef } from '@tanstack/react-table'
+import type { CellContext } from '@tanstack/react-table'
 import type { StudentAttendanceWithMember } from '../types'
+import type { DataTableColumnDef } from '@/components/data-table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { getColumnMeta } from '@/components/data-table'
 
 export const studentAttendanceColumns: Array<
-  ColumnDef<StudentAttendanceWithMember, unknown>
+  DataTableColumnDef<StudentAttendanceWithMember, unknown>
 > = [
   {
     id: 'student_name',
@@ -65,7 +67,8 @@ export const studentAttendanceColumns: Array<
       row,
       column,
     }: CellContext<StudentAttendanceWithMember, unknown>) => {
-      const onMarkAttendance = column.columnDef.meta?.onMarkAttendance
+      const meta = getColumnMeta(column)
+      const onMarkAttendance = meta?.onMarkAttendance
       return onMarkAttendance ? (
         <Button
           variant="ghost"

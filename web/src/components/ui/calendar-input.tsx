@@ -6,7 +6,8 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { format } from 'date-fns'
-import { Calendar as CalendarIcon } from 'lucide-react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Calendar as CalendarIcon } from '@hugeicons/core-free-icons'
 import { cn } from '@/lib/utils'
 
 export function CalendarInput({
@@ -29,7 +30,7 @@ export function CalendarInput({
             className,
           )}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
+          <HugeiconsIcon icon={CalendarIcon} className="mr-2 h-4 w-4" />
           {value ? format(value, 'PPP') : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>

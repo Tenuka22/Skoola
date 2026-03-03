@@ -1,4 +1,5 @@
-import { parseAsInteger, parseAsString, useQueryState } from 'nuqs'
+import { parseAsInteger, parseAsJson, parseAsString, useQueryState } from 'nuqs'
+import { sortingStateSchema } from '@/components/data-table/store'
 
 export const userStatusParser = parseAsString.withDefault('all')
 export const userAuthMethodParser = parseAsString.withDefault('all')
@@ -21,13 +22,9 @@ export const useUsersSearchParams = () => {
     'auth_method',
     userAuthMethodParser,
   )
-  const [sortBy, setSortBy] = useQueryState(
-    'sort_by',
-    parseAsString.withDefault('created_at'),
-  )
-  const [sortOrder, setSortOrder] = useQueryState(
-    'sort_order',
-    parseAsString.withDefault('desc'),
+  const [sort, setSort] = useQueryState(
+    'sort',
+    parseAsJson((val) => sortingStateSchema.parse(val)).withDefault([]),
   )
 
   const [createdAfter, setCreatedAfter] = useQueryState(
@@ -55,10 +52,8 @@ export const useUsersSearchParams = () => {
     setStatusFilter,
     authFilter,
     setAuthFilter,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
+    sort,
+    setSort,
     createdAfter,
     setCreatedAfter,
     createdBefore,

@@ -1,6 +1,10 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { Calendar as CalendarIcon, Download } from 'lucide-react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import {
+  Calendar as CalendarIcon,
+  Download as DownloadIcon,
+} from '@hugeicons/core-free-icons'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { HStack } from '@/components/primitives'
@@ -65,7 +69,7 @@ export function StudentAttendanceFilters({
               )}
             >
               <HStack gap={2} p={0}>
-                <CalendarIcon className="size-4" />
+                <HugeiconsIcon icon={CalendarIcon} className="size-4" />
                 <span>
                   {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
                 </span>
@@ -90,7 +94,7 @@ export function StudentAttendanceFilters({
         className="rounded-xl font-bold h-10 px-4"
       >
         <HStack gap={2} p={0}>
-          <Download className="size-4" />
+          <HugeiconsIcon icon={DownloadIcon} className="size-4" />
           <span>Export CSV</span>
         </HStack>
       </Button>

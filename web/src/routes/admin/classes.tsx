@@ -1,12 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import * as React from 'react'
 
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Delete02Icon } from '@hugeicons/core-free-icons'
 import type { ClassFormValues } from '@/features/academics/classes/schemas'
 import type { ClassResponse } from '@/lib/api/types.gen'
-import { handleExportCSV } from '@/lib/export'
 import { ClassesHeader } from '@/features/academics/classes/components/classes-header'
-import { ClassesToolbar } from '@/features/academics/classes/components/classes-toolbar'
 import { ClassesListContainer } from '@/features/academics/classes/components/classes-list-container'
 import { useClassesColumns } from '@/features/academics/classes/components/classes-table-columns'
 import { ClassAddDialog } from '@/features/academics/classes/components/class-add-dialog'
@@ -31,12 +35,19 @@ import {
   useUpdateClass,
 } from '@/features/academics/classes/api'
 import { useClassesSearchParams } from '@/features/academics/classes/search-params'
+import { authClient } from '@/lib/clients'
+import {
+  getAllAcademicYearsOptions,
+  getAllGradeLevelsOptions,
+} from '@/lib/api/@tanstack/react-query.gen'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/admin/classes')({
   component: ClassesPage,
 })
 
 function ClassesPage() {
+  const queryClient = useQueryClient()
   const { page, limit, search, gradeId, academicYearId, sortBy, sortOrder } =
     useClassesSearchParams()
 
@@ -66,20 +77,75 @@ function ClassesPage() {
     placeholderData: keepPreviousData,
   })
 
+  const { data: gradeLevelsData } = useQuery(
+    getAllGradeLevelsOptions({ client: authClient }),
+  )
+  const gradeLevels = React.useMemo(
+    () => gradeLevelsData?.data || [],
+    [gradeLevelsData],
+  )
+
+  const { data: academicYearsData } = useQuery(
+    getAllAcademicYearsOptions({ client: authClient }),
+  )
+  const academicYears = React.useMemo(
+    () => academicYearsData?.data || [],
+    [academicYearsData],
+  )
+
   const createClass = useCreateClass()
-
   const updateClass = useUpdateClass()
-
   const deleteClass = useDeleteClass()
-
   const bulkDeleteClasses = useBulkDeleteClasses()
 
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
   >({})
-  const selectedClasses = React.useMemo(() => {
-    return new Set(Object.keys(rowSelection).filter((key) => rowSelection[key]))
-  }, [rowSelection])
+
+  const fetchFullData = React.useCallback(async () => {
+    const options = getAllClassesQueryOptions({
+      query: {
+        page: 1,
+        limit: 1000,
+        search: search ?? undefined,
+        grade_id: gradeId ?? undefined,
+        academic_year_id: academicYearId ?? undefined,
+        sort_by: sortBy ?? 'created_at',
+        sort_order: sortOrder === 'desc' ? 'desc' : 'asc',
+      },
+    })
+
+    if (!options.queryFn) return []
+    const response = await options.queryFn({
+      queryKey: options.queryKey,
+      meta: undefined,
+      client: queryClient,
+      signal: new AbortSignal(),
+    })
+    return response.data || []
+  }, [search, gradeId, academicYearId, sortBy, sortOrder, queryClient])
+
+  const facetedFilters = React.useMemo(
+    () => [
+      {
+        columnId: 'grade_id',
+        title: 'Grade Level',
+        options: gradeLevels.map((gl) => ({
+          label: gl.grade_name,
+          value: gl.id,
+        })),
+      },
+      {
+        columnId: 'academic_year_id',
+        title: 'Academic Year',
+        options: academicYears.map((ay) => ({
+          label: ay.name,
+          value: ay.id,
+        })),
+      },
+    ],
+    [gradeLevels, academicYears],
+  )
 
   const columns = useClassesColumns({
     onEdit: setClassToEdit,
@@ -93,22 +159,25 @@ function ClassesPage() {
   return (
     <Stack gap={4} p={8} className="h-full bg-background">
       <ClassesHeader />
-      <ClassesToolbar
-        onExport={() =>
-          handleExportCSV(classesQuery.data?.data || [], 'classes_export.csv', [
-            { header: 'ID', accessor: 'id' },
-            { header: 'Name', accessor: 'section_name' },
-            { header: 'Grade Level', accessor: 'grade_id' },
-            { header: 'Academic Year', accessor: 'academic_year_id' },
-          ])
-        }
-        setIsCreateClassOpen={setIsCreateClassOpen}
-      />
       <ClassesListContainer
         query={classesQuery}
         columns={columns}
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
+        onFetchFullData={fetchFullData}
+        facetedFilters={facetedFilters}
+        onAdd={() => setIsCreateClassOpen(true)}
+        onAddLabel="Add Class"
+        bulkActions={({ selectedRows }) => (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setIsBulkDeleteOpen(true)}
+          >
+            <HugeiconsIcon icon={Delete02Icon} className="size-4 mr-2" />
+            Delete Selected ({selectedRows.length})
+          </Button>
+        )}
       />
 
       <ClassAddDialog
@@ -193,16 +262,20 @@ function ClassesPage() {
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete{' '}
-              {selectedClasses.size} classes.
+              {Object.keys(rowSelection).filter((k) => rowSelection[k]).length}{' '}
+              classes.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
+                const ids = Object.keys(rowSelection).filter(
+                  (k) => rowSelection[k],
+                )
                 bulkDeleteClasses.mutate(
                   {
-                    body: { class_ids: Array.from(selectedClasses) },
+                    body: { class_ids: ids },
                   },
                   {
                     onSuccess: () => {

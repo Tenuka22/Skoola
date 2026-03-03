@@ -1,6 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import * as React from 'react'
+import { LayoutGridIcon, TableIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 
 import { StudentAddDialog } from '../../features/students/components/student-add-dialog'
 import { StudentModals } from '../../features/students/components/student-modals'
@@ -16,10 +22,9 @@ import { getStudentColumns } from '../../features/students/components/student-ta
 import { StudentFilters } from '../../features/students/components/student-filters'
 import { StudentHeader } from '../../features/students/components/student-header'
 import { StudentListContainer } from '../../features/students/components/student-list-container'
-import { StudentsToolbar as StudentsToolbarComponent } from '../../features/students/components/students-toolbar'
-import { handleExportCSV } from '../../lib/export'
 import { isStudentStatus } from '../../features/students/utils/student-guards'
 import type { StudentResponse, UpdateStudentRequest } from '@/lib/api/types.gen'
+import type { DataTableFacetedFilter } from '@/components/data-table'
 import {
   getAllStudentsQueryOptions,
   useAssignStudentToClass,
@@ -28,12 +33,16 @@ import {
   useUpdateStudent,
 } from '@/features/students/api'
 import { useStudentsSearchParams } from '@/features/students/search-params'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Stack } from '@/components/primitives'
 
 export const Route = createFileRoute('/admin/students')({
   component: StudentsPage,
 })
 
 function StudentsPage() {
+  const queryClient = useQueryClient()
+  const searchParams = useStudentsSearchParams()
   const {
     page,
     limit,
@@ -43,7 +52,7 @@ function StudentsPage() {
     createdBefore,
     sortBy,
     sortOrder,
-  } = useStudentsSearchParams()
+  } = searchParams
 
   const [studentToDelete, setStudentToDelete] = React.useState<string | null>(
     null,
@@ -96,19 +105,65 @@ function StudentsPage() {
   })
 
   const deleteStudent = useDeleteStudent()
-
   const createStudent = useCreateStudent()
-
   const updateStudent = useUpdateStudent()
-
   const assignClass = useAssignStudentToClass()
 
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
   >({})
-  const selectedStudents = React.useMemo(() => {
-    return new Set(Object.keys(rowSelection).filter((k) => rowSelection[k]))
-  }, [rowSelection])
+
+  const fetchFullData = React.useCallback(async () => {
+    const options = getAllStudentsQueryOptions({
+      query: {
+        page: 1,
+        limit: 1000,
+        search: search ?? undefined,
+        status:
+          statusFilter === 'all'
+            ? undefined
+            : isStudentStatus(statusFilter)
+              ? statusFilter
+              : undefined,
+        sort_by: sortBy ?? 'created_at',
+        sort_order: sortOrder === 'desc' ? 'desc' : 'asc',
+      },
+    })
+
+    if (!options.queryFn) return []
+    const response = await options.queryFn({
+      queryKey: options.queryKey,
+      meta: undefined,
+      client: queryClient,
+      signal: new AbortSignal(),
+    })
+    return response.data
+  }, [search, statusFilter, sortBy, sortOrder, queryClient])
+
+  const facetedFilters = React.useMemo<Array<DataTableFacetedFilter>>(
+    () => [
+      {
+        columnId: 'status',
+        title: 'Status',
+        options: [
+          { label: 'Active', value: 'Active' },
+          { label: 'Inactive', value: 'Inactive' },
+          { label: 'Graduated', value: 'Graduated' },
+          { label: 'Withdrawn', value: 'Withdrawn' },
+        ],
+      },
+      {
+        columnId: 'gender',
+        title: 'Gender',
+        options: [
+          { label: 'Male', value: 'Male' },
+          { label: 'Female', value: 'Female' },
+          { label: 'Other', value: 'Other' },
+        ],
+      },
+    ],
+    [],
+  )
 
   const columns = getStudentColumns({
     onEdit: setStudentToEdit,
@@ -142,23 +197,8 @@ function StudentsPage() {
   const totalStudents = studentsQuery.data?.total ?? 0
 
   return (
-    <div className="flex h-full flex-col bg-background">
+    <Stack gap={4} p={8} className="h-full">
       <StudentHeader totalStudents={totalStudents} />
-      <StudentsToolbarComponent
-        onExport={() =>
-          handleExportCSV(
-            studentsQuery.data?.data || [],
-            'students_export.csv',
-            [
-              { header: 'Admission No', accessor: 'admission_number' },
-              { header: 'Name', accessor: 'name_english' },
-              { header: 'Email', accessor: 'email' },
-              { header: 'Status', accessor: 'status' },
-            ],
-          )
-        }
-        setIsCreateStudentOpen={setIsCreateStudentOpen}
-      />
       <StudentFilters />
       <StudentListContainer
         studentsQuery={studentsQuery}
@@ -168,13 +208,35 @@ function StudentsPage() {
         setRowSelection={setRowSelection}
         setStudentToEdit={setStudentToEdit}
         setStudentToDelete={setStudentToDelete}
-      />
-
-      <StudentToolbar
-        selectedStudents={selectedStudents}
-        onBulkDelete={() => setIsBulkDeleteOpen(true)}
-        onBulkEdit={() => {}}
-        onBulkAssignClass={() => setIsBulkAssignClassOpen(true)}
+        onFetchFullData={fetchFullData}
+        facetedFilters={facetedFilters}
+        onAdd={() => setIsCreateStudentOpen(true)}
+        onAddLabel="Add Student"
+        extraActions={
+          <Tabs
+            value={searchParams.view ?? 'table'}
+            onValueChange={(value: string) => searchParams.setView(value)}
+          >
+            <TabsList className="h-8">
+              <TabsTrigger value="table" className="gap-2 h-7 px-2">
+                <HugeiconsIcon icon={TableIcon} className="size-3.5" />
+                Table
+              </TabsTrigger>
+              <TabsTrigger value="grid" className="gap-2 h-7 px-2">
+                <HugeiconsIcon icon={LayoutGridIcon} className="size-3.5" />
+                Grid
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        }
+        bulkActions={({ selectedRows }) => (
+          <StudentToolbar
+            selectedStudents={new Set(selectedRows.map((r) => r.id))}
+            onBulkDelete={() => setIsBulkDeleteOpen(true)}
+            onBulkEdit={() => {}}
+            onBulkAssignClass={() => setIsBulkAssignClassOpen(true)}
+          />
+        )}
       />
 
       <StudentModals
@@ -195,7 +257,9 @@ function StudentsPage() {
         onBulkDeleteConfirm={() => {
           setIsBulkDeleteOpen(false)
         }}
-        selectedCount={selectedStudents.size}
+        selectedCount={
+          Object.keys(rowSelection).filter((k) => rowSelection[k]).length
+        }
         studentToEdit={studentToEdit}
         setStudentToEdit={setStudentToEdit}
         onEditConfirm={(values: UpdateStudentRequest) =>
@@ -281,10 +345,12 @@ function StudentsPage() {
       />
 
       <StudentBulkAssignClassDialog
-        selectedStudentIds={selectedStudents}
+        selectedStudentIds={
+          new Set(Object.keys(rowSelection).filter((k) => rowSelection[k]))
+        }
         open={isBulkAssignClassOpen}
         onOpenChange={setIsBulkAssignClassOpen}
       />
-    </div>
+    </Stack>
   )
 }

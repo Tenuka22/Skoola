@@ -9,12 +9,10 @@ import {
   UserContextMenuItems,
   getUserColumns,
 } from '../../features/users/components/user-table-columns'
-import { UsersFilters } from '../../features/users/components/users-filters'
 import { UsersHeader } from '../../features/users/components/users-header'
 import { UsersListContainer } from '../../features/users/components/users-list-container'
-import { UsersToolbar as UsersToolbarComponent } from '../../features/users/components/users-toolbar'
-import { handleExportCSV } from '../../lib/export'
 import { isAuthMethod } from '../../features/users/utils/user-guards'
+import type { QueryClient } from '@tanstack/react-query'
 import type {
   BulkUpdateValues,
   UpdateUserValues,
@@ -24,29 +22,22 @@ import { Stack } from '@/components/primitives'
 import {
   getUsersQueryOptions,
   useBulkDeleteUsers,
+  useBulkImportUsers,
   useBulkUpdateUsers,
   useDeleteUser,
   useRegisterUser,
   useUpdateUser,
 } from '@/features/users/api'
 import { useUsersSearchParams } from '@/features/users/search-params'
+import { authClient } from '@/lib/clients'
 
 export const Route = createFileRoute('/admin/users')({
   component: Users,
 })
 
 function Users() {
-  const {
-    page,
-    limit,
-    search,
-    statusFilter,
-    authFilter,
-    createdAfter,
-    createdBefore,
-    sortBy,
-    sortOrder,
-  } = useUsersSearchParams()
+  const { page, limit, search, statusFilter, authFilter, sort } =
+    useUsersSearchParams()
 
   const [userToDelete, setUserToDelete] = React.useState<string | null>(null)
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = React.useState(false)
@@ -76,34 +67,80 @@ function Users() {
             : isAuthMethod(authFilter)
               ? authFilter
               : undefined,
-        created_after: createdAfter ?? undefined,
-        created_before: createdBefore ?? undefined,
-        sort_by: sortBy ?? 'created_at',
-        sort_order:
-          sortOrder === 'asc' || sortOrder === 'desc' ? sortOrder : 'desc',
+        sort_by: sort?.[0]?.id ?? 'created_at',
+        sort_order: sort?.[0]?.desc ? 'desc' : 'asc',
       },
     }),
     placeholderData: keepPreviousData,
   })
 
   const deleteUser = useDeleteUser()
-
   const bulkDeleteUsers = useBulkDeleteUsers()
-
   const updateUser = useUpdateUser()
-
   const bulkUpdateUsers = useBulkUpdateUsers()
-
   const createUser = useRegisterUser()
+  const bulkImportUsers = useBulkImportUsers()
 
-  const [rowSelection, setRowSelection] = React.useState({})
+  const [rowSelection, setRowSelection] = React.useState<
+    Record<string, boolean>
+  >({})
 
-  const selectedUsers = React.useMemo(() => {
-    return new Set(Object.keys(rowSelection))
-  }, [rowSelection])
+  const facetedFilters = React.useMemo(
+    () => [
+      {
+        columnId: 'is_verified',
+        title: 'Status',
+        options: [
+          { label: 'Verified', value: 'true' },
+          { label: 'Unverified', value: 'false' },
+        ],
+      },
+      {
+        columnId: 'auth_method',
+        title: 'Auth Method',
+        options: [
+          { label: 'Password', value: 'password' },
+          { label: 'Google', value: 'google' },
+          { label: 'GitHub', value: 'github' },
+        ],
+      },
+    ],
+    [],
+  )
+
+  const fetchFullData = React.useCallback(async () => {
+    const options = getUsersQueryOptions({
+      query: {
+        page: 1,
+        limit: 1000,
+        search: search ?? undefined,
+        is_verified:
+          statusFilter === 'all'
+            ? undefined
+            : statusFilter === 'verified'
+              ? true
+              : false,
+        auth_method:
+          authFilter === 'all'
+            ? undefined
+            : isAuthMethod(authFilter)
+              ? authFilter
+              : undefined,
+        sort_by: sort?.[0]?.id ?? 'created_at',
+        sort_order: sort?.[0]?.desc ? 'desc' : 'asc',
+      },
+    })
+
+    if (!options.queryFn) return []
+    const response = await options.queryFn({
+      queryKey: options.queryKey,
+      signal: new AbortController().signal,
+      meta: undefined,
+    })
+    return response.data
+  }, [search, statusFilter, authFilter, sort])
 
   const columns = getUserColumns({
-    users: usersQuery.data?.data || [],
     onToggleVerify: (user: UserResponse) =>
       updateUser.mutate({
         path: { user_id: user.id },
@@ -135,24 +172,6 @@ function Users() {
         showProfilePictures={showProfilePictures}
         setShowProfilePictures={setShowProfilePictures}
       />
-      <UsersToolbarComponent
-        handleExportCSV={() =>
-          handleExportCSV(usersQuery.data?.data || [], 'users_export.csv', [
-            { header: 'ID', accessor: 'id' },
-            { header: 'Email', accessor: 'email' },
-            {
-              header: 'Verified',
-              accessor: (u) => (u.is_verified ? 'Yes' : 'No'),
-            },
-            {
-              header: 'Created At',
-              accessor: (u) => new Date(u.created_at).toLocaleString(),
-            },
-          ])
-        }
-        setIsCreateUserOpen={setIsCreateUserOpen}
-      />
-      <UsersFilters />
       <UsersListContainer
         usersQuery={usersQuery}
         limit={limit ?? 10}
@@ -165,6 +184,37 @@ function Users() {
         setUserToLock={setUserToLock}
         setUserToManagePermissions={setUserToManagePermissions}
         onCreateUser={() => setIsCreateUserOpen(true)}
+        onAdd={() => setIsCreateUserOpen(true)}
+        onAddLabel="Add User"
+        facetedFilters={facetedFilters}
+        onFetchFullData={fetchFullData}
+        onImportCSV={(rows) => bulkImportUsers.mutate(rows)}
+        onImportJSON={(rows) => bulkImportUsers.mutate(rows)}
+        bulkActions={({ selectedRows }) => {
+          const handleBulkVerify = (verify: boolean) => {
+            bulkUpdateUsers.mutate(
+              {
+                body: {
+                  user_ids: selectedRows.map((r) => r.id),
+                  is_verified: verify,
+                },
+              },
+              {
+                onSuccess: () => setRowSelection({}),
+              },
+            )
+          }
+
+          return (
+            <UserToolbar
+              selectedUsers={new Set(selectedRows.map((r) => r.id))}
+              floating={false}
+              onBulkVerify={handleBulkVerify}
+              onBulkDelete={() => setIsBulkDeleteOpen(true)}
+              onBulkEdit={() => setIsBulkEditOpen(true)}
+            />
+          )
+        }}
         contextMenuItems={(row) => {
           return (
             <UserContextMenuItems
@@ -197,26 +247,6 @@ function Users() {
         }}
       />
 
-      <UserToolbar
-        selectedUsers={selectedUsers}
-        onBulkVerify={(v: boolean) =>
-          bulkUpdateUsers.mutate(
-            {
-              body: {
-                user_ids: Array.from(selectedUsers),
-                is_verified: v,
-              },
-            },
-            {
-              onSuccess: () => setRowSelection({}),
-            },
-          )
-        }
-        onBulkDelete={() => setIsBulkDeleteOpen(true)}
-        onBulkEdit={() => setIsBulkEditOpen(true)}
-        users={usersQuery.data?.data}
-      />
-
       <UserModals
         userToDelete={userToDelete}
         setUserToDelete={setUserToDelete}
@@ -224,7 +254,9 @@ function Users() {
           deleteUser.mutate(
             { path: { user_id: id } },
             {
-              onSuccess: () => setUserToDelete(null),
+              onSuccess: () => {
+                setUserToDelete(null)
+              },
             },
           )
         }
@@ -233,7 +265,7 @@ function Users() {
         onBulkDeleteConfirm={() =>
           bulkDeleteUsers.mutate(
             {
-              body: { userIds: Array.from(selectedUsers) },
+              body: { userIds: Object.keys(rowSelection) },
             },
             {
               onSuccess: () => {
@@ -248,7 +280,7 @@ function Users() {
         onBulkEditConfirm={(data: BulkUpdateValues) =>
           bulkUpdateUsers.mutate(
             {
-              body: { user_ids: Array.from(selectedUsers), ...data },
+              body: { user_ids: Object.keys(rowSelection), ...data },
             },
             {
               onSuccess: () => {
@@ -258,7 +290,7 @@ function Users() {
             },
           )
         }
-        selectedCount={selectedUsers.size}
+        selectedCount={Object.keys(rowSelection).length}
         isBulkUpdating={bulkUpdateUsers.isPending}
         userToEdit={userToEdit}
         setUserToEdit={setUserToEdit}
@@ -309,7 +341,9 @@ function Users() {
               body: { email: data.email, password: data.password },
             },
             {
-              onSuccess: () => setIsCreateUserOpen(false),
+              onSuccess: () => {
+                setIsCreateUserOpen(false)
+              },
             },
           )
         }

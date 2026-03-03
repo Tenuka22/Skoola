@@ -1,7 +1,7 @@
 import { Suspense, useState } from 'react'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import * as papaparse from 'papaparse'
+import { stringify as serializeCsv } from 'csv-stringify/browser/esm/sync'
 import { StaffAttendanceFilters } from './components/staff-attendance-filters'
 import { StaffAttendanceTable } from './components/staff-attendance-table'
 import type {
@@ -46,7 +46,7 @@ export function StaffAttendancePage() {
       Status: staff.status,
     }))
 
-    const csv = papaparse.unparse(dataToExport)
+    const csv = serializeCsv(dataToExport, { header: true })
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     const url = URL.createObjectURL(blob)

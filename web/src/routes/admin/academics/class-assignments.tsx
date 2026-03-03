@@ -12,7 +12,6 @@ import type {
   ClassAssignmentRow, // Added
 } from '@/features/academics/class-assignments/components/class-assignments-table-columns'
 import { authClient } from '@/lib/clients'
-import { handleExportCSV } from '@/lib/export'
 import {
   getAllAcademicYearsOptions,
   getAllClassesOptions,
@@ -181,29 +180,13 @@ function ClassAssignmentsPage() {
         }
         selectedClassId={selectedClassId ?? undefined}
         setSelectedClassId={(val) => setSelectedClassId(val ?? null)}
-        setIsAssignTeacherOpen={setIsAssignTeacherOpen}
-        onExport={() =>
-          handleExportCSV(
-            mappedAssignments.map((assignment) => ({
-              className: assignment.className,
-              subjectName: assignment.subjectName,
-              teacherName: assignment.teacherName,
-              academicYearName: assignment.academicYearName,
-            })),
-            'class_assignments_export.csv',
-            [
-              { header: 'Class', accessor: 'className' },
-              { header: 'Subject', accessor: 'subjectName' },
-              { header: 'Teacher', accessor: 'teacherName' },
-              { header: 'Academic Year', accessor: 'academicYearName' },
-            ],
-          )
-        }
       />
       <ClassAssignmentsListContainer
-        query={assignmentsQuery} // Removed as any
+        query={assignmentsQuery}
         columns={columns}
-        data={mappedAssignments} // Removed as any
+        data={mappedAssignments}
+        onAdd={() => setIsAssignTeacherOpen(true)}
+        onAddLabel="Assign Teacher"
       />
 
       <AssignTeacherDialog

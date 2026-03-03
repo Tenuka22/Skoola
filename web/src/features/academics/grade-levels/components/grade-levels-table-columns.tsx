@@ -4,8 +4,8 @@ import {
   MoreVerticalIcon,
   PencilEdit01Icon,
 } from '@hugeicons/core-free-icons'
-import type { ColumnDef } from '@tanstack/react-table'
 import type { GradeLevelResponse } from '@/lib/api/types.gen'
+import type { DataTableColumnDef } from '@/components/data-table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,8 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { DataTableColumnHeader } from '@/components/ui/data-table-column-header'
-import { Checkbox } from '@/components/ui/checkbox'
+import { DataTableColumnHeader } from '@/components/data-table'
 
 interface GetGradeLevelsColumnsProps {
   onEdit: (gradeLevel: GradeLevelResponse) => void
@@ -25,27 +24,8 @@ interface GetGradeLevelsColumnsProps {
 export function getGradeLevelsColumns({
   onEdit,
   onDelete,
-}: GetGradeLevelsColumnsProps): Array<ColumnDef<GradeLevelResponse>> {
+}: GetGradeLevelsColumnsProps): Array<DataTableColumnDef<GradeLevelResponse>> {
   return [
-    {
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: 'grade_name',
       header: ({ column }) => (
@@ -54,6 +34,7 @@ export function getGradeLevelsColumns({
       cell: ({ row }) => (
         <div className="font-medium">{row.original.grade_name}</div>
       ),
+      meta: { isPinned: 'left' },
     },
     {
       accessorKey: 'grade_number',
@@ -77,6 +58,7 @@ export function getGradeLevelsColumns({
     },
     {
       id: 'actions',
+      header: 'Actions',
       cell: ({ row }) => {
         const gradeLevel = row.original
 
@@ -109,6 +91,7 @@ export function getGradeLevelsColumns({
           </DropdownMenu>
         )
       },
+      meta: { isPinned: 'right' },
     },
   ]
 }

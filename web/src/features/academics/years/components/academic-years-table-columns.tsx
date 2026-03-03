@@ -8,8 +8,8 @@ import {
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { format } from 'date-fns'
-import type { ColumnDef } from '@tanstack/react-table'
 import type { AcademicYearResponse } from '@/lib/api/types.gen'
+import type { DataTableColumnDef } from '@/components/data-table'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -17,8 +17,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
+import { DataTableColumnHeader } from '@/components/data-table'
 
 interface GetAcademicYearsColumnsProps {
   onEdit: (year: AcademicYearResponse) => void
@@ -30,29 +30,14 @@ export const getAcademicYearsColumns = ({
   onEdit,
   onDelete,
   onSetCurrent,
-}: GetAcademicYearsColumnsProps): Array<ColumnDef<AcademicYearResponse>> => [
-  {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+}: GetAcademicYearsColumnsProps): Array<
+  DataTableColumnDef<AcademicYearResponse>
+> => [
   {
     accessorKey: 'name',
-    header: 'Academic Year',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Academic Year" />
+    ),
     cell: ({ row }) => {
       const year = row.original
       return (
@@ -65,10 +50,13 @@ export const getAcademicYearsColumns = ({
         </div>
       )
     },
+    meta: { isPinned: 'left' },
   },
   {
     accessorKey: 'current',
-    header: 'Status',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Status" />
+    ),
     cell: ({ row }) => {
       const isCurrent = row.original.current
       return isCurrent ? <Badge>Current</Badge> : null
@@ -76,6 +64,7 @@ export const getAcademicYearsColumns = ({
   },
   {
     id: 'actions',
+    header: 'Actions',
     cell: ({ row }) => {
       const year = row.original
       return (
@@ -109,5 +98,6 @@ export const getAcademicYearsColumns = ({
         </DropdownMenu>
       )
     },
+    meta: { isPinned: 'right' },
   },
 ]

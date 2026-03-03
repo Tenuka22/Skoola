@@ -1,12 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import * as React from 'react'
 
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Delete02Icon } from '@hugeicons/core-free-icons'
 import type { GradeLevelFormValues } from '@/features/academics/grade-levels/schemas'
 import type { GradeLevelResponse } from '@/lib/api/types.gen'
-import { handleExportCSV } from '@/lib/export'
 import { GradeLevelsHeader } from '@/features/academics/grade-levels/components/grade-levels-header'
-import { GradeLevelsToolbar } from '@/features/academics/grade-levels/components/grade-levels-toolbar'
 import { GradeLevelsListContainer } from '@/features/academics/grade-levels/components/grade-levels-list-container'
 import { getGradeLevelsColumns } from '@/features/academics/grade-levels/components/grade-levels-table-columns'
 import { GradeLevelAddDialog } from '@/features/academics/grade-levels/components/grade-level-add-dialog'
@@ -30,12 +34,14 @@ import {
   useUpdateGradeLevel,
 } from '@/features/academics/grade-levels/api'
 import { useGradeLevelsSearchParams } from '@/features/academics/grade-levels/search-params'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/admin/grades')({
   component: GradeLevelsPage,
 })
 
 function GradeLevelsPage() {
+  const queryClient = useQueryClient()
   const { page, limit, search, sortBy, sortOrder } =
     useGradeLevelsSearchParams()
 
@@ -63,19 +69,34 @@ function GradeLevelsPage() {
   })
 
   const createGradeLevel = useCreateGradeLevel()
-
   const updateGradeLevel = useUpdateGradeLevel()
-
   const deleteGradeLevel = useDeleteGradeLevel()
-
   const bulkDeleteGradeLevels = useBulkDeleteGradeLevels()
 
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
   >({})
-  const selectedGradeLevels = React.useMemo(() => {
-    return new Set(Object.keys(rowSelection).filter((key) => rowSelection[key]))
-  }, [rowSelection])
+
+  const fetchFullData = React.useCallback(async () => {
+    const options = getAllGradeLevelsQueryOptions({
+      query: {
+        page: 1,
+        limit: 1000,
+        search: search ?? undefined,
+        sort_by: sortBy ?? 'grade_number',
+        sort_order: sortOrder === 'desc' ? 'desc' : 'asc',
+      },
+    })
+
+    if (!options.queryFn) return []
+    const response = await options.queryFn({
+      queryKey: options.queryKey,
+      meta: undefined,
+      client: queryClient,
+      signal: new AbortSignal(),
+    })
+    return response.data || []
+  }, [search, sortBy, sortOrder, queryClient])
 
   const columns = getGradeLevelsColumns({
     onEdit: setGradeLevelToEdit,
@@ -83,28 +104,26 @@ function GradeLevelsPage() {
   })
 
   return (
-    <Stack gap={0} className="h-full bg-background">
+    <Stack gap={4} p={8} className="h-full bg-background">
       <GradeLevelsHeader />
-      <GradeLevelsToolbar
-        onExport={() =>
-          handleExportCSV(
-            gradeLevelsQuery.data?.data || [],
-            'grade_levels_export.csv',
-            [
-              { header: 'ID', accessor: 'id' },
-              { header: 'Name', accessor: 'grade_name' },
-              { header: 'Number', accessor: 'grade_number' },
-              { header: 'Education Level', accessor: 'education_level' },
-            ],
-          )
-        }
-        setIsCreateGradeLevelOpen={setIsCreateGradeLevelOpen}
-      />
       <GradeLevelsListContainer
         query={gradeLevelsQuery}
         columns={columns}
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
+        onFetchFullData={fetchFullData}
+        onAdd={() => setIsCreateGradeLevelOpen(true)}
+        onAddLabel="Add Grade Level"
+        bulkActions={({ selectedRows }) => (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setIsBulkDeleteOpen(true)}
+          >
+            <HugeiconsIcon icon={Delete02Icon} className="size-4 mr-2" />
+            Delete Selected ({selectedRows.length})
+          </Button>
+        )}
       />
 
       <GradeLevelAddDialog
@@ -185,16 +204,20 @@ function GradeLevelsPage() {
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete{' '}
-              {selectedGradeLevels.size} grade levels.
+              {Object.keys(rowSelection).filter((k) => rowSelection[k]).length}{' '}
+              grade levels.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
+                const ids = Object.keys(rowSelection).filter(
+                  (k) => rowSelection[k],
+                )
                 bulkDeleteGradeLevels.mutate(
                   {
-                    body: { grade_level_ids: Array.from(selectedGradeLevels) },
+                    body: { grade_level_ids: ids },
                   },
                   {
                     onSuccess: () => {

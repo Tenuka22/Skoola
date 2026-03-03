@@ -1,16 +1,20 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import * as React from 'react'
+import { LayoutGridIcon, TableIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 
 import { StaffHeader } from '../../features/staff/components/staff-header'
-import { StaffToolbar } from '../../features/staff/components/staff-toolbar'
 import { StaffFilters } from '../../features/staff/components/staff-filters'
 import { StaffListContainer } from '../../features/staff/components/staff-list-container'
 import { getStaffColumns } from '../../features/staff/components/staff-table-columns'
 import { StaffAddDialog } from '../../features/staff/components/staff-add-dialog'
 import { StaffDeleteDialog } from '../../features/staff/components/staff-delete-dialog'
 import { StaffEditDialog } from '../../features/staff/components/staff-edit-dialog'
-import { handleExportCSV } from '../../lib/export'
 import {
   isEmploymentStatus,
   isStaffType,
@@ -19,6 +23,7 @@ import { StaffBulkActionsToolbar } from '../../features/staff/components/staff-b
 import { StaffBulkEditDialog } from '../../features/staff/components/staff-bulk-edit-dialog'
 import type { BulkEditStaffFormValues } from '@/features/staff/schemas'
 import type { StaffResponse } from '@/lib/api/types.gen'
+import type { DataTableFacetedFilter } from '@/components/data-table'
 import { StaffPhotoUploadDialog } from '@/features/staff/components/staff-photo-upload-dialog'
 import { StaffAssignClassDialog } from '@/features/staff/components/staff-assign-class-dialog'
 import { StaffAssignSubjectDialog } from '@/features/staff/components/staff-assign-subject-dialog'
@@ -36,6 +41,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Stack } from '@/components/primitives'
 import {
   getAllStaffQueryOptions,
@@ -54,6 +60,7 @@ export const Route = createFileRoute('/admin/staff')({
 })
 
 function StaffPage() {
+  const queryClient = useQueryClient()
   const {
     page,
     limit,
@@ -62,6 +69,8 @@ function StaffPage() {
     employmentStatusFilter,
     sortBy,
     sortOrder,
+    view,
+    setView,
   } = useStaffSearchParams()
 
   const [staffToDelete, setStaffToDelete] = React.useState<string | null>(null)
@@ -120,18 +129,82 @@ function StaffPage() {
   })
 
   const deleteStaff = useDeleteStaff()
-
   const createStaff = useCreateStaff()
-
   const updateStaff = useUpdateStaff()
-
   const bulkDeleteStaff = useBulkDeleteStaff()
-
   const bulkUpdateStaff = useBulkUpdateStaff()
-
   const assignClass = useAssignClassToTeacher()
-
   const assignSubject = useAssignSubjectToTeacher()
+
+  const [rowSelection, setRowSelection] = React.useState<
+    Record<string, boolean>
+  >({})
+
+  const fetchFullData = React.useCallback(async () => {
+    const options = getAllStaffQueryOptions({
+      query: {
+        page: 1,
+        limit: 1000,
+        search: search ?? undefined,
+        staff_type:
+          staffTypeFilter === 'all'
+            ? undefined
+            : isStaffType(staffTypeFilter)
+              ? staffTypeFilter
+              : undefined,
+        employment_status:
+          employmentStatusFilter === 'all'
+            ? undefined
+            : isEmploymentStatus(employmentStatusFilter)
+              ? employmentStatusFilter
+              : undefined,
+        sort_by: sortBy ?? 'created_at',
+        sort_order: sortOrder === 'desc' ? 'desc' : 'asc',
+      },
+    })
+
+    if (!options.queryFn) return []
+    const response = await options.queryFn({
+      queryKey: options.queryKey,
+      meta: undefined,
+      client: queryClient,
+      signal: new AbortController().signal,
+    })
+    return response.data || []
+  }, [
+    search,
+    staffTypeFilter,
+    employmentStatusFilter,
+    sortBy,
+    sortOrder,
+    queryClient,
+  ])
+
+  const facetedFilters = React.useMemo<Array<DataTableFacetedFilter>>(
+    () => [
+      {
+        columnId: 'staff_type',
+        title: 'Role',
+        options: [
+          { label: 'Teaching', value: 'Teaching' },
+          { label: 'Non-Teaching', value: 'NonTeaching' },
+          { label: 'Admin', value: 'Admin' },
+          { label: 'Support', value: 'Support' },
+        ],
+      },
+      {
+        columnId: 'employment_status',
+        title: 'Status',
+        options: [
+          { label: 'Permanent', value: 'Permanent' },
+          { label: 'Contract', value: 'Contract' },
+          { label: 'Part-Time', value: 'PartTime' },
+          { label: 'Probation', value: 'Probation' },
+        ],
+      },
+    ],
+    [],
+  )
 
   const columns = getStaffColumns({
     onEdit: setStaffToEdit,
@@ -166,28 +239,9 @@ function StaffPage() {
     },
   })
 
-  const [rowSelection, setRowSelection] = React.useState<
-    Record<string, boolean>
-  >({})
-  const selectedStaff = React.useMemo(() => {
-    return new Set(Object.keys(rowSelection).filter((key) => rowSelection[key]))
-  }, [rowSelection])
-
   return (
     <Stack gap={4} p={8} className="h-full">
       <StaffHeader totalStaff={staffQuery.data?.total} />
-      <StaffToolbar
-        onExport={() =>
-          handleExportCSV(staffQuery.data?.data || [], 'staff_export.csv', [
-            { header: 'ID', accessor: 'employee_id' },
-            { header: 'Name', accessor: 'name' },
-            { header: 'Email', accessor: 'email' },
-            { header: 'Type', accessor: 'staff_type' },
-            { header: 'Status', accessor: 'employment_status' },
-          ])
-        }
-        setIsCreateStaffOpen={setIsCreateStaffOpen}
-      />
       <StaffFilters />
       <StaffListContainer
         staffQuery={staffQuery}
@@ -197,12 +251,34 @@ function StaffPage() {
         setStaffToEdit={setStaffToEdit}
         setStaffToDelete={setStaffToDelete}
         setIsCreateStaffOpen={setIsCreateStaffOpen}
-      />
-
-      <StaffBulkActionsToolbar
-        selectedStaff={selectedStaff}
-        onBulkDelete={() => setIsBulkDeleteOpen(true)}
-        onBulkEdit={() => setIsBulkEditOpen(true)}
+        onFetchFullData={fetchFullData}
+        facetedFilters={facetedFilters}
+        onAdd={() => setIsCreateStaffOpen(true)}
+        onAddLabel="Add Staff"
+        extraActions={
+          <Tabs
+            value={view ?? 'table'}
+            onValueChange={(value: string) => setView(value)}
+          >
+            <TabsList className="h-8">
+              <TabsTrigger value="table" className="gap-2 h-7 px-2">
+                <HugeiconsIcon icon={TableIcon} className="size-3.5" />
+                Table
+              </TabsTrigger>
+              <TabsTrigger value="grid" className="gap-2 h-7 px-2">
+                <HugeiconsIcon icon={LayoutGridIcon} className="size-3.5" />
+                Grid
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        }
+        bulkActions={({ selectedRows }) => (
+          <StaffBulkActionsToolbar
+            selectedStaff={new Set(selectedRows.map((r) => r.id))}
+            onBulkDelete={() => setIsBulkDeleteOpen(true)}
+            onBulkEdit={() => setIsBulkEditOpen(true)}
+          />
+        )}
       />
 
       <StaffDeleteDialog
@@ -226,8 +302,8 @@ function StaffPage() {
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete{' '}
-              {selectedStaff.size} staff members and remove their data from our
-              servers.
+              {Object.keys(rowSelection).filter((k) => rowSelection[k]).length}{' '}
+              staff members and remove their data from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -236,7 +312,11 @@ function StaffPage() {
               onClick={() => {
                 bulkDeleteStaff.mutate(
                   {
-                    body: { staff_ids: Array.from(selectedStaff) },
+                    body: {
+                      staff_ids: Object.keys(rowSelection).filter(
+                        (k) => rowSelection[k],
+                      ),
+                    },
                   },
                   {
                     onSuccess: () => {
@@ -259,7 +339,12 @@ function StaffPage() {
         onConfirm={(data: BulkEditStaffFormValues) =>
           bulkUpdateStaff.mutate(
             {
-              body: { staff_ids: Array.from(selectedStaff), ...data },
+              body: {
+                staff_ids: Object.keys(rowSelection).filter(
+                  (k) => rowSelection[k],
+                ),
+                ...data,
+              },
             },
             {
               onSuccess: () => {
@@ -269,7 +354,9 @@ function StaffPage() {
             },
           )
         }
-        selectedCount={selectedStaff.size}
+        selectedCount={
+          Object.keys(rowSelection).filter((k) => rowSelection[k]).length
+        }
         isSubmitting={bulkUpdateStaff.isPending}
       />
 

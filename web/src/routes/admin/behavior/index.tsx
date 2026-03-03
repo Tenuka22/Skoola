@@ -30,7 +30,11 @@ function BehaviorPage() {
       <BehaviorHeader />
       <BehaviorToolbar setIsCreateTypeOpen={setIsCreateTypeOpen} />
       <Box className="pt-0">
-        <BehaviorTypesTable setTypeToEdit={setTypeToEdit} />
+        <BehaviorTypesTable
+          setTypeToEdit={setTypeToEdit}
+          onAdd={() => setIsCreateTypeOpen(true)}
+          onAddLabel="Add Incident Type"
+        />
       </Box>
 
       <BehaviorTypeDialog

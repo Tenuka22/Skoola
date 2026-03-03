@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { DataTable } from '@/components/ui/data-table'
+import { DataTable } from '@/components/data-table'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 
 type AttendanceState = Record<string, AttendanceStatus>

@@ -1,12 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import * as React from 'react'
 
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Delete02Icon } from '@hugeicons/core-free-icons'
 import type { AcademicYearFormValues } from '@/features/academics/years/schemas'
 import type { AcademicYearResponse } from '@/lib/api/types.gen'
-import { handleExportCSV } from '@/lib/export'
 import { AcademicYearsHeader } from '@/features/academics/years/components/academic-years-header'
-import { AcademicYearsToolbar } from '@/features/academics/years/components/academic-years-toolbar'
 import { AcademicYearsListContainer } from '@/features/academics/years/components/academic-years-list-container'
 import { getAcademicYearsColumns } from '@/features/academics/years/components/academic-years-table-columns'
 import { AcademicYearAddDialog } from '@/features/academics/years/components/academic-year-add-dialog'
@@ -31,12 +35,14 @@ import {
   useUpdateAcademicYear,
 } from '@/features/academics/years/api'
 import { useAcademicYearsSearchParams } from '@/features/academics/years/search-params'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/admin/years')({
   component: AcademicYearsPage,
 })
 
 function AcademicYearsPage() {
+  const queryClient = useQueryClient()
   const { page, limit, search, sortBy, sortOrder } =
     useAcademicYearsSearchParams()
 
@@ -61,21 +67,35 @@ function AcademicYearsPage() {
   })
 
   const createYear = useCreateAcademicYear()
-
   const updateYear = useUpdateAcademicYear()
-
   const deleteYear = useDeleteAcademicYear()
-
   const setCurrentYear = useSetCurrentAcademicYear()
-
   const bulkDeleteYears = useBulkDeleteAcademicYears()
 
   const [rowSelection, setRowSelection] = React.useState<
     Record<string, boolean>
   >({})
-  const selectedYears = React.useMemo(() => {
-    return new Set(Object.keys(rowSelection).filter((key) => rowSelection[key]))
-  }, [rowSelection])
+
+  const fetchFullData = React.useCallback(async () => {
+    const options = getAllAcademicYearsQueryOptions({
+      query: {
+        page: 1,
+        limit: 1000,
+        search: search ?? undefined,
+        sort_by: sortBy ?? 'year_start',
+        sort_order: sortOrder === 'desc' ? 'desc' : 'asc',
+      },
+    })
+
+    if (!options.queryFn) return []
+    const response = await options.queryFn({
+      queryKey: options.queryKey,
+      meta: undefined,
+      client: queryClient,
+      signal: new AbortSignal(),
+    })
+    return response.data || []
+  }, [search, sortBy, sortOrder, queryClient])
 
   const columns = getAcademicYearsColumns({
     onEdit: setYearToEdit,
@@ -86,33 +106,24 @@ function AcademicYearsPage() {
   return (
     <Stack gap={4} p={8} className="h-full bg-background">
       <AcademicYearsHeader />
-      <AcademicYearsToolbar
-        onExport={() =>
-          handleExportCSV(
-            yearsQuery.data?.data || [],
-            'academic_years_export.csv',
-            [
-              { header: 'ID', accessor: 'id' },
-              { header: 'Name', accessor: 'name' },
-              {
-                header: 'Start Date',
-                accessor: (year) => String(year.year_start),
-              },
-              {
-                header: 'End Date',
-                accessor: (year) => String(year.year_end),
-              },
-              { header: 'Is Current', accessor: 'current' },
-            ],
-          )
-        }
-        setIsCreateYearOpen={setIsCreateYearOpen}
-      />
       <AcademicYearsListContainer
         query={yearsQuery}
         columns={columns}
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
+        onFetchFullData={fetchFullData}
+        onAdd={() => setIsCreateYearOpen(true)}
+        onAddLabel="Add Year"
+        bulkActions={({ selectedRows }) => (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setIsBulkDeleteOpen(true)}
+          >
+            <HugeiconsIcon icon={Delete02Icon} className="size-4 mr-2" />
+            Delete Selected ({selectedRows.length})
+          </Button>
+        )}
       />
 
       <AcademicYearAddDialog
@@ -204,16 +215,20 @@ function AcademicYearsPage() {
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete{' '}
-              {selectedYears.size} academic years.
+              {Object.keys(rowSelection).filter((k) => rowSelection[k]).length}{' '}
+              academic years.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
+                const ids = Object.keys(rowSelection).filter(
+                  (k) => rowSelection[k],
+                )
                 bulkDeleteYears.mutate(
                   {
-                    body: { academic_year_ids: Array.from(selectedYears) },
+                    body: { academic_year_ids: ids },
                   },
                   {
                     onSuccess: () => {

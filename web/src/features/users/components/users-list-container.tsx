@@ -2,7 +2,6 @@ import * as React from 'react'
 import { useUsersSearchParams } from '../search-params'
 import { UserGridView } from './user-grid-view'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
-import type { ColumnDef } from '@tanstack/react-table'
 import type {
   MessageResponse,
   Options,
@@ -10,8 +9,14 @@ import type {
   UpdateUserData,
   UserResponse,
 } from '@/lib/api'
+import type {
+  DataTableColumnDef,
+  DataTableFacetedFilter,
+  DataTableToolbarContext,
+} from '@/components/data-table'
+import type { ColumnFiltersState, Table } from '@tanstack/react-table'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
-import { DataTable } from '@/components/ui/data-table'
+import { DataTable } from '@/components/data-table'
 import {
   Pagination,
   PaginationContent,
@@ -33,7 +38,7 @@ import { cn } from '@/lib/utils'
 interface UsersListContainerProps {
   usersQuery: UseQueryResult<PaginatedUserResponse, Error>
   limit: number
-  columns: Array<ColumnDef<UserResponse>>
+  columns: Array<DataTableColumnDef<UserResponse>>
   updateMutation: UseMutationResult<
     MessageResponse,
     Error,
@@ -52,6 +57,18 @@ interface UsersListContainerProps {
   setUserToLock: (user: UserResponse | null) => void
   setUserToManagePermissions: (user: UserResponse | null) => void
   onCreateUser: () => void
+  toolbar?: (context: DataTableToolbarContext<UserResponse>) => React.ReactNode
+  facetedFilters?: Array<DataTableFacetedFilter>
+  onFetchFullData?: () => Promise<Array<UserResponse>>
+  onImportCSV?: (rows: Array<Record<string, unknown>>) => void
+  onImportJSON?: (rows: Array<Record<string, unknown>>) => void
+  onAdd?: () => void
+  onAddLabel?: string
+  bulkActions?: (context: {
+    selectedRows: Array<UserResponse>
+    table: Table<UserResponse>
+  }) => React.ReactNode
+  extraActions?: React.ReactNode
 }
 
 export function UsersListContainer({
@@ -67,17 +84,84 @@ export function UsersListContainer({
   setUserToLock,
   setUserToManagePermissions,
   onCreateUser,
+  toolbar,
+  facetedFilters,
+  onFetchFullData,
+  onImportCSV,
+  onImportJSON,
+  onAdd,
+  onAddLabel,
+  bulkActions,
+  extraActions,
 }: UsersListContainerProps) {
   const {
     page,
     view,
     setPage,
     setLimit,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
+    sort,
+    setSort,
+    search,
+    setSearch,
+    statusFilter,
+    setStatusFilter,
+    authFilter,
+    setAuthFilter,
   } = useUsersSearchParams()
+
+  const columnFilters = React.useMemo<ColumnFiltersState>(() => {
+    const filters: ColumnFiltersState = []
+    if (statusFilter && statusFilter !== 'all') {
+      filters.push({
+        id: 'is_verified',
+        value: [statusFilter === 'verified' ? 'true' : 'false'],
+      })
+    }
+    if (authFilter && authFilter !== 'all') {
+      filters.push({ id: 'auth_method', value: [authFilter] })
+    }
+    return filters
+  }, [statusFilter, authFilter])
+
+  const handleColumnFiltersChange = React.useCallback(
+    (
+      updaterOrValue:
+        | ColumnFiltersState
+        | ((prev: ColumnFiltersState) => ColumnFiltersState),
+    ) => {
+      const nextFilters =
+        typeof updaterOrValue === 'function'
+          ? updaterOrValue(columnFilters)
+          : updaterOrValue
+
+      const statusF = nextFilters.find((f) => f.id === 'is_verified')
+      if (statusF) {
+        const values = statusF.value
+        if (Array.isArray(values) && values.length === 1) {
+          setStatusFilter(
+            String(values[0]) === 'true' ? 'verified' : 'unverified',
+          )
+        } else {
+          setStatusFilter('all')
+        }
+      } else {
+        setStatusFilter('all')
+      }
+
+      const authF = nextFilters.find((f) => f.id === 'auth_method')
+      if (authF) {
+        const values = authF.value
+        if (Array.isArray(values) && values.length > 0) {
+          setAuthFilter(String(values[0]))
+        } else {
+          setAuthFilter('all')
+        }
+      } else {
+        setAuthFilter('all')
+      }
+    },
+    [columnFilters, setStatusFilter, setAuthFilter],
+  )
 
   const [columnVisibility, setColumnVisibility] = React.useState({})
 
@@ -87,7 +171,7 @@ export function UsersListContainer({
   return (
     <Tabs defaultValue="table" value={view ?? 'table'}>
       <TabsContent value="table" className="flex w-full">
-        <div className="overflow-y-auto w-0 flex-1">
+        <div className="overflow-y-auto w-0 flex-1 h-full">
           <DataTable
             columns={columns}
             data={usersQuery.data?.data || []}
@@ -98,33 +182,39 @@ export function UsersListContainer({
             canNextPage={(page || 1) < (usersQuery.data?.total_pages || 0)}
             fetchPreviousPage={() => setPage((page || 1) - 1)}
             fetchNextPage={() => setPage((page || 1) + 1)}
-            sorting={[
-              { id: sortBy ?? 'created_at', desc: sortOrder === 'desc' },
-            ]}
+            sorting={sort ?? []}
             onSortingChange={(updaterOrValue) => {
-              const newSorting =
+              const nextSorting =
                 typeof updaterOrValue === 'function'
-                  ? updaterOrValue([
-                      {
-                        id: sortBy ?? 'created_at',
-                        desc: sortOrder === 'desc',
-                      },
-                    ])
+                  ? updaterOrValue(sort ?? [])
                   : updaterOrValue
-              const firstSort = newSorting[0]
-              if (firstSort) {
-                setSortBy(firstSort.id)
-                setSortOrder(firstSort.desc ? 'desc' : 'asc')
-              }
+              setSort(nextSorting)
             }}
             columnVisibility={columnVisibility}
             onColumnVisibilityChange={setColumnVisibility}
+            columnFilters={columnFilters}
+            onColumnFiltersChange={handleColumnFiltersChange}
             rowSelection={rowSelection}
             onRowSelectionChange={setRowSelection}
             isLoading={usersQuery.isFetching}
             onPageSizeChange={setLimit}
             onPageIndexChange={(index: number) => setPage(index + 1)}
             contextMenuItems={contextMenuItems}
+            showDefaultToolbar={true}
+            toolbar={toolbar}
+            facetedFilters={facetedFilters}
+            onFetchFullData={onFetchFullData}
+            onImportCSV={onImportCSV}
+            onImportJSON={onImportJSON}
+            onAdd={onAdd}
+            onAddLabel={onAddLabel}
+            bulkActions={bulkActions}
+            enableSelection
+            enablePinning
+            search={search ?? ''}
+            onSearchChange={setSearch}
+            searchPlaceholder="Search users..."
+            extraActions={extraActions}
           />
         </div>
       </TabsContent>

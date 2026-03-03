@@ -13,8 +13,8 @@ import {
   Upload01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import type { ColumnDef } from '@tanstack/react-table'
 import type { StaffResponse } from '@/lib/api/types.gen'
+import type { DataTableColumnDef } from '@/components/data-table'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -25,8 +25,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
 import { HStack, Stack, Text } from '@/components/primitives'
+import { DataTableColumnHeader } from '@/components/data-table'
 
 interface GetStaffColumnsProps {
   onEdit: (staff: StaffResponse) => void
@@ -50,29 +50,12 @@ export const getStaffColumns = ({
   onManageAttendance,
   onManageLeaves,
   onManagePermissions,
-}: GetStaffColumnsProps): Array<ColumnDef<StaffResponse>> => [
-  {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+}: GetStaffColumnsProps): Array<DataTableColumnDef<StaffResponse>> => [
   {
     accessorKey: 'name',
-    header: 'Staff Member',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Staff Member" />
+    ),
     cell: ({ row }) => {
       const staff = row.original
       return (
@@ -102,14 +85,19 @@ export const getStaffColumns = ({
         </HStack>
       )
     },
+    meta: { isPinned: 'left' },
   },
   {
     accessorKey: 'email',
-    header: 'Email',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Email" />
+    ),
   },
   {
     accessorKey: 'staff_type',
-    header: 'Role',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Role" />
+    ),
     cell: ({ row }) => {
       const type = row.original.staff_type
       return (
@@ -121,7 +109,9 @@ export const getStaffColumns = ({
   },
   {
     accessorKey: 'employment_status',
-    header: 'Status',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Status" />
+    ),
     cell: ({ row }) => {
       const status = row.original.employment_status
       return (
@@ -144,6 +134,7 @@ export const getStaffColumns = ({
   },
   {
     id: 'actions',
+    header: 'Actions',
     cell: ({ row }) => {
       const staff = row.original
       return (
@@ -156,75 +147,74 @@ export const getStaffColumns = ({
             }
           />
           <DropdownMenuContent align="end" className="w-52">
-            <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuItem onClick={() => onEdit(staff)}>
-                <HStack gap={2} p={0}>
-                  <HugeiconsIcon icon={PencilEdit01Icon} className="size-4" />
-                  <span>Edit Profile</span>
-                </HStack>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onUploadPhoto(staff)}>
-                <HStack gap={2} p={0}>
-                  <HugeiconsIcon icon={Upload01Icon} className="size-4" />
-                  <span>Upload Photo</span>
-                </HStack>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onAssignClass(staff)}>
-                <HStack gap={2} p={0}>
-                  <HugeiconsIcon icon={School01Icon} className="size-4" />
-                  <span>Assign Class</span>
-                </HStack>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onAssignSubject(staff)}>
-                <HStack gap={2} p={0}>
-                  <HugeiconsIcon icon={BookOpen01Icon} className="size-4" />
-                  <span>Assign Subject</span>
-                </HStack>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onViewWorkload(staff)}>
-                <HStack gap={2} p={0}>
-                  <HugeiconsIcon icon={Chart01Icon} className="size-4" />
-                  <span>View Workload</span>
-                </HStack>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onManageAttendance(staff)}>
-                <HStack gap={2} p={0}>
-                  <HugeiconsIcon
-                    icon={CalendarCheckIn01Icon}
-                    className="size-4"
-                  />
-                  <span>Attendance</span>
-                </HStack>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onManageLeaves(staff)}>
-                <HStack gap={2} p={0}>
-                  <HugeiconsIcon icon={Calendar01Icon} className="size-4" />
-                  <span>Leaves</span>
-                </HStack>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onManagePermissions(staff)}>
-                <HStack gap={2} p={0}>
-                  <HugeiconsIcon icon={Layers01Icon} className="size-4" />
-                  <span>Permissions</span>
-                </HStack>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
-                onClick={() => onDelete(staff.id)}
-              >
-                <HStack gap={2} p={0}>
-                  <HugeiconsIcon icon={Delete02Icon} className="size-4" />
-                  <span>Delete</span>
-                </HStack>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
+            <DropdownMenuItem onClick={() => onEdit(staff)}>
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon icon={PencilEdit01Icon} className="size-4" />
+                <span>Edit Profile</span>
+              </HStack>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onUploadPhoto(staff)}>
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon icon={Upload01Icon} className="size-4" />
+                <span>Upload Photo</span>
+              </HStack>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onAssignClass(staff)}>
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon icon={School01Icon} className="size-4" />
+                <span>Assign Class</span>
+              </HStack>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAssignSubject(staff)}>
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon icon={BookOpen01Icon} className="size-4" />
+                <span>Assign Subject</span>
+              </HStack>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onViewWorkload(staff)}>
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon icon={Chart01Icon} className="size-4" />
+                <span>View Workload</span>
+              </HStack>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onManageAttendance(staff)}>
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon
+                  icon={CalendarCheckIn01Icon}
+                  className="size-4"
+                />
+                <span>Attendance</span>
+              </HStack>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onManageLeaves(staff)}>
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon icon={Calendar01Icon} className="size-4" />
+                <span>Leaves</span>
+              </HStack>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onManagePermissions(staff)}>
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon icon={Layers01Icon} className="size-4" />
+                <span>Permissions</span>
+              </HStack>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="text-destructive focus:text-destructive"
+              onClick={() => onDelete(staff.id)}
+            >
+              <HStack gap={2} p={0}>
+                <HugeiconsIcon icon={Delete02Icon} className="size-4" />
+                <span>Delete</span>
+              </HStack>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
     },
+    meta: { isPinned: 'right' },
   },
 ]

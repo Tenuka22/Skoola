@@ -1,7 +1,7 @@
 import { Suspense, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import * as papaparse from 'papaparse'
+import { stringify as serializeCsv } from 'csv-stringify/browser/esm/sync'
 import { StudentAttendanceFilters } from './components/student-attendance-filters'
 import { StudentAttendanceTable } from './components/student-attendance-table'
 import { StudentAttendanceActions } from './components/student-attendance-actions'
@@ -151,7 +151,7 @@ export function StudentAttendancePage() {
       }),
     )
 
-    const csv = papaparse.unparse(dataToExport)
+    const csv = serializeCsv(dataToExport, { header: true })
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     const url = URL.createObjectURL(blob)

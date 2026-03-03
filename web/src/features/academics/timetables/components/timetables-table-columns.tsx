@@ -4,7 +4,6 @@ import {
   MoreVerticalIcon,
   PencilEdit01Icon,
 } from '@hugeicons/core-free-icons'
-import type { ColumnDef } from '@tanstack/react-table'
 import type {
   AcademicYearResponse,
   ClassResponse,
@@ -12,6 +11,7 @@ import type {
   SubjectResponse,
   TimetableResponse,
 } from '@/lib/api/types.gen'
+import type { DataTableColumnDef } from '@/components/data-table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { DataTableColumnHeader } from '@/components/ui/data-table-column-header'
+import { DataTableColumnHeader } from '@/components/data-table'
 
 export interface TimetableEntryRow extends Record<string, unknown> {
   id: string
@@ -76,7 +76,7 @@ interface GetTimetableColumnsProps {
 export function getTimetableColumns({
   onEdit,
   onDelete,
-}: GetTimetableColumnsProps): Array<ColumnDef<TimetableEntryRow>> {
+}: GetTimetableColumnsProps): Array<DataTableColumnDef<TimetableEntryRow>> {
   return [
     {
       accessorKey: 'className',
@@ -86,6 +86,7 @@ export function getTimetableColumns({
       cell: ({ row }) => (
         <Badge variant="outline">{row.original.className}</Badge>
       ),
+      meta: { isPinned: 'left' },
     },
     {
       accessorKey: 'subjectName',
@@ -154,6 +155,7 @@ export function getTimetableColumns({
     },
     {
       id: 'actions',
+      header: 'Actions',
       cell: ({ row }) => {
         const entry = row.original.raw
 
@@ -186,6 +188,7 @@ export function getTimetableColumns({
           </DropdownMenu>
         )
       },
+      meta: { isPinned: 'right' },
     },
   ]
 }

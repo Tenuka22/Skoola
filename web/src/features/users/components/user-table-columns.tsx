@@ -1,6 +1,4 @@
 import {
-  ArrowDown01Icon,
-  ArrowUp01Icon,
   Copy01Icon,
   Delete02Icon,
   LockIcon,
@@ -12,11 +10,11 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { Row } from '@tanstack/react-table'
 import type { User } from '../types'
+import type { DataTableColumnDef } from '@/components/data-table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import {
@@ -32,6 +30,7 @@ import {
 } from '@/components/ui/context-menu'
 import { Spinner } from '@/components/ui/spinner'
 import { HStack, Stack, Text } from '@/components/primitives'
+import { DataTableColumnHeader } from '@/components/data-table'
 
 interface GetColumnsProps {
   users?: Array<User>
@@ -162,54 +161,13 @@ export function getUserColumns({
   isUpdating,
   updatingUserId,
   showProfilePictures = true,
-}: GetColumnsProps): Array<ColumnDef<User>> {
+}: GetColumnsProps): Array<DataTableColumnDef<User>> {
   return [
     {
-      id: 'select',
-      header: ({ table }) => (
-        <div className="pl-4">
-          <Checkbox
-            checked={table.getIsAllPageRowsSelected()}
-            indeterminate={
-              !table.getIsAllPageRowsSelected() && table.getIsSomeRowsSelected()
-            }
-            onCheckedChange={(value) => {
-              table.toggleAllPageRowsSelected(!!value)
-            }}
-          />
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="pl-4">
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-          />
-        </div>
-      ),
-      enableSorting: false,
-      enableHiding: false,
-      size: 16,
-    },
-    {
       accessorKey: 'email',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            <HStack gap={2} p={0}>
-              <span>User Info</span>
-              {column.getIsSorted() === 'asc' ? (
-                <HugeiconsIcon icon={ArrowUp01Icon} className="h-4 w-4" />
-              ) : column.getIsSorted() === 'desc' ? (
-                <HugeiconsIcon icon={ArrowDown01Icon} className="h-4 w-4" />
-              ) : null}
-            </HStack>
-          </Button>
-        )
-      },
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="User Info" />
+      ),
       cell: ({ row }) => {
         const user = row.original
         const name = user.email
@@ -252,25 +210,12 @@ export function getUserColumns({
           </HStack>
         )
       },
+      meta: { isPinned: 'left' },
     },
     {
       accessorKey: 'is_verified',
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          <HStack gap={2} p={0}>
-            <span>
-              {column.id === 'is_verified' ? 'Verification' : 'Lock Status'}
-            </span>
-            {column.getIsSorted() === 'asc' ? (
-              <HugeiconsIcon icon={ArrowUp01Icon} className="h-4 w-4" />
-            ) : column.getIsSorted() === 'desc' ? (
-              <HugeiconsIcon icon={ArrowDown01Icon} className="h-4 w-4" />
-            ) : null}
-          </HStack>
-        </Button>
+        <DataTableColumnHeader column={column} title="Verification" />
       ),
       cell: ({ row }) => {
         const isVerified = row.original.is_verified
@@ -297,21 +242,24 @@ export function getUserColumns({
       },
     },
     {
+      accessorKey: 'auth_method',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Auth Method" />
+      ),
+      cell: ({ row }: { row: Row<User> }) => {
+        const method = row.original.auth_method
+        return (
+          <Badge variant="outline" className="capitalize">
+            {method || 'Password'}
+          </Badge>
+        )
+      },
+      enableSorting: false,
+    },
+    {
       accessorKey: 'lockout_until',
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          <HStack gap={2} p={0}>
-            <span>Lock Status</span>
-            {column.getIsSorted() === 'asc' ? (
-              <HugeiconsIcon icon={ArrowUp01Icon} className="h-4 w-4" />
-            ) : column.getIsSorted() === 'desc' ? (
-              <HugeiconsIcon icon={ArrowDown01Icon} className="h-4 w-4" />
-            ) : null}
-          </HStack>
-        </Button>
+        <DataTableColumnHeader column={column} title="Lock Status" />
       ),
       cell: ({ row }) => {
         const lockoutUntil = row.original.lockout_until
@@ -345,26 +293,13 @@ export function getUserColumns({
           </Stack>
         )
       },
+      enableSorting: false,
     },
     {
       accessorKey: 'created_at',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            <HStack gap={2} p={0}>
-              <span>Joined date</span>
-              {column.getIsSorted() === 'asc' ? (
-                <HugeiconsIcon icon={ArrowUp01Icon} className="h-4 w-4" />
-              ) : column.getIsSorted() === 'desc' ? (
-                <HugeiconsIcon icon={ArrowDown01Icon} className="h-4 w-4" />
-              ) : null}
-            </HStack>
-          </Button>
-        )
-      },
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Joined date" />
+      ),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {format(new Date(row.getValue('created_at')), 'd MMM yyyy, h:mm a')}
@@ -373,31 +308,18 @@ export function getUserColumns({
     },
     {
       accessorKey: 'updated_at',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            <HStack gap={2} p={0}>
-              <span>Last Updated</span>
-              {column.getIsSorted() === 'asc' ? (
-                <HugeiconsIcon icon={ArrowUp01Icon} className="h-4 w-4" />
-              ) : column.getIsSorted() === 'desc' ? (
-                <HugeiconsIcon icon={ArrowDown01Icon} className="h-4 w-4" />
-              ) : null}
-            </HStack>
-          </Button>
-        )
-      },
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Last Updated" />
+      ),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {format(new Date(row.getValue('updated_at')), 'd MMM yyyy, h:mm a')}
         </span>
       ),
+      enableSorting: false,
     },
     {
-      id: 'actions',
+      id: 'row-actions',
       header: 'Actions',
       cell: ({ row }) => {
         const user = row.original
@@ -474,7 +396,9 @@ export function getUserColumns({
               <DropdownMenuItem
                 onSelect={(e) => e.preventDefault()}
                 onClick={() => {
-                  onToggleVerify(user)
+                  if (typeof user !== 'function') {
+                    onToggleVerify(user)
+                  }
                 }}
                 disabled={isBeingUpdated}
                 closeOnClick={false}
@@ -519,6 +443,7 @@ export function getUserColumns({
           </DropdownMenu>
         )
       },
+      meta: { isPinned: 'right' },
     },
   ]
 }

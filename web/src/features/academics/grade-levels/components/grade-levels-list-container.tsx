@@ -1,19 +1,35 @@
-import { HugeiconsIcon } from '@hugeicons/react'
-import { AlertCircleIcon } from '@hugeicons/core-free-icons'
+import * as React from 'react'
 import { useGradeLevelsSearchParams } from '../search-params'
-import type { ColumnDef } from '@tanstack/react-table'
 import type {
   GradeLevelResponse,
   PaginatedGradeLevelResponse,
 } from '@/lib/api/types.gen'
 import type { UseQueryResult } from '@tanstack/react-query'
-import { DataTable } from '@/components/ui/data-table'
+import type {
+  DataTableColumnDef,
+  DataTableToolbarContext,
+} from '@/components/data-table'
+import type { Table } from '@tanstack/react-table'
+import { DataTable } from '@/components/data-table'
 
 interface GradeLevelsListContainerProps {
   query: UseQueryResult<PaginatedGradeLevelResponse, Error>
-  columns: Array<ColumnDef<GradeLevelResponse>>
+  columns: Array<DataTableColumnDef<GradeLevelResponse, unknown>>
   rowSelection: Record<string, boolean>
   setRowSelection: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
+  bulkActions?: (context: {
+    selectedRows: Array<GradeLevelResponse>
+    table: Table<GradeLevelResponse>
+  }) => React.ReactNode
+  onFetchFullData?: () => Promise<Array<GradeLevelResponse>>
+  onAdd?: () => void
+  onAddLabel?: string
+  toolbar?: (
+    context: DataTableToolbarContext<GradeLevelResponse>,
+  ) => React.ReactNode
+  onImportCSV?: (rows: Array<Record<string, unknown>>) => void
+  onImportJSON?: (rows: Array<Record<string, unknown>>) => void
+  extraActions?: React.ReactNode
 }
 
 export function GradeLevelsListContainer({
@@ -21,58 +37,49 @@ export function GradeLevelsListContainer({
   columns,
   rowSelection,
   setRowSelection,
+  bulkActions,
+  onFetchFullData,
+  onAdd,
+  onAddLabel,
+  toolbar,
+  onImportCSV,
+  onImportJSON,
+  extraActions,
 }: GradeLevelsListContainerProps) {
-  const { page, setPage, sortBy, setSortBy, sortOrder, setSortOrder } =
-    useGradeLevelsSearchParams()
-  const { data, isLoading, isError, error } = query
+  const {
+    page,
+    setPage,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    limit,
+    setLimit,
+    search,
+    setSearch,
+  } = useGradeLevelsSearchParams()
+  const { data, isLoading } = query
 
-  if (isLoading) {
-    return (
-      <div className="grid flex-1 place-items-center">
-        <p className="text-sm text-muted-foreground">Loading grade levels...</p>
-      </div>
-    )
-  }
-
-  if (isError) {
-    return (
-      <div className="grid flex-1 place-items-center px-4 py-8 text-center">
-        <HugeiconsIcon
-          icon={AlertCircleIcon}
-          className="size-12 text-destructive"
-        />
-        <p className="text-sm text-muted-foreground mt-2">
-          Error: {error.message}
-        </p>
-      </div>
-    )
-  }
-
-  if (!data || data.data.length === 0) {
-    return (
-      <div className="grid flex-1 place-items-center px-4 py-8 text-center">
-        <HugeiconsIcon
-          icon={AlertCircleIcon}
-          className="size-12 text-muted-foreground"
-        />
-        <p className="text-sm text-muted-foreground mt-2">
-          No grade levels found.
-        </p>
-      </div>
-    )
-  }
+  const [columnVisibility, setColumnVisibility] = React.useState({})
 
   return (
-    <div className="relative flex-1 flex flex-col overflow-hidden">
+    <div className="relative flex-1 flex flex-col overflow-hidden h-full">
       <div className="flex-1 overflow-y-auto">
         <DataTable
           columns={columns}
-          data={data.data}
+          data={data?.data || []}
+          pageIndex={(page ?? 1) - 1}
+          pageSize={limit || 10}
+          pageCount={data?.total_pages || 0}
+          canNextPage={(page ?? 1) < (data?.total_pages || 0)}
+          canPreviousPage={(page ?? 1) > 1}
+          fetchNextPage={() => setPage((page ?? 1) + 1)}
+          fetchPreviousPage={() => setPage((page ?? 1) - 1)}
           sorting={[
             { id: sortBy ?? 'grade_number', desc: sortOrder === 'desc' },
           ]}
           onSortingChange={(updaterOrValue) => {
-            const newSorting =
+            const nextSorting =
               typeof updaterOrValue === 'function'
                 ? updaterOrValue([
                     {
@@ -81,22 +88,33 @@ export function GradeLevelsListContainer({
                     },
                   ])
                 : updaterOrValue
-            const firstSort = newSorting[0]
+            const firstSort = nextSorting[0]
             if (firstSort) {
               setSortBy(firstSort.id)
               setSortOrder(firstSort.desc ? 'desc' : 'asc')
             }
           }}
+          columnVisibility={columnVisibility}
+          onColumnVisibilityChange={setColumnVisibility}
           rowSelection={rowSelection}
           onRowSelectionChange={setRowSelection}
-          pageIndex={(page ?? 1) - 1}
-          pageSize={data.limit}
-          pageCount={data.total_pages}
-          canNextPage={(page ?? 1) < data.total_pages}
-          canPreviousPage={(page ?? 1) > 1}
-          fetchNextPage={() => setPage((page ?? 1) + 1)}
-          fetchPreviousPage={() => setPage((page ?? 1) - 1)}
           isLoading={isLoading}
+          onPageSizeChange={setLimit}
+          onPageIndexChange={(index: number) => setPage(index + 1)}
+          showDefaultToolbar={true}
+          toolbar={toolbar}
+          onFetchFullData={onFetchFullData}
+          onImportCSV={onImportCSV}
+          onImportJSON={onImportJSON}
+          onAdd={onAdd}
+          onAddLabel={onAddLabel}
+          bulkActions={bulkActions}
+          enableSelection
+          enablePinning
+          search={search ?? ''}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search grade levels..."
+          extraActions={extraActions}
         />
       </div>
     </div>

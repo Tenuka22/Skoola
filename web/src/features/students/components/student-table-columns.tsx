@@ -1,8 +1,6 @@
 'use client'
 
 import {
-  ArrowDown01Icon,
-  ArrowUp01Icon,
   CalendarCheckIn01Icon,
   Chart01Icon,
   Delete02Icon,
@@ -14,8 +12,8 @@ import {
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import type { ColumnDef } from '@tanstack/react-table'
 import type { StudentResponse } from '@/lib/api/types.gen'
+import type { DataTableColumnDef } from '@/components/data-table'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -26,7 +24,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
+import { DataTableColumnHeader } from '@/components/data-table'
 
 interface GetStudentColumnsProps {
   onEdit: (student: StudentResponse) => void
@@ -48,46 +46,16 @@ export const getStudentColumns = ({
   onManageAttendance,
   onManageMarks,
   onManageBehavior,
-}: GetStudentColumnsProps): Array<ColumnDef<StudentResponse>> => [
-  {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => {
-          table.toggleAllPageRowsSelected(!!value)
-        }}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-    size: 16,
-  },
+}: GetStudentColumnsProps): Array<DataTableColumnDef<StudentResponse>> => [
   {
     accessorKey: 'name_english',
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        Student Name
-        {column.getIsSorted() === 'asc' ? (
-          <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === 'desc' ? (
-          <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
-        ) : null}
-      </Button>
+      <DataTableColumnHeader column={column} title="Student Name" />
     ),
     cell: ({ row }) => {
       const student = row.original
       return (
-        <div className="flex items-center gap-3 pl-4">
+        <div className="flex items-center gap-3">
           <Avatar className="size-8">
             <AvatarImage
               src={
@@ -113,70 +81,45 @@ export const getStudentColumns = ({
         </div>
       )
     },
+    meta: { isPinned: 'left' },
   },
   {
     accessorKey: 'email',
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        Email
-        {column.getIsSorted() === 'asc' ? (
-          <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === 'desc' ? (
-          <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
-        ) : null}
-      </Button>
+      <DataTableColumnHeader column={column} title="Email" />
     ),
-    cell: ({ row }) => (
-      <span className="pl-4">{row.getValue('email') || '-'}</span>
-    ),
+    cell: ({ row }) => <span>{row.getValue('email') || '-'}</span>,
   },
   {
     accessorKey: 'status',
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        Status
-        {column.getIsSorted() === 'asc' ? (
-          <HugeiconsIcon icon={ArrowUp01Icon} className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === 'desc' ? (
-          <HugeiconsIcon icon={ArrowDown01Icon} className="ml-2 h-4 w-4" />
-        ) : null}
-      </Button>
+      <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
       const status = row.original.status
       return (
-        <div className="pl-4">
-          <Badge
-            variant="secondary"
-            className={
-              status === 'Active'
-                ? 'bg-green-500/10 text-green-600 border-green-500/20'
-                : 'bg-orange-500/10 text-orange-600 border-orange-500/20'
-            }
-          >
-            {status}
-          </Badge>
-        </div>
+        <Badge
+          variant="secondary"
+          className={
+            status === 'Active'
+              ? 'bg-green-500/10 text-green-600 border-green-500/20'
+              : 'bg-orange-500/10 text-orange-600 border-orange-500/20'
+          }
+        >
+          {status}
+        </Badge>
       )
     },
   },
   {
     accessorKey: 'profile_phone',
     header: 'Phone',
-    cell: ({ row }) => (
-      <span className="pl-4">{row.getValue('profile_phone') || '-'}</span>
-    ),
+    cell: ({ row }) => <span>{row.getValue('profile_phone') || '-'}</span>,
   },
   {
     accessorKey: 'gender',
     header: 'Gender',
-    cell: ({ row }) => <span className="pl-4">{row.getValue('gender')}</span>,
+    cell: ({ row }) => <span>{row.getValue('gender')}</span>,
   },
   {
     id: 'actions',
@@ -238,5 +181,6 @@ export const getStudentColumns = ({
         </DropdownMenu>
       )
     },
+    meta: { isPinned: 'right' },
   },
 ]
