@@ -12,8 +12,8 @@ import type {
   GetEnrichedStudentListData,
   MarkStudentAttendanceRequest, // Import this for type safety
 } from '@/lib/api/types.gen'
-import type { Options } from '@/lib/api/sdk.gen' // Import Options type directly from sdk.gen
-import { FullPageSpinner } from '@/components/ui/full-page-spinner'
+import type { Options } from '@/lib/api/sdk.gen'
+import { Spinner } from '@/components/ui/spinner'
 import {
   bulkMarkStudentAttendanceMutation,
   getAllStudentsOptions,
@@ -174,7 +174,7 @@ export function StudentAttendancePage() {
         </Text>
       </Stack>
 
-      <Suspense fallback={<FullPageSpinner />}>
+      <Suspense fallback={<Spinner />}>
         <StudentAttendanceFilters
           selectedClassId={selectedClassId}
           onClassChange={setSelectedClassId}
@@ -193,7 +193,7 @@ export function StudentAttendancePage() {
       />
 
       {selectedClassId ? (
-        <Suspense fallback={<FullPageSpinner />}>
+        <Suspense fallback={<Spinner />}>
           <StudentAttendanceTable
             classId={selectedClassId}
             date={selectedDate}

@@ -1,4 +1,10 @@
+import { Controller } from 'react-hook-form'
 import { useQuery } from '@tanstack/react-query'
+import type {
+  ControllerFieldState,
+  ControllerRenderProps,
+  Path,
+} from 'react-hook-form'
 import type {
   AcademicYearResponse,
   ClassResponse,
@@ -14,13 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
+import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import {
   Select,
   SelectContent,
@@ -75,18 +75,35 @@ export function AssignTeacherDialog({
     extras: {
       top: (form) => (
         <>
-          <FormField
-            control={form.control}
+          <Controller
             name="class_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Class</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a class" />
-                    </SelectTrigger>
-                  </FormControl>
+            control={form.control}
+            render={({
+              field,
+              fieldState,
+            }: {
+              field: ControllerRenderProps<
+                CreateClassSubjectTeacherRequest,
+                Path<CreateClassSubjectTeacherRequest>
+              >
+              fieldState: ControllerFieldState
+            }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="class_id">Class</FieldLabel>
+                <Select
+                  {...field}
+                  value={typeof field.value === 'string' ? field.value : ''}
+                  onValueChange={(value) => {
+                    if (value === null) return
+                    field.onChange(value)
+                  }}
+                >
+                  <SelectTrigger
+                    id="class_id"
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Select a class" />
+                  </SelectTrigger>
                   <SelectContent>
                     {classes.map((cls) => (
                       <SelectItem key={cls.id} value={cls.id}>
@@ -95,23 +112,42 @@ export function AssignTeacherDialog({
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage />
-              </FormItem>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
             )}
           />
 
-          <FormField
-            control={form.control}
+          <Controller
             name="subject_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Subject</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a subject" />
-                    </SelectTrigger>
-                  </FormControl>
+            control={form.control}
+            render={({
+              field,
+              fieldState,
+            }: {
+              field: ControllerRenderProps<
+                CreateClassSubjectTeacherRequest,
+                Path<CreateClassSubjectTeacherRequest>
+              >
+              fieldState: ControllerFieldState
+            }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="subject_id">Subject</FieldLabel>
+                <Select
+                  {...field}
+                  value={typeof field.value === 'string' ? field.value : ''}
+                  onValueChange={(value) => {
+                    if (value === null) return
+                    field.onChange(value)
+                  }}
+                >
+                  <SelectTrigger
+                    id="subject_id"
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Select a subject" />
+                  </SelectTrigger>
                   <SelectContent>
                     {subjects.map((subject: SubjectResponse) => (
                       <SelectItem key={subject.id} value={subject.id}>
@@ -120,23 +156,42 @@ export function AssignTeacherDialog({
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage />
-              </FormItem>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
             )}
           />
 
-          <FormField
-            control={form.control}
+          <Controller
             name="teacher_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teacher</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a teacher" />
-                    </SelectTrigger>
-                  </FormControl>
+            control={form.control}
+            render={({
+              field,
+              fieldState,
+            }: {
+              field: ControllerRenderProps<
+                CreateClassSubjectTeacherRequest,
+                Path<CreateClassSubjectTeacherRequest>
+              >
+              fieldState: ControllerFieldState
+            }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="teacher_id">Teacher</FieldLabel>
+                <Select
+                  {...field}
+                  value={typeof field.value === 'string' ? field.value : ''}
+                  onValueChange={(value) => {
+                    if (value === null) return
+                    field.onChange(value)
+                  }}
+                >
+                  <SelectTrigger
+                    id="teacher_id"
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Select a teacher" />
+                  </SelectTrigger>
                   <SelectContent>
                     {teachers.map((teacher: StaffResponse) => (
                       <SelectItem key={teacher.id} value={teacher.id}>
@@ -145,23 +200,44 @@ export function AssignTeacherDialog({
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage />
-              </FormItem>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
             )}
           />
 
-          <FormField
-            control={form.control}
+          <Controller
             name="academic_year_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Academic Year</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an academic year" />
-                    </SelectTrigger>
-                  </FormControl>
+            control={form.control}
+            render={({
+              field,
+              fieldState,
+            }: {
+              field: ControllerRenderProps<
+                CreateClassSubjectTeacherRequest,
+                Path<CreateClassSubjectTeacherRequest>
+              >
+              fieldState: ControllerFieldState
+            }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="academic_year_id">
+                  Academic Year
+                </FieldLabel>
+                <Select
+                  {...field}
+                  value={typeof field.value === 'string' ? field.value : ''}
+                  onValueChange={(value) => {
+                    if (value === null) return
+                    field.onChange(value)
+                  }}
+                >
+                  <SelectTrigger
+                    id="academic_year_id"
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Select an academic year" />
+                  </SelectTrigger>
                   <SelectContent>
                     {academicYears.map((year) => (
                       <SelectItem key={year.id} value={year.id}>
@@ -170,8 +246,10 @@ export function AssignTeacherDialog({
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage />
-              </FormItem>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
             )}
           />
         </>

@@ -1,11 +1,17 @@
+import { Controller } from 'react-hook-form'
 import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { isFuture, isToday } from 'date-fns'
 import { useMarkStaffAttendanceBulk, useUpdateStaffAttendance } from '../api'
 import { ALL_ATTENDANCE_STATUSES } from '../types'
+import type {
+  ControllerFieldState,
+  ControllerRenderProps,
+  Path,
+  UseFormReturn,
+} from 'react-hook-form'
 import type { z } from 'zod'
 import type { StaffAttendanceWithMember } from '../types'
-import type { UseFormReturn } from 'react-hook-form'
 import { zMarkStaffAttendanceRequest } from '@/lib/api/zod.gen'
 import {
   Dialog,
@@ -15,13 +21,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
+import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import {
   Select,
   SelectContent,
@@ -76,23 +76,38 @@ export const MarkStaffAttendanceDialog = ({
     extras: {
       top: (form) => (
         <>
-          <FormField
-            control={form.control}
+          <Controller
             name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground">
-                  Status
-                </FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
+            control={form.control}
+            render={({
+              field,
+              fieldState,
+            }: {
+              field: ControllerRenderProps<
+                AttendanceFormValues,
+                Path<AttendanceFormValues>
+              >
+              fieldState: ControllerFieldState
+            }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel
+                  htmlFor="status"
+                  className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground"
                 >
-                  <FormControl>
-                    <SelectTrigger className="rounded-xl border-2 h-10 font-bold">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                  </FormControl>
+                  Status
+                </FieldLabel>
+                <Select
+                  {...field}
+                  value={typeof field.value === 'string' ? field.value : ''}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger
+                    id="status"
+                    className="rounded-xl border-2 h-10 font-bold"
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
                   <SelectContent>
                     {ALL_ATTENDANCE_STATUSES.map((status) => (
                       <SelectItem key={status} value={status}>
@@ -101,70 +116,114 @@ export const MarkStaffAttendanceDialog = ({
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage />
-              </FormItem>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
             )}
           />
           <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
+            <Controller
               name="time_in"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground">
+              control={form.control}
+              render={({
+                field,
+                fieldState,
+              }: {
+                field: ControllerRenderProps<
+                  AttendanceFormValues,
+                  Path<AttendanceFormValues>
+                >
+                fieldState: ControllerFieldState
+              }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel
+                    htmlFor="time_in"
+                    className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground"
+                  >
                     Time In
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="time"
-                      {...field}
-                      value={field.value ?? ''}
-                      className="rounded-xl border-2 h-10 font-bold"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="time_in"
+                    type="time"
+                    className="rounded-xl border-2 h-10 font-bold"
+                    aria-invalid={fieldState.invalid}
+                    value={field.value ?? ''}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
               )}
             />
-            <FormField
-              control={form.control}
+            <Controller
               name="time_out"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground">
+              control={form.control}
+              render={({
+                field,
+                fieldState,
+              }: {
+                field: ControllerRenderProps<
+                  AttendanceFormValues,
+                  Path<AttendanceFormValues>
+                >
+                fieldState: ControllerFieldState
+              }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel
+                    htmlFor="time_out"
+                    className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground"
+                  >
                     Time Out
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="time"
-                      {...field}
-                      value={field.value ?? ''}
-                      className="rounded-xl border-2 h-10 font-bold"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="time_out"
+                    type="time"
+                    className="rounded-xl border-2 h-10 font-bold"
+                    aria-invalid={fieldState.invalid}
+                    value={field.value ?? ''}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
               )}
             />
           </div>
-          <FormField
-            control={form.control}
+          <Controller
             name="remarks"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground">
+            control={form.control}
+            render={({
+              field,
+              fieldState,
+            }: {
+              field: ControllerRenderProps<
+                AttendanceFormValues,
+                Path<AttendanceFormValues>
+              >
+              fieldState: ControllerFieldState
+            }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel
+                  htmlFor="remarks"
+                  className="font-bold uppercase text-[10px] tracking-widest text-muted-foreground"
+                >
                   Remarks
-                </FormLabel>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    value={field.value ?? ''}
-                    className="rounded-xl border-2 font-bold min-h-[100px]"
-                    placeholder="Add any notes here..."
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+                </FieldLabel>
+                <Textarea
+                  {...field}
+                  id="remarks"
+                  className="rounded-xl border-2 font-bold min-h-[100px]"
+                  placeholder="Add any notes here..."
+                  aria-invalid={fieldState.invalid}
+                  value={field.value ?? ''}
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
             )}
           />
         </>

@@ -8,7 +8,7 @@ import type {
   StaffAttendanceResponse,
   StaffResponse,
 } from '@/lib/api/types.gen'
-import { FullPageSpinner } from '@/components/ui/full-page-spinner'
+import { Spinner } from '@/components/ui/spinner'
 import {
   getAllStaffOptions,
   getStaffAttendanceByDateOptions,
@@ -69,7 +69,7 @@ export function StaffAttendancePage() {
         </Text>
       </Stack>
 
-      <Suspense fallback={<FullPageSpinner />}>
+      <Suspense fallback={<Spinner />}>
         <StaffAttendanceFilters
           selectedDate={selectedDate}
           onDateChange={setSelectedDate}
@@ -78,7 +78,7 @@ export function StaffAttendancePage() {
         />
       </Suspense>
 
-      <Suspense fallback={<FullPageSpinner />}>
+      <Suspense fallback={<Spinner />}>
         <StaffAttendanceTable date={selectedDate} />
       </Suspense>
     </Stack>

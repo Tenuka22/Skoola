@@ -16,7 +16,7 @@ cloud-run-backend:
     cd backend; ./backend
 
 dev-backend-hr:
-    cd backend; cargo watch -x run
+    cd backend; cargo watch -x "run --bin backend"
 
 check-backend:
     cd backend; cargo check

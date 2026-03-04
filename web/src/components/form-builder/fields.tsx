@@ -1,18 +1,19 @@
 import { format } from 'date-fns'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Calendar01Icon } from '@hugeicons/core-free-icons'
-import type { FieldValues, UseFormReturn } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
+import type {
+  ControllerFieldState,
+  ControllerRenderProps,
+  FieldValues,
+  Path,
+  UseFormReturn,
+} from 'react-hook-form'
 
 import type { FormFieldConfig } from './types'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
+import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import {
   InputGroup,
@@ -38,7 +39,7 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 
-function FieldDescription({ description }: { description?: string }) {
+function LocalFieldDescription({ description }: { description?: string }) {
   if (!description) return null
   return <p className="text-xs text-muted-foreground">{description}</p>
 }
@@ -88,19 +89,19 @@ export function FormFieldRenderer<TInput extends FieldValues>({
 
     if (fieldConfig.type === 'checkbox') {
       return (
-        <FormItem className={fieldConfig.className}>
+        <Field className={fieldConfig.className}>
           <div className="flex items-center gap-2">
             <Skeleton className="h-4 w-4 rounded-[4px]" />
             <Skeleton className="h-4 w-24 rounded-md" />
           </div>
           {description}
-        </FormItem>
+        </Field>
       )
     }
 
     if (fieldConfig.type === 'switch') {
       return (
-        <FormItem className={fieldConfig.className}>
+        <Field className={fieldConfig.className}>
           <div className="flex items-center justify-between">
             <div className="space-y-2">
               <Skeleton className="h-4 w-28 rounded-md" />
@@ -108,12 +109,12 @@ export function FormFieldRenderer<TInput extends FieldValues>({
             </div>
             <Skeleton className="h-[18.4px] w-[32px] rounded-full" />
           </div>
-        </FormItem>
+        </Field>
       )
     }
 
     return (
-      <FormItem className={fieldConfig.className}>
+      <Field className={fieldConfig.className}>
         <Skeleton className="h-4 w-28 rounded-md" />
         <Skeleton
           className={
@@ -121,25 +122,39 @@ export function FormFieldRenderer<TInput extends FieldValues>({
           }
         />
         {description}
-      </FormItem>
+      </Field>
     )
   }
 
   if (fieldConfig.type === 'date-picker') {
     return (
-      <FormField
-        control={form.control}
+      <Controller
         name={fieldConfig.field}
-        render={({ field }) => (
-          <FormItem className={fieldConfig.className}>
-            <FormLabel className={fieldConfig.labelClassName}>
+        control={form.control}
+        render={({
+          field,
+          fieldState,
+        }: {
+          field: ControllerRenderProps<TInput, Path<TInput>>
+          fieldState: ControllerFieldState
+        }) => (
+          <Field
+            data-invalid={fieldState.invalid}
+            className={fieldConfig.className}
+          >
+            <FieldLabel
+              htmlFor={fieldConfig.field}
+              className={fieldConfig.labelClassName}
+            >
               {fieldConfig.label ?? ''}
-            </FormLabel>
+            </FieldLabel>
             <Popover>
               <PopoverTrigger
                 disabled={disabled}
                 render={
                   <Input
+                    {...field}
+                    id={fieldConfig.field}
                     placeholder={fieldConfig.placeholder ?? 'Pick a date'}
                     value={
                       parseDateValue(field.value)
@@ -155,6 +170,7 @@ export function FormFieldRenderer<TInput extends FieldValues>({
                       !field.value && 'text-muted-foreground',
                       fieldConfig.inputClassName,
                     )}
+                    aria-invalid={fieldState.invalid}
                   />
                 }
               />
@@ -173,9 +189,9 @@ export function FormFieldRenderer<TInput extends FieldValues>({
                 />
               </PopoverContent>
             </Popover>
-            <FieldDescription description={fieldConfig.description} />
-            <FormMessage />
-          </FormItem>
+            <LocalFieldDescription description={fieldConfig.description} />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
         )}
       />
     )
@@ -183,103 +199,109 @@ export function FormFieldRenderer<TInput extends FieldValues>({
 
   if (fieldConfig.type === 'input') {
     return (
-      <FormField
-        control={form.control}
+      <Controller
         name={fieldConfig.field}
-        render={({ field }) => (
-          <FormItem className={fieldConfig.className}>
-            <FormLabel className={fieldConfig.labelClassName}>
+        control={form.control}
+        render={({
+          field,
+          fieldState,
+        }: {
+          field: ControllerRenderProps<TInput, Path<TInput>>
+          fieldState: ControllerFieldState
+        }) => (
+          <Field
+            data-invalid={fieldState.invalid}
+            className={fieldConfig.className}
+          >
+            <FieldLabel htmlFor={fieldConfig.field}>
               {fieldConfig.label ?? ''}
-            </FormLabel>
-            <FormControl>
-              {fieldConfig.inputType === 'datetime-local' ? (
-                <Popover>
-                  <PopoverTrigger
-                    disabled={disabled}
-                    render={
-                      <Button
-                        variant="outline"
-                        disabled={disabled}
-                        className={cn(
-                          'w-full justify-start text-left font-normal h-10 rounded-xl border-none bg-muted/50 ring-1 ring-border focus-visible:ring-2 focus-visible:ring-primary shadow-sm',
-                          !parseDateValue(field.value) &&
-                            'text-muted-foreground',
-                          fieldConfig.inputClassName,
-                        )}
-                      >
-                        <HugeiconsIcon
-                          icon={Calendar01Icon}
-                          className="mr-2 h-4 w-4"
-                        />
-                        {parseDateValue(field.value) ? (
-                          format(
-                            parseDateValue(field.value) ?? new Date(),
-                            'PPP p',
-                          )
-                        ) : (
-                          <span>
-                            {fieldConfig.placeholder ?? 'Pick a date'}
-                          </span>
-                        )}
-                      </Button>
-                    }
-                  />
-                  <PopoverContent className="w-auto p-0 rounded-xl bg-background border-none shadow-xl">
-                    <Calendar
-                      mode="single"
-                      selected={parseDateValue(field.value)}
-                      onSelect={(date) => {
-                        if (!date) {
-                          field.onChange(null)
-                          return
-                        }
-                        field.onChange(
-                          formatDateValue(
-                            date,
-                            fieldConfig.inputType,
-                            field.value,
-                          ),
-                        )
-                      }}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              ) : fieldConfig.inputGroup ? (
-                <InputGroup
-                  data-disabled={disabled}
-                  className={fieldConfig.inputGroup.className}
-                >
-                  {fieldConfig.inputGroup.addons?.map((addon, index) => (
-                    <InputGroupAddon
-                      key={`${fieldConfig.field}-addon-${index}`}
-                      align={addon.align}
-                      className={addon.className}
+            </FieldLabel>
+            {fieldConfig.inputType === 'datetime-local' ? (
+              <Popover>
+                <PopoverTrigger
+                  disabled={disabled}
+                  render={
+                    <Button
+                      variant="outline"
+                      disabled={disabled}
+                      className={cn(
+                        'w-full justify-start text-left font-normal h-10 rounded-xl border-none bg-muted/50 ring-1 ring-border focus-visible:ring-2 focus-visible:ring-primary shadow-sm',
+                        !parseDateValue(field.value) && 'text-muted-foreground',
+                        fieldConfig.inputClassName,
+                      )}
                     >
-                      {addon.content}
-                    </InputGroupAddon>
-                  ))}
-                  <InputGroupInput
-                    type={fieldConfig.inputType}
-                    placeholder={fieldConfig.placeholder}
-                    disabled={disabled}
-                    className={fieldConfig.inputClassName}
-                    {...field}
+                      <HugeiconsIcon
+                        icon={Calendar01Icon}
+                        className="mr-2 h-4 w-4"
+                      />
+                      {parseDateValue(field.value) ? (
+                        format(
+                          parseDateValue(field.value) ?? new Date(),
+                          'PPP p',
+                        )
+                      ) : (
+                        <span>{fieldConfig.placeholder ?? 'Pick a date'}</span>
+                      )}
+                    </Button>
+                  }
+                />
+                <PopoverContent className="w-auto p-0 rounded-xl bg-background border-none shadow-xl">
+                  <Calendar
+                    mode="single"
+                    selected={parseDateValue(field.value)}
+                    onSelect={(date) => {
+                      if (!date) {
+                        field.onChange(null)
+                        return
+                      }
+                      field.onChange(
+                        formatDateValue(
+                          date,
+                          fieldConfig.inputType,
+                          field.value,
+                        ),
+                      )
+                    }}
+                    initialFocus
                   />
-                </InputGroup>
-              ) : (
-                <Input
+                </PopoverContent>
+              </Popover>
+            ) : fieldConfig.inputGroup ? (
+              <InputGroup
+                data-disabled={disabled}
+                className={fieldConfig.inputGroup.className}
+              >
+                {fieldConfig.inputGroup.addons?.map((addon, index) => (
+                  <InputGroupAddon
+                    key={`${fieldConfig.field}-addon-${index}`}
+                    align={addon.align}
+                    className={addon.className}
+                  >
+                    {addon.content}
+                  </InputGroupAddon>
+                ))}
+                <InputGroupInput
+                  {...field}
                   type={fieldConfig.inputType}
                   placeholder={fieldConfig.placeholder}
                   disabled={disabled}
                   className={fieldConfig.inputClassName}
-                  {...field}
+                  aria-invalid={fieldState.invalid}
                 />
-              )}
-            </FormControl>
-            <FieldDescription description={fieldConfig.description} />
-            <FormMessage />
-          </FormItem>
+              </InputGroup>
+            ) : (
+              <Input
+                {...field}
+                type={fieldConfig.inputType}
+                placeholder={fieldConfig.placeholder}
+                disabled={disabled}
+                className={fieldConfig.inputClassName}
+                aria-invalid={fieldState.invalid}
+              />
+            )}
+            <LocalFieldDescription description={fieldConfig.description} />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
         )}
       />
     )
@@ -287,50 +309,59 @@ export function FormFieldRenderer<TInput extends FieldValues>({
 
   if (fieldConfig.type === 'textarea') {
     return (
-      <FormField
-        control={form.control}
+      <Controller
         name={fieldConfig.field}
-        render={({ field }) => (
-          <FormItem className={fieldConfig.className}>
-            <FormLabel className={fieldConfig.labelClassName}>
+        control={form.control}
+        render={({
+          field,
+          fieldState,
+        }: {
+          field: ControllerRenderProps<TInput, Path<TInput>>
+          fieldState: ControllerFieldState
+        }) => (
+          <Field
+            data-invalid={fieldState.invalid}
+            className={fieldConfig.className}
+          >
+            <FieldLabel htmlFor={fieldConfig.field}>
               {fieldConfig.label ?? ''}
-            </FormLabel>
-            <FormControl>
-              {fieldConfig.inputGroup ? (
-                <InputGroup
-                  data-disabled={disabled}
-                  className={cn('h-auto', fieldConfig.inputGroup.className)}
-                >
-                  {fieldConfig.inputGroup.addons?.map((addon, index) => (
-                    <InputGroupAddon
-                      key={`${fieldConfig.field}-addon-${index}`}
-                      align={addon.align}
-                      className={addon.className}
-                    >
-                      {addon.content}
-                    </InputGroupAddon>
-                  ))}
-                  <InputGroupTextarea
-                    rows={fieldConfig.rows}
-                    placeholder={fieldConfig.placeholder}
-                    disabled={disabled}
-                    className={fieldConfig.textareaClassName}
-                    {...field}
-                  />
-                </InputGroup>
-              ) : (
-                <Textarea
+            </FieldLabel>
+            {fieldConfig.inputGroup ? (
+              <InputGroup
+                data-disabled={disabled}
+                className={cn('h-auto', fieldConfig.inputGroup.className)}
+              >
+                {fieldConfig.inputGroup.addons?.map((addon, index) => (
+                  <InputGroupAddon
+                    key={`${fieldConfig.field}-addon-${index}`}
+                    align={addon.align}
+                    className={addon.className}
+                  >
+                    {addon.content}
+                  </InputGroupAddon>
+                ))}
+                <InputGroupTextarea
+                  {...field}
                   rows={fieldConfig.rows}
                   placeholder={fieldConfig.placeholder}
                   disabled={disabled}
                   className={fieldConfig.textareaClassName}
-                  {...field}
+                  aria-invalid={fieldState.invalid}
                 />
-              )}
-            </FormControl>
-            <FieldDescription description={fieldConfig.description} />
-            <FormMessage />
-          </FormItem>
+              </InputGroup>
+            ) : (
+              <Textarea
+                {...field}
+                rows={fieldConfig.rows}
+                placeholder={fieldConfig.placeholder}
+                disabled={disabled}
+                className={fieldConfig.textareaClassName}
+                aria-invalid={fieldState.invalid}
+              />
+            )}
+            <LocalFieldDescription description={fieldConfig.description} />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
         )}
       />
     )
@@ -338,15 +369,25 @@ export function FormFieldRenderer<TInput extends FieldValues>({
 
   if (fieldConfig.type === 'select') {
     return (
-      <FormField
-        control={form.control}
+      <Controller
         name={fieldConfig.field}
-        render={({ field }) => (
-          <FormItem className={fieldConfig.className}>
-            <FormLabel className={fieldConfig.labelClassName}>
+        control={form.control}
+        render={({
+          field,
+          fieldState,
+        }: {
+          field: ControllerRenderProps<TInput, Path<TInput>>
+          fieldState: ControllerFieldState
+        }) => (
+          <Field
+            data-invalid={fieldState.invalid}
+            className={fieldConfig.className}
+          >
+            <FieldLabel htmlFor={fieldConfig.field}>
               {fieldConfig.label ?? ''}
-            </FormLabel>
+            </FieldLabel>
             <Select
+              {...field}
               value={typeof field.value === 'string' ? field.value : ''}
               onValueChange={(value) => {
                 if (value === null) return
@@ -354,13 +395,13 @@ export function FormFieldRenderer<TInput extends FieldValues>({
               }}
               disabled={disabled}
             >
-              <FormControl>
-                <SelectTrigger
-                  className={cn('w-full', fieldConfig.triggerClassName)}
-                >
-                  <SelectValue placeholder={fieldConfig.placeholder} />
-                </SelectTrigger>
-              </FormControl>
+              <SelectTrigger
+                id={fieldConfig.field}
+                className={cn('w-full', fieldConfig.triggerClassName)}
+                aria-invalid={fieldState.invalid}
+              >
+                <SelectValue placeholder={fieldConfig.placeholder} />
+              </SelectTrigger>
               <SelectContent>
                 {fieldConfig.items.map((item) => (
                   <SelectItem key={item.value} value={item.value}>
@@ -369,9 +410,9 @@ export function FormFieldRenderer<TInput extends FieldValues>({
                 ))}
               </SelectContent>
             </Select>
-            <FieldDescription description={fieldConfig.description} />
-            <FormMessage />
-          </FormItem>
+            <LocalFieldDescription description={fieldConfig.description} />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
         )}
       />
     )
@@ -379,56 +420,82 @@ export function FormFieldRenderer<TInput extends FieldValues>({
 
   if (fieldConfig.type === 'checkbox') {
     return (
-      <FormField
-        control={form.control}
+      <Controller
         name={fieldConfig.field}
-        render={({ field }) => (
-          <FormItem className={fieldConfig.className}>
+        control={form.control}
+        render={({
+          field,
+          fieldState,
+        }: {
+          field: ControllerRenderProps<TInput, Path<TInput>>
+          fieldState: ControllerFieldState
+        }) => (
+          <Field
+            data-invalid={fieldState.invalid}
+            className={fieldConfig.className}
+          >
             <div className="flex items-center gap-2">
-              <FormControl>
-                <Checkbox
-                  checked={Boolean(field.value)}
-                  onCheckedChange={field.onChange}
-                  disabled={disabled}
-                  className={fieldConfig.checkboxClassName}
-                />
-              </FormControl>
-              <FormLabel className={cn('text-sm', fieldConfig.labelClassName)}>
+              <Checkbox
+                {...field}
+                id={fieldConfig.field}
+                checked={Boolean(field.value)}
+                onCheckedChange={field.onChange}
+                disabled={disabled}
+                className={fieldConfig.checkboxClassName}
+                aria-invalid={fieldState.invalid}
+              />
+              <FieldLabel
+                htmlFor={fieldConfig.field}
+                className={cn('text-sm', fieldConfig.labelClassName)}
+              >
                 {fieldConfig.label ?? ''}
-              </FormLabel>
+              </FieldLabel>
             </div>
-            <FieldDescription description={fieldConfig.description} />
-            <FormMessage />
-          </FormItem>
+            <LocalFieldDescription description={fieldConfig.description} />
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
         )}
       />
     )
   }
 
   return (
-    <FormField
-      control={form.control}
+    <Controller
       name={fieldConfig.field}
-      render={({ field }) => (
-        <FormItem className={fieldConfig.className}>
+      control={form.control}
+      render={({
+        field,
+        fieldState,
+      }: {
+        field: ControllerRenderProps<TInput, Path<TInput>>
+        fieldState: ControllerFieldState
+      }) => (
+        <Field
+          data-invalid={fieldState.invalid}
+          className={fieldConfig.className}
+        >
           <div className="flex items-center justify-between">
             <div>
-              <FormLabel className={cn('text-sm', fieldConfig.labelClassName)}>
+              <FieldLabel
+                htmlFor={fieldConfig.field}
+                className={cn('text-sm', fieldConfig.labelClassName)}
+              >
                 {fieldConfig.label ?? ''}
-              </FormLabel>
-              <FieldDescription description={fieldConfig.description} />
+              </FieldLabel>
+              <LocalFieldDescription description={fieldConfig.description} />
             </div>
-            <FormControl>
-              <Switch
-                checked={Boolean(field.value)}
-                onCheckedChange={field.onChange}
-                disabled={disabled}
-                className={fieldConfig.switchClassName}
-              />
-            </FormControl>
+            <Switch
+              {...field}
+              id={fieldConfig.field}
+              checked={Boolean(field.value)}
+              onCheckedChange={field.onChange}
+              disabled={disabled}
+              className={fieldConfig.switchClassName}
+              aria-invalid={fieldState.invalid}
+            />
           </div>
-          <FormMessage />
-        </FormItem>
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+        </Field>
       )}
     />
   )

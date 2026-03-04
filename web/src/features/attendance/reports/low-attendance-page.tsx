@@ -30,7 +30,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { DataTable } from '@/components/data-table'
-import { FullPageSpinner } from '@/components/ui/full-page-spinner'
+import { Spinner } from '@/components/ui/spinner'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { getAllClassesQueryOptions } from '@/features/academics/classes/api'
 
@@ -300,7 +300,7 @@ export function LowAttendancePage() {
 
       <Card className="border-none shadow-xl overflow-hidden bg-card">
         <CardHeader className="p-0">
-          <Suspense fallback={<FullPageSpinner />}>
+          <Suspense fallback={<Spinner />}>
             <Filters
               selectedClassId={selectedClassId ?? undefined}
               onClassChange={setSelectedClassId}
@@ -315,7 +315,7 @@ export function LowAttendancePage() {
         </CardHeader>
         <CardContent className="p-0 flex flex-col min-h-[400px]">
           {selectedClassId && fromDate && toDate ? (
-            <Suspense fallback={<FullPageSpinner />}>
+            <Suspense fallback={<Spinner />}>
               <LowAttendanceTable
                 classId={selectedClassId}
                 fromDate={fromDate}

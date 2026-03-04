@@ -12,7 +12,6 @@ export default defineConfig([
       '.output/**',
       'src/lib/api/**',
       'src/components/ui/**',
-      'src/features/attendance/index.tsx',
       'src/routeTree.gen.ts',
     ],
   },

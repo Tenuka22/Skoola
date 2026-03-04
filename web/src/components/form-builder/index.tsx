@@ -20,7 +20,7 @@ import type {
 } from './types'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Form } from '@/components/ui/form'
+
 import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
 
@@ -261,7 +261,7 @@ export function FormBuilder<TSchema extends ZodObject>({
     ) : null
 
   return (
-    <Form {...form}>
+    <React.Fragment>
       <form
         id={formId}
         onSubmit={handleSubmit}
@@ -327,7 +327,7 @@ export function FormBuilder<TSchema extends ZodObject>({
 
         {renderSlot(config.extras?.bottom, form)}
       </form>
-    </Form>
+    </React.Fragment>
   )
 }
 

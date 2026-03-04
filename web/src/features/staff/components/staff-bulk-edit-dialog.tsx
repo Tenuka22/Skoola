@@ -1,6 +1,12 @@
 'use client'
 
+import { Controller } from 'react-hook-form'
 import { bulkEditStaffFormSchema } from '../schemas'
+import type {
+  ControllerFieldState,
+  ControllerRenderProps,
+  Path,
+} from 'react-hook-form'
 import type { BulkEditStaffFormValues } from '../schemas'
 import {
   Dialog,
@@ -12,13 +18,6 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -28,6 +27,7 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 import { zEmploymentStatus, zStaffType } from '@/lib/api/zod.gen'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
+import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 
 interface StaffBulkEditDialogProps {
   open: boolean
@@ -52,21 +52,32 @@ export function StaffBulkEditDialog({
     extras: {
       top: (form) => (
         <>
-          <FormField
-            control={form.control}
+          <Controller
             name="staff_type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Staff Type</FormLabel>
+            control={form.control}
+            render={({
+              field,
+              fieldState,
+            }: {
+              field: ControllerRenderProps<
+                BulkEditStaffFormValues,
+                Path<BulkEditStaffFormValues>
+              >
+              fieldState: ControllerFieldState
+            }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="staff_type">Staff Type</FieldLabel>
                 <Select
+                  {...field}
+                  value={typeof field.value === 'string' ? field.value : ''}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
                 >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a type" />
-                    </SelectTrigger>
-                  </FormControl>
+                  <SelectTrigger
+                    id="staff_type"
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Select a type" />
+                  </SelectTrigger>
                   <SelectContent>
                     {staffTypes.map((type) => (
                       <SelectItem key={type} value={type}>
@@ -75,25 +86,40 @@ export function StaffBulkEditDialog({
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage />
-              </FormItem>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
             )}
           />
-          <FormField
-            control={form.control}
+          <Controller
             name="employment_status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Employment Status</FormLabel>
+            control={form.control}
+            render={({
+              field,
+              fieldState,
+            }: {
+              field: ControllerRenderProps<
+                BulkEditStaffFormValues,
+                Path<BulkEditStaffFormValues>
+              >
+              fieldState: ControllerFieldState
+            }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="employment_status">
+                  Employment Status
+                </FieldLabel>
                 <Select
+                  {...field}
+                  value={typeof field.value === 'string' ? field.value : ''}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
                 >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a status" />
-                    </SelectTrigger>
-                  </FormControl>
+                  <SelectTrigger
+                    id="employment_status"
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Select a status" />
+                  </SelectTrigger>
                   <SelectContent>
                     {employmentStatuses.map((status) => (
                       <SelectItem key={status} value={status}>
@@ -102,8 +128,10 @@ export function StaffBulkEditDialog({
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage />
-              </FormItem>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
             )}
           />
         </>

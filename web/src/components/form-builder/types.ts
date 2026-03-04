@@ -34,6 +34,7 @@ export type InputField<TInput extends FieldValues> = BaseField<TInput> & {
       className?: string
     }>
   }
+  parse?: (value: string) => TInput[FieldPath<TInput>]
 }
 
 export type TextareaField<TInput extends FieldValues> = BaseField<TInput> & {
@@ -49,6 +50,7 @@ export type TextareaField<TInput extends FieldValues> = BaseField<TInput> & {
       className?: string
     }>
   }
+  parse?: (value: string) => TInput[FieldPath<TInput>]
 }
 
 export type SelectField<
@@ -60,6 +62,7 @@ export type SelectField<
   triggerClassName?: string
   items: Array<{ label: string; value: TValue }>
   parse: (value: string) => TValue
+  onValueChange?: (value: string, form: UseFormReturn<TInput>) => void
 }
 
 export type CheckboxField<TInput extends FieldValues> = BaseField<TInput> & {

@@ -1,6 +1,3 @@
-import * as React from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { behaviorIncidentTypeSchema } from '../schemas'
 import type { BehaviorIncidentTypeFormValues } from '../schemas'
 import type { BehaviorIncidentTypeResponse } from '@/lib/api/types.gen'
@@ -12,17 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
+import { FormBuilder, defineFormConfig } from '@/components/form-builder'
+import { Spinner } from '@/components/ui/spinner'
 
 interface BehaviorTypeDialogProps {
   type?: BehaviorIncidentTypeResponse | null
@@ -39,34 +28,58 @@ export function BehaviorTypeDialog({
   onConfirm,
   isSubmitting,
 }: BehaviorTypeDialogProps) {
-  const form = useForm<BehaviorIncidentTypeFormValues>({
-    resolver: zodResolver(behaviorIncidentTypeSchema),
-    defaultValues: {
-      type_name: '',
-      description: '',
-      default_points: 0,
-    },
-  })
-
-  React.useEffect(() => {
-    if (type) {
-      form.reset({
-        type_name: type.type_name,
-        description: type.description || '',
-        default_points: type.default_points,
-      })
-    } else {
-      form.reset({
-        type_name: '',
-        description: '',
-        default_points: 0,
-      })
-    }
-  }, [type, form])
-
   const onSubmit = (data: BehaviorIncidentTypeFormValues) => {
     onConfirm(data)
   }
+
+  const config = defineFormConfig(behaviorIncidentTypeSchema, {
+    structure: [
+      [
+        {
+          field: 'type_name',
+          type: 'input',
+          label: 'Type Name',
+          placeholder: 'e.g. Late Arrival',
+          parse: (value: string) => value,
+        },
+      ],
+      [
+        {
+          field: 'description',
+          type: 'textarea',
+          label: 'Description',
+          placeholder: 'Describe this behavior type...',
+          parse: (value: string) => value,
+        },
+      ],
+      [
+        {
+          field: 'default_points',
+          type: 'input',
+          inputType: 'number',
+          label: 'Default Points',
+          parse: (value: string) => parseInt(value, 10),
+        },
+      ],
+    ],
+    extras: {
+      bottom: (
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? <Spinner className="mr-2" /> : null}
+            {type ? 'Update' : 'Create'}
+          </Button>
+        </DialogFooter>
+      ),
+    },
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -79,68 +92,39 @@ export function BehaviorTypeDialog({
               : 'Create a new type of behavior incident.'}
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="type_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Late Arrival" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Describe this behavior type..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="default_points"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Default Points</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      onChange={(e) => field.onChange(parseInt(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {type ? 'Update' : 'Create'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        <FormBuilder
+          schema={behaviorIncidentTypeSchema}
+          config={config}
+          defaultValues={{
+            type_name: type?.type_name || '',
+            description: type?.description || '',
+            default_points: type?.default_points || 0,
+          }}
+          onSubmit={(values) => onSubmit(values)}
+          preload={(form) => {
+            if (open) {
+              if (type) {
+                form.reset({
+                  type_name: type.type_name,
+                  description: type.description || '',
+                  default_points: type.default_points,
+                })
+              } else {
+                form.reset({
+                  type_name: '',
+                  description: '',
+                  default_points: 0,
+                })
+              }
+            }
+          }}
+          isLoading={isSubmitting}
+          showErrorSummary={false}
+          toastErrors={false}
+          showSuccessAlert={false}
+          actions={[]}
+          className="space-y-4"
+        />
       </DialogContent>
     </Dialog>
   )

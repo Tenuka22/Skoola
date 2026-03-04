@@ -1,5 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
+
 import * as React from 'react'
 
 import { UserCreateDialog } from '../../features/users/components/user-create-dialog'
@@ -12,7 +17,7 @@ import {
 import { UsersHeader } from '../../features/users/components/users-header'
 import { UsersListContainer } from '../../features/users/components/users-list-container'
 import { isAuthMethod } from '../../features/users/utils/user-guards'
-import type { QueryClient } from '@tanstack/react-query'
+
 import type {
   BulkUpdateValues,
   UpdateUserValues,
@@ -36,6 +41,7 @@ export const Route = createFileRoute('/admin/users')({
 })
 
 function Users() {
+  const queryClient = useQueryClient()
   const { page, limit, search, statusFilter, authFilter, sort } =
     useUsersSearchParams()
 
@@ -51,6 +57,7 @@ function Users() {
 
   const usersQuery = useQuery({
     ...getUsersQueryOptions({
+      client: authClient,
       query: {
         page: page ?? 1,
         limit: limit ?? 10,
@@ -110,6 +117,7 @@ function Users() {
 
   const fetchFullData = React.useCallback(async () => {
     const options = getUsersQueryOptions({
+      client: authClient,
       query: {
         page: 1,
         limit: 1000,
@@ -133,12 +141,13 @@ function Users() {
 
     if (!options.queryFn) return []
     const response = await options.queryFn({
+      client: queryClient,
       queryKey: options.queryKey,
       signal: new AbortController().signal,
       meta: undefined,
     })
     return response.data
-  }, [search, statusFilter, authFilter, sort])
+  }, [search, statusFilter, authFilter, sort, queryClient])
 
   const columns = getUserColumns({
     onToggleVerify: (user: UserResponse) =>

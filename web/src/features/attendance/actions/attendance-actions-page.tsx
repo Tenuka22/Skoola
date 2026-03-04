@@ -28,8 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { CalendarInput } from '@/components/ui/calendar-input'
-import { FullPageSpinner } from '@/components/ui/full-page-spinner'
+import { Spinner } from '@/components/ui/spinner'
+
 import { getAllClassesQueryOptions } from '@/features/academics/classes/api'
 import { getAllStaffQueryOptions } from '@/features/staff/api'
 
@@ -95,9 +95,10 @@ function StudentActions() {
                   ))}
                 </SelectContent>
               </Select>
-              <CalendarInput
-                value={notificationDate}
-                onChange={setNotificationDate}
+              <Input
+                type="date"
+                value={format(notificationDate, 'yyyy-MM-dd')}
+                onChange={(e) => setNotificationDate(new Date(e.target.value))}
               />
               <Button
                 className="rounded-xl font-bold h-10"
@@ -127,9 +128,10 @@ function StudentActions() {
               Sync Pre-approved Absences
             </Text>
             <HStack gap={3}>
-              <CalendarInput
-                value={syncAbsenceDate}
-                onChange={setSyncAbsenceDate}
+              <Input
+                type="date"
+                value={format(syncAbsenceDate, 'yyyy-MM-dd')}
+                onChange={(e) => setSyncAbsenceDate(new Date(e.target.value))}
               />
               <Button
                 className="rounded-xl font-bold h-10"
@@ -152,9 +154,10 @@ function StudentActions() {
           >
             <Text className="font-bold text-sm">Sync School Business</Text>
             <HStack gap={3}>
-              <CalendarInput
-                value={syncBusinessDate}
-                onChange={setSyncBusinessDate}
+              <Input
+                type="date"
+                value={format(syncBusinessDate, 'yyyy-MM-dd')}
+                onChange={(e) => setSyncBusinessDate(new Date(e.target.value))}
               />
               <Button
                 className="rounded-xl font-bold h-10"
@@ -177,9 +180,10 @@ function StudentActions() {
           >
             <Text className="font-bold text-sm">Run Discrepancy Check</Text>
             <HStack gap={3}>
-              <CalendarInput
-                value={discrepancyDate}
-                onChange={setDiscrepancyDate}
+              <Input
+                type="date"
+                value={format(discrepancyDate, 'yyyy-MM-dd')}
+                onChange={(e) => setDiscrepancyDate(new Date(e.target.value))}
               />
               <Button
                 className="rounded-xl font-bold h-10"
@@ -310,7 +314,11 @@ function StaffActions() {
                   ))}
                 </SelectContent>
               </Select>
-              <CalendarInput value={suggestDate} onChange={setSuggestDate} />
+              <Input
+                type="date"
+                value={format(suggestDate, 'yyyy-MM-dd')}
+                onChange={(e) => setSuggestDate(new Date(e.target.value))}
+              />
               <Button
                 className="rounded-xl font-bold h-10"
                 onClick={handleSuggest}
@@ -369,7 +377,11 @@ function StaffActions() {
                   ))}
                 </SelectContent>
               </Select>
-              <CalendarInput value={createDate} onChange={setCreateDate} />
+              <Input
+                type="date"
+                value={format(createDate, 'yyyy-MM-dd')}
+                onChange={(e) => setCreateDate(new Date(e.target.value))}
+              />
               <Button
                 className="rounded-xl font-bold h-10"
                 onClick={handleCreate}
@@ -440,7 +452,7 @@ export function AttendanceActionsPage() {
           Perform bulk actions and trigger automated processes for attendance.
         </Text>
       </Stack>
-      <Suspense fallback={<FullPageSpinner />}>
+      <Suspense fallback={<Spinner />}>
         <Stack gap={6}>
           <StudentActions />
           <StaffActions />
