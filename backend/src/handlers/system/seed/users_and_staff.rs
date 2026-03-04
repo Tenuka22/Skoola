@@ -200,6 +200,7 @@ pub fn seed_all(
             profile_id: None,
             created_at: now,
             updated_at: now,
+            reward_points_balance: 0,
         };
         staff_to_insert.push(new_staff);
         seeded_staff_ids.push(staff_id);

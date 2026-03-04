@@ -15,7 +15,6 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminYearsRouteImport } from './routes/admin/years'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminStudentsRouteImport } from './routes/admin/students'
-import { Route as AdminStaffRouteImport } from './routes/admin/staff'
 import { Route as AdminRbacRouteImport } from './routes/admin/rbac'
 import { Route as AdminGradesRouteImport } from './routes/admin/grades'
 import { Route as AdminClassesRouteImport } from './routes/admin/classes'
@@ -25,7 +24,9 @@ import { Route as AdminAcademicsRouteImport } from './routes/admin/academics'
 import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as authProfileRouteImport } from './routes/(auth)/profile'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as AdminStaffIndexRouteImport } from './routes/admin/staff/index'
 import { Route as AdminBehaviorIndexRouteImport } from './routes/admin/behavior/index'
+import { Route as AdminStaffRewardsRouteImport } from './routes/admin/staff/rewards'
 import { Route as AdminAttendanceStudentsRouteImport } from './routes/admin/attendance/students'
 import { Route as AdminAttendanceStaffRouteImport } from './routes/admin/attendance/staff'
 import { Route as AdminAttendanceReportRouteImport } from './routes/admin/attendance/report'
@@ -33,7 +34,11 @@ import { Route as AdminAttendanceLowAttendanceRouteImport } from './routes/admin
 import { Route as AdminAttendanceActionsRouteImport } from './routes/admin/attendance/actions'
 import { Route as AdminAcademicsTimetablesRouteImport } from './routes/admin/academics/timetables'
 import { Route as AdminAcademicsTermsRouteImport } from './routes/admin/academics/terms'
+import { Route as AdminAcademicsSyllabusRouteImport } from './routes/admin/academics/syllabus'
 import { Route as AdminAcademicsSubjectsRouteImport } from './routes/admin/academics/subjects'
+import { Route as AdminAcademicsLessonProgressRouteImport } from './routes/admin/academics/lesson-progress'
+import { Route as AdminAcademicsExamsRouteImport } from './routes/admin/academics/exams'
+import { Route as AdminAcademicsCurriculumRouteImport } from './routes/admin/academics/curriculum'
 import { Route as AdminAcademicsClassAssignmentsRouteImport } from './routes/admin/academics/class-assignments'
 import { Route as AdminAttendanceStudentStudentIdRouteImport } from './routes/admin/attendance/student.$studentId'
 
@@ -65,11 +70,6 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
 const AdminStudentsRoute = AdminStudentsRouteImport.update({
   id: '/students',
   path: '/students',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminStaffRoute = AdminStaffRouteImport.update({
-  id: '/staff',
-  path: '/staff',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminRbacRoute = AdminRbacRouteImport.update({
@@ -117,10 +117,20 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminStaffIndexRoute = AdminStaffIndexRouteImport.update({
+  id: '/staff/',
+  path: '/staff/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminBehaviorIndexRoute = AdminBehaviorIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminBehaviorRoute,
+} as any)
+const AdminStaffRewardsRoute = AdminStaffRewardsRouteImport.update({
+  id: '/staff/rewards',
+  path: '/staff/rewards',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminAttendanceStudentsRoute = AdminAttendanceStudentsRouteImport.update({
   id: '/attendance/students',
@@ -159,11 +169,33 @@ const AdminAcademicsTermsRoute = AdminAcademicsTermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => AdminAcademicsRoute,
 } as any)
+const AdminAcademicsSyllabusRoute = AdminAcademicsSyllabusRouteImport.update({
+  id: '/syllabus',
+  path: '/syllabus',
+  getParentRoute: () => AdminAcademicsRoute,
+} as any)
 const AdminAcademicsSubjectsRoute = AdminAcademicsSubjectsRouteImport.update({
   id: '/subjects',
   path: '/subjects',
   getParentRoute: () => AdminAcademicsRoute,
 } as any)
+const AdminAcademicsLessonProgressRoute =
+  AdminAcademicsLessonProgressRouteImport.update({
+    id: '/lesson-progress',
+    path: '/lesson-progress',
+    getParentRoute: () => AdminAcademicsRoute,
+  } as any)
+const AdminAcademicsExamsRoute = AdminAcademicsExamsRouteImport.update({
+  id: '/exams',
+  path: '/exams',
+  getParentRoute: () => AdminAcademicsRoute,
+} as any)
+const AdminAcademicsCurriculumRoute =
+  AdminAcademicsCurriculumRouteImport.update({
+    id: '/curriculum',
+    path: '/curriculum',
+    getParentRoute: () => AdminAcademicsRoute,
+  } as any)
 const AdminAcademicsClassAssignmentsRoute =
   AdminAcademicsClassAssignmentsRouteImport.update({
     id: '/class-assignments',
@@ -189,13 +221,16 @@ export interface FileRoutesByFullPath {
   '/admin/classes': typeof AdminClassesRoute
   '/admin/grades': typeof AdminGradesRoute
   '/admin/rbac': typeof AdminRbacRoute
-  '/admin/staff': typeof AdminStaffRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/years': typeof AdminYearsRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/academics/class-assignments': typeof AdminAcademicsClassAssignmentsRoute
+  '/admin/academics/curriculum': typeof AdminAcademicsCurriculumRoute
+  '/admin/academics/exams': typeof AdminAcademicsExamsRoute
+  '/admin/academics/lesson-progress': typeof AdminAcademicsLessonProgressRoute
   '/admin/academics/subjects': typeof AdminAcademicsSubjectsRoute
+  '/admin/academics/syllabus': typeof AdminAcademicsSyllabusRoute
   '/admin/academics/terms': typeof AdminAcademicsTermsRoute
   '/admin/academics/timetables': typeof AdminAcademicsTimetablesRoute
   '/admin/attendance/actions': typeof AdminAttendanceActionsRoute
@@ -203,7 +238,9 @@ export interface FileRoutesByFullPath {
   '/admin/attendance/report': typeof AdminAttendanceReportRoute
   '/admin/attendance/staff': typeof AdminAttendanceStaffRoute
   '/admin/attendance/students': typeof AdminAttendanceStudentsRoute
+  '/admin/staff/rewards': typeof AdminStaffRewardsRoute
   '/admin/behavior/': typeof AdminBehaviorIndexRoute
+  '/admin/staff/': typeof AdminStaffIndexRoute
   '/admin/attendance/student/$studentId': typeof AdminAttendanceStudentStudentIdRoute
 }
 export interface FileRoutesByTo {
@@ -216,13 +253,16 @@ export interface FileRoutesByTo {
   '/admin/classes': typeof AdminClassesRoute
   '/admin/grades': typeof AdminGradesRoute
   '/admin/rbac': typeof AdminRbacRoute
-  '/admin/staff': typeof AdminStaffRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/years': typeof AdminYearsRoute
   '/admin': typeof AdminIndexRoute
   '/admin/academics/class-assignments': typeof AdminAcademicsClassAssignmentsRoute
+  '/admin/academics/curriculum': typeof AdminAcademicsCurriculumRoute
+  '/admin/academics/exams': typeof AdminAcademicsExamsRoute
+  '/admin/academics/lesson-progress': typeof AdminAcademicsLessonProgressRoute
   '/admin/academics/subjects': typeof AdminAcademicsSubjectsRoute
+  '/admin/academics/syllabus': typeof AdminAcademicsSyllabusRoute
   '/admin/academics/terms': typeof AdminAcademicsTermsRoute
   '/admin/academics/timetables': typeof AdminAcademicsTimetablesRoute
   '/admin/attendance/actions': typeof AdminAttendanceActionsRoute
@@ -230,7 +270,9 @@ export interface FileRoutesByTo {
   '/admin/attendance/report': typeof AdminAttendanceReportRoute
   '/admin/attendance/staff': typeof AdminAttendanceStaffRoute
   '/admin/attendance/students': typeof AdminAttendanceStudentsRoute
+  '/admin/staff/rewards': typeof AdminStaffRewardsRoute
   '/admin/behavior': typeof AdminBehaviorIndexRoute
+  '/admin/staff': typeof AdminStaffIndexRoute
   '/admin/attendance/student/$studentId': typeof AdminAttendanceStudentStudentIdRoute
 }
 export interface FileRoutesById {
@@ -246,13 +288,16 @@ export interface FileRoutesById {
   '/admin/classes': typeof AdminClassesRoute
   '/admin/grades': typeof AdminGradesRoute
   '/admin/rbac': typeof AdminRbacRoute
-  '/admin/staff': typeof AdminStaffRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/years': typeof AdminYearsRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/academics/class-assignments': typeof AdminAcademicsClassAssignmentsRoute
+  '/admin/academics/curriculum': typeof AdminAcademicsCurriculumRoute
+  '/admin/academics/exams': typeof AdminAcademicsExamsRoute
+  '/admin/academics/lesson-progress': typeof AdminAcademicsLessonProgressRoute
   '/admin/academics/subjects': typeof AdminAcademicsSubjectsRoute
+  '/admin/academics/syllabus': typeof AdminAcademicsSyllabusRoute
   '/admin/academics/terms': typeof AdminAcademicsTermsRoute
   '/admin/academics/timetables': typeof AdminAcademicsTimetablesRoute
   '/admin/attendance/actions': typeof AdminAttendanceActionsRoute
@@ -260,7 +305,9 @@ export interface FileRoutesById {
   '/admin/attendance/report': typeof AdminAttendanceReportRoute
   '/admin/attendance/staff': typeof AdminAttendanceStaffRoute
   '/admin/attendance/students': typeof AdminAttendanceStudentsRoute
+  '/admin/staff/rewards': typeof AdminStaffRewardsRoute
   '/admin/behavior/': typeof AdminBehaviorIndexRoute
+  '/admin/staff/': typeof AdminStaffIndexRoute
   '/admin/attendance/student/$studentId': typeof AdminAttendanceStudentStudentIdRoute
 }
 export interface FileRouteTypes {
@@ -277,13 +324,16 @@ export interface FileRouteTypes {
     | '/admin/classes'
     | '/admin/grades'
     | '/admin/rbac'
-    | '/admin/staff'
     | '/admin/students'
     | '/admin/users'
     | '/admin/years'
     | '/admin/'
     | '/admin/academics/class-assignments'
+    | '/admin/academics/curriculum'
+    | '/admin/academics/exams'
+    | '/admin/academics/lesson-progress'
     | '/admin/academics/subjects'
+    | '/admin/academics/syllabus'
     | '/admin/academics/terms'
     | '/admin/academics/timetables'
     | '/admin/attendance/actions'
@@ -291,7 +341,9 @@ export interface FileRouteTypes {
     | '/admin/attendance/report'
     | '/admin/attendance/staff'
     | '/admin/attendance/students'
+    | '/admin/staff/rewards'
     | '/admin/behavior/'
+    | '/admin/staff/'
     | '/admin/attendance/student/$studentId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -304,13 +356,16 @@ export interface FileRouteTypes {
     | '/admin/classes'
     | '/admin/grades'
     | '/admin/rbac'
-    | '/admin/staff'
     | '/admin/students'
     | '/admin/users'
     | '/admin/years'
     | '/admin'
     | '/admin/academics/class-assignments'
+    | '/admin/academics/curriculum'
+    | '/admin/academics/exams'
+    | '/admin/academics/lesson-progress'
     | '/admin/academics/subjects'
+    | '/admin/academics/syllabus'
     | '/admin/academics/terms'
     | '/admin/academics/timetables'
     | '/admin/attendance/actions'
@@ -318,7 +373,9 @@ export interface FileRouteTypes {
     | '/admin/attendance/report'
     | '/admin/attendance/staff'
     | '/admin/attendance/students'
+    | '/admin/staff/rewards'
     | '/admin/behavior'
+    | '/admin/staff'
     | '/admin/attendance/student/$studentId'
   id:
     | '__root__'
@@ -333,13 +390,16 @@ export interface FileRouteTypes {
     | '/admin/classes'
     | '/admin/grades'
     | '/admin/rbac'
-    | '/admin/staff'
     | '/admin/students'
     | '/admin/users'
     | '/admin/years'
     | '/admin/'
     | '/admin/academics/class-assignments'
+    | '/admin/academics/curriculum'
+    | '/admin/academics/exams'
+    | '/admin/academics/lesson-progress'
     | '/admin/academics/subjects'
+    | '/admin/academics/syllabus'
     | '/admin/academics/terms'
     | '/admin/academics/timetables'
     | '/admin/attendance/actions'
@@ -347,7 +407,9 @@ export interface FileRouteTypes {
     | '/admin/attendance/report'
     | '/admin/attendance/staff'
     | '/admin/attendance/students'
+    | '/admin/staff/rewards'
     | '/admin/behavior/'
+    | '/admin/staff/'
     | '/admin/attendance/student/$studentId'
   fileRoutesById: FileRoutesById
 }
@@ -401,13 +463,6 @@ declare module '@tanstack/react-router' {
       path: '/students'
       fullPath: '/admin/students'
       preLoaderRoute: typeof AdminStudentsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/staff': {
-      id: '/admin/staff'
-      path: '/staff'
-      fullPath: '/admin/staff'
-      preLoaderRoute: typeof AdminStaffRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/rbac': {
@@ -473,12 +528,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/staff/': {
+      id: '/admin/staff/'
+      path: '/staff'
+      fullPath: '/admin/staff/'
+      preLoaderRoute: typeof AdminStaffIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/behavior/': {
       id: '/admin/behavior/'
       path: '/'
       fullPath: '/admin/behavior/'
       preLoaderRoute: typeof AdminBehaviorIndexRouteImport
       parentRoute: typeof AdminBehaviorRoute
+    }
+    '/admin/staff/rewards': {
+      id: '/admin/staff/rewards'
+      path: '/staff/rewards'
+      fullPath: '/admin/staff/rewards'
+      preLoaderRoute: typeof AdminStaffRewardsRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/attendance/students': {
       id: '/admin/attendance/students'
@@ -529,11 +598,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAcademicsTermsRouteImport
       parentRoute: typeof AdminAcademicsRoute
     }
+    '/admin/academics/syllabus': {
+      id: '/admin/academics/syllabus'
+      path: '/syllabus'
+      fullPath: '/admin/academics/syllabus'
+      preLoaderRoute: typeof AdminAcademicsSyllabusRouteImport
+      parentRoute: typeof AdminAcademicsRoute
+    }
     '/admin/academics/subjects': {
       id: '/admin/academics/subjects'
       path: '/subjects'
       fullPath: '/admin/academics/subjects'
       preLoaderRoute: typeof AdminAcademicsSubjectsRouteImport
+      parentRoute: typeof AdminAcademicsRoute
+    }
+    '/admin/academics/lesson-progress': {
+      id: '/admin/academics/lesson-progress'
+      path: '/lesson-progress'
+      fullPath: '/admin/academics/lesson-progress'
+      preLoaderRoute: typeof AdminAcademicsLessonProgressRouteImport
+      parentRoute: typeof AdminAcademicsRoute
+    }
+    '/admin/academics/exams': {
+      id: '/admin/academics/exams'
+      path: '/exams'
+      fullPath: '/admin/academics/exams'
+      preLoaderRoute: typeof AdminAcademicsExamsRouteImport
+      parentRoute: typeof AdminAcademicsRoute
+    }
+    '/admin/academics/curriculum': {
+      id: '/admin/academics/curriculum'
+      path: '/curriculum'
+      fullPath: '/admin/academics/curriculum'
+      preLoaderRoute: typeof AdminAcademicsCurriculumRouteImport
       parentRoute: typeof AdminAcademicsRoute
     }
     '/admin/academics/class-assignments': {
@@ -555,14 +652,22 @@ declare module '@tanstack/react-router' {
 
 interface AdminAcademicsRouteChildren {
   AdminAcademicsClassAssignmentsRoute: typeof AdminAcademicsClassAssignmentsRoute
+  AdminAcademicsCurriculumRoute: typeof AdminAcademicsCurriculumRoute
+  AdminAcademicsExamsRoute: typeof AdminAcademicsExamsRoute
+  AdminAcademicsLessonProgressRoute: typeof AdminAcademicsLessonProgressRoute
   AdminAcademicsSubjectsRoute: typeof AdminAcademicsSubjectsRoute
+  AdminAcademicsSyllabusRoute: typeof AdminAcademicsSyllabusRoute
   AdminAcademicsTermsRoute: typeof AdminAcademicsTermsRoute
   AdminAcademicsTimetablesRoute: typeof AdminAcademicsTimetablesRoute
 }
 
 const AdminAcademicsRouteChildren: AdminAcademicsRouteChildren = {
   AdminAcademicsClassAssignmentsRoute: AdminAcademicsClassAssignmentsRoute,
+  AdminAcademicsCurriculumRoute: AdminAcademicsCurriculumRoute,
+  AdminAcademicsExamsRoute: AdminAcademicsExamsRoute,
+  AdminAcademicsLessonProgressRoute: AdminAcademicsLessonProgressRoute,
   AdminAcademicsSubjectsRoute: AdminAcademicsSubjectsRoute,
+  AdminAcademicsSyllabusRoute: AdminAcademicsSyllabusRoute,
   AdminAcademicsTermsRoute: AdminAcademicsTermsRoute,
   AdminAcademicsTimetablesRoute: AdminAcademicsTimetablesRoute,
 }
@@ -590,7 +695,6 @@ interface AdminRouteChildren {
   AdminClassesRoute: typeof AdminClassesRoute
   AdminGradesRoute: typeof AdminGradesRoute
   AdminRbacRoute: typeof AdminRbacRoute
-  AdminStaffRoute: typeof AdminStaffRoute
   AdminStudentsRoute: typeof AdminStudentsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminYearsRoute: typeof AdminYearsRoute
@@ -600,6 +704,8 @@ interface AdminRouteChildren {
   AdminAttendanceReportRoute: typeof AdminAttendanceReportRoute
   AdminAttendanceStaffRoute: typeof AdminAttendanceStaffRoute
   AdminAttendanceStudentsRoute: typeof AdminAttendanceStudentsRoute
+  AdminStaffRewardsRoute: typeof AdminStaffRewardsRoute
+  AdminStaffIndexRoute: typeof AdminStaffIndexRoute
   AdminAttendanceStudentStudentIdRoute: typeof AdminAttendanceStudentStudentIdRoute
 }
 
@@ -610,7 +716,6 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminClassesRoute: AdminClassesRoute,
   AdminGradesRoute: AdminGradesRoute,
   AdminRbacRoute: AdminRbacRoute,
-  AdminStaffRoute: AdminStaffRoute,
   AdminStudentsRoute: AdminStudentsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminYearsRoute: AdminYearsRoute,
@@ -620,6 +725,8 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAttendanceReportRoute: AdminAttendanceReportRoute,
   AdminAttendanceStaffRoute: AdminAttendanceStaffRoute,
   AdminAttendanceStudentsRoute: AdminAttendanceStudentsRoute,
+  AdminStaffRewardsRoute: AdminStaffRewardsRoute,
+  AdminStaffIndexRoute: AdminStaffIndexRoute,
   AdminAttendanceStudentStudentIdRoute: AdminAttendanceStudentStudentIdRoute,
 }
 

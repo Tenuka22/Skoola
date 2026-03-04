@@ -236,6 +236,7 @@ pub struct Staff {
     pub staff_type: crate::database::enums::StaffType,
     pub photo_url: Option<String>,
     pub profile_id: Option<String>,
+    pub reward_points_balance: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, Associations, ApiComponent)]

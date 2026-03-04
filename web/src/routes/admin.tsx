@@ -9,6 +9,7 @@ import {
   Note01Icon,
   SchoolIcon,
   Shield01Icon,
+  StarIcon,
   User02Icon,
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
@@ -179,6 +180,14 @@ function AdminLayout() {
             </SidebarGroupLabel>
             <SidebarMenu>
               <SidebarMenuItem>
+                <Link to="/admin/years">
+                  <SidebarMenuButton tooltip="Academic Years">
+                    <HugeiconsIcon icon={Calendar01Icon} />
+                    <span>Academic Years</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
                 <Link to="/admin/grades">
                   <SidebarMenuButton tooltip="Grade Levels">
                     <HugeiconsIcon icon={SchoolIcon} />
@@ -195,10 +204,18 @@ function AdminLayout() {
                 </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <Link to="/admin/years">
-                  <SidebarMenuButton tooltip="Academic Years">
-                    <HugeiconsIcon icon={Calendar01Icon} />
-                    <span>Academic Years</span>
+                <Link to="/admin/academics/subjects">
+                  <SidebarMenuButton tooltip="Subjects">
+                    <HugeiconsIcon icon={Book01Icon} />
+                    <span>Subjects</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link to="/admin/academics/curriculum">
+                  <SidebarMenuButton tooltip="Curriculum Standards">
+                    <HugeiconsIcon icon={Book01Icon} />
+                    <span>Curriculum</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
@@ -207,6 +224,22 @@ function AdminLayout() {
                   <SidebarMenuButton tooltip="Timetables">
                     <HugeiconsIcon icon={Calendar02Icon} />
                     <span>Timetables</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link to="/admin/academics/lesson-progress">
+                  <SidebarMenuButton tooltip="Lesson Progress">
+                    <HugeiconsIcon icon={Note01Icon} />
+                    <span>Record Book</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link to="/admin/academics/exams">
+                  <SidebarMenuButton tooltip="Exams">
+                    <HugeiconsIcon icon={Note01Icon} />
+                    <span>Exams</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
@@ -229,6 +262,14 @@ function AdminLayout() {
                   >
                     <HugeiconsIcon icon={Briefcase01Icon} size={18} />
                     <span className="font-medium">Staff</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link to="/admin/staff/rewards">
+                  <SidebarMenuButton tooltip="Teacher Rewards">
+                    <HugeiconsIcon icon={StarIcon} />
+                    <span>Teacher Rewards</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>

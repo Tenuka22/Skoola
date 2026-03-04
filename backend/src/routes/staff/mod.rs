@@ -1,7 +1,7 @@
 use crate::database::enums::PermissionEnum;
 use crate::handlers::academic::teacher_assignments;
 use crate::handlers::auth::permission_sets;
-use crate::handlers::staff::{staff, staff_attendance, staff_leaves};
+use crate::handlers::staff::{staff, staff_attendance, staff_leaves, rewards};
 use crate::utils::jwt::Authenticated;
 use crate::utils::permission_verification::PermissionVerification;
 use apistos::web;
@@ -23,6 +23,14 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/{staff_id}/photo",
                 web::post().to(staff::upload_staff_photo),
+            )
+            .route(
+                "/{staff_id}/rewards/balance",
+                web::get().to(rewards::get_teacher_reward_balance),
+            )
+            .route(
+                "/{staff_id}/rewards/history",
+                web::get().to(rewards::get_teacher_reward_history),
             )
             .route(
                 "/{teacher_id}/classes",

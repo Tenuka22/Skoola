@@ -300,6 +300,7 @@ impl SeedModule for CoreEntitiesSeeder {
                 staff_type: StaffType::Teaching,                // Default type
                 photo_url: None,
                 profile_id: Some(staff_profile_id.clone()),
+                reward_points_balance: 0,
                 };
 
             insert_into(staff::table)

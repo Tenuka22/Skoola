@@ -46,7 +46,7 @@ import {
 } from '@/features/academics/timetables/api'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
-import { HStack } from '@/components/primitives'
+import { HStack, Stack } from '@/components/primitives'
 
 export const Route = createFileRoute('/admin/academics/timetables')({
   component: TimetablesPage,
@@ -162,7 +162,7 @@ function TimetablesPage() {
   })
 
   return (
-    <div className="flex h-full flex-col bg-background">
+    <Stack gap={4} p={8} className="h-full">
       <TimetablesHeader />
       <TimetablesToolbar
         academicYears={academicYears}
@@ -330,6 +330,6 @@ function TimetablesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </Stack>
   )
 }

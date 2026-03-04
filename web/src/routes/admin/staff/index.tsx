@@ -8,19 +8,19 @@ import * as React from 'react'
 import { LayoutGridIcon, TableIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { StaffHeader } from '../../features/staff/components/staff-header'
-import { StaffFilters } from '../../features/staff/components/staff-filters'
-import { StaffListContainer } from '../../features/staff/components/staff-list-container'
-import { getStaffColumns } from '../../features/staff/components/staff-table-columns'
-import { StaffAddDialog } from '../../features/staff/components/staff-add-dialog'
-import { StaffDeleteDialog } from '../../features/staff/components/staff-delete-dialog'
-import { StaffEditDialog } from '../../features/staff/components/staff-edit-dialog'
+import { StaffHeader } from '../../../features/staff/components/staff-header'
+import { StaffFilters } from '../../../features/staff/components/staff-filters'
+import { StaffListContainer } from '../../../features/staff/components/staff-list-container'
+import { getStaffColumns } from '../../../features/staff/components/staff-table-columns'
+import { StaffAddDialog } from '../../../features/staff/components/staff-add-dialog'
+import { StaffDeleteDialog } from '../../../features/staff/components/staff-delete-dialog'
+import { StaffEditDialog } from '../../../features/staff/components/staff-edit-dialog'
 import {
   isEmploymentStatus,
   isStaffType,
-} from '../../features/staff/utils/staff-guards'
-import { StaffBulkActionsToolbar } from '../../features/staff/components/staff-bulk-actions-toolbar'
-import { StaffBulkEditDialog } from '../../features/staff/components/staff-bulk-edit-dialog'
+} from '../../../features/staff/utils/staff-guards'
+import { StaffBulkActionsToolbar } from '../../../features/staff/components/staff-bulk-actions-toolbar'
+import { StaffBulkEditDialog } from '../../../features/staff/components/staff-bulk-edit-dialog'
 import type { BulkEditStaffFormValues } from '@/features/staff/schemas'
 import type { StaffResponse } from '@/lib/api/types.gen'
 import type { DataTableFacetedFilter } from '@/components/data-table'
@@ -55,7 +55,7 @@ import {
 } from '@/features/staff/api'
 import { useStaffSearchParams } from '@/features/staff/search-params'
 
-export const Route = createFileRoute('/admin/staff')({
+export const Route = createFileRoute('/admin/staff/')({
   component: StaffPage,
 })
 

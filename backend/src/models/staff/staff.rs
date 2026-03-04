@@ -37,6 +37,7 @@ pub struct Staff {
     pub staff_type: StaffType,
     pub photo_url: Option<String>,
     pub profile_id: Option<String>,
+    pub reward_points_balance: i32,
 }
 
 #[derive(Debug, Insertable, Clone)]
@@ -58,6 +59,7 @@ pub struct NewStaff {
     pub staff_type: StaffType,
     pub photo_url: Option<String>,
     pub profile_id: Option<String>,
+    pub reward_points_balance: i32,
 }
 
 #[derive(
@@ -156,6 +158,7 @@ pub struct StaffResponse {
     pub profile_phone: Option<String>,
     pub profile_photo_url: Option<String>,
     pub user_email: Option<String>,
+    pub reward_points_balance: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -190,6 +193,7 @@ impl From<Staff> for StaffResponse {
             profile_phone: None,
             profile_photo_url: None,
             user_email: None,
+            reward_points_balance: staff.reward_points_balance,
         }
     }
 }

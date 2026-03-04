@@ -130,6 +130,7 @@ pub async fn upload_staff_photo(
             profile_phone: profile.phone,
             profile_photo_url: profile.photo_url,
             user_email: user_profile.map(|u| u.email),
+            reward_points_balance: updated_staff.reward_points_balance,
         }))
     } else {
         Err(APIError::bad_request("No file was uploaded"))
@@ -266,6 +267,7 @@ pub async fn get_all_staff(
             profile_phone: profile.phone,
             profile_photo_url: profile.photo_url,
             user_email: user.map(|u| u.email),
+            reward_points_balance: staff.reward_points_balance,
         })
         .collect();
 
@@ -328,6 +330,7 @@ pub async fn get_staff_by_id(
         profile_phone: profile.phone,
         profile_photo_url: profile.photo_url,
         user_email: user_profile.map(|u| u.email),
+        reward_points_balance: staff_member.reward_points_balance,
     }))
 }
 
@@ -413,6 +416,7 @@ pub async fn create_staff(
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
         profile_id: Some(new_profile_id.clone()),
+        reward_points_balance: 0,
     };
 
     diesel::insert_into(staff::table)
@@ -462,6 +466,7 @@ pub async fn create_staff(
         profile_phone: new_profile.phone,
         profile_photo_url: new_profile.photo_url,
         user_email: user_email_str,
+        reward_points_balance: new_staff_record.reward_points_balance,
     }))
 }
 #[api_operation(
@@ -560,6 +565,7 @@ pub async fn update_staff(
         profile_phone: final_profile.phone,
         profile_photo_url: final_profile.photo_url,
         user_email: final_user_profile.map(|u| u.email),
+        reward_points_balance: final_staff.reward_points_balance,
     }))
 }
 

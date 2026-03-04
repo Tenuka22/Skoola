@@ -89,3 +89,16 @@ pub async fn get_teacher_points(
     
     Ok(balance.unwrap_or(0))
 }
+
+pub async fn get_reward_history(
+    pool: web::Data<AppState>,
+    t_id: String,
+) -> Result<Vec<TeacherRewardHistory>, APIError> {
+    let mut conn = pool.db_pool.get()?;
+    let history = teacher_reward_history::table
+        .filter(teacher_reward_history::teacher_id.eq(t_id))
+        .order(teacher_reward_history::created_at.desc())
+        .load::<TeacherRewardHistory>(&mut conn)?;
+    
+    Ok(history)
+}

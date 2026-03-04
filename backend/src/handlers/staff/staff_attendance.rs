@@ -266,6 +266,7 @@ pub async fn suggest_substitute(
             profile_phone: profile.phone,
             profile_photo_url: profile.photo_url,
             user_email: user_profile.map(|u| u.email),
+            reward_points_balance: staff_member.reward_points_balance,
         })))
     } else {
         Ok(Json(None))
