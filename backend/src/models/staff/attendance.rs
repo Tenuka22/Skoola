@@ -1,6 +1,6 @@
-use crate::database::enums::{AttendanceStatus, SubstitutionStatus};
+use crate::database::enums::{AttendanceStatus, SubstitutionStatus, TeacherPeriodStatus};
 use crate::models::staff::staff::Staff;
-use crate::schema::{lesson_progress, staff_attendance, substitutions};
+use crate::schema::{lesson_progress, staff_attendance, substitutions, teacher_period_attendance};
 use apistos::ApiComponent;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use diesel::prelude::*;
@@ -26,7 +26,7 @@ pub struct StaffAttendance {
     pub id: String,
     pub staff_id: String,
     pub date: NaiveDate,
-    pub status: String,
+    pub status: AttendanceStatus,
     pub time_in: Option<NaiveTime>,
     pub time_out: Option<NaiveTime>,
     pub remarks: Option<String>,
@@ -34,6 +34,35 @@ pub struct StaffAttendance {
     pub updated_at: NaiveDateTime,
     pub is_locked: bool,
     pub marked_by: Option<String>,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent,
+)]
+#[diesel(table_name = teacher_period_attendance)]
+#[diesel(belongs_to(Staff, foreign_key = teacher_id))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct TeacherPeriodAttendance {
+    pub id: String,
+    pub teacher_id: String,
+    pub timetable_id: String,
+    pub date: NaiveDate,
+    pub status: TeacherPeriodStatus,
+    pub remarks: Option<String>,
+    pub marked_by: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub is_substitution: bool,
+    pub substitution_id: Option<String>,
 }
 
 #[derive(
@@ -88,6 +117,10 @@ pub struct LessonProgress {
     pub is_substitution: bool,
     pub created_at: NaiveDateTime,
     pub syllabus_id: Option<String>,
+    pub verified_by: Option<String>,
+    pub verified_at: Option<NaiveDateTime>,
+    pub is_skipped: bool,
+    pub priority_level: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -97,6 +130,27 @@ pub struct MarkStaffAttendanceRequest {
     pub time_in: Option<NaiveTime>,
     pub time_out: Option<NaiveTime>,
     pub remarks: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct MarkTeacherPeriodAttendanceRequest {
+    pub timetable_id: String,
+    pub date: NaiveDate,
+    pub status: TeacherPeriodStatus,
+    pub remarks: Option<String>,
+    pub is_substitution: bool,
+    pub substitution_id: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct TeacherPeriodAttendanceResponse {
+    pub id: String,
+    pub teacher_id: String,
+    pub timetable_id: String,
+    pub date: NaiveDate,
+    pub status: TeacherPeriodStatus,
+    pub remarks: Option<String>,
+    pub is_substitution: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -133,10 +187,7 @@ impl From<StaffAttendance> for StaffAttendanceResponse {
             id: attendance.id,
             staff_id: attendance.staff_id,
             date: attendance.date,
-            status: attendance
-                .status
-                .parse()
-                .unwrap_or(AttendanceStatus::Absent),
+            status: attendance.status,
             time_in: attendance.time_in,
             time_out: attendance.time_out,
             remarks: attendance.remarks,
@@ -198,7 +249,7 @@ pub struct CreateSubstitutionRequest {
     pub date: NaiveDate,
 }
 
-#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+#[derive(Debug, Serialize, JsonSchema, ApiComponent)]
 pub struct SubstitutionResponse {
     pub id: String,
     pub original_teacher_id: String,
@@ -207,7 +258,10 @@ pub struct SubstitutionResponse {
     pub date: NaiveDate,
     pub status: String,
     pub remarks: Option<String>,
+    pub plan_name: Option<String>,
+    pub content_link: Option<String>,
 }
+
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
 pub struct CreateLessonProgressRequest {
@@ -222,6 +276,8 @@ pub struct CreateLessonProgressRequest {
     pub progress_percentage: Option<i32>,
     pub is_substitution: bool,
     pub syllabus_id: Option<String>,
+    pub is_skipped: bool,
+    pub priority_level: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
@@ -233,4 +289,8 @@ pub struct LessonProgressResponse {
     pub date: NaiveDate,
     pub topic_covered: String,
     pub progress_percentage: Option<i32>,
+    pub verified_by: Option<String>,
+    pub verified_at: Option<NaiveDateTime>,
+    pub is_skipped: bool,
+    pub priority_level: i32,
 }

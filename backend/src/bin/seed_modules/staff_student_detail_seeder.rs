@@ -2,6 +2,7 @@ use super::utils::*;
 use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
+use backend::database::enums::LeaveStatus;
 use backend::models::staff::department::StaffDepartment;
 use backend::models::staff::history::StaffEmploymentHistory;
 use backend::models::staff::leave::StaffLeave;
@@ -147,10 +148,11 @@ impl SeedModule for StaffStudentDetailSeeder {
                     from_date,
                     to_date,
                     reason: "Personal reason".to_string(),
-                    status: vec!["Approved", "Pending", "Rejected"]
+                    status: vec![LeaveStatus::Approved, LeaveStatus::Pending, LeaveStatus::Rejected]
                         .choose(&mut rng)
                         .unwrap()
-                        .to_string(),
+                        .clone(),
+
                     created_at: Utc::now().naive_utc(),
                     updated_at: Utc::now().naive_utc(),
                 });

@@ -88,6 +88,7 @@ pub fn seed_all(
             phone: "0711234567".to_string(),
             email: None,
             address: "Guardian Address".to_string(),
+            user_id: None,
             created_at: CustomFaker::date_time_between(two_years_ago, now),
             updated_at: CustomFaker::date_time_between(two_years_ago, now),
         };

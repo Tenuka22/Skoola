@@ -10,6 +10,7 @@ use diesel::insert_into;
 use diesel::prelude::*;
 use rand::Rng;
 use std::collections::HashSet;
+use backend::database::enums::Medium;
 
 pub struct CurriculumManagementSeeder;
 
@@ -48,6 +49,11 @@ impl SeedModule for CurriculumManagementSeeder {
                     description: Some(format!("Description for Standard {}", i + 1)),
                     created_at: random_datetime_in_past(2),
                     updated_at: random_datetime_in_past(1),
+                    medium: Medium::English,
+                    version_name: Some(format!("Version {}", i + 1)),
+                    start_date: Some(random_date_in_past(2)),
+                    end_date: Some(random_date_in_past(0)),
+                    is_active: true,
                 })
                 .collect::<Vec<CurriculumStandard>>();
 
@@ -80,6 +86,10 @@ impl SeedModule for CurriculumManagementSeeder {
                     description: Some(format!("Description for Topic {}", i + 1)),
                     created_at: random_datetime_in_past(1),
                     updated_at: random_datetime_in_past(0),
+                    parent_id: None,
+                    is_practical: rng.gen_bool(0.2),
+                    required_periods: rng.gen_range(1..=5),
+                    buffer_periods: rng.gen_range(0..=2),
                 })
                 .collect::<Vec<Syllabus>>();
 
@@ -126,6 +136,10 @@ impl SeedModule for CurriculumManagementSeeder {
                         is_substitution: rng.gen_bool(0.1),
                         created_at: random_datetime_in_past(1),
                         syllabus_id: Some(get_random_id(&context.syllabus_ids)),
+                        verified_by: None,
+                        verified_at: None,
+                        is_skipped: rng.gen_bool(0.05),
+                        priority_level: rng.gen_range(1..=3),
                     }
                 })
                 .collect::<Vec<LessonProgress>>();

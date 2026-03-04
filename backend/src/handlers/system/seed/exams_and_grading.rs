@@ -1,8 +1,7 @@
 use crate::config::Config;
 use crate::errors::APIError;
 use crate::faker::CustomFaker;
-use crate::models::academic::AcademicYear;
-use crate::models::academic::Term;
+use crate::database::tables::{AcademicYear, Term};
 use crate::models::exams::Exam;
 use crate::models::exams::ExamType;
 use crate::models::exams::NewGradingCriterion;
@@ -50,7 +49,6 @@ pub fn seed_all(
     let _student_ids: Vec<String> = students.iter().map(|s| s.id.clone()).collect();
 
     let academic_years = academic_years::table
-        .select(AcademicYear::as_select())
         .load::<AcademicYear>(conn)?;
 
     // 1. Seed Exam Types

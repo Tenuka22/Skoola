@@ -18,8 +18,9 @@ use crate::{
     models::staff::staff::{
         CreateStaffRequest, PaginatedStaffResponse, StaffQuery, StaffResponse, UpdateStaffRequest,
     },
-    models::{MessageResponse, NewProfile, NewUserProfile, Profile, UserProfile, auth_user::User}, // Added Profile, NewProfile, UserProfile, NewUserProfile, User
-    schema::{profiles, staff, user_profiles, users}, // Added profiles, user_profiles, users
+    models::{MessageResponse, NewProfile, NewUserProfile, Profile, UserProfile, auth::user::User}, // Corrected import path
+    schema::{profiles, staff, user_profiles, users},
+ // Added profiles, user_profiles, users
     utils::validation::{is_valid_email, is_valid_nic, is_valid_phone},
 };
 
@@ -244,7 +245,7 @@ pub async fn get_all_staff(
 
     let staff_responses: Vec<StaffResponse> = staff_list_data
         .into_iter()
-        .map(|(staff, profile, user)| StaffResponse {
+        .map(|(staff, profile, user): (DbStaff, Profile, Option<User>)| StaffResponse {
             id: staff.id,
             employee_id: staff.employee_id,
             name: profile.name.clone(),

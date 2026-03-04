@@ -157,7 +157,7 @@ impl SeedModule for AttendanceSeeder {
                     id: generate_uuid(),
                     staff_id: get_random_id(&context.staff_ids),
                     date,
-                    status: AttendanceStatus::Present.to_string(),
+                    status: AttendanceStatus::Present,
                     time_in: Some(NaiveTime::from_hms_opt(8, rng.gen_range(0..=15), 0).unwrap()),
                     time_out: Some(NaiveTime::from_hms_opt(16, rng.gen_range(0..=30), 0).unwrap()),
                     remarks: None,

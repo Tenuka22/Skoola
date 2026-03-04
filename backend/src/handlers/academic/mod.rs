@@ -6,3 +6,4 @@ pub mod subject;
 pub mod teacher_assignments;
 pub mod terms;
 pub mod timetable;
+pub mod substitution_plans;

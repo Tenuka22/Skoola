@@ -3,13 +3,10 @@ use crate::database::enums::{EducationLevel, Medium};
 
 use crate::errors::APIError;
 use crate::faker::CustomFaker;
-use crate::models::academic::AcademicYear;
-use crate::models::academic::Class;
-use crate::models::academic::GradeLevel;
-use crate::models::academic::Subject;
-use crate::models::academic::Timetable;
-use crate::models::academic::class_subject_teacher::ClassSubjectTeacher;
-use crate::models::academic::{GradeStream, GradeSubject, Stream, StreamSubject};
+use crate::database::tables::{
+    AcademicYear, Class, GradeLevel, GradeStream, GradeSubject, Stream, StreamSubject, Subject,
+    Timetable, ClassSubjectTeacher
+};
 use crate::schema::{
     academic_years, class_subject_teachers, classes, grade_levels, grade_streams, grade_subjects,
     staff, stream_subjects, streams, subjects, timetable,
@@ -90,7 +87,7 @@ pub fn seed_all(
             id: grade_id.clone(),
             grade_number: i as i32,
             grade_name: format!("Grade {}", i),
-            education_level: ed_level,
+            education_level: ed_level.to_string(),
             created_at: CustomFaker::date_time_between(two_years_ago, now),
             updated_at: CustomFaker::date_time_between(two_years_ago, now),
         };

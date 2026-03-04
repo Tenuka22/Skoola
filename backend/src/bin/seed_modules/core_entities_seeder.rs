@@ -6,7 +6,8 @@ use backend::database::enums::RoleEnum;
 use backend::database::enums::{
     EducationLevel, EmploymentStatus, Ethnicity, Gender, Medium, Religion, StaffType, StudentStatus,
 };
-use backend::models::academic::{AcademicYear, Class, GradeLevel, Stream, Subject, Term};
+use backend::models::academic::{AcademicYear, Class, GradeLevel, Subject, Term};
+use backend::database::tables::Stream;
 use backend::models::auth::{NewProfile, NewUser, NewUserProfile};
 use backend::models::staff::staff::NewStaff;
 use backend::models::student::student::NewStudent;
@@ -299,7 +300,8 @@ impl SeedModule for CoreEntitiesSeeder {
                 staff_type: StaffType::Teaching,                // Default type
                 photo_url: None,
                 profile_id: Some(staff_profile_id.clone()),
-            };
+                };
+
             insert_into(staff::table)
                 .values(&new_staff_member)
                 .execute(conn)?;
@@ -398,6 +400,7 @@ impl SeedModule for CoreEntitiesSeeder {
                 photo_url: None,
                 profile_id: Some(student_profile_id.clone()),
             };
+
             insert_into(students::table)
                 .values(&new_student_member)
                 .execute(conn)?;

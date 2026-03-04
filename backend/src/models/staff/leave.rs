@@ -29,7 +29,7 @@ pub struct StaffLeave {
     pub from_date: NaiveDate,
     pub to_date: NaiveDate,
     pub reason: String,
-    pub status: String,
+    pub status: LeaveStatus,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -83,7 +83,7 @@ impl From<StaffLeave> for StaffLeaveResponse {
             from_date: staff_leave.from_date,
             to_date: staff_leave.to_date,
             reason: staff_leave.reason,
-            status: staff_leave.status.parse().unwrap_or(LeaveStatus::Pending),
+            status: staff_leave.status,
             created_at: staff_leave.created_at,
             updated_at: staff_leave.updated_at,
         }
@@ -99,7 +99,7 @@ impl From<crate::database::tables::StaffLeave> for StaffLeaveResponse {
             from_date: staff_leave.from_date,
             to_date: staff_leave.to_date,
             reason: staff_leave.reason,
-            status: staff_leave.status.parse().unwrap_or(LeaveStatus::Pending),
+            status: staff_leave.status,
             created_at: staff_leave.created_at,
             updated_at: staff_leave.updated_at,
         }

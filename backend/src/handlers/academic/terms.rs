@@ -1,7 +1,7 @@
 use crate::{
     AppState,
     errors::APIError,
-    models::academic::terms::{CreateTermRequest, TermResponse},
+    models::academic::{CreateTermRequest, TermResponse},
     services::academic::terms,
 };
 use actix_web::web;

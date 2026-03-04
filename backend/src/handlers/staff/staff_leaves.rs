@@ -43,7 +43,7 @@ pub async fn apply_for_leave(
         from_date: body.from_date,
         to_date: body.to_date,
         reason: body.reason.clone(),
-        status: LeaveStatus::Pending.to_string(), // New leave applications are pending by default
+        status: LeaveStatus::Pending, // New leave applications are pending by default
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     };
@@ -75,7 +75,7 @@ pub async fn approve_reject_leave(
         .select(StaffLeave::as_select())
         .first(&mut conn)?;
 
-    if existing_leave.status.parse::<LeaveStatus>()? != LeaveStatus::Pending {
+    if existing_leave.status != LeaveStatus::Pending {
         return Err(APIError::bad_request(
             "Only pending leave applications can be approved or rejected",
         ));

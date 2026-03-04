@@ -4,7 +4,7 @@ use anyhow::Result;
 use backend::config::Config;
 use backend::database::enums::SubstitutionStatus;
 use backend::models::academic::SubjectEnrollment;
-use backend::models::academic::{
+use backend::database::tables::{
     ClassSubjectTeacher, GradeStream, GradeSubject, StreamSubject, Timetable,
 };
 use backend::models::staff::assignment::{TeacherClassAssignment, TeacherSubjectAssignment};
@@ -238,6 +238,7 @@ impl SeedModule for AcademicDetailSeeder {
                         academic_year_id: academic_year_id.clone(),
                         created_at: Utc::now().naive_utc(),
                         updated_at: Utc::now().naive_utc(),
+                        medium: backend::database::enums::Medium::English,
                     });
                 }
             }

@@ -50,7 +50,7 @@ pub async fn add_guardian_to_student(
             let hashed_password = hash(password.as_bytes(), DEFAULT_COST)
                 .map_err(|e| APIError::internal(&format!("Failed to hash password: {}", e)))?;
 
-            let new_user = NewUser {
+            let new_user = User {
                 id: new_user_id.clone(),
                 email: guardian_email.clone(),
                 password_hash: hashed_password,

@@ -324,6 +324,64 @@ diesel_text_enum! {
 }
 
 diesel_text_enum! {
+    pub enum TeacherPeriodStatus {
+        Present,
+        Absent,
+        OnLeave,
+        Meeting,
+        Other,
+    }
+}
+
+diesel_text_enum! {
+    pub enum MissedLessonStatus {
+        Missed,
+        CaughtUp,
+    }
+}
+
+diesel_text_enum! {
+    pub enum ReviewerType {
+        Guardian,
+        Student,
+    }
+}
+
+diesel_text_enum! {
+    pub enum LessonMaterialType {
+        Image,
+        PDF,
+        Whiteboard,
+    }
+}
+
+diesel_text_enum! {
+    pub enum RewardReasonType {
+        LessonCompleted,
+        SubstitutionDone,
+        AbsenceDeduction,
+        MaterialShared,
+    }
+}
+
+diesel_text_enum! {
+    pub enum AppealStatus {
+        Pending,
+        Approved,
+        Rejected,
+    }
+}
+
+diesel_text_enum! {
+    pub enum ActivityAttendanceStatus {
+        Present,
+        Absent,
+        Excused,
+        Late,
+    }
+}
+
+diesel_text_enum! {
     pub enum PermissionSeverity {
         Low,
         Medium,

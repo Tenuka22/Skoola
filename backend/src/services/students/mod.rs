@@ -1,4 +1,5 @@
 pub mod attendance_policies;
+pub mod catch_up_notifications;
 pub mod student;
 pub mod student_attendance;
 pub mod student_class_assignment;

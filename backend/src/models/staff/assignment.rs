@@ -5,6 +5,7 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use crate::database::enums::Medium;
 
 #[derive(
     Debug,
@@ -52,6 +53,7 @@ pub struct TeacherSubjectAssignment {
     pub academic_year_id: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub medium: Medium,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -64,6 +66,7 @@ pub struct AssignClassToTeacherRequest {
 pub struct AssignSubjectToTeacherRequest {
     pub subject_id: String,
     pub academic_year_id: String,
+    pub medium: Medium,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -80,6 +83,7 @@ pub struct TeacherSubjectAssignmentResponse {
     pub teacher_id: String,
     pub subject_id: String,
     pub academic_year_id: String,
+    pub medium: Medium,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]

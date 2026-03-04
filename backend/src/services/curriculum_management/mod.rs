@@ -14,6 +14,18 @@ use crate::models::curriculum_management::{
 };
 use crate::schema::{curriculum_standards, syllabus};
 
+pub mod attachments;
+pub mod pacing;
+pub mod reviews;
+pub mod ai_processor;
+pub mod appeals;
+
+pub use attachments::*;
+pub use pacing::*;
+pub use reviews::*;
+pub use ai_processor::*;
+pub use appeals::*;
+
 // Service to create a new curriculum standard
 pub async fn create_curriculum_standard(
     data: Data<AppState>,
@@ -27,6 +39,11 @@ pub async fn create_curriculum_standard(
         grade_level_id: req.grade_level_id,
         standard_code: req.standard_code,
         description: req.description,
+        medium: req.medium,
+        version_name: req.version_name,
+        start_date: req.start_date,
+        end_date: req.end_date,
+        is_active: req.is_active,
     };
 
     diesel::insert_into(curriculum_standards::table)
@@ -89,6 +106,14 @@ pub async fn update_curriculum_standard(
                 .map(|c| curriculum_standards::standard_code.eq(c)),
             req.description
                 .map(|d| curriculum_standards::description.eq(d)),
+            req.medium
+                .map(|m| curriculum_standards::medium.eq(m.to_string())),
+            req.version_name
+                .map(|v| curriculum_standards::version_name.eq(v)),
+            req.start_date
+                .map(|s| curriculum_standards::start_date.eq(s)),
+            req.end_date.map(|e| curriculum_standards::end_date.eq(e)),
+            req.is_active.map(|i| curriculum_standards::is_active.eq(i)),
             curriculum_standards::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
@@ -141,6 +166,10 @@ pub async fn create_syllabus_topic(
         topic_name: req.topic_name,
         suggested_duration_hours: req.suggested_duration_hours,
         description: req.description,
+        parent_id: req.parent_id,
+        is_practical: req.is_practical,
+        required_periods: req.required_periods,
+        buffer_periods: req.buffer_periods,
     };
 
     diesel::insert_into(syllabus::table)
@@ -203,6 +232,11 @@ pub async fn update_syllabus_topic(
             req.suggested_duration_hours
                 .map(|d| syllabus::suggested_duration_hours.eq(d)),
             req.description.map(|d| syllabus::description.eq(d)),
+            req.parent_id.map(|p| syllabus::parent_id.eq(p)),
+            req.is_practical.map(|i| syllabus::is_practical.eq(i)),
+            req.required_periods
+                .map(|r| syllabus::required_periods.eq(r)),
+            req.buffer_periods.map(|b| syllabus::buffer_periods.eq(b)),
             syllabus::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;

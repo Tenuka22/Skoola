@@ -186,11 +186,19 @@ pub async fn mark_activity_attendance(
 ) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
 
+    let activity_status = match status {
+        AttendanceStatus::Present => crate::database::enums::ActivityAttendanceStatus::Present,
+        AttendanceStatus::Absent => crate::database::enums::ActivityAttendanceStatus::Absent,
+        AttendanceStatus::Excused => crate::database::enums::ActivityAttendanceStatus::Excused,
+        AttendanceStatus::Late => crate::database::enums::ActivityAttendanceStatus::Late,
+        _ => crate::database::enums::ActivityAttendanceStatus::Absent, // Default for other types
+    };
+
     let new_entry = ActivityAttendance {
         id: Uuid::new_v4().to_string(),
         activity_id: activity_id.clone(),
         user_id: user_id.clone(),
-        status: status.clone(),
+        status: activity_status,
         check_in_time: Some(Utc::now().naive_utc()),
         check_out_time: None,
         remarks: None,
@@ -215,16 +223,16 @@ pub async fn mark_activity_attendance(
             let hours_served = (duration.num_minutes() as f32) / 60.0;
 
             use crate::schema::detention_balances;
-            diesel::update(detention_balances::table.find(&user_id))
-                .set((
-                    detention_balances::total_hours_served
-                        .eq(detention_balances::total_hours_served + hours_served),
-                    detention_balances::remaining_hours
-                        .eq(detention_balances::remaining_hours - hours_served),
-                    detention_balances::updated_at.eq(Utc::now().naive_utc()),
-                ))
-                .execute(&mut conn)
-                .ok(); // ok() because student might not have a balance record yet
+            if let Ok(balance) = detention_balances::table.find(&user_id).first::<crate::database::tables::DetentionBalance>(&mut conn) {
+                diesel::update(detention_balances::table.find(&user_id))
+                    .set((
+                        detention_balances::total_hours_served.eq(balance.total_hours_served + hours_served),
+                        detention_balances::remaining_hours.eq(balance.remaining_hours - hours_served),
+                        detention_balances::updated_at.eq(Utc::now().naive_utc()),
+                    ))
+                    .execute(&mut conn)
+                    .ok();
+            }
         }
     }
 

@@ -103,6 +103,7 @@ pub async fn assign_subject_to_teacher(
         academic_year_id: body.academic_year_id.clone(),
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
+        medium: body.medium.clone(),
     };
 
     diesel::insert_into(teacher_subject_assignments::table)
@@ -114,6 +115,7 @@ pub async fn assign_subject_to_teacher(
         teacher_id: new_assignment.teacher_id,
         subject_id: new_assignment.subject_id,
         academic_year_id: new_assignment.academic_year_id,
+        medium: new_assignment.medium,
     }))
 }
 

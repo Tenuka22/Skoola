@@ -10,7 +10,7 @@ pub struct Config {
     pub api_title: String,
     pub api_description: String,
     pub api_version: String,
-    pub database_url: String, // Add this line
+    pub database_url: String,
     pub jwt_secret: String,
     pub jwt_expiration: i64,
     pub google_client_id: String,
@@ -28,6 +28,7 @@ pub struct Config {
     pub password_reset_base_url: String,
     pub seed_user_password: Option<String>,
     pub send_emails: bool,
+    pub gemini_api_key: Option<String>,
 }
 
 impl Config {
@@ -73,6 +74,7 @@ impl Config {
         let password_reset_base_url = env::var("PASSWORD_RESET_BASE_URL")
             .unwrap_or_else(|_| "http://localhost:8080/auth/reset-password".to_string());
         let seed_user_password = env::var("SEED_USER_PASSWORD").ok();
+        let gemini_api_key = env::var("GEMINI_API_KEY").ok();
 
         Ok(Config {
             host,
@@ -100,6 +102,7 @@ impl Config {
             seed_user_password,
             send_emails: smtp_host.as_deref().is_some_and(|s| !s.is_empty())
                 && smtp_sender_email.as_deref().is_some_and(|s| !s.is_empty()),
+            gemini_api_key,
         })
     }
 

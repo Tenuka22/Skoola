@@ -12,6 +12,10 @@ pub struct Syllabus {
     pub description: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub parent_id: Option<String>,
+    pub is_practical: bool,
+    pub required_periods: i32,
+    pub buffer_periods: i32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Insertable)]
@@ -22,4 +26,8 @@ pub struct NewSyllabus {
     pub topic_name: String,
     pub suggested_duration_hours: Option<i32>,
     pub description: Option<String>,
+    pub parent_id: Option<String>,
+    pub is_practical: bool,
+    pub required_periods: i32,
+    pub buffer_periods: i32,
 }

@@ -5,3 +5,4 @@ pub mod grade_level;
 pub mod subject;
 pub mod terms;
 pub mod timetable;
+pub mod substitution_plans;

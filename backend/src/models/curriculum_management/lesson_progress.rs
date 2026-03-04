@@ -20,4 +20,8 @@ pub struct LessonProgress {
     pub is_substitution: bool,
     pub created_at: NaiveDateTime,
     pub syllabus_id: Option<String>,
+    pub verified_by: Option<String>,
+    pub verified_at: Option<NaiveDateTime>,
+    pub is_skipped: bool,
+    pub priority_level: i32,
 }

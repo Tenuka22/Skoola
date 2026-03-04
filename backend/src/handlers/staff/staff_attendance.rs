@@ -4,6 +4,7 @@ use crate::models::staff::attendance::{
     BulkMarkStaffAttendanceRequest, CreateLessonProgressRequest, CreateSubstitutionRequest,
     LessonProgressResponse, MarkStaffAttendanceRequest, StaffAttendanceResponse,
     SubstitutionResponse, SuggestSubstituteRequest, UpdateStaffAttendanceRequest,
+    MarkTeacherPeriodAttendanceRequest, TeacherPeriodAttendanceResponse
 };
 use crate::services::staff::staff_attendance;
 use crate::utils::jwt::UserId;
@@ -19,6 +20,49 @@ use diesel::JoinOnDsl;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use diesel::SelectableHelper;
+
+#[api_operation(
+    summary = "Mark teacher period attendance",
+    description = "Marks attendance for a teacher for a specific period in the timetable.",
+    tag = "staff_attendance",
+    operation_id = "mark_teacher_period_attendance"
+)]
+pub async fn mark_teacher_period_attendance(
+    data: Data<AppState>,
+    req: HttpRequest,
+    body: Json<MarkTeacherPeriodAttendanceRequest>,
+) -> Result<Json<TeacherPeriodAttendanceResponse>, APIError> {
+    let user_id = UserId::from_request(&req)?;
+    let res = staff_attendance::mark_teacher_period_attendance(data, body.into_inner(), user_id.0).await?;
+    Ok(Json(TeacherPeriodAttendanceResponse {
+        id: res.id,
+        teacher_id: res.teacher_id,
+        timetable_id: res.timetable_id,
+        date: res.date,
+        status: res.status,
+        remarks: res.remarks,
+        is_substitution: res.is_substitution,
+    }))
+}
+
+#[api_operation(
+    summary = "Get missed topics for student",
+    description = "Retrieves topics that a student missed due to being absent in certain periods.",
+    tag = "students",
+    operation_id = "get_student_missed_topics"
+)]
+pub async fn get_student_missed_topics(
+    data: Data<AppState>,
+    path: Path<String>, // student_id
+    query: web::Query<crate::models::staff::attendance::StaffAttendanceByStaffQuery>,
+) -> Result<Json<Vec<crate::services::staff::staff_attendance::MissedTopic>>, APIError> {
+    let student_id = path.into_inner();
+    let start_date = query.start_date.unwrap_or_else(|| NaiveDate::from_ymd_opt(2000, 1, 1).unwrap());
+    let end_date = query.end_date.unwrap_or_else(|| chrono::Utc::now().naive_utc().date());
+    
+    let res = staff_attendance::get_missed_topics_for_student(data, student_id, start_date, end_date).await?;
+    Ok(Json(res))
+}
 
 #[api_operation(
     summary = "Mark daily staff attendance",
@@ -144,19 +188,7 @@ pub async fn get_my_substitutions(
 ) -> Result<Json<Vec<SubstitutionResponse>>, APIError> {
     let user_id = UserId::from_request(&req)?;
     let res = staff_attendance::get_substitutions_by_teacher(data, user_id.0, query.date).await?;
-    Ok(Json(
-        res.into_iter()
-            .map(|s| SubstitutionResponse {
-                id: s.id,
-                original_teacher_id: s.original_teacher_id,
-                substitute_teacher_id: s.substitute_teacher_id,
-                timetable_id: s.timetable_id,
-                date: s.date,
-                status: s.status.to_string(),
-                remarks: s.remarks,
-            })
-            .collect(),
-    ))
+    Ok(Json(res))
 }
 
 #[api_operation(
@@ -187,7 +219,7 @@ pub async fn suggest_substitute(
     data: Data<AppState>,
     body: Json<SuggestSubstituteRequest>,
 ) -> Result<Json<Option<crate::models::staff::staff::StaffResponse>>, APIError> {
-    let res: Option<crate::models::staff::staff::Staff> =
+    let res: Option<crate::database::tables::Staff> =
         staff_attendance::suggest_substitute(data.clone(), body.timetable_id.clone(), body.date)
             .await?;
 
@@ -197,7 +229,7 @@ pub async fn suggest_substitute(
 
         let (profile, user_profile): (
             crate::models::Profile,
-            Option<crate::models::auth_user::User>,
+            Option<crate::models::auth::User>,
         ) = profiles::table
             .find(
                 staff_member
@@ -209,7 +241,7 @@ pub async fn suggest_substitute(
             .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
             .select((
                 crate::models::Profile::as_select(),
-                Option::<crate::models::auth_user::User>::as_select(),
+                Option::<crate::models::auth::User>::as_select(),
             ))
             .first(&mut conn)?;
 
@@ -265,6 +297,8 @@ pub async fn create_substitution(
         date: res.date,
         status: res.status.to_string(),
         remarks: res.remarks,
+        plan_name: None, // Will be fetched on retrieval if needed, or we could fetch it here
+        content_link: None,
     }))
 }
 
@@ -289,6 +323,10 @@ pub async fn record_lesson_progress(
         date: res.date,
         topic_covered: res.topic_covered,
         progress_percentage: res.progress_percentage,
+        verified_by: res.verified_by,
+        verified_at: res.verified_at,
+        is_skipped: res.is_skipped,
+        priority_level: res.priority_level,
     }))
 }
 
@@ -314,6 +352,10 @@ pub async fn get_lesson_progress(
                 date: p.date,
                 topic_covered: p.topic_covered,
                 progress_percentage: p.progress_percentage,
+                verified_by: p.verified_by,
+                verified_at: p.verified_at,
+                is_skipped: p.is_skipped,
+                priority_level: p.priority_level,
             })
             .collect(),
     ))

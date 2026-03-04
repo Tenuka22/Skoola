@@ -1,4 +1,4 @@
-// @generated automatically by Diesel CLI.
+﻿// @generated automatically by Diesel CLI.
 
 diesel::table! {
     academic_years (id) {
@@ -79,6 +79,18 @@ diesel::table! {
         id -> Text,
         name -> Text,
         description -> Nullable<Text>,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    ai_processed_notes (id) {
+        id -> Text,
+        material_id -> Text,
+        structured_json -> Text,
+        summary -> Nullable<Text>,
+        key_takeaways -> Nullable<Text>,
+        suggested_questions -> Nullable<Text>,
         created_at -> Timestamp,
     }
 }
@@ -400,6 +412,11 @@ diesel::table! {
         description -> Nullable<Text>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        medium -> Text,
+        version_name -> Nullable<Text>,
+        start_date -> Nullable<Date>,
+        end_date -> Nullable<Date>,
+        is_active -> Bool,
     }
 }
 
@@ -662,6 +679,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    lesson_materials (id) {
+        id -> Text,
+        lesson_progress_id -> Text,
+        uploader_id -> Text,
+        file_name -> Text,
+        file_url -> Text,
+        file_type -> Text,
+        is_processed_by_ai -> Bool,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     lesson_progress (id) {
         id -> Text,
         class_id -> Text,
@@ -677,6 +707,41 @@ diesel::table! {
         is_substitution -> Bool,
         created_at -> Timestamp,
         syllabus_id -> Nullable<Text>,
+        verified_by -> Nullable<Text>,
+        verified_at -> Nullable<Timestamp>,
+        is_skipped -> Bool,
+        priority_level -> Integer,
+    }
+}
+
+diesel::table! {
+    lesson_progress_attachments (id) {
+        id -> Text,
+        lesson_progress_id -> Text,
+        file_name -> Text,
+        file_url -> Text,
+        file_type -> Nullable<Text>,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    lesson_progress_periods (lesson_progress_id, timetable_id, date) {
+        lesson_progress_id -> Text,
+        timetable_id -> Text,
+        date -> Date,
+    }
+}
+
+diesel::table! {
+    lesson_reviews (id) {
+        id -> Text,
+        lesson_progress_id -> Text,
+        reviewer_type -> Text,
+        reviewer_id -> Text,
+        clarity_rating -> Integer,
+        feedback_text -> Nullable<Text>,
+        created_at -> Timestamp,
     }
 }
 
@@ -788,6 +853,19 @@ diesel::table! {
         handled_by -> Text,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    practical_lesson_appeals (id) {
+        id -> Text,
+        lesson_progress_id -> Text,
+        appeal_reason -> Text,
+        evidence_image_url -> Nullable<Text>,
+        status -> Text,
+        reviewed_by -> Nullable<Text>,
+        reviewed_at -> Nullable<Timestamp>,
+        created_at -> Timestamp,
     }
 }
 
@@ -1049,6 +1127,7 @@ diesel::table! {
         staff_type -> Text,
         photo_url -> Nullable<Text>,
         profile_id -> Nullable<Text>,
+        reward_points_balance -> Integer,
     }
 }
 
@@ -1298,6 +1377,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    student_missed_lessons (id) {
+        id -> Text,
+        student_id -> Text,
+        lesson_progress_id -> Text,
+        status -> Text,
+        remarks -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+        notified_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
     student_period_attendance (id) {
         id -> Text,
         student_id -> Text,
@@ -1384,6 +1476,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    substitution_plans (id) {
+        id -> Text,
+        subject_id -> Text,
+        medium -> Text,
+        plan_name -> Text,
+        content_link -> Nullable<Text>,
+        description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     substitutions (id) {
         id -> Text,
         original_teacher_id -> Text,
@@ -1405,6 +1510,23 @@ diesel::table! {
         description -> Nullable<Text>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        parent_id -> Nullable<Text>,
+        is_practical -> Bool,
+        required_periods -> Integer,
+        buffer_periods -> Integer,
+    }
+}
+
+diesel::table! {
+    syllabus_unit_allocations (id) {
+        id -> Text,
+        class_id -> Text,
+        syllabus_id -> Text,
+        planned_periods -> Integer,
+        buffer_periods -> Integer,
+        target_date -> Nullable<Date>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -1420,6 +1542,41 @@ diesel::table! {
 }
 
 diesel::table! {
+    teacher_period_attendance (id) {
+        id -> Text,
+        teacher_id -> Text,
+        timetable_id -> Text,
+        date -> Date,
+        status -> Text,
+        remarks -> Nullable<Text>,
+        marked_by -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+        is_substitution -> Bool,
+        substitution_id -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
+    teacher_reward_balances (teacher_id) {
+        teacher_id -> Text,
+        total_points -> Integer,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    teacher_reward_history (id) {
+        id -> Text,
+        teacher_id -> Text,
+        points -> Integer,
+        reason_type -> Text,
+        reference_id -> Nullable<Text>,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     teacher_subject_assignments (id) {
         id -> Text,
         teacher_id -> Text,
@@ -1427,6 +1584,7 @@ diesel::table! {
         academic_year_id -> Text,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        medium -> Text,
     }
 }
 
@@ -1566,6 +1724,7 @@ diesel::joinable!(activity_participants_staff -> activities (activity_id));
 diesel::joinable!(activity_participants_staff -> staff (staff_id));
 diesel::joinable!(activity_participants_students -> activities (activity_id));
 diesel::joinable!(activity_participants_students -> students (student_id));
+diesel::joinable!(ai_processed_notes -> lesson_materials (material_id));
 diesel::joinable!(al_exams -> streams (stream_id));
 diesel::joinable!(al_exams -> students (student_id));
 diesel::joinable!(asset_allocations -> inventory_items (item_id));
@@ -1629,11 +1788,16 @@ diesel::joinable!(grading_criteria -> grading_schemes (scheme_id));
 diesel::joinable!(income_transactions -> income_sources (source_id));
 diesel::joinable!(income_transactions -> staff (received_by));
 diesel::joinable!(inventory_items -> asset_categories (category_id));
+diesel::joinable!(lesson_materials -> lesson_progress (lesson_progress_id));
+diesel::joinable!(lesson_materials -> staff (uploader_id));
 diesel::joinable!(lesson_progress -> classes (class_id));
-diesel::joinable!(lesson_progress -> staff (teacher_id));
 diesel::joinable!(lesson_progress -> subjects (subject_id));
 diesel::joinable!(lesson_progress -> syllabus (syllabus_id));
 diesel::joinable!(lesson_progress -> timetable (timetable_id));
+diesel::joinable!(lesson_progress_attachments -> lesson_progress (lesson_progress_id));
+diesel::joinable!(lesson_progress_periods -> lesson_progress (lesson_progress_id));
+diesel::joinable!(lesson_progress_periods -> timetable (timetable_id));
+diesel::joinable!(lesson_reviews -> lesson_progress (lesson_progress_id));
 diesel::joinable!(library_books -> library_categories (category_id));
 diesel::joinable!(library_issues -> library_books (book_id));
 diesel::joinable!(library_issues -> staff (staff_id));
@@ -1645,6 +1809,8 @@ diesel::joinable!(messages -> conversations (conversation_id));
 diesel::joinable!(messages -> users (sender_user_id));
 diesel::joinable!(ol_exams -> students (student_id));
 diesel::joinable!(petty_cash_transactions -> staff (handled_by));
+diesel::joinable!(practical_lesson_appeals -> lesson_progress (lesson_progress_id));
+diesel::joinable!(practical_lesson_appeals -> staff (reviewed_by));
 diesel::joinable!(pre_approved_absences -> students (student_id));
 diesel::joinable!(pre_approved_absences -> users (approved_by));
 diesel::joinable!(report_card_marks -> report_cards (report_card_id));
@@ -1696,6 +1862,8 @@ diesel::joinable!(student_marks -> exams (exam_id));
 diesel::joinable!(student_marks -> students (student_id));
 diesel::joinable!(student_marks -> subjects (subject_id));
 diesel::joinable!(student_medical_info -> students (student_id));
+diesel::joinable!(student_missed_lessons -> lesson_progress (lesson_progress_id));
+diesel::joinable!(student_missed_lessons -> students (student_id));
 diesel::joinable!(student_period_attendance -> classes (class_id));
 diesel::joinable!(student_period_attendance -> students (student_id));
 diesel::joinable!(student_period_attendance -> timetable (timetable_id));
@@ -1708,11 +1876,20 @@ diesel::joinable!(students -> profiles (profile_id));
 diesel::joinable!(subject_enrollments -> academic_years (academic_year_id));
 diesel::joinable!(subject_enrollments -> students (student_id));
 diesel::joinable!(subject_enrollments -> subjects (subject_id));
+diesel::joinable!(substitution_plans -> subjects (subject_id));
 diesel::joinable!(substitutions -> timetable (timetable_id));
 diesel::joinable!(syllabus -> curriculum_standards (curriculum_standard_id));
+diesel::joinable!(syllabus_unit_allocations -> classes (class_id));
+diesel::joinable!(syllabus_unit_allocations -> syllabus (syllabus_id));
 diesel::joinable!(teacher_class_assignments -> academic_years (academic_year_id));
 diesel::joinable!(teacher_class_assignments -> classes (class_id));
 diesel::joinable!(teacher_class_assignments -> staff (teacher_id));
+diesel::joinable!(teacher_period_attendance -> staff (teacher_id));
+diesel::joinable!(teacher_period_attendance -> substitutions (substitution_id));
+diesel::joinable!(teacher_period_attendance -> timetable (timetable_id));
+diesel::joinable!(teacher_period_attendance -> users (marked_by));
+diesel::joinable!(teacher_reward_balances -> staff (teacher_id));
+diesel::joinable!(teacher_reward_history -> staff (teacher_id));
 diesel::joinable!(teacher_subject_assignments -> academic_years (academic_year_id));
 diesel::joinable!(teacher_subject_assignments -> staff (teacher_id));
 diesel::joinable!(teacher_subject_assignments -> subjects (subject_id));
@@ -1741,6 +1918,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     activity_participants_staff,
     activity_participants_students,
     activity_types,
+    ai_processed_notes,
     al_exams,
     asset_allocations,
     asset_allocations_staff,
@@ -1789,7 +1967,11 @@ diesel::allow_tables_to_appear_in_same_query!(
     income_sources,
     income_transactions,
     inventory_items,
+    lesson_materials,
     lesson_progress,
+    lesson_progress_attachments,
+    lesson_progress_periods,
+    lesson_reviews,
     library_books,
     library_categories,
     library_issues,
@@ -1798,6 +1980,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     messages,
     ol_exams,
     petty_cash_transactions,
+    practical_lesson_appeals,
     pre_approved_absences,
     profiles,
     report_card_marks,
@@ -1839,15 +2022,21 @@ diesel::allow_tables_to_appear_in_same_query!(
     student_marks,
     student_marks_history,
     student_medical_info,
+    student_missed_lessons,
     student_period_attendance,
     student_previous_schools,
     student_zscores,
     students,
     subject_enrollments,
     subjects,
+    substitution_plans,
     substitutions,
     syllabus,
+    syllabus_unit_allocations,
     teacher_class_assignments,
+    teacher_period_attendance,
+    teacher_reward_balances,
+    teacher_reward_history,
     teacher_subject_assignments,
     terms,
     timetable,

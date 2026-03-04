@@ -7,10 +7,17 @@ use crate::APIError;
 use crate::AppState;
 use crate::models::curriculum_management::{CurriculumStandard, Syllabus};
 use crate::services::curriculum_management;
+use crate::database::enums::Medium;
 
 use apistos::{ApiComponent, api_operation};
-use chrono::NaiveDateTime;
+use chrono::{NaiveDate, NaiveDateTime};
 use schemars::JsonSchema;
+
+pub mod attachments;
+pub mod reports;
+pub mod unit_allocations;
+pub mod appeals;
+pub mod reviews;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct CurriculumStandardResponse {
@@ -21,6 +28,11 @@ pub struct CurriculumStandardResponse {
     pub description: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub medium: Medium,
+    pub version_name: Option<String>,
+    pub start_date: Option<NaiveDate>,
+    pub end_date: Option<NaiveDate>,
+    pub is_active: bool,
 }
 
 impl From<CurriculumStandard> for CurriculumStandardResponse {
@@ -33,6 +45,11 @@ impl From<CurriculumStandard> for CurriculumStandardResponse {
             description: standard.description,
             created_at: standard.created_at,
             updated_at: standard.updated_at,
+            medium: standard.medium,
+            version_name: standard.version_name,
+            start_date: standard.start_date,
+            end_date: standard.end_date,
+            is_active: standard.is_active,
         }
     }
 }
@@ -46,6 +63,10 @@ pub struct SyllabusResponse {
     pub description: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub parent_id: Option<String>,
+    pub is_practical: bool,
+    pub required_periods: i32,
+    pub buffer_periods: i32,
 }
 
 impl From<Syllabus> for SyllabusResponse {
@@ -58,6 +79,10 @@ impl From<Syllabus> for SyllabusResponse {
             description: syllabus.description,
             created_at: syllabus.created_at,
             updated_at: syllabus.updated_at,
+            parent_id: syllabus.parent_id,
+            is_practical: syllabus.is_practical,
+            required_periods: syllabus.required_periods,
+            buffer_periods: syllabus.buffer_periods,
         }
     }
 }
@@ -71,6 +96,11 @@ pub struct CreateCurriculumStandardRequest {
     #[validate(length(min = 1, message = "Standard code cannot be empty"))]
     pub standard_code: String,
     pub description: Option<String>,
+    pub medium: Medium,
+    pub version_name: Option<String>,
+    pub start_date: Option<NaiveDate>,
+    pub end_date: Option<NaiveDate>,
+    pub is_active: bool,
 }
 
 #[derive(Debug, Deserialize, Validate, JsonSchema, ApiComponent)]
@@ -79,6 +109,11 @@ pub struct UpdateCurriculumStandardRequest {
     pub grade_level_id: Option<String>,
     pub standard_code: Option<String>,
     pub description: Option<String>,
+    pub medium: Option<Medium>,
+    pub version_name: Option<String>,
+    pub start_date: Option<NaiveDate>,
+    pub end_date: Option<NaiveDate>,
+    pub is_active: Option<bool>,
 }
 
 #[derive(Debug, Deserialize, Validate, JsonSchema, ApiComponent)]
@@ -89,6 +124,10 @@ pub struct CreateSyllabusRequest {
     pub topic_name: String,
     pub suggested_duration_hours: Option<i32>,
     pub description: Option<String>,
+    pub parent_id: Option<String>,
+    pub is_practical: bool,
+    pub required_periods: i32,
+    pub buffer_periods: i32,
 }
 
 #[derive(Debug, Deserialize, Validate, JsonSchema, ApiComponent)]
@@ -96,6 +135,10 @@ pub struct UpdateSyllabusRequest {
     pub topic_name: Option<String>,
     pub suggested_duration_hours: Option<i32>,
     pub description: Option<String>,
+    pub parent_id: Option<String>,
+    pub is_practical: Option<bool>,
+    pub required_periods: Option<i32>,
+    pub buffer_periods: Option<i32>,
 }
 
 #[api_operation(
@@ -138,7 +181,7 @@ pub async fn get_curriculum_standard_by_id(
 pub async fn get_all_curriculum_standards(
     data: web::Data<AppState>,
 ) -> Result<Json<Vec<CurriculumStandardResponse>>, APIError> {
-    let standards = curriculum_management::get_all_curriculum_standards(data.clone()).await?;
+    let standards: Vec<CurriculumStandard> = curriculum_management::get_all_curriculum_standards(data.clone()).await?;
     Ok(Json(
         standards
             .into_iter()
@@ -225,7 +268,7 @@ pub async fn get_syllabus_topics_for_standard(
     path: web::Path<String>,
 ) -> Result<Json<Vec<SyllabusResponse>>, APIError> {
     let standard_id = path.into_inner();
-    let syllabus_topics =
+    let syllabus_topics: Vec<Syllabus> =
         curriculum_management::get_syllabus_topics_for_standard(data.clone(), standard_id).await?;
     Ok(Json(
         syllabus_topics
