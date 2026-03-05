@@ -80,6 +80,7 @@ export type DateField<TInput extends FieldValues> = BaseField<TInput> & {
   placeholder?: string
   format?: string // e.g., "PPP" for "MMM dd, yyyy"
   inputClassName?: string
+  onValueChange?: (value: string | null, form: UseFormReturn<TInput>) => void
 }
 
 export type FormFieldConfig<TInput extends FieldValues> =

@@ -7,11 +7,16 @@ import {
 import * as React from 'react'
 
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon } from '@hugeicons/core-free-icons'
+import {
+  Delete02Icon,
+  LayoutGridIcon,
+  TableIcon,
+} from '@hugeicons/core-free-icons'
 import type { ClassFormValues } from '@/features/academics/classes/schemas'
 import type { ClassResponse } from '@/lib/api/types.gen'
 import { ClassesHeader } from '@/features/academics/classes/components/classes-header'
 import { ClassesListContainer } from '@/features/academics/classes/components/classes-list-container'
+import { ClassesGridView } from '@/features/academics/classes/components/classes-grid-view'
 import { useClassesColumns } from '@/features/academics/classes/components/classes-table-columns'
 import { ClassAddDialog } from '@/features/academics/classes/components/class-add-dialog'
 import { ClassEditDialog } from '@/features/academics/classes/components/class-edit-dialog'
@@ -26,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Stack } from '@/components/primitives'
+import { HStack, Stack } from '@/components/primitives'
 import {
   getAllClassesQueryOptions,
   useBulkDeleteClasses,
@@ -41,6 +46,7 @@ import {
   getAllGradeLevelsOptions,
 } from '@/lib/api/@tanstack/react-query.gen'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export const Route = createFileRoute('/admin/classes')({
   component: ClassesPage,
@@ -157,28 +163,67 @@ function ClassesPage() {
   })
 
   return (
-    <Stack gap={4} p={8} className="h-full bg-background">
+    <Stack gap={4} p={8} className="h-full">
       <ClassesHeader />
-      <ClassesListContainer
-        query={classesQuery}
-        columns={columns}
-        rowSelection={rowSelection}
-        setRowSelection={setRowSelection}
-        onFetchFullData={fetchFullData}
-        facetedFilters={facetedFilters}
-        onAdd={() => setIsCreateClassOpen(true)}
-        onAddLabel="Add Class"
-        bulkActions={({ selectedRows }) => (
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => setIsBulkDeleteOpen(true)}
-          >
-            <HugeiconsIcon icon={Delete02Icon} className="size-4 mr-2" />
-            Delete Selected ({selectedRows.length})
-          </Button>
-        )}
-      />
+
+      <Tabs
+        defaultValue="table"
+        className="flex flex-col flex-1 gap-4 overflow-hidden"
+      >
+        <HStack>
+          <TabsList>
+            <TabsTrigger value="table" className="gap-2">
+              <HugeiconsIcon icon={TableIcon} className="size-4" />
+              Table
+            </TabsTrigger>
+            <TabsTrigger value="grid" className="gap-2">
+              <HugeiconsIcon icon={LayoutGridIcon} className="size-4" />
+              Grid
+            </TabsTrigger>
+          </TabsList>
+        </HStack>
+
+        <TabsContent value="table" className="flex-1 w-full mt-0">
+          <div className="overflow-y-auto w-0 flex-1 min-w-full h-full">
+            <ClassesListContainer
+              query={classesQuery}
+              columns={columns}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              onFetchFullData={fetchFullData}
+              facetedFilters={facetedFilters}
+              onAdd={() => setIsCreateClassOpen(true)}
+              onAddLabel="Add Class"
+              bulkActions={({ selectedRows }) => (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setIsBulkDeleteOpen(true)}
+                >
+                  <HugeiconsIcon icon={Delete02Icon} className="size-4 mr-2" />
+                  Delete Selected ({selectedRows.length})
+                </Button>
+              )}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent
+          value="grid"
+          className="flex-1 w-full mt-0 overflow-y-auto"
+        >
+          <ClassesGridView
+            data={classesQuery.data?.data || []}
+            isLoading={classesQuery.isLoading}
+            onEdit={setClassToEdit}
+            onDelete={setClassToDelete}
+            onAssignStudents={(classItem) => {
+              setClassToAssignStudentsFor(classItem)
+              setIsAssignStudentsOpen(true)
+            }}
+          />
+        </TabsContent>
+      </Tabs>
 
       <ClassAddDialog
         open={isCreateClassOpen}
@@ -286,7 +331,7 @@ function ClassesPage() {
                 )
               }}
             >
-              Delete All
+              Confirm
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

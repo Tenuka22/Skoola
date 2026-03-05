@@ -10,38 +10,44 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .wrap(Authenticated)
             .service(
                 web::resource("")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::ResourceCreate,
-                    })
-                    .route(web::post().to(resource_management::create_resource)),
+                    .route(
+                        web::post()
+                            .to(resource_management::create_resource)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::ResourceCreate,
+                            }),
+                    )
+                    .route(
+                        web::get()
+                            .to(resource_management::get_all_resources)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::ResourceRead,
+                            }),
+                    ),
             )
             .service(
                 web::resource("/{resource_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::ResourceRead,
-                    })
-                    .route(web::get().to(resource_management::get_resource_by_id)),
-            )
-            .service(
-                web::resource("")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::ResourceRead,
-                    })
-                    .route(web::get().to(resource_management::get_all_resources)),
-            )
-            .service(
-                web::resource("/{resource_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::ResourceUpdate,
-                    })
-                    .route(web::put().to(resource_management::update_resource)),
-            )
-            .service(
-                web::resource("/{resource_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::ResourceDelete,
-                    })
-                    .route(web::delete().to(resource_management::delete_resource)),
+                    .route(
+                        web::get()
+                            .to(resource_management::get_resource_by_id)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::ResourceRead,
+                            }),
+                    )
+                    .route(
+                        web::put()
+                            .to(resource_management::update_resource)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::ResourceUpdate,
+                            }),
+                    )
+                    .route(
+                        web::delete()
+                            .to(resource_management::delete_resource)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::ResourceDelete,
+                            }),
+                    ),
             )
             .service(
                 web::resource("/{resource_id}/bookings")

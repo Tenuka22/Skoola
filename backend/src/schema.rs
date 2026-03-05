@@ -1,4 +1,4 @@
-﻿// @generated automatically by Diesel CLI.
+// @generated automatically by Diesel CLI.
 
 diesel::table! {
     academic_years (id) {
@@ -591,6 +591,19 @@ diesel::table! {
         grade_number -> Integer,
         grade_name -> Text,
         education_level -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    grade_periods (id) {
+        id -> Text,
+        grade_id -> Text,
+        period_number -> Integer,
+        start_time -> Time,
+        end_time -> Time,
+        is_break -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -1615,6 +1628,7 @@ diesel::table! {
         academic_year_id -> Text,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        grade_period_id -> Nullable<Text>,
     }
 }
 
@@ -1780,6 +1794,7 @@ diesel::joinable!(fee_payments -> student_fees (student_fee_id));
 diesel::joinable!(fee_structures -> academic_years (academic_year_id));
 diesel::joinable!(fee_structures -> fee_categories (category_id));
 diesel::joinable!(fee_structures -> grade_levels (grade_id));
+diesel::joinable!(grade_periods -> grade_levels (grade_id));
 diesel::joinable!(grade_streams -> grade_levels (grade_id));
 diesel::joinable!(grade_streams -> streams (stream_id));
 diesel::joinable!(grade_subjects -> grade_levels (grade_id));
@@ -1896,6 +1911,7 @@ diesel::joinable!(teacher_subject_assignments -> subjects (subject_id));
 diesel::joinable!(terms -> academic_years (academic_year_id));
 diesel::joinable!(timetable -> academic_years (academic_year_id));
 diesel::joinable!(timetable -> classes (class_id));
+diesel::joinable!(timetable -> grade_periods (grade_period_id));
 diesel::joinable!(timetable -> staff (teacher_id));
 diesel::joinable!(timetable -> subjects (subject_id));
 diesel::joinable!(uniform_issues -> staff (issued_by));
@@ -1960,6 +1976,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     fee_structures,
     general_ledger,
     grade_levels,
+    grade_periods,
     grade_streams,
     grade_subjects,
     grading_criteria,

@@ -14,8 +14,6 @@ import { Card } from '@/components/ui/card'
 import { Box, Grid, HStack, Stack, Text } from '@/components/primitives'
 import { cn } from '@/lib/utils'
 
-const TIMETABLE_COLS = 8
-
 interface TimetablesVisualViewProps {
   data: Array<TimetableEntryRow>
   viewMode: string
@@ -55,7 +53,7 @@ export function TimetablesVisualView({
       <Stack gap={6}>
         <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
           {/* Grid Header */}
-          <Grid cols={TIMETABLE_COLS} gap={0} className="border-b">
+          <Grid gap={0} className="grid-cols-8 border-b">
             <Box className="p-4 bg-muted/30 border-r flex items-center justify-center">
               <HugeiconsIcon
                 icon={Clock01Icon}
@@ -83,12 +81,7 @@ export function TimetablesVisualView({
           {/* Grid Body */}
           <Stack gap={0} className="divide-y">
             {periods.map((period) => (
-              <Grid
-                key={period}
-                cols={TIMETABLE_COLS}
-                gap={0}
-                className="min-h-32"
-              >
+              <Grid key={period} gap={0} className="grid-cols-8 min-h-32">
                 {/* Period Label */}
                 <Box className="p-4 border-r bg-muted/10 flex flex-col items-center justify-center gap-1">
                   <Badge

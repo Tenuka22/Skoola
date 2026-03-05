@@ -1,5 +1,3 @@
-import { HugeiconsIcon } from '@hugeicons/react'
-import { FloppyDiskIcon } from '@hugeicons/core-free-icons'
 import * as React from 'react'
 import { gradeLevelFormSchema } from '../schemas'
 import type { GradeLevelFormValues } from '../schemas'
@@ -8,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -80,7 +79,7 @@ export function GradeLevelAddDialog({
     ],
     extras: {
       bottom: (
-        <DialogFooter className="mt-4">
+        <DialogFooter>
           <Button
             type="button"
             variant="ghost"
@@ -89,12 +88,8 @@ export function GradeLevelAddDialog({
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <Spinner className="mr-2" />
-            ) : (
-              <HugeiconsIcon icon={FloppyDiskIcon} className="size-4 mr-2" />
-            )}
-            Add Grade Level
+            {isSubmitting && <Spinner className="mr-2" />}
+            Create Grade Level
           </Button>
         </DialogFooter>
       ),
@@ -102,10 +97,13 @@ export function GradeLevelAddDialog({
   })
 
   return (
-    <Dialog open={open} onOpenChange={(val) => onOpenChange(val)}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Grade Level</DialogTitle>
+          <DialogTitle>Add Grade Level</DialogTitle>
+          <DialogDescription>
+            Create a new academic grade level.
+          </DialogDescription>
         </DialogHeader>
         <FormBuilder
           schema={gradeLevelFormSchema}
@@ -123,7 +121,7 @@ export function GradeLevelAddDialog({
           toastErrors={false}
           showSuccessAlert={false}
           actions={[]}
-          className="grid gap-4 py-4"
+          className="space-y-4"
         />
       </DialogContent>
     </Dialog>

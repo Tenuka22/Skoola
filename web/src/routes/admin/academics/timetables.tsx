@@ -27,6 +27,7 @@ import {
 } from '@/features/academics/timetables/components/timetables-table-columns'
 import { TimetableAddDialog } from '@/features/academics/timetables/components/timetable-add-dialog'
 import { TimetableEditDialog } from '@/features/academics/timetables/components/timetable-edit-dialog'
+import { TimetablesVisualView } from '@/features/academics/timetables/components/timetables-visual-view'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +48,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 import { HStack, Stack } from '@/components/primitives'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export const Route = createFileRoute('/admin/academics/timetables')({
   component: TimetablesPage,
@@ -60,10 +62,10 @@ function TimetablesPage() {
     setSelectedClassId,
     selectedTeacherId,
     setSelectedTeacherId,
-    selectedDayOfWeek,
-    setSelectedDayOfWeek,
     viewMode,
     setViewMode,
+    search: timetableSearch,
+    setSearch: setTimetableSearch,
   } = useTimetablesSearchParams()
 
   const [isCreateTimetableEntryOpen, setIsCreateTimetableEntryOpen] =
@@ -73,7 +75,6 @@ function TimetablesPage() {
   const [timetableEntryToDelete, setTimetableEntryToDelete] = React.useState<
     string | null
   >(null)
-  const [isGridView, setIsGridView] = React.useState(true)
 
   // Fetch all academic years, classes, and staff for filters and display
   const [academicYearsQuery, classesQuery, staffQuery, subjectsQuery] =
@@ -126,13 +127,13 @@ function TimetablesPage() {
       viewMode:
         viewMode === 'class' || viewMode === 'teacher' ? viewMode : 'class',
       classId: selectedClassId ?? undefined,
-      dayOfWeek: selectedDayOfWeek ?? undefined,
+      dayOfWeek: 'all', // Always fetch all days
       teacherId: selectedTeacherId ?? undefined,
       academicYearId: selectedAcademicYearId ?? undefined,
     }),
     enabled:
       !!selectedAcademicYearId &&
-      ((viewMode === 'class' && !!selectedClassId && !!selectedDayOfWeek) ||
+      ((viewMode === 'class' && !!selectedClassId) ||
         (viewMode === 'teacher' && !!selectedTeacherId)),
     placeholderData: keepPreviousData,
   })
@@ -176,82 +177,86 @@ function TimetablesPage() {
         setSelectedClassId={(val) => setSelectedClassId(val ?? null)}
         selectedTeacherId={selectedTeacherId ?? undefined}
         setSelectedTeacherId={(val) => setSelectedTeacherId(val ?? null)}
-        selectedDayOfWeek={selectedDayOfWeek ?? undefined}
-        setSelectedDayOfWeek={(val) => setSelectedDayOfWeek(val ?? null)}
         viewMode={
           viewMode === 'class' || viewMode === 'teacher' ? viewMode : 'class'
         }
       />
-      <TimetablesListContainer
-        query={timetableQuery}
-        columns={columns}
-        data={mappedTimetableEntries}
-        isGridView={isGridView}
-        viewMode={viewMode || 'class'}
-        onEdit={setTimetableEntryToEdit}
-        onFetchFullData={fetchFullData}
-        onAdd={() => setIsCreateTimetableEntryOpen(true)}
-        onAddLabel="Add Entry"
-        extraActions={
-          <HStack gap={2}>
-            <ToggleGroup
-              value={[isGridView ? 'grid' : 'list']}
-              onValueChange={(val) => {
-                const value = Array.isArray(val) ? val[0] : val
-                if (value) setIsGridView(value === 'grid')
-              }}
-              className="border p-1 rounded-lg bg-muted/50"
-            >
-              <ToggleGroupItem
-                value="grid"
-                size="sm"
-                className="px-2.5 h-7 data-[state=on]:bg-background data-[state=on]:shadow-sm"
-                title="Grid View"
-              >
-                <HugeiconsIcon icon={LayoutGridIcon} className="size-3.5" />
-              </ToggleGroupItem>
-              <ToggleGroupItem
-                value="list"
-                size="sm"
-                className="px-2.5 h-7 data-[state=on]:bg-background data-[state=on]:shadow-sm"
-                title="List View"
-              >
-                <HugeiconsIcon icon={TableIcon} className="size-3.5" />
-              </ToggleGroupItem>
-            </ToggleGroup>
 
-            <ToggleGroup
-              value={[viewMode || 'class']}
-              onValueChange={(val) => {
-                const value = Array.isArray(val) ? val[0] : val
-                if (value === 'class' || value === 'teacher') setViewMode(value)
-              }}
-              className="border p-1 rounded-lg bg-muted/50"
+      <Tabs
+        defaultValue="table"
+        className="flex flex-col flex-1 gap-4 overflow-hidden"
+      >
+        <HStack justify="between">
+          <TabsList>
+            <TabsTrigger value="table" className="gap-2">
+              <HugeiconsIcon icon={TableIcon} className="size-4" />
+              Table
+            </TabsTrigger>
+            <TabsTrigger value="grid" className="gap-2">
+              <HugeiconsIcon icon={LayoutGridIcon} className="size-4" />
+              Grid
+            </TabsTrigger>
+          </TabsList>
+
+          <ToggleGroup
+            value={[viewMode || 'class']}
+            onValueChange={(val: Array<string>) => {
+              if (val.length > 0) {
+                const mode = val[0]
+                if (mode === 'class' || mode === 'teacher') setViewMode(mode)
+              }
+            }}
+            className="border p-1 rounded-lg bg-muted/50"
+          >
+            <ToggleGroupItem
+              value="class"
+              className={cn(
+                'px-3 py-1 h-7 text-[10px] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
+                viewMode === 'class' && 'shadow-sm',
+              )}
             >
-              <ToggleGroupItem
-                value="class"
-                className={cn(
-                  'px-3 py-1 h-7 text-[10px] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
-                  viewMode === 'class' && 'shadow-sm',
-                )}
-              >
-                <HugeiconsIcon icon={Calendar02Icon} className="size-3 mr-1" />
-                Class
-              </ToggleGroupItem>
-              <ToggleGroupItem
-                value="teacher"
-                className={cn(
-                  'px-3 py-1 h-7 text-[10px] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
-                  viewMode === 'teacher' && 'shadow-sm',
-                )}
-              >
-                <HugeiconsIcon icon={User02Icon} className="size-3 mr-1" />
-                Teacher
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </HStack>
-        }
-      />
+              <HugeiconsIcon icon={Calendar02Icon} className="size-3 mr-1" />
+              Class
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="teacher"
+              className={cn(
+                'px-3 py-1 h-7 text-[10px] data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
+                viewMode === 'teacher' && 'shadow-sm',
+              )}
+            >
+              <HugeiconsIcon icon={User02Icon} className="size-3 mr-1" />
+              Teacher
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </HStack>
+
+        <TabsContent value="table" className="flex-1 w-full mt-0">
+          <div className="overflow-y-auto w-0 flex-1 min-w-full h-full">
+            <TimetablesListContainer
+              query={timetableQuery}
+              columns={columns}
+              data={mappedTimetableEntries}
+              onFetchFullData={fetchFullData}
+              onAdd={() => setIsCreateTimetableEntryOpen(true)}
+              onAddLabel="Add Entry"
+              search={timetableSearch ?? ''}
+              onSearchChange={setTimetableSearch}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent
+          value="grid"
+          className="flex-1 w-full mt-0 overflow-y-auto"
+        >
+          <TimetablesVisualView
+            data={mappedTimetableEntries}
+            viewMode={viewMode || 'class'}
+            setTimetableEntryToEdit={setTimetableEntryToEdit}
+          />
+        </TabsContent>
+      </Tabs>
 
       <TimetableAddDialog
         open={isCreateTimetableEntryOpen}

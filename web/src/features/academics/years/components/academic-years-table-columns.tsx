@@ -1,10 +1,10 @@
 'use client'
 
 import {
-  Calendar02Icon,
   Delete02Icon,
   MoreHorizontalIcon,
   PencilEdit01Icon,
+  StarIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { format } from 'date-fns'
@@ -15,10 +15,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import { DataTableColumnHeader } from '@/components/data-table'
+import { HStack } from '@/components/primitives'
 
 interface GetAcademicYearsColumnsProps {
   onEdit: (year: AcademicYearResponse) => void
@@ -68,34 +70,51 @@ export const getAcademicYearsColumns = ({
     cell: ({ row }) => {
       const year = row.original
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button variant="ghost" size="icon" className="size-8">
-                <HugeiconsIcon icon={MoreHorizontalIcon} className="size-4" />
-              </Button>
-            }
-          />
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onClick={() => onEdit(year)}>
-              <HugeiconsIcon icon={PencilEdit01Icon} className="mr-2 size-4" />
-              Edit
-            </DropdownMenuItem>
-            {!year.current && (
-              <DropdownMenuItem onClick={() => onSetCurrent(year.id)}>
-                <HugeiconsIcon icon={Calendar02Icon} className="mr-2 size-4" />
-                Set as Current
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
-              onClick={() => onDelete(year.id)}
+        <HStack gap={2} justify="end">
+          {!year.current && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 text-xs font-medium hover:bg-primary/5 hover:text-primary"
+              onClick={() => onSetCurrent(year.id)}
             >
-              <HugeiconsIcon icon={Delete02Icon} className="mr-2 size-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <HugeiconsIcon icon={StarIcon} className="mr-1.5 size-3.5" />
+              Activate
+            </Button>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="ghost" size="icon" className="size-8">
+                  <HugeiconsIcon icon={MoreHorizontalIcon} className="size-4" />
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => onEdit(year)}>
+                <HugeiconsIcon
+                  icon={PencilEdit01Icon}
+                  className="mr-2 size-4"
+                />
+                Edit Details
+              </DropdownMenuItem>
+              {!year.current && (
+                <DropdownMenuItem onClick={() => onSetCurrent(year.id)}>
+                  <HugeiconsIcon icon={StarIcon} className="mr-2 size-4" />
+                  Set as Current
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => onDelete(year.id)}
+              >
+                <HugeiconsIcon icon={Delete02Icon} className="mr-2 size-4" />
+                Delete Year
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </HStack>
       )
     },
     meta: { isPinned: 'right' },

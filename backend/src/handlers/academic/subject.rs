@@ -15,6 +15,8 @@ use crate::{
     },
     services::academic::subject,
 };
+use crate::models::student::student::PaginatedStudentResponse;
+use crate::handlers::academic::class::StudentsQuery;
 
 #[api_operation(
     summary = "Enroll student in elective subject",
@@ -258,4 +260,27 @@ pub async fn assign_subject_to_stream_handler(
     Ok(Json(MessageResponse {
         message: "Subject assigned to stream successfully".to_string(),
     }))
+}
+
+#[api_operation(
+    summary = "Get Students by Subject",
+    description = "Retrieves a paginated list of students enrolled in a specific subject for a given academic year.",
+    tag = "subjects",
+    operation_id = "get_students_by_subject"
+)]
+pub async fn get_students_by_subject(
+    data: web::Data<AppState>,
+    path: web::Path<(String, String)>, // (subject_id, academic_year_id)
+    query: web::Query<StudentsQuery>,
+) -> Result<Json<PaginatedStudentResponse>, APIError> {
+    let (subject_id, academic_year_id) = path.into_inner();
+    let students: PaginatedStudentResponse = subject::get_students_by_subject(
+        data.clone(),
+        subject_id,
+        academic_year_id,
+        query.page.unwrap_or(1),
+        query.limit.unwrap_or(10),
+    )
+    .await?;
+    Ok(Json(students))
 }

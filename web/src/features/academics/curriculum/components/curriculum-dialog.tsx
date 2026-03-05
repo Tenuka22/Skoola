@@ -140,15 +140,13 @@ export function CurriculumDialog({
       [
         {
           field: 'start_date',
-          type: 'input',
+          type: 'date-picker',
           label: 'Start Date',
-          inputType: 'date',
         },
         {
           field: 'end_date',
-          type: 'input',
+          type: 'date-picker',
           label: 'End Date',
-          inputType: 'date',
         },
       ],
       [
@@ -162,7 +160,7 @@ export function CurriculumDialog({
     ],
     extras: {
       bottom: (
-        <DialogFooter className="mt-4">
+        <DialogFooter>
           <Button
             type="button"
             variant="ghost"
@@ -210,7 +208,7 @@ export function CurriculumDialog({
           toastErrors={false}
           showSuccessAlert={false}
           actions={[]}
-          className="grid gap-4 py-4"
+          className="grid gap-4"
         />
       </DialogContent>
     </Dialog>

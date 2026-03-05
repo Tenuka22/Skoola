@@ -1,6 +1,7 @@
 use crate::database::enums::PermissionEnum;
 use crate::handlers::academic::{
-    academic_year, class, class_subject_teacher, grade_level, subject, terms, timetable,
+    academic_year, class, class_subject_teacher, grade_level, grade_period, subject, terms,
+    timetable,
 };
 use crate::utils::jwt::Authenticated;
 use crate::utils::permission_verification::PermissionVerification;
@@ -66,6 +67,26 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             ),
     )
     .service(
+        web::scope("/grade-periods")
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::GradeLevelManage,
+            })
+            .wrap(Authenticated)
+            .route("", web::post().to(grade_period::create_grade_period_handler))
+            .route(
+                "/grade/{grade_id}",
+                web::get().to(grade_period::get_grade_periods_by_grade_handler),
+            )
+            .route(
+                "/{id}",
+                web::put().to(grade_period::update_grade_period_handler),
+            )
+            .route(
+                "/{id}",
+                web::delete().to(grade_period::delete_grade_period_handler),
+            ),
+    )
+    .service(
         web::scope("/classes")
             .wrap(PermissionVerification {
                 required_permission: PermissionEnum::ClassManage,
@@ -98,6 +119,10 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route(
                 "/stream/{stream_id}",
                 web::get().to(subject::get_subjects_by_stream_handler),
+            )
+            .route(
+                "/{id}/students/{academic_year_id}",
+                web::get().to(subject::get_students_by_subject),
             )
             .route(
                 "/assign-to-grade",

@@ -37,6 +37,7 @@ import { Route as AdminAcademicsTermsRouteImport } from './routes/admin/academic
 import { Route as AdminAcademicsSyllabusRouteImport } from './routes/admin/academics/syllabus'
 import { Route as AdminAcademicsSubjectsRouteImport } from './routes/admin/academics/subjects'
 import { Route as AdminAcademicsLessonProgressRouteImport } from './routes/admin/academics/lesson-progress'
+import { Route as AdminAcademicsGradePeriodsRouteImport } from './routes/admin/academics/grade-periods'
 import { Route as AdminAcademicsExamsRouteImport } from './routes/admin/academics/exams'
 import { Route as AdminAcademicsCurriculumRouteImport } from './routes/admin/academics/curriculum'
 import { Route as AdminAcademicsClassAssignmentsRouteImport } from './routes/admin/academics/class-assignments'
@@ -185,6 +186,12 @@ const AdminAcademicsLessonProgressRoute =
     path: '/lesson-progress',
     getParentRoute: () => AdminAcademicsRoute,
   } as any)
+const AdminAcademicsGradePeriodsRoute =
+  AdminAcademicsGradePeriodsRouteImport.update({
+    id: '/grade-periods',
+    path: '/grade-periods',
+    getParentRoute: () => AdminAcademicsRoute,
+  } as any)
 const AdminAcademicsExamsRoute = AdminAcademicsExamsRouteImport.update({
   id: '/exams',
   path: '/exams',
@@ -228,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/admin/academics/class-assignments': typeof AdminAcademicsClassAssignmentsRoute
   '/admin/academics/curriculum': typeof AdminAcademicsCurriculumRoute
   '/admin/academics/exams': typeof AdminAcademicsExamsRoute
+  '/admin/academics/grade-periods': typeof AdminAcademicsGradePeriodsRoute
   '/admin/academics/lesson-progress': typeof AdminAcademicsLessonProgressRoute
   '/admin/academics/subjects': typeof AdminAcademicsSubjectsRoute
   '/admin/academics/syllabus': typeof AdminAcademicsSyllabusRoute
@@ -260,6 +268,7 @@ export interface FileRoutesByTo {
   '/admin/academics/class-assignments': typeof AdminAcademicsClassAssignmentsRoute
   '/admin/academics/curriculum': typeof AdminAcademicsCurriculumRoute
   '/admin/academics/exams': typeof AdminAcademicsExamsRoute
+  '/admin/academics/grade-periods': typeof AdminAcademicsGradePeriodsRoute
   '/admin/academics/lesson-progress': typeof AdminAcademicsLessonProgressRoute
   '/admin/academics/subjects': typeof AdminAcademicsSubjectsRoute
   '/admin/academics/syllabus': typeof AdminAcademicsSyllabusRoute
@@ -295,6 +304,7 @@ export interface FileRoutesById {
   '/admin/academics/class-assignments': typeof AdminAcademicsClassAssignmentsRoute
   '/admin/academics/curriculum': typeof AdminAcademicsCurriculumRoute
   '/admin/academics/exams': typeof AdminAcademicsExamsRoute
+  '/admin/academics/grade-periods': typeof AdminAcademicsGradePeriodsRoute
   '/admin/academics/lesson-progress': typeof AdminAcademicsLessonProgressRoute
   '/admin/academics/subjects': typeof AdminAcademicsSubjectsRoute
   '/admin/academics/syllabus': typeof AdminAcademicsSyllabusRoute
@@ -331,6 +341,7 @@ export interface FileRouteTypes {
     | '/admin/academics/class-assignments'
     | '/admin/academics/curriculum'
     | '/admin/academics/exams'
+    | '/admin/academics/grade-periods'
     | '/admin/academics/lesson-progress'
     | '/admin/academics/subjects'
     | '/admin/academics/syllabus'
@@ -363,6 +374,7 @@ export interface FileRouteTypes {
     | '/admin/academics/class-assignments'
     | '/admin/academics/curriculum'
     | '/admin/academics/exams'
+    | '/admin/academics/grade-periods'
     | '/admin/academics/lesson-progress'
     | '/admin/academics/subjects'
     | '/admin/academics/syllabus'
@@ -397,6 +409,7 @@ export interface FileRouteTypes {
     | '/admin/academics/class-assignments'
     | '/admin/academics/curriculum'
     | '/admin/academics/exams'
+    | '/admin/academics/grade-periods'
     | '/admin/academics/lesson-progress'
     | '/admin/academics/subjects'
     | '/admin/academics/syllabus'
@@ -619,6 +632,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAcademicsLessonProgressRouteImport
       parentRoute: typeof AdminAcademicsRoute
     }
+    '/admin/academics/grade-periods': {
+      id: '/admin/academics/grade-periods'
+      path: '/grade-periods'
+      fullPath: '/admin/academics/grade-periods'
+      preLoaderRoute: typeof AdminAcademicsGradePeriodsRouteImport
+      parentRoute: typeof AdminAcademicsRoute
+    }
     '/admin/academics/exams': {
       id: '/admin/academics/exams'
       path: '/exams'
@@ -654,6 +674,7 @@ interface AdminAcademicsRouteChildren {
   AdminAcademicsClassAssignmentsRoute: typeof AdminAcademicsClassAssignmentsRoute
   AdminAcademicsCurriculumRoute: typeof AdminAcademicsCurriculumRoute
   AdminAcademicsExamsRoute: typeof AdminAcademicsExamsRoute
+  AdminAcademicsGradePeriodsRoute: typeof AdminAcademicsGradePeriodsRoute
   AdminAcademicsLessonProgressRoute: typeof AdminAcademicsLessonProgressRoute
   AdminAcademicsSubjectsRoute: typeof AdminAcademicsSubjectsRoute
   AdminAcademicsSyllabusRoute: typeof AdminAcademicsSyllabusRoute
@@ -665,6 +686,7 @@ const AdminAcademicsRouteChildren: AdminAcademicsRouteChildren = {
   AdminAcademicsClassAssignmentsRoute: AdminAcademicsClassAssignmentsRoute,
   AdminAcademicsCurriculumRoute: AdminAcademicsCurriculumRoute,
   AdminAcademicsExamsRoute: AdminAcademicsExamsRoute,
+  AdminAcademicsGradePeriodsRoute: AdminAcademicsGradePeriodsRoute,
   AdminAcademicsLessonProgressRoute: AdminAcademicsLessonProgressRoute,
   AdminAcademicsSubjectsRoute: AdminAcademicsSubjectsRoute,
   AdminAcademicsSyllabusRoute: AdminAcademicsSyllabusRoute,

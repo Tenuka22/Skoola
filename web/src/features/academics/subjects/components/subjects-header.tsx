@@ -1,9 +1,11 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Book01Icon } from '@hugeicons/core-free-icons'
 import { useQuery } from '@tanstack/react-query'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { getAllSubjectsOptions } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
+import { Badge } from '@/components/ui/badge'
+import { Grid, HStack, Heading, Stack, Text } from '@/components/primitives'
 
 export function SubjectsHeader() {
   const { data: subjectsData } = useQuery(
@@ -13,35 +15,45 @@ export function SubjectsHeader() {
   const totalSubjects = subjectsData?.total ?? 0
 
   return (
-    <div className="flex flex-col gap-4 p-8">
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-bold tracking-tight">Subjects</h1>
-          <p className="text-muted-foreground">
-            Manage academic subjects, their assignments to grades/streams, and
-            student enrollments.
-          </p>
-        </div>
-      </div>
-      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Subjects
-            </CardTitle>
-            <HugeiconsIcon
-              icon={Book01Icon}
-              className="size-4 text-muted-foreground"
-            />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalSubjects}</div>
-            <p className="text-muted-foreground text-xs">
-              Overview of all academic subjects
-            </p>
+    <Stack gap={4}>
+      <Stack gap={1}>
+        <HStack align="center" gap={2}>
+          <Heading size="h2">Subjects</Heading>
+          <Badge
+            variant="secondary"
+            className="rounded-md bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground hover:bg-muted"
+          >
+            {totalSubjects} Total
+          </Badge>
+        </HStack>
+        <Text muted as="p">
+          Manage academic subjects, their assignments to grades/streams, and
+          student enrollments.
+        </Text>
+      </Stack>
+
+      <Grid cols={3} gap={4}>
+        <Card className="bg-muted/30 border-none shadow-none">
+          <CardContent className="p-4">
+            <HStack gap={3}>
+              <div className="p-2 bg-background rounded-lg">
+                <HugeiconsIcon
+                  icon={Book01Icon}
+                  className="size-5 text-primary"
+                />
+              </div>
+              <Stack gap={0}>
+                <Text size="xs" muted>
+                  Total Subjects
+                </Text>
+                <Text size="lg" className="font-bold">
+                  {totalSubjects}
+                </Text>
+              </Stack>
+            </HStack>
           </CardContent>
         </Card>
-      </div>
-    </div>
+      </Grid>
+    </Stack>
   )
 }

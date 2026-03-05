@@ -7,11 +7,16 @@ import {
 import * as React from 'react'
 
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon } from '@hugeicons/core-free-icons'
+import {
+  Delete02Icon,
+  LayoutGridIcon,
+  TableIcon,
+} from '@hugeicons/core-free-icons'
 import type { GradeLevelFormValues } from '@/features/academics/grade-levels/schemas'
 import type { GradeLevelResponse } from '@/lib/api/types.gen'
 import { GradeLevelsHeader } from '@/features/academics/grade-levels/components/grade-levels-header'
 import { GradeLevelsListContainer } from '@/features/academics/grade-levels/components/grade-levels-list-container'
+import { GradeLevelsGridView } from '@/features/academics/grade-levels/components/grade-levels-grid-view'
 import { getGradeLevelsColumns } from '@/features/academics/grade-levels/components/grade-levels-table-columns'
 import { GradeLevelAddDialog } from '@/features/academics/grade-levels/components/grade-level-add-dialog'
 import { GradeLevelEditDialog } from '@/features/academics/grade-levels/components/grade-level-edit-dialog'
@@ -25,7 +30,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Stack } from '@/components/primitives'
+import { HStack, Stack } from '@/components/primitives'
 import {
   getAllGradeLevelsQueryOptions,
   useBulkDeleteGradeLevels,
@@ -35,6 +40,7 @@ import {
 } from '@/features/academics/grade-levels/api'
 import { useGradeLevelsSearchParams } from '@/features/academics/grade-levels/search-params'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export const Route = createFileRoute('/admin/grades')({
   component: GradeLevelsPage,
@@ -104,27 +110,62 @@ function GradeLevelsPage() {
   })
 
   return (
-    <Stack gap={4} p={8} className="h-full bg-background">
+    <Stack gap={4} p={8} className="h-full">
       <GradeLevelsHeader />
-      <GradeLevelsListContainer
-        query={gradeLevelsQuery}
-        columns={columns}
-        rowSelection={rowSelection}
-        setRowSelection={setRowSelection}
-        onFetchFullData={fetchFullData}
-        onAdd={() => setIsCreateGradeLevelOpen(true)}
-        onAddLabel="Add Grade Level"
-        bulkActions={({ selectedRows }) => (
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => setIsBulkDeleteOpen(true)}
-          >
-            <HugeiconsIcon icon={Delete02Icon} className="size-4 mr-2" />
-            Delete Selected ({selectedRows.length})
-          </Button>
-        )}
-      />
+
+      <Tabs
+        defaultValue="table"
+        className="flex flex-col flex-1 gap-4 overflow-hidden"
+      >
+        <HStack>
+          <TabsList>
+            <TabsTrigger value="table" className="gap-2">
+              <HugeiconsIcon icon={TableIcon} className="size-4" />
+              Table
+            </TabsTrigger>
+            <TabsTrigger value="grid" className="gap-2">
+              <HugeiconsIcon icon={LayoutGridIcon} className="size-4" />
+              Grid
+            </TabsTrigger>
+          </TabsList>
+        </HStack>
+
+        <TabsContent value="table" className="flex-1 w-full mt-0">
+          <div className="overflow-y-auto w-0 flex-1 min-w-full h-full">
+            <GradeLevelsListContainer
+              query={gradeLevelsQuery}
+              columns={columns}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              onFetchFullData={fetchFullData}
+              onAdd={() => setIsCreateGradeLevelOpen(true)}
+              onAddLabel="Add Grade Level"
+              bulkActions={({ selectedRows }) => (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setIsBulkDeleteOpen(true)}
+                >
+                  <HugeiconsIcon icon={Delete02Icon} className="size-4 mr-2" />
+                  Delete Selected ({selectedRows.length})
+                </Button>
+              )}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent
+          value="grid"
+          className="flex-1 w-full mt-0 overflow-y-auto"
+        >
+          <GradeLevelsGridView
+            data={gradeLevelsQuery.data?.data || []}
+            isLoading={gradeLevelsQuery.isLoading}
+            onEdit={setGradeLevelToEdit}
+            onDelete={setGradeLevelToDelete}
+          />
+        </TabsContent>
+      </Tabs>
 
       <GradeLevelAddDialog
         open={isCreateGradeLevelOpen}
@@ -201,9 +242,9 @@ function GradeLevelsPage() {
       <AlertDialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Bulk Delete Confirmation</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete{' '}
+              You are about to delete{' '}
               {Object.keys(rowSelection).filter((k) => rowSelection[k]).length}{' '}
               grade levels.
             </AlertDialogDescription>
@@ -228,7 +269,7 @@ function GradeLevelsPage() {
                 )
               }}
             >
-              Delete All
+              Confirm
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

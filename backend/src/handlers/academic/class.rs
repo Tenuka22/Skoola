@@ -168,6 +168,12 @@ pub async fn delete_class(
     }))
 }
 
+#[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct StudentsQuery {
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}
+
 #[api_operation(
     summary = "Get Classes by Grade",
     description = "Retrieves a list of classes for a specific grade.",

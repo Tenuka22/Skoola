@@ -1,4 +1,3 @@
-import { DAYS_OF_WEEK } from '../constants'
 import type { TimetableViewMode } from '../constants'
 import type {
   AcademicYearResponse,
@@ -25,8 +24,6 @@ interface TimetablesToolbarProps {
   setSelectedClassId: (id: string | undefined) => void
   selectedTeacherId: string | undefined
   setSelectedTeacherId: (id: string | undefined) => void
-  selectedDayOfWeek: string | undefined
-  setSelectedDayOfWeek: (day: string | undefined) => void
   viewMode: TimetableViewMode
 }
 
@@ -40,8 +37,6 @@ export function TimetablesToolbar({
   setSelectedClassId,
   selectedTeacherId,
   setSelectedTeacherId,
-  selectedDayOfWeek,
-  setSelectedDayOfWeek,
   viewMode,
 }: TimetablesToolbarProps) {
   return (
@@ -86,29 +81,6 @@ export function TimetablesToolbar({
               {classes.map((cls) => (
                 <SelectItem key={cls.id} value={cls.id}>
                   {cls.section_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </HStack>
-      )}
-
-      {viewMode === 'class' && (
-        <HStack gap={2}>
-          <Label htmlFor="day-filter" className="text-sm text-muted-foreground">
-            Day:
-          </Label>
-          <Select
-            value={selectedDayOfWeek}
-            onValueChange={(val) => setSelectedDayOfWeek(val || undefined)}
-          >
-            <SelectTrigger id="day-filter" className="w-[180px]">
-              <SelectValue placeholder="Select Day" />
-            </SelectTrigger>
-            <SelectContent>
-              {DAYS_OF_WEEK.map((day) => (
-                <SelectItem key={day} value={day}>
-                  {day}
                 </SelectItem>
               ))}
             </SelectContent>

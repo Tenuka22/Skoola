@@ -5,13 +5,10 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { FormBuilder, defineFormConfig } from '@/components/form-builder'
-import { Spinner } from '@/components/ui/spinner'
+import { FormBuilder } from '@/components/form-builder'
 
 interface BehaviorTypeDialogProps {
   type?: BehaviorIncidentTypeResponse | null
@@ -28,59 +25,6 @@ export function BehaviorTypeDialog({
   onConfirm,
   isSubmitting,
 }: BehaviorTypeDialogProps) {
-  const onSubmit = (data: BehaviorIncidentTypeFormValues) => {
-    onConfirm(data)
-  }
-
-  const config = defineFormConfig(behaviorIncidentTypeSchema, {
-    structure: [
-      [
-        {
-          field: 'type_name',
-          type: 'input',
-          label: 'Type Name',
-          placeholder: 'e.g. Late Arrival',
-          parse: (value: string) => value,
-        },
-      ],
-      [
-        {
-          field: 'description',
-          type: 'textarea',
-          label: 'Description',
-          placeholder: 'Describe this behavior type...',
-          parse: (value: string) => value,
-        },
-      ],
-      [
-        {
-          field: 'default_points',
-          type: 'input',
-          inputType: 'number',
-          label: 'Default Points',
-          parse: (value: string) => parseInt(value, 10),
-        },
-      ],
-    ],
-    extras: {
-      bottom: (
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <Spinner className="mr-2" /> : null}
-            {type ? 'Update' : 'Create'}
-          </Button>
-        </DialogFooter>
-      ),
-    },
-  })
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -94,13 +38,12 @@ export function BehaviorTypeDialog({
         </DialogHeader>
         <FormBuilder
           schema={behaviorIncidentTypeSchema}
-          config={config}
           defaultValues={{
             type_name: type?.type_name || '',
             description: type?.description || '',
             default_points: type?.default_points || 0,
           }}
-          onSubmit={(values) => onSubmit(values)}
+          onSubmit={(values) => onConfirm(values as BehaviorIncidentTypeFormValues)}
           preload={(form) => {
             if (open) {
               if (type) {
@@ -118,12 +61,49 @@ export function BehaviorTypeDialog({
               }
             }
           }}
-          isLoading={isSubmitting}
-          showErrorSummary={false}
-          toastErrors={false}
-          showSuccessAlert={false}
-          actions={[]}
-          className="space-y-4"
+          config={{
+            structure: [
+              [
+                {
+                  field: 'type_name',
+                  type: 'input',
+                  label: 'Type Name',
+                  placeholder: 'e.g. Late Arrival',
+                },
+              ],
+              [
+                {
+                  field: 'description',
+                  type: 'textarea',
+                  label: 'Description',
+                  placeholder: 'Describe this behavior type...',
+                },
+              ],
+              [
+                {
+                  field: 'default_points',
+                  type: 'input',
+                  inputType: 'number',
+                  label: 'Default Points',
+                  parse: (value: string) => parseInt(value, 10),
+                },
+              ],
+            ],
+          }}
+          actions={[
+            {
+              label: 'Cancel',
+              onClick: () => onOpenChange(false),
+              variant: 'outline',
+            },
+            {
+              label: type ? 'Update' : 'Create',
+              type: 'submit',
+              variant: 'default',
+              loading: isSubmitting,
+            },
+          ]}
+          className="py-4"
         />
       </DialogContent>
     </Dialog>

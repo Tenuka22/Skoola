@@ -179,11 +179,9 @@ export function FormFieldRenderer<TInput extends FieldValues>({
                   mode="single"
                   selected={parseDateValue(field.value)}
                   onSelect={(date) => {
-                    if (!date) {
-                      field.onChange(null)
-                      return
-                    }
-                    field.onChange(format(date, 'yyyy-MM-dd'))
+                    const nextValue = date ? format(date, 'yyyy-MM-dd') : null
+                    field.onChange(nextValue)
+                    fieldConfig.onValueChange?.(nextValue, form)
                   }}
                   initialFocus
                 />
@@ -282,6 +280,12 @@ export function FormFieldRenderer<TInput extends FieldValues>({
                 ))}
                 <InputGroupInput
                   {...field}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    field.onChange(
+                      fieldConfig.parse ? fieldConfig.parse(val) : val,
+                    )
+                  }}
                   type={fieldConfig.inputType}
                   placeholder={fieldConfig.placeholder}
                   disabled={disabled}
@@ -292,6 +296,12 @@ export function FormFieldRenderer<TInput extends FieldValues>({
             ) : (
               <Input
                 {...field}
+                onChange={(e) => {
+                  const val = e.target.value
+                  field.onChange(
+                    fieldConfig.parse ? fieldConfig.parse(val) : val,
+                  )
+                }}
                 type={fieldConfig.inputType}
                 placeholder={fieldConfig.placeholder}
                 disabled={disabled}
@@ -342,6 +352,12 @@ export function FormFieldRenderer<TInput extends FieldValues>({
                 ))}
                 <InputGroupTextarea
                   {...field}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    field.onChange(
+                      fieldConfig.parse ? fieldConfig.parse(val) : val,
+                    )
+                  }}
                   rows={fieldConfig.rows}
                   placeholder={fieldConfig.placeholder}
                   disabled={disabled}
@@ -352,6 +368,12 @@ export function FormFieldRenderer<TInput extends FieldValues>({
             ) : (
               <Textarea
                 {...field}
+                onChange={(e) => {
+                  const val = e.target.value
+                  field.onChange(
+                    fieldConfig.parse ? fieldConfig.parse(val) : val,
+                  )
+                }}
                 rows={fieldConfig.rows}
                 placeholder={fieldConfig.placeholder}
                 disabled={disabled}
@@ -392,6 +414,7 @@ export function FormFieldRenderer<TInput extends FieldValues>({
               onValueChange={(value) => {
                 if (value === null) return
                 field.onChange(fieldConfig.parse(value))
+                fieldConfig.onValueChange?.(value, form)
               }}
               disabled={disabled}
             >

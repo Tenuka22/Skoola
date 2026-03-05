@@ -46,15 +46,15 @@ export function AcademicYearAddDialog({
       [
         {
           field: 'start_date',
-          type: 'input',
+          type: 'date-picker',
           label: 'Start Date',
-          inputType: 'date',
+          placeholder: 'Pick start date',
         },
         {
           field: 'end_date',
-          type: 'input',
+          type: 'date-picker',
           label: 'End Date',
-          inputType: 'date',
+          placeholder: 'Pick end date',
         },
       ],
     ],

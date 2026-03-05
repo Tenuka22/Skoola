@@ -33,6 +33,7 @@ pub struct Timetable {
     pub academic_year_id: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub grade_period_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Insertable, JsonSchema, ApiComponent)]
@@ -47,6 +48,7 @@ pub struct CreateTimetableRequest {
     pub end_time: NaiveTime,
     pub room: String,
     pub academic_year_id: String,
+    pub grade_period_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
@@ -61,6 +63,7 @@ pub struct UpdateTimetableRequest {
     pub end_time: Option<NaiveTime>,
     pub room: Option<String>,
     pub academic_year_id: Option<String>,
+    pub grade_period_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
@@ -77,6 +80,7 @@ pub struct TimetableResponse {
     pub academic_year_id: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub grade_period_id: Option<String>,
 }
 
 impl From<Timetable> for TimetableResponse {
@@ -94,6 +98,7 @@ impl From<Timetable> for TimetableResponse {
             academic_year_id: timetable.academic_year_id,
             created_at: timetable.created_at,
             updated_at: timetable.updated_at,
+            grade_period_id: timetable.grade_period_id,
         }
     }
 }

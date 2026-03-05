@@ -1,5 +1,3 @@
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Tick01Icon } from '@hugeicons/core-free-icons'
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { classFormSchema } from '../schemas'
@@ -10,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -130,7 +129,7 @@ export function ClassEditDialog({
     ],
     extras: {
       bottom: (
-        <DialogFooter className="mt-4">
+        <DialogFooter>
           <Button
             type="button"
             variant="ghost"
@@ -139,11 +138,7 @@ export function ClassEditDialog({
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <Spinner className="mr-2" />
-            ) : (
-              <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
-            )}
+            {isSubmitting && <Spinner className="mr-2" />}
             Save Changes
           </Button>
         </DialogFooter>
@@ -152,10 +147,13 @@ export function ClassEditDialog({
   })
 
   return (
-    <Dialog open={open} onOpenChange={(val) => onOpenChange(val)}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Edit Class</DialogTitle>
+          <DialogDescription>
+            Update the details of the academic class.
+          </DialogDescription>
         </DialogHeader>
         <FormBuilder
           schema={classFormSchema}
@@ -175,7 +173,7 @@ export function ClassEditDialog({
           toastErrors={false}
           showSuccessAlert={false}
           actions={[]}
-          className="grid gap-4 py-4"
+          className="space-y-4"
         />
       </DialogContent>
     </Dialog>

@@ -7,11 +7,16 @@ import {
 import * as React from 'react'
 
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon } from '@hugeicons/core-free-icons'
+import {
+  Delete02Icon,
+  LayoutGridIcon,
+  TableIcon,
+} from '@hugeicons/core-free-icons'
 import type { SubjectFormValues } from '@/features/academics/subjects/schemas'
 import type { SubjectResponse } from '@/lib/api/types.gen'
 import { SubjectsHeader } from '@/features/academics/subjects/components/subjects-header'
 import { SubjectsListContainer } from '@/features/academics/subjects/components/subjects-list-container'
+import { SubjectsGridView } from '@/features/academics/subjects/components/subjects-grid-view'
 import { getSubjectsColumns } from '@/features/academics/subjects/components/subjects-table-columns'
 import { SubjectAddDialog } from '@/features/academics/subjects/components/subject-add-dialog'
 import { SubjectEditDialog } from '@/features/academics/subjects/components/subject-edit-dialog'
@@ -29,7 +34,7 @@ import { SubjectAssignToGradeDialog } from '@/features/academics/subjects/compon
 import { SubjectAssignToStreamDialog } from '@/features/academics/subjects/components/subject-assign-to-stream-dialog'
 import { SubjectEnrollStudentDialog } from '@/features/academics/subjects/components/subject-enroll-student-dialog'
 import { SubjectEnrollmentsDialog } from '@/features/academics/subjects/components/subject-enrollments-dialog'
-import { Stack } from '@/components/primitives'
+import { HStack, Stack } from '@/components/primitives'
 import {
   getAllSubjectsQueryOptions,
   useAssignSubjectToGrade,
@@ -42,6 +47,7 @@ import {
 } from '@/features/academics/subjects/api'
 import { useSubjectsSearchParams } from '@/features/academics/subjects/search-params'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export const Route = createFileRoute('/admin/academics/subjects')({
   component: SubjectsPage,
@@ -138,28 +144,67 @@ function SubjectsPage() {
   })
 
   return (
-    <Stack gap={4} p={8} className="h-full bg-background">
+    <Stack gap={4} p={8} className="h-full">
       <SubjectsHeader />
-      <SubjectsListContainer
-        query={subjectsQuery}
-        columns={columns}
-        rowSelection={rowSelection}
-        setRowSelection={setRowSelection}
-        onFetchFullData={fetchFullData}
-        facetedFilters={facetedFilters}
-        onAdd={() => setIsCreateSubjectOpen(true)}
-        onAddLabel="Add Subject"
-        bulkActions={({ selectedRows }) => (
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => setIsBulkDeleteOpen(true)}
-          >
-            <HugeiconsIcon icon={Delete02Icon} className="size-4 mr-2" />
-            Delete Selected ({selectedRows.length})
-          </Button>
-        )}
-      />
+
+      <Tabs
+        defaultValue="table"
+        className="flex flex-col flex-1 gap-4 overflow-hidden"
+      >
+        <HStack>
+          <TabsList>
+            <TabsTrigger value="table" className="gap-2">
+              <HugeiconsIcon icon={TableIcon} className="size-4" />
+              Table
+            </TabsTrigger>
+            <TabsTrigger value="grid" className="gap-2">
+              <HugeiconsIcon icon={LayoutGridIcon} className="size-4" />
+              Grid
+            </TabsTrigger>
+          </TabsList>
+        </HStack>
+
+        <TabsContent value="table" className="flex-1 w-full mt-0">
+          <div className="overflow-y-auto w-0 flex-1 min-w-full h-full">
+            <SubjectsListContainer
+              query={subjectsQuery}
+              columns={columns}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              onFetchFullData={fetchFullData}
+              facetedFilters={facetedFilters}
+              onAdd={() => setIsCreateSubjectOpen(true)}
+              onAddLabel="Add Subject"
+              bulkActions={({ selectedRows }) => (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setIsBulkDeleteOpen(true)}
+                >
+                  <HugeiconsIcon icon={Delete02Icon} className="size-4 mr-2" />
+                  Delete Selected ({selectedRows.length})
+                </Button>
+              )}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent
+          value="grid"
+          className="flex-1 w-full mt-0 overflow-y-auto"
+        >
+          <SubjectsGridView
+            data={subjectsQuery.data?.data || []}
+            isLoading={subjectsQuery.isLoading}
+            onEdit={setSubjectToEdit}
+            onDelete={setSubjectToDelete}
+            onAssignToGrade={setSubjectToAssignToGrade}
+            onAssignToStream={setSubjectToAssignToStream}
+            onEnrollStudent={setSubjectToEnrollStudent}
+            onViewEnrollments={setSubjectToViewEnrollments}
+          />
+        </TabsContent>
+      </Tabs>
 
       <SubjectAddDialog
         open={isCreateSubjectOpen}
@@ -341,6 +386,10 @@ function SubjectsPage() {
         subject={subjectToViewEnrollments}
         open={!!subjectToViewEnrollments}
         onOpenChange={() => setSubjectToViewEnrollments(null)}
+        onEnrollStudent={() => {
+          setSubjectToEnrollStudent(subjectToViewEnrollments)
+          setSubjectToViewEnrollments(null)
+        }}
       />
     </Stack>
   )

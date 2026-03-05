@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { TimetablesVisualView } from './timetables-visual-view'
 import type { TimetableResponse } from '@/lib/api/types.gen'
 import type { TimetableEntryRow } from './timetables-table-columns'
 import type { UseQueryResult } from '@tanstack/react-query'
@@ -13,39 +12,40 @@ interface TimetablesListContainerProps {
   query: UseQueryResult<Array<TimetableResponse>, Error>
   columns: Array<DataTableColumnDef<TimetableEntryRow, unknown>>
   data: Array<TimetableEntryRow>
-  isGridView: boolean
-  viewMode: string
-  onEdit: (entry: TimetableResponse | null) => void
   onFetchFullData?: () => Promise<Array<TimetableEntryRow>>
-  onAdd?: () => void
-  onAddLabel?: string
   toolbar?: (
     context: DataTableToolbarContext<TimetableEntryRow>,
   ) => React.ReactNode
   onImportCSV?: (rows: Array<Record<string, unknown>>) => void
   onImportJSON?: (rows: Array<Record<string, unknown>>) => void
+  onAdd?: () => void
+  onAddLabel?: string
   extraActions?: React.ReactNode
+  search?: string
+  onSearchChange?: (value: string) => void
 }
 
 export function TimetablesListContainer({
   query,
   columns,
   data,
-  isGridView,
-  viewMode,
-  onEdit,
   onFetchFullData,
-  onAdd,
-  onAddLabel,
   toolbar,
   onImportCSV,
   onImportJSON,
+  onAdd,
+  onAddLabel,
   extraActions,
+  search: externalSearch,
+  onSearchChange: externalOnSearchChange,
 }: TimetablesListContainerProps) {
   const [sorting, setSorting] = React.useState<
     Array<{ id: string; desc: boolean }>
   >([])
-  const [search, setSearch] = React.useState('')
+  const [internalSearch, setInternalSearch] = React.useState('')
+  const search = externalSearch ?? internalSearch
+  const onSearchChange = externalOnSearchChange ?? setInternalSearch
+
   const { isLoading } = query
 
   const [columnVisibility, setColumnVisibility] = React.useState({})
@@ -60,16 +60,6 @@ export function TimetablesListContainer({
         item.className?.toLowerCase().includes(s),
     )
   }, [data, search])
-
-  if (isGridView) {
-    return (
-      <TimetablesVisualView
-        data={filteredData}
-        viewMode={viewMode}
-        setTimetableEntryToEdit={onEdit}
-      />
-    )
-  }
 
   return (
     <div className="relative flex-1 flex flex-col overflow-hidden h-full">
@@ -107,7 +97,7 @@ export function TimetablesListContainer({
           enableSelection
           enablePinning
           search={search}
-          onSearchChange={setSearch}
+          onSearchChange={onSearchChange}
           searchPlaceholder="Search timetable..."
           extraActions={extraActions}
         />

@@ -1,5 +1,3 @@
-import { HugeiconsIcon } from '@hugeicons/react'
-import { FloppyDiskIcon } from '@hugeicons/core-free-icons'
 import * as React from 'react'
 import { subjectFormSchema } from '../schemas'
 import type { SubjectFormValues } from '../schemas'
@@ -8,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -82,7 +81,7 @@ export function SubjectAddDialog({
     ],
     extras: {
       bottom: (
-        <DialogFooter className="mt-4">
+        <DialogFooter>
           <Button
             type="button"
             variant="ghost"
@@ -91,11 +90,7 @@ export function SubjectAddDialog({
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <Spinner className="mr-2" />
-            ) : (
-              <HugeiconsIcon icon={FloppyDiskIcon} className="size-4 mr-2" />
-            )}
+            {isSubmitting && <Spinner className="mr-2" />}
             Add Subject
           </Button>
         </DialogFooter>
@@ -104,10 +99,11 @@ export function SubjectAddDialog({
   })
 
   return (
-    <Dialog open={open} onOpenChange={(val) => onOpenChange(val)}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Add New Subject</DialogTitle>
+          <DialogDescription>Create a new academic subject.</DialogDescription>
         </DialogHeader>
         <FormBuilder
           schema={subjectFormSchema}
@@ -127,7 +123,7 @@ export function SubjectAddDialog({
           toastErrors={false}
           showSuccessAlert={false}
           actions={[]}
-          className="grid gap-4 py-4"
+          className="space-y-4"
         />
       </DialogContent>
     </Dialog>

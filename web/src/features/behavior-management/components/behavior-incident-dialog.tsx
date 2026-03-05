@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { format } from 'date-fns'
 import { behaviorIncidentSchema } from '../schemas'
 import { getAllBehaviorIncidentTypesQueryOptions } from '../api'
 import type { UseFormReturn } from 'react-hook-form'
@@ -11,13 +12,10 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { FormBuilder, defineFormConfig } from '@/components/form-builder'
-import { Spinner } from '@/components/ui/spinner'
+import { FormBuilder } from '@/components/form-builder'
 
 interface BehaviorIncidentDialogProps {
   student: StudentResponse | null
@@ -52,84 +50,7 @@ export function BehaviorIncidentDialog({
     if (selectedType) {
       form.setValue('points_awarded', selectedType.default_points)
     }
-    form.setValue('incident_type_id', typeId)
   }
-
-  const onSubmit = (data: BehaviorIncidentFormValues) => {
-    // Append :00 to ensure seconds are present if not already there
-    const formattedDate =
-      data.incident_date.length === 16
-        ? `${data.incident_date}:00`
-        : data.incident_date
-
-    onConfirm({
-      ...data,
-      incident_date: formattedDate,
-    })
-  }
-
-  const config = defineFormConfig(behaviorIncidentSchema, {
-    structure: [
-      [
-        {
-          field: 'incident_type_id',
-          type: 'select',
-          label: 'Incident Type',
-          items: types.map((type) => ({
-            label: type.type_name,
-            value: type.id,
-          })),
-          onValueChange: (
-            value: string,
-            form: UseFormReturn<BehaviorIncidentFormValues>,
-          ) => handleTypeChange(value, form),
-          parse: (value: string) => value,
-        },
-      ],
-      [
-        {
-          field: 'incident_date',
-          type: 'input',
-          inputType: 'datetime-local',
-          label: 'Date & Time',
-        },
-      ],
-      [
-        {
-          field: 'description',
-          type: 'textarea',
-          label: 'Description',
-          placeholder: 'Describe the incident...',
-        },
-      ],
-      [
-        {
-          field: 'points_awarded',
-          type: 'input',
-          inputType: 'number',
-          label: 'Points',
-          parse: (value: string) => parseInt(value, 10),
-        },
-      ],
-    ],
-    extras: {
-      bottom: (
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <Spinner className="mr-2" /> : null}
-            {incident ? 'Update' : 'Record'}
-          </Button>
-        </DialogFooter>
-      ),
-    },
-  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -145,25 +66,24 @@ export function BehaviorIncidentDialog({
           </DialogDescription>
         </DialogHeader>
         <FormBuilder
-          schema={behaviorIncidentSchema}
-          config={config}
+          schema={behaviorIncidentSchema as any}
           defaultValues={{
             student_id: student?.id || '',
             incident_type_id: incident?.incident_type_id || '',
             incident_date:
-              incident?.incident_date.slice(0, 16) ||
-              new Date().toISOString().slice(0, 16),
+              incident?.incident_date.slice(0, 10) ||
+              format(new Date(), 'yyyy-MM-dd'),
             description: incident?.description || '',
             points_awarded: incident?.points_awarded || 0,
           }}
-          onSubmit={(values) => onSubmit(values)}
+          onSubmit={(values) => onConfirm(values as BehaviorIncidentFormValues)}
           preload={(form) => {
             if (open) {
               if (incident) {
                 form.reset({
                   student_id: incident.student_id,
                   incident_type_id: incident.incident_type_id,
-                  incident_date: incident.incident_date.slice(0, 16),
+                  incident_date: incident.incident_date.slice(0, 10),
                   description: incident.description,
                   points_awarded: incident.points_awarded,
                 })
@@ -171,19 +91,68 @@ export function BehaviorIncidentDialog({
                 form.reset({
                   student_id: student.id,
                   incident_type_id: '',
-                  incident_date: new Date().toISOString().slice(0, 16),
+                  incident_date: format(new Date(), 'yyyy-MM-dd'),
                   description: '',
                   points_awarded: 0,
                 })
               }
             }
           }}
-          isLoading={isSubmitting}
-          showErrorSummary={false}
-          toastErrors={false}
-          showSuccessAlert={false}
-          actions={[]}
-          className="space-y-4"
+          config={{
+            structure: [
+              [
+                {
+                  field: 'incident_type_id',
+                  type: 'select',
+                  label: 'Incident Type',
+                  items: types.map((type) => ({
+                    label: type.type_name,
+                    value: type.id,
+                  })),
+                  onValueChange: (value, form) => handleTypeChange(value, form as any),
+                  parse: (value: string) => value,
+                },
+              ],
+              [
+                {
+                  field: 'incident_date',
+                  type: 'date-picker',
+                  label: 'Incident Date',
+                },
+              ],
+              [
+                {
+                  field: 'description',
+                  type: 'textarea',
+                  label: 'Description',
+                  placeholder: 'Describe the incident...',
+                },
+              ],
+              [
+                {
+                  field: 'points_awarded',
+                  type: 'input',
+                  inputType: 'number',
+                  label: 'Points',
+                  parse: (value: string) => parseInt(value, 10),
+                },
+              ],
+            ],
+          }}
+          actions={[
+            {
+              label: 'Cancel',
+              onClick: () => onOpenChange(false),
+              variant: 'outline',
+            },
+            {
+              label: incident ? 'Update' : 'Record',
+              type: 'submit',
+              variant: 'default',
+              loading: isSubmitting,
+            },
+          ]}
+          className="py-4"
         />
       </DialogContent>
     </Dialog>

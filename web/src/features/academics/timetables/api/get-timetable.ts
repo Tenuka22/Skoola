@@ -26,7 +26,7 @@ export const getTimetableQueryOptions = ({
   if (viewMode === 'class') {
     const path = {
       class_id: classId ?? '',
-      day_of_week: dayOfWeek ?? '',
+      day_of_week: dayOfWeek ?? 'all',
       academic_year_id: academicYearId ?? '',
     }
     return queryOptions<Array<TimetableResponse>>({

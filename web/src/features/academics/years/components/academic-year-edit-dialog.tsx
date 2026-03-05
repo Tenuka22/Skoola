@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import { format } from 'date-fns'
 import { academicYearFormSchema } from '../schemas'
 import type { UseFormReturn } from 'react-hook-form'
 import type { AcademicYearFormValues } from '../schemas'
@@ -42,10 +41,14 @@ export function AcademicYearEditDialog({
       >,
     ) => {
       if (year) {
+        // Since year_start and year_end are numbers, we need to create a valid date string
+        // for the date-picker. We'll default to Jan 1st and Dec 31st.
         form.reset({
+          id: year.id,
           name: year.name,
-          start_date: format(new Date(String(year.year_start)), 'yyyy-MM-dd'),
-          end_date: format(new Date(String(year.year_end)), 'yyyy-MM-dd'),
+          start_date: `${year.year_start}-01-01`,
+          end_date: `${year.year_end}-12-31`,
+          current: year.current,
         })
       } else if (!open) {
         form.reset()
@@ -73,15 +76,15 @@ export function AcademicYearEditDialog({
       [
         {
           field: 'start_date',
-          type: 'input',
+          type: 'date-picker',
           label: 'Start Date',
-          inputType: 'date',
+          placeholder: 'Pick start date',
         },
         {
           field: 'end_date',
-          type: 'input',
+          type: 'date-picker',
           label: 'End Date',
-          inputType: 'date',
+          placeholder: 'Pick end date',
         },
       ],
     ],

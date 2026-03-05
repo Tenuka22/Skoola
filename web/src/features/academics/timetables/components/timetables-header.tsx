@@ -1,5 +1,3 @@
-import { HugeiconsIcon } from '@hugeicons/react'
-import { CalendarCheckIn01Icon } from '@hugeicons/core-free-icons'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import * as React from 'react'
 import { useTimetablesSearchParams } from '../search-params'
@@ -7,11 +5,16 @@ import {
   getTimetableByClassAndDayQueryOptions,
   getTimetableByTeacherQueryOptions,
 } from '../api'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getAllAcademicYearsQueryOptions } from '@/features/academics/years/api'
 import { getAllClassesQueryOptions } from '@/features/academics/classes/api'
+import { HStack, Heading, Stack, Text } from '@/components/primitives'
+import { Badge } from '@/components/ui/badge'
 
-export function TimetablesHeader() {
+interface TimetablesHeaderProps {
+  total?: number
+}
+
+export function TimetablesHeader({ total: _total }: TimetablesHeaderProps) {
   const {
     selectedAcademicYearId,
     selectedClassId,
@@ -77,49 +80,36 @@ export function TimetablesHeader() {
     classes.find((c) => c.id === selectedClassId)?.section_name || 'N/A'
 
   const subtitle = React.useMemo(() => {
-    if (viewMode === 'class' && selectedClassId && selectedDayOfWeek) {
-      return `Timetable for ${selectedClassName} on ${selectedDayOfWeek} in ${selectedYearName}`
+    if (viewMode === 'class' && selectedClassId) {
+      return `Timetable for ${selectedClassName} in ${selectedYearName}`
     } else if (viewMode === 'teacher' && selectedTeacherId) {
-      // TODO: Fetch teacher name here
-      return `Timetable for teacher ${selectedTeacherId} in ${selectedYearName}`
+      return `Teacher's weekly timetable in ${selectedYearName}`
     }
     return 'Select filters to view timetable entries.'
   }, [
     viewMode,
     selectedClassId,
-    selectedDayOfWeek,
     selectedTeacherId,
     selectedYearName,
     selectedClassName,
   ])
 
   return (
-    <div className="flex flex-col gap-4 p-8">
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-bold tracking-tight">Timetables</h1>
-          <p className="text-muted-foreground">{subtitle}</p>
-        </div>
-      </div>
-      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Timetable Entries
-            </CardTitle>
-            <HugeiconsIcon
-              icon={CalendarCheckIn01Icon}
-              className="size-4 text-muted-foreground"
-            />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalEntries}</div>
-            <p className="text-muted-foreground text-xs">
-              Entries for selected criteria
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <Stack gap={1}>
+      <HStack className="justify-between items-start">
+        <HStack>
+          <Heading size="h2">Timetables</Heading>
+          <Badge
+            variant="secondary"
+            className="rounded-md bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground hover:bg-muted"
+          >
+            {totalEntries} Total Entries
+          </Badge>
+        </HStack>
+      </HStack>
+      <Text muted as="p">
+        {subtitle}
+      </Text>
+    </Stack>
   )
 }

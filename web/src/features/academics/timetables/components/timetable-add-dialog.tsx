@@ -1,7 +1,7 @@
-import { HugeiconsIcon } from '@hugeicons/react'
-import { FloppyDiskIcon } from '@hugeicons/core-free-icons'
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useForm, useWatch, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { DAYS_OF_WEEK } from '../constants'
 import { timetableEntryFormSchema } from '../schemas'
 import type {
@@ -10,18 +10,16 @@ import type {
   StaffResponse,
 } from '@/lib/api/types.gen'
 import type { TimetableEntryFormValues } from '../schemas'
-import type { UseFormReturn } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Spinner } from '@/components/ui/spinner'
+import { authClient } from '@/lib/clients'
+import { getAllSubjectsOptions } from '@/lib/api/@tanstack/react-query.gen'
+import { getGradePeriodsByGradeQueryOptions } from '@/features/academics/grade-periods/api'
 import {
   Select,
   SelectContent,
@@ -29,9 +27,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { authClient } from '@/lib/clients'
-import { getAllSubjectsOptions } from '@/lib/api/@tanstack/react-query.gen'
-import { FormBuilder, defineFormConfig } from '@/components/form-builder'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { HStack, Stack } from '@/components/primitives'
+import { Field, FieldLabel, FieldError } from '@/components/ui/field'
 
 interface TimetableAddDialogProps {
   open: boolean
@@ -52,281 +52,326 @@ export function TimetableAddDialog({
   classes,
   staff,
 }: TimetableAddDialogProps) {
+  const form = useForm<TimetableEntryFormValues>({
+    resolver: zodResolver(timetableEntryFormSchema),
+    defaultValues: {
+      class_id: '',
+      subject_id: '',
+      teacher_id: '',
+      academic_year_id: '',
+      day_of_week: '',
+      start_time: '08:00:00',
+      end_time: '08:40:00',
+      room: '',
+      period_number: 1,
+      grade_period_id: undefined,
+    },
+  })
+
+  const selectedClassId = useWatch({
+    control: form.control,
+    name: 'class_id',
+  })
+
+  const selectedClass = React.useMemo(
+    () => classes.find((c) => c.id === selectedClassId),
+    [classes, selectedClassId]
+  )
+
   const { data: subjectsData } = useQuery({
     ...getAllSubjectsOptions({ client: authClient }),
     staleTime: Infinity,
   })
   const subjects = subjectsData?.data || []
 
-  const preload = React.useCallback(
-    (
-      form: UseFormReturn<
-        TimetableEntryFormValues,
-        unknown,
-        TimetableEntryFormValues
-      >,
-    ) => {
-      if (!open) {
-        form.reset()
-      }
-    },
-    [open],
-  )
-
-  const config = defineFormConfig(timetableEntryFormSchema, {
-    structure: [],
-    extras: {
-      top: (form) => (
-        <>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="class_id" className="text-right">
-              Class
-            </Label>
-            <Select
-              onValueChange={(value) => form.setValue('class_id', value || '')}
-              value={form.watch('class_id')}
-            >
-              <SelectTrigger id="class_id" className="col-span-3">
-                <SelectValue placeholder="Select a class" />
-              </SelectTrigger>
-              <SelectContent>
-                {classes.map((cls) => (
-                  <SelectItem key={cls.id} value={cls.id}>
-                    {cls.section_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {form.formState.errors.class_id && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.class_id.message}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="subject_id" className="text-right">
-              Subject
-            </Label>
-            <Select
-              onValueChange={(value) =>
-                form.setValue('subject_id', value || '')
-              }
-              value={form.watch('subject_id')}
-            >
-              <SelectTrigger id="subject_id" className="col-span-3">
-                <SelectValue placeholder="Select a subject" />
-              </SelectTrigger>
-              <SelectContent>
-                {subjects.map((subject) => (
-                  <SelectItem key={subject.id} value={subject.id}>
-                    {subject.subject_name_en}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {form.formState.errors.subject_id && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.subject_id.message}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="teacher_id" className="text-right">
-              Teacher
-            </Label>
-            <Select
-              onValueChange={(value) =>
-                form.setValue('teacher_id', value || '')
-              }
-              value={form.watch('teacher_id')}
-            >
-              <SelectTrigger id="teacher_id" className="col-span-3">
-                <SelectValue placeholder="Select a teacher" />
-              </SelectTrigger>
-              <SelectContent>
-                {staff.map((teacher) => (
-                  <SelectItem key={teacher.id} value={teacher.id}>
-                    {teacher.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {form.formState.errors.teacher_id && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.teacher_id.message}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="academic_year_id" className="text-right text-xs">
-              Academic Year
-            </Label>
-            <Select
-              onValueChange={(value) =>
-                form.setValue('academic_year_id', value || '')
-              }
-              value={form.watch('academic_year_id')}
-            >
-              <SelectTrigger id="academic_year_id" className="col-span-3">
-                <SelectValue placeholder="Select an academic year" />
-              </SelectTrigger>
-              <SelectContent>
-                {academicYears.map((ay) => (
-                  <SelectItem key={ay.id} value={ay.id}>
-                    {ay.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {form.formState.errors.academic_year_id && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.academic_year_id.message}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="day_of_week" className="text-right text-xs">
-              Day of Week
-            </Label>
-            <Select
-              onValueChange={(value) =>
-                form.setValue('day_of_week', value || '')
-              }
-              value={form.watch('day_of_week')}
-            >
-              <SelectTrigger id="day_of_week" className="col-span-3">
-                <SelectValue placeholder="Select a day" />
-              </SelectTrigger>
-              <SelectContent>
-                {DAYS_OF_WEEK.map((day) => (
-                  <SelectItem key={day} value={day}>
-                    {day}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {form.formState.errors.day_of_week && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.day_of_week.message}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="start_time" className="text-right">
-              Start Time
-            </Label>
-            <Input
-              id="start_time"
-              type="time"
-              {...form.register('start_time')}
-              className="col-span-3"
-            />
-            {form.formState.errors.start_time && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.start_time.message}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="end_time" className="text-right">
-              End Time
-            </Label>
-            <Input
-              id="end_time"
-              type="time"
-              {...form.register('end_time')}
-              className="col-span-3"
-            />
-            {form.formState.errors.end_time && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.end_time.message}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="period_number" className="text-right">
-              Period
-            </Label>
-            <Input
-              id="period_number"
-              type="number"
-              {...form.register('period_number', { valueAsNumber: true })}
-              className="col-span-3"
-            />
-            {form.formState.errors.period_number && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.period_number.message}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="room" className="text-right">
-              Room
-            </Label>
-            <Input
-              id="room"
-              {...form.register('room')}
-              className="col-span-3"
-            />
-            {form.formState.errors.room && (
-              <p className="col-span-4 col-start-2 text-sm font-medium text-red-500">
-                {form.formState.errors.room.message}
-              </p>
-            )}
-          </div>
-        </>
-      ),
-      bottom: (
-        <DialogFooter className="mt-4">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <Spinner className="mr-2" />
-            ) : (
-              <HugeiconsIcon icon={FloppyDiskIcon} className="size-4 mr-2" />
-            )}
-            Add Entry
-          </Button>
-        </DialogFooter>
-      ),
-    },
+  const { data: gradePeriods = [] } = useQuery({
+    ...getGradePeriodsByGradeQueryOptions(selectedClass?.grade_id ?? ''),
+    enabled: !!selectedClass?.grade_id,
   })
 
+  const [usePredefined, setUsePredefined] = React.useState(false)
+
+  React.useEffect(() => {
+    if (!open) {
+      form.reset()
+      setUsePredefined(false)
+    }
+  }, [open, form])
+
+  const handlePeriodChange = (periodId: string | null) => {
+    if (periodId && Array.isArray(gradePeriods)) {
+      const period = gradePeriods.find((p) => p.id === periodId)
+      if (period) {
+        form.setValue('period_number', period.period_number)
+        form.setValue('start_time', period.start_time)
+        form.setValue('end_time', period.end_time)
+        form.setValue('grade_period_id', periodId)
+      }
+    }
+  }
+
   return (
-    <Dialog open={open} onOpenChange={(val) => onOpenChange(val)}>
-      <DialogContent className="max-w-md">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Add New Timetable Entry</DialogTitle>
         </DialogHeader>
-        <FormBuilder
-          schema={timetableEntryFormSchema}
-          config={config}
-          defaultValues={{
-            class_id: '',
-            subject_id: '',
-            teacher_id: '',
-            academic_year_id: '',
-            day_of_week: '',
-            start_time: '',
-            end_time: '',
-            room: '',
-            period_number: 1,
-          }}
-          onSubmit={(values) => onConfirm(values)}
-          preload={preload}
-          isLoading={isSubmitting}
-          showErrorSummary={false}
-          toastErrors={false}
-          showSuccessAlert={false}
-          actions={[]}
-          className="grid gap-4 py-4"
-        />
+
+        <form onSubmit={form.handleSubmit(onConfirm)}>
+          <Stack gap={4} className="py-4">
+            <HStack gap={4}>
+              <Controller
+                control={form.control}
+                name="class_id"
+                render={({ field, fieldState }) => (
+                  <Field className="flex-1">
+                    <FieldLabel>Class</FieldLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a class" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {classes.map((cls) => (
+                          <SelectItem key={cls.id} value={cls.id}>
+                            {cls.section_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="subject_id"
+                render={({ field, fieldState }) => (
+                  <Field className="flex-1">
+                    <FieldLabel>Subject</FieldLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a subject" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {subjects.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.subject_name_en}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+            </HStack>
+
+            <HStack gap={4}>
+              <Controller
+                control={form.control}
+                name="teacher_id"
+                render={({ field, fieldState }) => (
+                  <Field className="flex-1">
+                    <FieldLabel>Teacher</FieldLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a teacher" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {staff.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="academic_year_id"
+                render={({ field, fieldState }) => (
+                  <Field className="flex-1">
+                    <FieldLabel>Academic Year</FieldLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an academic year" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {academicYears.map((ay) => (
+                          <SelectItem key={ay.id} value={ay.id}>
+                            {ay.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+            </HStack>
+
+            <HStack gap={4}>
+              <Controller
+                control={form.control}
+                name="day_of_week"
+                render={({ field, fieldState }) => (
+                  <Field className="flex-1">
+                    <FieldLabel>Day of Week</FieldLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a day" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DAYS_OF_WEEK.map((day) => (
+                          <SelectItem key={day} value={day}>
+                            {day}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+              <div className="flex-1 flex items-end pb-2">
+                <HStack gap={2} align="center">
+                  <Checkbox
+                    id="use-predefined"
+                    checked={usePredefined}
+                    onCheckedChange={(val) => {
+                      setUsePredefined(!!val)
+                      if (!val) form.setValue('grade_period_id', undefined)
+                    }}
+                    disabled={!selectedClassId || !Array.isArray(gradePeriods) || gradePeriods.length === 0}
+                  />
+                  <label
+                    htmlFor="use-predefined"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Use Predefined Period
+                  </label>
+                </HStack>
+              </div>
+            </HStack>
+
+            {usePredefined && (
+              <Controller
+                control={form.control}
+                name="grade_period_id"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Grade Period</FieldLabel>
+                    <Select
+                      onValueChange={(val) => {
+                        field.onChange(val)
+                        handlePeriodChange(val)
+                      }}
+                      value={field.value || ''}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a predefined period" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.isArray(gradePeriods) && gradePeriods.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>
+                            Period {p.period_number} ({p.start_time} - {p.end_time}) {p.is_break ? '[Break]' : ''}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+            )}
+
+            <HStack gap={4}>
+              <Controller
+                control={form.control}
+                name="period_number"
+                render={({ field, fieldState }) => (
+                  <Field className="flex-1">
+                    <FieldLabel>Period Number</FieldLabel>
+                    <Input
+                      type="number"
+                      {...field}
+                      disabled={usePredefined}
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                    {fieldState.error && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="room"
+                render={({ field, fieldState }) => (
+                  <Field className="flex-1">
+                    <FieldLabel>Room</FieldLabel>
+                    <Input placeholder="Enter room name/number" {...field} />
+                    {fieldState.error && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+            </HStack>
+
+            <HStack gap={4}>
+              <Controller
+                control={form.control}
+                name="start_time"
+                render={({ field, fieldState }) => (
+                  <Field className="flex-1">
+                    <FieldLabel>Start Time</FieldLabel>
+                    <Input type="time" {...field} disabled={usePredefined} />
+                    {fieldState.error && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="end_time"
+                render={({ field, fieldState }) => (
+                  <Field className="flex-1">
+                    <FieldLabel>End Time</FieldLabel>
+                    <Input type="time" {...field} disabled={usePredefined} />
+                    {fieldState.error && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+            </HStack>
+          </Stack>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Adding...' : 'Add Entry'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )

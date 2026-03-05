@@ -1,8 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import * as React from 'react'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { PlusSignIcon } from '@hugeicons/core-free-icons'
 import type { ExamResponse } from '@/lib/api/types.gen'
 import type {
   ExamFormValues,
@@ -16,9 +14,8 @@ import {
 } from '@/features/academics/exams/api'
 import { ExamsHeader } from '@/features/academics/exams/components/exams-header'
 import { getExamsColumns } from '@/features/academics/exams/components/exams-table-columns'
-import { Box, HStack, Stack } from '@/components/primitives'
+import { Box, Stack } from '@/components/primitives'
 import { DataTable } from '@/components/data-table'
-import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +28,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { ExamAddDialog } from '@/features/academics/exams/components/exam-add-dialog'
 import { ExamEditDialog } from '@/features/academics/exams/components/exam-edit-dialog'
+import { Empty } from '@/components/empty'
 
 export const Route = createFileRoute('/admin/academics/exams')({
   component: ExamsPage,
@@ -40,6 +38,7 @@ function ExamsPage() {
   const [examToEdit, setExamToEdit] = React.useState<ExamResponse | null>(null)
   const [examToDelete, setExamToDelete] = React.useState<string | null>(null)
   const [isAddOpen, setIsAddOpen] = React.useState(false)
+  const [search, setSearch] = React.useState('')
 
   const examsQuery = useQuery(getAllExamsQueryOptions())
   const createMutation = useCreateExam()
@@ -51,30 +50,46 @@ function ExamsPage() {
     onDelete: setExamToDelete,
   })
 
+  const rawData = examsQuery.data?.data || []
+  const filteredData = React.useMemo(() => {
+    if (!search) return rawData
+    const s = search.toLowerCase()
+    return rawData.filter((exam) => exam.name.toLowerCase().includes(s))
+  }, [rawData, search])
+
   return (
-    <Stack gap={4} p={0} className="h-full">
+    <Stack gap={6} p={8} className="h-full overflow-hidden">
       <ExamsHeader />
 
-      <HStack className="justify-end">
-        <Button onClick={() => setIsAddOpen(true)} size="sm" className="gap-2">
-          <HugeiconsIcon icon={PlusSignIcon} className="size-4" />
-          Add Exam
-        </Button>
-      </HStack>
-
-      <Box className="flex-1 overflow-hidden border rounded-xl bg-card">
+      <Box className="flex-1 flex flex-col overflow-hidden min-h-0">
         <DataTable
           columns={columns}
-          data={examsQuery.data?.data || []}
+          data={filteredData}
           isLoading={examsQuery.isLoading}
+          search={search}
+          onSearchChange={setSearch}
           searchPlaceholder="Filter exams..."
+          onAdd={() => setIsAddOpen(true)}
+          onAddLabel="Add Exam"
           pageIndex={0}
-          pageSize={examsQuery.data?.data.length || 10}
+          pageSize={filteredData.length || 10}
           pageCount={1}
           canNextPage={false}
           canPreviousPage={false}
           fetchNextPage={() => {}}
           fetchPreviousPage={() => {}}
+          emptyState={
+            <Empty
+              title="No Exams Found"
+              description={
+                search
+                  ? 'No exams match your search criteria.'
+                  : 'Get started by creating your first exam.'
+              }
+              icon="empty"
+              className="py-12"
+            />
+          }
         />
       </Box>
 

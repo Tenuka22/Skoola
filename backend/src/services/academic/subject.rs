@@ -1,6 +1,7 @@
 use crate::handlers::academic::subject::{BulkUpdateSubjectsRequest, SubjectQuery};
 use crate::schema::{
     grade_levels, grade_subjects, stream_subjects, streams, subject_enrollments, subjects,
+    students, profiles, user_profiles, users,
 };
 use crate::{
     AppState,
@@ -10,6 +11,9 @@ use crate::{
         EnrollStudentInSubjectRequest, Subject, SubjectEnrollmentResponse, SubjectResponse,
         UpdateSubjectRequest,
     },
+    models::student::student::{PaginatedStudentResponse, StudentResponse, Student},
+    models::auth::User,
+    models::Profile,
 };
 use actix_web::web;
 use chrono::Utc;
@@ -19,6 +23,82 @@ use uuid::Uuid;
 
 // NEW IMPORTS
 use crate::database::tables::SubjectEnrollment;
+
+pub async fn get_students_by_subject(
+    pool: web::Data<AppState>,
+    subject_id: String,
+    academic_year_id: String,
+    page: i64,
+    limit: i64,
+) -> Result<PaginatedStudentResponse, APIError> {
+    let mut conn = pool.db_pool.get()?;
+
+    let (student_list, total_students) = conn.transaction::<_, APIError, _>(|conn| {
+        let student_ids_query = subject_enrollments::table
+            .filter(subject_enrollments::subject_id.eq(&subject_id))
+            .filter(subject_enrollments::academic_year_id.eq(&academic_year_id))
+            .select(subject_enrollments::student_id);
+
+        let count_query = subject_enrollments::table
+            .filter(subject_enrollments::subject_id.eq(&subject_id))
+            .filter(subject_enrollments::academic_year_id.eq(&academic_year_id));
+
+        let total: i64 = count_query.count().get_result(conn)?;
+
+        let student_ids: Vec<String> = student_ids_query.load(conn)?;
+
+        let mut query = students::table
+            .filter(students::id.eq_any(&student_ids))
+            .inner_join(profiles::table.on(students::profile_id.eq(profiles::id.nullable())))
+            .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
+            .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+            .into_boxed();
+
+        let offset = (page - 1) * limit;
+        query = query.limit(limit).offset(offset).order(profiles::name.asc());
+
+        let results: Vec<(Student, Profile, Option<User>)> = query
+            .select((
+                Student::as_select(),
+                Profile::as_select(),
+                Option::<User>::as_select(),
+            ))
+            .load(conn)?;
+        Ok((results, total))
+    })?;
+
+    let student_responses = student_list
+        .into_iter()
+        .map(|(student, profile, user)| StudentResponse {
+            id: student.id,
+            admission_number: student.admission_number,
+            name_english: profile.name.clone(),
+            nic_or_birth_certificate: student.nic_or_birth_certificate,
+            dob: student.dob,
+            gender: student.gender,
+            email: student.email,
+            religion: student.religion,
+            ethnicity: student.ethnicity,
+            created_at: student.created_at,
+            updated_at: student.updated_at,
+            status: student.status,
+            profile_id: student.profile_id,
+            profile_name: Some(profile.name),
+            profile_address: profile.address,
+            profile_phone: profile.phone,
+            profile_photo_url: profile.photo_url,
+            user_email: user.map(|u| u.email),
+        })
+        .collect();
+
+    Ok(PaginatedStudentResponse {
+        data: student_responses,
+        total: total_students,
+        page,
+        limit,
+        total_pages: (total_students as f64 / limit as f64).ceil() as i64,
+    })
+}
 
 pub async fn enroll_student_in_subject(
     pool: web::Data<AppState>,

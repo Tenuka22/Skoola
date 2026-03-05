@@ -3,7 +3,6 @@ import * as React from 'react'
 import type { BehaviorIncidentTypeFormValues } from '@/features/behavior-management/schemas'
 import type { BehaviorIncidentTypeResponse } from '@/lib/api/types.gen'
 import { BehaviorHeader } from '@/features/behavior-management/components/behavior-header'
-import { BehaviorToolbar } from '@/features/behavior-management/components/behavior-toolbar'
 import { BehaviorTypesTable } from '@/features/behavior-management/components/behavior-types-table'
 import { BehaviorTypeDialog } from '@/features/behavior-management/components/behavior-type-dialog'
 import {
@@ -22,18 +21,17 @@ function BehaviorPage() {
     React.useState<BehaviorIncidentTypeResponse | null>(null)
 
   const createMutation = useCreateBehaviorIncidentType()
-
   const updateMutation = useUpdateBehaviorIncidentType()
 
   return (
-    <Stack gap={4} p={8} className="h-full bg-background">
+    <Stack gap={6} p={8} className="h-full overflow-hidden">
       <BehaviorHeader />
-      <BehaviorToolbar setIsCreateTypeOpen={setIsCreateTypeOpen} />
-      <Box className="pt-0">
+
+      <Box className="flex-1 flex flex-col overflow-hidden min-h-0">
         <BehaviorTypesTable
           setTypeToEdit={setTypeToEdit}
           onAdd={() => setIsCreateTypeOpen(true)}
-          onAddLabel="Add Incident Type"
+          onAddLabel="Add Behavior Type"
         />
       </Box>
 

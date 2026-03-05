@@ -10,38 +10,44 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .wrap(Authenticated)
             .service(
                 web::resource("")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::CurriculumCreate,
-                    })
-                    .route(web::post().to(curriculum_management::create_curriculum_standard)),
+                    .route(
+                        web::post()
+                            .to(curriculum_management::create_curriculum_standard)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::CurriculumCreate,
+                            }),
+                    )
+                    .route(
+                        web::get()
+                            .to(curriculum_management::get_all_curriculum_standards)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::CurriculumRead,
+                            }),
+                    ),
             )
             .service(
                 web::resource("/{standard_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::CurriculumRead,
-                    })
-                    .route(web::get().to(curriculum_management::get_curriculum_standard_by_id)),
-            )
-            .service(
-                web::resource("")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::CurriculumRead,
-                    })
-                    .route(web::get().to(curriculum_management::get_all_curriculum_standards)),
-            )
-            .service(
-                web::resource("/{standard_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::CurriculumUpdate,
-                    })
-                    .route(web::put().to(curriculum_management::update_curriculum_standard)),
-            )
-            .service(
-                web::resource("/{standard_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::CurriculumDelete,
-                    })
-                    .route(web::delete().to(curriculum_management::delete_curriculum_standard)),
+                    .route(
+                        web::get()
+                            .to(curriculum_management::get_curriculum_standard_by_id)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::CurriculumRead,
+                            }),
+                    )
+                    .route(
+                        web::put()
+                            .to(curriculum_management::update_curriculum_standard)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::CurriculumUpdate,
+                            }),
+                    )
+                    .route(
+                        web::delete()
+                            .to(curriculum_management::delete_curriculum_standard)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::CurriculumDelete,
+                            }),
+                    ),
             )
             .service(
                 web::resource("/{standard_id}/syllabus")
@@ -63,24 +69,27 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             )
             .service(
                 web::resource("/{syllabus_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::SyllabusRead,
-                    })
-                    .route(web::get().to(curriculum_management::get_syllabus_topic_by_id)),
-            )
-            .service(
-                web::resource("/{syllabus_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::SyllabusUpdate,
-                    })
-                    .route(web::put().to(curriculum_management::update_syllabus_topic)),
-            )
-            .service(
-                web::resource("/{syllabus_id}")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::SyllabusDelete,
-                    })
-                    .route(web::delete().to(curriculum_management::delete_syllabus_topic)),
+                    .route(
+                        web::get()
+                            .to(curriculum_management::get_syllabus_topic_by_id)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::SyllabusRead,
+                            }),
+                    )
+                    .route(
+                        web::put()
+                            .to(curriculum_management::update_syllabus_topic)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::SyllabusUpdate,
+                            }),
+                    )
+                    .route(
+                        web::delete()
+                            .to(curriculum_management::delete_syllabus_topic)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::SyllabusDelete,
+                            }),
+                    ),
             ),
     );
 }

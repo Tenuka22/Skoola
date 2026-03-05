@@ -1,5 +1,3 @@
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Tick01Icon } from '@hugeicons/core-free-icons'
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { classFormSchema } from '../schemas'
@@ -9,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -118,7 +117,7 @@ export function ClassAddDialog({
     ],
     extras: {
       bottom: (
-        <DialogFooter className="mt-4">
+        <DialogFooter>
           <Button
             type="button"
             variant="ghost"
@@ -127,12 +126,8 @@ export function ClassAddDialog({
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <Spinner className="mr-2" />
-            ) : (
-              <HugeiconsIcon icon={Tick01Icon} className="size-4 mr-2" />
-            )}
-            Add Class
+            {isSubmitting && <Spinner className="mr-2" />}
+            Create Class
           </Button>
         </DialogFooter>
       ),
@@ -140,10 +135,13 @@ export function ClassAddDialog({
   })
 
   return (
-    <Dialog open={open} onOpenChange={(val) => onOpenChange(val)}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Add New Class</DialogTitle>
+          <DialogTitle>Add Class</DialogTitle>
+          <DialogDescription>
+            Create a new academic class and section.
+          </DialogDescription>
         </DialogHeader>
         <FormBuilder
           schema={classFormSchema}
@@ -163,7 +161,7 @@ export function ClassAddDialog({
           toastErrors={false}
           showSuccessAlert={false}
           actions={[]}
-          className="grid gap-4 py-4"
+          className="space-y-4"
         />
       </DialogContent>
     </Dialog>

@@ -52,10 +52,15 @@ pub async fn get_timetable_by_class_and_day(
     path: web::Path<(String, String, String)>, // (class_id, day_of_week, academic_year_id)
 ) -> Result<Json<Vec<TimetableResponse>>, APIError> {
     let (class_id, day_of_week, academic_year_id) = path.into_inner();
+    let day_param = if day_of_week == "all" || day_of_week.is_empty() {
+        None
+    } else {
+        Some(day_of_week)
+    };
     let entries = timetable::get_timetable_by_class_and_day(
         data.clone(),
         class_id,
-        day_of_week,
+        day_param,
         academic_year_id,
     )
     .await?;

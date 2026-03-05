@@ -196,6 +196,14 @@ function AdminLayout() {
                 </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
+                <Link to="/admin/academics/grade-periods">
+                  <SidebarMenuButton tooltip="Grade Periods">
+                    <HugeiconsIcon icon={Calendar01Icon} />
+                    <span>Grade Periods</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
                 <Link to="/admin/classes">
                   <SidebarMenuButton tooltip="Classes">
                     <HugeiconsIcon icon={SchoolIcon} />

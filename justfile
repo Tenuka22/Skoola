@@ -43,4 +43,4 @@ gen-api:
     cd web; bun run api
 
 db-ui:
-    cd web; bun run drizzle-kit studio
+    cd web; bun --bun run drizzle-kit studio

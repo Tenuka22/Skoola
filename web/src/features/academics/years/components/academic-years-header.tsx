@@ -1,7 +1,7 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Calendar01Icon } from '@hugeicons/core-free-icons'
 import { useQuery } from '@tanstack/react-query'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { getAllAcademicYearsOptions } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 import { Badge } from '@/components/ui/badge'
@@ -17,71 +17,62 @@ export function AcademicYearsHeader() {
 
   return (
     <Stack gap={4}>
-      <HStack justify="between">
-        <Stack gap={1}>
-          <HStack align="center" gap={2}>
-            <Heading size="h2">Academic Years</Heading>
-            <Badge
-              variant="secondary"
-              className="rounded-md bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground hover:bg-muted"
-            >
-              {totalYears} Total
-            </Badge>
-          </HStack>
-          <Text muted as="p">
-            Manage academic years and their configuration.
-          </Text>
-        </Stack>
-      </HStack>
+      <Stack gap={1}>
+        <HStack align="center" gap={2}>
+          <Heading size="h2">Academic Years</Heading>
+          <Badge
+            variant="secondary"
+            className="rounded-md bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground hover:bg-muted"
+          >
+            {totalYears} Total
+          </Badge>
+        </HStack>
+        <Text muted as="p">
+          Define and manage your institution's academic timeline, terms, and
+          active sessions.
+        </Text>
+      </Stack>
+
       <Grid cols={3} gap={4}>
-        <Card>
-          <CardHeader>
-            <HStack align="center" justify="between" className="pb-2">
-              <CardTitle>
-                <Text size="sm" className="font-medium">
-                  Total Years
+        <Card className="bg-muted/30 border-none shadow-none">
+          <CardContent className="p-4">
+            <HStack gap={3}>
+              <div className="p-2 bg-background rounded-lg">
+                <HugeiconsIcon
+                  icon={Calendar01Icon}
+                  className="size-5 text-primary"
+                />
+              </div>
+              <Stack gap={0}>
+                <Text size="xs" muted>
+                  Total Records
                 </Text>
-              </CardTitle>
-              <HugeiconsIcon
-                icon={Calendar01Icon}
-                className="size-4 text-muted-foreground"
-              />
+                <Text size="lg" className="font-bold">
+                  {totalYears} Years
+                </Text>
+              </Stack>
             </HStack>
-          </CardHeader>
-          <CardContent>
-            <Stack gap={1}>
-              <Text size="2xl" className="font-bold">
-                {totalYears}
-              </Text>
-              <Text size="xs" muted>
-                Academic history overview
-              </Text>
-            </Stack>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <HStack align="center" justify="between" className="pb-2">
-              <CardTitle>
-                <Text size="sm" className="font-medium">
-                  Current Year
+
+        <Card className="bg-primary/5 border-primary/10 border shadow-none">
+          <CardContent className="p-4">
+            <HStack gap={3}>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <HugeiconsIcon
+                  icon={Calendar01Icon}
+                  className="size-5 text-primary"
+                />
+              </div>
+              <Stack gap={0}>
+                <Text size="xs" className="text-primary/70">
+                  Active Session
                 </Text>
-              </CardTitle>
-              <HugeiconsIcon
-                icon={Calendar01Icon}
-                className="size-4 text-muted-foreground"
-              />
+                <Text size="lg" className="font-bold text-primary">
+                  {currentYear}
+                </Text>
+              </Stack>
             </HStack>
-          </CardHeader>
-          <CardContent>
-            <Stack gap={1}>
-              <Text size="2xl" className="font-bold">
-                {currentYear}
-              </Text>
-              <Text size="xs" muted>
-                Active academic session
-              </Text>
-            </Stack>
           </CardContent>
         </Card>
       </Grid>

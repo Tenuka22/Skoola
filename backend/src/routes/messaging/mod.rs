@@ -10,31 +10,37 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .wrap(Authenticated)
             .service(
                 web::resource("")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::MessagingCreate,
-                    })
-                    .route(web::post().to(messaging::create_conversation)),
-            )
-            .service(
-                web::resource("")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::MessagingRead,
-                    })
-                    .route(web::get().to(messaging::get_user_conversations)),
-            )
-            .service(
-                web::resource("/{conversation_id}/messages")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::MessagingSend,
-                    })
-                    .route(web::post().to(messaging::send_message)),
+                    .route(
+                        web::post()
+                            .to(messaging::create_conversation)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::MessagingCreate,
+                            }),
+                    )
+                    .route(
+                        web::get()
+                            .to(messaging::get_user_conversations)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::MessagingRead,
+                            }),
+                    ),
             )
             .service(
                 web::resource("/{conversation_id}/messages")
-                    .wrap(PermissionVerification {
-                        required_permission: PermissionEnum::MessagingRead,
-                    })
-                    .route(web::get().to(messaging::get_conversation_messages)),
+                    .route(
+                        web::post()
+                            .to(messaging::send_message)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::MessagingSend,
+                            }),
+                    )
+                    .route(
+                        web::get()
+                            .to(messaging::get_conversation_messages)
+                            .wrap(PermissionVerification {
+                                required_permission: PermissionEnum::MessagingRead,
+                            }),
+                    ),
             ),
     )
     .service(
