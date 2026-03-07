@@ -3,13 +3,13 @@ use apistos::{ApiComponent, api_operation};
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use web::Json;
 
 use crate::{
     AppState,
     database::tables::{RoleSet, RoleSetRole},
     errors::APIError,
+    models::ids::{generate_prefixed_id, IdPrefix},
     models::{MessageResponse, auth::RoleSetGetRoleResponse},
     schema::{role_set_roles, role_sets},
 };
@@ -57,7 +57,7 @@ pub async fn create_role_set(
 ) -> Result<Json<RoleSet>, APIError> {
     let mut conn = data.db_pool.get()?;
     let new_set = RoleSet {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::ROLE_SET)?,
         name: body.name.clone(),
         description: body.description.clone(),
     };

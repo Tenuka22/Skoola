@@ -41,9 +41,9 @@ pub struct BehaviorIncidentResponse {
     pub student_id: String,
     pub reported_by_user_id: String,
     pub incident_type_id: String,
-    pub description: String,
+    pub description: Option<String>,
     pub incident_date: NaiveDateTime,
-    pub points_awarded: i32,
+    pub points_awarded: Option<i32>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -55,9 +55,9 @@ impl From<BehaviorIncident> for BehaviorIncidentResponse {
             student_id: incident.student_id,
             reported_by_user_id: incident.reported_by_user_id,
             incident_type_id: incident.incident_type_id,
-            description: incident.description,
+            description: None,
             incident_date: incident.incident_date,
-            points_awarded: incident.points_awarded,
+            points_awarded: None,
             created_at: incident.created_at,
             updated_at: incident.updated_at,
         }
@@ -277,4 +277,3 @@ pub async fn delete_behavior_incident(
     behavior_management::delete_behavior_incident(data.clone(), incident_id).await?;
     Ok(HttpResponse::NoContent().finish())
 }
-

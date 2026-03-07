@@ -7,11 +7,11 @@ use crate::{
         CreateExamTypeRequest, ExamType, ExamTypeResponse, UpdateExamTypeRequest,
     },
 };
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use actix_web::web;
 use chrono::Utc;
 use diesel::prelude::*;
-use diesel::{Connection, QueryDsl, RunQueryDsl};
-use uuid::Uuid;
+use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 
 // Service to create a new ExamType
 pub async fn create_exam_type(
@@ -20,7 +20,7 @@ pub async fn create_exam_type(
 ) -> Result<ExamTypeResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    let exam_type_id = Uuid::new_v4().to_string();
+    let exam_type_id = generate_prefixed_id(&mut conn, IdPrefix::EXAM_TYPE)?;
 
     let new_exam_type = ExamType {
         id: exam_type_id,

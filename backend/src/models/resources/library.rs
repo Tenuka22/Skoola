@@ -3,6 +3,7 @@ use chrono::NaiveDate;
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use crate::database::enums::LibraryIssueStatus;
 
 use crate::schema::{library_books, library_categories, library_issues, library_settings};
 
@@ -71,7 +72,7 @@ pub struct LibraryIssue {
     pub issued_by: String,
     pub fine_amount: Option<f32>,
     pub fine_paid: bool,
-    pub status: String,
+    pub status: LibraryIssueStatus,
     pub remarks: Option<String>,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,
@@ -168,7 +169,7 @@ pub struct LibraryIssueResponse {
     pub issued_by_name: String,
     pub fine_amount: Option<f32>,
     pub fine_paid: bool,
-    pub status: String,
+    pub status: LibraryIssueStatus,
     pub remarks: Option<String>,
 }
 
@@ -213,7 +214,7 @@ pub struct NewLibraryIssue {
     pub issue_date: NaiveDate,
     pub due_date: NaiveDate,
     pub issued_by: String,
-    pub status: String,
+    pub status: LibraryIssueStatus,
     pub remarks: Option<String>,
 }
 

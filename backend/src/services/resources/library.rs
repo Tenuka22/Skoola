@@ -9,6 +9,7 @@ use crate::handlers::resources::library::{
     BulkUpdateLibraryBooksRequest, BulkUpdateLibraryCategoriesRequest, LibraryBookQuery,
     LibraryCategoryQuery,
 };
+use crate::database::enums::LibraryIssueStatus;
 use crate::models::resources::library::LibraryCategory;
 use crate::models::resources::library::*;
 use crate::models::staff::staff::Staff;
@@ -51,16 +52,20 @@ pub async fn get_all_categories_paginated(
         _ => data_query.order(library_categories::category_name.asc()),
     };
 
-    let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(10);
-    let offset = (page - 1) * limit;
+    if let Some(last_id) = query.last_id {
+        data_query = data_query.filter(library_categories::id.gt(last_id));
+    } else {
+        let page = query.page.unwrap_or(1);
+        let offset = (page - 1) * limit;
+        data_query = data_query.offset(offset);
+    }
 
     let total_categories = count_query.count().get_result(&mut conn)?;
     let total_pages = (total_categories as f64 / limit as f64).ceil() as i64;
 
     let categories_list: Vec<LibraryCategory> = data_query
         .limit(limit)
-        .offset(offset)
         .load::<LibraryCategory>(&mut conn)?;
 
     Ok((categories_list, total_categories, total_pages))
@@ -166,9 +171,14 @@ pub async fn get_all_books_paginated(
         _ => data_query.order(library_books::title.asc()),
     };
 
-    let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(10);
-    let offset = (page - 1) * limit;
+    if let Some(last_id) = query.last_id {
+        data_query = data_query.filter(library_books::id.gt(last_id));
+    } else {
+        let page = query.page.unwrap_or(1);
+        let offset = (page - 1) * limit;
+        data_query = data_query.offset(offset);
+    }
 
     let total_books = count_query.count().get_result(&mut conn)?;
     let total_pages = (total_books as f64 / limit as f64).ceil() as i64;
@@ -176,7 +186,6 @@ pub async fn get_all_books_paginated(
     let results = data_query
         .select((LibraryBook::as_select(), LibraryCategory::as_select()))
         .limit(limit)
-        .offset(offset)
         .load::<(LibraryBook, LibraryCategory)>(&mut conn)?;
 
     Ok((
@@ -505,7 +514,7 @@ pub fn issue_book(
         issue_date,
         due_date,
         issued_by: issued_by_id,
-        status: "issued".to_string(),
+        status: LibraryIssueStatus::Issued,
         remarks: req.remarks,
     };
 
@@ -547,7 +556,7 @@ pub fn return_book(
 
     let return_date = Local::now().date_naive();
     let mut fine_amount = 0.0;
-    let mut status = "returned".to_string();
+    let mut status = LibraryIssueStatus::Returned;
 
     // Calculate fine if overdue
     if return_date > issue.due_date {
@@ -557,7 +566,7 @@ pub fn return_book(
 
         let overdue_days = return_date.signed_duration_since(issue.due_date).num_days();
         fine_amount = overdue_days as f32 * settings.fine_per_day;
-        status = "returned_with_fine".to_string();
+        status = LibraryIssueStatus::Overdue;
     }
 
     // Update issue record
@@ -565,7 +574,7 @@ pub fn return_book(
         .set((
             library_issues::return_date.eq(Some(return_date)),
             library_issues::fine_amount.eq(Some(fine_amount)),
-            library_issues::status.eq(&status),
+            library_issues::status.eq(status),
             library_issues::remarks.eq(req.remarks),
             library_issues::updated_at.eq(Local::now().naive_local()),
         ))

@@ -1,5 +1,5 @@
 use crate::{
-    AppState, database::enums::LeaveStatus, errors::APIError,
+    AppState, database::enums::{LeaveStatus, StaffLeaveType}, errors::APIError,
     models::staff::leave::LeaveBalanceResponse, models::staff::leave::StaffLeave,
     schema::staff_leaves,
 };
@@ -14,10 +14,10 @@ pub async fn get_staff_leave_balance(
 
     let approved_leaves: Vec<StaffLeave> = staff_leaves::table
         .filter(staff_leaves::staff_id.eq(&staff_id))
-        .filter(staff_leaves::status.eq(LeaveStatus::Approved.to_string()))
+        .filter(staff_leaves::status.eq(LeaveStatus::Approved))
         .load::<StaffLeave>(&mut conn)?;
 
-    let mut leave_balances: std::collections::HashMap<String, i64> =
+    let mut leave_balances: std::collections::HashMap<StaffLeaveType, i64> =
         std::collections::HashMap::new();
 
     for leave in approved_leaves {

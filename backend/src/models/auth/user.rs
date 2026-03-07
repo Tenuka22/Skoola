@@ -24,17 +24,8 @@ pub struct User {
     pub id: String,
     pub email: String,
     pub password_hash: String,
-    pub google_id: Option<String>,
-    pub github_id: Option<String>,
-    pub is_verified: bool,
-    pub verification_token: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub verification_sent_at: Option<NaiveDateTime>,
-    pub password_reset_token: Option<String>,
-    pub password_reset_sent_at: Option<NaiveDateTime>,
-    pub failed_login_attempts: i32,
-    pub lockout_until: Option<NaiveDateTime>,
     pub role: RoleEnum,
 }
 
@@ -44,17 +35,8 @@ pub struct NewUser {
     pub id: String,
     pub email: String,
     pub password_hash: String,
-    pub google_id: Option<String>,
-    pub github_id: Option<String>,
-    pub is_verified: bool,
-    pub verification_token: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub verification_sent_at: Option<NaiveDateTime>,
-    pub password_reset_token: Option<String>,
-    pub password_reset_sent_at: Option<NaiveDateTime>,
-    pub failed_login_attempts: i32,
-    pub lockout_until: Option<NaiveDateTime>,
     pub role: RoleEnum,
 }
 
@@ -74,7 +56,7 @@ pub struct LoginRequest {
 pub struct UserResponse {
     pub id: String,
     pub email: String,
-    pub is_verified: bool,
+    pub is_verified: Option<bool>,
     pub role: RoleEnum,
     pub auth_method: String,
     pub lockout_until: Option<NaiveDateTime>,
@@ -84,21 +66,13 @@ pub struct UserResponse {
 
 impl From<User> for UserResponse {
     fn from(user: User) -> Self {
-        let auth_method = if user.google_id.is_some() {
-            "Google".to_string()
-        } else if user.github_id.is_some() {
-            "GitHub".to_string()
-        } else {
-            "Password".to_string()
-        };
-
         UserResponse {
             id: user.id,
             email: user.email,
-            is_verified: user.is_verified,
+            is_verified: None,
             role: user.role,
-            auth_method,
-            lockout_until: user.lockout_until,
+            auth_method: "Password".to_string(),
+            lockout_until: None,
             created_at: user.created_at,
             updated_at: user.updated_at,
         }
@@ -107,21 +81,13 @@ impl From<User> for UserResponse {
 
 impl From<crate::database::tables::User> for UserResponse {
     fn from(user: crate::database::tables::User) -> Self {
-        let auth_method = if user.google_id.is_some() {
-            "Google".to_string()
-        } else if user.github_id.is_some() {
-            "GitHub".to_string()
-        } else {
-            "Password".to_string()
-        };
-
         UserResponse {
             id: user.id,
             email: user.email,
-            is_verified: user.is_verified,
+            is_verified: None,
             role: user.role,
-            auth_method,
-            lockout_until: user.lockout_until,
+            auth_method: "Password".to_string(),
+            lockout_until: None,
             created_at: user.created_at,
             updated_at: user.updated_at,
         }
@@ -132,7 +98,7 @@ impl From<crate::database::tables::User> for UserResponse {
 pub struct UserProfileResponse {
     pub id: String,
     pub email: String,
-    pub is_verified: bool,
+    pub is_verified: Option<bool>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub roles: Vec<RoleEnum>,

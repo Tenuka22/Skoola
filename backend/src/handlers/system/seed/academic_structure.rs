@@ -7,6 +7,7 @@ use crate::database::tables::{
     AcademicYear, Class, GradeLevel, GradeStream, GradeSubject, Stream, StreamSubject, Subject,
     Timetable, ClassSubjectTeacher
 };
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::schema::{
     academic_years, class_subject_teachers, classes, grade_levels, grade_streams, grade_subjects,
     staff, stream_subjects, streams, subjects, timetable,
@@ -16,7 +17,6 @@ use diesel::SqliteConnection;
 use diesel::prelude::*;
 use rand::Rng;
 use rand::seq::SliceRandom;
-use uuid::Uuid;
 
 pub fn seed_all(
     conn: &mut SqliteConnection,
@@ -55,7 +55,7 @@ pub fn seed_all(
     for i in 0..2 {
         // Seed for current and previous academic year
         let year = now.year() - i;
-        let year_id = Uuid::new_v4().to_string();
+        let year_id = generate_prefixed_id(conn, IdPrefix::ACADEMIC_YEAR)?;
         let new_academic_year = AcademicYear {
             id: year_id.clone(),
             year_start: year,
@@ -76,7 +76,7 @@ pub fn seed_all(
     let mut grade_levels_to_insert = Vec::new();
     for i in 1..=12 {
         // Grades 1 to 12
-        let grade_id = Uuid::new_v4().to_string();
+        let grade_id = generate_prefixed_id(conn, IdPrefix::GRADE_LEVEL)?;
         let ed_level = match i {
             1..=5 => EducationLevel::Primary,
             6..=9 => EducationLevel::JuniorSecondary,
@@ -102,7 +102,7 @@ pub fn seed_all(
     let stream_names = vec!["A", "B", "C", "D"];
     let mut streams_to_insert = Vec::new();
     for name in stream_names {
-        let stream_id = Uuid::new_v4().to_string();
+        let stream_id = generate_prefixed_id(conn, IdPrefix::STREAM)?;
         let new_stream = Stream {
             id: stream_id.clone(),
             name: format!("Stream {}", name),
@@ -130,7 +130,7 @@ pub fn seed_all(
     ];
     let mut subjects_to_insert = Vec::new();
     for (i, name) in subject_names.iter().enumerate() {
-        let subject_id = Uuid::new_v4().to_string();
+        let subject_id = generate_prefixed_id(conn, IdPrefix::SUBJECT)?;
         let new_subject = Subject {
             id: subject_id.clone(),
             subject_code: format!("SUB{:03}", i + 1),
@@ -218,7 +218,7 @@ pub fn seed_all(
             for stream_id in &seeded_stream_ids {
                 if rand::thread_rng().gen_bool(0.5) {
                     // 50% chance to create a class
-                    let class_id = Uuid::new_v4().to_string();
+                    let class_id = generate_prefixed_id(conn, IdPrefix::CLASS)?;
                     let g_name = grade_levels_to_insert
                         .iter()
                         .find(|gl| &gl.id == grade_id)
@@ -314,7 +314,7 @@ pub fn seed_all(
                             .clone();
                         let teacher_id =
                             teacher_ids.choose(&mut rand::thread_rng()).unwrap().clone();
-                        let tte_id = Uuid::new_v4().to_string();
+                        let tte_id = generate_prefixed_id(conn, IdPrefix::TIMETABLE)?;
 
                         let new_timetable_entry = Timetable {
                             id: tte_id.clone(),

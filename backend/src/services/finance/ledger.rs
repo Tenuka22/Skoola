@@ -8,7 +8,7 @@ use actix_web::web;
 use chrono::Utc;
 use diesel::prelude::*;
 use std::collections::HashMap; // Added
-use uuid::Uuid;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 
 pub async fn record_transaction(
     pool: web::Data<AppState>,
@@ -19,7 +19,7 @@ pub async fn record_transaction(
     amount: f32,
 ) -> Result<GeneralLedgerEntry, APIError> {
     let mut conn = pool.db_pool.get()?;
-    let id = Uuid::new_v4().to_string();
+    let id = generate_prefixed_id(&mut conn, IdPrefix::LEDGER)?;
 
     // Basic validation: ensure amount is positive
     if amount <= 0.0 {
@@ -60,7 +60,9 @@ pub async fn generate_trial_balance(
 ) -> Result<HashMap<String, f32>, APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    let all_accounts = crate::schema::chart_of_accounts::table.load::<ChartOfAccount>(&mut conn)?;
+    let all_accounts = crate::schema::chart_of_accounts::table
+        .select(ChartOfAccount::as_select())
+        .load::<ChartOfAccount>(&mut conn)?;
 
     let all_ledger_entries =
         crate::schema::general_ledger::table.load::<GeneralLedgerEntry>(&mut conn)?;

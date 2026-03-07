@@ -7,11 +7,10 @@ use crate::{
         CreateGradeLevelRequest, GradeLevel, GradeLevelResponse, UpdateGradeLevelRequest,
     },
 };
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use actix_web::web;
 use chrono::Utc;
 use diesel::prelude::*;
-use diesel::{QueryDsl, RunQueryDsl};
-use uuid::Uuid;
 
 pub async fn create_grade_level(
     pool: web::Data<AppState>,
@@ -19,7 +18,7 @@ pub async fn create_grade_level(
 ) -> Result<GradeLevelResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    let grade_level_id = Uuid::new_v4().to_string();
+    let grade_level_id = generate_prefixed_id(&mut conn, IdPrefix::GRADE_LEVEL)?;
 
     let new_grade_level = GradeLevel {
         id: grade_level_id,
@@ -69,6 +68,10 @@ pub async fn get_all_grade_levels(
         count_query = count_query.filter(grade_levels::education_level.eq(education_level));
     }
 
+    if let Some(last_id) = &query.last_id {
+        data_query = data_query.filter(grade_levels::id.gt(last_id));
+    }
+
     let sort_by = query.sort_by.as_deref().unwrap_or("grade_number");
     let sort_order = query.sort_order.as_deref().unwrap_or("asc");
 
@@ -80,16 +83,13 @@ pub async fn get_all_grade_levels(
         _ => data_query.order(grade_levels::grade_number.asc()),
     };
 
-    let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(10);
-    let offset = (page - 1) * limit;
 
     let total_grade_levels = count_query.count().get_result(&mut conn)?;
     let total_pages = (total_grade_levels as f64 / limit as f64).ceil() as i64;
 
     let grade_levels_list: Vec<GradeLevel> = data_query
         .limit(limit)
-        .offset(offset)
         .load::<GradeLevel>(&mut conn)?;
 
     let responses: Vec<GradeLevelResponse> = grade_levels_list

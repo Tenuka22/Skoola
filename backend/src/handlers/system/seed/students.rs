@@ -3,12 +3,12 @@ use crate::database::enums::{Ethnicity, Gender, Religion, StudentStatus};
 use crate::database::tables::StudentGuardian;
 use crate::errors::APIError;
 use crate::faker::CustomFaker;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::models::student::Student;
 use crate::schema::{student_guardians, students};
 use chrono::{Duration, Utc};
 use diesel::SqliteConnection;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 pub fn seed_all(
     conn: &mut SqliteConnection,
@@ -43,7 +43,7 @@ pub fn seed_all(
     // 1. Seed Students
     let mut students_to_insert = Vec::new();
     for i in 1..=50 {
-        let student_id = Uuid::new_v4().to_string();
+        let student_id = generate_prefixed_id(conn, IdPrefix::STUDENT)?;
         let new_student = Student {
             id: student_id.clone(),
             admission_number: format!("ADM{:04}", i),
@@ -79,7 +79,7 @@ pub fn seed_all(
     // 2. Seed Student Guardians
     let mut guardians_to_insert = Vec::new();
     for student_id in &seeded_student_ids {
-        let guardian_id = Uuid::new_v4().to_string();
+        let guardian_id = generate_prefixed_id(conn, IdPrefix::GUARDIAN)?;
         let new_guardian = StudentGuardian {
             id: guardian_id,
             student_id: student_id.clone(),

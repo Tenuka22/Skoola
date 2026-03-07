@@ -4,6 +4,7 @@ use crate::{
     database::enums::RoleEnum,         // Added RoleEnum
     database::tables::{NewUser, User}, // Added User, NewUser
     errors::APIError,
+    models::ids::{IdPrefix, generate_prefixed_id},
     models::student::guardian::{
         CreateStudentGuardianRequest, StudentGuardian, StudentGuardianResponse,
         UpdateStudentGuardianRequest,
@@ -15,7 +16,7 @@ use chrono::Utc;
 use diesel::NullableExpressionMethods;
 use diesel::SelectableHelper;
 use diesel::prelude::*;
-use uuid::Uuid; // Added bcrypt for hashing passwords
+use rand::distributions::{Alphanumeric, DistString};
 
 pub async fn add_guardian_to_student(
     pool: web::Data<AppState>,
@@ -24,7 +25,7 @@ pub async fn add_guardian_to_student(
 ) -> Result<StudentGuardianResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    let guardian_id = Uuid::new_v4().to_string();
+    let guardian_id = generate_prefixed_id(&mut conn, IdPrefix::GUARDIAN)?;
 
     let user_id_for_guardian: Option<String> = if let Some(guardian_email) =
         new_guardian_request.email.clone()
@@ -45,26 +46,17 @@ pub async fn add_guardian_to_student(
                 "Creating new user for guardian with email: {}",
                 guardian_email
             );
-            let new_user_id = Uuid::new_v4().to_string();
-            let password = Uuid::new_v4().to_string(); // Generate a random temporary password
+            let new_user_id = generate_prefixed_id(&mut conn, IdPrefix::USER)?;
+            let password = Alphanumeric.sample_string(&mut rand::thread_rng(), 24);
             let hashed_password = hash(password.as_bytes(), DEFAULT_COST)
                 .map_err(|e| APIError::internal(&format!("Failed to hash password: {}", e)))?;
 
-            let new_user = User {
+            let new_user = NewUser {
                 id: new_user_id.clone(),
                 email: guardian_email.clone(),
                 password_hash: hashed_password,
-                google_id: None,
-                github_id: None,
-                is_verified: true,
-                verification_token: None,
                 created_at: Utc::now().naive_utc(),
                 updated_at: Utc::now().naive_utc(),
-                verification_sent_at: None,
-                password_reset_token: None,
-                password_reset_sent_at: None,
-                failed_login_attempts: 0,
-                lockout_until: None,
                 role: RoleEnum::Parent, // Assign Parent role
             };
 
@@ -213,6 +205,7 @@ pub async fn get_all_guardians_for_student(
     let guardians_with_users: Vec<(StudentGuardian, Option<User>)> = student_guardians::table
         .filter(student_guardians::student_id.eq(&student_id))
         .left_join(users::table.on(student_guardians::user_id.eq(users::id.nullable())))
+        .select((StudentGuardian::as_select(), Option::<User>::as_select()))
         .load::<(StudentGuardian, Option<User>)>(&mut conn)?;
 
     let guardian_responses: Vec<StudentGuardianResponse> = guardians_with_users

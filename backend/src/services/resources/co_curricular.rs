@@ -4,10 +4,10 @@ use crate::schema::{
     sport_team_members, sport_teams, sports, student_achievements,
 };
 use crate::{AppState, errors::APIError, models::co_curricular::*};
-use actix_web::web;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use chrono::Utc;
+use actix_web::web;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 // --- Sports Services ---
 
@@ -17,7 +17,7 @@ pub async fn create_sport(
 ) -> Result<Sport, APIError> {
     let mut conn = pool.db_pool.get()?;
     let new_sport = Sport {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::CO_CURRICULAR)?,
         sport_name: req.sport_name,
         description: req.description,
         category: req.category,
@@ -44,7 +44,7 @@ pub async fn create_sport_team(
 ) -> Result<SportTeam, APIError> {
     let mut conn = pool.db_pool.get()?;
     let new_team = SportTeam {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::CO_CURRICULAR)?,
         sport_id: req.sport_id,
         team_name: req.team_name,
         grade_level: req.grade_level,
@@ -88,7 +88,7 @@ pub async fn create_sport_event(
 ) -> Result<SportEvent, APIError> {
     let mut conn = pool.db_pool.get()?;
     let new_event = SportEvent {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::CO_CURRICULAR)?,
         sport_id: req.sport_id,
         event_name: req.event_name,
         event_date: req.event_date,
@@ -136,7 +136,7 @@ pub async fn create_club(
 ) -> Result<Club, APIError> {
     let mut conn = pool.db_pool.get()?;
     let new_club = Club {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::CO_CURRICULAR)?,
         club_name: req.club_name,
         description: req.description,
         teacher_in_charge_id: req.teacher_in_charge_id,
@@ -180,7 +180,7 @@ pub async fn create_club_activity(
 ) -> Result<ClubActivity, APIError> {
     let mut conn = pool.db_pool.get()?;
     let new_activity = ClubActivity {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::CO_CURRICULAR)?,
         club_id: req.club_id,
         activity_name: req.activity_name,
         activity_date: req.activity_date,
@@ -205,7 +205,7 @@ pub async fn create_competition(
 ) -> Result<Competition, APIError> {
     let mut conn = pool.db_pool.get()?;
     let new_comp = Competition {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::CO_CURRICULAR)?,
         competition_name: req.competition_name,
         competition_type: req.competition_type,
         date: req.date,
@@ -250,7 +250,7 @@ pub async fn create_student_achievement(
 ) -> Result<StudentAchievement, APIError> {
     let mut conn = pool.db_pool.get()?;
     let new_achievement = StudentAchievement {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::CO_CURRICULAR)?,
         student_id: req.student_id,
         achievement_type: req.achievement_type,
         description: req.description,
@@ -275,7 +275,7 @@ pub async fn create_cultural_event(
 ) -> Result<CulturalEvent, APIError> {
     let mut conn = pool.db_pool.get()?;
     let new_event = CulturalEvent {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::CO_CURRICULAR)?,
         event_name: req.event_name,
         event_date: req.event_date,
         venue: req.venue,

@@ -4,14 +4,14 @@ use crate::schema::{
 };
 use crate::{
     AppState,
-    database::enums::{AttendanceStatus, ExitReason, PolicyRuleType},
+    database::enums::{AttendanceStatus, ConsequenceType, ExitReason, PolicyRuleType},
     database::tables::{AttendancePolicy, DetentionBalance, ExitPass},
     errors::APIError,
 };
 use actix_web::web;
 use chrono::{NaiveTime, Utc};
 use diesel::prelude::*;
-use uuid::Uuid;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 
 /// Scans a student's records and applies consequences (e.g., auto-detention for 3 lates).
 pub async fn evaluate_policies(pool: web::Data<AppState>, s_id: String) -> Result<i32, APIError> {
@@ -33,7 +33,7 @@ pub async fn evaluate_policies(pool: web::Data<AppState>, s_id: String) -> Resul
                     .get_result::<i64>(&mut conn)?;
 
                 if late_count >= policy.threshold as i64 {
-                    if policy.consequence_type == "Detention" {
+                    if policy.consequence_type == ConsequenceType::Detention {
                         let hours = policy.consequence_value.unwrap_or(1.0);
                         add_detention_hours(&mut conn, &s_id, hours).await?;
                         consequences_applied += 1;
@@ -52,7 +52,7 @@ pub async fn evaluate_policies(pool: web::Data<AppState>, s_id: String) -> Resul
                         .iter()
                         .all(|r| r.status == AttendanceStatus::Late)
                 {
-                    if policy.consequence_type == "Detention" {
+                    if policy.consequence_type == ConsequenceType::Detention {
                         let hours = policy.consequence_value.unwrap_or(1.0);
                         add_detention_hours(&mut conn, &s_id, hours).await?;
                         consequences_applied += 1;
@@ -67,7 +67,7 @@ pub async fn evaluate_policies(pool: web::Data<AppState>, s_id: String) -> Resul
                     .get_result::<i64>(&mut conn)?;
 
                 if absent_count >= policy.threshold as i64 {
-                    if policy.consequence_type == "Detention" {
+                    if policy.consequence_type == ConsequenceType::Detention {
                         let hours = policy.consequence_value.unwrap_or(1.0);
                         add_detention_hours(&mut conn, &s_id, hours).await?;
                         consequences_applied += 1;
@@ -126,7 +126,7 @@ pub async fn issue_exit_pass(
     let mut conn = pool.db_pool.get()?;
 
     let new_pass = ExitPass {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?,
         student_id: s_id.clone(),
         date: Utc::now().date_naive(),
         exit_time,
@@ -135,6 +135,7 @@ pub async fn issue_exit_pass(
         approved_by: approver_id,
         guardian_notified: true, // In real life, trigger SMS here
         gate_cleared_at: None,
+        bulk_pass_id: None,
         created_at: Utc::now().naive_utc(),
     };
 

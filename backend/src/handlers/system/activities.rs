@@ -63,15 +63,11 @@ pub async fn mark_activity_attendance(
     body: web::Json<MarkActivityAttendanceRequest>,
 ) -> Result<Json<String>, APIError> {
     let marker_id = UserId::from_request(&req)?;
-    let status = body
-        .status
-        .parse()
-        .map_err(|_| APIError::bad_request("Invalid attendance status"))?;
     activities::mark_activity_attendance(
         data,
         path.into_inner(),
         body.user_id.clone(),
-        status,
+        body.status.clone(),
         marker_id.0,
     )
     .await?;

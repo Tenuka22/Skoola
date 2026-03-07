@@ -1,6 +1,6 @@
 use crate::schema::{
-    classes, lesson_progress, school_calendar, staff, staff_attendance, staff_leaves,
-    student_period_attendance, substitutions, syllabus, teacher_class_assignments,
+    classes, curriculum_topics, lesson_progress, school_calendar, staff, staff_attendance, staff_leaves,
+    student_period_attendance, substitutions, teacher_class_assignments,
     teacher_period_attendance, teacher_subject_assignments, timetable, substitution_plans,
 };
 use crate::services::students::student_attendance::log_audit;
@@ -22,7 +22,7 @@ use actix_web::web;
 use chrono::{Datelike, NaiveDate, Utc};
 use diesel::prelude::*;
 use std::str::FromStr;
-use uuid::Uuid;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 
 pub async fn record_progress(
     pool: web::Data<AppState>,
@@ -30,7 +30,7 @@ pub async fn record_progress(
     teacher_id: String,
 ) -> Result<DbLessonProgress, APIError> {
     let mut conn = pool.db_pool.get()?;
-    let id = Uuid::new_v4().to_string();
+    let id = generate_prefixed_id(&mut conn, IdPrefix::ACTIVITY)?;
 
     let new_progress = DbLessonProgress {
         id: id.clone(),
@@ -39,14 +39,15 @@ pub async fn record_progress(
         teacher_id,
         timetable_id: Some(req.timetable_id),
         date: req.date,
-        topic_covered: req.topic_covered,
-        sub_topic: req.sub_topic,
+        lesson_summary: req.lesson_summary,
         homework_assigned: req.homework_assigned,
         resources_used: req.resources_used,
         progress_percentage: req.progress_percentage,
-        is_substitution: req.is_substitution,
+        delivery_mode: req.delivery_mode,
+        planned_duration_minutes: req.planned_duration_minutes,
+        actual_duration_minutes: req.actual_duration_minutes,
         created_at: Utc::now().naive_utc(),
-        syllabus_id: req.syllabus_id,
+        curriculum_topic_id: req.curriculum_topic_id,
         verified_by: None,
         verified_at: None,
         is_skipped: req.is_skipped,
@@ -81,7 +82,7 @@ pub async fn record_progress(
             .load::<String>(&mut conn)?;
 
         for s_id in absent_students {
-            let m_id = Uuid::new_v4().to_string();
+            let m_id = generate_prefixed_id(&mut conn, IdPrefix::STUDENT_MARK)?;
             let missed_lesson = crate::models::curriculum_management::student_missed_lesson::StudentMissedLesson {
                 id: m_id,
                 student_id: s_id.clone(),
@@ -124,6 +125,7 @@ pub async fn get_progress_by_class(
         .filter(lesson_progress::class_id.eq(class_id))
         .filter(lesson_progress::subject_id.eq(subject_id))
         .order(lesson_progress::date.desc())
+        .select(DbLessonProgress::as_select())
         .load::<DbLessonProgress>(&mut conn)?;
     Ok(list)
 }
@@ -139,11 +141,14 @@ pub async fn mark_teacher_period_attendance(
         let sub: DbSubstitution = substitutions::table.find(sub_id).first(&mut conn)?;
         sub.substitute_teacher_id
     } else {
-        let entry: Timetable = timetable::table.find(&req.timetable_id).first(&mut conn)?;
+        let entry: Timetable = timetable::table
+            .find(&req.timetable_id)
+            .select(Timetable::as_select())
+            .first(&mut conn)?;
         entry.teacher_id
-    };
+            };
 
-    let id = Uuid::new_v4().to_string();
+    let id = generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?;
     let new_attendance = DbTeacherPeriodAttendance {
         id: id.clone(),
         teacher_id: teacher_id.clone(),
@@ -195,7 +200,6 @@ pub async fn mark_teacher_period_attendance(
 pub struct MissedTopic {
     pub date: NaiveDate,
     pub topic: String,
-    pub sub_topic: Option<String>,
     pub syllabus_topic_name: Option<String>,
 }
 
@@ -220,14 +224,15 @@ pub async fn get_missed_topics_for_student(
         let progress: Option<DbLessonProgress> = lesson_progress::table
             .filter(lesson_progress::timetable_id.eq(Some(period.timetable_id)))
             .filter(lesson_progress::date.eq(period.date))
+            .select(DbLessonProgress::as_select())
             .first(&mut conn)
             .optional()?;
 
         if let Some(p) = progress {
-            let syllabus_topic = if let Some(sid) = &p.syllabus_id {
-                syllabus::table
+            let syllabus_topic = if let Some(sid) = &p.curriculum_topic_id {
+                curriculum_topics::table
                     .find(sid)
-                    .select(syllabus::topic_name)
+                    .select(curriculum_topics::topic_name)
                     .first::<String>(&mut conn)
                     .optional()?
             } else {
@@ -236,8 +241,7 @@ pub async fn get_missed_topics_for_student(
 
             missed_topics.push(MissedTopic {
                 date: p.date,
-                topic: p.topic_covered,
-                sub_topic: p.sub_topic,
+                topic: p.lesson_summary,
                 syllabus_topic_name: syllabus_topic,
             });
         }
@@ -253,10 +257,14 @@ pub async fn suggest_substitute(
 ) -> Result<Option<DbStaff>, APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    let entry: Timetable = timetable::table.find(&t_id).first(&mut conn)?;
+    let entry: Timetable = timetable::table
+        .find(&t_id)
+        .select(Timetable::as_select())
+        .first(&mut conn)?;
     let missing_subject_id = entry.subject_id.clone();
     let missing_class_id = entry.class_id.clone();
-    let missing_period = entry.period_number;
+    let missing_start_time = entry.start_time;
+    let missing_end_time = entry.end_time;
     let day_of_week = entry.day_of_week.clone();
 
     let target_class: crate::database::tables::Class =
@@ -266,7 +274,8 @@ pub async fn suggest_substitute(
 
     let busy_teachers: Vec<String> = timetable::table
         .filter(timetable::day_of_week.eq(&day_of_week))
-        .filter(timetable::period_number.eq(missing_period))
+        .filter(timetable::start_time.lt(missing_end_time))
+        .filter(timetable::end_time.gt(missing_start_time))
         .select(timetable::teacher_id)
         .load::<String>(&mut conn)?;
 
@@ -284,7 +293,7 @@ pub async fn suggest_substitute(
         .load::<String>(&mut conn)?;
 
     let available_staff = staff::table
-        .filter(staff::staff_type.eq("Teaching"))
+        .filter(staff::staff_type.eq(crate::database::enums::StaffType::Teaching))
         .filter(staff::id.ne_all(busy_teachers))
         .filter(staff::id.ne_all(leave_teachers))
         .filter(staff::id.ne_all(already_subbing))
@@ -336,7 +345,7 @@ pub async fn suggest_substitute(
         let has_next_period = timetable::table
             .filter(timetable::teacher_id.eq(&staff_member.id))
             .filter(timetable::day_of_week.eq(&day_of_week))
-            .filter(timetable::period_number.eq(missing_period + 1))
+            .filter(timetable::start_time.ge(missing_end_time))
             .count()
             .get_result::<i64>(&mut conn)?;
         if has_next_period > 0 {
@@ -378,13 +387,22 @@ pub async fn mark_daily_staff_attendance(
     }
 
     let new_attendance = DbStaffAttendance {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?,
         staff_id,
         date: body.date,
         status: body.status,
         time_in: body.time_in,
         time_out: body.time_out,
         remarks: body.remarks,
+        reason_type: None,
+        reason_details: None,
+        half_day_type: None,
+        out_of_school_from: None,
+        out_of_school_to: None,
+        attendance_context: None,
+        event_id: None,
+        approved_by: None,
+        approval_status: None,
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
         is_locked: false,
@@ -426,13 +444,22 @@ pub async fn bulk_mark_staff_attendance(
         }
 
         let new_attendance = DbStaffAttendance {
-            id: Uuid::new_v4().to_string(),
+            id: generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?,
             staff_id: record_request.staff_id,
             date: bulk_request.date,
             status: record_request.status,
             time_in: record_request.time_in,
             time_out: record_request.time_out,
             remarks: record_request.remarks,
+            reason_type: None,
+            reason_details: None,
+            half_day_type: None,
+            out_of_school_from: None,
+            out_of_school_to: None,
+            attendance_context: None,
+            event_id: None,
+            approved_by: None,
+            approval_status: None,
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
             is_locked: false,
@@ -464,7 +491,7 @@ pub async fn update_staff_attendance(
         .map_err(|_| APIError::not_found("Attendance record not found"))?;
 
     let changeset = crate::models::staff::attendance::StaffAttendanceChangeset {
-        status: body.status.as_ref().map(|s| s.to_string()),
+        status: body.status.clone(),
         time_in: body.time_in,
         time_out: body.time_out,
         remarks: body.remarks.clone(),
@@ -517,13 +544,22 @@ pub async fn sync_staff_leaves(
             .optional()?;
         if existing.is_none() {
             let new_att = DbStaffAttendance {
-                id: Uuid::new_v4().to_string(),
+                id: generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?,
                 staff_id: leave.staff_id.clone(),
                 date: target_date,
                 status: AttendanceStatus::Excused,
                 time_in: None,
                 time_out: None,
                 remarks: Some(format!("Auto-synced from Leave: {}", leave.leave_type)),
+                reason_type: None,
+                reason_details: None,
+                half_day_type: None,
+                out_of_school_from: None,
+                out_of_school_to: None,
+                attendance_context: None,
+                event_id: None,
+                approved_by: None,
+                approval_status: None,
                 created_at: Utc::now().naive_utc(),
                 updated_at: Utc::now().naive_utc(),
                 is_locked: false,
@@ -553,7 +589,10 @@ pub async fn get_substitutions_by_teacher(
     let mut results = Vec::new();
     for s in list {
         // Find subject for this timetable slot
-        let entry: Timetable = timetable::table.find(&s.timetable_id).first(&mut conn)?;
+        let entry: Timetable = timetable::table
+            .find(&s.timetable_id)
+            .select(Timetable::as_select())
+            .first(&mut conn)?;
         let class_entry: crate::database::tables::Class = classes::table.find(&entry.class_id).first(&mut conn)?;
         
         // Find if there's a specific plan for this subject and medium
@@ -591,7 +630,7 @@ pub async fn create_auto_substitution(
         .ok_or_else(|| APIError::internal("No available substitute found"))?;
 
     let new_sub = DbSubstitution {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?,
         original_teacher_id: original_id,
         substitute_teacher_id: substitute.id,
         timetable_id: t_id,

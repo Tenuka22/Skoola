@@ -4,9 +4,9 @@ use crate::models::grading_criterion::{
     GradingCriterion, NewGradingCriterion, UpdateGradingCriterion,
 };
 use crate::schema::grading_criteria;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use actix_web::web;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 pub async fn create_grading_criterion(
     pool: web::Data<AppState>, // Changed from DbPool
@@ -14,7 +14,7 @@ pub async fn create_grading_criterion(
 ) -> Result<GradingCriterion, APIError> {
     let mut conn = pool.db_pool.get()?; // Changed from pool.get()
 
-    let criterion_id = Uuid::new_v4().to_string();
+    let criterion_id = generate_prefixed_id(&mut conn, IdPrefix::GRADING_CRITERION)?;
 
     let new_criterion_with_id = NewGradingCriterion {
         id: criterion_id.clone(),

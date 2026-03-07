@@ -4,6 +4,7 @@ pub mod profile;
 pub mod profile_models; // Add this line
 pub mod role;
 pub mod session;
+pub mod tokens;
 pub mod user;
 
 pub use current_user::*;
@@ -12,4 +13,5 @@ pub use profile::*;
 pub use profile_models::*; // Add this line
 pub use role::*;
 pub use session::*;
+pub use tokens::*;
 pub use user::*;

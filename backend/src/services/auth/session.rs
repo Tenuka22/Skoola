@@ -2,11 +2,12 @@ use crate::errors::iam::IAMError;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use tracing::{info, warn};
-use uuid::Uuid;
 
 use crate::{
-    database::tables::Session,
-    schema::sessions,
+    database::enums::AuthTokenType,
+    database::tables::{AuthToken, Session},
+    models::ids::{IdPrefix, generate_prefixed_id},
+    schema::{auth_tokens, sessions},
     utils::logging::{log_session_created, log_session_revoked},
 };
 
@@ -19,15 +20,38 @@ pub fn create_session(
     ip_address: Option<&str>,
     expires_at: NaiveDateTime,
 ) -> Result<Session, IAMError> {
-    let new_session = Session {
-        id: Uuid::new_v4().to_string(),
+    let now = chrono::Utc::now().naive_utc();
+    let auth_token_id = generate_prefixed_id(conn, IdPrefix::AUTH_TOKEN)?;
+    let new_auth_token = AuthToken {
+        id: auth_token_id.clone(),
         user_id: user_id.to_string(),
-        refresh_token_hash: refresh_token_hash.to_string(),
+        token_hash: refresh_token_hash.to_string(),
+        token_type: AuthTokenType::Refresh,
+        issued_at: now,
+        expires_at,
+        revoked_at: None,
+        is_active: true,
+        metadata: None,
+    };
+
+    let new_session = Session {
+        id: generate_prefixed_id(conn, IdPrefix::SESSION)?,
+        user_id: user_id.to_string(),
+        auth_token_id: Some(auth_token_id),
+        verification_token_id: None,
         user_agent: user_agent.map(|s| s.to_string()),
         ip_address: ip_address.map(|s| s.to_string()),
-        created_at: chrono::Utc::now().naive_utc(),
+        created_at: now,
         expires_at,
+        is_active: true,
+        disabled_at: None,
+        disabled_reason: None,
+        last_seen_at: None,
     };
+
+    diesel::insert_into(auth_tokens::table)
+        .values(&new_auth_token)
+        .execute(conn)?;
 
     diesel::insert_into(sessions::table)
         .values(&new_session)
@@ -42,8 +66,14 @@ pub fn find_session_by_refresh_token_hash(
     conn: &mut SqliteConnection,
     refresh_token_hash: &str,
 ) -> Result<Option<Session>, IAMError> {
+    let now = chrono::Utc::now().naive_utc();
     let session = sessions::table
-        .filter(sessions::refresh_token_hash.eq(refresh_token_hash))
+        .inner_join(auth_tokens::table.on(sessions::auth_token_id.eq(auth_tokens::id.nullable())))
+        .filter(auth_tokens::token_hash.eq(refresh_token_hash))
+        .filter(auth_tokens::is_active.eq(true))
+        .filter(auth_tokens::revoked_at.is_null())
+        .filter(auth_tokens::expires_at.gt(now))
+        .filter(sessions::is_active.eq(true))
         .select(Session::as_select())
         .first(conn)
         .optional()?;
@@ -62,7 +92,25 @@ pub fn find_session_by_refresh_token_hash(
 
 /// Deletes a specific session.
 pub fn delete_session(conn: &mut SqliteConnection, session_id: &str) -> Result<(), IAMError> {
-    diesel::delete(sessions::table.find(session_id)).execute(conn)?;
+    let now = chrono::Utc::now().naive_utc();
+    let session: Session = sessions::table.find(session_id).first(conn)?;
+
+    diesel::update(sessions::table.find(session_id))
+        .set((
+            sessions::is_active.eq(false),
+            sessions::disabled_at.eq(Some(now)),
+            sessions::disabled_reason.eq(Some("explicit_deletion".to_string())),
+        ))
+        .execute(conn)?;
+
+    if let Some(token_id) = session.auth_token_id {
+        diesel::update(auth_tokens::table.find(token_id))
+            .set((
+                auth_tokens::is_active.eq(false),
+                auth_tokens::revoked_at.eq(Some(now)),
+            ))
+            .execute(conn)?;
+    }
 
     log_session_revoked(session_id, "explicit_deletion");
     Ok(())
@@ -73,7 +121,32 @@ pub fn invalidate_sessions_for_user(
     conn: &mut SqliteConnection,
     user_id: &str,
 ) -> Result<(), IAMError> {
-    diesel::delete(sessions::table.filter(sessions::user_id.eq(user_id))).execute(conn)?;
+    let now = chrono::Utc::now().naive_utc();
+    let session_ids: Vec<(String, Option<String>)> = sessions::table
+        .filter(sessions::user_id.eq(user_id))
+        .select((sessions::id, sessions::auth_token_id))
+        .load(conn)?;
+
+    diesel::update(sessions::table.filter(sessions::user_id.eq(user_id)))
+        .set((
+            sessions::is_active.eq(false),
+            sessions::disabled_at.eq(Some(now)),
+            sessions::disabled_reason.eq(Some("user_invalidation".to_string())),
+        ))
+        .execute(conn)?;
+
+    let token_ids: Vec<String> = session_ids
+        .into_iter()
+        .filter_map(|(_, token_id)| token_id)
+        .collect();
+    if !token_ids.is_empty() {
+        diesel::update(auth_tokens::table.filter(auth_tokens::id.eq_any(token_ids)))
+            .set((
+                auth_tokens::is_active.eq(false),
+                auth_tokens::revoked_at.eq(Some(now)),
+            ))
+            .execute(conn)?;
+    }
 
     info!(event = "sessions_invalidated", user_id = %user_id, "All sessions invalidated for user");
     Ok(())

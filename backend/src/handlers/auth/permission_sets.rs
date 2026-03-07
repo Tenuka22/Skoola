@@ -4,12 +4,12 @@ use apistos::{ApiComponent, api_operation};
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::{
     AppState,
     database::tables::{User, UserSet, UserSetUser},
     errors::APIError,
+    models::ids::{generate_prefixed_id, IdPrefix},
     models::MessageResponse,
     models::auth::user::UserResponse,
     schema::{user_set_users, user_sets, users},
@@ -55,7 +55,7 @@ pub async fn create_permission_set(
 ) -> Result<Json<UserSet>, APIError> {
     let mut conn = data.db_pool.get()?;
     let new_set = UserSet {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::PERMISSION_SET)?,
         name: body.name.clone(),
         description: Some(body.description.clone()),
     };

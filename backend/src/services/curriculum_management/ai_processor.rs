@@ -2,10 +2,10 @@ use crate::AppState;
 use crate::errors::APIError;
 use crate::schema::{lesson_materials, ai_processed_notes};
 use crate::database::tables::{LessonMaterial, AiProcessedNote};
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use actix_web::web;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use chrono::Utc;
 use reqwest::Client;
 
@@ -60,7 +60,7 @@ pub async fn process_material_with_ai(
     let structured: StructuredLessonNotes = serde_json::from_str(clean_json)
         .map_err(|e| APIError::internal(&format!("AI returned invalid JSON: {}", e)))?;
 
-    let id = Uuid::new_v4().to_string();
+    let id = generate_prefixed_id(&mut conn, IdPrefix::CURRICULUM)?;
     let new_ai_note = AiProcessedNote {
         id: id.clone(),
         material_id: material_id.clone(),

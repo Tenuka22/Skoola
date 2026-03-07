@@ -7,7 +7,10 @@ use crate::schema::{
 use crate::services::system::email::send_email;
 use crate::{
     AppState,
-    database::enums::{AttendanceStatus, DayType, EmergencyStatus, SuspicionFlag},
+    database::enums::{
+        AttendanceDiscrepancyType, AttendanceStatus, DayType, EmergencyRollCallStatus,
+        EmergencyStatus, SeverityLevel, SuspicionFlag,
+    },
     errors::APIError,
     models::academic::timetable::Timetable,
     models::student::attendance::{
@@ -30,24 +33,19 @@ use chrono::{Datelike, NaiveDate, NaiveTime, Utc};
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::Serialize;
-use uuid::Uuid;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 
 pub async fn submit_excuse(
     pool: web::Data<AppState>,
     req: SubmitExcuseRequest,
 ) -> Result<DbAttendanceExcuse, APIError> {
     let mut conn = pool.db_pool.get()?;
-    let id = Uuid::new_v4().to_string();
-
-    let excuse_type: crate::database::enums::ExcuseType = req
-        .excuse_type
-        .parse()
-        .map_err(|_| APIError::bad_request("Invalid excuse type"))?;
+    let id = generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?;
 
     let new_excuse = DbAttendanceExcuse {
         id: id.clone(),
         attendance_record_id: req.attendance_record_id,
-        excuse_type,
+        excuse_type: req.excuse_type,
         document_url: req.document_url,
         is_verified: false,
         verified_by: None,
@@ -107,7 +105,7 @@ pub async fn initiate_emergency_roll_call(
     user_id: String,
 ) -> Result<String, APIError> {
     let mut conn = pool.db_pool.get()?;
-    let roll_call_id = Uuid::new_v4().to_string();
+    let roll_call_id = generate_prefixed_id(&mut conn, IdPrefix::ROLL_CALL)?;
     let now = Utc::now().naive_utc();
 
     let roll_call = EmergencyRollCall {
@@ -116,7 +114,7 @@ pub async fn initiate_emergency_roll_call(
         start_time: now,
         end_time: None,
         initiated_by: user_id,
-        status: "Active".to_string(),
+        status: EmergencyRollCallStatus::Active,
         created_at: now,
     };
 
@@ -128,8 +126,8 @@ pub async fn initiate_emergency_roll_call(
     let present_student_ids: Vec<String> = student_attendance::table
         .filter(student_attendance::date.eq(today))
         .filter(student_attendance::status.eq_any(vec![
-            AttendanceStatus::Present.to_string(),
-            AttendanceStatus::Late.to_string(),
+            AttendanceStatus::Present,
+            AttendanceStatus::Late,
         ]))
         .select(student_attendance::student_id)
         .load::<String>(&mut conn)?;
@@ -181,7 +179,7 @@ pub async fn complete_emergency_roll_call(
     let mut conn = pool.db_pool.get()?;
     diesel::update(emergency_roll_calls::table.find(id))
         .set((
-            emergency_roll_calls::status.eq("Completed"),
+            emergency_roll_calls::status.eq(EmergencyRollCallStatus::Completed),
             emergency_roll_calls::end_time.eq(Some(Utc::now().naive_utc())),
         ))
         .execute(&mut conn)?;
@@ -214,7 +212,7 @@ pub async fn apply_pre_approved_absences(
                 .first::<StudentClassAssignment>(&mut conn)
             {
                 let new_att = StudentAttendance {
-                    id: Uuid::new_v4().to_string(),
+                    id: generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?,
                     student_id: note.student_id.clone(),
                     class_id: assignment.class_id,
                     date: target_date,
@@ -240,7 +238,10 @@ pub async fn calculate_precise_late_minutes(
     t_id: String,
     check_in_time: NaiveTime,
 ) -> Result<i32, APIError> {
-    let entry: Timetable = timetable::table.find(&t_id).first(conn)?;
+    let entry: Timetable = timetable::table
+        .find(&t_id)
+        .select(Timetable::as_select())
+        .first(conn)?;
 
     let cutoff_str: Option<String> = crate::schema::school_settings::table
         .filter(crate::schema::school_settings::setting_key.eq("morning_cutoff_time"))
@@ -250,7 +251,7 @@ pub async fn calculate_precise_late_minutes(
 
     if let Some(c_str) = cutoff_str {
         if let Ok(cutoff_time) = NaiveTime::parse_from_str(&c_str, "%H:%M:%S") {
-            if check_in_time > cutoff_time && entry.period_number == 1 {
+            if check_in_time > cutoff_time && entry.start_time <= cutoff_time {
                 let diff = check_in_time - cutoff_time;
                 return Ok(diff.num_minutes() as i32);
             }
@@ -305,15 +306,15 @@ pub async fn run_discrepancy_check(
 
         if !absent_periods.is_empty() {
             let new_discrepancy = AttendanceDiscrepancy {
-                id: Uuid::new_v4().to_string(),
+                id: generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?,
                 student_id: s_id.clone(),
                 date: check_date,
-                discrepancy_type: "PresentButMissingPeriod".to_string(),
+                discrepancy_type: AttendanceDiscrepancyType::PresentButMissingPeriod,
                 details: Some(format!(
                     "Student was present in the morning but missed {} periods.",
                     absent_periods.len()
                 )),
-                severity: "High".to_string(),
+                severity: SeverityLevel::High,
                 is_resolved: false,
                 resolved_by: None,
                 created_at: Utc::now().naive_utc(),
@@ -412,10 +413,7 @@ pub async fn mark_period_attendance(
 ) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    let status: AttendanceStatus = req
-        .status
-        .parse()
-        .map_err(|_| APIError::bad_request("Invalid attendance status"))?;
+    let status: AttendanceStatus = req.status;
 
     let minutes_late = if status == AttendanceStatus::Late && req.minutes_late.is_none() {
         Some(
@@ -431,7 +429,7 @@ pub async fn mark_period_attendance(
     };
 
     let new_period_att = StudentPeriodAttendance {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?,
         student_id: req.student_id,
         class_id: req.class_id,
         timetable_id: req.timetable_id,
@@ -464,7 +462,7 @@ pub async fn log_audit(
     changed_by: String,
 ) -> Result<(), APIError> {
     let log_entry = AttendanceAuditLog {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::AUDIT)?,
         attendance_type: att_type.to_string(),
         attendance_record_id: record_id.to_string(),
         old_status: old_status.map(|s| s.to_string()),
@@ -496,7 +494,7 @@ pub async fn bulk_mark_student_attendance(
     }
 
     for record_request in bulk_request.attendance_records {
-        let attendance_id = Uuid::new_v4().to_string();
+        let attendance_id = generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?;
         let new_attendance = StudentAttendance {
             id: attendance_id,
             student_id: record_request.student_id,
@@ -532,7 +530,7 @@ pub async fn mark_individual_student_attendance(
         ));
     }
 
-    let attendance_id = Uuid::new_v4().to_string();
+    let attendance_id = generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?;
     let new_attendance = StudentAttendance {
         id: attendance_id,
         student_id: record_request.student_id,
@@ -644,7 +642,7 @@ pub async fn sync_school_business(
                     .first::<StudentClassAssignment>(&mut conn)
                 {
                     let new_att = StudentAttendance {
-                        id: Uuid::new_v4().to_string(),
+                        id: generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?,
                         student_id: participant.user_id.clone(),
                         class_id: assignment.class_id,
                         date: target_date,

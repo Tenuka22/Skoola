@@ -2,9 +2,9 @@ use crate::schema::{substitution_plans};
 use crate::database::tables::{SubstitutionPlan};
 use crate::AppState;
 use crate::errors::APIError;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use actix_web::web;
 use diesel::prelude::*;
-use uuid::Uuid;
 use chrono::Utc;
 use crate::database::enums::Medium;
 
@@ -17,7 +17,7 @@ pub async fn create_sub_plan(
     desc: Option<String>,
 ) -> Result<SubstitutionPlan, APIError> {
     let mut conn = pool.db_pool.get()?;
-    let id = Uuid::new_v4().to_string();
+    let id = generate_prefixed_id(&mut conn, IdPrefix::SUBSTITUTION_PLAN)?;
 
     let new_plan = SubstitutionPlan {
         id: id.clone(),

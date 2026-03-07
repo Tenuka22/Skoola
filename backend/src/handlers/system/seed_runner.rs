@@ -4,6 +4,7 @@ use crate::handlers::system::seed::{
     academic_structure, co_curricular, exams_and_grading, financial, inventory_and_assets, library,
     students, users_and_staff,
 };
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::schema::seeds;
 use chrono::{NaiveDateTime, Utc};
 use diesel::SqliteConnection;
@@ -11,7 +12,6 @@ use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use uuid::Uuid;
 
 #[derive(Queryable, Insertable, Serialize, Deserialize, Clone)]
 #[diesel(table_name = seeds)]
@@ -327,15 +327,15 @@ pub fn track_seeded_ids(
     table_name: &str,
     record_ids: Vec<String>,
 ) -> Result<(), APIError> {
-    let new_seeds: Vec<NewSeed> = record_ids
-        .into_iter()
-        .map(|record_id| NewSeed {
-            id: Uuid::new_v4().to_string(),
+    let mut new_seeds = Vec::new();
+    for record_id in record_ids {
+        new_seeds.push(NewSeed {
+            id: generate_prefixed_id(conn, IdPrefix::SEED)?,
             table_name: table_name.to_string(),
             record_id,
             created_at: Utc::now().naive_utc(),
-        })
-        .collect();
+        });
+    }
 
     diesel::insert_into(seeds::table)
         .values(&new_seeds)

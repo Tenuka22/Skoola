@@ -1,6 +1,8 @@
 use crate::errors::APIError;
 use crate::models::MessageResponse;
 use crate::models::exams::zscore::CalculateZScoreRequest;
+use crate::services::exams::zscore as zscore_service;
+use crate::AppState;
 use actix_web::web::Json;
 use apistos::api_operation;
 use apistos::web as api_web;
@@ -12,11 +14,17 @@ use apistos::web as api_web;
     operation_id = "calculate_zscores"
 )]
 pub async fn calculate_zscores(
-    _req: actix_web::web::Json<CalculateZScoreRequest>,
+    data: actix_web::web::Data<AppState>,
+    req: actix_web::web::Json<CalculateZScoreRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
-    // Placeholder logic
+    let count = zscore_service::calculate_zscores(
+        data,
+        req.assessment_type.clone(),
+        req.assessment_id.clone(),
+    )
+    .await?;
     Ok(Json(MessageResponse {
-        message: "Z-Scores calculation started".to_string(),
+        message: format!("Z-Scores calculated for {} records", count),
     }))
 }
 

@@ -5,7 +5,7 @@ use validator::Validate;
 
 use crate::APIError;
 use crate::AppState;
-use crate::models::curriculum_management::{CurriculumStandard, Syllabus};
+use crate::models::curriculum_management::{CurriculumStandard, CurriculumTopic};
 use crate::services::curriculum_management;
 use crate::database::enums::Medium;
 
@@ -69,20 +69,20 @@ pub struct SyllabusResponse {
     pub buffer_periods: i32,
 }
 
-impl From<Syllabus> for SyllabusResponse {
-    fn from(syllabus: Syllabus) -> Self {
+impl From<CurriculumTopic> for SyllabusResponse {
+    fn from(syllabus: CurriculumTopic) -> Self {
         SyllabusResponse {
             id: syllabus.id,
             curriculum_standard_id: syllabus.curriculum_standard_id,
             topic_name: syllabus.topic_name,
-            suggested_duration_hours: syllabus.suggested_duration_hours,
-            description: syllabus.description,
+            suggested_duration_hours: Some(syllabus.full_time_hours as i32),
+            description: None,
             created_at: syllabus.created_at,
             updated_at: syllabus.updated_at,
             parent_id: syllabus.parent_id,
-            is_practical: syllabus.is_practical,
-            required_periods: syllabus.required_periods,
-            buffer_periods: syllabus.buffer_periods,
+            is_practical: syllabus.practical_hours > 0.0,
+            required_periods: syllabus.practical_hours as i32,
+            buffer_periods: syllabus.extra_time_hours as i32,
         }
     }
 }
@@ -268,7 +268,7 @@ pub async fn get_syllabus_topics_for_standard(
     path: web::Path<String>,
 ) -> Result<Json<Vec<SyllabusResponse>>, APIError> {
     let standard_id = path.into_inner();
-    let syllabus_topics: Vec<Syllabus> =
+    let syllabus_topics: Vec<CurriculumTopic> =
         curriculum_management::get_syllabus_topics_for_standard(data.clone(), standard_id).await?;
     Ok(Json(
         syllabus_topics

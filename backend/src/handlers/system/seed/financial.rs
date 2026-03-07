@@ -3,13 +3,13 @@ use crate::database::enums::FeeFrequency;
 use crate::database::tables::{FeeCategory, FeeStructure};
 use crate::errors::APIError;
 use crate::faker::CustomFaker;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 pub use crate::models::finance::IncomeSource;
 use crate::models::student::Student;
 use crate::schema::{fee_categories, fee_structures, income_sources, students};
 use chrono::{Duration, Utc};
 use diesel::SqliteConnection;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 pub fn seed_all(
     conn: &mut SqliteConnection,
@@ -67,7 +67,7 @@ pub fn seed_all(
     ];
     let mut fee_cats_to_insert = Vec::new();
     for name in fee_cat_names {
-        let cat_id = Uuid::new_v4().to_string();
+        let cat_id = generate_prefixed_id(conn, IdPrefix::FEE)?;
         let new_cat = FeeCategory {
             id: cat_id.clone(),
             name: name.to_string(),
@@ -88,7 +88,7 @@ pub fn seed_all(
     for ay_id in academic_year_ids {
         for grade_id in grade_level_ids {
             for cat_id in &seeded_fee_category_ids {
-                let fs_id = Uuid::new_v4().to_string();
+                let fs_id = generate_prefixed_id(conn, IdPrefix::FEE)?;
                 let new_fs = FeeStructure {
                     id: fs_id.clone(),
                     grade_id: grade_id.clone(),
@@ -119,7 +119,7 @@ pub fn seed_all(
     ];
     let mut income_sources_to_insert = Vec::new();
     for name in income_names {
-        let source_id = Uuid::new_v4().to_string();
+        let source_id = generate_prefixed_id(conn, IdPrefix::FINANCIAL)?;
         let new_source = IncomeSource {
             id: source_id.clone(),
             name: name.to_string(),

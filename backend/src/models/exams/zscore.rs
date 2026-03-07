@@ -4,11 +4,13 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use crate::database::enums::AssessmentType;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable, ApiComponent, JsonSchema)]
 #[diesel(table_name = zscore_calculations)]
 pub struct ZScoreCalculation {
-    pub exam_id: String,
+    pub assessment_type: AssessmentType,
+    pub assessment_id: String,
     pub subject_id: String,
     pub mean: f32,
     pub std_deviation: f32,
@@ -18,7 +20,8 @@ pub struct ZScoreCalculation {
 #[derive(Debug, Clone, Serialize, Deserialize, Insertable, ApiComponent, JsonSchema)]
 #[diesel(table_name = zscore_calculations)]
 pub struct CreateZScoreCalculation {
-    pub exam_id: String,
+    pub assessment_type: AssessmentType,
+    pub assessment_id: String,
     pub subject_id: String,
     pub mean: f32,
     pub std_deviation: f32,
@@ -38,12 +41,15 @@ pub struct CreateZScoreCalculation {
 #[diesel(table_name = student_zscores)]
 pub struct StudentZScore {
     pub student_id: String,
-    pub exam_id: String,
+    pub assessment_type: AssessmentType,
+    pub assessment_id: String,
     pub subject_id: String,
     pub zscore: f32,
+    pub zscore_formatted: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct CalculateZScoreRequest {
-    pub exam_id: String,
+    pub assessment_type: AssessmentType,
+    pub assessment_id: String,
 }

@@ -1,4 +1,6 @@
-use crate::database::enums::{AttendanceStatus, SubstitutionStatus, TeacherPeriodStatus};
+use crate::database::enums::{
+    AttendanceStatus, LessonDeliveryMode, SubstitutionStatus, TeacherPeriodStatus,
+};
 use crate::models::staff::staff::Staff;
 use crate::schema::{lesson_progress, staff_attendance, substitutions, teacher_period_attendance};
 use apistos::ApiComponent;
@@ -30,6 +32,15 @@ pub struct StaffAttendance {
     pub time_in: Option<NaiveTime>,
     pub time_out: Option<NaiveTime>,
     pub remarks: Option<String>,
+    pub reason_type: Option<String>,
+    pub reason_details: Option<String>,
+    pub half_day_type: Option<String>,
+    pub out_of_school_from: Option<NaiveTime>,
+    pub out_of_school_to: Option<NaiveTime>,
+    pub attendance_context: Option<String>,
+    pub event_id: Option<String>,
+    pub approved_by: Option<String>,
+    pub approval_status: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub is_locked: bool,
@@ -109,14 +120,15 @@ pub struct LessonProgress {
     pub teacher_id: String,
     pub timetable_id: Option<String>,
     pub date: NaiveDate,
-    pub topic_covered: String,
-    pub sub_topic: Option<String>,
+    pub lesson_summary: String,
     pub homework_assigned: Option<String>,
     pub resources_used: Option<String>,
     pub progress_percentage: Option<i32>,
-    pub is_substitution: bool,
+    pub delivery_mode: LessonDeliveryMode,
+    pub planned_duration_minutes: Option<i32>,
+    pub actual_duration_minutes: Option<i32>,
     pub created_at: NaiveDateTime,
-    pub syllabus_id: Option<String>,
+    pub curriculum_topic_id: Option<String>,
     pub verified_by: Option<String>,
     pub verified_at: Option<NaiveDateTime>,
     pub is_skipped: bool,
@@ -229,7 +241,7 @@ pub struct UpdateStaffAttendanceRequest {
 #[derive(Debug, AsChangeset, Serialize, Deserialize, ApiComponent, JsonSchema)]
 #[diesel(table_name = staff_attendance)]
 pub struct StaffAttendanceChangeset {
-    pub status: Option<String>,
+    pub status: Option<AttendanceStatus>,
     pub time_in: Option<NaiveTime>,
     pub time_out: Option<NaiveTime>,
     pub remarks: Option<String>,
@@ -269,13 +281,14 @@ pub struct CreateLessonProgressRequest {
     pub subject_id: String,
     pub timetable_id: String,
     pub date: NaiveDate,
-    pub topic_covered: String,
-    pub sub_topic: Option<String>,
+    pub lesson_summary: String,
     pub homework_assigned: Option<String>,
     pub resources_used: Option<String>,
     pub progress_percentage: Option<i32>,
-    pub is_substitution: bool,
-    pub syllabus_id: Option<String>,
+    pub delivery_mode: LessonDeliveryMode,
+    pub planned_duration_minutes: Option<i32>,
+    pub actual_duration_minutes: Option<i32>,
+    pub curriculum_topic_id: Option<String>,
     pub is_skipped: bool,
     pub priority_level: i32,
 }
@@ -287,7 +300,7 @@ pub struct LessonProgressResponse {
     pub subject_id: String,
     pub teacher_id: String,
     pub date: NaiveDate,
-    pub topic_covered: String,
+    pub lesson_summary: String,
     pub progress_percentage: Option<i32>,
     pub verified_by: Option<String>,
     pub verified_at: Option<NaiveDateTime>,

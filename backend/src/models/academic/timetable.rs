@@ -24,7 +24,6 @@ pub struct Timetable {
     pub id: String,
     pub class_id: String,
     pub day_of_week: String, // Enum in Rust, store as TEXT
-    pub period_number: i32,
     pub subject_id: String,
     pub teacher_id: String,
     pub start_time: NaiveTime,
@@ -41,7 +40,6 @@ pub struct Timetable {
 pub struct CreateTimetableRequest {
     pub class_id: String,
     pub day_of_week: String,
-    pub period_number: i32,
     pub subject_id: String,
     pub teacher_id: String,
     pub start_time: NaiveTime,
@@ -56,7 +54,6 @@ pub struct CreateTimetableRequest {
 pub struct UpdateTimetableRequest {
     pub class_id: Option<String>,
     pub day_of_week: Option<String>,
-    pub period_number: Option<i32>,
     pub subject_id: Option<String>,
     pub teacher_id: Option<String>,
     pub start_time: Option<NaiveTime>,
@@ -71,7 +68,6 @@ pub struct TimetableResponse {
     pub id: String,
     pub class_id: String,
     pub day_of_week: String,
-    pub period_number: i32,
     pub subject_id: String,
     pub teacher_id: String,
     pub start_time: NaiveTime,
@@ -89,7 +85,6 @@ impl From<Timetable> for TimetableResponse {
             id: timetable.id,
             class_id: timetable.class_id,
             day_of_week: timetable.day_of_week,
-            period_number: timetable.period_number,
             subject_id: timetable.subject_id,
             teacher_id: timetable.teacher_id,
             start_time: timetable.start_time,

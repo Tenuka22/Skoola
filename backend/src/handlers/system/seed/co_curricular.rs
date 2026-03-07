@@ -1,6 +1,7 @@
 use crate::config::Config;
 use crate::errors::APIError;
 use crate::faker::CustomFaker;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::models::resources::{
     Club, ClubMember, Competition, Sport, SportTeam, StudentAchievement,
 };
@@ -13,7 +14,6 @@ use chrono::{Duration, Utc};
 use diesel::SqliteConnection;
 use diesel::prelude::*;
 use rand::seq::SliceRandom;
-use uuid::Uuid;
 
 pub fn seed_all(
     conn: &mut SqliteConnection,
@@ -95,7 +95,7 @@ pub fn seed_all(
     ];
     let mut sports_to_insert = Vec::new();
     for name in sport_names {
-        let sport_id = Uuid::new_v4().to_string();
+        let sport_id = generate_prefixed_id(conn, IdPrefix::CO_CURRICULAR)?;
         let new_sport = Sport {
             id: sport_id.clone(),
             sport_name: name.to_string(),
@@ -124,7 +124,7 @@ pub fn seed_all(
     ];
     let mut clubs_to_insert = Vec::new();
     for name in club_names {
-        let club_id = Uuid::new_v4().to_string();
+        let club_id = generate_prefixed_id(conn, IdPrefix::CO_CURRICULAR)?;
         let new_club = Club {
             id: club_id.clone(),
             club_name: name.to_string(),
@@ -145,7 +145,7 @@ pub fn seed_all(
     let mut sport_teams_to_insert = Vec::new();
     for sport_id in &seeded_sport_ids {
         for grade_range in vec!["Junior", "Senior"] {
-            let team_id = Uuid::new_v4().to_string();
+            let team_id = generate_prefixed_id(conn, IdPrefix::CO_CURRICULAR)?;
             let new_team = SportTeam {
                 id: team_id.clone(),
                 sport_id: sport_id.clone(),
@@ -197,7 +197,7 @@ pub fn seed_all(
     // 5. Seed Competitions
     let mut competitions_to_insert = Vec::new();
     for i in 1..=5 {
-        let comp_id = Uuid::new_v4().to_string();
+        let comp_id = generate_prefixed_id(conn, IdPrefix::CO_CURRICULAR)?;
         let new_comp = Competition {
             id: comp_id.clone(),
             competition_name: format!("Inter-School Competition {}", i),
@@ -218,7 +218,7 @@ pub fn seed_all(
     // 6. Seed Student Achievements
     let mut achievements_to_insert = Vec::new();
     for student_id in student_ids.choose_multiple(&mut rand::thread_rng(), 20) {
-        let achievement_id = Uuid::new_v4().to_string();
+        let achievement_id = generate_prefixed_id(conn, IdPrefix::CO_CURRICULAR)?;
         let new_achievement = StudentAchievement {
             id: achievement_id.clone(),
             student_id: student_id.clone(),

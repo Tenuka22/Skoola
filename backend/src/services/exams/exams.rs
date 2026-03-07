@@ -5,11 +5,11 @@ use crate::{
     errors::APIError,
     models::exams::{CreateExamRequest, Exam, ExamResponse, UpdateExamRequest},
 };
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use actix_web::web;
 use chrono::Utc;
 use diesel::prelude::*;
-use diesel::{QueryDsl, RunQueryDsl};
-use uuid::Uuid;
+use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 
 // Service to create a new Exam
 pub async fn create_exam(
@@ -18,7 +18,7 @@ pub async fn create_exam(
 ) -> Result<ExamResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    let exam_id = Uuid::new_v4().to_string();
+    let exam_id = generate_prefixed_id(&mut conn, IdPrefix::EXAM)?;
 
     let new_exam = Exam {
         id: exam_id,

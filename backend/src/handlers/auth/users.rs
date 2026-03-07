@@ -11,7 +11,7 @@ use tracing::{error, info};
 use crate::{
     AppState, database::enums::RoleEnum, database::tables::User, errors::APIError,
     models::MessageResponse, models::auth::user::UserResponse,
-    models::system::BulkDeleteUsersRequest, schema::users,
+    models::system::BulkDeleteUsersRequest, schema::{users, user_security, user_status},
     services::system::cleanup::bulk_delete_users as service_bulk_delete_users,
     utils::serde_helpers::deserialize_option_option,
 };
@@ -27,6 +27,7 @@ pub struct UserQuery {
     pub sort_order: Option<String>,
     pub page: Option<i64>,
     pub limit: Option<i64>,
+    pub last_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -36,6 +37,7 @@ pub struct PaginatedUserResponse {
     pub page: i64,
     pub limit: i64,
     pub total_pages: i64,
+    pub next_last_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
@@ -98,8 +100,14 @@ pub async fn get_all_users(
 ) -> Result<Json<PaginatedUserResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
 
-    let mut data_query = users::table.into_boxed();
-    let mut count_query = users::table.into_boxed();
+    let mut data_query = users::table
+        .left_join(user_security::table.on(users::id.eq(user_security::user_id)))
+        .left_join(user_status::table.on(users::id.eq(user_status::user_id)))
+        .into_boxed();
+    let mut count_query = users::table
+        .left_join(user_security::table.on(users::id.eq(user_security::user_id)))
+        .left_join(user_status::table.on(users::id.eq(user_status::user_id)))
+        .into_boxed();
 
     if let Some(search_term) = &query.search {
         let term = search_term.trim();
@@ -117,22 +125,25 @@ pub async fn get_all_users(
     }
 
     if let Some(verified) = query.is_verified {
-        data_query = data_query.filter(users::is_verified.eq(verified));
-        count_query = count_query.filter(users::is_verified.eq(verified));
+        data_query = data_query.filter(user_status::is_verified.eq(verified));
+        count_query = count_query.filter(user_status::is_verified.eq(verified));
     }
 
     if let Some(method) = &query.auth_method {
         match method.as_str() {
             "google" => {
-                data_query = data_query.filter(users::google_id.is_not_null());
-                count_query = count_query.filter(users::google_id.is_not_null());
+                data_query = data_query.filter(user_security::google_id.is_not_null());
+                count_query = count_query.filter(user_security::google_id.is_not_null());
             }
             "github" => {
-                data_query = data_query.filter(users::github_id.is_not_null());
-                count_query = count_query.filter(users::github_id.is_not_null());
+                data_query = data_query.filter(user_security::github_id.is_not_null());
+                count_query = count_query.filter(user_security::github_id.is_not_null());
             }
             "password" => {
-                let filter_expression = users::google_id.is_null().and(users::github_id.is_null());
+                let filter_expression =
+                    user_security::google_id
+                        .is_null()
+                        .and(user_security::github_id.is_null());
                 data_query = data_query.filter(filter_expression.clone());
                 count_query = count_query.filter(filter_expression);
             }
@@ -157,6 +168,10 @@ pub async fn get_all_users(
         }
     }
 
+    if let Some(last_id) = &query.last_id {
+        data_query = data_query.filter(users::id.gt(last_id));
+    }
+
     let total_users: i64 = count_query.count().get_result(&mut conn)?;
 
     let sort_col = query.sort_by.as_deref().unwrap_or("created_at");
@@ -165,30 +180,57 @@ pub async fn get_all_users(
     data_query = match (sort_col, sort_order) {
         ("email", "asc") => data_query.order(users::email.asc()),
         ("email", "desc") => data_query.order(users::email.desc()),
-        ("is_verified", "asc") => data_query.order(users::is_verified.asc()),
-        ("is_verified", "desc") => data_query.order(users::is_verified.desc()),
+        ("is_verified", "asc") => data_query.order(user_status::is_verified.asc()),
+        ("is_verified", "desc") => data_query.order(user_status::is_verified.desc()),
         ("created_at", "asc") => data_query.order(users::created_at.asc()),
         _ => data_query.order(users::created_at.desc()),
     };
 
-    let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(10);
-    let offset = (page - 1) * limit;
 
     let user_list = data_query
-        .select(User::as_select())
+        .select((
+            User::as_select(),
+            Option::<crate::database::tables::UserSecurity>::as_select(),
+            Option::<crate::database::tables::UserStatus>::as_select(),
+        ))
         .limit(limit)
-        .offset(offset)
-        .load::<User>(&mut conn)?;
+        .load::<(
+            User,
+            Option<crate::database::tables::UserSecurity>,
+            Option<crate::database::tables::UserStatus>,
+        )>(&mut conn)?;
 
     let total_pages = (total_users as f64 / limit as f64).ceil() as i64;
+    let next_last_id = user_list
+        .last()
+        .map(|(u, _, _)| u.id.clone());
 
     Ok(Json(PaginatedUserResponse {
-        data: user_list.into_iter().map(UserResponse::from).collect(),
+        data: user_list
+            .into_iter()
+            .map(|(user, security, status)| UserResponse {
+                id: user.id,
+                email: user.email,
+                is_verified: status.as_ref().map(|s| s.is_verified),
+                role: user.role,
+                auth_method: if security.as_ref().and_then(|s| s.google_id.clone()).is_some() {
+                    "Google".to_string()
+                } else if security.as_ref().and_then(|s| s.github_id.clone()).is_some() {
+                    "GitHub".to_string()
+                } else {
+                    "Password".to_string()
+                },
+                lockout_until: security.as_ref().and_then(|s| s.lockout_until),
+                created_at: user.created_at,
+                updated_at: user.updated_at,
+            })
+            .collect(),
         total: total_users,
-        page,
+        page: query.page.unwrap_or(1),
         limit,
         total_pages,
+        next_last_id,
     }))
 }
 
@@ -203,8 +245,18 @@ pub async fn get_user_stats(
 ) -> Result<Json<UserStatsResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let all_users = users::table
-        .select(User::as_select())
-        .load::<User>(&mut conn)?;
+        .left_join(user_security::table.on(users::id.eq(user_security::user_id)))
+        .left_join(user_status::table.on(users::id.eq(user_status::user_id)))
+        .select((
+            User::as_select(),
+            Option::<crate::database::tables::UserSecurity>::as_select(),
+            Option::<crate::database::tables::UserStatus>::as_select(),
+        ))
+        .load::<(
+            User,
+            Option<crate::database::tables::UserSecurity>,
+            Option<crate::database::tables::UserStatus>,
+        )>(&mut conn)?;
 
     let total_users = all_users.len() as i64;
     let mut verified_users = 0;
@@ -218,23 +270,25 @@ pub async fn get_user_stats(
     let now = Utc::now().naive_utc();
     let thirty_days_ago = now - Duration::days(30);
 
-    for user in &all_users {
-        if user.is_verified {
+    for (user, security, status) in &all_users {
+        if status.as_ref().map(|s| s.is_verified).unwrap_or(false) {
             verified_users += 1;
         }
-        if let Some(lockout) = user.lockout_until {
+        if let Some(lockout) = security.as_ref().and_then(|s| s.lockout_until) {
             if lockout > now {
                 locked_users += 1;
             }
         }
 
-        if user.google_id.is_some() {
+        if security.as_ref().and_then(|s| s.google_id.clone()).is_some() {
             google_auth += 1;
         }
-        if user.github_id.is_some() {
+        if security.as_ref().and_then(|s| s.github_id.clone()).is_some() {
             github_auth += 1;
         }
-        if user.google_id.is_none() && user.github_id.is_none() {
+        if security.as_ref().and_then(|s| s.google_id.clone()).is_none()
+            && security.as_ref().and_then(|s| s.github_id.clone()).is_none()
+        {
             password_only += 1;
         }
 
@@ -290,12 +344,20 @@ pub async fn get_user_stats(
 )]
 pub async fn delete_user(
     data: web::Data<AppState>,
-    user_id: web::Path<String>,
+    user_id: web::Path<crate::models::UserId>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    diesel::delete(users::table.find(user_id.into_inner())).execute(&mut conn)?;
+    let id = user_id.into_inner().0;
+    diesel::update(user_status::table.filter(user_status::user_id.eq(&id)))
+        .set((
+            user_status::is_active.eq(false),
+            user_status::disabled_at.eq(Utc::now().naive_utc()),
+            user_status::disabled_reason.eq(Some("Deactivated by admin".to_string())),
+            user_status::updated_at.eq(Utc::now().naive_utc()),
+        ))
+        .execute(&mut conn)?;
     Ok(Json(MessageResponse {
-        message: "User deleted successfully".to_string(),
+        message: "User deactivated successfully".to_string(),
     }))
 }
 
@@ -337,11 +399,12 @@ pub async fn bulk_delete_users(
 )]
 pub async fn update_user(
     data: web::Data<AppState>,
-    user_id: web::Path<String>,
+    user_id: web::Path<crate::models::UserId>,
     body: web::Json<UpdateUserRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
     let id = user_id.into_inner();
+    let id = id.0;
 
     conn.transaction::<_, APIError, _>(|conn| {
         if let Some(e) = &body.email {
@@ -351,14 +414,14 @@ pub async fn update_user(
         }
 
         if let Some(v) = body.is_verified {
-            diesel::update(users::table.find(&id))
-                .set(users::is_verified.eq(v))
+            diesel::update(user_status::table.filter(user_status::user_id.eq(&id)))
+                .set(user_status::is_verified.eq(v))
                 .execute(conn)?;
         }
 
         if let Some(lockout) = body.lockout_until {
-            diesel::update(users::table.find(&id))
-                .set(users::lockout_until.eq(lockout))
+            diesel::update(user_security::table.filter(user_security::user_id.eq(&id)))
+                .set(user_security::lockout_until.eq(lockout))
                 .execute(conn)?;
         }
 
@@ -389,14 +452,16 @@ pub async fn bulk_update_users(
 
     conn.transaction::<_, APIError, _>(|conn| {
         if let Some(v) = body.is_verified {
-            diesel::update(users::table.filter(users::id.eq_any(&body.user_ids)))
-                .set(users::is_verified.eq(v))
+            diesel::update(user_status::table.filter(user_status::user_id.eq_any(&body.user_ids)))
+                .set(user_status::is_verified.eq(v))
                 .execute(conn)?;
         }
 
         if let Some(lockout) = body.lockout_until {
-            diesel::update(users::table.filter(users::id.eq_any(&body.user_ids)))
-                .set(users::lockout_until.eq(lockout))
+            diesel::update(
+                user_security::table.filter(user_security::user_id.eq_any(&body.user_ids)),
+            )
+            .set(user_security::lockout_until.eq(lockout))
                 .execute(conn)?;
         }
 

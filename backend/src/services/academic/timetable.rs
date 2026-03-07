@@ -1,11 +1,11 @@
 use actix_web::{HttpResponse, web};
 use chrono::Utc;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 use crate::{
     AppState,
     errors::APIError,
+    models::ids::{generate_prefixed_id, IdPrefix},
     models::academic::grade_period::GradePeriod,
     models::academic::timetable::{
         CreateTimetableRequest, Timetable, TimetableResponse, UpdateTimetableRequest,
@@ -19,33 +19,27 @@ pub async fn create_timetable_entry(
 ) -> Result<TimetableResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    let (period_number, start_time, end_time) = if let Some(ref period_id) =
-        new_entry_request.grade_period_id
-    {
+    let (start_time, end_time) = if let Some(ref period_id) = new_entry_request.grade_period_id {
         let grade_period: GradePeriod = grade_periods::table
             .filter(grade_periods::id.eq(period_id))
+            .select(GradePeriod::as_select())
             .first(&mut conn)
             .map_err(|_| APIError::not_found("Specified Grade Period not found"))?;
 
-        (
-            grade_period.period_number,
-            grade_period.start_time,
-            grade_period.end_time,
-        )
+        (grade_period.start_time, grade_period.end_time)
     } else {
-        (
-            new_entry_request.period_number,
-            new_entry_request.start_time,
-            new_entry_request.end_time,
-        )
+        (new_entry_request.start_time, new_entry_request.end_time)
     };
 
     // Check for overlapping entries in the same class on the same day and period
     let overlap_period: Option<Timetable> = timetable::table
         .filter(timetable::class_id.eq(&new_entry_request.class_id))
         .filter(timetable::day_of_week.eq(&new_entry_request.day_of_week))
-        .filter(timetable::period_number.eq(period_number))
         .filter(timetable::academic_year_id.eq(&new_entry_request.academic_year_id))
+        .filter(
+            (timetable::start_time.lt(&end_time)).and(timetable::end_time.gt(&start_time)),
+        )
+        .select(Timetable::as_select())
         .first(&mut conn)
         .optional()?;
 
@@ -63,6 +57,7 @@ pub async fn create_timetable_entry(
         .filter(
             (timetable::start_time.lt(&end_time)).and(timetable::end_time.gt(&start_time)),
         )
+        .select(Timetable::as_select())
         .first(&mut conn)
         .optional()?;
 
@@ -73,10 +68,9 @@ pub async fn create_timetable_entry(
     }
 
     let new_entry = Timetable {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::TIMETABLE)?,
         class_id: new_entry_request.class_id,
         day_of_week: new_entry_request.day_of_week,
-        period_number,
         subject_id: new_entry_request.subject_id,
         teacher_id: new_entry_request.teacher_id,
         start_time,
@@ -103,6 +97,7 @@ pub async fn get_timetable_entry_by_id(
 
     let entry: Timetable = timetable::table
         .filter(timetable::id.eq(&entry_id))
+        .select(Timetable::as_select())
         .first(&mut conn)?;
 
     Ok(TimetableResponse::from(entry))
@@ -128,7 +123,8 @@ pub async fn get_timetable_by_class_and_day(
     }
 
     let entries: Vec<Timetable> = query
-        .order((timetable::day_of_week.asc(), timetable::period_number.asc()))
+        .order((timetable::day_of_week.asc(), timetable::start_time.asc()))
+        .select(Timetable::as_select())
         .load::<Timetable>(&mut conn)?;
 
     Ok(entries.into_iter().map(TimetableResponse::from).collect())
@@ -144,7 +140,8 @@ pub async fn get_timetable_by_teacher(
     let entries: Vec<Timetable> = timetable::table
         .filter(timetable::teacher_id.eq(&teacher_id))
         .filter(timetable::academic_year_id.eq(&academic_year_id))
-        .order((timetable::day_of_week.asc(), timetable::period_number.asc()))
+        .order((timetable::day_of_week.asc(), timetable::start_time.asc()))
+        .select(Timetable::as_select())
         .load::<Timetable>(&mut conn)?;
 
     Ok(entries.into_iter().map(TimetableResponse::from).collect())
@@ -160,10 +157,10 @@ pub async fn update_timetable_entry(
     if let Some(ref period_id) = update_request.grade_period_id {
         let grade_period: GradePeriod = grade_periods::table
             .filter(grade_periods::id.eq(period_id))
+            .select(GradePeriod::as_select())
             .first(&mut conn)
             .map_err(|_| APIError::not_found("Specified Grade Period not found"))?;
 
-        update_request.period_number = Some(grade_period.period_number);
         update_request.start_time = Some(grade_period.start_time);
         update_request.end_time = Some(grade_period.end_time);
     }
@@ -186,6 +183,7 @@ pub async fn update_timetable_entry(
 
     let updated_entry: Timetable = timetable::table
         .filter(timetable::id.eq(&entry_id))
+        .select(Timetable::as_select())
         .first(&mut conn)?;
 
     Ok(TimetableResponse::from(updated_entry))

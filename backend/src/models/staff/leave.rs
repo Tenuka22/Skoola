@@ -1,4 +1,4 @@
-use crate::database::enums::LeaveStatus;
+use crate::database::enums::{LeaveStatus, StaffLeaveType};
 use crate::models::staff::staff::Staff;
 use crate::schema::staff_leaves;
 use apistos::ApiComponent;
@@ -25,7 +25,7 @@ use serde::{Deserialize, Serialize};
 pub struct StaffLeave {
     pub id: String,
     pub staff_id: String,
-    pub leave_type: String,
+    pub leave_type: StaffLeaveType,
     pub from_date: NaiveDate,
     pub to_date: NaiveDate,
     pub reason: String,
@@ -36,7 +36,7 @@ pub struct StaffLeave {
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct ApplyLeaveRequest {
-    pub leave_type: String,
+    pub leave_type: StaffLeaveType,
     pub from_date: NaiveDate,
     pub to_date: NaiveDate,
     pub reason: String,
@@ -51,7 +51,7 @@ pub struct ApproveRejectLeaveRequest {
 pub struct StaffLeaveResponse {
     pub id: String,
     pub staff_id: String,
-    pub leave_type: String,
+    pub leave_type: StaffLeaveType,
     pub from_date: NaiveDate,
     pub to_date: NaiveDate,
     pub reason: String,
@@ -63,14 +63,14 @@ pub struct StaffLeaveResponse {
 #[derive(Debug, AsChangeset, Serialize, Deserialize, ApiComponent, JsonSchema)]
 #[diesel(table_name = staff_leaves)]
 pub struct StaffLeaveChangeset {
-    pub status: Option<String>,
+    pub status: Option<LeaveStatus>,
     pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct LeaveBalanceResponse {
     pub staff_id: String,
-    pub leave_type: String,
+    pub leave_type: StaffLeaveType,
     pub total_days_taken: i64,
 }
 

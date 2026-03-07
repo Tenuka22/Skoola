@@ -26,6 +26,7 @@ pub struct FeeCategoryQuery {
     pub sort_order: Option<String>,
     pub page: Option<i64>,
     pub limit: Option<i64>,
+    pub last_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -35,6 +36,7 @@ pub struct PaginatedFeeCategoryResponse {
     pub page: i64,
     pub limit: i64,
     pub total_pages: i64,
+    pub next_last_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
@@ -61,6 +63,7 @@ pub struct FeeStructureQuery {
     pub sort_order: Option<String>,
     pub page: Option<i64>,
     pub limit: Option<i64>,
+    pub last_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -70,6 +73,7 @@ pub struct PaginatedFeeStructureResponse {
     pub page: i64,
     pub limit: i64,
     pub total_pages: i64,
+    pub next_last_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
@@ -124,12 +128,14 @@ pub async fn get_all_categories(
         .into_iter()
         .map(FeeCategoryResponse::from)
         .collect();
+    let next_last_id = responses.last().map(|c| c.id.clone());
     Ok(web::Json(PaginatedFeeCategoryResponse {
         data: responses,
         total: total_categories,
         page: inner_query.page.unwrap_or(1),
         limit: inner_query.limit.unwrap_or(10),
         total_pages,
+        next_last_id,
     }))
 }
 
@@ -258,12 +264,14 @@ pub async fn get_all_fee_structures(
         .into_iter()
         .map(FeeStructureResponse::from)
         .collect();
+    let next_last_id = responses.last().map(|s| s.id.clone());
     Ok(web::Json(PaginatedFeeStructureResponse {
         data: responses,
         total: total_structures,
         page: inner_query.page.unwrap_or(1),
         limit: inner_query.limit.unwrap_or(10),
         total_pages,
+        next_last_id,
     }))
 }
 
@@ -476,7 +484,12 @@ pub async fn send_reminders(
             .select(crate::models::student::student::Student::as_select())
             .first::<crate::models::student::student::Student>(&mut conn)
         {
-            if let Some(email) = student.email {
+            if let Ok(contact) = crate::schema::student_contacts::table
+                .filter(crate::schema::student_contacts::student_id.eq(&student.id))
+                .select(crate::database::tables::StudentContact::as_select())
+                .first::<crate::database::tables::StudentContact>(&mut conn)
+            {
+                if let Some(email) = contact.email {
                 let subject = "Fee Payment Reminder - Skoola".to_string();
                 let body = format!(
                     "Dear {},\n\nThis is a reminder that you have an outstanding balance of {} in your school fees. Please make the payment at your earliest convenience.\n\nThank you.",
@@ -492,6 +505,7 @@ pub async fn send_reminders(
                     let _ = send_email(&config, email_clone, subject_clone, body_clone).await;
                 });
                 count += 1;
+            }
             }
         }
     }

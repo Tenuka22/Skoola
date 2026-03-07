@@ -1,7 +1,7 @@
 use crate::schema::{activities, activity_attendance, activity_participants, activity_types};
 use crate::{
     AppState,
-    database::enums::{AttendanceStatus, ParticipantType},
+    database::enums::AttendanceStatus,
     database::tables::{Activity, ActivityAttendance, ActivityParticipant, ActivityType},
     errors::APIError,
     models::system::activity::{
@@ -12,14 +12,14 @@ use crate::{
 use actix_web::web;
 use chrono::Utc;
 use diesel::prelude::*;
-use uuid::Uuid;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 
 pub async fn create_activity_type(
     pool: web::Data<AppState>,
     req: CreateActivityTypeRequest,
 ) -> Result<ActivityTypeResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
-    let id = Uuid::new_v4().to_string();
+    let id = generate_prefixed_id(&mut conn, IdPrefix::ACTIVITY)?;
 
     let new_type = ActivityType {
         id: id.clone(),
@@ -116,7 +116,7 @@ pub async fn create_activity(
     creator_id: String,
 ) -> Result<ActivityResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
-    let activity_id = Uuid::new_v4().to_string();
+    let activity_id = generate_prefixed_id(&mut conn, IdPrefix::ACTIVITY)?;
 
     let new_activity = Activity {
         id: activity_id.clone(),
@@ -157,15 +157,10 @@ pub async fn enroll_participant(
 ) -> Result<(), APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    let p_type: ParticipantType = req
-        .participant_type
-        .parse::<ParticipantType>()
-        .map_err(|_| APIError::bad_request("Invalid participant type"))?;
-
     let new_participant = ActivityParticipant {
         activity_id,
         user_id: req.user_id,
-        participant_type: p_type,
+        participant_type: req.participant_type,
         enrollment_reason: req.enrollment_reason,
         created_at: Utc::now().naive_utc(),
     };
@@ -195,7 +190,7 @@ pub async fn mark_activity_attendance(
     };
 
     let new_entry = ActivityAttendance {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?,
         activity_id: activity_id.clone(),
         user_id: user_id.clone(),
         status: activity_status,

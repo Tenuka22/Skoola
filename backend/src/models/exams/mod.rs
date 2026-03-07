@@ -1,26 +1,19 @@
-pub mod al_exam; // New
-pub mod exam;
-pub mod exam_subject;
-pub mod exam_type;
-pub mod grading_criterion;
+pub mod exam_structure;
+pub mod government_exam;
 pub mod grading_scheme;
-pub mod ol_exam; // New
+pub mod marking_scheme;
 pub mod report_card;
-pub mod report_card_mark; // New
-pub mod scholarship_exam;
-pub mod special_exam;
+pub mod report_card_mark;
+pub mod school_test;
 pub mod student_marks;
-pub mod zscore; // New
+pub mod zscore;
 
-pub use al_exam::*;
-pub use exam::*;
-pub use exam_subject::*;
-pub use exam_type::*;
-pub use grading_criterion::*;
+pub use exam_structure::*;
+pub use government_exam::*;
 pub use grading_scheme::*;
-pub use ol_exam::*;
+pub use marking_scheme::*;
 pub use report_card::*;
-pub use scholarship_exam::*;
-pub use special_exam::ExamRegistrationRequest;
+pub use report_card_mark::*;
+pub use school_test::*;
 pub use student_marks::*;
 pub use zscore::*;

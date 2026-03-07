@@ -478,6 +478,204 @@ diesel_text_enum! {
     }
 }
 
+diesel_text_enum! {
+    pub enum AuthTokenType {
+        Access,
+        Refresh,
+        Session,
+    }
+}
+
+diesel_text_enum! {
+    pub enum VerificationPurpose {
+        EmailVerification,
+        PasswordReset,
+        AccountRecovery,
+    }
+}
+
+diesel_text_enum! {
+    pub enum ExamScopeType {
+        School,
+        Government,
+        General,
+    }
+}
+
+diesel_text_enum! {
+    pub enum ExamStatus {
+        Draft,
+        Scheduled,
+        Ongoing,
+        Completed,
+        Cancelled,
+    }
+}
+
+diesel_text_enum! {
+    pub enum ExamLevel {
+        OLevel,
+        ALevel,
+        Scholarship,
+        Other,
+    }
+}
+
+diesel_text_enum! {
+    pub enum SchoolTestType {
+        UnitTest,
+        MonthlyTest,
+        TermTest,
+        MockTest,
+        Other,
+    }
+}
+
+diesel_text_enum! {
+    pub enum GradingSchemeType {
+        Percentage,
+        GradePoint,
+        Custom,
+    }
+}
+
+diesel_text_enum! {
+    pub enum AssessmentType {
+        SchoolTest,
+        GovernmentExam,
+        Assignment,
+        Practical,
+        Project,
+        Quiz,
+        Other,
+    }
+}
+
+diesel_text_enum! {
+    pub enum AccountTypeEnum {
+        Asset,
+        Liability,
+        Equity,
+        Income,
+        Expense,
+    }
+}
+
+diesel_text_enum! {
+    pub enum NormalBalanceType {
+        Debit,
+        Credit,
+    }
+}
+
+diesel_text_enum! {
+    pub enum ConsequenceType {
+        Detention,
+        Warning,
+        Suspension,
+        Notification,
+        Counseling,
+    }
+}
+
+diesel_text_enum! {
+    pub enum EmergencyRollCallStatus {
+        Active,
+        Completed,
+        Cancelled,
+    }
+}
+
+diesel_text_enum! {
+    pub enum AttendanceDiscrepancyType {
+        PresentButMissingPeriod,
+        UnexpectedAbsence,
+        Other,
+    }
+}
+
+diesel_text_enum! {
+    pub enum SeverityLevel {
+        Low,
+        Medium,
+        High,
+        Critical,
+    }
+}
+
+diesel_text_enum! {
+    pub enum StaffLeaveType {
+        Sick,
+        Casual,
+        Annual,
+        Study,
+        Maternity,
+        Other,
+    }
+}
+
+diesel_text_enum! {
+    pub enum LessonDeliveryMode {
+        InPerson,
+        Online,
+        Hybrid,
+        Practical,
+    }
+}
+
+diesel_text_enum! {
+    pub enum FeeAmountType {
+        Fixed,
+        Percentage,
+    }
+}
+
+diesel_text_enum! {
+    pub enum FeeTypeEnum {
+        Tuition,
+        Admission,
+        Transport,
+        Exam,
+        Other,
+        Standard,
+    }
+}
+
+diesel_text_enum! {
+    pub enum LateFeeTypeEnum {
+        Fixed,
+        Percentage,
+    }
+}
+
+diesel_text_enum! {
+    pub enum PaymentStatusType {
+        Pending,
+        Completed,
+        Failed,
+        Refunded,
+    }
+}
+
+diesel_text_enum! {
+    pub enum LibraryIssueStatus {
+        Issued,
+        Returned,
+        Overdue,
+        Lost,
+    }
+}
+
+diesel_text_enum! {
+    pub enum SalaryPaymentMethod {
+        Cash,
+        BankTransfer,
+        Cheque,
+        Card,
+        Other,
+    }
+}
+
 impl PermissionEnum {
     pub fn severity(&self) -> PermissionSeverity {
         match self {

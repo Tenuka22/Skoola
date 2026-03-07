@@ -1,5 +1,5 @@
 use crate::database::enums::PermissionEnum;
-use crate::handlers::resources::{co_curricular, fees, financial, library, property};
+use crate::handlers::resources::{co_curricular, fees, financial, library};
 use crate::utils::jwt::Authenticated;
 use crate::utils::permission_verification::PermissionVerification;
 use apistos::web;
@@ -71,7 +71,6 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/stats", web::get().to(library::get_library_stats)),
     );
 
-    cfg.configure(|cfg_local| property::config(cfg_local));
     cfg.configure(|cfg_local| financial::config(cfg_local));
     cfg.configure(|cfg_local| fees::config(cfg_local));
     cfg.configure(|cfg_local| co_curricular::config(cfg_local));

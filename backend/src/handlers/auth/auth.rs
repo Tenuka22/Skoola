@@ -3,22 +3,22 @@ use actix_web::{HttpRequest, web::Json};
 use apistos::api_operation;
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
-use uuid::Uuid;
 
 use rand::distributions::{Alphanumeric, DistString};
 use tracing::{info, warn};
 
 use crate::{
     AppState,
-    database::enums::RoleEnum,
-    database::tables::User,
+    database::enums::{RoleEnum, VerificationPurpose},
+    database::tables::{User, UserSecurity, UserStatus, VerificationToken},
     errors::APIError,
+    models::ids::{IdPrefix, generate_prefixed_id},
     models::auth::user::{
         LoginRequest, PasswordReset, PasswordResetRequest, RefreshTokenRequest, RegisterRequest,
         TokenResponse, UserResponse,
     },
     models::{MessageResponse, NewProfile, NewUserProfile},
-    schema::{profiles, user_profiles, users},
+    schema::{profiles, user_profiles, users, user_security, user_status, verification_tokens},
     services::auth::auth::{create_token_pair, hash_password, refresh_jwt, verify_password},
     services::auth::session::{
         create_session, delete_session, find_session_by_refresh_token_hash,
@@ -57,40 +57,60 @@ pub async fn register(
 
     let verification_token: String = Alphanumeric.sample_string(&mut rand::thread_rng(), 30);
 
-    let new_user_id = Uuid::new_v4().to_string(); // Generate user ID here
+    let new_user_id = generate_prefixed_id(&mut conn, IdPrefix::USER)?;
+
+    let now = Utc::now().naive_utc();
 
     let new_user = User {
-        id: new_user_id.clone(), // Use the generated user ID
+        id: new_user_id.clone(),
         email: body.email.clone(),
         password_hash,
         role: RoleEnum::Guest,
-        google_id: None,
-        github_id: None,
-        is_verified: false,
-        verification_token: Some(verification_token.clone()),
-        verification_sent_at: Some(Utc::now().naive_utc()),
-        created_at: Utc::now().naive_utc(),
-        updated_at: Utc::now().naive_utc(),
-        password_reset_token: None,
-        password_reset_sent_at: None,
-        failed_login_attempts: 0,
-        lockout_until: None,
+        created_at: now,
+        updated_at: now,
     };
 
     diesel::insert_into(users::table)
         .values(&new_user)
         .execute(&mut conn)?;
 
+    let security = UserSecurity {
+        user_id: new_user_id.clone(),
+        google_id: None,
+        github_id: None,
+        verification_token: None,
+        verification_sent_at: Some(now),
+        password_reset_token: None,
+        password_reset_sent_at: None,
+        failed_login_attempts: 0,
+        lockout_until: None,
+        created_at: now,
+        updated_at: now,
+    };
+    diesel::insert_into(user_security::table)
+        .values(&security)
+        .execute(&mut conn)?;
+
+    let status = UserStatus {
+        user_id: new_user_id.clone(),
+        is_verified: false,
+        is_active: true,
+        disabled_at: None,
+        disabled_reason: None,
+        created_at: now,
+        updated_at: now,
+    };
+    diesel::insert_into(user_status::table)
+        .values(&status)
+        .execute(&mut conn)?;
+
     // Create a new Profile record for the user
-    let new_profile_id = Uuid::new_v4().to_string();
+    let new_profile_id = generate_prefixed_id(&mut conn, IdPrefix::PROFILE)?;
     let new_profile = NewProfile {
         id: new_profile_id.clone(),
-        name: new_user.email.clone(), // Using email as a default name for now
-        address: None,
-        phone: None,
-        photo_url: None,
-        created_at: Utc::now().naive_utc(),
-        updated_at: Utc::now().naive_utc(),
+        name: new_user.email.clone(),
+        created_at: now,
+        updated_at: now,
     };
     diesel::insert_into(profiles::table)
         .values(&new_profile)
@@ -100,8 +120,8 @@ pub async fn register(
     let new_user_profile = NewUserProfile {
         user_id: new_user_id.clone(),
         profile_id: new_profile_id.clone(),
-        created_at: Utc::now().naive_utc(),
-        updated_at: Utc::now().naive_utc(),
+        created_at: now,
+        updated_at: now,
     };
     diesel::insert_into(user_profiles::table)
         .values(&new_user_profile)
@@ -110,6 +130,21 @@ pub async fn register(
     let email_config = data.config.clone();
     let email = new_user.email.clone();
     let token = verification_token.clone();
+    let verification_expires_at = now + Duration::hours(24);
+    let new_verification_token = VerificationToken {
+        id: generate_prefixed_id(&mut conn, IdPrefix::VERIFICATION_TOKEN)?,
+        user_id: new_user_id.clone(),
+        token_hash: token.clone(),
+        purpose: VerificationPurpose::EmailVerification,
+        issued_at: now,
+        expires_at: verification_expires_at,
+        consumed_at: None,
+        is_active: true,
+        metadata: None,
+    };
+    diesel::insert_into(verification_tokens::table)
+        .values(&new_verification_token)
+        .execute(&mut conn)?;
 
     // Send verification email asynchronously
     tokio::spawn(async move {
@@ -151,7 +186,16 @@ pub async fn login(
         .select(User::as_select())
         .first(&mut conn)?;
 
-    if let Some(lockout_until) = user.lockout_until {
+    let security: UserSecurity = user_security::table
+        .filter(user_security::user_id.eq(&user.id))
+        .select(UserSecurity::as_select())
+        .first(&mut conn)?;
+    let status: UserStatus = user_status::table
+        .filter(user_status::user_id.eq(&user.id))
+        .select(UserStatus::as_select())
+        .first(&mut conn)?;
+
+    if let Some(lockout_until) = security.lockout_until {
         if lockout_until > Utc::now().naive_utc() {
             warn!(
                 "ACTION: User login failed | reason: account locked | user_id: {} | email: {}",
@@ -163,7 +207,7 @@ pub async fn login(
         }
     }
 
-    if !user.is_verified {
+    if !status.is_verified {
         warn!(
             "ACTION: User login failed | reason: email not verified | user_id: {} | email: {}",
             user.id, user.email
@@ -174,18 +218,22 @@ pub async fn login(
     }
 
     if !verify_password(&body.password, &user.password_hash)? {
-        let attempts = user.failed_login_attempts + 1;
+        let attempts = security.failed_login_attempts + 1;
         if attempts >= 5 {
             let lockout_until = Utc::now().naive_utc() + Duration::minutes(15);
-            diesel::update(users::table.find(&user.id))
+            diesel::update(user_security::table.filter(user_security::user_id.eq(&user.id)))
                 .set((
-                    users::failed_login_attempts.eq(attempts),
-                    users::lockout_until.eq(Some(lockout_until)),
+                    user_security::failed_login_attempts.eq(attempts),
+                    user_security::lockout_until.eq(Some(lockout_until)),
+                    user_security::updated_at.eq(Utc::now().naive_utc()),
                 ))
                 .execute(&mut conn)?;
         } else {
-            diesel::update(users::table.find(&user.id))
-                .set(users::failed_login_attempts.eq(attempts))
+            diesel::update(user_security::table.filter(user_security::user_id.eq(&user.id)))
+                .set((
+                    user_security::failed_login_attempts.eq(attempts),
+                    user_security::updated_at.eq(Utc::now().naive_utc()),
+                ))
                 .execute(&mut conn)?;
         }
 
@@ -196,17 +244,17 @@ pub async fn login(
         return Err(APIError::unauthorized("Invalid email or password"));
     }
 
-    diesel::update(users::table.find(&user.id))
+    diesel::update(user_security::table.filter(user_security::user_id.eq(&user.id)))
         .set((
-            users::failed_login_attempts.eq(0),
-            users::lockout_until.eq(None::<chrono::NaiveDateTime>),
+            user_security::failed_login_attempts.eq(0),
+            user_security::lockout_until.eq(None::<chrono::NaiveDateTime>),
+            user_security::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
 
     let (token, refresh_token, _access_token_expiration) =
         create_token_pair(&user, &data.config, &data.db_pool)?;
 
-    let hashed_refresh_token = hash_password(&refresh_token)?;
 
     let ip_address = req
         .connection_info()
@@ -227,7 +275,7 @@ pub async fn login(
     create_session(
         &mut conn,
         &user.id,
-        &hashed_refresh_token,
+        &refresh_token,
         user_agent.as_deref(),
         ip_address.as_deref(),
         expires_at,
@@ -255,9 +303,8 @@ pub async fn logout(
     body: web::Json<RefreshTokenRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let hashed_refresh_token = hash_password(&body.refresh_token)?;
 
-    if let Some(session) = find_session_by_refresh_token_hash(&mut conn, &hashed_refresh_token)
+    if let Some(session) = find_session_by_refresh_token_hash(&mut conn, &body.refresh_token)
         .map_err(APIError::from)?
     {
         delete_session(&mut conn, &session.id).map_err(APIError::from)?;
@@ -332,12 +379,11 @@ pub async fn request_password_reset(
         .first::<User>(&mut conn)
     {
         let token = Alphanumeric.sample_string(&mut rand::thread_rng(), 30);
-        let hashed_token = hash_password(&token)?;
-
-        diesel::update(users::table.find(&user.id))
+        diesel::update(user_security::table.filter(user_security::user_id.eq(&user.id)))
             .set((
-                users::password_reset_token.eq(Some(hashed_token)),
-                users::password_reset_sent_at.eq(Some(Utc::now().naive_utc())),
+                user_security::password_reset_token.eq(Some(token.clone())),
+                user_security::password_reset_sent_at.eq(Some(Utc::now().naive_utc())),
+                user_security::updated_at.eq(Utc::now().naive_utc()),
             ))
             .execute(&mut conn)?;
 
@@ -377,14 +423,21 @@ pub async fn reset_password(
     body: web::Json<PasswordReset>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let hashed_token = hash_password(&token)?;
-
+    let raw_token = token.into_inner();
     let user: User = users::table
-        .filter(users::password_reset_token.eq(hashed_token))
+        .inner_join(user_security::table.on(users::id.eq(user_security::user_id)))
+        .filter(user_security::password_reset_token.eq(raw_token))
         .select(User::as_select())
         .first(&mut conn)?;
 
-    if let Some(sent_at) = user.password_reset_sent_at {
+    let reset_sent_at: Option<chrono::NaiveDateTime> = user_security::table
+        .filter(user_security::user_id.eq(&user.id))
+        .select(user_security::password_reset_sent_at)
+        .first(&mut conn)
+        .optional()?
+        .flatten();
+
+    if let Some(sent_at) = reset_sent_at {
         if Utc::now().naive_utc() - sent_at > Duration::hours(1) {
             return Err(APIError::unauthorized("Password reset token has expired"));
         }
@@ -397,10 +450,13 @@ pub async fn reset_password(
     let new_password_hash = hash_password(&body.new_password)?;
 
     diesel::update(users::table.find(&user.id))
+        .set(users::password_hash.eq(new_password_hash))
+        .execute(&mut conn)?;
+    diesel::update(user_security::table.filter(user_security::user_id.eq(&user.id)))
         .set((
-            users::password_hash.eq(new_password_hash),
-            users::password_reset_token.eq(None::<String>),
-            users::password_reset_sent_at.eq(None::<chrono::NaiveDateTime>),
+            user_security::password_reset_token.eq(None::<String>),
+            user_security::password_reset_sent_at.eq(None::<chrono::NaiveDateTime>),
+            user_security::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
 

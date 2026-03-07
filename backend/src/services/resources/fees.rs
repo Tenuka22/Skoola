@@ -1,21 +1,25 @@
 use crate::AppState;
+use crate::database::enums::{FeeAmountType, FeeTypeEnum, PaymentStatusType};
 use crate::errors::APIError;
 use crate::models::finance::fees::{
     ApplyWaiverRequest, AssignFeeToStudentRequest, BulkAssignFeesRequest, CreateFeeCategoryRequest,
     CreateFeeStructureRequest, ExportReportResponse, FeeReceiptResponse, RecordFeePaymentRequest,
     UpdateFeeCategoryChangeset, UpdateFeeCategoryRequest,
 };
-use crate::models::finance::fees::{FeeCategory, FeePayment, FeeStructure, StudentFee};
+use crate::models::finance::fees::{
+    FeeCategory, FeePayment, FeePaymentDetail, FeeStructure, FeeStructurePricing,
+    FeeStructureSchedule, NewFeePaymentDetail, StudentFee,
+};
 use actix_web::web;
 
 use crate::schema::{
-    fee_categories, fee_payments, fee_structures, grade_levels, student_class_assignments,
-    student_fees, students,
+    fee_categories, fee_payment_details, fee_payments, fee_structure_pricing,
+    fee_structure_schedule, fee_structures, grade_levels, student_class_assignments, student_fees,
+    students,
 };
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use chrono::{NaiveDateTime, Utc};
-use diesel::SqliteConnection;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 pub async fn export_fee_reports(
     _conn: &mut SqliteConnection,
@@ -31,7 +35,7 @@ pub async fn create_category(
     req: CreateFeeCategoryRequest,
 ) -> Result<FeeCategory, APIError> {
     let new_category = FeeCategory {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::FEE)?,
         name: req.name,
         description: req.description,
         is_mandatory: req.is_mandatory,
@@ -80,16 +84,20 @@ pub async fn get_all_categories_paginated(
         _ => data_query.order(name.asc()),
     };
 
-    let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(10);
-    let offset = (page - 1) * limit;
+    if let Some(last_id) = query.last_id {
+        data_query = data_query.filter(crate::schema::fee_categories::dsl::id.gt(last_id));
+    } else {
+        let page = query.page.unwrap_or(1);
+        let offset = (page - 1) * limit;
+        data_query = data_query.offset(offset);
+    }
 
     let total_categories = count_query.count().get_result(conn)?;
     let total_pages = (total_categories as f64 / limit as f64).ceil() as i64;
 
     let categories_list = data_query
         .limit(limit)
-        .offset(offset)
         .load::<FeeCategory>(conn)?;
 
     Ok((categories_list, total_categories, total_pages))
@@ -165,13 +173,10 @@ pub async fn create_structure(
     req: CreateFeeStructureRequest,
 ) -> Result<FeeStructure, APIError> {
     let new_structure = FeeStructure {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::FEE)?,
         grade_id: req.grade_id,
         academic_year_id: req.academic_year_id,
         category_id: req.category_id,
-        amount: req.amount,
-        due_date: req.due_date,
-        frequency: req.frequency,
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     };
@@ -180,6 +185,39 @@ pub async fn create_structure(
         .values(&new_structure)
         .execute(conn)
         .map_err(|e| APIError::internal(&format!("Failed to create fee structure: {}", e)))?;
+
+    let pricing = FeeStructurePricing {
+        fee_structure_id: new_structure.id.clone(),
+        amount: req.amount,
+        currency: "LKR".to_string(),
+        amount_type: FeeAmountType::Fixed,
+        created_at: Utc::now().naive_utc(),
+        updated_at: Utc::now().naive_utc(),
+    };
+    diesel::insert_into(fee_structure_pricing::table)
+        .values(&pricing)
+        .execute(conn)
+        .map_err(|e| APIError::internal(&format!("Failed to create fee pricing: {}", e)))?;
+
+    let schedule = FeeStructureSchedule {
+        fee_structure_id: new_structure.id.clone(),
+        due_date: Some(req.due_date),
+        frequency: req.frequency,
+        fee_type: FeeTypeEnum::Standard,
+        effective_from: None,
+        effective_to: None,
+        due_day_of_month: None,
+        is_refundable: false,
+        late_fee_type: None,
+        late_fee_value: None,
+        is_active: true,
+        created_at: Utc::now().naive_utc(),
+        updated_at: Utc::now().naive_utc(),
+    };
+    diesel::insert_into(fee_structure_schedule::table)
+        .values(&schedule)
+        .execute(conn)
+        .map_err(|e| APIError::internal(&format!("Failed to create fee schedule: {}", e)))?;
 
     Ok(new_structure)
 }
@@ -205,24 +243,11 @@ pub async fn update_structure(
         .first(conn)
         .map_err(|e| APIError::internal(&format!("Failed to find fee structure: {}", e)))?;
 
-    if let Some(amount) = req.amount {
-        target.amount = amount;
-    }
-    if let Some(due_date) = req.due_date {
-        target.due_date = due_date;
-    }
-    if let Some(frequency) = req.frequency {
-        target.frequency = frequency;
-    }
+    let _ = req;
     target.updated_at = Utc::now().naive_utc();
 
     diesel::update(fee_structures::table.filter(fee_structures::id.eq(structure_id)))
-        .set((
-            fee_structures::amount.eq(target.amount),
-            fee_structures::due_date.eq(target.due_date),
-            fee_structures::frequency.eq(target.frequency.clone()),
-            fee_structures::updated_at.eq(target.updated_at),
-        ))
+        .set((fee_structures::updated_at.eq(target.updated_at),))
         .execute(conn)
         .map_err(|e| APIError::internal(&format!("Failed to update fee structure: {}", e)))?;
 
@@ -244,7 +269,7 @@ pub async fn get_all_fee_structures_paginated(
     query: crate::handlers::resources::fees::FeeStructureQuery,
 ) -> Result<(Vec<FeeStructure>, i64, i64), APIError> {
     use crate::schema::fee_structures::dsl::{
-        academic_year_id, amount, category_id, due_date, fee_structures, grade_id,
+        academic_year_id, category_id, created_at, fee_structures, grade_id,
     };
 
     let mut data_query = fee_structures.into_boxed();
@@ -263,27 +288,29 @@ pub async fn get_all_fee_structures_paginated(
         count_query = count_query.filter(category_id.eq(extracted_category_id));
     }
 
-    let sort_by = query.sort_by.as_deref().unwrap_or("due_date");
+    let sort_by = query.sort_by.as_deref().unwrap_or("created_at");
     let sort_order = query.sort_order.as_deref().unwrap_or("asc");
 
     data_query = match (sort_by, sort_order) {
-        ("amount", "asc") => data_query.order(amount.asc()),
-        ("amount", "desc") => data_query.order(amount.desc()),
-        ("due_date", "asc") => data_query.order(due_date.asc()),
-        ("due_date", "desc") => data_query.order(due_date.desc()),
-        _ => data_query.order(due_date.asc()),
+        ("created_at", "asc") => data_query.order(created_at.asc()),
+        ("created_at", "desc") => data_query.order(created_at.desc()),
+        _ => data_query.order(created_at.asc()),
     };
 
-    let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(10);
-    let offset = (page - 1) * limit;
+    if let Some(last_id) = query.last_id {
+        data_query = data_query.filter(crate::schema::fee_structures::dsl::id.gt(last_id));
+    } else {
+        let page = query.page.unwrap_or(1);
+        let offset = (page - 1) * limit;
+        data_query = data_query.offset(offset);
+    }
 
     let total_structures = count_query.count().get_result(conn)?;
     let total_pages = (total_structures as f64 / limit as f64).ceil() as i64;
 
     let structures_list = data_query
         .limit(limit)
-        .offset(offset)
         .load::<FeeStructure>(conn)?;
 
     Ok((structures_list, total_structures, total_pages))
@@ -310,9 +337,6 @@ pub async fn bulk_update_fee_structures(
         grade_id: req.grade_id,
         academic_year_id: req.academic_year_id,
         category_id: req.category_id,
-        amount: req.amount,
-        due_date: req.due_date,
-        frequency: req.frequency.and_then(|f| f.parse().ok()), // Convert Option<String> to Option<FeeFrequency>
     };
 
     diesel::update(fee_structures.filter(id.eq_any(req.structure_ids)))
@@ -321,13 +345,12 @@ pub async fn bulk_update_fee_structures(
 
     Ok(())
 }
-
 pub async fn assign_fee_to_student(
     conn: &mut SqliteConnection,
     req: AssignFeeToStudentRequest,
 ) -> Result<StudentFee, APIError> {
     let new_student_fee = StudentFee {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::FEE)?,
         student_id: req.student_id,
         fee_structure_id: req.fee_structure_id,
         amount: req.amount,
@@ -344,7 +367,6 @@ pub async fn assign_fee_to_student(
 
     Ok(new_student_fee)
 }
-
 pub async fn record_payment(
     pool: web::Data<AppState>,
     conn: &mut SqliteConnection,
@@ -352,23 +374,15 @@ pub async fn record_payment(
 ) -> Result<FeePayment, APIError> {
     let receipt_number = format!(
         "RCP-{}",
-        Uuid::new_v4()
-            .to_string()
-            .split('-')
-            .next()
-            .unwrap_or_default()
-            .to_uppercase()
+        rand::random::<u32>()
     );
 
     let new_payment = FeePayment {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::FEE)?,
         student_fee_id: req.student_fee_id,
         amount_paid: req.amount_paid,
         payment_date: req.payment_date.unwrap_or_else(|| Utc::now().naive_utc()),
-        payment_method: req.payment_method,
-        receipt_number,
         collected_by: req.collected_by,
-        remarks: req.remarks,
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     };
@@ -377,6 +391,21 @@ pub async fn record_payment(
         .values(&new_payment)
         .execute(conn)
         .map_err(|e| APIError::internal(&format!("Failed to record payment: {}", e)))?;
+
+    let payment_detail = NewFeePaymentDetail {
+        payment_id: new_payment.id.clone(),
+        payment_method: req.payment_method,
+        payment_channel: None,
+        payment_status: PaymentStatusType::Completed,
+        receipt_number,
+        transaction_reference: None,
+        remarks: req.remarks,
+        recorded_by: Some(new_payment.collected_by.clone()),
+    };
+    diesel::insert_into(fee_payment_details::table)
+        .values(&payment_detail)
+        .execute(conn)
+        .map_err(|e| APIError::internal(&format!("Failed to record payment detail: {}", e)))?;
 
     // Integrate with General Ledger
     let student_fee = student_fees::table
@@ -760,13 +789,20 @@ pub async fn bulk_assign_fees(
             ))
         })?;
 
+    let structure_pricing = fee_structure_pricing::table
+        .filter(fee_structure_pricing::fee_structure_id.eq(&structure.id))
+        .select(FeeStructurePricing::as_select())
+        .first::<FeeStructurePricing>(conn)
+        .optional()?;
+    let default_amount = structure_pricing.map(|p| p.amount).unwrap_or(0.0);
+
     let mut count = 0;
     for sid in student_ids {
         let new_fee = StudentFee {
-            id: Uuid::new_v4().to_string(),
+            id: generate_prefixed_id(conn, IdPrefix::FEE)?,
             student_id: sid,
             fee_structure_id: req.fee_structure_id.clone(),
-            amount: structure.amount,
+            amount: default_amount,
             is_exempted: false,
             exemption_reason: None,
             created_at: Utc::now().naive_utc(),
@@ -804,6 +840,11 @@ pub async fn get_receipt_data(
         .find(payment_id)
         .first::<FeePayment>(conn)
         .map_err(|e| APIError::internal(&format!("Failed to find payment for receipt: {}", e)))?;
+    let payment_detail = fee_payment_details::table
+        .find(payment_id)
+        .select(FeePaymentDetail::as_select())
+        .first::<FeePaymentDetail>(conn)
+        .optional()?;
     let student_fee = student_fees::table
         .find(&payment.student_fee_id)
         .first::<StudentFee>(conn)
@@ -812,19 +853,25 @@ pub async fn get_receipt_data(
         })?;
     let student = students::table
         .find(&student_fee.student_id)
-        .select(crate::models::student::Student::as_select())
+        .select(crate::models::student::student::Student::as_select())
         .first(conn)
         .map_err(|e| APIError::internal(&format!("Failed to find student for receipt: {}", e)))?;
 
     let balance = get_student_balance(conn, &student.id).await?;
 
     Ok(FeeReceiptResponse {
-        receipt_number: payment.receipt_number,
+        receipt_number: payment_detail
+            .as_ref()
+            .map(|d| d.receipt_number.clone())
+            .unwrap_or_else(|| "N/A".to_string()),
         student_name: student.name_english,
         admission_number: student.admission_number,
         amount_paid: payment.amount_paid,
         date: payment.payment_date,
-        payment_method: payment.payment_method,
+        payment_method: payment_detail
+            .as_ref()
+            .map(|d| d.payment_method.clone())
+            .unwrap_or(crate::database::enums::PaymentMethod::Cash),
         collected_by: payment.collected_by,
         balance_remaining: balance,
     })

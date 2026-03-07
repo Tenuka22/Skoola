@@ -393,6 +393,7 @@ pub async fn issue_exit_pass(
         remarks: res.remarks,
         approved_by: res.approved_by,
         guardian_notified: res.guardian_notified,
+        bulk_pass_id: res.bulk_pass_id,
     }))
 }
 
@@ -424,7 +425,7 @@ pub async fn submit_excuse(
     Ok(Json(AttendanceExcuseResponse {
         id: res.id,
         attendance_record_id: res.attendance_record_id,
-        excuse_type: res.excuse_type.to_string(),
+        excuse_type: res.excuse_type,
         is_verified: res.is_verified,
     }))
 }

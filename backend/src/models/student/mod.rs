@@ -1,5 +1,6 @@
 pub mod attendance;
 pub mod contact;
+pub mod documents;
 pub mod enrollment;
 pub mod guardian;
 pub mod history;
@@ -8,6 +9,7 @@ pub mod student;
 
 pub use attendance::*;
 pub use contact::*;
+pub use documents::*;
 pub use enrollment::*;
 pub use guardian::*;
 pub use history::*;

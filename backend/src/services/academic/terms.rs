@@ -1,10 +1,10 @@
 use actix_web::web;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 use crate::{
     AppState, // Changed from database::connection::DbPool
     errors::APIError,
+    models::ids::{generate_prefixed_id, IdPrefix},
     models::terms::{CreateTermRequest, Term, TermResponse},
     schema::{academic_years, terms},
 };
@@ -54,7 +54,7 @@ pub async fn create_term(
         ));
     }
 
-    let term_id = Uuid::new_v4().to_string();
+    let term_id = generate_prefixed_id(&mut conn, IdPrefix::TERM)?;
 
     let new_term = Term {
         id: term_id,

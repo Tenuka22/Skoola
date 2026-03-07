@@ -1,11 +1,11 @@
 use actix_web::{HttpResponse, web};
 use chrono::Utc;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 use crate::{
     AppState,
     errors::APIError,
+    models::ids::{generate_prefixed_id, IdPrefix},
     models::academic::grade_period::{
         CreateGradePeriodRequest, GradePeriod, GradePeriodResponse, UpdateGradePeriodRequest,
     },
@@ -19,12 +19,12 @@ pub async fn create_grade_period(
     let mut conn = pool.db_pool.get()?;
 
     let new_period = GradePeriod {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::GRADE_PERIOD)?,
         grade_id: new_period_request.grade_id,
-        period_number: new_period_request.period_number,
         start_time: new_period_request.start_time,
         end_time: new_period_request.end_time,
         is_break: new_period_request.is_break,
+        is_optional: new_period_request.is_optional,
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     };
@@ -44,7 +44,7 @@ pub async fn get_grade_periods_by_grade(
 
     let periods: Vec<GradePeriod> = grade_periods::table
         .filter(grade_periods::grade_id.eq(&grade_id))
-        .order(grade_periods::period_number.asc())
+        .order(grade_periods::start_time.asc())
         .load::<GradePeriod>(&mut conn)?;
 
     Ok(periods.into_iter().map(GradePeriodResponse::from).collect())

@@ -54,11 +54,10 @@ pub async fn notify_guardians_of_missed_lessons(
             .join("\n");
 
         let body = format!(
-            "Dear Guardian,\n\nThis is to inform you that {} missed a lesson on {}.\n\nTopic Covered: {}\nSub-topic: {}\nHomework: {}\n\nAttachments/Resources:\n{}\n\nPlease ensure the student catches up on this content.\n\nThank you,\nSkoola Management",
+            "Dear Guardian,\n\nThis is to inform you that {} missed a lesson on {}.\n\nLesson Summary: {}\nHomework: {}\n\nAttachments/Resources:\n{}\n\nPlease ensure the student catches up on this content.\n\nThank you,\nSkoola Management",
             student.name_english,
             progress.date,
-            progress.topic_covered,
-            progress.sub_topic.unwrap_or_default(),
+            progress.lesson_summary,
             progress.homework_assigned.unwrap_or_else(|| "None".to_string()),
             if attachment_links.is_empty() { "No attachments provided.".to_string() } else { attachment_links }
         );

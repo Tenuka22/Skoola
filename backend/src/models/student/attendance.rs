@@ -1,6 +1,7 @@
 use crate::database::enums::{
-    AttendanceStatus, DetailedStatus, EmergencyStatus, ExcuseType, ExitReason, PolicyRuleType,
-    PreApprovedReason, SuspicionFlag,
+    AttendanceDiscrepancyType, AttendanceStatus, ConsequenceType, DetailedStatus,
+    EmergencyRollCallStatus, EmergencyStatus, ExcuseType, ExitReason, PolicyRuleType,
+    PreApprovedReason, SeverityLevel, SuspicionFlag,
 };
 use crate::schema::{
     attendance_audit_log, attendance_discrepancies, attendance_excuses, attendance_policies,
@@ -58,7 +59,7 @@ pub struct AttendancePolicy {
     pub name: String,
     pub rule_type: PolicyRuleType,
     pub threshold: i32,
-    pub consequence_type: String,
+    pub consequence_type: ConsequenceType,
     pub consequence_value: Option<f32>,
     pub is_active: bool,
 }
@@ -86,6 +87,7 @@ pub struct ExitPass {
     pub approved_by: String,
     pub guardian_notified: bool,
     pub gate_cleared_at: Option<NaiveDateTime>,
+    pub bulk_pass_id: Option<String>,
     pub created_at: NaiveDateTime,
 }
 
@@ -134,7 +136,7 @@ pub struct EmergencyRollCall {
     pub start_time: NaiveDateTime,
     pub end_time: Option<NaiveDateTime>,
     pub initiated_by: String,
-    pub status: String,
+    pub status: EmergencyRollCallStatus,
     pub created_at: NaiveDateTime,
 }
 
@@ -177,9 +179,9 @@ pub struct AttendanceDiscrepancy {
     pub id: String,
     pub student_id: String,
     pub date: NaiveDate,
-    pub discrepancy_type: String,
+    pub discrepancy_type: AttendanceDiscrepancyType,
     pub details: Option<String>,
-    pub severity: String,
+    pub severity: SeverityLevel,
     pub is_resolved: bool,
     pub resolved_by: Option<String>,
     pub created_at: NaiveDateTime,
@@ -404,6 +406,7 @@ pub struct ExitPassResponse {
     pub remarks: Option<String>,
     pub approved_by: String,
     pub guardian_notified: bool,
+    pub bulk_pass_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
@@ -412,7 +415,7 @@ pub struct MarkPeriodAttendanceRequest {
     pub class_id: String,
     pub timetable_id: String,
     pub date: NaiveDate,
-    pub status: String,
+    pub status: AttendanceStatus,
     pub minutes_late: Option<i32>,
     pub remarks: Option<String>,
 }
@@ -420,7 +423,7 @@ pub struct MarkPeriodAttendanceRequest {
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
 pub struct SubmitExcuseRequest {
     pub attendance_record_id: String,
-    pub excuse_type: String,
+    pub excuse_type: ExcuseType,
     pub document_url: Option<String>,
 }
 
@@ -428,6 +431,6 @@ pub struct SubmitExcuseRequest {
 pub struct AttendanceExcuseResponse {
     pub id: String,
     pub attendance_record_id: String,
-    pub excuse_type: String,
+    pub excuse_type: ExcuseType,
     pub is_verified: bool,
 }

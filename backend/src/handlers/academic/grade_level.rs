@@ -7,7 +7,8 @@ use serde::{Deserialize, Serialize};
 use crate::{
     AppState,
     errors::APIError,
-    models::MessageResponse,
+    models::{GradeLevelId, MessageResponse},
+    database::enums::EducationLevel,
     models::academic::grade_level::{
         CreateGradeLevelRequest, GradeLevelResponse, UpdateGradeLevelRequest,
     },
@@ -17,11 +18,12 @@ use crate::{
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
 pub struct GradeLevelQuery {
     pub search: Option<String>,
-    pub education_level: Option<String>,
+    pub education_level: Option<EducationLevel>,
     pub sort_by: Option<String>,
     pub sort_order: Option<String>,
     pub page: Option<i64>,
     pub limit: Option<i64>,
+    pub last_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -31,6 +33,7 @@ pub struct PaginatedGradeLevelResponse {
     pub page: i64,
     pub limit: i64,
     pub total_pages: i64,
+    pub next_last_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
@@ -43,7 +46,7 @@ pub struct BulkUpdateGradeLevelsRequest {
     pub grade_level_ids: Vec<String>,
     pub grade_name: Option<String>,
     pub grade_number: Option<i32>,
-    pub education_level: Option<String>,
+    pub education_level: Option<EducationLevel>,
 }
 
 #[api_operation(
@@ -68,9 +71,9 @@ pub async fn create_grade_level(
 )]
 pub async fn get_grade_level_by_id(
     data: web::Data<AppState>,
-    path: web::Path<String>, // grade_level_id
+    path: web::Path<GradeLevelId>, // grade_level_id
 ) -> Result<Json<GradeLevelResponse>, APIError> {
-    let grade_level_id = path.into_inner();
+    let grade_level_id = path.into_inner().0;
     let grade_level = grade_level::get_grade_level_by_id(data.clone(), grade_level_id).await?;
     Ok(Json(grade_level))
 }
@@ -88,12 +91,14 @@ pub async fn get_all_grade_levels(
     let inner_query = query.into_inner();
     let (grade_levels, total_grade_levels, total_pages) =
         grade_level::get_all_grade_levels(data.clone(), inner_query.clone()).await?;
+    let next_last_id = grade_levels.last().map(|item| item.id.clone());
     Ok(Json(PaginatedGradeLevelResponse {
         data: grade_levels,
         total: total_grade_levels,
         page: inner_query.page.unwrap_or(1),
         limit: inner_query.limit.unwrap_or(10),
         total_pages,
+        next_last_id,
     }))
 }
 
@@ -137,10 +142,10 @@ pub async fn bulk_update_grade_levels(
 )]
 pub async fn update_grade_level(
     data: web::Data<AppState>,
-    path: web::Path<String>, // grade_level_id
+    path: web::Path<GradeLevelId>, // grade_level_id
     body: web::Json<UpdateGradeLevelRequest>,
 ) -> Result<Json<GradeLevelResponse>, APIError> {
-    let grade_level_id = path.into_inner();
+    let grade_level_id = path.into_inner().0;
     let updated_grade_level =
         grade_level::update_grade_level(data.clone(), grade_level_id, body.into_inner()).await?;
     Ok(Json(updated_grade_level))
@@ -154,9 +159,9 @@ pub async fn update_grade_level(
 )]
 pub async fn delete_grade_level(
     data: web::Data<AppState>,
-    path: web::Path<String>, // grade_level_id
+    path: web::Path<GradeLevelId>, // grade_level_id
 ) -> Result<Json<MessageResponse>, APIError> {
-    let grade_level_id = path.into_inner();
+    let grade_level_id = path.into_inner().0;
     grade_level::delete_grade_level(data.clone(), grade_level_id).await?;
     Ok(Json(MessageResponse {
         message: "Grade level deleted successfully".to_string(),

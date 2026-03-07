@@ -130,7 +130,7 @@ pub struct ActivityResponse {
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
 pub struct EnrollParticipantRequest {
     pub user_id: String,
-    pub participant_type: String,
+    pub participant_type: ParticipantType,
     pub enrollment_reason: Option<String>,
 }
 
@@ -150,5 +150,5 @@ pub struct CreateActivityTypeRequest {
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
 pub struct MarkActivityAttendanceRequest {
     pub user_id: String,
-    pub status: String,
+    pub status: AttendanceStatus,
 }

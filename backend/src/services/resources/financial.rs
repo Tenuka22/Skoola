@@ -24,18 +24,16 @@ use actix_web::web;
 use crate::handlers::resources::financial::{
     BudgetCategoryQuery, BulkUpdateBudgetCategoriesRequest,
 };
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use chrono::{NaiveDateTime, Utc};
-use diesel::SqliteConnection;
 use diesel::prelude::*;
-use diesel::{QueryDsl, RunQueryDsl};
-use uuid::Uuid;
 
 pub fn create_budget_category(
     conn: &mut SqliteConnection,
     req: CreateBudgetCategoryRequest,
 ) -> Result<BudgetCategory, APIError> {
     let new_cat = BudgetCategory {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::FINANCIAL)?,
         name: req.name,
         description: req.description,
         created_at: Utc::now().naive_utc(),
@@ -77,16 +75,20 @@ pub async fn get_all_budget_categories(
         _ => data_query.order(budget_categories::name.asc()),
     };
 
-    let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(10);
-    let offset = (page - 1) * limit;
+    if let Some(last_id) = query.last_id {
+        data_query = data_query.filter(budget_categories::id.gt(last_id));
+    } else {
+        let page = query.page.unwrap_or(1);
+        let offset = (page - 1) * limit;
+        data_query = data_query.offset(offset);
+    }
 
     let total_categories = count_query.count().get_result(conn)?;
     let total_pages = (total_categories as f64 / limit as f64).ceil() as i64;
 
     let categories_list: Vec<BudgetCategory> = data_query
         .limit(limit)
-        .offset(offset)
         .load::<BudgetCategory>(conn)?;
 
     Ok((categories_list, total_categories, total_pages))
@@ -124,7 +126,7 @@ pub async fn bulk_update_budget_categories(
 
 pub fn set_budget(conn: &mut SqliteConnection, req: SetBudgetRequest) -> Result<Budget, APIError> {
     let new_budget = Budget {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::FINANCIAL)?,
         academic_year_id: req.academic_year_id,
         category_id: req.category_id,
         allocated_amount: req.allocated_amount,
@@ -137,13 +139,12 @@ pub fn set_budget(conn: &mut SqliteConnection, req: SetBudgetRequest) -> Result<
         .execute(conn)?;
     Ok(new_budget)
 }
-
 pub fn record_income(
     conn: &mut SqliteConnection,
     req: RecordIncomeRequest,
 ) -> Result<IncomeTransaction, APIError> {
     let new_trans = IncomeTransaction {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::FINANCIAL)?,
         source_id: req.source_id,
         amount: req.amount,
         date: req.date.unwrap_or_else(|| Utc::now().naive_utc()),
@@ -175,14 +176,13 @@ pub async fn record_expense(
             return Err(APIError::bad_request("Budget exceeded for this category"));
         }
 
-        // Update spent amount in budget
         diesel::update(budgets::table.filter(budgets::id.eq(&b.id)))
             .set(budgets::spent_amount.eq(budgets::spent_amount + req.amount))
             .execute(conn)?;
     }
 
     let new_trans = ExpenseTransaction {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::FINANCIAL)?,
         category_id: req.category_id.clone(),
         amount: req.amount,
         date: req.date.unwrap_or_else(|| Utc::now().naive_utc()),
@@ -199,9 +199,8 @@ pub async fn record_expense(
         .execute(conn)?;
 
     // Integrate with General Ledger
-    // Placeholder Account IDs (these should ideally be configurable or fetched dynamically)
-    let debit_account_id = format!("EXPENSE_ACCOUNT_{}", req.category_id); // Example: Expense account based on category
-    let credit_account_id = "CASH_BANK_ACCOUNT_ID".to_string(); // Example: Asset account
+    let debit_account_id = format!("EXPENSE_ACCOUNT_{}", req.category_id);
+    let credit_account_id = "CASH_BANK_ACCOUNT_ID".to_string();
 
     let transaction_description = format!(
         "Expense: {} for category {}",
@@ -209,19 +208,16 @@ pub async fn record_expense(
         req.category_id
     );
 
-    // Call the ledger service with the correct AppState
     let pool_clone = pool.clone();
-    let record_result = crate::services::finance::ledger::record_transaction(
-        pool_clone, // Pass the cloned pool
+    crate::services::finance::ledger::record_transaction(
+        pool_clone,
         new_trans.date.date(),
         Some(transaction_description),
         debit_account_id,
         credit_account_id,
         new_trans.amount,
     )
-    .await;
-    // Handle the result of the block_in_place call
-    record_result?;
+    .await?;
 
     Ok(new_trans)
 }
@@ -246,7 +242,7 @@ pub fn reconcile_petty_cash(
     };
 
     let reconciliation_trans = PettyCashTransaction {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::FINANCIAL)?,
         amount: difference.abs(),
         transaction_type: trans_type,
         date: Utc::now().naive_utc(),
@@ -300,13 +296,12 @@ pub fn get_budget_comparison(
         })
         .collect())
 }
-
 pub fn record_petty_cash(
     conn: &mut SqliteConnection,
     req: RecordPettyCashRequest,
 ) -> Result<PettyCashTransaction, APIError> {
     let new_trans = PettyCashTransaction {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::FINANCIAL)?,
         amount: req.amount,
         transaction_type: req.transaction_type,
         date: req.date.unwrap_or_else(|| Utc::now().naive_utc()),
@@ -320,13 +315,12 @@ pub fn record_petty_cash(
         .execute(conn)?;
     Ok(new_trans)
 }
-
 pub fn create_salary_component(
     conn: &mut SqliteConnection,
     req: CreateSalaryComponentRequest,
 ) -> Result<SalaryComponent, APIError> {
     let new_comp = SalaryComponent {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::FINANCIAL)?,
         name: req.name,
         component_type: req.component_type,
         description: req.description,
@@ -445,13 +439,12 @@ pub fn get_petty_cash_balance(conn: &mut SqliteConnection) -> Result<f32, APIErr
     }
     Ok(balance)
 }
-
 pub fn record_salary_payment(
     conn: &mut SqliteConnection,
     req: RecordSalaryPaymentRequest,
 ) -> Result<SalaryPayment, APIError> {
     let new_payment = SalaryPayment {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::FINANCIAL)?,
         staff_id: req.staff_id,
         payment_month: req.payment_month,
         payment_year: req.payment_year,

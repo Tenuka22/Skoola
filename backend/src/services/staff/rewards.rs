@@ -1,11 +1,11 @@
 use crate::AppState;
 use crate::errors::APIError;
-use crate::schema::{teacher_reward_history, teacher_reward_balances};
-use crate::database::tables::{TeacherRewardHistory, TeacherRewardBalance};
+use crate::schema::{teacher_reward_balances, teacher_reward_details, teacher_reward_history};
+use crate::database::tables::{TeacherRewardBalance, TeacherRewardDetail, TeacherRewardHistory};
 use crate::database::enums::RewardReasonType;
 use actix_web::web;
 use diesel::prelude::*;
-use uuid::Uuid;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use chrono::Utc;
 
 pub async fn award_points(
@@ -19,18 +19,33 @@ pub async fn award_points(
 
     conn.transaction::<_, APIError, _>(|conn| {
         // 1. Record history
-        let id = Uuid::new_v4().to_string();
+        let id = generate_prefixed_id(conn, IdPrefix::REWARD)?;
         let new_reward = TeacherRewardHistory {
             id,
             teacher_id: t_id.clone(),
             points: pts,
-            reason_type: reason,
-            reference_id: ref_id,
             created_at: Utc::now().naive_utc(),
         };
 
         diesel::insert_into(teacher_reward_history::table)
             .values(&new_reward)
+            .execute(conn)?;
+
+        let detail = TeacherRewardDetail {
+            reward_id: new_reward.id.clone(),
+            reason_type: reason,
+            reference_id: ref_id,
+            reward_type_id: None,
+            awarded_by: None,
+            status: "Active".to_string(),
+            effective_date: None,
+            notes: None,
+            reference_type: None,
+            balance_after: None,
+            created_at: Utc::now().naive_utc(),
+        };
+        diesel::insert_into(teacher_reward_details::table)
+            .values(&detail)
             .execute(conn)?;
 
         // 2. Update total balance
@@ -44,6 +59,9 @@ pub async fn award_points(
                 diesel::update(teacher_reward_balances::table.find(&t_id))
                     .set((
                         teacher_reward_balances::total_points.eq(balance.total_points + pts),
+                        teacher_reward_balances::lifetime_points
+                            .eq(balance.lifetime_points + pts.max(0)),
+                        teacher_reward_balances::last_updated.eq(Some(Utc::now().naive_utc())),
                         teacher_reward_balances::updated_at.eq(Utc::now().naive_utc()),
                     ))
                     .execute(conn)?;
@@ -53,6 +71,8 @@ pub async fn award_points(
                     teacher_id: t_id,
                     total_points: pts,
                     updated_at: Utc::now().naive_utc(),
+                    lifetime_points: pts.max(0),
+                    last_updated: Some(Utc::now().naive_utc()),
                 };
                 diesel::insert_into(teacher_reward_balances::table)
                     .values(&new_balance)

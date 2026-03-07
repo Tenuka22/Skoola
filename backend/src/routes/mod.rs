@@ -4,7 +4,6 @@ pub mod behavior_management;
 pub mod curriculum_management;
 pub mod exams;
 pub mod messaging;
-pub mod resource_management;
 pub mod resources;
 pub mod staff;
 pub mod students;
@@ -21,7 +20,6 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.configure(|c| students::configure(c));
     cfg.configure(|c| system::configure(c));
     cfg.configure(|c| messaging::configure(c));
-    cfg.configure(|c| resource_management::configure(c));
     cfg.configure(|c| curriculum_management::configure(c));
     cfg.configure(|c| behavior_management::configure(c));
 }

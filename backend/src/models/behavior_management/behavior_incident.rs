@@ -9,9 +9,7 @@ pub struct BehaviorIncident {
     pub student_id: String,
     pub reported_by_user_id: String,
     pub incident_type_id: String,
-    pub description: String,
     pub incident_date: NaiveDateTime,
-    pub points_awarded: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -23,7 +21,29 @@ pub struct NewBehaviorIncident {
     pub student_id: String,
     pub reported_by_user_id: String,
     pub incident_type_id: String,
-    pub description: String,
     pub incident_date: NaiveDateTime,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[diesel(table_name = crate::schema::behavior_incident_details)]
+pub struct BehaviorIncidentDetail {
+    pub incident_id: String,
+    pub description: String,
     pub points_awarded: i32,
+    pub severity_id: Option<String>,
+    pub status: String,
+    pub resolved_by: Option<String>,
+    pub resolved_at: Option<NaiveDateTime>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Insertable)]
+#[diesel(table_name = crate::schema::behavior_incident_details)]
+pub struct NewBehaviorIncidentDetail {
+    pub incident_id: String,
+    pub description: String,
+    pub points_awarded: i32,
+    pub severity_id: Option<String>,
+    pub status: String,
 }

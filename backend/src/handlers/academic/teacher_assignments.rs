@@ -3,13 +3,12 @@ use actix_web::web::Json;
 use apistos::api_operation;
 use chrono::Utc;
 use diesel::prelude::*;
-use uuid::Uuid;
-// use serde_json; // Removed unused import
 
 use crate::{
     AppState,
     database::tables::{TeacherClassAssignment, TeacherSubjectAssignment},
     errors::APIError,
+    models::ids::{generate_prefixed_id, IdPrefix},
     models::staff::assignment::{
         AssignClassToTeacherRequest, AssignSubjectToTeacherRequest, TeacherClassAssignmentResponse,
         TeacherSubjectAssignmentResponse, TeacherWorkloadResponse,
@@ -47,7 +46,7 @@ pub async fn assign_class_to_teacher(
     }
 
     let new_assignment = TeacherClassAssignment {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::TEACHER_ASSIGNMENT)?,
         teacher_id: teacher_id_inner,
         class_id: body.class_id.clone(),
         academic_year_id: body.academic_year_id.clone(),
@@ -97,7 +96,7 @@ pub async fn assign_subject_to_teacher(
     }
 
     let new_assignment = TeacherSubjectAssignment {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::TEACHER_ASSIGNMENT)?,
         teacher_id: teacher_id_inner,
         subject_id: body.subject_id.clone(),
         academic_year_id: body.academic_year_id.clone(),

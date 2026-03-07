@@ -13,7 +13,7 @@ use std::io::Write;
 use crate::{
     AppState,
     errors::APIError,
-    models::MessageResponse,
+    models::{MessageResponse, StudentId},
     models::student::student::{
         CreateStudentRequest, PaginatedStudentResponse, Student, StudentResponse,
         UpdateStudentRequest,
@@ -31,6 +31,7 @@ pub struct StudentQuery {
     pub sort_order: Option<String>,
     pub page: Option<i64>,
     pub limit: Option<i64>,
+    pub last_id: Option<String>,
 }
 
 use crate::models::auth::CurrentUser;
@@ -60,10 +61,10 @@ pub async fn create_student(
 pub async fn update_student(
     data: web::Data<AppState>,
     current_user: CurrentUser,
-    path: web::Path<String>,
+    path: web::Path<StudentId>,
     body: web::Json<UpdateStudentRequest>,
 ) -> Result<Json<StudentResponse>, APIError> {
-    let student_id = path.into_inner();
+    let student_id = path.into_inner().0;
     let updated_student =
         student::update_student(data.clone(), current_user, student_id, body.into_inner()).await?;
     Ok(Json(updated_student))
@@ -77,9 +78,9 @@ pub async fn update_student(
 )]
 pub async fn get_student_by_id(
     data: web::Data<AppState>,
-    path: web::Path<String>,
+    path: web::Path<StudentId>,
 ) -> Result<Json<StudentResponse>, APIError> {
-    let student_id = path.into_inner();
+    let student_id = path.into_inner().0;
     let student = student::get_student_by_id(data.clone(), student_id).await?;
     Ok(Json(student))
 }
@@ -109,10 +110,10 @@ use crate::utils::jwt::UserId;
 pub async fn delete_student(
     data: web::Data<AppState>,
     req: HttpRequest,
-    path: web::Path<String>,
+    path: web::Path<StudentId>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let user_id = UserId::from_request(&req)?;
-    let student_id = path.into_inner();
+    let student_id = path.into_inner().0;
     student::delete_student(data.clone(), student_id, user_id).await?;
     Ok(Json(MessageResponse {
         message: "Student deactivated successfully".to_string(),
@@ -127,10 +128,10 @@ pub async fn delete_student(
 )]
 pub async fn upload_student_photo(
     data: web::Data<AppState>,
-    student_id: web::Path<String>,
+    student_id: web::Path<StudentId>,
     mut payload: Multipart,
 ) -> Result<Json<StudentResponse>, APIError> {
-    let student_id_inner = student_id.into_inner();
+    let student_id_inner = student_id.into_inner().0;
     let mut conn = data.db_pool.get()?;
 
     // Check if student exists and get its profile_id
@@ -139,7 +140,7 @@ pub async fn upload_student_photo(
         .select(Student::as_select())
         .first(&mut conn)?;
 
-    let profile_id = existing_student
+    let _profile_id = existing_student
         .profile_id
         .ok_or_else(|| APIError::not_found("Profile not found for student"))?;
 
@@ -169,48 +170,24 @@ pub async fn upload_student_photo(
     }
 
     if let Some(filepath) = file_path {
-        use crate::schema::profiles;
-        diesel::update(profiles::table.find(&profile_id))
-            .set(profiles::photo_url.eq(&filepath))
+        use crate::schema::student_media;
+        diesel::insert_into(student_media::table)
+            .values((
+                student_media::student_id.eq(&student_id_inner),
+                student_media::photo_url.eq(Some(filepath.clone())),
+                student_media::created_at.eq(chrono::Utc::now().naive_utc()),
+                student_media::updated_at.eq(chrono::Utc::now().naive_utc()),
+            ))
+            .on_conflict(student_media::student_id)
+            .do_update()
+            .set((
+                student_media::photo_url.eq(Some(filepath)),
+                student_media::updated_at.eq(chrono::Utc::now().naive_utc()),
+            ))
             .execute(&mut conn)?;
 
-        // Fetch updated student, profile, and user info to construct StudentResponse
-        use crate::models::{Profile, auth::User};
-        use crate::schema::{user_profiles, users};
-
-        let (updated_student, profile, user_profile): (Student, Profile, Option<User>) =
-            students::table
-                .find(&student_id_inner)
-                .inner_join(profiles::table)
-                .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
-                .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
-                .select((
-                    Student::as_select(),
-                    Profile::as_select(),
-                    Option::<User>::as_select(),
-                ))
-                .first(&mut conn)?;
-
-        Ok(Json(StudentResponse {
-            id: updated_student.id,
-            admission_number: updated_student.admission_number,
-            name_english: profile.name.clone(),
-            nic_or_birth_certificate: updated_student.nic_or_birth_certificate,
-            dob: updated_student.dob,
-            gender: updated_student.gender,
-            email: user_profile.clone().map(|u| u.email),
-            religion: updated_student.religion,
-            ethnicity: updated_student.ethnicity,
-            created_at: updated_student.created_at,
-            updated_at: updated_student.updated_at,
-            status: updated_student.status,
-            profile_id: updated_student.profile_id,
-            profile_name: Some(profile.name),
-            profile_address: profile.address,
-            profile_phone: profile.phone,
-            profile_photo_url: profile.photo_url,
-            user_email: user_profile.map(|u| u.email),
-        }))
+        let updated_student = student::get_student_by_id(data.clone(), student_id_inner).await?;
+        Ok(Json(updated_student))
     } else {
         Err(APIError::bad_request("No file was uploaded"))
     }

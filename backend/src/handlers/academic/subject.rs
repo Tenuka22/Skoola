@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     AppState,
     errors::APIError,
-    models::MessageResponse,
+    models::{AlStreamId, GradeLevelId, MessageResponse, SubjectId, StudentId, AcademicYearId},
     models::academic::subject::{
         AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, CreateSubjectRequest,
         EnrollStudentInSubjectRequest, SubjectEnrollmentResponse, SubjectResponse,
@@ -40,9 +40,11 @@ pub async fn enroll_student_in_subject(
 )]
 pub async fn get_student_enrollments(
     data: web::Data<AppState>,
-    path: web::Path<(String, String)>, // (student_id, academic_year_id)
+    path: web::Path<(StudentId, AcademicYearId)>, // (student_id, academic_year_id)
 ) -> Result<Json<Vec<SubjectResponse>>, APIError> {
     let (student_id, academic_year_id) = path.into_inner();
+    let student_id = student_id.0;
+    let academic_year_id = academic_year_id.0;
     let res = subject::get_student_enrollments(data, student_id, academic_year_id).await?;
     Ok(Json(res))
 }
@@ -57,6 +59,7 @@ pub struct SubjectQuery {
     pub sort_order: Option<String>,
     pub page: Option<i64>,
     pub limit: Option<i64>,
+    pub last_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -66,6 +69,7 @@ pub struct PaginatedSubjectResponse {
     pub page: i64,
     pub limit: i64,
     pub total_pages: i64,
+    pub next_last_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
@@ -105,9 +109,9 @@ pub async fn create_subject(
 )]
 pub async fn get_subject_by_id(
     data: web::Data<AppState>,
-    path: web::Path<String>, // subject_id
+    path: web::Path<SubjectId>, // subject_id
 ) -> Result<Json<SubjectResponse>, APIError> {
-    let subject_id = path.into_inner();
+    let subject_id = path.into_inner().0;
     let subject = subject::get_subject_by_id(data.clone(), subject_id).await?;
     Ok(Json(subject))
 }
@@ -125,12 +129,14 @@ pub async fn get_all_subjects(
     let inner_query = query.into_inner();
     let (subjects, total_subjects, total_pages) =
         subject::get_all_subjects(data.clone(), inner_query.clone()).await?;
+    let next_last_id = subjects.last().map(|item| item.id.clone());
     Ok(Json(PaginatedSubjectResponse {
         data: subjects,
         total: total_subjects,
         page: inner_query.page.unwrap_or(1),
         limit: inner_query.limit.unwrap_or(10),
         total_pages,
+        next_last_id,
     }))
 }
 
@@ -174,10 +180,10 @@ pub async fn bulk_update_subjects(
 )]
 pub async fn update_subject(
     data: web::Data<AppState>,
-    path: web::Path<String>, // subject_id
+    path: web::Path<SubjectId>, // subject_id
     body: web::Json<UpdateSubjectRequest>,
 ) -> Result<Json<SubjectResponse>, APIError> {
-    let subject_id = path.into_inner();
+    let subject_id = path.into_inner().0;
     let updated_subject =
         subject::update_subject(data.clone(), subject_id, body.into_inner()).await?;
     Ok(Json(updated_subject))
@@ -191,9 +197,9 @@ pub async fn update_subject(
 )]
 pub async fn delete_subject(
     data: web::Data<AppState>,
-    path: web::Path<String>, // subject_id
+    path: web::Path<SubjectId>, // subject_id
 ) -> Result<Json<MessageResponse>, APIError> {
-    let subject_id = path.into_inner();
+    let subject_id = path.into_inner().0;
     subject::delete_subject(data.clone(), subject_id).await?;
     Ok(Json(MessageResponse {
         message: "Subject deleted successfully".to_string(),
@@ -208,9 +214,9 @@ pub async fn delete_subject(
 )]
 pub async fn get_subjects_by_grade_handler(
     data: web::Data<AppState>,
-    path: web::Path<String>, // grade_id
+    path: web::Path<GradeLevelId>, // grade_id
 ) -> Result<Json<Vec<SubjectResponse>>, APIError> {
-    let grade_id = path.into_inner();
+    let grade_id = path.into_inner().0;
     let subjects = subject::get_subjects_by_grade(data.clone(), grade_id).await?;
     Ok(Json(subjects))
 }
@@ -223,9 +229,9 @@ pub async fn get_subjects_by_grade_handler(
 )]
 pub async fn get_subjects_by_stream_handler(
     data: web::Data<AppState>,
-    path: web::Path<String>, // stream_id
+    path: web::Path<AlStreamId>, // stream_id
 ) -> Result<Json<Vec<SubjectResponse>>, APIError> {
-    let stream_id = path.into_inner();
+    let stream_id = path.into_inner().0;
     let subjects = subject::get_subjects_by_stream(data.clone(), stream_id).await?;
     Ok(Json(subjects))
 }
@@ -270,16 +276,19 @@ pub async fn assign_subject_to_stream_handler(
 )]
 pub async fn get_students_by_subject(
     data: web::Data<AppState>,
-    path: web::Path<(String, String)>, // (subject_id, academic_year_id)
+    path: web::Path<(SubjectId, AcademicYearId)>, // (subject_id, academic_year_id)
     query: web::Query<StudentsQuery>,
 ) -> Result<Json<PaginatedStudentResponse>, APIError> {
     let (subject_id, academic_year_id) = path.into_inner();
+    let subject_id = subject_id.0;
+    let academic_year_id = academic_year_id.0;
     let students: PaginatedStudentResponse = subject::get_students_by_subject(
         data.clone(),
         subject_id,
         academic_year_id,
         query.page.unwrap_or(1),
         query.limit.unwrap_or(10),
+        query.last_id.clone(),
     )
     .await?;
     Ok(Json(students))

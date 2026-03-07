@@ -1,4 +1,4 @@
-use crate::database::enums::ComponentType;
+use crate::database::enums::{ComponentType, SalaryPaymentMethod};
 use crate::models::staff::staff::Staff;
 use crate::schema::{salary_components, salary_payments, staff_salaries};
 use apistos::ApiComponent;
@@ -79,7 +79,7 @@ pub struct SalaryPayment {
     pub total_deductions: f32,
     pub net_salary: f32,
     pub payment_date: NaiveDateTime,
-    pub payment_method: String,
+    pub payment_method: SalaryPaymentMethod,
     pub remarks: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -155,7 +155,7 @@ pub struct RecordSalaryPaymentRequest {
     pub total_deductions: f32,
     pub net_salary: f32,
     pub payment_date: Option<NaiveDateTime>,
-    pub payment_method: String,
+    pub payment_method: SalaryPaymentMethod,
     pub remarks: Option<String>,
 }
 
@@ -169,7 +169,7 @@ pub struct SalaryPaymentResponse {
     pub total_deductions: f32,
     pub net_salary: f32,
     pub payment_date: NaiveDateTime,
-    pub payment_method: String,
+    pub payment_method: SalaryPaymentMethod,
     pub remarks: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,

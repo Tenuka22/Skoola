@@ -2,8 +2,8 @@ use crate::database::enums::MaintenanceStatus;
 use crate::models::staff::staff::Staff;
 use crate::models::student::student::Student;
 use crate::schema::{
-    asset_allocations, asset_categories, inventory_items, maintenance_requests, uniform_issues,
-    uniform_items,
+    asset_allocations, asset_categories, inventory_item_details, inventory_items,
+    maintenance_requests, uniform_issues, uniform_items,
 };
 use apistos::ApiComponent;
 use chrono::NaiveDateTime;
@@ -51,8 +51,29 @@ pub struct InventoryItem {
     pub id: String,
     pub category_id: String,
     pub item_name: String,
-    pub description: Option<String>,
     pub unit: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent,
+)]
+#[diesel(table_name = inventory_item_details)]
+#[diesel(belongs_to(InventoryItem, foreign_key = item_id))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct InventoryItemDetail {
+    pub item_id: String,
+    pub description: Option<String>,
     pub quantity: i32,
     pub reorder_level: i32,
     pub unit_price: f32,
@@ -229,11 +250,11 @@ pub struct InventoryItemResponse {
     pub id: String,
     pub category_id: String,
     pub item_name: String,
-    pub description: Option<String>,
     pub unit: String,
-    pub quantity: i32,
-    pub reorder_level: i32,
-    pub unit_price: f32,
+    pub description: Option<String>,
+    pub quantity: Option<i32>,
+    pub reorder_level: Option<i32>,
+    pub unit_price: Option<f32>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -244,11 +265,11 @@ impl From<InventoryItem> for InventoryItemResponse {
             id: item.id,
             category_id: item.category_id,
             item_name: item.item_name,
-            description: item.description,
             unit: item.unit,
-            quantity: item.quantity,
-            reorder_level: item.reorder_level,
-            unit_price: item.unit_price,
+            description: None,
+            quantity: None,
+            reorder_level: None,
+            unit_price: None,
             created_at: item.created_at,
             updated_at: item.updated_at,
         }

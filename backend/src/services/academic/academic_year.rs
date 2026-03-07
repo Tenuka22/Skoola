@@ -7,11 +7,10 @@ use crate::{
         AcademicYear, AcademicYearResponse, CreateAcademicYearRequest, UpdateAcademicYearRequest,
     },
 };
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use actix_web::web;
 use chrono::Utc;
 use diesel::prelude::*;
-use diesel::{QueryDsl, RunQueryDsl};
-use uuid::Uuid;
 
 pub async fn create_academic_year(
     pool: web::Data<AppState>,
@@ -26,7 +25,7 @@ pub async fn create_academic_year(
             .execute(&mut conn)?;
     }
 
-    let academic_year_id = Uuid::new_v4().to_string();
+    let academic_year_id = generate_prefixed_id(&mut conn, IdPrefix::ACADEMIC_YEAR)?;
 
     let new_academic_year = AcademicYear {
         id: academic_year_id,
@@ -77,6 +76,10 @@ pub async fn get_all_academic_years(
         count_query = count_query.filter(academic_years::current.eq(current));
     }
 
+    if let Some(last_id) = &query.last_id {
+        data_query = data_query.filter(academic_years::id.gt(last_id));
+    }
+
     let sort_by = query.sort_by.as_deref().unwrap_or("year_start");
     let sort_order = query.sort_order.as_deref().unwrap_or("desc");
 
@@ -92,16 +95,13 @@ pub async fn get_all_academic_years(
         _ => data_query.order(academic_years::year_start.desc()),
     };
 
-    let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(10);
-    let offset = (page - 1) * limit;
 
     let total_academic_years = count_query.count().get_result(&mut conn)?;
     let total_pages = (total_academic_years as f64 / limit as f64).ceil() as i64;
 
     let academic_years_list: Vec<AcademicYear> = data_query
         .limit(limit)
-        .offset(offset)
         .load::<AcademicYear>(&mut conn)?;
 
     Ok((

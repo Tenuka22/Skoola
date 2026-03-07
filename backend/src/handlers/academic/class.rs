@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     AppState,
     errors::APIError,
-    models::MessageResponse,
+    models::{ClassId, MessageResponse},
     models::academic::class::{ClassResponse, CreateClassRequest, UpdateClassRequest},
     services::academic::class,
 };
@@ -21,6 +21,7 @@ pub struct ClassQuery {
     pub sort_order: Option<String>,
     pub page: Option<i64>,
     pub limit: Option<i64>,
+    pub last_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -30,6 +31,7 @@ pub struct PaginatedClassResponse {
     pub page: i64,
     pub limit: i64,
     pub total_pages: i64,
+    pub next_last_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
@@ -42,11 +44,9 @@ pub struct BulkUpdateClassesRequest {
     pub class_ids: Vec<String>,
     pub academic_year_id: Option<String>,
     pub grade_id: Option<String>,
-    pub section_name: Option<String>,
     pub class_teacher_id: Option<String>,
-    pub room_number: Option<String>,
+    pub room_id: Option<String>,
     pub medium: Option<String>,
-    pub max_capacity: Option<i32>,
 }
 
 #[api_operation(
@@ -71,9 +71,9 @@ pub async fn create_class(
 )]
 pub async fn get_class_by_id(
     data: web::Data<AppState>,
-    path: web::Path<String>, // class_id
+    path: web::Path<ClassId>, // class_id
 ) -> Result<Json<ClassResponse>, APIError> {
-    let class_id = path.into_inner();
+    let class_id = path.into_inner().0;
     let class = class::get_class_by_id(data.clone(), class_id).await?;
     Ok(Json(ClassResponse::from(class)))
 }
@@ -94,12 +94,14 @@ pub async fn get_all_classes(
         i64,
         i64,
     ) = class::get_all_classes(data.clone(), inner_query.clone()).await?;
+    let next_last_id = classes.last().map(|item| item.id.clone());
     Ok(Json(PaginatedClassResponse {
         data: classes.into_iter().map(ClassResponse::from).collect(),
         total: total_classes,
         page: inner_query.page.unwrap_or(1),
         limit: inner_query.limit.unwrap_or(10),
         total_pages,
+        next_last_id,
     }))
 }
 
@@ -143,10 +145,10 @@ pub async fn bulk_update_classes(
 )]
 pub async fn update_class(
     data: web::Data<AppState>,
-    path: web::Path<String>, // class_id
+    path: web::Path<ClassId>, // class_id
     body: web::Json<UpdateClassRequest>,
 ) -> Result<Json<ClassResponse>, APIError> {
-    let class_id = path.into_inner();
+    let class_id = path.into_inner().0;
     let updated_class = class::update_class(data.clone(), class_id, body.into_inner()).await?;
     Ok(Json(ClassResponse::from(updated_class)))
 }
@@ -159,9 +161,9 @@ pub async fn update_class(
 )]
 pub async fn delete_class(
     data: web::Data<AppState>,
-    path: web::Path<String>, // class_id
+    path: web::Path<ClassId>, // class_id
 ) -> Result<Json<MessageResponse>, APIError> {
-    let class_id = path.into_inner();
+    let class_id = path.into_inner().0;
     class::delete_class(data.clone(), class_id).await?;
     Ok(Json(MessageResponse {
         message: "Class deleted successfully".to_string(),
@@ -172,6 +174,7 @@ pub async fn delete_class(
 pub struct StudentsQuery {
     pub page: Option<i64>,
     pub limit: Option<i64>,
+    pub last_id: Option<String>,
 }
 
 #[api_operation(
@@ -182,9 +185,9 @@ pub struct StudentsQuery {
 )]
 pub async fn get_classes_by_grade(
     data: web::Data<AppState>,
-    path: web::Path<String>, // grade_id
+    path: web::Path<crate::models::GradeLevelId>, // grade_id
 ) -> Result<Json<Vec<ClassResponse>>, APIError> {
-    let grade_id = path.into_inner();
+    let grade_id = path.into_inner().0;
     let classes: Vec<crate::models::academic::class::ClassResponse> =
         class::get_classes_by_grade(data.clone(), grade_id).await?;
     Ok(Json(classes.into_iter().map(ClassResponse::from).collect()))

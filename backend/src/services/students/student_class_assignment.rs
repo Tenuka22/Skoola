@@ -10,7 +10,7 @@ use crate::{
 use actix_web::web;
 use chrono::Utc;
 use diesel::prelude::*;
-use uuid::Uuid;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 
 pub async fn assign_student_to_class(
     pool: web::Data<AppState>,
@@ -40,7 +40,7 @@ pub async fn assign_student_to_class(
         )));
     }
 
-    let assignment_id = Uuid::new_v4().to_string();
+    let assignment_id = generate_prefixed_id(&mut conn, IdPrefix::STUDENT_CLASS_ASSIGNMENT)?;
 
     let new_assignment = StudentClassAssignment {
         id: assignment_id,
@@ -87,7 +87,7 @@ pub async fn transfer_student_class(
     }
 
     // 2. Create a new assignment
-    let new_assignment_id = Uuid::new_v4().to_string();
+    let new_assignment_id = generate_prefixed_id(&mut conn, IdPrefix::STUDENT_CLASS_ASSIGNMENT)?;
     let new_assignment = StudentClassAssignment {
         id: new_assignment_id,
         student_id: new_assignment_request.student_id,
@@ -171,7 +171,7 @@ pub async fn bulk_assign_students_to_classes(
             )));
         }
 
-        let assignment_id = Uuid::new_v4().to_string();
+        let assignment_id = generate_prefixed_id(&mut conn, IdPrefix::STUDENT_CLASS_ASSIGNMENT)?;
         let new_assignment = StudentClassAssignment {
             id: assignment_id,
             student_id: assignment_request.student_id,
@@ -222,7 +222,7 @@ pub async fn promote_student_to_next_grade(
     }
 
     // 2. Create a new assignment for the next grade and academic year
-    let new_assignment_id = Uuid::new_v4().to_string();
+    let new_assignment_id = generate_prefixed_id(&mut conn, IdPrefix::STUDENT_CLASS_ASSIGNMENT)?;
     let new_assignment = StudentClassAssignment {
         id: new_assignment_id,
         student_id: promote_request.student_id,

@@ -22,10 +22,10 @@ use serde::{Deserialize, Serialize};
 pub struct GradePeriod {
     pub id: String,
     pub grade_id: String,
-    pub period_number: i32,
     pub start_time: NaiveTime,
     pub end_time: NaiveTime,
     pub is_break: bool,
+    pub is_optional: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -34,29 +34,29 @@ pub struct GradePeriod {
 #[diesel(table_name = grade_periods)]
 pub struct CreateGradePeriodRequest {
     pub grade_id: String,
-    pub period_number: i32,
     pub start_time: NaiveTime,
     pub end_time: NaiveTime,
     pub is_break: bool,
+    pub is_optional: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = grade_periods)]
 pub struct UpdateGradePeriodRequest {
-    pub period_number: Option<i32>,
     pub start_time: Option<NaiveTime>,
     pub end_time: Option<NaiveTime>,
     pub is_break: Option<bool>,
+    pub is_optional: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct GradePeriodResponse {
     pub id: String,
     pub grade_id: String,
-    pub period_number: i32,
     pub start_time: NaiveTime,
     pub end_time: NaiveTime,
     pub is_break: bool,
+    pub is_optional: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -66,10 +66,10 @@ impl From<GradePeriod> for GradePeriodResponse {
         GradePeriodResponse {
             id: grade_period.id,
             grade_id: grade_period.grade_id,
-            period_number: grade_period.period_number,
             start_time: grade_period.start_time,
             end_time: grade_period.end_time,
             is_break: grade_period.is_break,
+            is_optional: grade_period.is_optional,
             created_at: grade_period.created_at,
             updated_at: grade_period.updated_at,
         }

@@ -1,4 +1,4 @@
-use crate::schema::{profiles, user_profiles};
+use crate::schema::{profile_contacts, profile_media, profiles, user_profiles};
 use apistos::ApiComponent;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
@@ -23,9 +23,6 @@ use serde::{Deserialize, Serialize};
 pub struct Profile {
     pub id: String, // Storing UUIDs as TEXT in SQLite
     pub name: String,
-    pub address: Option<String>,
-    pub phone: Option<String>,
-    pub photo_url: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -35,8 +32,67 @@ pub struct Profile {
 pub struct NewProfile {
     pub id: String, // Directly store String for UUID
     pub name: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    Queryable,
+    Selectable,
+    Insertable,
+    AsChangeset,
+    Clone,
+)]
+#[diesel(table_name = profile_contacts)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct ProfileContact {
+    pub profile_id: String,
     pub address: Option<String>,
     pub phone: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = profile_contacts)]
+pub struct NewProfileContact {
+    pub profile_id: String,
+    pub address: Option<String>,
+    pub phone: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    Queryable,
+    Selectable,
+    Insertable,
+    AsChangeset,
+    Clone,
+)]
+#[diesel(table_name = profile_media)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct ProfileMedia {
+    pub profile_id: String,
+    pub photo_url: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = profile_media)]
+pub struct NewProfileMedia {
+    pub profile_id: String,
     pub photo_url: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,

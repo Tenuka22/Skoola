@@ -1,7 +1,12 @@
-use crate::database::enums::{FeeFrequency, PaymentMethod};
+use crate::database::enums::{
+    FeeAmountType, FeeFrequency, FeeTypeEnum, LateFeeTypeEnum, PaymentMethod, PaymentStatusType,
+};
 use crate::models::staff::staff::Staff;
 use crate::models::student::student::Student;
-use crate::schema::{fee_categories, fee_payments, fee_structures, student_fees};
+use crate::schema::{
+    fee_categories, fee_payment_details, fee_payments, fee_structure_pricing,
+    fee_structure_schedule, fee_structures, student_fees,
+};
 use apistos::ApiComponent;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::prelude::*;
@@ -50,9 +55,61 @@ pub struct FeeStructure {
     pub grade_id: String,
     pub academic_year_id: String,
     pub category_id: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent,
+)]
+#[diesel(table_name = fee_structure_pricing)]
+#[diesel(belongs_to(FeeStructure, foreign_key = fee_structure_id))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct FeeStructurePricing {
+    pub fee_structure_id: String,
     pub amount: f32,
-    pub due_date: NaiveDate,
+    pub currency: String,
+    pub amount_type: FeeAmountType,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent,
+)]
+#[diesel(table_name = fee_structure_schedule)]
+#[diesel(belongs_to(FeeStructure, foreign_key = fee_structure_id))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct FeeStructureSchedule {
+    pub fee_structure_id: String,
+    pub due_date: Option<NaiveDate>,
     pub frequency: FeeFrequency,
+    pub fee_type: FeeTypeEnum,
+    pub effective_from: Option<NaiveDate>,
+    pub effective_to: Option<NaiveDate>,
+    pub due_day_of_month: Option<i32>,
+    pub is_refundable: bool,
+    pub late_fee_type: Option<LateFeeTypeEnum>,
+    pub late_fee_value: Option<f32>,
+    pub is_active: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -105,10 +162,35 @@ pub struct FeePayment {
     pub student_fee_id: String,
     pub amount_paid: f32,
     pub payment_date: NaiveDateTime,
-    pub payment_method: PaymentMethod,
-    pub receipt_number: String,
     pub collected_by: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+    Associations,
+    ApiComponent,
+)]
+#[diesel(table_name = fee_payment_details)]
+#[diesel(belongs_to(FeePayment, foreign_key = payment_id))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct FeePaymentDetail {
+    pub payment_id: String,
+    pub payment_method: PaymentMethod,
+    pub payment_channel: Option<String>,
+    pub payment_status: PaymentStatusType,
+    pub receipt_number: String,
+    pub transaction_reference: Option<String>,
     pub remarks: Option<String>,
+    pub recorded_by: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -173,9 +255,9 @@ pub struct FeeStructureResponse {
     pub grade_id: String,
     pub academic_year_id: String,
     pub category_id: String,
-    pub amount: f32,
-    pub due_date: NaiveDate,
-    pub frequency: FeeFrequency,
+    pub amount: Option<f32>,
+    pub due_date: Option<NaiveDate>,
+    pub frequency: Option<FeeFrequency>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -187,9 +269,9 @@ impl From<FeeStructure> for FeeStructureResponse {
             grade_id: structure.grade_id,
             academic_year_id: structure.academic_year_id,
             category_id: structure.category_id,
-            amount: structure.amount,
-            due_date: structure.due_date,
-            frequency: structure.frequency,
+            amount: None,
+            due_date: None,
+            frequency: None,
             created_at: structure.created_at,
             updated_at: structure.updated_at,
         }
@@ -252,8 +334,8 @@ pub struct FeePaymentResponse {
     pub student_fee_id: String,
     pub amount_paid: f32,
     pub payment_date: NaiveDateTime,
-    pub payment_method: PaymentMethod,
-    pub receipt_number: String,
+    pub payment_method: Option<PaymentMethod>,
+    pub receipt_number: Option<String>,
     pub collected_by: String,
     pub remarks: Option<String>,
     pub created_at: NaiveDateTime,
@@ -267,10 +349,10 @@ impl From<FeePayment> for FeePaymentResponse {
             student_fee_id: payment.student_fee_id,
             amount_paid: payment.amount_paid,
             payment_date: payment.payment_date,
-            payment_method: payment.payment_method,
-            receipt_number: payment.receipt_number,
+            payment_method: None,
+            receipt_number: None,
             collected_by: payment.collected_by,
-            remarks: payment.remarks,
+            remarks: None,
             created_at: payment.created_at,
             updated_at: payment.updated_at,
         }
@@ -358,9 +440,6 @@ pub struct NewFeeStructure {
     pub grade_id: String,
     pub academic_year_id: String,
     pub category_id: String,
-    pub amount: f32,
-    pub due_date: NaiveDate,
-    pub frequency: FeeFrequency,
 }
 
 #[derive(Debug, AsChangeset)]
@@ -369,9 +448,6 @@ pub struct UpdateFeeStructure {
     pub grade_id: Option<String>,
     pub academic_year_id: Option<String>,
     pub category_id: Option<String>,
-    pub amount: Option<f32>,
-    pub due_date: Option<NaiveDate>,
-    pub frequency: Option<FeeFrequency>,
 }
 
 #[derive(Debug, Insertable)]
@@ -399,10 +475,45 @@ pub struct NewFeePayment {
     pub student_fee_id: String,
     pub amount_paid: f32,
     pub payment_date: NaiveDateTime,
-    pub payment_method: PaymentMethod,
-    pub receipt_number: String,
     pub collected_by: String,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = crate::schema::fee_structure_pricing)]
+pub struct NewFeeStructurePricing {
+    pub fee_structure_id: String,
+    pub amount: f32,
+    pub currency: String,
+    pub amount_type: FeeAmountType,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = crate::schema::fee_structure_schedule)]
+pub struct NewFeeStructureSchedule {
+    pub fee_structure_id: String,
+    pub due_date: Option<NaiveDate>,
+    pub frequency: FeeFrequency,
+    pub fee_type: FeeTypeEnum,
+    pub effective_from: Option<NaiveDate>,
+    pub effective_to: Option<NaiveDate>,
+    pub due_day_of_month: Option<i32>,
+    pub is_refundable: bool,
+    pub late_fee_type: Option<LateFeeTypeEnum>,
+    pub late_fee_value: Option<f32>,
+    pub is_active: bool,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = crate::schema::fee_payment_details)]
+pub struct NewFeePaymentDetail {
+    pub payment_id: String,
+    pub payment_method: PaymentMethod,
+    pub payment_channel: Option<String>,
+    pub payment_status: PaymentStatusType,
+    pub receipt_number: String,
+    pub transaction_reference: Option<String>,
     pub remarks: Option<String>,
+    pub recorded_by: Option<String>,
 }
 
 #[derive(Debug, AsChangeset)]

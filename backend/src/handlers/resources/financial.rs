@@ -36,6 +36,7 @@ pub struct BudgetCategoryQuery {
     pub sort_order: Option<String>,
     pub page: Option<i64>,
     pub limit: Option<i64>,
+    pub last_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -45,6 +46,7 @@ pub struct PaginatedBudgetCategoryResponse {
     pub page: i64,
     pub limit: i64,
     pub total_pages: i64,
+    pub next_last_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
@@ -91,6 +93,7 @@ pub async fn get_all_budget_categories(
         i64,
         i64,
     ) = financial::get_all_budget_categories(&mut conn, inner_query.clone()).await?;
+    let next_last_id = categories.last().map(|c| c.id.clone());
     Ok(Json(PaginatedBudgetCategoryResponse {
         data: categories
             .into_iter()
@@ -100,6 +103,7 @@ pub async fn get_all_budget_categories(
         page: inner_query.page.unwrap_or(1),
         limit: inner_query.limit.unwrap_or(10),
         total_pages,
+        next_last_id,
     }))
 }
 

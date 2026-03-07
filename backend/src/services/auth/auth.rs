@@ -82,12 +82,7 @@ pub async fn refresh_jwt(
         APIError::from(e)
     })?;
 
-    let hashed_refresh_token = hash_password(refresh_token).map_err(|e| {
-        log_iam_error("password_hash", &e);
-        APIError::from(e) // hash_password returns APIError currently
-    })?;
-
-    let session = session::find_session_by_refresh_token_hash(&mut conn, &hashed_refresh_token)
+    let session = session::find_session_by_refresh_token_hash(&mut conn, refresh_token)
         .map_err(APIError::from)?
         .ok_or_else(|| {
             log_auth_failure(
@@ -108,8 +103,6 @@ pub async fn refresh_jwt(
     let (access_token, new_refresh_token, _access_token_expiration) =
         create_token_pair(&user, config, db_pool).map_err(APIError::from)?;
 
-    let hashed_new_refresh_token = hash_password(&new_refresh_token).map_err(APIError::from)?;
-
     let expires_at = Utc::now()
         .checked_add_signed(Duration::days(config.jwt_expiration as i64))
         .ok_or_else(|| APIError::internal("Failed to calculate new session expiration timestamp"))?
@@ -118,7 +111,7 @@ pub async fn refresh_jwt(
     session::create_session(
         &mut conn,
         &user.id,
-        &hashed_new_refresh_token,
+        &new_refresh_token,
         user_agent.as_deref(),
         ip_address.as_deref(),
         expires_at,

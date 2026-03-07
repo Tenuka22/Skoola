@@ -4,6 +4,7 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use crate::database::enums::{AccountTypeEnum, NormalBalanceType};
 
 #[derive(
     Debug,
@@ -23,11 +24,12 @@ pub struct ChartOfAccount {
     pub id: String,
     pub account_code: String,
     pub account_name: String,
-    pub account_type: String,
-    pub normal_balance: String,
+    pub account_type: AccountTypeEnum,
+    pub normal_balance: NormalBalanceType,
     pub description: Option<String>,
     pub parent_account_id: Option<String>,
     pub is_active: bool,
+    pub currency: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -38,11 +40,12 @@ pub struct NewChartOfAccount {
     pub id: String,
     pub account_code: String,
     pub account_name: String,
-    pub account_type: String,
-    pub normal_balance: String,
+    pub account_type: AccountTypeEnum,
+    pub normal_balance: NormalBalanceType,
     pub description: Option<String>,
     pub parent_account_id: Option<String>,
     pub is_active: bool,
+    pub currency: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -52,10 +55,11 @@ pub struct NewChartOfAccount {
 pub struct ChartOfAccountChangeset {
     pub account_code: Option<String>,
     pub account_name: Option<String>,
-    pub account_type: Option<String>,
-    pub normal_balance: Option<String>,
+    pub account_type: Option<AccountTypeEnum>,
+    pub normal_balance: Option<NormalBalanceType>,
     pub description: Option<String>,
     pub parent_account_id: Option<String>,
     pub is_active: Option<bool>,
+    pub currency: Option<String>,
     pub updated_at: NaiveDateTime,
 }

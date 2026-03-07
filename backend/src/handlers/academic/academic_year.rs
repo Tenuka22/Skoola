@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     AppState,
     errors::APIError,
-    models::MessageResponse,
+    models::{AcademicYearId, MessageResponse},
     models::academic_year::{
         AcademicYearResponse, CreateAcademicYearRequest, UpdateAcademicYearRequest,
     },
@@ -22,6 +22,7 @@ pub struct AcademicYearQuery {
     pub sort_order: Option<String>,
     pub page: Option<i64>,
     pub limit: Option<i64>,
+    pub last_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -31,6 +32,7 @@ pub struct PaginatedAcademicYearResponse {
     pub page: i64,
     pub limit: i64,
     pub total_pages: i64,
+    pub next_last_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
@@ -70,9 +72,9 @@ pub async fn create_academic_year(
 )]
 pub async fn get_academic_year_by_id(
     data: web::Data<AppState>,
-    path: web::Path<String>, // academic_year_id
+    path: web::Path<AcademicYearId>, // academic_year_id
 ) -> Result<Json<AcademicYearResponse>, APIError> {
-    let academic_year_id = path.into_inner();
+    let academic_year_id = path.into_inner().0;
     let academic_year =
         academic_year::get_academic_year_by_id(data.clone(), academic_year_id).await?;
     Ok(Json(AcademicYearResponse::from(academic_year)))
@@ -94,6 +96,7 @@ pub async fn get_all_academic_years(
         i64,
         i64,
     ) = academic_year::get_all_academic_years(data.clone(), inner_query.clone()).await?;
+    let next_last_id = academic_years.last().map(|item| item.id.clone());
     Ok(Json(PaginatedAcademicYearResponse {
         data: academic_years
             .into_iter()
@@ -103,6 +106,7 @@ pub async fn get_all_academic_years(
         page: inner_query.page.unwrap_or(1),
         limit: inner_query.limit.unwrap_or(10),
         total_pages,
+        next_last_id,
     }))
 }
 
@@ -147,10 +151,10 @@ pub async fn bulk_update_academic_years(
 )]
 pub async fn update_academic_year(
     data: web::Data<AppState>,
-    path: web::Path<String>, // academic_year_id
+    path: web::Path<AcademicYearId>, // academic_year_id
     body: web::Json<UpdateAcademicYearRequest>,
 ) -> Result<Json<AcademicYearResponse>, APIError> {
-    let academic_year_id = path.into_inner();
+    let academic_year_id = path.into_inner().0;
     let updated_academic_year =
         academic_year::update_academic_year(data.clone(), academic_year_id, body.into_inner())
             .await?;
@@ -165,9 +169,9 @@ pub async fn update_academic_year(
 )]
 pub async fn delete_academic_year(
     data: web::Data<AppState>,
-    path: web::Path<String>, // academic_year_id
+    path: web::Path<AcademicYearId>, // academic_year_id
 ) -> Result<Json<MessageResponse>, APIError> {
-    let academic_year_id = path.into_inner();
+    let academic_year_id = path.into_inner().0;
     academic_year::delete_academic_year(data.clone(), academic_year_id).await?;
     Ok(Json(MessageResponse {
         message: "Academic year deleted successfully".to_string(),
@@ -182,9 +186,9 @@ pub async fn delete_academic_year(
 )]
 pub async fn set_current_academic_year(
     data: web::Data<AppState>,
-    path: web::Path<String>, // academic_year_id
+    path: web::Path<AcademicYearId>, // academic_year_id
 ) -> Result<Json<AcademicYearResponse>, APIError> {
-    let academic_year_id = path.into_inner();
+    let academic_year_id = path.into_inner().0;
     let updated_academic_year =
         academic_year::set_current_academic_year(data.clone(), academic_year_id).await?;
     Ok(Json(AcademicYearResponse::from(updated_academic_year)))

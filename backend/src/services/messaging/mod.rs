@@ -1,11 +1,11 @@
 use actix_web::web::Data;
 use chrono::Utc;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 use crate::AppState;
 use crate::errors::APIError;
 use crate::handlers::messaging::CreateConversationRequest;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::models::messaging::{
     Conversation, Message, NewConversation, NewConversationParticipant, NewMessage,
 };
@@ -24,7 +24,7 @@ pub async fn start_new_conversation(
         participant_ids.push(current_user_id);
     }
 
-    let new_conversation_id = Uuid::new_v4().to_string();
+    let new_conversation_id = generate_prefixed_id(&mut conn, IdPrefix::CONVERSATION)?;
     let new_conversation = NewConversation {
         id: new_conversation_id.clone(),
         subject: req.subject,
@@ -92,7 +92,7 @@ pub async fn send_message(
         ));
     }
 
-    let new_message_id = Uuid::new_v4().to_string();
+    let new_message_id = generate_prefixed_id(&mut conn, IdPrefix::MESSAGE)?;
     let new_message = NewMessage {
         id: new_message_id.clone(),
         conversation_id,

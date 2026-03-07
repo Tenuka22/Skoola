@@ -1,11 +1,13 @@
 use crate::handlers::academic::subject::{BulkUpdateSubjectsRequest, SubjectQuery};
 use crate::schema::{
-    grade_levels, grade_subjects, stream_subjects, streams, subject_enrollments, subjects,
-    students, profiles, user_profiles, users,
+    al_stream_optional_groups, al_stream_optional_subjects, al_stream_required_subjects, al_streams,
+    grade_levels, grade_subjects, subject_enrollments, subjects, students, profiles, user_profiles,
+    users,
 };
 use crate::{
     AppState,
     errors::APIError,
+    models::ids::{generate_prefixed_id, IdPrefix},
     models::academic::subject::{
         AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, CreateSubjectRequest,
         EnrollStudentInSubjectRequest, Subject, SubjectEnrollmentResponse, SubjectResponse,
@@ -18,8 +20,6 @@ use crate::{
 use actix_web::web;
 use chrono::Utc;
 use diesel::prelude::*;
-use diesel::{QueryDsl, RunQueryDsl};
-use uuid::Uuid;
 
 // NEW IMPORTS
 use crate::database::tables::SubjectEnrollment;
@@ -30,6 +30,7 @@ pub async fn get_students_by_subject(
     academic_year_id: String,
     page: i64,
     limit: i64,
+    last_id: Option<String>,
 ) -> Result<PaginatedStudentResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
 
@@ -54,8 +55,13 @@ pub async fn get_students_by_subject(
             .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
             .into_boxed();
 
-        let offset = (page - 1) * limit;
-        query = query.limit(limit).offset(offset).order(profiles::name.asc());
+        if let Some(last_id) = &last_id {
+            query = query.filter(students::id.gt(last_id));
+        } else {
+            let offset = (page - 1) * limit;
+            query = query.offset(offset);
+        }
+        query = query.limit(limit).order(profiles::name.asc());
 
         let results: Vec<(Student, Profile, Option<User>)> = query
             .select((
@@ -67,31 +73,34 @@ pub async fn get_students_by_subject(
         Ok((results, total))
     })?;
 
-    let student_responses = student_list
+    let student_responses: Vec<StudentResponse> = student_list
         .into_iter()
         .map(|(student, profile, user)| StudentResponse {
             id: student.id,
             admission_number: student.admission_number,
-            name_english: profile.name.clone(),
-            nic_or_birth_certificate: student.nic_or_birth_certificate,
+            name_english: student.name_english,
             dob: student.dob,
             gender: student.gender,
-            email: student.email,
-            religion: student.religion,
-            ethnicity: student.ethnicity,
             created_at: student.created_at,
             updated_at: student.updated_at,
-            status: student.status,
             profile_id: student.profile_id,
             profile_name: Some(profile.name),
-            profile_address: profile.address,
-            profile_phone: profile.phone,
-            profile_photo_url: profile.photo_url,
+            profile_address: None,
+            profile_phone: None,
+            profile_photo_url: None,
             user_email: user.map(|u| u.email),
+            address: None,
+            phone: None,
+            email: None,
+            religion: None,
+            ethnicity: None,
+            status: None,
+            photo_url: None,
         })
         .collect();
 
     Ok(PaginatedStudentResponse {
+        next_last_id: student_responses.last().map(|s| s.id.clone()),
         data: student_responses,
         total: total_students,
         page,
@@ -149,12 +158,13 @@ struct NewGradeSubject {
     subject_id: String,
 }
 
-// Struct to represent a row in the stream_subjects junction table for insertion
+// Struct to represent a row in the al_stream_required_subjects junction table for insertion
 #[derive(Debug, Insertable)]
-#[diesel(table_name = stream_subjects)]
-struct NewStreamSubject {
+#[diesel(table_name = al_stream_required_subjects)]
+struct NewStreamRequiredSubject {
     stream_id: String,
     subject_id: String,
+    created_at: chrono::NaiveDateTime,
 }
 
 pub async fn create_subject(
@@ -163,7 +173,7 @@ pub async fn create_subject(
 ) -> Result<SubjectResponse, APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    let subject_id = Uuid::new_v4().to_string();
+    let subject_id = generate_prefixed_id(&mut conn, IdPrefix::SUBJECT)?;
 
     let new_subject = Subject {
         id: subject_id,
@@ -227,9 +237,30 @@ pub async fn get_all_subjects(
         count_query = count_query.filter(subjects::is_core.eq(is_core));
     }
 
-    // Filtering by grade_id or stream_id would require joining, which gets complex for a generic get_all.
-    // For now, let's keep it simple and filter only on subject fields.
-    // If complex filtering on relations is needed, it might be better handled in separate endpoints.
+    if let Some(stream_id) = &query.stream_id {
+        let required_ids: Vec<String> = al_stream_required_subjects::table
+            .filter(al_stream_required_subjects::stream_id.eq(stream_id))
+            .select(al_stream_required_subjects::subject_id)
+            .load(&mut conn)?;
+
+        let optional_ids: Vec<String> = al_stream_optional_subjects::table
+            .inner_join(
+                al_stream_optional_groups::table.on(
+                    al_stream_optional_subjects::group_id.eq(al_stream_optional_groups::id),
+                ),
+            )
+            .filter(al_stream_optional_groups::stream_id.eq(stream_id))
+            .select(al_stream_optional_subjects::subject_id)
+            .load(&mut conn)?;
+
+        let mut all_ids = required_ids;
+        all_ids.extend(optional_ids);
+        all_ids.sort();
+        all_ids.dedup();
+
+        data_query = data_query.filter(subjects::id.eq_any(all_ids.clone()));
+        count_query = count_query.filter(subjects::id.eq_any(all_ids));
+    }
 
     let sort_by = query.sort_by.as_deref().unwrap_or("subject_name_en");
     let sort_order = query.sort_order.as_deref().unwrap_or("asc");
@@ -244,16 +275,16 @@ pub async fn get_all_subjects(
         _ => data_query.order(subjects::subject_name_en.asc()),
     };
 
-    let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(10);
-    let offset = (page - 1) * limit;
+    if let Some(last_id) = &query.last_id {
+        data_query = data_query.filter(subjects::id.gt(last_id));
+    }
 
     let total_subjects = count_query.count().get_result(&mut conn)?;
     let total_pages = (total_subjects as f64 / limit as f64).ceil() as i64;
 
     let subjects_list: Vec<Subject> = data_query
         .limit(limit)
-        .offset(offset)
         .load::<Subject>(&mut conn)?;
 
     let responses: Vec<SubjectResponse> = subjects_list
@@ -375,13 +406,35 @@ pub async fn get_subjects_by_stream(
 ) -> Result<Vec<SubjectResponse>, APIError> {
     let mut conn = pool.db_pool.get()?;
 
-    let subjects_list: Vec<Subject> = subjects::table
-        .inner_join(stream_subjects::table.on(subjects::id.eq(stream_subjects::subject_id)))
-        .inner_join(streams::table.on(stream_subjects::stream_id.eq(streams::id)))
-        .filter(streams::id.eq(&stream_id))
+    let required_list: Vec<Subject> = subjects::table
+        .inner_join(
+            al_stream_required_subjects::table.on(
+                subjects::id.eq(al_stream_required_subjects::subject_id),
+            ),
+        )
+        .filter(al_stream_required_subjects::stream_id.eq(&stream_id))
         .select(subjects::all_columns)
-        .order(subjects::subject_name_en.asc())
         .load::<Subject>(&mut conn)?;
+
+    let optional_list: Vec<Subject> = subjects::table
+        .inner_join(
+            al_stream_optional_subjects::table.on(
+                subjects::id.eq(al_stream_optional_subjects::subject_id),
+            ),
+        )
+        .inner_join(
+            al_stream_optional_groups::table.on(
+                al_stream_optional_subjects::group_id.eq(al_stream_optional_groups::id),
+            ),
+        )
+        .filter(al_stream_optional_groups::stream_id.eq(&stream_id))
+        .select(subjects::all_columns)
+        .load::<Subject>(&mut conn)?;
+
+    let mut subjects_list = required_list;
+    subjects_list.extend(optional_list);
+    subjects_list.sort_by(|a, b| a.subject_name_en.cmp(&b.subject_name_en));
+    subjects_list.dedup_by(|a, b| a.id == b.id);
 
     let responses: Vec<SubjectResponse> = subjects_list
         .into_iter()
@@ -458,9 +511,9 @@ pub async fn assign_subject_to_stream(
     let mut conn = pool.db_pool.get()?;
 
     // Check if stream exists
-    let stream_exists: bool = streams::table
-        .filter(streams::id.eq(&assign_req.stream_id))
-        .select(diesel::dsl::count(streams::id))
+    let stream_exists: bool = al_streams::table
+        .filter(al_streams::id.eq(&assign_req.stream_id))
+        .select(diesel::dsl::count(al_streams::id))
         .get_result::<i64>(&mut conn)?
         > 0;
 
@@ -486,10 +539,10 @@ pub async fn assign_subject_to_stream(
     }
 
     // Check for duplicate assignment
-    let assignment_exists: bool = stream_subjects::table
-        .filter(stream_subjects::stream_id.eq(&assign_req.stream_id))
-        .filter(stream_subjects::subject_id.eq(&assign_req.subject_id))
-        .select(diesel::dsl::count(stream_subjects::stream_id))
+    let assignment_exists: bool = al_stream_required_subjects::table
+        .filter(al_stream_required_subjects::stream_id.eq(&assign_req.stream_id))
+        .filter(al_stream_required_subjects::subject_id.eq(&assign_req.subject_id))
+        .select(diesel::dsl::count(al_stream_required_subjects::stream_id))
         .get_result::<i64>(&mut conn)?
         > 0;
 
@@ -499,12 +552,13 @@ pub async fn assign_subject_to_stream(
         ));
     }
 
-    let new_assignment = NewStreamSubject {
+    let new_assignment = NewStreamRequiredSubject {
         stream_id: assign_req.stream_id,
         subject_id: assign_req.subject_id,
+        created_at: Utc::now().naive_utc(),
     };
 
-    diesel::insert_into(stream_subjects::table)
+    diesel::insert_into(al_stream_required_subjects::table)
         .values(&new_assignment)
         .execute(&mut conn)?;
 

@@ -24,6 +24,7 @@ pub struct LibraryCategoryQuery {
     pub sort_order: Option<String>,
     pub page: Option<i64>,
     pub limit: Option<i64>,
+    pub last_id: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -33,6 +34,7 @@ pub struct PaginatedLibraryCategoryResponse {
     pub page: i64,
     pub limit: i64,
     pub total_pages: i64,
+    pub next_last_id: Option<i32>,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
@@ -55,6 +57,7 @@ pub struct LibraryBookQuery {
     pub sort_order: Option<String>,
     pub page: Option<i64>,
     pub limit: Option<i64>,
+    pub last_id: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -64,6 +67,7 @@ pub struct PaginatedLibraryBookResponse {
     pub page: i64,
     pub limit: i64,
     pub total_pages: i64,
+    pub next_last_id: Option<i32>,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
@@ -99,12 +103,14 @@ pub async fn get_all_categories(
     let inner_query = query.into_inner();
     let (categories, total_categories, total_pages) =
         library::get_all_categories_paginated(&pool, inner_query.clone()).await?;
+    let next_last_id = categories.last().map(|c| c.id);
     Ok(Json(PaginatedLibraryCategoryResponse {
         data: categories,
         total: total_categories,
         page: inner_query.page.unwrap_or(1),
         limit: inner_query.limit.unwrap_or(10),
         total_pages,
+        next_last_id,
     }))
 }
 
@@ -169,12 +175,14 @@ pub async fn get_all_books(
     let inner_query = query.into_inner();
     let (books, total_books, total_pages) =
         library::get_all_books_paginated(&pool, inner_query.clone()).await?;
+    let next_last_id = books.last().map(|b| b.id);
     Ok(Json(PaginatedLibraryBookResponse {
         data: books,
         total: total_books,
         page: inner_query.page.unwrap_or(1),
         limit: inner_query.limit.unwrap_or(10),
         total_pages,
+        next_last_id,
     }))
 }
 

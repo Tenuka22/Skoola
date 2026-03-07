@@ -1,7 +1,6 @@
 use actix_web::web::Data;
 use chrono::Utc;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 use crate::AppState;
 use crate::errors::APIError;
@@ -9,10 +8,12 @@ use crate::handlers::behavior_management::{
     CreateBehaviorIncidentTypeRequest, RecordBehaviorIncidentRequest,
     UpdateBehaviorIncidentRequest, UpdateBehaviorIncidentTypeRequest,
 };
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::models::behavior_management::{
-    BehaviorIncident, BehaviorIncidentType, NewBehaviorIncident, NewBehaviorIncidentType,
+    BehaviorIncident, BehaviorIncidentDetail, BehaviorIncidentType, NewBehaviorIncident,
+    NewBehaviorIncidentDetail, NewBehaviorIncidentType,
 };
-use crate::schema::{behavior_incident_types, behavior_incidents};
+use crate::schema::{behavior_incident_details, behavior_incident_types, behavior_incidents};
 
 // Service to create a new behavior incident type
 pub async fn create_behavior_incident_type(
@@ -20,7 +21,7 @@ pub async fn create_behavior_incident_type(
     req: CreateBehaviorIncidentTypeRequest,
 ) -> Result<BehaviorIncidentType, APIError> {
     let mut conn = data.db_pool.get()?;
-    let new_type_id = Uuid::new_v4().to_string();
+    let new_type_id = generate_prefixed_id(&mut conn, IdPrefix::BEHAVIOR)?;
     let new_type = NewBehaviorIncidentType {
         id: new_type_id.clone(),
         type_name: req.type_name,
@@ -132,20 +133,29 @@ pub async fn record_behavior_incident(
     req: RecordBehaviorIncidentRequest,
 ) -> Result<BehaviorIncident, APIError> {
     let mut conn = data.db_pool.get()?;
-    let new_incident_id = Uuid::new_v4().to_string();
+    let new_incident_id = generate_prefixed_id(&mut conn, IdPrefix::BEHAVIOR)?;
     let new_incident = NewBehaviorIncident {
         id: new_incident_id.clone(),
         student_id: req.student_id,
         reported_by_user_id: user_id,
         incident_type_id: req.incident_type_id,
-        description: req.description,
         incident_date: req.incident_date,
-        points_awarded: req.points_awarded,
     };
 
 
     diesel::insert_into(behavior_incidents::table)
         .values(&new_incident)
+        .execute(&mut conn)?;
+
+    let incident_detail = NewBehaviorIncidentDetail {
+        incident_id: new_incident_id.clone(),
+        description: req.description,
+        points_awarded: req.points_awarded,
+        severity_id: None,
+        status: "Open".to_string(),
+    };
+    diesel::insert_into(behavior_incident_details::table)
+        .values(&incident_detail)
         .execute(&mut conn)?;
 
     let incident = behavior_incidents::table
@@ -205,15 +215,26 @@ pub async fn update_behavior_incident(
                 .map(|r| behavior_incidents::reported_by_user_id.eq(r)),
             req.incident_type_id
                 .map(|i| behavior_incidents::incident_type_id.eq(i)),
-            req.description
-                .map(|d| behavior_incidents::description.eq(d)),
             req.incident_date
                 .map(|d| behavior_incidents::incident_date.eq(d)),
-            req.points_awarded
-                .map(|p| behavior_incidents::points_awarded.eq(p)),
             behavior_incidents::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
+
+    if req.description.is_some() || req.points_awarded.is_some() {
+        diesel::update(
+            behavior_incident_details::table
+                .filter(behavior_incident_details::incident_id.eq(&incident_id)),
+        )
+        .set((
+            req.description
+                .map(|d| behavior_incident_details::description.eq(d)),
+            req.points_awarded
+                .map(|p| behavior_incident_details::points_awarded.eq(p)),
+            behavior_incident_details::updated_at.eq(Utc::now().naive_utc()),
+        ))
+        .execute(&mut conn)?;
+    }
 
     if updated_count == 0 {
         return Err(APIError::not_found(&format!(

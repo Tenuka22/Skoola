@@ -2,10 +2,10 @@ use crate::schema::lesson_progress_attachments;
 use crate::AppState;
 use crate::errors::APIError;
 use crate::database::tables::LessonProgressAttachment;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use actix_web::web;
-use diesel::prelude::*;
-use uuid::Uuid;
 use chrono::Utc;
+use diesel::prelude::*;
 
 pub async fn add_lesson_attachment(
     pool: web::Data<AppState>,
@@ -15,7 +15,7 @@ pub async fn add_lesson_attachment(
     file_type: Option<String>,
 ) -> Result<LessonProgressAttachment, APIError> {
     let mut conn = pool.db_pool.get()?;
-    let id = Uuid::new_v4().to_string();
+    let id = generate_prefixed_id(&mut conn, IdPrefix::ATTACHMENT)?;
 
     let new_attachment = LessonProgressAttachment {
         id: id.clone(),

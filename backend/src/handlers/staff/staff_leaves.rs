@@ -3,14 +3,13 @@ use actix_web::web::Json;
 use apistos::api_operation;
 use chrono::Utc;
 use diesel::prelude::*;
-use uuid::Uuid;
-// use serde_json; // Removed unused import
 
 use crate::{
     AppState,
     database::enums::LeaveStatus,
     database::tables::StaffLeave,
     errors::APIError,
+    models::ids::{generate_prefixed_id, IdPrefix},
     models::staff::leave::{
         ApplyLeaveRequest, ApproveRejectLeaveRequest, LeaveBalanceResponse, StaffLeaveChangeset,
         StaffLeaveResponse,
@@ -37,7 +36,7 @@ pub async fn apply_for_leave(
     }
 
     let new_leave = StaffLeave {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(&mut conn, IdPrefix::LEAVE)?,
         staff_id: staff_id_inner,
         leave_type: body.leave_type.clone(),
         from_date: body.from_date,
@@ -82,7 +81,7 @@ pub async fn approve_reject_leave(
     }
 
     let changeset = StaffLeaveChangeset {
-        status: Some(body.status.to_string()),
+        status: Some(body.status.clone()),
         updated_at: Utc::now().naive_utc(),
     };
 

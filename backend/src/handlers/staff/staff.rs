@@ -9,7 +9,6 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::fs::create_dir_all;
 use std::io::Write;
-use uuid::Uuid;
 
 use crate::{
     AppState,
@@ -18,9 +17,14 @@ use crate::{
     models::staff::staff::{
         CreateStaffRequest, PaginatedStaffResponse, StaffQuery, StaffResponse, UpdateStaffRequest,
     },
-    models::{MessageResponse, NewProfile, NewUserProfile, Profile, UserProfile, auth::user::User}, // Corrected import path
-    schema::{profiles, staff, user_profiles, users},
- // Added profiles, user_profiles, users
+    models::{
+        MessageResponse, NewProfile, NewUserProfile, Profile, UserProfile, auth::user::User,
+        ids::{IdPrefix, generate_prefixed_id},
+    },
+    schema::{
+        profiles, staff, staff_contacts, staff_employment_status, staff_identity, staff_media,
+        staff_reward_snapshots, user_profiles, users,
+    },
     utils::validation::{is_valid_email, is_valid_nic, is_valid_phone},
 };
 
@@ -36,7 +40,7 @@ pub struct BulkUpdateStaffRequest {
     pub employee_id: Option<String>,
     pub nic: Option<String>,
     pub dob: Option<chrono::NaiveDate>,
-    pub gender: Option<String>,
+    pub gender: Option<crate::database::enums::Gender>,
     pub address: Option<String>,
     pub phone: Option<String>,
     pub photo_url: Option<String>,
@@ -52,21 +56,16 @@ pub struct BulkUpdateStaffRequest {
 )]
 pub async fn upload_staff_photo(
     data: web::Data<AppState>,
-    staff_id: web::Path<String>,
+    staff_id: web::Path<crate::models::StaffId>,
     mut payload: Multipart,
 ) -> Result<Json<StaffResponse>, APIError> {
-    let staff_id_inner = staff_id.into_inner();
+    let staff_id_inner = staff_id.into_inner().0;
     let mut conn = data.db_pool.get()?;
 
-    // Check if staff exists and get its profile_id
-    let existing_staff: DbStaff = staff::table
+    let _existing_staff: DbStaff = staff::table
         .find(&staff_id_inner)
         .select(DbStaff::as_select())
         .first(&mut conn)?;
-
-    let profile_id = existing_staff
-        .profile_id
-        .ok_or_else(|| APIError::not_found("Profile not found for staff member"))?;
 
     // Create uploads directory if it doesn't exist
     create_dir_all("./uploads")?;
@@ -91,21 +90,57 @@ pub async fn upload_staff_photo(
     }
 
     if let Some(filepath) = file_path {
-        use crate::schema::profiles;
-        diesel::update(profiles::table.find(&profile_id))
-            .set(profiles::photo_url.eq(&filepath))
+        use crate::schema::staff_media;
+        diesel::insert_into(staff_media::table)
+            .values((
+                staff_media::staff_id.eq(&staff_id_inner),
+                staff_media::photo_url.eq(Some(filepath.clone())),
+                staff_media::created_at.eq(Utc::now().naive_utc()),
+                staff_media::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .on_conflict(staff_media::staff_id)
+            .do_update()
+            .set((
+                staff_media::photo_url.eq(Some(filepath.clone())),
+                staff_media::updated_at.eq(Utc::now().naive_utc()),
+            ))
             .execute(&mut conn)?;
 
         // Fetch updated staff, profile, and user info to construct StaffResponse
-        let (updated_staff, profile, user_profile): (DbStaff, Profile, Option<User>) = staff::table
+        let (updated_staff, profile, user_profile, media, identity, employment_status, contact, reward): (
+            DbStaff,
+            Profile,
+            Option<User>,
+            Option<crate::database::tables::StaffMedia>,
+            Option<crate::database::tables::StaffIdentity>,
+            Option<crate::database::tables::StaffEmploymentStatus>,
+            Option<crate::database::tables::StaffContact>,
+            Option<crate::database::tables::StaffRewardSnapshot>,
+        ) = staff::table
             .find(&staff_id_inner)
             .inner_join(profiles::table)
             .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
             .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+            .left_join(staff_media::table.on(staff::id.eq(staff_media::staff_id)))
+            .left_join(staff_identity::table.on(staff::id.eq(staff_identity::staff_id)))
+            .left_join(
+                staff_employment_status::table.on(
+                    staff::id.eq(staff_employment_status::staff_id),
+                ),
+            )
+            .left_join(staff_contacts::table.on(staff::id.eq(staff_contacts::staff_id)))
+            .left_join(
+                staff_reward_snapshots::table.on(staff::id.eq(staff_reward_snapshots::staff_id)),
+            )
             .select((
                 DbStaff::as_select(),
                 Profile::as_select(),
                 Option::<User>::as_select(),
+                Option::<crate::database::tables::StaffMedia>::as_select(),
+                Option::<crate::database::tables::StaffIdentity>::as_select(),
+                Option::<crate::database::tables::StaffEmploymentStatus>::as_select(),
+                Option::<crate::database::tables::StaffContact>::as_select(),
+                Option::<crate::database::tables::StaffRewardSnapshot>::as_select(),
             ))
             .first(&mut conn)?;
 
@@ -113,24 +148,24 @@ pub async fn upload_staff_photo(
             id: updated_staff.id,
             employee_id: updated_staff.employee_id,
             name: profile.name.clone(),
-            address: profile.address.clone().unwrap_or_default(),
-            phone: profile.phone.clone().unwrap_or_default(),
-            email: user_profile.clone().map(|u| u.email).unwrap_or_default(),
-            photo_url: profile.photo_url.clone(),
-            nic: updated_staff.nic,
+            address: contact.as_ref().map(|c| c.address.clone()),
+            phone: contact.as_ref().map(|c| c.phone.clone()),
+            email: contact.as_ref().map(|c| c.email.clone()),
+            photo_url: media.as_ref().and_then(|m| m.photo_url.clone()),
+            nic: identity.as_ref().map(|i| i.nic.clone()),
             dob: updated_staff.dob,
             gender: updated_staff.gender,
-            employment_status: updated_staff.employment_status,
+            employment_status: employment_status.map(|e| e.employment_status),
             staff_type: updated_staff.staff_type,
             created_at: updated_staff.created_at,
             updated_at: updated_staff.updated_at,
             profile_id: updated_staff.profile_id,
             profile_name: Some(profile.name),
-            profile_address: profile.address,
-            profile_phone: profile.phone,
-            profile_photo_url: profile.photo_url,
+            profile_address: None,
+            profile_phone: None,
+            profile_photo_url: None,
             user_email: user_profile.map(|u| u.email),
-            reward_points_balance: updated_staff.reward_points_balance,
+            reward_points_balance: reward.map(|r| r.reward_points_balance),
         }))
     } else {
         Err(APIError::bad_request("No file was uploaded"))
@@ -154,12 +189,22 @@ pub async fn get_all_staff(
         .inner_join(profiles::table.on(staff::profile_id.eq(profiles::id.nullable())))
         .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
         .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+        .left_join(staff_identity::table.on(staff::id.eq(staff_identity::staff_id)))
+        .left_join(staff_contacts::table.on(staff::id.eq(staff_contacts::staff_id)))
+        .left_join(staff_employment_status::table.on(staff::id.eq(staff_employment_status::staff_id)))
+        .left_join(staff_media::table.on(staff::id.eq(staff_media::staff_id)))
+        .left_join(staff_reward_snapshots::table.on(staff::id.eq(staff_reward_snapshots::staff_id)))
         .into_boxed();
 
     let mut count_query_base = staff::table
         .inner_join(profiles::table.on(staff::profile_id.eq(profiles::id.nullable())))
         .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
         .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+        .left_join(staff_identity::table.on(staff::id.eq(staff_identity::staff_id)))
+        .left_join(staff_contacts::table.on(staff::id.eq(staff_contacts::staff_id)))
+        .left_join(staff_employment_status::table.on(staff::id.eq(staff_employment_status::staff_id)))
+        .left_join(staff_media::table.on(staff::id.eq(staff_media::staff_id)))
+        .left_join(staff_reward_snapshots::table.on(staff::id.eq(staff_reward_snapshots::staff_id)))
         .into_boxed();
 
     if let Some(search_term) = &query.search {
@@ -168,26 +213,27 @@ pub async fn get_all_staff(
             profiles::name
                 .like(pattern.clone())
                 .or(staff::employee_id.like(pattern.clone()))
-                .or(staff::nic.like(pattern.clone()))
                 .or(users::email.like(pattern.clone()))
-                .or(profiles::phone.like(pattern.clone()))
-                .or(profiles::address.like(pattern.clone())),
+                .or(staff_identity::nic.like(pattern.clone()))
+                .or(staff_contacts::phone.like(pattern.clone()))
+                .or(staff_contacts::address.like(pattern.clone())),
         );
         count_query_base = count_query_base.filter(
             profiles::name
                 .like(pattern.clone())
                 .or(staff::employee_id.like(pattern.clone()))
-                .or(staff::nic.like(pattern.clone()))
                 .or(users::email.like(pattern.clone()))
-                .or(profiles::phone.like(pattern.clone()))
-                .or(profiles::address.like(pattern.clone())),
+                .or(staff_identity::nic.like(pattern.clone()))
+                .or(staff_contacts::phone.like(pattern.clone()))
+                .or(staff_contacts::address.like(pattern.clone())),
         );
     }
 
     if let Some(employment_status) = &query.employment_status {
-        base_query = base_query.filter(staff::employment_status.eq(employment_status.clone()));
-        count_query_base =
-            count_query_base.filter(staff::employment_status.eq(employment_status.clone()));
+        base_query =
+            base_query.filter(staff_employment_status::employment_status.eq(employment_status.clone()));
+        count_query_base = count_query_base
+            .filter(staff_employment_status::employment_status.eq(employment_status.clone()));
     }
 
     if let Some(staff_type) = &query.staff_type {
@@ -216,9 +262,10 @@ pub async fn get_all_staff(
         .select(diesel::dsl::count(staff::id))
         .get_result::<i64>(&mut conn)?;
 
-    let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(10);
-    let offset = (page - 1) * limit;
+    if let Some(last_id) = &query.last_id {
+        base_query = base_query.filter(staff::id.gt(last_id));
+    }
 
     let sort_col = query.sort_by.as_deref().unwrap_or("created_at");
     let sort_order = query.sort_order.as_deref().unwrap_or("desc");
@@ -234,40 +281,62 @@ pub async fn get_all_staff(
         _ => base_query.order(staff::created_at.desc()),
     };
 
-    let staff_list_data: Vec<(DbStaff, Profile, Option<User>)> = base_query
+    let staff_list_data: Vec<(
+        DbStaff,
+        Profile,
+        Option<User>,
+        Option<crate::database::tables::StaffMedia>,
+        Option<crate::database::tables::StaffIdentity>,
+        Option<crate::database::tables::StaffEmploymentStatus>,
+        Option<crate::database::tables::StaffContact>,
+        Option<crate::database::tables::StaffRewardSnapshot>,
+    )> = base_query
         .select((
             DbStaff::as_select(),
             Profile::as_select(),
             Option::<User>::as_select(),
+            Option::<crate::database::tables::StaffMedia>::as_select(),
+            Option::<crate::database::tables::StaffIdentity>::as_select(),
+            Option::<crate::database::tables::StaffEmploymentStatus>::as_select(),
+            Option::<crate::database::tables::StaffContact>::as_select(),
+            Option::<crate::database::tables::StaffRewardSnapshot>::as_select(),
         ))
         .limit(limit)
-        .offset(offset)
-        .load::<(DbStaff, Profile, Option<User>)>(&mut conn)?;
+        .load::<(
+            DbStaff,
+            Profile,
+            Option<User>,
+            Option<crate::database::tables::StaffMedia>,
+            Option<crate::database::tables::StaffIdentity>,
+            Option<crate::database::tables::StaffEmploymentStatus>,
+            Option<crate::database::tables::StaffContact>,
+            Option<crate::database::tables::StaffRewardSnapshot>,
+        )>(&mut conn)?;
 
     let staff_responses: Vec<StaffResponse> = staff_list_data
         .into_iter()
-        .map(|(staff, profile, user): (DbStaff, Profile, Option<User>)| StaffResponse {
+        .map(|(staff, profile, user, media, identity, employment_status, contact, reward)| StaffResponse {
             id: staff.id,
             employee_id: staff.employee_id,
             name: profile.name.clone(),
-            address: profile.address.clone().unwrap_or_default(),
-            phone: profile.phone.clone().unwrap_or_default(),
-            email: user.clone().map(|u| u.email).unwrap_or_default(),
-            photo_url: profile.photo_url.clone(),
-            nic: staff.nic,
+            address: contact.as_ref().map(|c| c.address.clone()),
+            phone: contact.as_ref().map(|c| c.phone.clone()),
+            email: contact.as_ref().map(|c| c.email.clone()),
+            photo_url: media.as_ref().and_then(|m| m.photo_url.clone()),
+            nic: identity.as_ref().map(|i| i.nic.clone()),
             dob: staff.dob,
             gender: staff.gender,
-            employment_status: staff.employment_status,
+            employment_status: employment_status.map(|e| e.employment_status),
             staff_type: staff.staff_type,
             created_at: staff.created_at,
             updated_at: staff.updated_at,
             profile_id: staff.profile_id,
             profile_name: Some(profile.name),
-            profile_address: profile.address,
-            profile_phone: profile.phone,
-            profile_photo_url: profile.photo_url,
+            profile_address: None,
+            profile_phone: None,
+            profile_photo_url: None,
             user_email: user.map(|u| u.email),
-            reward_points_balance: staff.reward_points_balance,
+            reward_points_balance: reward.map(|r| r.reward_points_balance),
         })
         .collect();
 
@@ -275,9 +344,10 @@ pub async fn get_all_staff(
 
     Ok(Json(PaginatedStaffResponse {
         total: total_staff_count,
-        page,
+        page: query.page.unwrap_or(1),
         limit,
         total_pages,
+        next_last_id: staff_responses.last().map(|item| item.id.clone()),
         data: staff_responses,
     }))
 }
@@ -290,22 +360,43 @@ pub async fn get_all_staff(
 )]
 pub async fn get_staff_by_id(
     data: web::Data<AppState>,
-    staff_id: web::Path<String>,
+    staff_id: web::Path<crate::models::StaffId>,
 ) -> Result<Json<StaffResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let staff_id_inner = staff_id.into_inner();
+    let staff_id_inner = staff_id.into_inner().0;
 
     use crate::schema::{profiles, user_profiles, users};
 
-    let (staff_member, profile, user_profile): (DbStaff, Profile, Option<User>) = staff::table
+    let (staff_member, profile, user_profile, media, identity, employment_status, contact, reward): (
+        DbStaff,
+        Profile,
+        Option<User>,
+        Option<crate::database::tables::StaffMedia>,
+        Option<crate::database::tables::StaffIdentity>,
+        Option<crate::database::tables::StaffEmploymentStatus>,
+        Option<crate::database::tables::StaffContact>,
+        Option<crate::database::tables::StaffRewardSnapshot>,
+    ) = staff::table
         .find(&staff_id_inner)
         .inner_join(profiles::table)
         .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
         .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+        .left_join(staff_media::table.on(staff::id.eq(staff_media::staff_id)))
+        .left_join(staff_identity::table.on(staff::id.eq(staff_identity::staff_id)))
+        .left_join(
+            staff_employment_status::table.on(staff::id.eq(staff_employment_status::staff_id)),
+        )
+        .left_join(staff_contacts::table.on(staff::id.eq(staff_contacts::staff_id)))
+        .left_join(staff_reward_snapshots::table.on(staff::id.eq(staff_reward_snapshots::staff_id)))
         .select((
             DbStaff::as_select(),
             Profile::as_select(),
             Option::<User>::as_select(),
+            Option::<crate::database::tables::StaffMedia>::as_select(),
+            Option::<crate::database::tables::StaffIdentity>::as_select(),
+            Option::<crate::database::tables::StaffEmploymentStatus>::as_select(),
+            Option::<crate::database::tables::StaffContact>::as_select(),
+            Option::<crate::database::tables::StaffRewardSnapshot>::as_select(),
         ))
         .first(&mut conn)?;
 
@@ -313,24 +404,24 @@ pub async fn get_staff_by_id(
         id: staff_member.id,
         employee_id: staff_member.employee_id,
         name: profile.name.clone(),
-        address: profile.address.clone().unwrap_or_default(),
-        phone: profile.phone.clone().unwrap_or_default(),
-        email: user_profile.clone().map(|u| u.email).unwrap_or_default(),
-        photo_url: profile.photo_url.clone(),
-        nic: staff_member.nic,
+        address: contact.as_ref().map(|c| c.address.clone()),
+        phone: contact.as_ref().map(|c| c.phone.clone()),
+        email: contact.as_ref().map(|c| c.email.clone()),
+        photo_url: media.as_ref().and_then(|m| m.photo_url.clone()),
+        nic: identity.as_ref().map(|i| i.nic.clone()),
         dob: staff_member.dob,
         gender: staff_member.gender,
-        employment_status: staff_member.employment_status,
+        employment_status: employment_status.map(|e| e.employment_status),
         staff_type: staff_member.staff_type,
         created_at: staff_member.created_at,
         updated_at: staff_member.updated_at,
         profile_id: staff_member.profile_id,
         profile_name: Some(profile.name),
-        profile_address: profile.address,
-        profile_phone: profile.phone,
-        profile_photo_url: profile.photo_url,
+        profile_address: None,
+        profile_phone: None,
+        profile_photo_url: None,
         user_email: user_profile.map(|u| u.email),
-        reward_points_balance: staff_member.reward_points_balance,
+        reward_points_balance: reward.map(|r| r.reward_points_balance),
     }))
 }
 
@@ -383,16 +474,13 @@ pub async fn create_staff(
         ));
     }
 
-    let new_staff_id = Uuid::new_v4().to_string(); // Generate staff ID here
+    let new_staff_id = generate_prefixed_id(&mut conn, IdPrefix::STAFF)?;
 
     // Create a new Profile record for the staff member
-    let new_profile_id = Uuid::new_v4().to_string();
+    let new_profile_id = generate_prefixed_id(&mut conn, IdPrefix::PROFILE)?;
     let new_profile = NewProfile {
         id: new_profile_id.clone(),
         name: body.name.clone(),
-        address: Some(body.address.clone()),
-        phone: Some(body.phone.clone()),
-        photo_url: None,
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     };
@@ -404,23 +492,66 @@ pub async fn create_staff(
         id: new_staff_id.clone(),
         employee_id: body.employee_id.clone(),
         name: body.name.clone(),
-        nic: body.nic.clone(),
         dob: body.dob,
         gender: body.gender.clone(),
-        address: body.address.clone(),
-        phone: body.phone.clone(),
-        email: body.email.clone(),
-        employment_status: body.employment_status.clone(),
-        staff_type: body.staff_type.clone(),
-        photo_url: body.photo_url.clone(),
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
+        staff_type: body.staff_type.clone(),
         profile_id: Some(new_profile_id.clone()),
-        reward_points_balance: 0,
     };
 
     diesel::insert_into(staff::table)
         .values(&new_staff_record)
+        .execute(&mut conn)?;
+
+    diesel::insert_into(staff_identity::table)
+        .values((
+            staff_identity::staff_id.eq(&new_staff_id),
+            staff_identity::nic.eq(body.nic.clone()),
+            staff_identity::created_at.eq(Utc::now().naive_utc()),
+            staff_identity::updated_at.eq(Utc::now().naive_utc()),
+        ))
+        .execute(&mut conn)?;
+
+    diesel::insert_into(staff_contacts::table)
+        .values((
+            staff_contacts::staff_id.eq(&new_staff_id),
+            staff_contacts::address.eq(body.address.clone()),
+            staff_contacts::phone.eq(body.phone.clone()),
+            staff_contacts::email.eq(body.email.clone()),
+            staff_contacts::address_latitude.eq(None::<f32>),
+            staff_contacts::address_longitude.eq(None::<f32>),
+            staff_contacts::created_at.eq(Utc::now().naive_utc()),
+            staff_contacts::updated_at.eq(Utc::now().naive_utc()),
+        ))
+        .execute(&mut conn)?;
+
+    diesel::insert_into(staff_employment_status::table)
+        .values((
+            staff_employment_status::staff_id.eq(&new_staff_id),
+            staff_employment_status::employment_status.eq(body.employment_status.clone()),
+            staff_employment_status::created_at.eq(Utc::now().naive_utc()),
+            staff_employment_status::updated_at.eq(Utc::now().naive_utc()),
+        ))
+        .execute(&mut conn)?;
+
+    if let Some(photo_url) = body.photo_url.clone() {
+        diesel::insert_into(staff_media::table)
+            .values((
+                staff_media::staff_id.eq(&new_staff_id),
+                staff_media::photo_url.eq(Some(photo_url)),
+                staff_media::created_at.eq(Utc::now().naive_utc()),
+                staff_media::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(&mut conn)?;
+    }
+
+    diesel::insert_into(staff_reward_snapshots::table)
+        .values((
+            staff_reward_snapshots::staff_id.eq(&new_staff_id),
+            staff_reward_snapshots::reward_points_balance.eq(0),
+            staff_reward_snapshots::updated_at.eq(Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     let mut user_email_str: Option<String> = None;
@@ -449,24 +580,24 @@ pub async fn create_staff(
         id: new_staff_record.id,
         employee_id: new_staff_record.employee_id,
         name: new_staff_record.name,
-        address: new_staff_record.address,
-        phone: new_staff_record.phone,
-        email: new_staff_record.email,
-        photo_url: new_staff_record.photo_url,
-        nic: new_staff_record.nic,
+        address: Some(body.address.clone()),
+        phone: Some(body.phone.clone()),
+        email: Some(body.email.clone()),
+        photo_url: body.photo_url.clone(),
+        nic: Some(body.nic.clone()),
         dob: new_staff_record.dob,
         gender: new_staff_record.gender,
-        employment_status: new_staff_record.employment_status,
+        employment_status: Some(body.employment_status.clone()),
         staff_type: new_staff_record.staff_type,
         created_at: new_staff_record.created_at,
         updated_at: new_staff_record.updated_at,
         profile_id: new_staff_record.profile_id,
         profile_name: Some(new_profile.name),
-        profile_address: new_profile.address,
-        profile_phone: new_profile.phone,
-        profile_photo_url: new_profile.photo_url,
+        profile_address: None,
+        profile_phone: None,
+        profile_photo_url: None,
         user_email: user_email_str,
-        reward_points_balance: new_staff_record.reward_points_balance,
+        reward_points_balance: Some(0),
     }))
 }
 #[api_operation(
@@ -477,20 +608,21 @@ pub async fn create_staff(
 )]
 pub async fn update_staff(
     data: web::Data<AppState>,
-    staff_id: web::Path<String>,
+    staff_id: web::Path<crate::models::StaffId>,
     body: web::Json<UpdateStaffRequest>,
 ) -> Result<Json<StaffResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let staff_id_inner = staff_id.into_inner();
+    let staff_id_inner = staff_id.into_inner().0;
 
     // Check if the new NIC already exists for another staff member
     if let Some(ref nic) = body.nic {
-        let existing_staff: Option<DbStaff> = staff::table
-            .filter(staff::nic.eq(nic))
-            .filter(staff::id.ne(&staff_id_inner))
-            .select(DbStaff::as_select())
-            .first(&mut conn)
-            .optional()?;
+        let existing_staff: Option<crate::database::tables::StaffIdentity> =
+            staff_identity::table
+                .filter(staff_identity::nic.eq(nic))
+                .filter(staff_identity::staff_id.ne(&staff_id_inner))
+                .select(crate::database::tables::StaffIdentity::as_select())
+                .first(&mut conn)
+                .optional()?;
         if existing_staff.is_some() {
             return Err(APIError::conflict(
                 "Another staff member with this NIC already exists",
@@ -507,65 +639,167 @@ pub async fn update_staff(
         .profile_id
         .ok_or_else(|| APIError::not_found("Profile not found for staff member"))?;
 
-    // Update profile-specific fields in the profiles table
+    // Update profile name (core profile table)
     use crate::schema::profiles;
-    diesel::update(profiles::table.find(&profile_id))
-        .set((
-            body.name.as_ref().map(|n| profiles::name.eq(n)),
-            body.address.as_ref().map(|a| profiles::address.eq(a)),
-            body.phone.as_ref().map(|p| profiles::phone.eq(p)),
-            profiles::updated_at.eq(Utc::now().naive_utc()),
-        ))
-        .execute(&mut conn)?;
+    if let Some(ref name) = body.name {
+        diesel::update(profiles::table.find(&profile_id))
+            .set((
+                profiles::name.eq(name),
+                profiles::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(&mut conn)?;
+    }
 
-    // Update staff-specific fields in the staff table
+    // Update staff core fields
     diesel::update(staff::table.find(&staff_id_inner))
         .set((
-            body.nic.as_ref().map(|nic| staff::nic.eq(nic)),
-            body.dob.map(|dob| staff::dob.eq(dob)), // NaiveDate doesn't need as_ref
-            body.gender.as_ref().map(|g| staff::gender.eq(g)),
+            body.name.as_ref().map(|n| staff::name.eq(n)),
+            body.dob.map(|dob| staff::dob.eq(dob)),
+            body.gender.clone().map(|g| staff::gender.eq(g)),
+            body.staff_type.clone().map(|st| staff::staff_type.eq(st)),
             staff::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
 
-    let (final_staff, final_profile, final_user_profile): (DbStaff, Profile, Option<User>) =
-        staff::table
-            .find(&staff_id_inner)
-            .inner_join(profiles::table)
-            .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
-            .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
-            .select((
-                DbStaff::as_select(),
-                Profile::as_select(),
-                Option::<User>::as_select(),
+    // Update staff identity
+    if let Some(nic) = &body.nic {
+        diesel::insert_into(staff_identity::table)
+            .values((
+                staff_identity::staff_id.eq(&staff_id_inner),
+                staff_identity::nic.eq(nic.clone()),
+                staff_identity::created_at.eq(Utc::now().naive_utc()),
+                staff_identity::updated_at.eq(Utc::now().naive_utc()),
             ))
-            .first(&mut conn)?;
+            .on_conflict(staff_identity::staff_id)
+            .do_update()
+            .set((
+                staff_identity::nic.eq(nic.clone()),
+                staff_identity::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(&mut conn)?;
+    }
+
+    // Update staff contacts
+    if body.address.is_some() || body.phone.is_some() || body.email.is_some() {
+        diesel::insert_into(staff_contacts::table)
+            .values((
+                staff_contacts::staff_id.eq(&staff_id_inner),
+                staff_contacts::address.eq(body.address.clone().unwrap_or_default()),
+                staff_contacts::phone.eq(body.phone.clone().unwrap_or_default()),
+                staff_contacts::email.eq(body.email.clone().unwrap_or_default()),
+                staff_contacts::address_latitude.eq(None::<f32>),
+                staff_contacts::address_longitude.eq(None::<f32>),
+                staff_contacts::created_at.eq(Utc::now().naive_utc()),
+                staff_contacts::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .on_conflict(staff_contacts::staff_id)
+            .do_update()
+            .set((
+                body.address
+                    .as_ref()
+                    .map(|a| staff_contacts::address.eq(a.clone())),
+                body.phone
+                    .as_ref()
+                    .map(|p| staff_contacts::phone.eq(p.clone())),
+                body.email
+                    .as_ref()
+                    .map(|e| staff_contacts::email.eq(e.clone())),
+                staff_contacts::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(&mut conn)?;
+    }
+
+    // Update employment status
+    if let Some(es) = body.employment_status.clone() {
+        diesel::insert_into(staff_employment_status::table)
+            .values((
+                staff_employment_status::staff_id.eq(&staff_id_inner),
+                staff_employment_status::employment_status.eq(es.clone()),
+                staff_employment_status::created_at.eq(Utc::now().naive_utc()),
+                staff_employment_status::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .on_conflict(staff_employment_status::staff_id)
+            .do_update()
+            .set((
+                staff_employment_status::employment_status.eq(es),
+                staff_employment_status::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(&mut conn)?;
+    }
+
+    // Update staff media
+    if let Some(photo_url) = &body.photo_url {
+        diesel::insert_into(staff_media::table)
+            .values((
+                staff_media::staff_id.eq(&staff_id_inner),
+                staff_media::photo_url.eq(Some(photo_url.clone())),
+                staff_media::created_at.eq(Utc::now().naive_utc()),
+                staff_media::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .on_conflict(staff_media::staff_id)
+            .do_update()
+            .set((
+                staff_media::photo_url.eq(Some(photo_url.clone())),
+                staff_media::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(&mut conn)?;
+    }
+
+    let (final_staff, final_profile, final_user_profile, media, identity, employment_status, contact, reward): (
+        DbStaff,
+        Profile,
+        Option<User>,
+        Option<crate::database::tables::StaffMedia>,
+        Option<crate::database::tables::StaffIdentity>,
+        Option<crate::database::tables::StaffEmploymentStatus>,
+        Option<crate::database::tables::StaffContact>,
+        Option<crate::database::tables::StaffRewardSnapshot>,
+    ) = staff::table
+        .find(&staff_id_inner)
+        .inner_join(profiles::table)
+        .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
+        .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+        .left_join(staff_media::table.on(staff::id.eq(staff_media::staff_id)))
+        .left_join(staff_identity::table.on(staff::id.eq(staff_identity::staff_id)))
+        .left_join(
+            staff_employment_status::table.on(staff::id.eq(staff_employment_status::staff_id)),
+        )
+        .left_join(staff_contacts::table.on(staff::id.eq(staff_contacts::staff_id)))
+        .left_join(staff_reward_snapshots::table.on(staff::id.eq(staff_reward_snapshots::staff_id)))
+        .select((
+            DbStaff::as_select(),
+            Profile::as_select(),
+            Option::<User>::as_select(),
+            Option::<crate::database::tables::StaffMedia>::as_select(),
+            Option::<crate::database::tables::StaffIdentity>::as_select(),
+            Option::<crate::database::tables::StaffEmploymentStatus>::as_select(),
+            Option::<crate::database::tables::StaffContact>::as_select(),
+            Option::<crate::database::tables::StaffRewardSnapshot>::as_select(),
+        ))
+        .first(&mut conn)?;
 
     Ok(Json(StaffResponse {
         id: final_staff.id,
         employee_id: final_staff.employee_id,
         name: final_profile.name.clone(),
-        address: final_profile.address.clone().unwrap_or_default(),
-        phone: final_profile.phone.clone().unwrap_or_default(),
-        email: final_user_profile
-            .clone()
-            .map(|u| u.email)
-            .unwrap_or_default(),
-        photo_url: final_profile.photo_url.clone(),
-        nic: final_staff.nic,
+        address: contact.as_ref().map(|c| c.address.clone()),
+        phone: contact.as_ref().map(|c| c.phone.clone()),
+        email: contact.as_ref().map(|c| c.email.clone()),
+        photo_url: media.as_ref().and_then(|m| m.photo_url.clone()),
+        nic: identity.as_ref().map(|i| i.nic.clone()),
         dob: final_staff.dob,
         gender: final_staff.gender,
-        employment_status: final_staff.employment_status,
+        employment_status: employment_status.map(|e| e.employment_status),
         staff_type: final_staff.staff_type,
         created_at: final_staff.created_at,
         updated_at: final_staff.updated_at,
         profile_id: final_staff.profile_id,
         profile_name: Some(final_profile.name),
-        profile_address: final_profile.address,
-        profile_phone: final_profile.phone,
-        profile_photo_url: final_profile.photo_url,
+        profile_address: None,
+        profile_phone: None,
+        profile_photo_url: None,
         user_email: final_user_profile.map(|u| u.email),
-        reward_points_balance: final_staff.reward_points_balance,
+        reward_points_balance: reward.map(|r| r.reward_points_balance),
     }))
 }
 
@@ -577,10 +811,10 @@ pub async fn update_staff(
 )]
 pub async fn delete_staff(
     data: web::Data<AppState>,
-    staff_id: web::Path<String>,
+    staff_id: web::Path<crate::models::StaffId>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    diesel::delete(staff::table.find(staff_id.into_inner())).execute(&mut conn)?;
+    diesel::delete(staff::table.find(staff_id.into_inner().0)).execute(&mut conn)?;
     Ok(Json(MessageResponse {
         message: "Staff member deleted successfully".to_string(),
     }))

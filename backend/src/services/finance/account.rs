@@ -3,17 +3,17 @@ use crate::{
     errors::APIError,
     models::finance::account::{ChartOfAccount, ChartOfAccountChangeset, NewChartOfAccount},
 };
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use actix_web::web;
 use chrono::Utc;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 pub async fn create_account(
     pool: web::Data<AppState>,
     new_account_request: NewChartOfAccount,
 ) -> Result<ChartOfAccount, APIError> {
     let mut conn = pool.db_pool.get()?;
-    let id = Uuid::new_v4().to_string();
+    let id = generate_prefixed_id(&mut conn, IdPrefix::ACCOUNT)?;
 
     let new_account = NewChartOfAccount {
         id: id.clone(),
@@ -26,6 +26,7 @@ pub async fn create_account(
         description: new_account_request.description,
         parent_account_id: new_account_request.parent_account_id,
         is_active: new_account_request.is_active,
+        currency: new_account_request.currency,
     };
 
     diesel::insert_into(crate::schema::chart_of_accounts::table)

@@ -3,12 +3,12 @@ use crate::database::enums::RoleEnum;
 use crate::database::enums::{EmploymentStatus, PermissionEnum, StaffType};
 use crate::database::tables::{RolePermission, Staff, User};
 use crate::errors::APIError;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::schema::{role_permissions, staff, users};
 use crate::utils::security::hash_password;
 use chrono::{Duration, Utc};
 use diesel::SqliteConnection;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 pub fn seed_all(
     conn: &mut SqliteConnection,
@@ -57,11 +57,6 @@ pub fn seed_all(
     let now = Utc::now().naive_utc();
 
     // 2. Assign some permissions directly to roles (using role name as role_id now)
-    // FullAdmin gets ALL permissions
-    // We can list them manually or if we have an iterator.
-    // For now, let's just add a few key ones or all if possible.
-    // Since I don't know if strum::IntoEnumIterator is derived, I will list the ones from the previous file + others.
-
     let all_permissions = vec![
         PermissionEnum::UserCreate,
         PermissionEnum::UserRead,
@@ -153,7 +148,7 @@ pub fn seed_all(
         let role_name = role_enum.to_string();
         let email_prefix = role_name.to_lowercase().replace(" ", "");
         let user_email = format!("{}.test@main.co", email_prefix);
-        let user_id = Uuid::new_v4().to_string();
+        let user_id = generate_prefixed_id(conn, IdPrefix::USER)?;
 
         let new_user = User {
             id: user_id.clone(),
@@ -175,7 +170,7 @@ pub fn seed_all(
         users_to_insert.push(new_user);
         seeded_user_ids.push(user_id.clone());
 
-        let staff_id = Uuid::new_v4().to_string();
+        let staff_id = generate_prefixed_id(conn, IdPrefix::STAFF)?;
         let new_staff = Staff {
             id: staff_id.clone(),
             employee_id: format!("EMP{:03}", i + 1),

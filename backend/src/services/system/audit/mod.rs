@@ -1,10 +1,10 @@
 use actix_web::web::Data;
 use diesel::prelude::*;
 use serde::Serialize;
-use uuid::Uuid;
 
 use crate::AppState;
 use crate::errors::APIError;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::models::system::audit::{AuditLog, NewAuditLog};
 use crate::schema::audit_log;
 
@@ -19,7 +19,7 @@ pub async fn log_action<T: Serialize>(
     new_value: Option<&T>,
 ) -> Result<AuditLog, APIError> {
     let mut conn = data.db_pool.get()?;
-    let id = Uuid::new_v4().to_string();
+    let id = generate_prefixed_id(&mut conn, IdPrefix::AUDIT)?;
 
     let old_value_json = old_value.and_then(|v| serde_json::to_string(v).ok());
     let new_value_json = new_value.and_then(|v| serde_json::to_string(v).ok());

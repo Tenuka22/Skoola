@@ -1,4 +1,5 @@
 pub mod assignment;
+pub mod additional;
 pub mod attendance;
 pub mod department;
 pub mod history;
@@ -7,6 +8,7 @@ pub mod qualification;
 pub mod staff;
 
 pub use assignment::*;
+pub use additional::*;
 pub use attendance::*;
 pub use department::*;
 pub use history::*;

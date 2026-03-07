@@ -2,12 +2,12 @@ use crate::config::Config;
 use crate::database::tables::{AssetCategory, InventoryItem};
 use crate::errors::APIError;
 use crate::faker::CustomFaker;
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::models::student::Student;
 use crate::schema::{asset_categories, inventory_items, students};
 use chrono::{Duration, Utc};
 use diesel::SqliteConnection;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 pub fn seed_all(
     conn: &mut SqliteConnection,
@@ -60,7 +60,7 @@ pub fn seed_all(
     ];
     let mut categories_to_insert = Vec::new();
     for name in category_names {
-        let cat_id = Uuid::new_v4().to_string();
+        let cat_id = generate_prefixed_id(conn, IdPrefix::PROPERTY)?;
         let new_cat = AssetCategory {
             id: cat_id.clone(),
             name: name.to_string(),
@@ -79,7 +79,7 @@ pub fn seed_all(
     let mut items_to_insert = Vec::new();
     for cat_id in &seeded_asset_category_ids {
         for i in 1..=3 {
-            let item_id = Uuid::new_v4().to_string();
+            let item_id = generate_prefixed_id(conn, IdPrefix::PROPERTY)?;
             let new_item = InventoryItem {
                 id: item_id.clone(),
                 category_id: cat_id.clone(),

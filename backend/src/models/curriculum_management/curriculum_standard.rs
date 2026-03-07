@@ -18,6 +18,7 @@ pub struct CurriculumStandard {
     pub start_date: Option<NaiveDate>,
     pub end_date: Option<NaiveDate>,
     pub is_active: bool,
+    pub stream_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Insertable)]
@@ -33,4 +34,5 @@ pub struct NewCurriculumStandard {
     pub start_date: Option<NaiveDate>,
     pub end_date: Option<NaiveDate>,
     pub is_active: bool,
+    pub stream_id: Option<String>,
 }

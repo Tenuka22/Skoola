@@ -14,17 +14,15 @@ use crate::schema::{
     asset_allocations, asset_allocations_staff, asset_allocations_students, asset_categories,
     inventory_items, maintenance_requests, staff, students, uniform_issues, uniform_items,
 };
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use chrono::Utc;
-use diesel::SqliteConnection;
-use diesel::prelude::*;
-use uuid::Uuid;
 
 pub fn create_category(
     conn: &mut SqliteConnection,
     req: CreateAssetCategoryRequest,
 ) -> Result<AssetCategory, APIError> {
     let new_cat = AssetCategory {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::PROPERTY)?,
         name: req.name,
         description: req.description,
         created_at: Utc::now().naive_utc(),
@@ -45,7 +43,7 @@ pub fn create_inventory_item(
     req: CreateInventoryItemRequest,
 ) -> Result<InventoryItem, APIError> {
     let new_item = InventoryItem {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::PROPERTY)?,
         category_id: req.category_id,
         item_name: req.item_name,
         description: req.description,
@@ -76,7 +74,7 @@ pub fn create_uniform_item(
     req: CreateUniformItemRequest,
 ) -> Result<UniformItem, APIError> {
     let new_item = UniformItem {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::PROPERTY)?,
         item_name: req.item_name,
         size: req.size,
         gender: req.gender,
@@ -91,13 +89,12 @@ pub fn create_uniform_item(
         .execute(conn)?;
     Ok(new_item)
 }
-
 pub fn issue_uniform(
     conn: &mut SqliteConnection,
     req: IssueUniformRequest,
 ) -> Result<UniformIssue, APIError> {
     let new_issue = UniformIssue {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::PROPERTY)?,
         student_id: req.student_id,
         uniform_item_id: req.uniform_item_id,
         quantity: req.quantity,
@@ -135,7 +132,7 @@ pub fn allocate_asset(
     }
 
     let now = Utc::now().naive_utc();
-    let new_alloc_id = Uuid::new_v4().to_string();
+    let new_alloc_id = generate_prefixed_id(conn, IdPrefix::PROPERTY_ALLOCATION)?;
 
     let allocated_to_type = if req.staff_id.is_some() {
         "STAFF".to_string()
@@ -215,7 +212,7 @@ pub fn create_maintenance_request(
     req: CreateMaintenanceRequest,
 ) -> Result<MaintenanceRequest, APIError> {
     let new_req = MaintenanceRequest {
-        id: Uuid::new_v4().to_string(),
+        id: generate_prefixed_id(conn, IdPrefix::RESOURCE)?,
         item_id: req.item_id,
         issue_description: req.issue_description,
         reported_by: req.reported_by,

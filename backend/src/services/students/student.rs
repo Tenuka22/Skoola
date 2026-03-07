@@ -1,5 +1,7 @@
 use crate::database::enums::StudentStatus;
-use crate::schema::{profiles, students}; // Added profiles
+use crate::schema::{
+    profiles, student_contacts, student_demographics, student_media, student_status, students,
+};
 use crate::{
     AppState,
     errors::APIError,
@@ -8,14 +10,14 @@ use crate::{
         CreateStudentRequest, PaginatedStudentResponse, Student, StudentResponse,
         UpdateStudentRequest,
     },
-    models::{NewProfile, Profile}, // Added Profile, NewProfile
+    models::{NewProfile, Profile},
 };
 use actix_web::{HttpResponse, web};
 use chrono::{NaiveDateTime, Utc};
 use diesel::prelude::*;
-use uuid::Uuid;
 
 use crate::models::auth::CurrentUser;
+use crate::models::ids::{IdPrefix, generate_prefixed_id};
 use crate::services::system::audit::log_action;
 
 pub async fn create_student(
@@ -26,13 +28,10 @@ pub async fn create_student(
     let mut conn = pool.db_pool.get()?;
 
     // Create a new Profile record for the student
-    let new_profile_id = Uuid::new_v4().to_string();
+    let new_profile_id = generate_prefixed_id(&mut conn, IdPrefix::PROFILE)?;
     let new_profile = NewProfile {
         id: new_profile_id.clone(),
         name: new_student_request.name_english.clone(), // Use name_english for profile name
-        address: Some(new_student_request.address.clone()),
-        phone: Some(new_student_request.phone.clone()),
-        photo_url: None, // photo_url is not part of initial creation
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     };
@@ -40,7 +39,7 @@ pub async fn create_student(
         .values(&new_profile)
         .execute(&mut conn)?;
 
-    let student_id = Uuid::new_v4().to_string();
+    let student_id = generate_prefixed_id(&mut conn, IdPrefix::STUDENT)?;
 
     let new_student = Student {
         id: student_id.clone(),
@@ -48,17 +47,9 @@ pub async fn create_student(
         name_english: new_student_request.name_english,
         name_sinhala: new_student_request.name_sinhala,
         name_tamil: new_student_request.name_tamil,
-        nic_or_birth_certificate: new_student_request.nic_or_birth_certificate,
         dob: new_student_request.dob,
         gender: new_student_request.gender,
-        address: new_student_request.address,
-        phone: new_student_request.phone,
-        email: new_student_request.email.clone(),
-        religion: new_student_request.religion,
-        ethnicity: new_student_request.ethnicity,
-        status: new_student_request.status.unwrap_or(StudentStatus::Active),
         profile_id: Some(new_profile_id.clone()), // Link to the new profile
-        photo_url: None,
         created_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     };
@@ -66,6 +57,54 @@ pub async fn create_student(
     diesel::insert_into(students::table)
         .values(&new_student)
         .execute(&mut conn)?;
+
+    diesel::insert_into(student_contacts::table)
+        .values((
+            student_contacts::student_id.eq(&student_id),
+            student_contacts::address.eq(new_student_request.address),
+            student_contacts::address_latitude.eq(None::<f32>),
+            student_contacts::address_longitude.eq(None::<f32>),
+            student_contacts::phone.eq(new_student_request.phone),
+            student_contacts::email.eq(new_student_request.email.clone()),
+            student_contacts::created_at.eq(Utc::now().naive_utc()),
+            student_contacts::updated_at.eq(Utc::now().naive_utc()),
+        ))
+        .execute(&mut conn)?;
+
+    diesel::insert_into(student_demographics::table)
+        .values((
+            student_demographics::student_id.eq(&student_id),
+            student_demographics::religion.eq(new_student_request.religion.clone()),
+            student_demographics::ethnicity.eq(new_student_request.ethnicity.clone()),
+            student_demographics::created_at.eq(Utc::now().naive_utc()),
+            student_demographics::updated_at.eq(Utc::now().naive_utc()),
+        ))
+        .execute(&mut conn)?;
+
+    diesel::insert_into(student_status::table)
+        .values((
+            student_status::student_id.eq(&student_id),
+            student_status::status.eq(
+                new_student_request
+                    .status
+                    .clone()
+                    .unwrap_or(StudentStatus::Active),
+            ),
+            student_status::created_at.eq(Utc::now().naive_utc()),
+            student_status::updated_at.eq(Utc::now().naive_utc()),
+        ))
+        .execute(&mut conn)?;
+
+    if let Some(photo_url) = new_student_request.photo_url.clone() {
+        diesel::insert_into(student_media::table)
+            .values((
+                student_media::student_id.eq(&student_id),
+                student_media::photo_url.eq(Some(photo_url)),
+                student_media::created_at.eq(Utc::now().naive_utc()),
+                student_media::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(&mut conn)?;
+    }
 
     let mut user_email: Option<String> = None;
     // Create a UserProfile entry linking the new Profile to an existing User if email matches
@@ -109,21 +148,23 @@ pub async fn create_student(
         id: new_student.id,
         admission_number: new_student.admission_number,
         name_english: new_student.name_english,
-        nic_or_birth_certificate: new_student.nic_or_birth_certificate,
         dob: new_student.dob,
         gender: new_student.gender,
-        email: new_student.email,
-        religion: new_student.religion,
-        ethnicity: new_student.ethnicity,
         created_at: new_student.created_at,
         updated_at: new_student.updated_at,
-        status: new_student.status,
         profile_id: new_student.profile_id,
         profile_name: Some(new_profile.name),
-        profile_address: new_profile.address,
-        profile_phone: new_profile.phone,
-        profile_photo_url: new_profile.photo_url,
+        profile_address: None,
+        profile_phone: None,
+        profile_photo_url: None,
         user_email,
+        address: None,
+        phone: None,
+        email: None,
+        religion: new_student_request.religion,
+        ethnicity: new_student_request.ethnicity,
+        status: new_student_request.status,
+        photo_url: new_student_request.photo_url,
     })
 }
 
@@ -148,96 +189,124 @@ pub async fn update_student(
     // Update student-specific fields in the students table
     diesel::update(students::table.find(&student_id))
         .set((
-            update_request
-                .nic_or_birth_certificate
-                .map(|nic| students::nic_or_birth_certificate.eq(nic)),
             update_request.dob.map(|dob| students::dob.eq(dob)),
             update_request
                 .gender
                 .map(|gender| students::gender.eq(gender)),
-            update_request
-                .religion
-                .map(|religion| students::religion.eq(religion)),
-            update_request
-                .ethnicity
-                .map(|ethnicity| students::ethnicity.eq(ethnicity)),
-            update_request
-                .status
-                .map(|status| students::status.eq(status)),
             students::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
 
-    // Update profile-specific fields in the profiles table
-    use crate::schema::profiles;
-    let updated_profile_count = diesel::update(profiles::table.find(&profile_id))
-        .set((
-            profiles::updated_at.eq(Utc::now().naive_utc()),
-            // No profile-specific fields in UpdateStudentRequest that are currently being passed
-            // If they were, they would be handled here, e.g.:
-            // update_request.name_english.map(|n| profiles::name.eq(n)),
-            // update_request.address.map(|a| profiles::address.eq(a)),
-            // update_request.phone.map(|p| profiles::phone.eq(p)),
-            // update_request.photo_url.map(|pu| profiles::photo_url.eq(Some(pu))),
-        ))
-        .execute(&mut conn)?;
-
-    if updated_profile_count == 0 {
-        return Err(APIError::not_found(&format!(
-            "Profile with ID {} not found",
-            profile_id
-        )));
+    // Update student contacts
+    if update_request.address.is_some()
+        || update_request.phone.is_some()
+        || update_request.email.is_some()
+    {
+        diesel::insert_into(student_contacts::table)
+            .values((
+                student_contacts::student_id.eq(&student_id),
+                student_contacts::address.eq(update_request.address.clone().unwrap_or_default()),
+                student_contacts::address_latitude.eq(None::<f32>),
+                student_contacts::address_longitude.eq(None::<f32>),
+                student_contacts::phone.eq(update_request.phone.clone().unwrap_or_default()),
+                student_contacts::email.eq(update_request.email.clone()),
+                student_contacts::created_at.eq(Utc::now().naive_utc()),
+                student_contacts::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .on_conflict(student_contacts::student_id)
+            .do_update()
+            .set((
+                update_request
+                    .address
+                    .as_ref()
+                    .map(|a| student_contacts::address.eq(a.clone())),
+                update_request
+                    .phone
+                    .as_ref()
+                    .map(|p| student_contacts::phone.eq(p.clone())),
+                update_request
+                    .email
+                    .as_ref()
+                    .map(|e| student_contacts::email.eq(e.clone())),
+                student_contacts::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(&mut conn)?;
     }
 
-    // Fetch updated student, profile, and user info to construct StudentResponse
-    use crate::database::tables::User;
-
-    use crate::schema::{user_profiles, users};
-
-    let (updated_student, profile, user_profile): (Student, Profile, Option<User>) =
-        students::table
-            .find(&student_id)
-            .inner_join(profiles::table)
-            .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
-            .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
-            .select((
-                Student::as_select(),
-                Profile::as_select(),
-                Option::<User>::as_select(),
+    // Update demographics
+    if update_request.religion.is_some() || update_request.ethnicity.is_some() {
+        diesel::insert_into(student_demographics::table)
+            .values((
+                student_demographics::student_id.eq(&student_id),
+                student_demographics::religion.eq(update_request.religion.clone()),
+                student_demographics::ethnicity.eq(update_request.ethnicity.clone()),
+                student_demographics::created_at.eq(Utc::now().naive_utc()),
+                student_demographics::updated_at.eq(Utc::now().naive_utc()),
             ))
-            .first(&mut conn)?;
+            .on_conflict(student_demographics::student_id)
+            .do_update()
+            .set((
+                update_request
+                    .religion
+                    .as_ref()
+                    .map(|r| student_demographics::religion.eq(r.clone())),
+                update_request
+                    .ethnicity
+                    .as_ref()
+                    .map(|e| student_demographics::ethnicity.eq(e.clone())),
+                student_demographics::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(&mut conn)?;
+    }
+
+    // Update status
+    if let Some(status) = update_request.status {
+        diesel::insert_into(student_status::table)
+            .values((
+                student_status::student_id.eq(&student_id),
+                student_status::status.eq(status.clone()),
+                student_status::created_at.eq(Utc::now().naive_utc()),
+                student_status::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .on_conflict(student_status::student_id)
+            .do_update()
+            .set((
+                student_status::status.eq(status),
+                student_status::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(&mut conn)?;
+    }
+
+    // Update media
+    if let Some(photo_url) = update_request.photo_url {
+        diesel::insert_into(student_media::table)
+            .values((
+                student_media::student_id.eq(&student_id),
+                student_media::photo_url.eq(Some(photo_url.clone())),
+                student_media::created_at.eq(Utc::now().naive_utc()),
+                student_media::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .on_conflict(student_media::student_id)
+            .do_update()
+            .set((
+                student_media::photo_url.eq(Some(photo_url)),
+                student_media::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(&mut conn)?;
+    }
 
     log_action(
         pool.clone(),
         current_user.id,
         "UPDATE".to_string(),
         "students".to_string(),
-        updated_student.id.clone(),
+        student_id.clone(),
         Some(&existing_student),
-        Some(&updated_student),
+        Some(&existing_student),
     )
     .await?;
 
-    Ok(StudentResponse {
-        id: updated_student.id,
-        admission_number: updated_student.admission_number,
-        name_english: updated_student.name_english,
-        nic_or_birth_certificate: updated_student.nic_or_birth_certificate,
-        dob: updated_student.dob,
-        gender: updated_student.gender,
-        email: updated_student.email,
-        religion: updated_student.religion,
-        ethnicity: updated_student.ethnicity,
-        created_at: updated_student.created_at,
-        updated_at: updated_student.updated_at,
-        status: updated_student.status,
-        profile_id: updated_student.profile_id,
-        profile_name: Some(profile.name),
-        profile_address: profile.address,
-        profile_phone: profile.phone,
-        profile_photo_url: profile.photo_url,
-        user_email: user_profile.map(|u| u.email),
-    })
+    get_student_by_id(pool, student_id).await
 }
 
 pub async fn get_student_by_id(
@@ -249,15 +318,33 @@ pub async fn get_student_by_id(
     use crate::models::{Profile, auth::User};
     use crate::schema::{profiles, user_profiles, users};
 
-    let (student, profile, user_profile): (Student, Profile, Option<User>) = students::table
+    let (student, profile, user_profile, contact, demographics, status_row, media): (
+        Student,
+        Profile,
+        Option<User>,
+        Option<crate::database::tables::StudentContact>,
+        Option<crate::database::tables::StudentDemographics>,
+        Option<crate::database::tables::StudentStatusRow>,
+        Option<crate::database::tables::StudentMedia>,
+    ) = students::table
         .find(&student_id)
         .inner_join(profiles::table)
         .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
         .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+        .left_join(student_contacts::table.on(students::id.eq(student_contacts::student_id)))
+        .left_join(
+            student_demographics::table.on(students::id.eq(student_demographics::student_id)),
+        )
+        .left_join(student_status::table.on(students::id.eq(student_status::student_id)))
+        .left_join(student_media::table.on(students::id.eq(student_media::student_id)))
         .select((
             Student::as_select(),
             Profile::as_select(),
             Option::<User>::as_select(),
+            Option::<crate::database::tables::StudentContact>::as_select(),
+            Option::<crate::database::tables::StudentDemographics>::as_select(),
+            Option::<crate::database::tables::StudentStatusRow>::as_select(),
+            Option::<crate::database::tables::StudentMedia>::as_select(),
         ))
         .first(&mut conn)?;
 
@@ -265,21 +352,23 @@ pub async fn get_student_by_id(
         id: student.id,
         admission_number: student.admission_number,
         name_english: student.name_english,
-        nic_or_birth_certificate: student.nic_or_birth_certificate,
         dob: student.dob,
         gender: student.gender,
-        email: student.email,
-        religion: student.religion,
-        ethnicity: student.ethnicity,
         created_at: student.created_at,
         updated_at: student.updated_at,
-        status: student.status,
         profile_id: student.profile_id,
         profile_name: Some(profile.name),
-        profile_address: profile.address,
-        profile_phone: profile.phone,
-        profile_photo_url: profile.photo_url,
+        profile_address: None,
+        profile_phone: None,
+        profile_photo_url: None,
         user_email: user_profile.map(|u| u.email),
+        address: contact.as_ref().map(|c| c.address.clone()),
+        phone: contact.as_ref().map(|c| c.phone.clone()),
+        email: contact.as_ref().and_then(|c| c.email.clone()),
+        religion: demographics.as_ref().and_then(|d| d.religion.clone()),
+        ethnicity: demographics.as_ref().and_then(|d| d.ethnicity.clone()),
+        status: status_row.as_ref().map(|s| s.status.clone()),
+        photo_url: media.as_ref().and_then(|m| m.photo_url.clone()),
     })
 }
 
@@ -295,12 +384,20 @@ pub async fn get_all_students(
         .inner_join(profiles::table.on(students::profile_id.eq(profiles::id.nullable())))
         .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
         .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+        .left_join(student_contacts::table.on(students::id.eq(student_contacts::student_id)))
+        .left_join(student_demographics::table.on(students::id.eq(student_demographics::student_id)))
+        .left_join(student_status::table.on(students::id.eq(student_status::student_id)))
+        .left_join(student_media::table.on(students::id.eq(student_media::student_id)))
         .into_boxed();
 
     let mut count_query_base = students::table
         .inner_join(profiles::table.on(students::profile_id.eq(profiles::id.nullable())))
         .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
         .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
+        .left_join(student_contacts::table.on(students::id.eq(student_contacts::student_id)))
+        .left_join(student_demographics::table.on(students::id.eq(student_demographics::student_id)))
+        .left_join(student_status::table.on(students::id.eq(student_status::student_id)))
+        .left_join(student_media::table.on(students::id.eq(student_media::student_id)))
         .into_boxed();
 
     if let Some(search_term) = &query.search {
@@ -309,26 +406,24 @@ pub async fn get_all_students(
             profiles::name
                 .like(pattern.clone())
                 .or(students::admission_number.like(pattern.clone()))
-                .or(students::nic_or_birth_certificate.like(pattern.clone()))
                 .or(users::email.like(pattern.clone()))
-                .or(profiles::phone.like(pattern.clone()))
-                .or(profiles::address.like(pattern.clone())),
+                .or(student_contacts::phone.like(pattern.clone()))
+                .or(student_contacts::address.like(pattern.clone())),
         );
         count_query_base = count_query_base.filter(
             profiles::name
                 .like(pattern.clone())
                 .or(students::admission_number.like(pattern.clone()))
-                .or(students::nic_or_birth_certificate.like(pattern.clone()))
                 .or(users::email.like(pattern.clone()))
-                .or(profiles::phone.like(pattern.clone()))
-                .or(profiles::address.like(pattern.clone())),
+                .or(student_contacts::phone.like(pattern.clone()))
+                .or(student_contacts::address.like(pattern.clone())),
         );
     }
 
     if let Some(status_str) = &query.status {
         if let Ok(status) = status_str.parse::<StudentStatus>() {
-            base_query = base_query.filter(students::status.eq(status.clone()));
-            count_query_base = count_query_base.filter(students::status.eq(status));
+            base_query = base_query.filter(student_status::status.eq(status.clone()));
+            count_query_base = count_query_base.filter(student_status::status.eq(status));
         }
     }
 
@@ -361,58 +456,82 @@ pub async fn get_all_students(
         ("profile_name", "desc") => base_query.order(profiles::name.desc()),
         ("admission_number", "asc") => base_query.order(students::admission_number.asc()),
         ("admission_number", "desc") => base_query.order(students::admission_number.desc()),
-        ("status", "asc") => base_query.order(students::status.asc()),
-        ("status", "desc") => base_query.order(students::status.desc()),
+        ("status", "asc") => base_query.order(student_status::status.asc()),
+        ("status", "desc") => base_query.order(student_status::status.desc()),
         ("created_at", "asc") => base_query.order(students::created_at.asc()),
         _ => base_query.order(students::created_at.desc()),
     };
 
-    let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(10);
-    let offset = (page - 1) * limit;
+    if let Some(last_id) = &query.last_id {
+        base_query = base_query.filter(students::id.gt(last_id));
+    }
 
-    let student_list_data: Vec<(Student, Profile, Option<User>)> = base_query
+    let student_list_data: Vec<(
+        Student,
+        Profile,
+        Option<User>,
+        Option<crate::database::tables::StudentContact>,
+        Option<crate::database::tables::StudentDemographics>,
+        Option<crate::database::tables::StudentStatusRow>,
+        Option<crate::database::tables::StudentMedia>,
+    )> = base_query
         .select((
             Student::as_select(),
             Profile::as_select(),
             Option::<User>::as_select(),
+            Option::<crate::database::tables::StudentContact>::as_select(),
+            Option::<crate::database::tables::StudentDemographics>::as_select(),
+            Option::<crate::database::tables::StudentStatusRow>::as_select(),
+            Option::<crate::database::tables::StudentMedia>::as_select(),
         ))
         .limit(limit)
-        .offset(offset)
-        .load::<(Student, Profile, Option<User>)>(&mut conn)?;
+        .load::<(
+            Student,
+            Profile,
+            Option<User>,
+            Option<crate::database::tables::StudentContact>,
+            Option<crate::database::tables::StudentDemographics>,
+            Option<crate::database::tables::StudentStatusRow>,
+            Option<crate::database::tables::StudentMedia>,
+        )>(&mut conn)?;
 
     let student_responses: Vec<StudentResponse> = student_list_data
         .into_iter()
-        .map(|(student, profile, user)| StudentResponse {
+        .map(|(student, profile, user, contact, demographics, status_row, media)| StudentResponse {
             id: student.id,
             admission_number: student.admission_number,
             name_english: student.name_english,
-            nic_or_birth_certificate: student.nic_or_birth_certificate,
             dob: student.dob,
             gender: student.gender,
-            email: student.email,
-            religion: student.religion,
-            ethnicity: student.ethnicity,
             created_at: student.created_at,
             updated_at: student.updated_at,
-            status: student.status,
             profile_id: student.profile_id,
             profile_name: Some(profile.name),
-            profile_address: profile.address,
-            profile_phone: profile.phone,
-            profile_photo_url: profile.photo_url,
+            profile_address: None,
+            profile_phone: None,
+            profile_photo_url: None,
             user_email: user.map(|u| u.email),
+            address: contact.as_ref().map(|c| c.address.clone()),
+            phone: contact.as_ref().map(|c| c.phone.clone()),
+            email: contact.as_ref().and_then(|c| c.email.clone()),
+            religion: demographics.as_ref().and_then(|d| d.religion.clone()),
+            ethnicity: demographics.as_ref().and_then(|d| d.ethnicity.clone()),
+            status: status_row.as_ref().map(|s| s.status.clone()),
+            photo_url: media.as_ref().and_then(|m| m.photo_url.clone()),
         })
         .collect();
 
     let total_pages = (total_students as f64 / limit as f64).ceil() as i64;
+    let next_last_id = student_responses.last().map(|item| item.id.clone());
 
     Ok(PaginatedStudentResponse {
         data: student_responses,
         total: total_students,
-        page,
+        page: query.page.unwrap_or(1),
         limit,
         total_pages,
+        next_last_id,
     })
 }
 
@@ -430,12 +549,18 @@ pub async fn delete_student(
         .select(Student::as_select())
         .first(&mut conn)?;
 
-    let target = students::table.filter(students::id.eq(&student_id));
-
-    let updated_count = diesel::update(target)
+    let updated_count = diesel::insert_into(student_status::table)
+        .values((
+            student_status::student_id.eq(&student_id),
+            student_status::status.eq(StudentStatus::Withdrawn),
+            student_status::created_at.eq(Utc::now().naive_utc()),
+            student_status::updated_at.eq(Utc::now().naive_utc()),
+        ))
+        .on_conflict(student_status::student_id)
+        .do_update()
         .set((
-            students::status.eq(StudentStatus::Withdrawn),
-            students::updated_at.eq(Utc::now().naive_utc()),
+            student_status::status.eq(StudentStatus::Withdrawn),
+            student_status::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(&mut conn)?;
 

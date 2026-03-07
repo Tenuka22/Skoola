@@ -1,13 +1,13 @@
 use actix_web::web::Data;
 use chrono::Utc;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 use crate::AppState;
 use crate::errors::APIError;
 use crate::handlers::resource_management::{
     BookResourceRequest, CreateResourceRequest, UpdateResourceRequest,
 };
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::models::resource_management::{
     NewResource, NewResourceBooking, Resource, ResourceBooking,
 };
@@ -19,7 +19,7 @@ pub async fn create_resource(
     req: CreateResourceRequest,
 ) -> Result<Resource, APIError> {
     let mut conn = data.db_pool.get()?;
-    let new_resource_id = Uuid::new_v4().to_string();
+    let new_resource_id = generate_prefixed_id(&mut conn, IdPrefix::RESOURCE)?;
     let new_resource = NewResource {
         id: new_resource_id.clone(),
         resource_name: req.resource_name,
@@ -136,7 +136,7 @@ pub async fn book_resource(
         ));
     }
 
-    let new_booking_id = Uuid::new_v4().to_string();
+    let new_booking_id = generate_prefixed_id(&mut conn, IdPrefix::BOOKING)?;
     let new_booking = NewResourceBooking {
         id: new_booking_id.clone(),
         resource_id: req.resource_id,

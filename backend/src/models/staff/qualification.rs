@@ -29,4 +29,7 @@ pub struct StaffQualification {
     pub year_of_completion: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub file_name: Option<String>,
+    pub file_url: Option<String>,
+    pub file_type: Option<String>,
 }

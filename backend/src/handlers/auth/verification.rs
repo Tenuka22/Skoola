@@ -1,15 +1,19 @@
 use actix_web::web;
 use actix_web::web::Json;
 use apistos::api_operation;
+use chrono::{Duration, Utc};
 use diesel::prelude::*;
 use tracing::{info, warn};
 
-use crate::database::tables::User;
+use crate::database::tables::{User, VerificationToken};
+use crate::database::enums::VerificationPurpose;
 use crate::models::MessageResponse;
+use crate::models::ids::{IdPrefix, generate_prefixed_id};
 use crate::models::auth::user::ResendVerificationEmailRequest;
 use crate::services::system::email::send_verification_email;
-use crate::{AppState, errors::APIError, schema::users};
-use chrono::{Duration, Utc};
+use crate::{
+    AppState, errors::APIError, schema::{user_security, user_status, users, verification_tokens},
+};
 use rand::distributions::{Alphanumeric, DistString};
 
 #[api_operation(
@@ -23,44 +27,42 @@ pub async fn verify_email(
     token: web::Path<String>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let verification_token = token.into_inner();
+    let raw_token = token.into_inner();
+    let now = Utc::now().naive_utc();
 
-    let user_result: Option<User> = users::table
-        .filter(users::verification_token.eq(&verification_token))
-        .select(User::as_select())
+    let token_row: Option<VerificationToken> = verification_tokens::table
+        .filter(verification_tokens::token_hash.eq(&raw_token))
+        .filter(verification_tokens::is_active.eq(true))
+        .filter(verification_tokens::consumed_at.is_null())
+        .filter(verification_tokens::expires_at.gt(now))
+        .select(VerificationToken::as_select())
         .first(&mut conn)
         .optional()?;
 
-    match user_result {
-        Some(user) => {
-            if user.is_verified {
-                warn!(
-                    "ACTION: Email verification failed | reason: email already verified | user_id: {}",
-                    user.id
-                );
-                return Err(APIError::bad_request("Email already verified"));
-            }
-
-            diesel::update(users::table.filter(users::id.eq(&user.id)))
+    match token_row {
+        Some(vt) => {
+            diesel::update(user_status::table.filter(user_status::user_id.eq(&vt.user_id)))
                 .set((
-                    users::is_verified.eq(true),
-                    users::verification_token.eq::<Option<String>>(None),
+                    user_status::is_verified.eq(true),
+                    user_status::updated_at.eq(now),
                 ))
                 .execute(&mut conn)?;
 
-            info!(
-                "ACTION: User email verified successfully | user_id: {}",
-                user.id
-            );
+            diesel::update(verification_tokens::table.find(&vt.id))
+                .set((
+                    verification_tokens::consumed_at.eq(Some(now)),
+                    verification_tokens::is_active.eq(false),
+                ))
+                .execute(&mut conn)?;
+
+            info!("User email verified successfully | user_id: {}", vt.user_id);
             Ok(Json(MessageResponse {
                 message: "Email verified successfully! You can now log in.".to_string(),
             }))
         }
         None => {
-            warn!("ACTION: Email verification failed | reason: invalid or expired token");
-            Err(APIError::bad_request(
-                "Invalid or expired verification token",
-            ))
+            warn!("Email verification failed | reason: invalid or expired token");
+            Err(APIError::bad_request("Invalid or expired verification token"))
         }
     }
 }
@@ -76,20 +78,31 @@ pub async fn resend_verification_email(
     body: web::Json<ResendVerificationEmailRequest>,
 ) -> Result<Json<MessageResponse>, APIError> {
     let mut conn = data.db_pool.get()?;
+    let now = Utc::now().naive_utc();
 
-    let mut user: User = users::table
+    let user: User = users::table
         .filter(users::email.eq(&body.email))
         .select(User::as_select())
         .first(&mut conn)?;
 
-    if user.is_verified {
+    let is_verified: bool = user_status::table
+        .filter(user_status::user_id.eq(&user.id))
+        .select(user_status::is_verified)
+        .first(&mut conn)?;
+    if is_verified {
         return Ok(Json(MessageResponse {
             message: "Email already verified.".to_string(),
         }));
     }
 
-    if let Some(sent_at) = user.verification_sent_at {
-        let elapsed = Utc::now().naive_utc() - sent_at;
+    let sent_at: Option<chrono::NaiveDateTime> = user_security::table
+        .filter(user_security::user_id.eq(&user.id))
+        .select(user_security::verification_sent_at)
+        .first(&mut conn)
+        .optional()?
+        .flatten();
+    if let Some(sent_at) = sent_at {
+        let elapsed = now - sent_at;
         if elapsed < Duration::minutes(1) {
             let wait_time = Duration::minutes(1) - elapsed;
             return Err(APIError::bad_request(
@@ -103,33 +116,29 @@ pub async fn resend_verification_email(
     }
 
     let verification_token: String = Alphanumeric.sample_string(&mut rand::thread_rng(), 30);
+    diesel::insert_into(verification_tokens::table)
+        .values(&VerificationToken {
+            id: generate_prefixed_id(&mut conn, IdPrefix::VERIFICATION_TOKEN)?,
+            user_id: user.id.clone(),
+            token_hash: verification_token.clone(),
+            purpose: VerificationPurpose::EmailVerification,
+            issued_at: now,
+            expires_at: now + Duration::hours(24),
+            consumed_at: None,
+            is_active: true,
+            metadata: None,
+        })
+        .execute(&mut conn)?;
 
-    user.verification_token = Some(verification_token.clone());
-    user.verification_sent_at = Some(Utc::now().naive_utc());
-    user.updated_at = Utc::now().naive_utc();
-
-    diesel::update(users::table.filter(users::id.eq(&user.id)))
+    diesel::update(user_security::table.filter(user_security::user_id.eq(&user.id)))
         .set((
-            users::verification_token.eq(&user.verification_token),
-            users::verification_sent_at.eq(&user.verification_sent_at),
-            users::updated_at.eq(&user.updated_at),
+            user_security::verification_sent_at.eq(Some(now)),
+            user_security::updated_at.eq(now),
         ))
         .execute(&mut conn)?;
 
-    let email_sent =
-        send_verification_email(&data.config, &user.email, &verification_token).await?;
-
-    if email_sent {
-        info!(
-            "ACTION: Verification email resent successfully | user_id: {} | email: {}",
-            user.id, user.email
-        );
-    } else {
-        info!(
-            "ACTION: Verification email sending was skipped, but a new token was generated. | user_id: {} | email: {}",
-            user.id, user.email
-        );
-    }
+    let _ = send_verification_email(&data.config, &user.email, &verification_token).await?;
+    info!("Verification email resent | user_id: {}", user.id);
 
     Ok(Json(MessageResponse {
         message: "Verification email sent! Please check your inbox.".to_string(),

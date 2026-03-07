@@ -1,12 +1,12 @@
 use crate::models::auth::user::{UserProfileResponse, UserResponse};
-use crate::schema::users::dsl::*;
+use crate::schema::users::dsl::{email, password_hash};
 use crate::{
     AppState,
     database::tables::User,
     errors::APIError,
     handlers::auth::oauth::OAuthQuery,
     models::auth::profile::{ChangeEmailRequest, ChangePasswordRequest, UpdateProfileRequest},
-    schema::users,
+    schema::{users, user_security},
     services::{
         auth::auth::{hash_password, verify_password},
         auth::oauth::{get_github_user_info, get_google_user_info},
@@ -244,8 +244,11 @@ pub async fn link_google(
 
     let mut conn = data.db_pool.get()?;
 
-    diesel::update(users::table.find(&user_id.0))
-        .set(google_id.eq(google_user_info.id.clone()))
+    diesel::update(user_security::table.filter(user_security::user_id.eq(&user_id.0)))
+        .set((
+            user_security::google_id.eq(Some(google_user_info.id.clone())),
+            user_security::updated_at.eq(chrono::Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     let updated_user: User = users::table
@@ -285,8 +288,11 @@ pub async fn link_github(
 
     let mut conn = data.db_pool.get()?;
 
-    diesel::update(users::table.find(&user_id.0))
-        .set(github_id.eq(github_user_info.id.to_string()))
+    diesel::update(user_security::table.filter(user_security::user_id.eq(&user_id.0)))
+        .set((
+            user_security::github_id.eq(Some(github_user_info.id.to_string())),
+            user_security::updated_at.eq(chrono::Utc::now().naive_utc()),
+        ))
         .execute(&mut conn)?;
 
     let updated_user: User = users::table
