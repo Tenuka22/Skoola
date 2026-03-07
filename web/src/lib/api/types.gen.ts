@@ -78,22 +78,11 @@ export type AddSportTeamMemberRequest = {
 };
 
 /**
- * AllocateAssetRequest
- */
-export type AllocateAssetRequest = {
-    allocated_by: string;
-    item_id: string;
-    quantity: number;
-    staff_id?: string | null;
-    student_id?: string | null;
-};
-
-/**
  * ApplyLeaveRequest
  */
 export type ApplyLeaveRequest = {
     from_date: string;
-    leave_type: string;
+    leave_type: StaffLeaveType;
     reason: string;
     to_date: string;
 };
@@ -113,30 +102,7 @@ export type ApproveRejectLeaveRequest = {
     status: LeaveStatus;
 };
 
-/**
- * AssetAllocationResponse
- */
-export type AssetAllocationResponse = {
-    allocated_by: string;
-    allocation_date: string;
-    created_at: string;
-    id: string;
-    item_id: string;
-    quantity: number;
-    return_date?: string | null;
-    updated_at: string;
-};
-
-/**
- * AssetCategoryResponse
- */
-export type AssetCategoryResponse = {
-    created_at: string;
-    description?: string | null;
-    id: string;
-    name: string;
-    updated_at: string;
-};
+export type AssessmentType = 'SchoolTest' | 'GovernmentExam';
 
 /**
  * AssignClassToTeacherRequest
@@ -185,7 +151,7 @@ export type AssignSubjectToTeacherRequest = {
  */
 export type AttendanceExcuseResponse = {
     attendance_record_id: string;
-    excuse_type: string;
+    excuse_type: ExcuseType;
     id: string;
     is_verified: boolean;
 };
@@ -217,11 +183,11 @@ export type AuthMethodStats = {
  */
 export type BehaviorIncidentResponse = {
     created_at: string;
-    description: string;
+    description?: string | null;
     id: string;
     incident_date: string;
     incident_type_id: string;
-    points_awarded: number;
+    points_awarded?: number | null;
     reported_by_user_id: string;
     student_id: string;
     updated_at: string;
@@ -237,16 +203,6 @@ export type BehaviorIncidentTypeResponse = {
     id: string;
     type_name: string;
     updated_at: string;
-};
-
-/**
- * BookResourceRequest
- */
-export type BookResourceRequest = {
-    end_time: string;
-    related_event_id?: string | null;
-    resource_id: string;
-    start_time: string;
 };
 
 export type BudgetCategoryResponse = {
@@ -333,20 +289,6 @@ export type BulkDeleteBudgetCategoriesRequest = {
  */
 export type BulkDeleteClassesRequest = {
     class_ids: Array<string>;
-};
-
-/**
- * BulkDeleteExamTypesRequest
- */
-export type BulkDeleteExamTypesRequest = {
-    exam_type_ids: Array<string>;
-};
-
-/**
- * BulkDeleteExamsRequest
- */
-export type BulkDeleteExamsRequest = {
-    exam_ids: Array<string>;
 };
 
 /**
@@ -456,33 +398,22 @@ export type BulkUpdateClassesRequest = {
     class_ids: Array<string>;
     class_teacher_id?: string | null;
     grade_id?: string | null;
-    max_capacity?: number | null;
     medium?: string | null;
-    room_number?: string | null;
-    section_name?: string | null;
+    room_id?: string | null;
 };
 
 /**
- * BulkUpdateExamTypesRequest
+ * BulkUpdateExamStructuresRequest
  */
-export type BulkUpdateExamTypesRequest = {
+export type BulkUpdateExamStructuresRequest = {
     description?: string | null;
-    exam_type_ids: Array<string>;
+    ids: Array<string>;
+    is_active?: boolean | null;
+    medium?: Medium | null;
     name?: string | null;
-    weightage?: number | null;
-};
-
-/**
- * BulkUpdateExamsRequest
- */
-export type BulkUpdateExamsRequest = {
-    academic_year_id?: string | null;
-    end_date?: string | null;
-    exam_ids: Array<string>;
-    exam_type_id?: string | null;
-    name?: string | null;
-    start_date?: string | null;
-    term_id?: string | null;
+    scope_type?: ExamScopeType | null;
+    valid_from?: string | null;
+    valid_to?: string | null;
 };
 
 /**
@@ -509,10 +440,25 @@ export type BulkUpdateFeeStructuresRequest = {
 };
 
 /**
+ * BulkUpdateGovernmentExamsRequest
+ */
+export type BulkUpdateGovernmentExamsRequest = {
+    authority?: string | null;
+    end_date?: string | null;
+    exam_structure_id?: string | null;
+    exam_year?: number | null;
+    ids: Array<string>;
+    level?: ExamLevel | null;
+    name?: string | null;
+    start_date?: string | null;
+    status?: ExamStatus | null;
+};
+
+/**
  * BulkUpdateGradeLevelsRequest
  */
 export type BulkUpdateGradeLevelsRequest = {
-    education_level?: string | null;
+    education_level?: EducationLevel | null;
     grade_level_ids: Array<string>;
     grade_name?: string | null;
     grade_number?: number | null;
@@ -543,6 +489,23 @@ export type BulkUpdateLibraryCategoriesRequest = {
 };
 
 /**
+ * BulkUpdateMarkingSchemesRequest
+ */
+export type BulkUpdateMarkingSchemesRequest = {
+    calculation_fn?: string | null;
+    curriculum_standard_id?: string | null;
+    description?: string | null;
+    grade_level_id?: string | null;
+    ids: Array<string>;
+    is_active?: boolean | null;
+    name?: string | null;
+    stream_id?: string | null;
+    subject_id?: string | null;
+    valid_from?: string | null;
+    valid_to?: string | null;
+};
+
+/**
  * BulkUpdateRequest
  */
 export type BulkUpdateRequest = {
@@ -553,6 +516,21 @@ export type BulkUpdateRequest = {
 };
 
 /**
+ * BulkUpdateSchoolTestsRequest
+ */
+export type BulkUpdateSchoolTestsRequest = {
+    academic_year_id?: string | null;
+    end_date?: string | null;
+    exam_structure_id?: string | null;
+    ids: Array<string>;
+    name?: string | null;
+    start_date?: string | null;
+    status?: ExamStatus | null;
+    term_id?: string | null;
+    test_type?: SchoolTestType | null;
+};
+
+/**
  * BulkUpdateStaffRequest
  */
 export type BulkUpdateStaffRequest = {
@@ -560,7 +538,7 @@ export type BulkUpdateStaffRequest = {
     dob?: string | null;
     employee_id?: string | null;
     employment_status?: EmploymentStatus | null;
-    gender?: string | null;
+    gender?: Gender | null;
     name?: string | null;
     nic?: string | null;
     phone?: string | null;
@@ -585,7 +563,8 @@ export type BulkUpdateSubjectsRequest = {
  * CalculateZScoreRequest
  */
 export type CalculateZScoreRequest = {
-    exam_id: string;
+    assessment_id: string;
+    assessment_type: AssessmentType;
 };
 
 /**
@@ -613,10 +592,8 @@ export type ClassResponse = {
     created_at: string;
     grade_id: string;
     id: string;
-    max_capacity: number;
     medium: Medium;
-    room_number?: string | null;
-    section_name: string;
+    room_id?: string | null;
     updated_at: string;
 };
 
@@ -694,7 +671,7 @@ export type CompetitionParticipant = {
     updated_at: string;
 };
 
-export type ComponentType = 'Allowance' | 'Deduction' | 'Bonus';
+export type ComponentType = 'Allowance' | 'Deduction';
 
 /**
  * ConversationResponse
@@ -739,14 +716,6 @@ export type CreateActivityTypeRequest = {
 };
 
 /**
- * CreateAssetCategoryRequest
- */
-export type CreateAssetCategoryRequest = {
-    description?: string | null;
-    name: string;
-};
-
-/**
  * CreateBehaviorIncidentTypeRequest
  */
 export type CreateBehaviorIncidentTypeRequest = {
@@ -771,10 +740,8 @@ export type CreateClassRequest = {
     class_teacher_id?: string | null;
     grade_id: string;
     id: string;
-    max_capacity: number;
     medium: Medium;
-    room_number?: string | null;
-    section_name: string;
+    room_id?: string | null;
 };
 
 /**
@@ -853,37 +820,27 @@ export type CreateCurriculumStandardRequest = {
 };
 
 /**
- * CreateExamRequest
+ * CreateExamStructureRequest
  */
-export type CreateExamRequest = {
-    academic_year_id: string;
-    end_date: string;
-    exam_type_id: string;
-    name: string;
-    start_date: string;
-    term_id: string;
-};
-
-/**
- * CreateExamSubjectRequest
- */
-export type CreateExamSubjectRequest = {
-    date: string;
-    duration: number;
-    exam_id: string;
-    max_marks: number;
-    pass_marks: number;
-    subject_id: string;
-    time: string;
-};
-
-/**
- * CreateExamTypeRequest
- */
-export type CreateExamTypeRequest = {
+export type CreateExamStructureRequest = {
     description?: string | null;
+    is_active?: boolean | null;
+    medium?: Medium | null;
     name: string;
-    weightage?: number | null;
+    scope_type: ExamScopeType;
+    valid_from?: string | null;
+    valid_to?: string | null;
+};
+
+/**
+ * CreateExamStructureSubjectRequest
+ */
+export type CreateExamStructureSubjectRequest = {
+    duration_minutes?: number | null;
+    max_marks?: number | null;
+    order_index?: number | null;
+    pass_marks?: number | null;
+    subject_id: string;
 };
 
 /**
@@ -908,6 +865,32 @@ export type CreateFeeStructureRequest = {
 };
 
 /**
+ * CreateGovernmentExamRequest
+ */
+export type CreateGovernmentExamRequest = {
+    authority?: string | null;
+    end_date?: string | null;
+    exam_structure_id: string;
+    exam_year?: number | null;
+    level?: ExamLevel | null;
+    name: string;
+    start_date?: string | null;
+    status: ExamStatus;
+};
+
+/**
+ * CreateGovernmentExamSubjectRequest
+ */
+export type CreateGovernmentExamSubjectRequest = {
+    duration_minutes?: number | null;
+    exam_date?: string | null;
+    exam_time?: string | null;
+    max_marks?: number | null;
+    pass_marks?: number | null;
+    subject_id: string;
+};
+
+/**
  * CreateGradeLevelRequest
  */
 export type CreateGradeLevelRequest = {
@@ -924,40 +907,28 @@ export type CreateGradePeriodRequest = {
     end_time: string;
     grade_id: string;
     is_break: boolean;
-    period_number: number;
+    is_optional: boolean;
     start_time: string;
-};
-
-/**
- * CreateInventoryItemRequest
- */
-export type CreateInventoryItemRequest = {
-    category_id: string;
-    description?: string | null;
-    item_name: string;
-    quantity: number;
-    reorder_level: number;
-    unit: string;
-    unit_price: number;
 };
 
 /**
  * CreateLessonProgressRequest
  */
 export type CreateLessonProgressRequest = {
+    actual_duration_minutes?: number | null;
     class_id: string;
+    curriculum_topic_id?: string | null;
     date: string;
+    delivery_mode: LessonDeliveryMode;
     homework_assigned?: string | null;
     is_skipped: boolean;
-    is_substitution: boolean;
+    lesson_summary: string;
+    planned_duration_minutes?: number | null;
     priority_level: number;
     progress_percentage?: number | null;
     resources_used?: string | null;
-    sub_topic?: string | null;
     subject_id: string;
-    syllabus_id?: string | null;
     timetable_id: string;
-    topic_covered: string;
 };
 
 /**
@@ -982,12 +953,32 @@ export type CreateLibraryCategoryRequest = {
 };
 
 /**
- * CreateMaintenanceRequest
+ * CreateMarkingSchemePartRequest
  */
-export type CreateMaintenanceRequest = {
-    issue_description: string;
-    item_id: string;
-    reported_by: string;
+export type CreateMarkingSchemePartRequest = {
+    max_marks: number;
+    order_index: number;
+    paper_label: string;
+    part_label: string;
+    question_label?: string | null;
+    structure_json?: string | null;
+    weight_ratio?: number | null;
+};
+
+/**
+ * CreateMarkingSchemeRequest
+ */
+export type CreateMarkingSchemeRequest = {
+    calculation_fn: string;
+    curriculum_standard_id?: string | null;
+    description?: string | null;
+    grade_level_id?: string | null;
+    is_active?: boolean | null;
+    name: string;
+    stream_id?: string | null;
+    subject_id: string;
+    valid_from?: string | null;
+    valid_to?: string | null;
 };
 
 /**
@@ -999,12 +990,35 @@ export type CreatePermissionSetRequest = {
 };
 
 /**
- * CreateResourceRequest
+ * CreateReportCardMarkRequest
  */
-export type CreateResourceRequest = {
-    description?: string | null;
-    resource_name: string;
-    resource_type: string;
+export type CreateReportCardMarkRequest = {
+    assessment_id: string;
+    assessment_type: AssessmentType;
+    grade?: string | null;
+    grade_point?: number | null;
+    marking_scheme_id?: string | null;
+    percentage?: number | null;
+    remarks?: string | null;
+    subject_id: string;
+    total_marks?: number | null;
+};
+
+/**
+ * CreateReportCardRequest
+ */
+export type CreateReportCardRequest = {
+    academic_year_id: string;
+    class_id: string;
+    grading_scheme_id?: string | null;
+    marks?: Array<CreateReportCardMarkRequest> | null;
+    overall_gpa?: number | null;
+    overall_grade?: string | null;
+    overall_percentage?: number | null;
+    rank?: number | null;
+    remarks?: string | null;
+    student_id: string;
+    term_id: string;
 };
 
 /**
@@ -1022,6 +1036,32 @@ export type CreateSalaryComponentRequest = {
     component_type: ComponentType;
     description?: string | null;
     name: string;
+};
+
+/**
+ * CreateSchoolTestRequest
+ */
+export type CreateSchoolTestRequest = {
+    academic_year_id: string;
+    end_date?: string | null;
+    exam_structure_id: string;
+    name: string;
+    start_date?: string | null;
+    status: ExamStatus;
+    term_id?: string | null;
+    test_type: SchoolTestType;
+};
+
+/**
+ * CreateSchoolTestSubjectRequest
+ */
+export type CreateSchoolTestSubjectRequest = {
+    duration_minutes?: number | null;
+    max_marks?: number | null;
+    pass_marks?: number | null;
+    subject_id: string;
+    test_date?: string | null;
+    test_time?: string | null;
 };
 
 /**
@@ -1063,7 +1103,7 @@ export type CreateStaffRequest = {
     email: string;
     employee_id: string;
     employment_status: EmploymentStatus;
-    gender: string;
+    gender: Gender;
     id: string;
     name: string;
     nic: string;
@@ -1106,9 +1146,11 @@ export type CreateStudentGuardianRequest = {
 };
 
 export type CreateStudentMarkRequest = {
-    exam_id: string;
+    assessment_id: string;
+    assessment_type: AssessmentType;
+    entries: Array<StudentMarkEntryInput>;
     is_absent?: boolean | null;
-    marks_obtained: number;
+    marking_scheme_id: string;
     remarks?: string | null;
     student_id: string;
     subject_id: string;
@@ -1128,8 +1170,8 @@ export type CreateStudentRequest = {
     name_english: string;
     name_sinhala?: string | null;
     name_tamil?: string | null;
-    nic_or_birth_certificate: string;
     phone: string;
+    photo_url?: string | null;
     religion?: Religion | null;
     status?: StudentStatus | null;
 };
@@ -1189,23 +1231,10 @@ export type CreateTimetableRequest = {
     day_of_week: string;
     end_time: string;
     grade_period_id?: string | null;
-    period_number: number;
     room: string;
     start_time: string;
     subject_id: string;
     teacher_id: string;
-};
-
-/**
- * CreateUniformItemRequest
- */
-export type CreateUniformItemRequest = {
-    gender: string;
-    grade_level?: string | null;
-    item_name: string;
-    price: number;
-    quantity: number;
-    size: string;
 };
 
 /**
@@ -1260,22 +1289,6 @@ export type CurriculumStandardResponse = {
     version_name?: string | null;
 };
 
-/**
- * DetailedAssetAllocationResponse
- */
-export type DetailedAssetAllocationResponse = {
-    allocated_by: string;
-    allocated_to_staff?: StaffResponse | null;
-    allocated_to_student?: StudentResponse | null;
-    allocation_date: string;
-    created_at: string;
-    id: string;
-    item_id: string;
-    quantity: number;
-    return_date?: string | null;
-    updated_at: string;
-};
-
 export type DomainStat = {
     count: number;
     domain: string;
@@ -1303,7 +1316,7 @@ export type EnrichedStudentAttendance = {
  */
 export type EnrollParticipantRequest = {
     enrollment_reason?: string | null;
-    participant_type: string;
+    participant_type: ParticipantType;
     user_id: string;
 };
 
@@ -1318,56 +1331,44 @@ export type EnrollStudentInSubjectRequest = {
 
 export type Ethnicity = 'Sinhala' | 'Tamil' | 'Muslim' | 'Burger' | 'Malay' | 'Vedda' | 'Other';
 
-/**
- * ExamRegistrationRequest
- */
-export type ExamRegistrationRequest = {
-    exam_year: number;
-    index_number?: string | null;
-    student_id: string;
-};
+export type ExamLevel = 'OLevel' | 'ALevel' | 'Scholarship' | 'Other';
+
+export type ExamScopeType = 'School' | 'Government';
+
+export type ExamStatus = 'Planned' | 'Scheduled' | 'Ongoing' | 'Completed' | 'Cancelled';
 
 /**
- * ExamResponse
+ * ExamStructure
  */
-export type ExamResponse = {
-    academic_year_id: string;
-    created_at: string;
-    end_date: string;
-    exam_type_id: string;
-    id: string;
-    name: string;
-    start_date: string;
-    term_id: string;
-    updated_at: string;
-};
-
-/**
- * ExamSubjectResponse
- */
-export type ExamSubjectResponse = {
-    created_at: string;
-    date: string;
-    duration: number;
-    exam_id: string;
-    max_marks: number;
-    pass_marks: number;
-    subject_id: string;
-    time: string;
-    updated_at: string;
-};
-
-/**
- * ExamTypeResponse
- */
-export type ExamTypeResponse = {
+export type ExamStructure = {
     created_at: string;
     description?: string | null;
     id: string;
+    is_active: boolean;
+    medium?: Medium | null;
     name: string;
+    scope_type: ExamScopeType;
     updated_at: string;
-    weightage: number;
+    valid_from?: string | null;
+    valid_to?: string | null;
 };
+
+/**
+ * ExamStructureSubject
+ */
+export type ExamStructureSubject = {
+    created_at: string;
+    duration_minutes?: number | null;
+    id: string;
+    max_marks?: number | null;
+    order_index?: number | null;
+    pass_marks?: number | null;
+    structure_id: string;
+    subject_id: string;
+    updated_at: string;
+};
+
+export type ExcuseType = 'Medical' | 'Educational' | 'Family' | 'Bereavement' | 'Official';
 
 /**
  * ExemptFeeRequest
@@ -1382,6 +1383,7 @@ export type ExemptFeeRequest = {
  */
 export type ExitPassResponse = {
     approved_by: string;
+    bulk_pass_id?: string | null;
     date: string;
     exit_time: string;
     guardian_notified: boolean;
@@ -1391,7 +1393,7 @@ export type ExitPassResponse = {
     student_id: string;
 };
 
-export type ExitReason = 'Medical' | 'Personal' | 'Disciplinary' | 'Dismissal' | 'FamilyEvent' | 'Other';
+export type ExitReason = 'Medical' | 'Personal' | 'Disciplinary' | 'Dismissal';
 
 /**
  * ExpenseTransactionResponse
@@ -1452,7 +1454,7 @@ export type FeeDefaulterResponse = {
     total_paid: number;
 };
 
-export type FeeFrequency = 'Monthly' | 'Quarterly' | 'Annually' | 'OneTime';
+export type FeeFrequency = 'Daily' | 'Weekly' | 'Monthly' | 'Term' | 'Annual' | 'OneTime';
 
 /**
  * FeePaymentHistoryResponse
@@ -1469,8 +1471,8 @@ export type FeePaymentResponse = {
     created_at: string;
     id: string;
     payment_date: string;
-    payment_method: PaymentMethod;
-    receipt_number: string;
+    payment_method?: PaymentMethod | null;
+    receipt_number?: string | null;
     remarks?: string | null;
     student_fee_id: string;
     updated_at: string;
@@ -1495,17 +1497,50 @@ export type FeeReceiptResponse = {
  */
 export type FeeStructureResponse = {
     academic_year_id: string;
-    amount: number;
+    amount?: number | null;
     category_id: string;
     created_at: string;
-    due_date: string;
-    frequency: FeeFrequency;
+    due_date?: string | null;
+    frequency?: FeeFrequency | null;
     grade_id: string;
     id: string;
     updated_at: string;
 };
 
 export type Gender = 'Male' | 'Female' | 'Other';
+
+/**
+ * GovernmentExam
+ */
+export type GovernmentExam = {
+    authority?: string | null;
+    created_at: string;
+    end_date?: string | null;
+    exam_structure_id: string;
+    exam_year?: number | null;
+    id: string;
+    level?: ExamLevel | null;
+    name: string;
+    start_date?: string | null;
+    status: ExamStatus;
+    updated_at: string;
+};
+
+/**
+ * GovernmentExamSubject
+ */
+export type GovernmentExamSubject = {
+    created_at: string;
+    duration_minutes?: number | null;
+    exam_date?: string | null;
+    exam_time?: string | null;
+    government_exam_id: string;
+    id: string;
+    max_marks?: number | null;
+    pass_marks?: number | null;
+    subject_id: string;
+    updated_at: string;
+};
 
 /**
  * GradeFeeCollectionReport
@@ -1538,37 +1573,28 @@ export type GradePeriodResponse = {
     grade_id: string;
     id: string;
     is_break: boolean;
-    period_number: number;
+    is_optional: boolean;
     start_time: string;
     updated_at: string;
-};
-
-/**
- * GradingCriterion
- */
-export type GradingCriterion = {
-    created_at?: string | null;
-    description?: string | null;
-    grade: string;
-    grade_point?: number | null;
-    id: string;
-    max_marks: number;
-    min_marks: number;
-    scheme_id: string;
-    updated_at?: string | null;
 };
 
 /**
  * GradingScheme
  */
 export type GradingScheme = {
-    created_at?: string | null;
+    created_at: string;
     description?: string | null;
-    grade_level: string;
+    grade_level_id?: string | null;
     id: string;
+    is_default: boolean;
     name: string;
-    updated_at?: string | null;
+    pass_mark?: number | null;
+    scale_definition: string;
+    scheme_type: GradingSchemeType;
+    updated_at: string;
 };
+
+export type GradingSchemeType = 'Percentage' | 'Points' | 'Letter' | 'GPA';
 
 /**
  * IncomeTransactionResponse
@@ -1593,22 +1619,6 @@ export type InitiateEmergencyRollCallRequest = {
 };
 
 /**
- * InventoryItemResponse
- */
-export type InventoryItemResponse = {
-    category_id: string;
-    created_at: string;
-    description?: string | null;
-    id: string;
-    item_name: string;
-    quantity: number;
-    reorder_level: number;
-    unit: string;
-    unit_price: number;
-    updated_at: string;
-};
-
-/**
  * IssueBookRequest
  */
 export type IssueBookRequest = {
@@ -1628,26 +1638,17 @@ export type IssueExitPassRequest = {
 };
 
 /**
- * IssueUniformRequest
- */
-export type IssueUniformRequest = {
-    amount_collected: number;
-    issued_by: string;
-    quantity: number;
-    student_id: string;
-    uniform_item_id: string;
-};
-
-/**
  * LeaveBalanceResponse
  */
 export type LeaveBalanceResponse = {
-    leave_type: string;
+    leave_type: StaffLeaveType;
     staff_id: string;
     total_days_taken: number;
 };
 
 export type LeaveStatus = 'Pending' | 'Approved' | 'Rejected';
+
+export type LessonDeliveryMode = 'Regular' | 'Substitution' | 'Extra' | 'Remedial' | 'Practical' | 'Revision';
 
 /**
  * LessonProgressResponse
@@ -1657,11 +1658,11 @@ export type LessonProgressResponse = {
     date: string;
     id: string;
     is_skipped: boolean;
+    lesson_summary: string;
     priority_level: number;
     progress_percentage?: number | null;
     subject_id: string;
     teacher_id: string;
-    topic_covered: string;
     verified_at?: string | null;
     verified_by?: string | null;
 };
@@ -1711,10 +1712,12 @@ export type LibraryIssueResponse = {
     return_date?: string | null;
     staff_id?: string | null;
     staff_name?: string | null;
-    status: string;
+    status: LibraryIssueStatus;
     student_id?: string | null;
     student_name?: string | null;
 };
+
+export type LibraryIssueStatus = 'Issued' | 'Returned' | 'Overdue' | 'Lost';
 
 /**
  * LibrarySettings
@@ -1750,28 +1753,10 @@ export type LoginRequest = {
 };
 
 /**
- * MaintenanceRequestResponse
- */
-export type MaintenanceRequestResponse = {
-    assigned_to?: string | null;
-    created_at: string;
-    id: string;
-    issue_description: string;
-    item_id: string;
-    reported_by: string;
-    reported_date: string;
-    resolved_date?: string | null;
-    status: MaintenanceStatus;
-    updated_at: string;
-};
-
-export type MaintenanceStatus = 'Pending' | 'InProgress' | 'Completed' | 'Cancelled';
-
-/**
  * MarkActivityAttendanceRequest
  */
 export type MarkActivityAttendanceRequest = {
-    status: string;
+    status: AttendanceStatus;
     user_id: string;
 };
 
@@ -1783,7 +1768,7 @@ export type MarkPeriodAttendanceRequest = {
     date: string;
     minutes_late?: number | null;
     remarks?: string | null;
-    status: string;
+    status: AttendanceStatus;
     student_id: string;
     timetable_id: string;
 };
@@ -1809,6 +1794,42 @@ export type MarkStudentAttendanceRequest = {
     remarks?: string | null;
     status: AttendanceStatus;
     student_id: string;
+};
+
+/**
+ * MarkingScheme
+ */
+export type MarkingScheme = {
+    calculation_fn: string;
+    created_at: string;
+    curriculum_standard_id?: string | null;
+    description?: string | null;
+    grade_level_id?: string | null;
+    id: string;
+    is_active: boolean;
+    name: string;
+    stream_id?: string | null;
+    subject_id: string;
+    updated_at: string;
+    valid_from?: string | null;
+    valid_to?: string | null;
+};
+
+/**
+ * MarkingSchemePart
+ */
+export type MarkingSchemePart = {
+    created_at: string;
+    id: string;
+    max_marks: number;
+    order_index: number;
+    paper_label: string;
+    part_label: string;
+    question_label?: string | null;
+    scheme_id: string;
+    structure_json?: string | null;
+    updated_at: string;
+    weight_ratio?: number | null;
 };
 
 export type Medium = 'Sinhala' | 'Tamil' | 'English';
@@ -1838,26 +1859,17 @@ export type MonthlyAttendancePercentageResponse = {
 };
 
 /**
- * NewGradingCriterion
- */
-export type NewGradingCriterion = {
-    description?: string | null;
-    grade: string;
-    grade_point?: number | null;
-    id: string;
-    max_marks: number;
-    min_marks: number;
-    scheme_id: string;
-};
-
-/**
  * NewGradingScheme
  */
 export type NewGradingScheme = {
     description?: string | null;
-    grade_level: string;
+    grade_level_id?: string | null;
     id: string;
+    is_default: boolean;
     name: string;
+    pass_mark?: number | null;
+    scale_definition: string;
+    scheme_type: GradingSchemeType;
 };
 
 /**
@@ -1866,6 +1878,7 @@ export type NewGradingScheme = {
 export type PaginatedAcademicYearResponse = {
     data: Array<AcademicYearResponse>;
     limit: number;
+    next_last_id?: string | null;
     page: number;
     total: number;
     total_pages: number;
@@ -1877,6 +1890,7 @@ export type PaginatedAcademicYearResponse = {
 export type PaginatedBudgetCategoryResponse = {
     data: Array<BudgetCategoryResponse>;
     limit: number;
+    next_last_id?: string | null;
     page: number;
     total: number;
     total_pages: number;
@@ -1888,28 +1902,31 @@ export type PaginatedBudgetCategoryResponse = {
 export type PaginatedClassResponse = {
     data: Array<ClassResponse>;
     limit: number;
+    next_last_id?: string | null;
     page: number;
     total: number;
     total_pages: number;
 };
 
 /**
- * PaginatedExamResponse
+ * PaginatedExamStructureResponse
  */
-export type PaginatedExamResponse = {
-    data: Array<ExamResponse>;
+export type PaginatedExamStructureResponse = {
+    data: Array<ExamStructure>;
     limit: number;
+    next_last_id?: string | null;
     page: number;
     total: number;
     total_pages: number;
 };
 
 /**
- * PaginatedExamTypeResponse
+ * PaginatedExamStructureSubjectResponse
  */
-export type PaginatedExamTypeResponse = {
-    data: Array<ExamTypeResponse>;
+export type PaginatedExamStructureSubjectResponse = {
+    data: Array<ExamStructureSubject>;
     limit: number;
+    next_last_id?: string | null;
     page: number;
     total: number;
     total_pages: number;
@@ -1921,6 +1938,7 @@ export type PaginatedExamTypeResponse = {
 export type PaginatedFeeCategoryResponse = {
     data: Array<FeeCategoryResponse>;
     limit: number;
+    next_last_id?: string | null;
     page: number;
     total: number;
     total_pages: number;
@@ -1932,6 +1950,31 @@ export type PaginatedFeeCategoryResponse = {
 export type PaginatedFeeStructureResponse = {
     data: Array<FeeStructureResponse>;
     limit: number;
+    next_last_id?: string | null;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedGovernmentExamResponse
+ */
+export type PaginatedGovernmentExamResponse = {
+    data: Array<GovernmentExam>;
+    limit: number;
+    next_last_id?: string | null;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedGovernmentExamSubjectResponse
+ */
+export type PaginatedGovernmentExamSubjectResponse = {
+    data: Array<GovernmentExamSubject>;
+    limit: number;
+    next_last_id?: string | null;
     page: number;
     total: number;
     total_pages: number;
@@ -1943,6 +1986,19 @@ export type PaginatedFeeStructureResponse = {
 export type PaginatedGradeLevelResponse = {
     data: Array<GradeLevelResponse>;
     limit: number;
+    next_last_id?: string | null;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedGradingSchemeResponse
+ */
+export type PaginatedGradingSchemeResponse = {
+    data: Array<GradingScheme>;
+    limit: number;
+    next_last_id?: string | null;
     page: number;
     total: number;
     total_pages: number;
@@ -1954,6 +2010,7 @@ export type PaginatedGradeLevelResponse = {
 export type PaginatedLibraryBookResponse = {
     data: Array<LibraryBookResponse>;
     limit: number;
+    next_last_id?: number | null;
     page: number;
     total: number;
     total_pages: number;
@@ -1965,6 +2022,67 @@ export type PaginatedLibraryBookResponse = {
 export type PaginatedLibraryCategoryResponse = {
     data: Array<LibraryCategory>;
     limit: number;
+    next_last_id?: number | null;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedMarkingSchemePartResponse
+ */
+export type PaginatedMarkingSchemePartResponse = {
+    data: Array<MarkingSchemePart>;
+    limit: number;
+    next_last_id?: string | null;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedMarkingSchemeResponse
+ */
+export type PaginatedMarkingSchemeResponse = {
+    data: Array<MarkingScheme>;
+    limit: number;
+    next_last_id?: string | null;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedReportCardResponse
+ */
+export type PaginatedReportCardResponse = {
+    data: Array<ReportCard>;
+    limit: number;
+    next_last_id?: string | null;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedSchoolTestResponse
+ */
+export type PaginatedSchoolTestResponse = {
+    data: Array<SchoolTest>;
+    limit: number;
+    next_last_id?: string | null;
+    page: number;
+    total: number;
+    total_pages: number;
+};
+
+/**
+ * PaginatedSchoolTestSubjectResponse
+ */
+export type PaginatedSchoolTestSubjectResponse = {
+    data: Array<SchoolTestSubject>;
+    limit: number;
+    next_last_id?: string | null;
     page: number;
     total: number;
     total_pages: number;
@@ -1976,9 +2094,19 @@ export type PaginatedLibraryCategoryResponse = {
 export type PaginatedStaffResponse = {
     data: Array<StaffResponse>;
     limit: number;
+    next_last_id?: string | null;
     page: number;
     total: number;
     total_pages: number;
+};
+
+/**
+ * PaginatedStudentMarksResponse
+ */
+export type PaginatedStudentMarksResponse = {
+    data: Array<StudentMarkResponse>;
+    limit: number;
+    next_last_id?: string | null;
 };
 
 /**
@@ -1987,6 +2115,7 @@ export type PaginatedStaffResponse = {
 export type PaginatedStudentResponse = {
     data: Array<StudentResponse>;
     limit: number;
+    next_last_id?: string | null;
     page: number;
     total: number;
     total_pages: number;
@@ -1998,6 +2127,7 @@ export type PaginatedStudentResponse = {
 export type PaginatedSubjectResponse = {
     data: Array<SubjectResponse>;
     limit: number;
+    next_last_id?: string | null;
     page: number;
     total: number;
     total_pages: number;
@@ -2009,10 +2139,13 @@ export type PaginatedSubjectResponse = {
 export type PaginatedUserResponse = {
     data: Array<UserResponse>;
     limit: number;
+    next_last_id?: string | null;
     page: number;
     total: number;
     total_pages: number;
 };
+
+export type ParticipantType = 'Participant' | 'Organizer' | 'Supervisor' | 'Detained';
 
 /**
  * PasswordReset
@@ -2035,7 +2168,7 @@ export type PayFineRequest = {
     amount: number;
 };
 
-export type PaymentMethod = 'Cash' | 'BankTransfer' | 'Cheque' | 'Online';
+export type PaymentMethod = 'Cash' | 'BankTransfer' | 'Cheque' | 'Online' | 'Card' | 'MobileMoney' | 'Other';
 
 export type PermissionEnum = 'UserCreate' | 'UserRead' | 'UserUpdate' | 'UserDelete' | 'UserManage' | 'UserManageRoles' | 'UserManagePermissions' | 'RoleCreate' | 'RoleRead' | 'RoleUpdate' | 'RoleDelete' | 'RoleManage' | 'RoleAssignPermissions' | 'PermissionCreate' | 'PermissionRead' | 'PermissionUpdate' | 'PermissionDelete' | 'PermissionManage' | 'PermissionSetManage' | 'StaffCreate' | 'StaffRead' | 'StaffUpdate' | 'StaffDelete' | 'StaffManage' | 'StaffManageAttendance' | 'StaffManageLeaves' | 'StudentCreate' | 'StudentRead' | 'StudentUpdate' | 'StudentDelete' | 'StudentManage' | 'StudentManageGuardians' | 'StudentManageEnrollment' | 'StudentManageAttendance' | 'StudentManageMarks' | 'AcademicYearManage' | 'TermManage' | 'GradeLevelManage' | 'ClassManage' | 'SubjectManage' | 'ClassSubjectTeacherManage' | 'TimetableManage' | 'ExamTypeManage' | 'ExamManage' | 'ExamSubjectManage' | 'GradingSchemeManage' | 'GradingCriterionManage' | 'LibraryManage' | 'CoCurricularManage' | 'ResourceCreate' | 'ResourceRead' | 'ResourceUpdate' | 'ResourceDelete' | 'ResourceBook' | 'ResourceViewBookings' | 'CurriculumCreate' | 'CurriculumRead' | 'CurriculumUpdate' | 'CurriculumDelete' | 'CurriculumManage' | 'SyllabusCreate' | 'SyllabusRead' | 'SyllabusUpdate' | 'SyllabusDelete' | 'SyllabusManage' | 'MessagingCreate' | 'MessagingRead' | 'MessagingUpdate' | 'MessagingDelete' | 'MessagingSend' | 'MessagingManage' | 'BehaviorIncidentTypeCreate' | 'BehaviorIncidentTypeRead' | 'BehaviorIncidentTypeUpdate' | 'BehaviorIncidentTypeDelete' | 'BehaviorIncidentRecord' | 'BehaviorIncidentRead' | 'BehaviorIncidentUpdate' | 'BehaviorIncidentDelete' | 'ViewFinancialReports' | 'SystemAdmin' | 'UserUpdateMedium' | 'UserDeleteSevere';
 
@@ -2151,7 +2284,7 @@ export type RecordSalaryPaymentRequest = {
     gross_salary: number;
     net_salary: number;
     payment_date?: string | null;
-    payment_method: string;
+    payment_method: SalaryPaymentMethod;
     payment_month: number;
     payment_year: number;
     remarks?: string | null;
@@ -2177,43 +2310,58 @@ export type RegisterRequest = {
 export type Religion = 'Buddhism' | 'Hinduism' | 'Islam' | 'Christianity' | 'Other';
 
 /**
+ * ReportCard
+ */
+export type ReportCard = {
+    academic_year_id: string;
+    class_id: string;
+    created_at: string;
+    generated_at: string;
+    generated_by: string;
+    grading_scheme_id?: string | null;
+    id: string;
+    overall_gpa?: number | null;
+    overall_grade?: string | null;
+    overall_percentage?: number | null;
+    rank?: number | null;
+    remarks?: string | null;
+    student_id: string;
+    term_id: string;
+    updated_at: string;
+};
+
+/**
+ * ReportCardDetailResponse
+ */
+export type ReportCardDetailResponse = {
+    marks: Array<ReportCardMark>;
+    report_card: ReportCard;
+};
+
+/**
+ * ReportCardMark
+ */
+export type ReportCardMark = {
+    assessment_id: string;
+    assessment_type: AssessmentType;
+    created_at: string;
+    grade?: string | null;
+    grade_point?: number | null;
+    id: string;
+    marking_scheme_id?: string | null;
+    percentage?: number | null;
+    remarks?: string | null;
+    report_card_id: string;
+    subject_id: string;
+    total_marks?: number | null;
+    updated_at: string;
+};
+
+/**
  * ResendVerificationEmailRequest
  */
 export type ResendVerificationEmailRequest = {
     email: string;
-};
-
-/**
- * ResourceBookingResponse
- */
-export type ResourceBookingResponse = {
-    booked_by_user_id: string;
-    created_at: string;
-    end_time: string;
-    id: string;
-    related_event_id?: string | null;
-    resource_id: string;
-    start_time: string;
-    updated_at: string;
-};
-
-/**
- * ResourceResponse
- */
-export type ResourceResponse = {
-    created_at: string;
-    description?: string | null;
-    id: string;
-    resource_name: string;
-    resource_type: string;
-    updated_at: string;
-};
-
-/**
- * ReturnAssetRequest
- */
-export type ReturnAssetRequest = {
-    return_date?: string | null;
 };
 
 /**
@@ -2222,8 +2370,6 @@ export type ReturnAssetRequest = {
 export type ReturnBookRequest = {
     remarks?: string | null;
 };
-
-export type RewardReasonType = 'LessonCompleted' | 'SubstitutionDone' | 'AbsenceDeduction' | 'MaterialShared';
 
 export type RoleEnum = 'Admin' | 'Teacher' | 'Student' | 'Guest' | 'Parent' | 'FullAdmin' | 'Principal' | 'VicePrincipal' | 'Accountant' | 'Librarian';
 
@@ -2269,6 +2415,8 @@ export type SalaryComponentResponse = {
     updated_at: string;
 };
 
+export type SalaryPaymentMethod = 'Cash' | 'BankTransfer' | 'Cheque' | 'Card' | 'Other';
+
 /**
  * SalaryPaymentResponse
  */
@@ -2278,7 +2426,7 @@ export type SalaryPaymentResponse = {
     id: string;
     net_salary: number;
     payment_date: string;
-    payment_method: string;
+    payment_method: SalaryPaymentMethod;
     payment_month: number;
     payment_year: number;
     remarks?: string | null;
@@ -2296,6 +2444,42 @@ export type SchoolSettingResponse = {
     setting_value: string;
     updated_at: string;
 };
+
+/**
+ * SchoolTest
+ */
+export type SchoolTest = {
+    academic_year_id: string;
+    created_at: string;
+    created_by: string;
+    end_date?: string | null;
+    exam_structure_id: string;
+    id: string;
+    name: string;
+    start_date?: string | null;
+    status: ExamStatus;
+    term_id?: string | null;
+    test_type: SchoolTestType;
+    updated_at: string;
+};
+
+/**
+ * SchoolTestSubject
+ */
+export type SchoolTestSubject = {
+    created_at: string;
+    duration_minutes?: number | null;
+    id: string;
+    max_marks?: number | null;
+    pass_marks?: number | null;
+    school_test_id: string;
+    subject_id: string;
+    test_date?: string | null;
+    test_time?: string | null;
+    updated_at: string;
+};
+
+export type SchoolTestType = 'Quiz' | 'UnitTest' | 'Midterm' | 'Final' | 'Practical' | 'Assignment' | 'Project' | 'Mock' | 'Other';
 
 /**
  * SendAbsenceNotificationRequest
@@ -2421,7 +2605,7 @@ export type StaffLeaveResponse = {
     created_at: string;
     from_date: string;
     id: string;
-    leave_type: string;
+    leave_type: StaffLeaveType;
     reason: string;
     staff_id: string;
     status: LeaveStatus;
@@ -2429,28 +2613,30 @@ export type StaffLeaveResponse = {
     updated_at: string;
 };
 
+export type StaffLeaveType = 'Sick' | 'Casual' | 'Annual' | 'Study' | 'Maternity' | 'Other';
+
 /**
  * StaffResponse
  */
 export type StaffResponse = {
-    address: string;
+    address?: string | null;
     created_at: string;
     dob: string;
-    email: string;
+    email?: string | null;
     employee_id: string;
-    employment_status: EmploymentStatus;
-    gender: string;
+    employment_status?: EmploymentStatus | null;
+    gender: Gender;
     id: string;
     name: string;
-    nic: string;
-    phone: string;
+    nic?: string | null;
+    phone?: string | null;
     photo_url?: string | null;
     profile_address?: string | null;
     profile_id?: string | null;
     profile_name?: string | null;
     profile_phone?: string | null;
     profile_photo_url?: string | null;
-    reward_points_balance: number;
+    reward_points_balance?: number | null;
     staff_type: StaffType;
     updated_at: string;
     user_email?: string | null;
@@ -2572,19 +2758,37 @@ export type StudentGuardianResponse = {
     user_id?: string | null;
 };
 
+export type StudentMarkEntryInput = {
+    marking_scheme_part_id: string;
+    marks_awarded: number;
+};
+
+export type StudentMarkEntryResponse = {
+    id: string;
+    marking_scheme_part_id: string;
+    marks_awarded: number;
+    max_marks: number;
+};
+
 /**
  * StudentMarkResponse
  */
 export type StudentMarkResponse = {
+    assessment_id: string;
+    assessment_type: AssessmentType;
     entered_at: string;
     entered_by: string;
-    exam_id: string;
+    entries: Array<StudentMarkEntryResponse>;
+    grade?: string | null;
+    grade_point?: number | null;
     id: string;
     is_absent: boolean;
-    marks_obtained: number;
+    marking_scheme_id: string;
+    percentage?: number | null;
     remarks?: string | null;
     student_id: string;
     subject_id: string;
+    total_marks?: number | null;
     updated_at: string;
     updated_by?: string | null;
 };
@@ -2593,6 +2797,7 @@ export type StudentMarkResponse = {
  * StudentResponse
  */
 export type StudentResponse = {
+    address?: string | null;
     admission_number: string;
     created_at: string;
     dob: string;
@@ -2601,19 +2806,20 @@ export type StudentResponse = {
     gender: Gender;
     id: string;
     name_english: string;
-    nic_or_birth_certificate: string;
+    phone?: string | null;
+    photo_url?: string | null;
     profile_address?: string | null;
     profile_id?: string | null;
     profile_name?: string | null;
     profile_phone?: string | null;
     profile_photo_url?: string | null;
     religion?: Religion | null;
-    status: StudentStatus;
+    status?: StudentStatus | null;
     updated_at: string;
     user_email?: string | null;
 };
 
-export type StudentStatus = 'Active' | 'Transferred' | 'Graduated' | 'Withdrawn' | 'Suspended';
+export type StudentStatus = 'Active' | 'Transferred' | 'Graduated' | 'Withdrawn' | 'Suspended' | 'Repeater';
 
 /**
  * SubjectEnrollmentResponse
@@ -2645,7 +2851,7 @@ export type SubjectResponse = {
 export type SubmitExcuseRequest = {
     attendance_record_id: string;
     document_url?: string | null;
-    excuse_type: string;
+    excuse_type: ExcuseType;
 };
 
 /**
@@ -2707,8 +2913,6 @@ export type TeacherRewardHistory = {
     created_at: string;
     id: string;
     points: number;
-    reason_type: RewardReasonType;
-    reference_id?: string | null;
     teacher_id: string;
 };
 
@@ -2757,7 +2961,6 @@ export type TimetableResponse = {
     end_time: string;
     grade_period_id?: string | null;
     id: string;
-    period_number: number;
     room: string;
     start_time: string;
     subject_id: string;
@@ -2787,36 +2990,6 @@ export type TrialBalanceResponse = {
     account_balances: {
         [key: string]: number;
     };
-};
-
-/**
- * UniformIssueResponse
- */
-export type UniformIssueResponse = {
-    amount_collected: number;
-    created_at: string;
-    id: string;
-    issue_date: string;
-    issued_by: string;
-    quantity: number;
-    student_id: string;
-    uniform_item_id: string;
-    updated_at: string;
-};
-
-/**
- * UniformItemResponse
- */
-export type UniformItemResponse = {
-    created_at: string;
-    gender: string;
-    grade_level?: string | null;
-    id: string;
-    item_name: string;
-    price: number;
-    quantity: number;
-    size: string;
-    updated_at: string;
 };
 
 /**
@@ -2864,10 +3037,8 @@ export type UpdateClassRequest = {
     academic_year_id?: string | null;
     class_teacher_id?: string | null;
     grade_id?: string | null;
-    max_capacity?: number | null;
     medium?: Medium | null;
-    room_number?: string | null;
-    section_name?: string | null;
+    room_id?: string | null;
 };
 
 /**
@@ -2901,35 +3072,27 @@ export type UpdateEmergencyStatusRequest = {
 };
 
 /**
- * UpdateExamRequest
+ * UpdateExamStructureRequest
  */
-export type UpdateExamRequest = {
-    academic_year_id?: string | null;
-    end_date?: string | null;
-    exam_type_id?: string | null;
-    name?: string | null;
-    start_date?: string | null;
-    term_id?: string | null;
-};
-
-/**
- * UpdateExamSubjectRequest
- */
-export type UpdateExamSubjectRequest = {
-    date?: string | null;
-    duration?: number | null;
-    max_marks?: number | null;
-    pass_marks?: number | null;
-    time?: string | null;
-};
-
-/**
- * UpdateExamTypeRequest
- */
-export type UpdateExamTypeRequest = {
+export type UpdateExamStructureRequest = {
     description?: string | null;
+    is_active?: boolean | null;
+    medium?: Medium | null;
     name?: string | null;
-    weightage?: number | null;
+    scope_type?: ExamScopeType | null;
+    valid_from?: string | null;
+    valid_to?: string | null;
+};
+
+/**
+ * UpdateExamStructureSubjectRequest
+ */
+export type UpdateExamStructureSubjectRequest = {
+    duration_minutes?: number | null;
+    max_marks?: number | null;
+    order_index?: number | null;
+    pass_marks?: number | null;
+    subject_id?: string | null;
 };
 
 /**
@@ -2951,6 +3114,32 @@ export type UpdateFeeStructureRequest = {
 };
 
 /**
+ * UpdateGovernmentExamRequest
+ */
+export type UpdateGovernmentExamRequest = {
+    authority?: string | null;
+    end_date?: string | null;
+    exam_structure_id?: string | null;
+    exam_year?: number | null;
+    level?: ExamLevel | null;
+    name?: string | null;
+    start_date?: string | null;
+    status?: ExamStatus | null;
+};
+
+/**
+ * UpdateGovernmentExamSubjectRequest
+ */
+export type UpdateGovernmentExamSubjectRequest = {
+    duration_minutes?: number | null;
+    exam_date?: string | null;
+    exam_time?: string | null;
+    max_marks?: number | null;
+    pass_marks?: number | null;
+    subject_id?: string | null;
+};
+
+/**
  * UpdateGradeLevelRequest
  */
 export type UpdateGradeLevelRequest = {
@@ -2965,20 +3154,8 @@ export type UpdateGradeLevelRequest = {
 export type UpdateGradePeriodRequest = {
     end_time?: string | null;
     is_break?: boolean | null;
-    period_number?: number | null;
+    is_optional?: boolean | null;
     start_time?: string | null;
-};
-
-/**
- * UpdateGradingCriterion
- */
-export type UpdateGradingCriterion = {
-    description?: string | null;
-    grade?: string | null;
-    grade_point?: number | null;
-    max_marks?: number | null;
-    min_marks?: number | null;
-    scheme_id?: string | null;
 };
 
 /**
@@ -2986,19 +3163,12 @@ export type UpdateGradingCriterion = {
  */
 export type UpdateGradingScheme = {
     description?: string | null;
-    grade_level?: string | null;
+    grade_level_id?: string | null;
+    is_default?: boolean | null;
     name?: string | null;
-};
-
-/**
- * UpdateInventoryItemRequest
- */
-export type UpdateInventoryItemRequest = {
-    description?: string | null;
-    item_name?: string | null;
-    reorder_level?: number | null;
-    unit?: string | null;
-    unit_price?: number | null;
+    pass_mark?: number | null;
+    scale_definition?: string | null;
+    scheme_type?: GradingSchemeType | null;
 };
 
 /**
@@ -3027,12 +3197,32 @@ export type UpdateLibrarySettingsRequest = {
 };
 
 /**
- * UpdateMaintenanceStatusRequest
+ * UpdateMarkingSchemePartRequest
  */
-export type UpdateMaintenanceStatusRequest = {
-    assigned_to?: string | null;
-    resolved_date?: string | null;
-    status: MaintenanceStatus;
+export type UpdateMarkingSchemePartRequest = {
+    max_marks?: number | null;
+    order_index?: number | null;
+    paper_label?: string | null;
+    part_label?: string | null;
+    question_label?: string | null;
+    structure_json?: string | null;
+    weight_ratio?: number | null;
+};
+
+/**
+ * UpdateMarkingSchemeRequest
+ */
+export type UpdateMarkingSchemeRequest = {
+    calculation_fn?: string | null;
+    curriculum_standard_id?: string | null;
+    description?: string | null;
+    grade_level_id?: string | null;
+    is_active?: boolean | null;
+    name?: string | null;
+    stream_id?: string | null;
+    subject_id?: string | null;
+    valid_from?: string | null;
+    valid_to?: string | null;
 };
 
 /**
@@ -3051,12 +3241,27 @@ export type UpdateProfileRequest = {
 };
 
 /**
- * UpdateResourceRequest
+ * UpdateReportCardMarkRequest
  */
-export type UpdateResourceRequest = {
-    description?: string | null;
-    resource_name?: string | null;
-    resource_type?: string | null;
+export type UpdateReportCardMarkRequest = {
+    grade?: string | null;
+    grade_point?: number | null;
+    marking_scheme_id?: string | null;
+    percentage?: number | null;
+    remarks?: string | null;
+    total_marks?: number | null;
+};
+
+/**
+ * UpdateReportCardRequest
+ */
+export type UpdateReportCardRequest = {
+    grading_scheme_id?: string | null;
+    overall_gpa?: number | null;
+    overall_grade?: string | null;
+    overall_percentage?: number | null;
+    rank?: number | null;
+    remarks?: string | null;
 };
 
 /**
@@ -3076,6 +3281,32 @@ export type UpdateSchoolSettingRequest = {
 };
 
 /**
+ * UpdateSchoolTestRequest
+ */
+export type UpdateSchoolTestRequest = {
+    academic_year_id?: string | null;
+    end_date?: string | null;
+    exam_structure_id?: string | null;
+    name?: string | null;
+    start_date?: string | null;
+    status?: ExamStatus | null;
+    term_id?: string | null;
+    test_type?: SchoolTestType | null;
+};
+
+/**
+ * UpdateSchoolTestSubjectRequest
+ */
+export type UpdateSchoolTestSubjectRequest = {
+    duration_minutes?: number | null;
+    max_marks?: number | null;
+    pass_marks?: number | null;
+    subject_id?: string | null;
+    test_date?: string | null;
+    test_time?: string | null;
+};
+
+/**
  * UpdateStaffAttendanceRequest
  */
 export type UpdateStaffAttendanceRequest = {
@@ -3091,17 +3322,14 @@ export type UpdateStaffAttendanceRequest = {
 export type UpdateStaffRequest = {
     address?: string | null;
     dob?: string | null;
-    gender?: string | null;
+    email?: string | null;
+    employment_status?: EmploymentStatus | null;
+    gender?: Gender | null;
     name?: string | null;
     nic?: string | null;
     phone?: string | null;
-};
-
-/**
- * UpdateStockRequest
- */
-export type UpdateStockRequest = {
-    quantity: number;
+    photo_url?: string | null;
+    staff_type?: StaffType | null;
 };
 
 /**
@@ -3130,8 +3358,8 @@ export type UpdateStudentGuardianRequest = {
  * UpdateStudentMarkRequest
  */
 export type UpdateStudentMarkRequest = {
+    entries?: Array<StudentMarkEntryInput> | null;
     is_absent?: boolean | null;
-    marks_obtained?: number | null;
     remarks?: string | null;
 };
 
@@ -3139,10 +3367,13 @@ export type UpdateStudentMarkRequest = {
  * UpdateStudentRequest
  */
 export type UpdateStudentRequest = {
+    address?: string | null;
     dob?: string | null;
+    email?: string | null;
     ethnicity?: Ethnicity | null;
     gender?: Gender | null;
-    nic_or_birth_certificate?: string | null;
+    phone?: string | null;
+    photo_url?: string | null;
     religion?: Religion | null;
     status?: StudentStatus | null;
 };
@@ -3180,7 +3411,6 @@ export type UpdateTimetableRequest = {
     day_of_week?: string | null;
     end_time?: string | null;
     grade_period_id?: string | null;
-    period_number?: number | null;
     room?: string | null;
     start_time?: string | null;
     subject_id?: string | null;
@@ -3219,7 +3449,7 @@ export type UserProfileResponse = {
     created_at: string;
     email: string;
     id: string;
-    is_verified: boolean;
+    is_verified?: boolean | null;
     name?: string | null;
     phone?: string | null;
     photo_url?: string | null;
@@ -3236,7 +3466,7 @@ export type UserResponse = {
     created_at: string;
     email: string;
     id: string;
-    is_verified: boolean;
+    is_verified?: boolean | null;
     lockout_until?: string | null;
     role: RoleEnum;
     updated_at: string;
@@ -4133,6 +4363,7 @@ export type GetAllUsersData = {
         created_after?: string | null;
         created_before?: string | null;
         is_verified?: boolean | null;
+        last_id?: string | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
@@ -4307,7 +4538,7 @@ export type DeleteUserData = {
     body?: never;
     path: {
         /**
-         * String
+         * UserId
          */
         user_id: string;
     };
@@ -4396,7 +4627,7 @@ export type UpdateUserData = {
     body: UpdateUserRequest;
     path: {
         /**
-         * String
+         * UserId
          */
         user_id: string;
     };
@@ -7011,6 +7242,7 @@ export type GetAllAcademicYearsData = {
     path?: never;
     query?: {
         current?: boolean | null;
+        last_id?: string | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
@@ -7185,7 +7417,7 @@ export type DeleteAcademicYearData = {
     body?: never;
     path: {
         /**
-         * String
+         * AcademicYearId
          */
         id: string;
     };
@@ -7274,7 +7506,7 @@ export type GetAcademicYearByIdData = {
     body?: never;
     path: {
         /**
-         * String
+         * AcademicYearId
          */
         id: string;
     };
@@ -7363,7 +7595,7 @@ export type UpdateAcademicYearData = {
     body: UpdateAcademicYearRequest;
     path: {
         /**
-         * String
+         * AcademicYearId
          */
         id: string;
     };
@@ -7452,7 +7684,7 @@ export type SetCurrentAcademicYearData = {
     body?: never;
     path: {
         /**
-         * String
+         * AcademicYearId
          */
         id: string;
     };
@@ -7793,7 +8025,8 @@ export type GetAllGradeLevelsData = {
     body?: never;
     path?: never;
     query?: {
-        education_level?: string | null;
+        education_level?: EducationLevel | null;
+        last_id?: string | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
@@ -7968,7 +8201,7 @@ export type DeleteGradeLevelData = {
     body?: never;
     path: {
         /**
-         * String
+         * GradeLevelId
          */
         id: string;
     };
@@ -8057,7 +8290,7 @@ export type GetGradeLevelByIdData = {
     body?: never;
     path: {
         /**
-         * String
+         * GradeLevelId
          */
         id: string;
     };
@@ -8146,7 +8379,7 @@ export type UpdateGradeLevelData = {
     body: UpdateGradeLevelRequest;
     path: {
         /**
-         * String
+         * GradeLevelId
          */
         id: string;
     };
@@ -8754,6 +8987,7 @@ export type GetAllClassesData = {
     query?: {
         academic_year_id?: string | null;
         grade_id?: string | null;
+        last_id?: string | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
@@ -8928,7 +9162,7 @@ export type DeleteClassData = {
     body?: never;
     path: {
         /**
-         * String
+         * ClassId
          */
         id: string;
     };
@@ -9017,7 +9251,7 @@ export type GetClassByIdData = {
     body?: never;
     path: {
         /**
-         * String
+         * ClassId
          */
         id: string;
     };
@@ -9106,7 +9340,7 @@ export type UpdateClassData = {
     body: UpdateClassRequest;
     path: {
         /**
-         * String
+         * ClassId
          */
         id: string;
     };
@@ -9195,7 +9429,7 @@ export type GetClassesByGradeData = {
     body?: never;
     path: {
         /**
-         * String
+         * GradeLevelId
          */
         id: string;
     };
@@ -9454,6 +9688,7 @@ export type GetAllSubjectsData = {
     query?: {
         grade_id?: string | null;
         is_core?: boolean | null;
+        last_id?: string | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
@@ -9629,7 +9864,7 @@ export type DeleteSubjectData = {
     body?: never;
     path: {
         /**
-         * String
+         * SubjectId
          */
         id: string;
     };
@@ -9718,7 +9953,7 @@ export type GetSubjectByIdData = {
     body?: never;
     path: {
         /**
-         * String
+         * SubjectId
          */
         id: string;
     };
@@ -9807,7 +10042,7 @@ export type UpdateSubjectData = {
     body: UpdateSubjectRequest;
     path: {
         /**
-         * String
+         * SubjectId
          */
         id: string;
     };
@@ -9896,7 +10131,7 @@ export type GetSubjectsByGradeData = {
     body?: never;
     path: {
         /**
-         * String
+         * GradeLevelId
          */
         grade_id: string;
     };
@@ -9985,7 +10220,7 @@ export type GetSubjectsByStreamData = {
     body?: never;
     path: {
         /**
-         * String
+         * AlStreamId
          */
         stream_id: string;
     };
@@ -10074,15 +10309,16 @@ export type GetStudentsBySubjectData = {
     body?: never;
     path: {
         /**
-         * String
+         * SubjectId
          */
         id: string;
         /**
-         * String
+         * AcademicYearId
          */
         academic_year_id: string;
     };
     query?: {
+        last_id?: string | null;
         limit?: number | null;
         page?: number | null;
     };
@@ -10422,11 +10658,11 @@ export type GetStudentEnrollmentsData = {
     body?: never;
     path: {
         /**
-         * String
+         * StudentId
          */
         student_id: string;
         /**
-         * String
+         * AcademicYearId
          */
         academic_year_id: string;
     };
@@ -11688,20 +11924,1080 @@ export type GetTimetableByTeacherResponses = {
 
 export type GetTimetableByTeacherResponse = GetTimetableByTeacherResponses[keyof GetTimetableByTeacherResponses];
 
-export type GetAllExamTypesData = {
+export type GetAllExamStructuresData = {
     body?: never;
     path?: never;
     query?: {
+        is_active?: boolean | null;
+        last_id?: string | null;
+        limit?: number | null;
+        page?: number | null;
+        scope_type?: ExamScopeType | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+    };
+    url: '/exam-structures';
+};
+
+export type GetAllExamStructuresErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetAllExamStructuresResponses = {
+    200: PaginatedExamStructureResponse;
+};
+
+export type GetAllExamStructuresResponse = GetAllExamStructuresResponses[keyof GetAllExamStructuresResponses];
+
+export type CreateExamStructureData = {
+    body: CreateExamStructureRequest;
+    path?: never;
+    query?: never;
+    url: '/exam-structures';
+};
+
+export type CreateExamStructureErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type CreateExamStructureResponses = {
+    200: ExamStructure;
+};
+
+export type CreateExamStructureResponse = CreateExamStructureResponses[keyof CreateExamStructureResponses];
+
+export type DeleteExamStructureData = {
+    body?: never;
+    path: {
+        /**
+         * ExamStructureId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/exam-structures/{id}';
+};
+
+export type DeleteExamStructureErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteExamStructureResponses = {
+    200: MessageResponse;
+};
+
+export type DeleteExamStructureResponse = DeleteExamStructureResponses[keyof DeleteExamStructureResponses];
+
+export type GetExamStructureByIdData = {
+    body?: never;
+    path: {
+        /**
+         * ExamStructureId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/exam-structures/{id}';
+};
+
+export type GetExamStructureByIdErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetExamStructureByIdResponses = {
+    200: ExamStructure;
+};
+
+export type GetExamStructureByIdResponse = GetExamStructureByIdResponses[keyof GetExamStructureByIdResponses];
+
+export type UpdateExamStructureData = {
+    body: UpdateExamStructureRequest;
+    path: {
+        /**
+         * ExamStructureId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/exam-structures/{id}';
+};
+
+export type UpdateExamStructureErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type UpdateExamStructureResponses = {
+    200: ExamStructure;
+};
+
+export type UpdateExamStructureResponse = UpdateExamStructureResponses[keyof UpdateExamStructureResponses];
+
+export type BulkDeleteExamStructuresData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/exam-structures/bulk';
+};
+
+export type BulkDeleteExamStructuresErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkDeleteExamStructuresResponses = {
+    200: unknown;
+};
+
+export type BulkUpdateExamStructuresData = {
+    body: BulkUpdateExamStructuresRequest;
+    path?: never;
+    query?: never;
+    url: '/exam-structures/bulk';
+};
+
+export type BulkUpdateExamStructuresErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkUpdateExamStructuresResponses = {
+    200: unknown;
+};
+
+export type GetExamStructureSubjectsByStructureData = {
+    body?: never;
+    path: {
+        /**
+         * ExamStructureId
+         */
+        structure_id: string;
+    };
+    query?: {
+        last_id?: string | null;
+        limit?: number | null;
+        page?: number | null;
+    };
+    url: '/exam-structures/{structure_id}/subjects';
+};
+
+export type GetExamStructureSubjectsByStructureErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetExamStructureSubjectsByStructureResponses = {
+    200: PaginatedExamStructureSubjectResponse;
+};
+
+export type GetExamStructureSubjectsByStructureResponse = GetExamStructureSubjectsByStructureResponses[keyof GetExamStructureSubjectsByStructureResponses];
+
+export type CreateExamStructureSubjectData = {
+    body: CreateExamStructureSubjectRequest;
+    path: {
+        /**
+         * ExamStructureId
+         */
+        structure_id: string;
+    };
+    query?: never;
+    url: '/exam-structures/{structure_id}/subjects';
+};
+
+export type CreateExamStructureSubjectErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type CreateExamStructureSubjectResponses = {
+    200: ExamStructureSubject;
+};
+
+export type CreateExamStructureSubjectResponse = CreateExamStructureSubjectResponses[keyof CreateExamStructureSubjectResponses];
+
+export type DeleteExamStructureSubjectData = {
+    body?: never;
+    path: {
+        /**
+         * ExamStructureSubjectId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/exam-structures/subjects/{id}';
+};
+
+export type DeleteExamStructureSubjectErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteExamStructureSubjectResponses = {
+    200: MessageResponse;
+};
+
+export type DeleteExamStructureSubjectResponse = DeleteExamStructureSubjectResponses[keyof DeleteExamStructureSubjectResponses];
+
+export type GetExamStructureSubjectByIdData = {
+    body?: never;
+    path: {
+        /**
+         * ExamStructureSubjectId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/exam-structures/subjects/{id}';
+};
+
+export type GetExamStructureSubjectByIdErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetExamStructureSubjectByIdResponses = {
+    200: ExamStructureSubject;
+};
+
+export type GetExamStructureSubjectByIdResponse = GetExamStructureSubjectByIdResponses[keyof GetExamStructureSubjectByIdResponses];
+
+export type UpdateExamStructureSubjectData = {
+    body: UpdateExamStructureSubjectRequest;
+    path: {
+        /**
+         * ExamStructureSubjectId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/exam-structures/subjects/{id}';
+};
+
+export type UpdateExamStructureSubjectErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type UpdateExamStructureSubjectResponses = {
+    200: ExamStructureSubject;
+};
+
+export type UpdateExamStructureSubjectResponse = UpdateExamStructureSubjectResponses[keyof UpdateExamStructureSubjectResponses];
+
+export type GetAllGovernmentExamsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        exam_structure_id?: string | null;
+        last_id?: string | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
         sort_by?: string | null;
         sort_order?: string | null;
+        status?: ExamStatus | null;
     };
-    url: '/exam-types';
+    url: '/government-exams';
 };
 
-export type GetAllExamTypesErrors = {
+export type GetAllGovernmentExamsErrors = {
     /**
      * Bad Request
      */
@@ -11772,20 +13068,20 @@ export type GetAllExamTypesErrors = {
     504: unknown;
 };
 
-export type GetAllExamTypesResponses = {
-    200: PaginatedExamTypeResponse;
+export type GetAllGovernmentExamsResponses = {
+    200: PaginatedGovernmentExamResponse;
 };
 
-export type GetAllExamTypesResponse = GetAllExamTypesResponses[keyof GetAllExamTypesResponses];
+export type GetAllGovernmentExamsResponse = GetAllGovernmentExamsResponses[keyof GetAllGovernmentExamsResponses];
 
-export type CreateExamTypeData = {
-    body: CreateExamTypeRequest;
+export type CreateGovernmentExamData = {
+    body: CreateGovernmentExamRequest;
     path?: never;
     query?: never;
-    url: '/exam-types';
+    url: '/government-exams';
 };
 
-export type CreateExamTypeErrors = {
+export type CreateGovernmentExamErrors = {
     /**
      * Bad Request
      */
@@ -11856,25 +13152,25 @@ export type CreateExamTypeErrors = {
     504: unknown;
 };
 
-export type CreateExamTypeResponses = {
-    200: ExamTypeResponse;
+export type CreateGovernmentExamResponses = {
+    200: GovernmentExam;
 };
 
-export type CreateExamTypeResponse = CreateExamTypeResponses[keyof CreateExamTypeResponses];
+export type CreateGovernmentExamResponse = CreateGovernmentExamResponses[keyof CreateGovernmentExamResponses];
 
-export type DeleteExamTypeData = {
+export type DeleteGovernmentExamData = {
     body?: never;
     path: {
         /**
-         * String
+         * GovernmentExamId
          */
         id: string;
     };
     query?: never;
-    url: '/exam-types/{id}';
+    url: '/government-exams/{id}';
 };
 
-export type DeleteExamTypeErrors = {
+export type DeleteGovernmentExamErrors = {
     /**
      * Bad Request
      */
@@ -11945,25 +13241,25 @@ export type DeleteExamTypeErrors = {
     504: unknown;
 };
 
-export type DeleteExamTypeResponses = {
+export type DeleteGovernmentExamResponses = {
     200: MessageResponse;
 };
 
-export type DeleteExamTypeResponse = DeleteExamTypeResponses[keyof DeleteExamTypeResponses];
+export type DeleteGovernmentExamResponse = DeleteGovernmentExamResponses[keyof DeleteGovernmentExamResponses];
 
-export type GetExamTypeByIdData = {
+export type GetGovernmentExamByIdData = {
     body?: never;
     path: {
         /**
-         * String
+         * GovernmentExamId
          */
         id: string;
     };
     query?: never;
-    url: '/exam-types/{id}';
+    url: '/government-exams/{id}';
 };
 
-export type GetExamTypeByIdErrors = {
+export type GetGovernmentExamByIdErrors = {
     /**
      * Bad Request
      */
@@ -12034,25 +13330,25 @@ export type GetExamTypeByIdErrors = {
     504: unknown;
 };
 
-export type GetExamTypeByIdResponses = {
-    200: ExamTypeResponse;
+export type GetGovernmentExamByIdResponses = {
+    200: GovernmentExam;
 };
 
-export type GetExamTypeByIdResponse = GetExamTypeByIdResponses[keyof GetExamTypeByIdResponses];
+export type GetGovernmentExamByIdResponse = GetGovernmentExamByIdResponses[keyof GetGovernmentExamByIdResponses];
 
-export type UpdateExamTypeData = {
-    body: UpdateExamTypeRequest;
+export type UpdateGovernmentExamData = {
+    body: UpdateGovernmentExamRequest;
     path: {
         /**
-         * String
+         * GovernmentExamId
          */
         id: string;
     };
     query?: never;
-    url: '/exam-types/{id}';
+    url: '/government-exams/{id}';
 };
 
-export type UpdateExamTypeErrors = {
+export type UpdateGovernmentExamErrors = {
     /**
      * Bad Request
      */
@@ -12123,20 +13419,20 @@ export type UpdateExamTypeErrors = {
     504: unknown;
 };
 
-export type UpdateExamTypeResponses = {
-    200: ExamTypeResponse;
+export type UpdateGovernmentExamResponses = {
+    200: GovernmentExam;
 };
 
-export type UpdateExamTypeResponse = UpdateExamTypeResponses[keyof UpdateExamTypeResponses];
+export type UpdateGovernmentExamResponse = UpdateGovernmentExamResponses[keyof UpdateGovernmentExamResponses];
 
-export type BulkDeleteExamTypesData = {
-    body: BulkDeleteExamTypesRequest;
+export type BulkDeleteGovernmentExamsData = {
+    body?: never;
     path?: never;
     query?: never;
-    url: '/exam-types/bulk';
+    url: '/government-exams/bulk';
 };
 
-export type BulkDeleteExamTypesErrors = {
+export type BulkDeleteGovernmentExamsErrors = {
     /**
      * Bad Request
      */
@@ -12207,20 +13503,376 @@ export type BulkDeleteExamTypesErrors = {
     504: unknown;
 };
 
-export type BulkDeleteExamTypesResponses = {
+export type BulkDeleteGovernmentExamsResponses = {
+    200: unknown;
+};
+
+export type BulkUpdateGovernmentExamsData = {
+    body: BulkUpdateGovernmentExamsRequest;
+    path?: never;
+    query?: never;
+    url: '/government-exams/bulk';
+};
+
+export type BulkUpdateGovernmentExamsErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkUpdateGovernmentExamsResponses = {
+    200: unknown;
+};
+
+export type GetGovernmentExamSubjectsByExamData = {
+    body?: never;
+    path: {
+        /**
+         * GovernmentExamId
+         */
+        government_exam_id: string;
+    };
+    query?: {
+        last_id?: string | null;
+        limit?: number | null;
+        page?: number | null;
+    };
+    url: '/government-exams/{government_exam_id}/subjects';
+};
+
+export type GetGovernmentExamSubjectsByExamErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetGovernmentExamSubjectsByExamResponses = {
+    200: PaginatedGovernmentExamSubjectResponse;
+};
+
+export type GetGovernmentExamSubjectsByExamResponse = GetGovernmentExamSubjectsByExamResponses[keyof GetGovernmentExamSubjectsByExamResponses];
+
+export type CreateGovernmentExamSubjectData = {
+    body: CreateGovernmentExamSubjectRequest;
+    path: {
+        /**
+         * GovernmentExamId
+         */
+        government_exam_id: string;
+    };
+    query?: never;
+    url: '/government-exams/{government_exam_id}/subjects';
+};
+
+export type CreateGovernmentExamSubjectErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type CreateGovernmentExamSubjectResponses = {
+    200: GovernmentExamSubject;
+};
+
+export type CreateGovernmentExamSubjectResponse = CreateGovernmentExamSubjectResponses[keyof CreateGovernmentExamSubjectResponses];
+
+export type DeleteGovernmentExamSubjectData = {
+    body?: never;
+    path: {
+        /**
+         * GovernmentExamSubjectId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/government-exams/subjects/{id}';
+};
+
+export type DeleteGovernmentExamSubjectErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteGovernmentExamSubjectResponses = {
     200: MessageResponse;
 };
 
-export type BulkDeleteExamTypesResponse = BulkDeleteExamTypesResponses[keyof BulkDeleteExamTypesResponses];
+export type DeleteGovernmentExamSubjectResponse = DeleteGovernmentExamSubjectResponses[keyof DeleteGovernmentExamSubjectResponses];
 
-export type BulkUpdateExamTypesData = {
-    body: BulkUpdateExamTypesRequest;
-    path?: never;
+export type GetGovernmentExamSubjectByIdData = {
+    body?: never;
+    path: {
+        /**
+         * GovernmentExamSubjectId
+         */
+        id: string;
+    };
     query?: never;
-    url: '/exam-types/bulk';
+    url: '/government-exams/subjects/{id}';
 };
 
-export type BulkUpdateExamTypesErrors = {
+export type GetGovernmentExamSubjectByIdErrors = {
     /**
      * Bad Request
      */
@@ -12291,29 +13943,120 @@ export type BulkUpdateExamTypesErrors = {
     504: unknown;
 };
 
-export type BulkUpdateExamTypesResponses = {
-    200: MessageResponse;
+export type GetGovernmentExamSubjectByIdResponses = {
+    200: GovernmentExamSubject;
 };
 
-export type BulkUpdateExamTypesResponse = BulkUpdateExamTypesResponses[keyof BulkUpdateExamTypesResponses];
+export type GetGovernmentExamSubjectByIdResponse = GetGovernmentExamSubjectByIdResponses[keyof GetGovernmentExamSubjectByIdResponses];
 
-export type GetAllExamsData = {
+export type UpdateGovernmentExamSubjectData = {
+    body: UpdateGovernmentExamSubjectRequest;
+    path: {
+        /**
+         * GovernmentExamSubjectId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/government-exams/subjects/{id}';
+};
+
+export type UpdateGovernmentExamSubjectErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type UpdateGovernmentExamSubjectResponses = {
+    200: GovernmentExamSubject;
+};
+
+export type UpdateGovernmentExamSubjectResponse = UpdateGovernmentExamSubjectResponses[keyof UpdateGovernmentExamSubjectResponses];
+
+export type GetAllSchoolTestsData = {
     body?: never;
     path?: never;
     query?: {
         academic_year_id?: string | null;
-        exam_type_id?: string | null;
+        exam_structure_id?: string | null;
+        last_id?: string | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
         sort_by?: string | null;
         sort_order?: string | null;
+        status?: ExamStatus | null;
         term_id?: string | null;
     };
-    url: '/exams';
+    url: '/school-tests';
 };
 
-export type GetAllExamsErrors = {
+export type GetAllSchoolTestsErrors = {
     /**
      * Bad Request
      */
@@ -12384,20 +14127,20 @@ export type GetAllExamsErrors = {
     504: unknown;
 };
 
-export type GetAllExamsResponses = {
-    200: PaginatedExamResponse;
+export type GetAllSchoolTestsResponses = {
+    200: PaginatedSchoolTestResponse;
 };
 
-export type GetAllExamsResponse = GetAllExamsResponses[keyof GetAllExamsResponses];
+export type GetAllSchoolTestsResponse = GetAllSchoolTestsResponses[keyof GetAllSchoolTestsResponses];
 
-export type CreateExamData = {
-    body: CreateExamRequest;
+export type CreateSchoolTestData = {
+    body: CreateSchoolTestRequest;
     path?: never;
     query?: never;
-    url: '/exams';
+    url: '/school-tests';
 };
 
-export type CreateExamErrors = {
+export type CreateSchoolTestErrors = {
     /**
      * Bad Request
      */
@@ -12468,25 +14211,25 @@ export type CreateExamErrors = {
     504: unknown;
 };
 
-export type CreateExamResponses = {
-    200: ExamResponse;
+export type CreateSchoolTestResponses = {
+    200: SchoolTest;
 };
 
-export type CreateExamResponse = CreateExamResponses[keyof CreateExamResponses];
+export type CreateSchoolTestResponse = CreateSchoolTestResponses[keyof CreateSchoolTestResponses];
 
-export type DeleteExamData = {
+export type DeleteSchoolTestData = {
     body?: never;
     path: {
         /**
-         * String
+         * SchoolTestId
          */
         id: string;
     };
     query?: never;
-    url: '/exams/{id}';
+    url: '/school-tests/{id}';
 };
 
-export type DeleteExamErrors = {
+export type DeleteSchoolTestErrors = {
     /**
      * Bad Request
      */
@@ -12557,25 +14300,25 @@ export type DeleteExamErrors = {
     504: unknown;
 };
 
-export type DeleteExamResponses = {
+export type DeleteSchoolTestResponses = {
     200: MessageResponse;
 };
 
-export type DeleteExamResponse = DeleteExamResponses[keyof DeleteExamResponses];
+export type DeleteSchoolTestResponse = DeleteSchoolTestResponses[keyof DeleteSchoolTestResponses];
 
-export type GetExamByIdData = {
+export type GetSchoolTestByIdData = {
     body?: never;
     path: {
         /**
-         * String
+         * SchoolTestId
          */
         id: string;
     };
     query?: never;
-    url: '/exams/{id}';
+    url: '/school-tests/{id}';
 };
 
-export type GetExamByIdErrors = {
+export type GetSchoolTestByIdErrors = {
     /**
      * Bad Request
      */
@@ -12646,25 +14389,25 @@ export type GetExamByIdErrors = {
     504: unknown;
 };
 
-export type GetExamByIdResponses = {
-    200: ExamResponse;
+export type GetSchoolTestByIdResponses = {
+    200: SchoolTest;
 };
 
-export type GetExamByIdResponse = GetExamByIdResponses[keyof GetExamByIdResponses];
+export type GetSchoolTestByIdResponse = GetSchoolTestByIdResponses[keyof GetSchoolTestByIdResponses];
 
-export type UpdateExamData = {
-    body: UpdateExamRequest;
+export type UpdateSchoolTestData = {
+    body: UpdateSchoolTestRequest;
     path: {
         /**
-         * String
+         * SchoolTestId
          */
         id: string;
     };
     query?: never;
-    url: '/exams/{id}';
+    url: '/school-tests/{id}';
 };
 
-export type UpdateExamErrors = {
+export type UpdateSchoolTestErrors = {
     /**
      * Bad Request
      */
@@ -12735,25 +14478,282 @@ export type UpdateExamErrors = {
     504: unknown;
 };
 
-export type UpdateExamResponses = {
-    200: ExamResponse;
+export type UpdateSchoolTestResponses = {
+    200: SchoolTest;
 };
 
-export type UpdateExamResponse = UpdateExamResponses[keyof UpdateExamResponses];
+export type UpdateSchoolTestResponse = UpdateSchoolTestResponses[keyof UpdateSchoolTestResponses];
 
-export type GetExamsByTermIdData = {
+export type BulkDeleteSchoolTestsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/school-tests/bulk';
+};
+
+export type BulkDeleteSchoolTestsErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkDeleteSchoolTestsResponses = {
+    200: unknown;
+};
+
+export type BulkUpdateSchoolTestsData = {
+    body: BulkUpdateSchoolTestsRequest;
+    path?: never;
+    query?: never;
+    url: '/school-tests/bulk';
+};
+
+export type BulkUpdateSchoolTestsErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkUpdateSchoolTestsResponses = {
+    200: unknown;
+};
+
+export type GetSchoolTestSubjectsByTestData = {
     body?: never;
     path: {
         /**
-         * String
+         * SchoolTestId
          */
-        term_id: string;
+        school_test_id: string;
+    };
+    query?: {
+        last_id?: string | null;
+        limit?: number | null;
+        page?: number | null;
+    };
+    url: '/school-tests/{school_test_id}/subjects';
+};
+
+export type GetSchoolTestSubjectsByTestErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetSchoolTestSubjectsByTestResponses = {
+    200: PaginatedSchoolTestSubjectResponse;
+};
+
+export type GetSchoolTestSubjectsByTestResponse = GetSchoolTestSubjectsByTestResponses[keyof GetSchoolTestSubjectsByTestResponses];
+
+export type CreateSchoolTestSubjectData = {
+    body: CreateSchoolTestSubjectRequest;
+    path: {
+        /**
+         * SchoolTestId
+         */
+        school_test_id: string;
     };
     query?: never;
-    url: '/exams/term/{term_id}';
+    url: '/school-tests/{school_test_id}/subjects';
 };
 
-export type GetExamsByTermIdErrors = {
+export type CreateSchoolTestSubjectErrors = {
     /**
      * Bad Request
      */
@@ -12824,20 +14824,25 @@ export type GetExamsByTermIdErrors = {
     504: unknown;
 };
 
-export type GetExamsByTermIdResponses = {
-    200: Array<ExamResponse>;
+export type CreateSchoolTestSubjectResponses = {
+    200: SchoolTestSubject;
 };
 
-export type GetExamsByTermIdResponse = GetExamsByTermIdResponses[keyof GetExamsByTermIdResponses];
+export type CreateSchoolTestSubjectResponse = CreateSchoolTestSubjectResponses[keyof CreateSchoolTestSubjectResponses];
 
-export type BulkDeleteExamsData = {
-    body: BulkDeleteExamsRequest;
-    path?: never;
+export type DeleteSchoolTestSubjectData = {
+    body?: never;
+    path: {
+        /**
+         * SchoolTestSubjectId
+         */
+        id: string;
+    };
     query?: never;
-    url: '/exams/bulk';
+    url: '/school-tests/subjects/{id}';
 };
 
-export type BulkDeleteExamsErrors = {
+export type DeleteSchoolTestSubjectErrors = {
     /**
      * Bad Request
      */
@@ -12908,20 +14913,25 @@ export type BulkDeleteExamsErrors = {
     504: unknown;
 };
 
-export type BulkDeleteExamsResponses = {
+export type DeleteSchoolTestSubjectResponses = {
     200: MessageResponse;
 };
 
-export type BulkDeleteExamsResponse = BulkDeleteExamsResponses[keyof BulkDeleteExamsResponses];
+export type DeleteSchoolTestSubjectResponse = DeleteSchoolTestSubjectResponses[keyof DeleteSchoolTestSubjectResponses];
 
-export type BulkUpdateExamsData = {
-    body: BulkUpdateExamsRequest;
-    path?: never;
+export type GetSchoolTestSubjectByIdData = {
+    body?: never;
+    path: {
+        /**
+         * SchoolTestSubjectId
+         */
+        id: string;
+    };
     query?: never;
-    url: '/exams/bulk';
+    url: '/school-tests/subjects/{id}';
 };
 
-export type BulkUpdateExamsErrors = {
+export type GetSchoolTestSubjectByIdErrors = {
     /**
      * Bad Request
      */
@@ -12992,197 +15002,383 @@ export type BulkUpdateExamsErrors = {
     504: unknown;
 };
 
-export type BulkUpdateExamsResponses = {
+export type GetSchoolTestSubjectByIdResponses = {
+    200: SchoolTestSubject;
+};
+
+export type GetSchoolTestSubjectByIdResponse = GetSchoolTestSubjectByIdResponses[keyof GetSchoolTestSubjectByIdResponses];
+
+export type UpdateSchoolTestSubjectData = {
+    body: UpdateSchoolTestSubjectRequest;
+    path: {
+        /**
+         * SchoolTestSubjectId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/school-tests/subjects/{id}';
+};
+
+export type UpdateSchoolTestSubjectErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type UpdateSchoolTestSubjectResponses = {
+    200: SchoolTestSubject;
+};
+
+export type UpdateSchoolTestSubjectResponse = UpdateSchoolTestSubjectResponses[keyof UpdateSchoolTestSubjectResponses];
+
+export type GetAllMarkingSchemesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        curriculum_standard_id?: string | null;
+        grade_level_id?: string | null;
+        is_active?: boolean | null;
+        last_id?: string | null;
+        limit?: number | null;
+        page?: number | null;
+        search?: string | null;
+        sort_by?: string | null;
+        sort_order?: string | null;
+        stream_id?: string | null;
+        subject_id?: string | null;
+    };
+    url: '/marking-schemes';
+};
+
+export type GetAllMarkingSchemesErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetAllMarkingSchemesResponses = {
+    200: PaginatedMarkingSchemeResponse;
+};
+
+export type GetAllMarkingSchemesResponse = GetAllMarkingSchemesResponses[keyof GetAllMarkingSchemesResponses];
+
+export type CreateMarkingSchemeData = {
+    body: CreateMarkingSchemeRequest;
+    path?: never;
+    query?: never;
+    url: '/marking-schemes';
+};
+
+export type CreateMarkingSchemeErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type CreateMarkingSchemeResponses = {
+    200: MarkingScheme;
+};
+
+export type CreateMarkingSchemeResponse = CreateMarkingSchemeResponses[keyof CreateMarkingSchemeResponses];
+
+export type DeleteMarkingSchemeData = {
+    body?: never;
+    path: {
+        /**
+         * MarkingSchemeId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/marking-schemes/{id}';
+};
+
+export type DeleteMarkingSchemeErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteMarkingSchemeResponses = {
     200: MessageResponse;
 };
 
-export type BulkUpdateExamsResponse = BulkUpdateExamsResponses[keyof BulkUpdateExamsResponses];
+export type DeleteMarkingSchemeResponse = DeleteMarkingSchemeResponses[keyof DeleteMarkingSchemeResponses];
 
-export type GetAllExamSubjectsData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/exam-subjects';
-};
-
-export type GetAllExamSubjectsErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetAllExamSubjectsResponses = {
-    200: Array<ExamSubjectResponse>;
-};
-
-export type GetAllExamSubjectsResponse = GetAllExamSubjectsResponses[keyof GetAllExamSubjectsResponses];
-
-export type CreateExamSubjectData = {
-    body: CreateExamSubjectRequest;
-    path?: never;
-    query?: never;
-    url: '/exam-subjects';
-};
-
-export type CreateExamSubjectErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type CreateExamSubjectResponses = {
-    200: ExamSubjectResponse;
-};
-
-export type CreateExamSubjectResponse = CreateExamSubjectResponses[keyof CreateExamSubjectResponses];
-
-export type DeleteExamSubjectData = {
+export type GetMarkingSchemeByIdData = {
     body?: never;
     path: {
         /**
-         * String
+         * MarkingSchemeId
          */
-        exam_id: string;
-        /**
-         * String
-         */
-        subject_id: string;
+        id: string;
     };
     query?: never;
-    url: '/exam-subjects/{exam_id}/{subject_id}';
+    url: '/marking-schemes/{id}';
 };
 
-export type DeleteExamSubjectErrors = {
+export type GetMarkingSchemeByIdErrors = {
     /**
      * Bad Request
      */
@@ -13253,29 +15449,549 @@ export type DeleteExamSubjectErrors = {
     504: unknown;
 };
 
-export type DeleteExamSubjectResponses = {
+export type GetMarkingSchemeByIdResponses = {
+    200: MarkingScheme;
+};
+
+export type GetMarkingSchemeByIdResponse = GetMarkingSchemeByIdResponses[keyof GetMarkingSchemeByIdResponses];
+
+export type UpdateMarkingSchemeData = {
+    body: UpdateMarkingSchemeRequest;
+    path: {
+        /**
+         * MarkingSchemeId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/marking-schemes/{id}';
+};
+
+export type UpdateMarkingSchemeErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type UpdateMarkingSchemeResponses = {
+    200: MarkingScheme;
+};
+
+export type UpdateMarkingSchemeResponse = UpdateMarkingSchemeResponses[keyof UpdateMarkingSchemeResponses];
+
+export type BulkDeleteMarkingSchemesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/marking-schemes/bulk';
+};
+
+export type BulkDeleteMarkingSchemesErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkDeleteMarkingSchemesResponses = {
+    200: unknown;
+};
+
+export type BulkUpdateMarkingSchemesData = {
+    body: BulkUpdateMarkingSchemesRequest;
+    path?: never;
+    query?: never;
+    url: '/marking-schemes/bulk';
+};
+
+export type BulkUpdateMarkingSchemesErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type BulkUpdateMarkingSchemesResponses = {
+    200: unknown;
+};
+
+export type GetMarkingSchemePartsBySchemeData = {
+    body?: never;
+    path: {
+        /**
+         * MarkingSchemeId
+         */
+        scheme_id: string;
+    };
+    query?: {
+        last_id?: string | null;
+        limit?: number | null;
+        page?: number | null;
+    };
+    url: '/marking-schemes/{scheme_id}/parts';
+};
+
+export type GetMarkingSchemePartsBySchemeErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetMarkingSchemePartsBySchemeResponses = {
+    200: PaginatedMarkingSchemePartResponse;
+};
+
+export type GetMarkingSchemePartsBySchemeResponse = GetMarkingSchemePartsBySchemeResponses[keyof GetMarkingSchemePartsBySchemeResponses];
+
+export type CreateMarkingSchemePartData = {
+    body: CreateMarkingSchemePartRequest;
+    path: {
+        /**
+         * MarkingSchemeId
+         */
+        scheme_id: string;
+    };
+    query?: never;
+    url: '/marking-schemes/{scheme_id}/parts';
+};
+
+export type CreateMarkingSchemePartErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type CreateMarkingSchemePartResponses = {
+    200: MarkingSchemePart;
+};
+
+export type CreateMarkingSchemePartResponse = CreateMarkingSchemePartResponses[keyof CreateMarkingSchemePartResponses];
+
+export type DeleteMarkingSchemePartData = {
+    body?: never;
+    path: {
+        /**
+         * MarkingSchemePartId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/marking-schemes/parts/{id}';
+};
+
+export type DeleteMarkingSchemePartErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteMarkingSchemePartResponses = {
     200: MessageResponse;
 };
 
-export type DeleteExamSubjectResponse = DeleteExamSubjectResponses[keyof DeleteExamSubjectResponses];
+export type DeleteMarkingSchemePartResponse = DeleteMarkingSchemePartResponses[keyof DeleteMarkingSchemePartResponses];
 
-export type GetExamSubjectByIdsData = {
+export type GetMarkingSchemePartByIdData = {
     body?: never;
     path: {
         /**
-         * String
+         * MarkingSchemePartId
          */
-        exam_id: string;
-        /**
-         * String
-         */
-        subject_id: string;
+        id: string;
     };
     query?: never;
-    url: '/exam-subjects/{exam_id}/{subject_id}';
+    url: '/marking-schemes/parts/{id}';
 };
 
-export type GetExamSubjectByIdsErrors = {
+export type GetMarkingSchemePartByIdErrors = {
     /**
      * Bad Request
      */
@@ -13346,29 +16062,25 @@ export type GetExamSubjectByIdsErrors = {
     504: unknown;
 };
 
-export type GetExamSubjectByIdsResponses = {
-    200: ExamSubjectResponse;
+export type GetMarkingSchemePartByIdResponses = {
+    200: MarkingSchemePart;
 };
 
-export type GetExamSubjectByIdsResponse = GetExamSubjectByIdsResponses[keyof GetExamSubjectByIdsResponses];
+export type GetMarkingSchemePartByIdResponse = GetMarkingSchemePartByIdResponses[keyof GetMarkingSchemePartByIdResponses];
 
-export type UpdateExamSubjectData = {
-    body: UpdateExamSubjectRequest;
+export type UpdateMarkingSchemePartData = {
+    body: UpdateMarkingSchemePartRequest;
     path: {
         /**
-         * String
+         * MarkingSchemePartId
          */
-        exam_id: string;
-        /**
-         * String
-         */
-        subject_id: string;
+        id: string;
     };
     query?: never;
-    url: '/exam-subjects/{exam_id}/{subject_id}';
+    url: '/marking-schemes/parts/{id}';
 };
 
-export type UpdateExamSubjectErrors = {
+export type UpdateMarkingSchemePartErrors = {
     /**
      * Bad Request
      */
@@ -13439,287 +16151,23 @@ export type UpdateExamSubjectErrors = {
     504: unknown;
 };
 
-export type UpdateExamSubjectResponses = {
-    200: ExamSubjectResponse;
+export type UpdateMarkingSchemePartResponses = {
+    200: MarkingSchemePart;
 };
 
-export type UpdateExamSubjectResponse = UpdateExamSubjectResponses[keyof UpdateExamSubjectResponses];
-
-export type GetExamSubjectsByExamIdData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        exam_id: string;
-    };
-    query?: never;
-    url: '/exam-subjects/exam/{exam_id}';
-};
-
-export type GetExamSubjectsByExamIdErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetExamSubjectsByExamIdResponses = {
-    200: Array<ExamSubjectResponse>;
-};
-
-export type GetExamSubjectsByExamIdResponse = GetExamSubjectsByExamIdResponses[keyof GetExamSubjectsByExamIdResponses];
-
-export type GetExamSubjectsBySubjectIdData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        subject_id: string;
-    };
-    query?: never;
-    url: '/exam-subjects/subject/{subject_id}';
-};
-
-export type GetExamSubjectsBySubjectIdErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetExamSubjectsBySubjectIdResponses = {
-    200: Array<ExamSubjectResponse>;
-};
-
-export type GetExamSubjectsBySubjectIdResponse = GetExamSubjectsBySubjectIdResponses[keyof GetExamSubjectsBySubjectIdResponses];
-
-export type GetExamScheduleData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        academic_year_id: string;
-        /**
-         * String
-         */
-        term_id: string;
-    };
-    query?: never;
-    url: '/exam-subjects/schedule/academic-year/{academic_year_id}/term/{term_id}';
-};
-
-export type GetExamScheduleErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetExamScheduleResponses = {
-    200: Array<ExamSubjectResponse>;
-};
-
-export type GetExamScheduleResponse = GetExamScheduleResponses[keyof GetExamScheduleResponses];
+export type UpdateMarkingSchemePartResponse = UpdateMarkingSchemePartResponses[keyof UpdateMarkingSchemePartResponses];
 
 export type GetAllGradingSchemesData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        grade_level_id?: string | null;
+        is_default?: boolean | null;
+        last_id?: string | null;
+        limit?: number | null;
+        page?: number | null;
+        scheme_type?: GradingSchemeType | null;
+    };
     url: '/grading-schemes';
 };
 
@@ -13795,7 +16243,7 @@ export type GetAllGradingSchemesErrors = {
 };
 
 export type GetAllGradingSchemesResponses = {
-    200: Array<GradingScheme>;
+    200: PaginatedGradingSchemeResponse;
 };
 
 export type GetAllGradingSchemesResponse = GetAllGradingSchemesResponses[keyof GetAllGradingSchemesResponses];
@@ -13888,7 +16336,7 @@ export type DeleteGradingSchemeData = {
     body?: never;
     path: {
         /**
-         * String
+         * GradingSchemeId
          */
         id: string;
     };
@@ -13977,7 +16425,7 @@ export type GetGradingSchemeByIdData = {
     body?: never;
     path: {
         /**
-         * String
+         * GradingSchemeId
          */
         id: string;
     };
@@ -14066,7 +16514,7 @@ export type UpdateGradingSchemeData = {
     body: UpdateGradingScheme;
     path: {
         /**
-         * String
+         * GradingSchemeId
          */
         id: string;
     };
@@ -14155,11 +16603,11 @@ export type AssignGradingSchemeToGradeLevelData = {
     body?: never;
     path: {
         /**
-         * String
+         * GradingSchemeId
          */
         scheme_id: string;
         /**
-         * String
+         * GradeLevelId
          */
         grade_level_id: string;
     };
@@ -14243,446 +16691,6 @@ export type AssignGradingSchemeToGradeLevelResponses = {
 };
 
 export type AssignGradingSchemeToGradeLevelResponse = AssignGradingSchemeToGradeLevelResponses[keyof AssignGradingSchemeToGradeLevelResponses];
-
-export type CreateGradingCriterionData = {
-    body: NewGradingCriterion;
-    path?: never;
-    query?: never;
-    url: '/grading-criteria';
-};
-
-export type CreateGradingCriterionErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type CreateGradingCriterionResponses = {
-    200: GradingCriterion;
-};
-
-export type CreateGradingCriterionResponse = CreateGradingCriterionResponses[keyof CreateGradingCriterionResponses];
-
-export type DeleteGradingCriterionData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        id: string;
-    };
-    query?: never;
-    url: '/grading-criteria/{id}';
-};
-
-export type DeleteGradingCriterionErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type DeleteGradingCriterionResponses = {
-    200: MessageResponse;
-};
-
-export type DeleteGradingCriterionResponse = DeleteGradingCriterionResponses[keyof DeleteGradingCriterionResponses];
-
-export type GetGradingCriterionByIdData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        id: string;
-    };
-    query?: never;
-    url: '/grading-criteria/{id}';
-};
-
-export type GetGradingCriterionByIdErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetGradingCriterionByIdResponses = {
-    200: GradingCriterion;
-};
-
-export type GetGradingCriterionByIdResponse = GetGradingCriterionByIdResponses[keyof GetGradingCriterionByIdResponses];
-
-export type UpdateGradingCriterionData = {
-    body: UpdateGradingCriterion;
-    path: {
-        /**
-         * String
-         */
-        id: string;
-    };
-    query?: never;
-    url: '/grading-criteria/{id}';
-};
-
-export type UpdateGradingCriterionErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type UpdateGradingCriterionResponses = {
-    200: GradingCriterion;
-};
-
-export type UpdateGradingCriterionResponse = UpdateGradingCriterionResponses[keyof UpdateGradingCriterionResponses];
-
-export type GetGradingCriteriaBySchemeIdData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        scheme_id: string;
-    };
-    query?: never;
-    url: '/grading-schemes/{scheme_id}/criteria';
-};
-
-export type GetGradingCriteriaBySchemeIdErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetGradingCriteriaBySchemeIdResponses = {
-    200: Array<GradingCriterion>;
-};
-
-export type GetGradingCriteriaBySchemeIdResponse = GetGradingCriteriaBySchemeIdResponses[keyof GetGradingCriteriaBySchemeIdResponses];
 
 export type CalculateZscoresData = {
     body: CalculateZScoreRequest;
@@ -14768,14 +16776,22 @@ export type CalculateZscoresResponses = {
 
 export type CalculateZscoresResponse = CalculateZscoresResponses[keyof CalculateZscoresResponses];
 
-export type RegisterStudentSpecialExamData = {
-    body: ExamRegistrationRequest;
+export type GetAllReportCardsData = {
+    body?: never;
     path?: never;
-    query?: never;
-    url: '/special-exams/register';
+    query?: {
+        academic_year_id?: string | null;
+        class_id?: string | null;
+        last_id?: string | null;
+        limit?: number | null;
+        page?: number | null;
+        student_id?: string | null;
+        term_id?: string | null;
+    };
+    url: '/report-cards';
 };
 
-export type RegisterStudentSpecialExamErrors = {
+export type GetAllReportCardsErrors = {
     /**
      * Bad Request
      */
@@ -14846,22 +16862,640 @@ export type RegisterStudentSpecialExamErrors = {
     504: unknown;
 };
 
-export type RegisterStudentSpecialExamResponses = {
+export type GetAllReportCardsResponses = {
+    200: PaginatedReportCardResponse;
+};
+
+export type GetAllReportCardsResponse = GetAllReportCardsResponses[keyof GetAllReportCardsResponses];
+
+export type CreateReportCardData = {
+    body: CreateReportCardRequest;
+    path?: never;
+    query?: never;
+    url: '/report-cards';
+};
+
+export type CreateReportCardErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type CreateReportCardResponses = {
+    200: ReportCard;
+};
+
+export type CreateReportCardResponse = CreateReportCardResponses[keyof CreateReportCardResponses];
+
+export type DeleteReportCardData = {
+    body?: never;
+    path: {
+        /**
+         * ReportCardId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/report-cards/{id}';
+};
+
+export type DeleteReportCardErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteReportCardResponses = {
     200: MessageResponse;
 };
 
-export type RegisterStudentSpecialExamResponse = RegisterStudentSpecialExamResponses[keyof RegisterStudentSpecialExamResponses];
+export type DeleteReportCardResponse = DeleteReportCardResponses[keyof DeleteReportCardResponses];
+
+export type GetReportCardByIdData = {
+    body?: never;
+    path: {
+        /**
+         * ReportCardId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/report-cards/{id}';
+};
+
+export type GetReportCardByIdErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type GetReportCardByIdResponses = {
+    200: ReportCardDetailResponse;
+};
+
+export type GetReportCardByIdResponse = GetReportCardByIdResponses[keyof GetReportCardByIdResponses];
+
+export type UpdateReportCardData = {
+    body: UpdateReportCardRequest;
+    path: {
+        /**
+         * ReportCardId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/report-cards/{id}';
+};
+
+export type UpdateReportCardErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type UpdateReportCardResponses = {
+    200: ReportCard;
+};
+
+export type UpdateReportCardResponse = UpdateReportCardResponses[keyof UpdateReportCardResponses];
+
+export type CreateReportCardMarkData = {
+    body: CreateReportCardMarkRequest;
+    path: {
+        /**
+         * ReportCardId
+         */
+        report_card_id: string;
+    };
+    query?: never;
+    url: '/report-cards/{report_card_id}/marks';
+};
+
+export type CreateReportCardMarkErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type CreateReportCardMarkResponses = {
+    200: ReportCardMark;
+};
+
+export type CreateReportCardMarkResponse = CreateReportCardMarkResponses[keyof CreateReportCardMarkResponses];
+
+export type DeleteReportCardMarkData = {
+    body?: never;
+    path: {
+        /**
+         * ReportCardMarkId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/report-cards/marks/{id}';
+};
+
+export type DeleteReportCardMarkErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type DeleteReportCardMarkResponses = {
+    200: MessageResponse;
+};
+
+export type DeleteReportCardMarkResponse = DeleteReportCardMarkResponses[keyof DeleteReportCardMarkResponses];
+
+export type UpdateReportCardMarkData = {
+    body: UpdateReportCardMarkRequest;
+    path: {
+        /**
+         * ReportCardMarkId
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/report-cards/marks/{id}';
+};
+
+export type UpdateReportCardMarkErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Not Found
+     */
+    404: unknown;
+    /**
+     * Method Not Allowed
+     */
+    405: unknown;
+    /**
+     * Not Acceptable
+     */
+    406: unknown;
+    /**
+     * Request Timeout
+     */
+    408: unknown;
+    /**
+     * Conflict
+     */
+    409: unknown;
+    /**
+     * Gone
+     */
+    410: unknown;
+    /**
+     * Unsupported Media Type
+     */
+    415: unknown;
+    /**
+     * Unprocessable Entity
+     */
+    422: unknown;
+    /**
+     * Too Many Requests
+     */
+    429: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+    /**
+     * Not Implemented
+     */
+    501: unknown;
+    /**
+     * Bad Gateway
+     */
+    502: unknown;
+    /**
+     * Service Unavailable
+     */
+    503: unknown;
+    /**
+     * Gateway Timeout
+     */
+    504: unknown;
+};
+
+export type UpdateReportCardMarkResponses = {
+    200: ReportCardMark;
+};
+
+export type UpdateReportCardMarkResponse = UpdateReportCardMarkResponses[keyof UpdateReportCardMarkResponses];
 
 export type GenerateReportCardData = {
     body?: never;
     path: {
         /**
-         * String
+         * StudentId
          */
         student_id: string;
     };
     query?: never;
-    url: '/report-cards/{student_id}';
+    url: '/report-cards/generate/{student_id}';
 };
 
 export type GenerateReportCardErrors = {
@@ -14945,6 +17579,7 @@ export type GetAllLibraryCategoriesData = {
     body?: never;
     path?: never;
     query?: {
+        last_id?: number | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
@@ -15288,6 +17923,7 @@ export type GetAllLibraryBooksData = {
     path?: never;
     query?: {
         category_id?: number | null;
+        last_id?: number | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
@@ -17106,1651 +19742,11 @@ export type GetLibraryStatsResponses = {
 
 export type GetLibraryStatsResponse = GetLibraryStatsResponses[keyof GetLibraryStatsResponses];
 
-export type GetAssetCategoriesData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/property/categories';
-};
-
-export type GetAssetCategoriesErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetAssetCategoriesResponses = {
-    200: Array<AssetCategoryResponse>;
-};
-
-export type GetAssetCategoriesResponse = GetAssetCategoriesResponses[keyof GetAssetCategoriesResponses];
-
-export type CreateAssetCategoryData = {
-    body: CreateAssetCategoryRequest;
-    path?: never;
-    query?: never;
-    url: '/property/categories';
-};
-
-export type CreateAssetCategoryErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type CreateAssetCategoryResponses = {
-    200: AssetCategoryResponse;
-};
-
-export type CreateAssetCategoryResponse = CreateAssetCategoryResponses[keyof CreateAssetCategoryResponses];
-
-export type AddInventoryItemData = {
-    body: CreateInventoryItemRequest;
-    path?: never;
-    query?: never;
-    url: '/property/inventory';
-};
-
-export type AddInventoryItemErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type AddInventoryItemResponses = {
-    200: InventoryItemResponse;
-};
-
-export type AddInventoryItemResponse = AddInventoryItemResponses[keyof AddInventoryItemResponses];
-
-export type GetLowStockItemsData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/property/inventory/low-stock';
-};
-
-export type GetLowStockItemsErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetLowStockItemsResponses = {
-    200: Array<InventoryItemResponse>;
-};
-
-export type GetLowStockItemsResponse = GetLowStockItemsResponses[keyof GetLowStockItemsResponses];
-
-export type SearchInventoryData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        query: string;
-    };
-    query?: never;
-    url: '/property/inventory/search/{query}';
-};
-
-export type SearchInventoryErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type SearchInventoryResponses = {
-    200: Array<InventoryItemResponse>;
-};
-
-export type SearchInventoryResponse = SearchInventoryResponses[keyof SearchInventoryResponses];
-
-export type GetInventoryByCategoryData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        id: string;
-    };
-    query?: never;
-    url: '/property/inventory/category/{id}';
-};
-
-export type GetInventoryByCategoryErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetInventoryByCategoryResponses = {
-    200: Array<InventoryItemResponse>;
-};
-
-export type GetInventoryByCategoryResponse = GetInventoryByCategoryResponses[keyof GetInventoryByCategoryResponses];
-
-export type UpdateInventoryItemData = {
-    body: UpdateInventoryItemRequest;
-    path: {
-        /**
-         * String
-         */
-        id: string;
-    };
-    query?: never;
-    url: '/property/inventory/{id}';
-};
-
-export type UpdateInventoryItemErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type UpdateInventoryItemResponses = {
-    200: InventoryItemResponse;
-};
-
-export type UpdateInventoryItemResponse = UpdateInventoryItemResponses[keyof UpdateInventoryItemResponses];
-
-export type UpdateStockQuantityData = {
-    body: UpdateStockRequest;
-    path: {
-        /**
-         * String
-         */
-        id: string;
-    };
-    query?: never;
-    url: '/property/inventory/{id}/stock';
-};
-
-export type UpdateStockQuantityErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type UpdateStockQuantityResponses = {
-    200: InventoryItemResponse;
-};
-
-export type UpdateStockQuantityResponse = UpdateStockQuantityResponses[keyof UpdateStockQuantityResponses];
-
-export type GetUniformInventoryData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/property/uniforms';
-};
-
-export type GetUniformInventoryErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetUniformInventoryResponses = {
-    200: Array<UniformItemResponse>;
-};
-
-export type GetUniformInventoryResponse = GetUniformInventoryResponses[keyof GetUniformInventoryResponses];
-
-export type CreateUniformItemData = {
-    body: CreateUniformItemRequest;
-    path?: never;
-    query?: never;
-    url: '/property/uniforms';
-};
-
-export type CreateUniformItemErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type CreateUniformItemResponses = {
-    200: UniformItemResponse;
-};
-
-export type CreateUniformItemResponse = CreateUniformItemResponses[keyof CreateUniformItemResponses];
-
-export type IssueUniformData = {
-    body: IssueUniformRequest;
-    path?: never;
-    query?: never;
-    url: '/property/uniforms/issue';
-};
-
-export type IssueUniformErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type IssueUniformResponses = {
-    200: UniformIssueResponse;
-};
-
-export type IssueUniformResponse = IssueUniformResponses[keyof IssueUniformResponses];
-
-export type GetUniformIssueHistoryData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        student_id: string;
-    };
-    query?: never;
-    url: '/property/uniforms/history/{student_id}';
-};
-
-export type GetUniformIssueHistoryErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetUniformIssueHistoryResponses = {
-    200: Array<UniformIssueResponse>;
-};
-
-export type GetUniformIssueHistoryResponse = GetUniformIssueHistoryResponses[keyof GetUniformIssueHistoryResponses];
-
-export type AllocateAssetData = {
-    body: AllocateAssetRequest;
-    path?: never;
-    query?: never;
-    url: '/property/allocations';
-};
-
-export type AllocateAssetErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type AllocateAssetResponses = {
-    200: AssetAllocationResponse;
-};
-
-export type AllocateAssetResponse = AllocateAssetResponses[keyof AllocateAssetResponses];
-
-export type GetAllocationsByItemData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        id: string;
-    };
-    query?: never;
-    url: '/property/allocations/item/{id}';
-};
-
-export type GetAllocationsByItemErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetAllocationsByItemResponses = {
-    200: Array<AssetAllocationResponse>;
-};
-
-export type GetAllocationsByItemResponse = GetAllocationsByItemResponses[keyof GetAllocationsByItemResponses];
-
-export type GetAllocationsByAssigneeData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        id: string;
-    };
-    query?: never;
-    url: '/property/allocations/assignee/{id}';
-};
-
-export type GetAllocationsByAssigneeErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetAllocationsByAssigneeResponses = {
-    200: Array<DetailedAssetAllocationResponse>;
-};
-
-export type GetAllocationsByAssigneeResponse = GetAllocationsByAssigneeResponses[keyof GetAllocationsByAssigneeResponses];
-
-export type ReturnAllocatedAssetData = {
-    body: ReturnAssetRequest;
-    path: {
-        /**
-         * String
-         */
-        id: string;
-    };
-    query?: never;
-    url: '/property/allocations/{id}/return';
-};
-
-export type ReturnAllocatedAssetErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type ReturnAllocatedAssetResponses = {
-    200: AssetAllocationResponse;
-};
-
-export type ReturnAllocatedAssetResponse = ReturnAllocatedAssetResponses[keyof ReturnAllocatedAssetResponses];
-
-export type CreateMaintenanceRequestData = {
-    body: CreateMaintenanceRequest;
-    path?: never;
-    query?: never;
-    url: '/property/maintenance';
-};
-
-export type CreateMaintenanceRequestErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type CreateMaintenanceRequestResponses = {
-    200: MaintenanceRequestResponse;
-};
-
-export type CreateMaintenanceRequestResponse = CreateMaintenanceRequestResponses[keyof CreateMaintenanceRequestResponses];
-
-export type GetPendingMaintenanceData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/property/maintenance/pending';
-};
-
-export type GetPendingMaintenanceErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetPendingMaintenanceResponses = {
-    200: Array<MaintenanceRequestResponse>;
-};
-
-export type GetPendingMaintenanceResponse = GetPendingMaintenanceResponses[keyof GetPendingMaintenanceResponses];
-
-export type UpdateMaintenanceStatusData = {
-    body: UpdateMaintenanceStatusRequest;
-    path: {
-        /**
-         * String
-         */
-        id: string;
-    };
-    query?: never;
-    url: '/property/maintenance/{id}/status';
-};
-
-export type UpdateMaintenanceStatusErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type UpdateMaintenanceStatusResponses = {
-    200: MaintenanceRequestResponse;
-};
-
-export type UpdateMaintenanceStatusResponse = UpdateMaintenanceStatusResponses[keyof UpdateMaintenanceStatusResponses];
-
 export type GetAllBudgetCategoriesData = {
     body?: never;
     path?: never;
     query?: {
+        last_id?: string | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
@@ -20472,6 +21468,7 @@ export type GetAllFeeCategoriesData = {
     path?: never;
     query?: {
         is_mandatory?: boolean | null;
+        last_id?: string | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
@@ -20907,6 +21904,7 @@ export type GetAllFeeStructuresData = {
         category_id?: string | null;
         grade_id?: string | null;
         is_mandatory?: boolean | null;
+        last_id?: string | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
@@ -24181,6 +25179,7 @@ export type GetAllStaffData = {
         created_after?: string | null;
         created_before?: string | null;
         employment_status?: EmploymentStatus | null;
+        last_id?: string | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
@@ -24356,7 +25355,7 @@ export type DeleteStaffData = {
     body?: never;
     path: {
         /**
-         * String
+         * StaffId
          */
         staff_id: string;
     };
@@ -24445,7 +25444,7 @@ export type GetStaffByIdData = {
     body?: never;
     path: {
         /**
-         * String
+         * StaffId
          */
         staff_id: string;
     };
@@ -24534,7 +25533,7 @@ export type UpdateStaffData = {
     body: UpdateStaffRequest;
     path: {
         /**
-         * String
+         * StaffId
          */
         staff_id: string;
     };
@@ -24791,7 +25790,7 @@ export type UploadStaffPhotoData = {
     body: unknown;
     path: {
         /**
-         * String
+         * StaffId
          */
         staff_id: string;
     };
@@ -26932,6 +27931,7 @@ export type GetAllStudentsData = {
     query?: {
         created_after?: string | null;
         created_before?: string | null;
+        last_id?: string | null;
         limit?: number | null;
         page?: number | null;
         search?: string | null;
@@ -27107,7 +28107,7 @@ export type DeleteStudentData = {
     body?: never;
     path: {
         /**
-         * String
+         * StudentId
          */
         student_id: string;
     };
@@ -27196,7 +28196,7 @@ export type GetStudentByIdData = {
     body?: never;
     path: {
         /**
-         * String
+         * StudentId
          */
         student_id: string;
     };
@@ -27285,7 +28285,7 @@ export type UpdateStudentData = {
     body: UpdateStudentRequest;
     path: {
         /**
-         * String
+         * StudentId
          */
         student_id: string;
     };
@@ -27374,7 +28374,7 @@ export type UploadStudentPhotoData = {
     body: unknown;
     path: {
         /**
-         * String
+         * StudentId
          */
         student_id: string;
     };
@@ -30194,7 +31194,10 @@ export type VerifyExcuseResponse = VerifyExcuseResponses[keyof VerifyExcuseRespo
 export type GetAllStudentMarksData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        last_id?: string | null;
+        limit?: number | null;
+    };
     url: '/student-marks';
 };
 
@@ -30270,7 +31273,7 @@ export type GetAllStudentMarksErrors = {
 };
 
 export type GetAllStudentMarksResponses = {
-    200: Array<StudentMarkResponse>;
+    200: PaginatedStudentMarksResponse;
 };
 
 export type GetAllStudentMarksResponse = GetAllStudentMarksResponses[keyof GetAllStudentMarksResponses];
@@ -30447,7 +31450,7 @@ export type DeleteStudentMarkData = {
     body?: never;
     path: {
         /**
-         * String
+         * StudentMarkId
          */
         id: string;
     };
@@ -30536,7 +31539,7 @@ export type GetStudentMarkByIdData = {
     body?: never;
     path: {
         /**
-         * String
+         * StudentMarkId
          */
         id: string;
     };
@@ -30625,7 +31628,7 @@ export type UpdateStudentMarkData = {
     body: UpdateStudentMarkRequest;
     path: {
         /**
-         * String
+         * StudentMarkId
          */
         id: string;
     };
@@ -30714,11 +31717,14 @@ export type GetStudentMarksByStudentIdData = {
     body?: never;
     path: {
         /**
-         * String
+         * StudentId
          */
         student_id: string;
     };
-    query?: never;
+    query?: {
+        last_id?: string | null;
+        limit?: number | null;
+    };
     url: '/student-marks/student/{student_id}';
 };
 
@@ -30794,7 +31800,7 @@ export type GetStudentMarksByStudentIdErrors = {
 };
 
 export type GetStudentMarksByStudentIdResponses = {
-    200: Array<StudentMarkResponse>;
+    200: PaginatedStudentMarksResponse;
 };
 
 export type GetStudentMarksByStudentIdResponse = GetStudentMarksByStudentIdResponses[keyof GetStudentMarksByStudentIdResponses];
@@ -30803,11 +31809,11 @@ export type GetStudentMarksByExamAndClassData = {
     body?: never;
     path: {
         /**
-         * String
+         * AssessmentId
          */
         exam_id: string;
         /**
-         * String
+         * ClassId
          */
         class_id: string;
     };
@@ -32453,612 +33459,6 @@ export type MarkMessageAsReadResponses = {
 };
 
 export type MarkMessageAsReadResponse = MarkMessageAsReadResponses[keyof MarkMessageAsReadResponses];
-
-export type GetAllResourcesData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/resources';
-};
-
-export type GetAllResourcesErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetAllResourcesResponses = {
-    200: Array<ResourceResponse>;
-};
-
-export type GetAllResourcesResponse = GetAllResourcesResponses[keyof GetAllResourcesResponses];
-
-export type CreateResourceData = {
-    body: CreateResourceRequest;
-    path?: never;
-    query?: never;
-    url: '/resources';
-};
-
-export type CreateResourceErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type CreateResourceResponses = {
-    200: ResourceResponse;
-};
-
-export type CreateResourceResponse = CreateResourceResponses[keyof CreateResourceResponses];
-
-export type DeleteResourceData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        resource_id: string;
-    };
-    query?: never;
-    url: '/resources/{resource_id}';
-};
-
-export type DeleteResourceErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type DeleteResourceResponses = {
-    200: unknown;
-};
-
-export type GetResourceByIdData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        resource_id: string;
-    };
-    query?: never;
-    url: '/resources/{resource_id}';
-};
-
-export type GetResourceByIdErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetResourceByIdResponses = {
-    200: ResourceResponse;
-};
-
-export type GetResourceByIdResponse = GetResourceByIdResponses[keyof GetResourceByIdResponses];
-
-export type UpdateResourceData = {
-    body: UpdateResourceRequest;
-    path: {
-        /**
-         * String
-         */
-        resource_id: string;
-    };
-    query?: never;
-    url: '/resources/{resource_id}';
-};
-
-export type UpdateResourceErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type UpdateResourceResponses = {
-    200: ResourceResponse;
-};
-
-export type UpdateResourceResponse = UpdateResourceResponses[keyof UpdateResourceResponses];
-
-export type GetResourceBookingsData = {
-    body?: never;
-    path: {
-        /**
-         * String
-         */
-        resource_id: string;
-    };
-    query?: never;
-    url: '/resources/{resource_id}/bookings';
-};
-
-export type GetResourceBookingsErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type GetResourceBookingsResponses = {
-    200: Array<ResourceBookingResponse>;
-};
-
-export type GetResourceBookingsResponse = GetResourceBookingsResponses[keyof GetResourceBookingsResponses];
-
-export type BookResourceData = {
-    body: BookResourceRequest;
-    path?: never;
-    query?: never;
-    url: '/resource-bookings';
-};
-
-export type BookResourceErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Method Not Allowed
-     */
-    405: unknown;
-    /**
-     * Not Acceptable
-     */
-    406: unknown;
-    /**
-     * Request Timeout
-     */
-    408: unknown;
-    /**
-     * Conflict
-     */
-    409: unknown;
-    /**
-     * Gone
-     */
-    410: unknown;
-    /**
-     * Unsupported Media Type
-     */
-    415: unknown;
-    /**
-     * Unprocessable Entity
-     */
-    422: unknown;
-    /**
-     * Too Many Requests
-     */
-    429: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-    /**
-     * Not Implemented
-     */
-    501: unknown;
-    /**
-     * Bad Gateway
-     */
-    502: unknown;
-    /**
-     * Service Unavailable
-     */
-    503: unknown;
-    /**
-     * Gateway Timeout
-     */
-    504: unknown;
-};
-
-export type BookResourceResponses = {
-    200: ResourceBookingResponse;
-};
-
-export type BookResourceResponse = BookResourceResponses[keyof BookResourceResponses];
 
 export type GetAllCurriculumStandardsData = {
     body?: never;

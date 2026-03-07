@@ -97,33 +97,6 @@ export const zAddSportTeamMemberRequest = z.object({
 });
 
 /**
- * AllocateAssetRequest
- */
-export const zAllocateAssetRequest = z.object({
-    allocated_by: z.string(),
-    item_id: z.string(),
-    quantity: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    staff_id: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    student_id: z.optional(z.union([
-        z.string(),
-        z.null()
-    ]))
-});
-
-/**
- * ApplyLeaveRequest
- */
-export const zApplyLeaveRequest = z.object({
-    from_date: z.iso.date(),
-    leave_type: z.string(),
-    reason: z.string(),
-    to_date: z.iso.date()
-});
-
-/**
  * ApplyWaiverRequest
  */
 export const zApplyWaiverRequest = z.object({
@@ -131,36 +104,7 @@ export const zApplyWaiverRequest = z.object({
     reason: z.string()
 });
 
-/**
- * AssetAllocationResponse
- */
-export const zAssetAllocationResponse = z.object({
-    allocated_by: z.string(),
-    allocation_date: z.string(),
-    created_at: z.string(),
-    id: z.string(),
-    item_id: z.string(),
-    quantity: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    return_date: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    updated_at: z.string()
-});
-
-/**
- * AssetCategoryResponse
- */
-export const zAssetCategoryResponse = z.object({
-    created_at: z.string(),
-    description: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    id: z.string(),
-    name: z.string(),
-    updated_at: z.string()
-});
+export const zAssessmentType = z.enum(['SchoolTest', 'GovernmentExam']);
 
 /**
  * AssignClassToTeacherRequest
@@ -193,16 +137,6 @@ export const zAssignSubjectToGradeRequest = z.object({
 export const zAssignSubjectToStreamRequest = z.object({
     stream_id: z.string(),
     subject_id: z.string()
-});
-
-/**
- * AttendanceExcuseResponse
- */
-export const zAttendanceExcuseResponse = z.object({
-    attendance_record_id: z.string(),
-    excuse_type: z.string(),
-    id: z.string(),
-    is_verified: z.boolean()
 });
 
 export const zAttendanceStatus = z.enum([
@@ -245,11 +179,17 @@ export const zAuthMethodStats = z.object({
  */
 export const zBehaviorIncidentResponse = z.object({
     created_at: z.string(),
-    description: z.string(),
+    description: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     id: z.string(),
     incident_date: z.string(),
     incident_type_id: z.string(),
-    points_awarded: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    points_awarded: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
     reported_by_user_id: z.string(),
     student_id: z.string(),
     updated_at: z.string()
@@ -268,19 +208,6 @@ export const zBehaviorIncidentTypeResponse = z.object({
     id: z.string(),
     type_name: z.string(),
     updated_at: z.string()
-});
-
-/**
- * BookResourceRequest
- */
-export const zBookResourceRequest = z.object({
-    end_time: z.string(),
-    related_event_id: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    resource_id: z.string(),
-    start_time: z.string()
 });
 
 export const zBudgetCategoryResponse = z.object({
@@ -356,20 +283,6 @@ export const zBulkDeleteBudgetCategoriesRequest = z.object({
  */
 export const zBulkDeleteClassesRequest = z.object({
     class_ids: z.array(z.string())
-});
-
-/**
- * BulkDeleteExamTypesRequest
- */
-export const zBulkDeleteExamTypesRequest = z.object({
-    exam_type_ids: z.array(z.string())
-});
-
-/**
- * BulkDeleteExamsRequest
- */
-export const zBulkDeleteExamsRequest = z.object({
-    exam_ids: z.array(z.string())
 });
 
 /**
@@ -508,69 +421,11 @@ export const zBulkUpdateClassesRequest = z.object({
         z.string(),
         z.null()
     ])),
-    max_capacity: z.optional(z.union([
-        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-        z.null()
-    ])),
     medium: z.optional(z.union([
         z.string(),
         z.null()
     ])),
-    room_number: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    section_name: z.optional(z.union([
-        z.string(),
-        z.null()
-    ]))
-});
-
-/**
- * BulkUpdateExamTypesRequest
- */
-export const zBulkUpdateExamTypesRequest = z.object({
-    description: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    exam_type_ids: z.array(z.string()),
-    name: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    weightage: z.optional(z.union([
-        z.number(),
-        z.null()
-    ]))
-});
-
-/**
- * BulkUpdateExamsRequest
- */
-export const zBulkUpdateExamsRequest = z.object({
-    academic_year_id: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    end_date: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    exam_ids: z.array(z.string()),
-    exam_type_id: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    name: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    start_date: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    term_id: z.optional(z.union([
+    room_id: z.optional(z.union([
         z.string(),
         z.null()
     ]))
@@ -624,25 +479,6 @@ export const zBulkUpdateFeeStructuresRequest = z.object({
         z.null()
     ])),
     structure_ids: z.array(z.string())
-});
-
-/**
- * BulkUpdateGradeLevelsRequest
- */
-export const zBulkUpdateGradeLevelsRequest = z.object({
-    education_level: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    grade_level_ids: z.array(z.string()),
-    grade_name: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    grade_number: z.optional(z.union([
-        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-        z.null()
-    ]))
 });
 
 /**
@@ -700,6 +536,53 @@ export const zBulkUpdateLibraryCategoriesRequest = z.object({
 });
 
 /**
+ * BulkUpdateMarkingSchemesRequest
+ */
+export const zBulkUpdateMarkingSchemesRequest = z.object({
+    calculation_fn: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    curriculum_standard_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    description: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    grade_level_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    ids: z.array(z.string()),
+    is_active: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    name: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    stream_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    subject_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    valid_from: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    valid_to: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ]))
+});
+
+/**
  * BulkUpdateSubjectsRequest
  */
 export const zBulkUpdateSubjectsRequest = z.object({
@@ -730,7 +613,8 @@ export const zBulkUpdateSubjectsRequest = z.object({
  * CalculateZScoreRequest
  */
 export const zCalculateZScoreRequest = z.object({
-    exam_id: z.string()
+    assessment_id: z.string(),
+    assessment_type: zAssessmentType
 });
 
 /**
@@ -838,11 +722,7 @@ export const zCompetitionParticipant = z.object({
     updated_at: z.string()
 });
 
-export const zComponentType = z.enum([
-    'Allowance',
-    'Deduction',
-    'Bonus'
-]);
+export const zComponentType = z.enum(['Allowance', 'Deduction']);
 
 /**
  * ConversationResponse
@@ -891,17 +771,6 @@ export const zCreateActivityRequest = z.object({
  * CreateActivityTypeRequest
  */
 export const zCreateActivityTypeRequest = z.object({
-    description: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    name: z.string()
-});
-
-/**
- * CreateAssetCategoryRequest
- */
-export const zCreateAssetCategoryRequest = z.object({
     description: z.optional(z.union([
         z.string(),
         z.null()
@@ -1005,43 +874,26 @@ export const zCreateCulturalEventRequest = z.object({
 });
 
 /**
- * CreateExamRequest
+ * CreateExamStructureSubjectRequest
  */
-export const zCreateExamRequest = z.object({
-    academic_year_id: z.string(),
-    end_date: z.string(),
-    exam_type_id: z.string(),
-    name: z.string(),
-    start_date: z.string(),
-    term_id: z.string()
-});
-
-/**
- * CreateExamSubjectRequest
- */
-export const zCreateExamSubjectRequest = z.object({
-    date: z.iso.date(),
-    duration: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    exam_id: z.string(),
-    max_marks: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    pass_marks: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    subject_id: z.string(),
-    time: z.string()
-});
-
-/**
- * CreateExamTypeRequest
- */
-export const zCreateExamTypeRequest = z.object({
-    description: z.optional(z.union([
-        z.string(),
+export const zCreateExamStructureSubjectRequest = z.object({
+    duration_minutes: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
         z.null()
     ])),
-    name: z.string(),
-    weightage: z.optional(z.union([
-        z.number(),
+    max_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
         z.null()
-    ]))
+    ])),
+    order_index: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    pass_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    subject_id: z.string()
 });
 
 /**
@@ -1057,64 +909,41 @@ export const zCreateFeeCategoryRequest = z.object({
 });
 
 /**
+ * CreateGovernmentExamSubjectRequest
+ */
+export const zCreateGovernmentExamSubjectRequest = z.object({
+    duration_minutes: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    exam_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    exam_time: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    max_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    pass_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    subject_id: z.string()
+});
+
+/**
  * CreateGradePeriodRequest
  */
 export const zCreateGradePeriodRequest = z.object({
     end_time: z.string(),
     grade_id: z.string(),
     is_break: z.boolean(),
-    period_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    is_optional: z.boolean(),
     start_time: z.string()
-});
-
-/**
- * CreateInventoryItemRequest
- */
-export const zCreateInventoryItemRequest = z.object({
-    category_id: z.string(),
-    description: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    item_name: z.string(),
-    quantity: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    reorder_level: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    unit: z.string(),
-    unit_price: z.number()
-});
-
-/**
- * CreateLessonProgressRequest
- */
-export const zCreateLessonProgressRequest = z.object({
-    class_id: z.string(),
-    date: z.iso.date(),
-    homework_assigned: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    is_skipped: z.boolean(),
-    is_substitution: z.boolean(),
-    priority_level: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    progress_percentage: z.optional(z.union([
-        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-        z.null()
-    ])),
-    resources_used: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    sub_topic: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    subject_id: z.string(),
-    syllabus_id: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    timetable_id: z.string(),
-    topic_covered: z.string()
 });
 
 /**
@@ -1151,12 +980,62 @@ export const zCreateLibraryCategoryRequest = z.object({
 });
 
 /**
- * CreateMaintenanceRequest
+ * CreateMarkingSchemePartRequest
  */
-export const zCreateMaintenanceRequest = z.object({
-    issue_description: z.string(),
-    item_id: z.string(),
-    reported_by: z.string()
+export const zCreateMarkingSchemePartRequest = z.object({
+    max_marks: z.number(),
+    order_index: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    paper_label: z.string(),
+    part_label: z.string(),
+    question_label: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    structure_json: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    weight_ratio: z.optional(z.union([
+        z.number(),
+        z.null()
+    ]))
+});
+
+/**
+ * CreateMarkingSchemeRequest
+ */
+export const zCreateMarkingSchemeRequest = z.object({
+    calculation_fn: z.string(),
+    curriculum_standard_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    description: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    grade_level_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    is_active: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    name: z.string(),
+    stream_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    subject_id: z.string(),
+    valid_from: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    valid_to: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ]))
 });
 
 /**
@@ -1168,15 +1047,74 @@ export const zCreatePermissionSetRequest = z.object({
 });
 
 /**
- * CreateResourceRequest
+ * CreateReportCardMarkRequest
  */
-export const zCreateResourceRequest = z.object({
-    description: z.optional(z.union([
+export const zCreateReportCardMarkRequest = z.object({
+    assessment_id: z.string(),
+    assessment_type: zAssessmentType,
+    grade: z.optional(z.union([
         z.string(),
         z.null()
     ])),
-    resource_name: z.string().min(1),
-    resource_type: z.string().min(1)
+    grade_point: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    marking_scheme_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    percentage: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    remarks: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    subject_id: z.string(),
+    total_marks: z.optional(z.union([
+        z.number(),
+        z.null()
+    ]))
+});
+
+/**
+ * CreateReportCardRequest
+ */
+export const zCreateReportCardRequest = z.object({
+    academic_year_id: z.string(),
+    class_id: z.string(),
+    grading_scheme_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    marks: z.optional(z.union([
+        z.array(zCreateReportCardMarkRequest),
+        z.null()
+    ])),
+    overall_gpa: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    overall_grade: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    overall_percentage: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    rank: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    remarks: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    student_id: z.string(),
+    term_id: z.string()
 });
 
 /**
@@ -1200,6 +1138,33 @@ export const zCreateSalaryComponentRequest = z.object({
         z.null()
     ])),
     name: z.string()
+});
+
+/**
+ * CreateSchoolTestSubjectRequest
+ */
+export const zCreateSchoolTestSubjectRequest = z.object({
+    duration_minutes: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    max_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    pass_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    subject_id: z.string(),
+    test_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    test_time: z.optional(z.union([
+        z.string(),
+        z.null()
+    ]))
 });
 
 /**
@@ -1284,28 +1249,6 @@ export const zCreateStudentGuardianRequest = z.object({
     student_id: z.string()
 });
 
-export const zCreateStudentMarkRequest = z.object({
-    exam_id: z.string(),
-    is_absent: z.optional(z.union([
-        z.boolean(),
-        z.null()
-    ])),
-    marks_obtained: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    remarks: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    student_id: z.string(),
-    subject_id: z.string()
-});
-
-/**
- * BulkCreateStudentMarkRequest
- */
-export const zBulkCreateStudentMarkRequest = z.object({
-    marks: z.array(zCreateStudentMarkRequest)
-});
-
 /**
  * CreateSubjectRequest
  */
@@ -1382,26 +1325,10 @@ export const zCreateTimetableRequest = z.object({
         z.string(),
         z.null()
     ])),
-    period_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
     room: z.string(),
     start_time: z.string(),
     subject_id: z.string(),
     teacher_id: z.string()
-});
-
-/**
- * CreateUniformItemRequest
- */
-export const zCreateUniformItemRequest = z.object({
-    gender: z.string(),
-    grade_level: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    item_name: z.string(),
-    price: z.number(),
-    quantity: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    size: z.string()
 });
 
 /**
@@ -1448,6 +1375,25 @@ export const zEducationLevel = z.enum([
 ]);
 
 /**
+ * BulkUpdateGradeLevelsRequest
+ */
+export const zBulkUpdateGradeLevelsRequest = z.object({
+    education_level: z.optional(z.union([
+        zEducationLevel,
+        z.null()
+    ])),
+    grade_level_ids: z.array(z.string()),
+    grade_name: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    grade_number: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ]))
+});
+
+/**
  * CreateGradeLevelRequest
  */
 export const zCreateGradeLevelRequest = z.object({
@@ -1471,18 +1417,6 @@ export const zEmploymentStatus = z.enum([
 ]);
 
 /**
- * EnrollParticipantRequest
- */
-export const zEnrollParticipantRequest = z.object({
-    enrollment_reason: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    participant_type: z.string(),
-    user_id: z.string()
-});
-
-/**
  * EnrollStudentInSubjectRequest
  */
 export const zEnrollStudentInSubjectRequest = z.object({
@@ -1501,61 +1435,134 @@ export const zEthnicity = z.enum([
     'Other'
 ]);
 
+export const zExamLevel = z.enum([
+    'OLevel',
+    'ALevel',
+    'Scholarship',
+    'Other'
+]);
+
+export const zExamScopeType = z.enum(['School', 'Government']);
+
+export const zExamStatus = z.enum([
+    'Planned',
+    'Scheduled',
+    'Ongoing',
+    'Completed',
+    'Cancelled'
+]);
+
 /**
- * ExamRegistrationRequest
+ * BulkUpdateGovernmentExamsRequest
  */
-export const zExamRegistrationRequest = z.object({
-    exam_year: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    index_number: z.optional(z.union([
+export const zBulkUpdateGovernmentExamsRequest = z.object({
+    authority: z.optional(z.union([
         z.string(),
         z.null()
     ])),
-    student_id: z.string()
+    end_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    exam_structure_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    exam_year: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    ids: z.array(z.string()),
+    level: z.optional(z.union([
+        zExamLevel,
+        z.null()
+    ])),
+    name: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    start_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    status: z.optional(z.union([
+        zExamStatus,
+        z.null()
+    ]))
 });
 
 /**
- * ExamResponse
+ * CreateGovernmentExamRequest
  */
-export const zExamResponse = z.object({
-    academic_year_id: z.string(),
-    created_at: z.string(),
-    end_date: z.string(),
-    exam_type_id: z.string(),
-    id: z.string(),
+export const zCreateGovernmentExamRequest = z.object({
+    authority: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    end_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    exam_structure_id: z.string(),
+    exam_year: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    level: z.optional(z.union([
+        zExamLevel,
+        z.null()
+    ])),
     name: z.string(),
-    start_date: z.string(),
-    term_id: z.string(),
-    updated_at: z.string()
+    start_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    status: zExamStatus
 });
 
 /**
- * ExamSubjectResponse
+ * ExamStructureSubject
  */
-export const zExamSubjectResponse = z.object({
+export const zExamStructureSubject = z.object({
     created_at: z.string(),
-    date: z.iso.date(),
-    duration: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    exam_id: z.string(),
-    max_marks: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    pass_marks: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    duration_minutes: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    id: z.string(),
+    max_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    order_index: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    pass_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    structure_id: z.string(),
     subject_id: z.string(),
-    time: z.string(),
     updated_at: z.string()
 });
 
+export const zExcuseType = z.enum([
+    'Medical',
+    'Educational',
+    'Family',
+    'Bereavement',
+    'Official'
+]);
+
 /**
- * ExamTypeResponse
+ * AttendanceExcuseResponse
  */
-export const zExamTypeResponse = z.object({
-    created_at: z.string(),
-    description: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
+export const zAttendanceExcuseResponse = z.object({
+    attendance_record_id: z.string(),
+    excuse_type: zExcuseType,
     id: z.string(),
-    name: z.string(),
-    updated_at: z.string(),
-    weightage: z.number()
+    is_verified: z.boolean()
 });
 
 /**
@@ -1573,9 +1580,7 @@ export const zExitReason = z.enum([
     'Medical',
     'Personal',
     'Disciplinary',
-    'Dismissal',
-    'FamilyEvent',
-    'Other'
+    'Dismissal'
 ]);
 
 /**
@@ -1583,6 +1588,10 @@ export const zExitReason = z.enum([
  */
 export const zExitPassResponse = z.object({
     approved_by: z.string(),
+    bulk_pass_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     date: z.iso.date(),
     exit_time: z.string(),
     guardian_notified: z.boolean(),
@@ -1641,9 +1650,11 @@ export const zFeeDefaulterResponse = z.object({
 });
 
 export const zFeeFrequency = z.enum([
+    'Daily',
+    'Weekly',
     'Monthly',
-    'Quarterly',
-    'Annually',
+    'Term',
+    'Annual',
     'OneTime'
 ]);
 
@@ -1664,11 +1675,20 @@ export const zCreateFeeStructureRequest = z.object({
  */
 export const zFeeStructureResponse = z.object({
     academic_year_id: z.string(),
-    amount: z.number(),
+    amount: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
     category_id: z.string(),
     created_at: z.string(),
-    due_date: z.iso.date(),
-    frequency: zFeeFrequency,
+    due_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    frequency: z.optional(z.union([
+        zFeeFrequency,
+        z.null()
+    ])),
     grade_id: z.string(),
     id: z.string(),
     updated_at: z.string()
@@ -1679,6 +1699,69 @@ export const zGender = z.enum([
     'Female',
     'Other'
 ]);
+
+/**
+ * GovernmentExam
+ */
+export const zGovernmentExam = z.object({
+    authority: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    created_at: z.string(),
+    end_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    exam_structure_id: z.string(),
+    exam_year: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    id: z.string(),
+    level: z.optional(z.union([
+        zExamLevel,
+        z.null()
+    ])),
+    name: z.string(),
+    start_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    status: zExamStatus,
+    updated_at: z.string()
+});
+
+/**
+ * GovernmentExamSubject
+ */
+export const zGovernmentExamSubject = z.object({
+    created_at: z.string(),
+    duration_minutes: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    exam_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    exam_time: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    government_exam_id: z.string(),
+    id: z.string(),
+    max_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    pass_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    subject_id: z.string(),
+    updated_at: z.string()
+});
 
 /**
  * GradeFeeCollectionReport
@@ -1711,57 +1794,41 @@ export const zGradePeriodResponse = z.object({
     grade_id: z.string(),
     id: z.string(),
     is_break: z.boolean(),
-    period_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    is_optional: z.boolean(),
     start_time: z.string(),
     updated_at: z.string()
 });
 
-/**
- * GradingCriterion
- */
-export const zGradingCriterion = z.object({
-    created_at: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    description: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    grade: z.string(),
-    grade_point: z.optional(z.union([
-        z.number(),
-        z.null()
-    ])),
-    id: z.string(),
-    max_marks: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    min_marks: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    scheme_id: z.string(),
-    updated_at: z.optional(z.union([
-        z.string(),
-        z.null()
-    ]))
-});
+export const zGradingSchemeType = z.enum([
+    'Percentage',
+    'Points',
+    'Letter',
+    'GPA'
+]);
 
 /**
  * GradingScheme
  */
 export const zGradingScheme = z.object({
-    created_at: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
+    created_at: z.string(),
     description: z.optional(z.union([
         z.string(),
         z.null()
     ])),
-    grade_level: z.string(),
-    id: z.string(),
-    name: z.string(),
-    updated_at: z.optional(z.union([
+    grade_level_id: z.optional(z.union([
         z.string(),
         z.null()
-    ]))
+    ])),
+    id: z.string(),
+    is_default: z.boolean(),
+    name: z.string(),
+    pass_mark: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    scale_definition: z.string(),
+    scheme_type: zGradingSchemeType,
+    updated_at: z.string()
 });
 
 /**
@@ -1787,25 +1854,6 @@ export const zIncomeTransactionResponse = z.object({
  */
 export const zInitiateEmergencyRollCallRequest = z.object({
     event_name: z.string()
-});
-
-/**
- * InventoryItemResponse
- */
-export const zInventoryItemResponse = z.object({
-    category_id: z.string(),
-    created_at: z.string(),
-    description: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    id: z.string(),
-    item_name: z.string(),
-    quantity: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    reorder_level: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    unit: z.string(),
-    unit_price: z.number(),
-    updated_at: z.string()
 });
 
 /**
@@ -1836,26 +1884,6 @@ export const zIssueExitPassRequest = z.object({
     student_id: z.string()
 });
 
-/**
- * IssueUniformRequest
- */
-export const zIssueUniformRequest = z.object({
-    amount_collected: z.number(),
-    issued_by: z.string(),
-    quantity: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    student_id: z.string(),
-    uniform_item_id: z.string()
-});
-
-/**
- * LeaveBalanceResponse
- */
-export const zLeaveBalanceResponse = z.object({
-    leave_type: z.string(),
-    staff_id: z.string(),
-    total_days_taken: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
-});
-
 export const zLeaveStatus = z.enum([
     'Pending',
     'Approved',
@@ -1869,6 +1897,53 @@ export const zApproveRejectLeaveRequest = z.object({
     status: zLeaveStatus
 });
 
+export const zLessonDeliveryMode = z.enum([
+    'Regular',
+    'Substitution',
+    'Extra',
+    'Remedial',
+    'Practical',
+    'Revision'
+]);
+
+/**
+ * CreateLessonProgressRequest
+ */
+export const zCreateLessonProgressRequest = z.object({
+    actual_duration_minutes: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    class_id: z.string(),
+    curriculum_topic_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    date: z.iso.date(),
+    delivery_mode: zLessonDeliveryMode,
+    homework_assigned: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    is_skipped: z.boolean(),
+    lesson_summary: z.string(),
+    planned_duration_minutes: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    priority_level: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    progress_percentage: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    resources_used: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    subject_id: z.string(),
+    timetable_id: z.string()
+});
+
 /**
  * LessonProgressResponse
  */
@@ -1877,6 +1952,7 @@ export const zLessonProgressResponse = z.object({
     date: z.iso.date(),
     id: z.string(),
     is_skipped: z.boolean(),
+    lesson_summary: z.string(),
     priority_level: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
     progress_percentage: z.optional(z.union([
         z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
@@ -1884,7 +1960,6 @@ export const zLessonProgressResponse = z.object({
     ])),
     subject_id: z.string(),
     teacher_id: z.string(),
-    topic_covered: z.string(),
     verified_at: z.optional(z.union([
         z.string(),
         z.null()
@@ -1935,6 +2010,13 @@ export const zLibraryCategory = z.object({
     updated_at: z.string()
 });
 
+export const zLibraryIssueStatus = z.enum([
+    'Issued',
+    'Returned',
+    'Overdue',
+    'Lost'
+]);
+
 /**
  * LibraryIssueResponse
  */
@@ -1967,7 +2049,7 @@ export const zLibraryIssueResponse = z.object({
         z.string(),
         z.null()
     ])),
-    status: z.string(),
+    status: zLibraryIssueStatus,
     student_id: z.optional(z.union([
         z.string(),
         z.null()
@@ -2011,40 +2093,11 @@ export const zLoginRequest = z.object({
     password: z.string()
 });
 
-export const zMaintenanceStatus = z.enum([
-    'Pending',
-    'InProgress',
-    'Completed',
-    'Cancelled'
-]);
-
-/**
- * MaintenanceRequestResponse
- */
-export const zMaintenanceRequestResponse = z.object({
-    assigned_to: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    created_at: z.string(),
-    id: z.string(),
-    issue_description: z.string(),
-    item_id: z.string(),
-    reported_by: z.string(),
-    reported_date: z.string(),
-    resolved_date: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    status: zMaintenanceStatus,
-    updated_at: z.string()
-});
-
 /**
  * MarkActivityAttendanceRequest
  */
 export const zMarkActivityAttendanceRequest = z.object({
-    status: z.string(),
+    status: zAttendanceStatus,
     user_id: z.string()
 });
 
@@ -2062,7 +2115,7 @@ export const zMarkPeriodAttendanceRequest = z.object({
         z.string(),
         z.null()
     ])),
-    status: z.string(),
+    status: zAttendanceStatus,
     student_id: z.string(),
     timetable_id: z.string()
 });
@@ -2109,6 +2162,69 @@ export const zBulkMarkStudentAttendanceRequest = z.object({
     attendance_records: z.array(zMarkStudentAttendanceRequest)
 });
 
+/**
+ * MarkingScheme
+ */
+export const zMarkingScheme = z.object({
+    calculation_fn: z.string(),
+    created_at: z.string(),
+    curriculum_standard_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    description: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    grade_level_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    id: z.string(),
+    is_active: z.boolean(),
+    name: z.string(),
+    stream_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    subject_id: z.string(),
+    updated_at: z.string(),
+    valid_from: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    valid_to: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ]))
+});
+
+/**
+ * MarkingSchemePart
+ */
+export const zMarkingSchemePart = z.object({
+    created_at: z.string(),
+    id: z.string(),
+    max_marks: z.number(),
+    order_index: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    paper_label: z.string(),
+    part_label: z.string(),
+    question_label: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    scheme_id: z.string(),
+    structure_json: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    updated_at: z.string(),
+    weight_ratio: z.optional(z.union([
+        z.number(),
+        z.null()
+    ]))
+});
+
 export const zMedium = z.enum([
     'Sinhala',
     'Tamil',
@@ -2125,6 +2241,41 @@ export const zAssignSubjectToTeacherRequest = z.object({
 });
 
 /**
+ * BulkUpdateExamStructuresRequest
+ */
+export const zBulkUpdateExamStructuresRequest = z.object({
+    description: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    ids: z.array(z.string()),
+    is_active: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    medium: z.optional(z.union([
+        zMedium,
+        z.null()
+    ])),
+    name: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    scope_type: z.optional(z.union([
+        zExamScopeType,
+        z.null()
+    ])),
+    valid_from: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    valid_to: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ]))
+});
+
+/**
  * ClassResponse
  */
 export const zClassResponse = z.object({
@@ -2136,13 +2287,11 @@ export const zClassResponse = z.object({
     created_at: z.string(),
     grade_id: z.string(),
     id: z.string(),
-    max_capacity: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
     medium: zMedium,
-    room_number: z.optional(z.union([
+    room_id: z.optional(z.union([
         z.string(),
         z.null()
     ])),
-    section_name: z.string(),
     updated_at: z.string()
 });
 
@@ -2157,13 +2306,11 @@ export const zCreateClassRequest = z.object({
     ])),
     grade_id: z.string(),
     id: z.string(),
-    max_capacity: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
     medium: zMedium,
-    room_number: z.optional(z.union([
+    room_id: z.optional(z.union([
         z.string(),
         z.null()
-    ])),
-    section_name: z.string()
+    ]))
 });
 
 /**
@@ -2189,6 +2336,34 @@ export const zCreateCurriculumStandardRequest = z.object({
     subject_id: z.string().min(1),
     version_name: z.optional(z.union([
         z.string(),
+        z.null()
+    ]))
+});
+
+/**
+ * CreateExamStructureRequest
+ */
+export const zCreateExamStructureRequest = z.object({
+    description: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    is_active: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    medium: z.optional(z.union([
+        zMedium,
+        z.null()
+    ])),
+    name: z.string(),
+    scope_type: zExamScopeType,
+    valid_from: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    valid_to: z.optional(z.union([
+        z.iso.date(),
         z.null()
     ]))
 });
@@ -2224,6 +2399,34 @@ export const zCurriculumStandardResponse = z.object({
 });
 
 /**
+ * ExamStructure
+ */
+export const zExamStructure = z.object({
+    created_at: z.string(),
+    description: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    id: z.string(),
+    is_active: z.boolean(),
+    medium: z.optional(z.union([
+        zMedium,
+        z.null()
+    ])),
+    name: z.string(),
+    scope_type: zExamScopeType,
+    updated_at: z.string(),
+    valid_from: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    valid_to: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ]))
+});
+
+/**
  * MessageResponse
  */
 export const zMessageResponse = z.object({
@@ -2251,25 +2454,6 @@ export const zMonthlyAttendancePercentageResponse = z.object({
 });
 
 /**
- * NewGradingCriterion
- */
-export const zNewGradingCriterion = z.object({
-    description: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    grade: z.string(),
-    grade_point: z.optional(z.union([
-        z.number(),
-        z.null()
-    ])),
-    id: z.string(),
-    max_marks: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    min_marks: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    scheme_id: z.string()
-});
-
-/**
  * NewGradingScheme
  */
 export const zNewGradingScheme = z.object({
@@ -2277,9 +2461,19 @@ export const zNewGradingScheme = z.object({
         z.string(),
         z.null()
     ])),
-    grade_level: z.string(),
+    grade_level_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     id: z.string(),
-    name: z.string()
+    is_default: z.boolean(),
+    name: z.string(),
+    pass_mark: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    scale_definition: z.string(),
+    scheme_type: zGradingSchemeType
 });
 
 /**
@@ -2288,6 +2482,10 @@ export const zNewGradingScheme = z.object({
 export const zPaginatedAcademicYearResponse = z.object({
     data: z.array(zAcademicYearResponse),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
@@ -2299,6 +2497,10 @@ export const zPaginatedAcademicYearResponse = z.object({
 export const zPaginatedBudgetCategoryResponse = z.object({
     data: z.array(zBudgetCategoryResponse),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
@@ -2310,28 +2512,40 @@ export const zPaginatedBudgetCategoryResponse = z.object({
 export const zPaginatedClassResponse = z.object({
     data: z.array(zClassResponse),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
 });
 
 /**
- * PaginatedExamResponse
+ * PaginatedExamStructureResponse
  */
-export const zPaginatedExamResponse = z.object({
-    data: z.array(zExamResponse),
+export const zPaginatedExamStructureResponse = z.object({
+    data: z.array(zExamStructure),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
 });
 
 /**
- * PaginatedExamTypeResponse
+ * PaginatedExamStructureSubjectResponse
  */
-export const zPaginatedExamTypeResponse = z.object({
-    data: z.array(zExamTypeResponse),
+export const zPaginatedExamStructureSubjectResponse = z.object({
+    data: z.array(zExamStructureSubject),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
@@ -2343,6 +2557,10 @@ export const zPaginatedExamTypeResponse = z.object({
 export const zPaginatedFeeCategoryResponse = z.object({
     data: z.array(zFeeCategoryResponse),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
@@ -2354,6 +2572,40 @@ export const zPaginatedFeeCategoryResponse = z.object({
 export const zPaginatedFeeStructureResponse = z.object({
     data: z.array(zFeeStructureResponse),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+});
+
+/**
+ * PaginatedGovernmentExamResponse
+ */
+export const zPaginatedGovernmentExamResponse = z.object({
+    data: z.array(zGovernmentExam),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+});
+
+/**
+ * PaginatedGovernmentExamSubjectResponse
+ */
+export const zPaginatedGovernmentExamSubjectResponse = z.object({
+    data: z.array(zGovernmentExamSubject),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
@@ -2365,6 +2617,25 @@ export const zPaginatedFeeStructureResponse = z.object({
 export const zPaginatedGradeLevelResponse = z.object({
     data: z.array(zGradeLevelResponse),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+});
+
+/**
+ * PaginatedGradingSchemeResponse
+ */
+export const zPaginatedGradingSchemeResponse = z.object({
+    data: z.array(zGradingScheme),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
@@ -2376,6 +2647,10 @@ export const zPaginatedGradeLevelResponse = z.object({
 export const zPaginatedLibraryBookResponse = z.object({
     data: z.array(zLibraryBookResponse),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
@@ -2387,9 +2662,62 @@ export const zPaginatedLibraryBookResponse = z.object({
 export const zPaginatedLibraryCategoryResponse = z.object({
     data: z.array(zLibraryCategory),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+});
+
+/**
+ * PaginatedMarkingSchemePartResponse
+ */
+export const zPaginatedMarkingSchemePartResponse = z.object({
+    data: z.array(zMarkingSchemePart),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+});
+
+/**
+ * PaginatedMarkingSchemeResponse
+ */
+export const zPaginatedMarkingSchemeResponse = z.object({
+    data: z.array(zMarkingScheme),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+});
+
+export const zParticipantType = z.enum([
+    'Participant',
+    'Organizer',
+    'Supervisor',
+    'Detained'
+]);
+
+/**
+ * EnrollParticipantRequest
+ */
+export const zEnrollParticipantRequest = z.object({
+    enrollment_reason: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    participant_type: zParticipantType,
+    user_id: z.string()
 });
 
 /**
@@ -2417,7 +2745,10 @@ export const zPaymentMethod = z.enum([
     'Cash',
     'BankTransfer',
     'Cheque',
-    'Online'
+    'Online',
+    'Card',
+    'MobileMoney',
+    'Other'
 ]);
 
 /**
@@ -2455,8 +2786,14 @@ export const zFeePaymentResponse = z.object({
     created_at: z.string(),
     id: z.string(),
     payment_date: z.string(),
-    payment_method: zPaymentMethod,
-    receipt_number: z.string(),
+    payment_method: z.optional(z.union([
+        zPaymentMethod,
+        z.null()
+    ])),
+    receipt_number: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     remarks: z.optional(z.union([
         z.string(),
         z.null()
@@ -2694,27 +3031,6 @@ export const zRecordIncomeRequest = z.object({
 });
 
 /**
- * RecordSalaryPaymentRequest
- */
-export const zRecordSalaryPaymentRequest = z.object({
-    gross_salary: z.number(),
-    net_salary: z.number(),
-    payment_date: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    payment_method: z.string(),
-    payment_month: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    payment_year: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    remarks: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    staff_id: z.string(),
-    total_deductions: z.number()
-});
-
-/**
  * RefreshTokenRequest
  */
 export const zRefreshTokenRequest = z.object({
@@ -2738,52 +3054,109 @@ export const zReligion = z.enum([
 ]);
 
 /**
+ * ReportCard
+ */
+export const zReportCard = z.object({
+    academic_year_id: z.string(),
+    class_id: z.string(),
+    created_at: z.string(),
+    generated_at: z.string(),
+    generated_by: z.string(),
+    grading_scheme_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    id: z.string(),
+    overall_gpa: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    overall_grade: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    overall_percentage: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    rank: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    remarks: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    student_id: z.string(),
+    term_id: z.string(),
+    updated_at: z.string()
+});
+
+/**
+ * PaginatedReportCardResponse
+ */
+export const zPaginatedReportCardResponse = z.object({
+    data: z.array(zReportCard),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+});
+
+/**
+ * ReportCardMark
+ */
+export const zReportCardMark = z.object({
+    assessment_id: z.string(),
+    assessment_type: zAssessmentType,
+    created_at: z.string(),
+    grade: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    grade_point: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    id: z.string(),
+    marking_scheme_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    percentage: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    remarks: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    report_card_id: z.string(),
+    subject_id: z.string(),
+    total_marks: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    updated_at: z.string()
+});
+
+/**
+ * ReportCardDetailResponse
+ */
+export const zReportCardDetailResponse = z.object({
+    marks: z.array(zReportCardMark),
+    report_card: zReportCard
+});
+
+/**
  * ResendVerificationEmailRequest
  */
 export const zResendVerificationEmailRequest = z.object({
     email: z.string()
-});
-
-/**
- * ResourceBookingResponse
- */
-export const zResourceBookingResponse = z.object({
-    booked_by_user_id: z.string(),
-    created_at: z.string(),
-    end_time: z.string(),
-    id: z.string(),
-    related_event_id: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    resource_id: z.string(),
-    start_time: z.string(),
-    updated_at: z.string()
-});
-
-/**
- * ResourceResponse
- */
-export const zResourceResponse = z.object({
-    created_at: z.string(),
-    description: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    id: z.string(),
-    resource_name: z.string(),
-    resource_type: z.string(),
-    updated_at: z.string()
-});
-
-/**
- * ReturnAssetRequest
- */
-export const zReturnAssetRequest = z.object({
-    return_date: z.optional(z.union([
-        z.string(),
-        z.null()
-    ]))
 });
 
 /**
@@ -2795,13 +3168,6 @@ export const zReturnBookRequest = z.object({
         z.null()
     ]))
 });
-
-export const zRewardReasonType = z.enum([
-    'LessonCompleted',
-    'SubstitutionDone',
-    'AbsenceDeduction',
-    'MaterialShared'
-]);
 
 export const zRoleEnum = z.enum([
     'Admin',
@@ -2892,6 +3258,35 @@ export const zSalaryComponentResponse = z.object({
     updated_at: z.string()
 });
 
+export const zSalaryPaymentMethod = z.enum([
+    'Cash',
+    'BankTransfer',
+    'Cheque',
+    'Card',
+    'Other'
+]);
+
+/**
+ * RecordSalaryPaymentRequest
+ */
+export const zRecordSalaryPaymentRequest = z.object({
+    gross_salary: z.number(),
+    net_salary: z.number(),
+    payment_date: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    payment_method: zSalaryPaymentMethod,
+    payment_month: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    payment_year: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    remarks: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    staff_id: z.string(),
+    total_deductions: z.number()
+});
+
 /**
  * SalaryPaymentResponse
  */
@@ -2901,7 +3296,7 @@ export const zSalaryPaymentResponse = z.object({
     id: z.string(),
     net_salary: z.number(),
     payment_date: z.string(),
-    payment_method: z.string(),
+    payment_method: zSalaryPaymentMethod,
     payment_month: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
     payment_year: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
     remarks: z.optional(z.union([
@@ -2924,6 +3319,168 @@ export const zSchoolSettingResponse = z.object({
     setting_key: z.string(),
     setting_value: z.string(),
     updated_at: z.string()
+});
+
+/**
+ * SchoolTestSubject
+ */
+export const zSchoolTestSubject = z.object({
+    created_at: z.string(),
+    duration_minutes: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    id: z.string(),
+    max_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    pass_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    school_test_id: z.string(),
+    subject_id: z.string(),
+    test_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    test_time: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    updated_at: z.string()
+});
+
+/**
+ * PaginatedSchoolTestSubjectResponse
+ */
+export const zPaginatedSchoolTestSubjectResponse = z.object({
+    data: z.array(zSchoolTestSubject),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+});
+
+export const zSchoolTestType = z.enum([
+    'Quiz',
+    'UnitTest',
+    'Midterm',
+    'Final',
+    'Practical',
+    'Assignment',
+    'Project',
+    'Mock',
+    'Other'
+]);
+
+/**
+ * BulkUpdateSchoolTestsRequest
+ */
+export const zBulkUpdateSchoolTestsRequest = z.object({
+    academic_year_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    end_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    exam_structure_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    ids: z.array(z.string()),
+    name: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    start_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    status: z.optional(z.union([
+        zExamStatus,
+        z.null()
+    ])),
+    term_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    test_type: z.optional(z.union([
+        zSchoolTestType,
+        z.null()
+    ]))
+});
+
+/**
+ * CreateSchoolTestRequest
+ */
+export const zCreateSchoolTestRequest = z.object({
+    academic_year_id: z.string(),
+    end_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    exam_structure_id: z.string(),
+    name: z.string(),
+    start_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    status: zExamStatus,
+    term_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    test_type: zSchoolTestType
+});
+
+/**
+ * SchoolTest
+ */
+export const zSchoolTest = z.object({
+    academic_year_id: z.string(),
+    created_at: z.string(),
+    created_by: z.string(),
+    end_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    exam_structure_id: z.string(),
+    id: z.string(),
+    name: z.string(),
+    start_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    status: zExamStatus,
+    term_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    test_type: zSchoolTestType,
+    updated_at: z.string()
+});
+
+/**
+ * PaginatedSchoolTestResponse
+ */
+export const zPaginatedSchoolTestResponse = z.object({
+    data: z.array(zSchoolTest),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
 });
 
 /**
@@ -3067,6 +3624,34 @@ export const zStaffAttendanceResponse = z.object({
     updated_at: z.string()
 });
 
+export const zStaffLeaveType = z.enum([
+    'Sick',
+    'Casual',
+    'Annual',
+    'Study',
+    'Maternity',
+    'Other'
+]);
+
+/**
+ * ApplyLeaveRequest
+ */
+export const zApplyLeaveRequest = z.object({
+    from_date: z.iso.date(),
+    leave_type: zStaffLeaveType,
+    reason: z.string(),
+    to_date: z.iso.date()
+});
+
+/**
+ * LeaveBalanceResponse
+ */
+export const zLeaveBalanceResponse = z.object({
+    leave_type: zStaffLeaveType,
+    staff_id: z.string(),
+    total_days_taken: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
+});
+
 /**
  * StaffLeaveResponse
  */
@@ -3074,7 +3659,7 @@ export const zStaffLeaveResponse = z.object({
     created_at: z.string(),
     from_date: z.iso.date(),
     id: z.string(),
-    leave_type: z.string(),
+    leave_type: zStaffLeaveType,
     reason: z.string(),
     staff_id: z.string(),
     status: zLeaveStatus,
@@ -3121,7 +3706,7 @@ export const zBulkUpdateStaffRequest = z.object({
         z.null()
     ])),
     gender: z.optional(z.union([
-        z.string(),
+        zGender,
         z.null()
     ])),
     name: z.optional(z.union([
@@ -3156,7 +3741,7 @@ export const zCreateStaffRequest = z.object({
     email: z.string(),
     employee_id: z.string(),
     employment_status: zEmploymentStatus,
-    gender: z.string(),
+    gender: zGender,
     id: z.string(),
     name: z.string(),
     nic: z.string(),
@@ -3172,17 +3757,32 @@ export const zCreateStaffRequest = z.object({
  * StaffResponse
  */
 export const zStaffResponse = z.object({
-    address: z.string(),
+    address: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     created_at: z.string(),
     dob: z.iso.date(),
-    email: z.string(),
+    email: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     employee_id: z.string(),
-    employment_status: zEmploymentStatus,
-    gender: z.string(),
+    employment_status: z.optional(z.union([
+        zEmploymentStatus,
+        z.null()
+    ])),
+    gender: zGender,
     id: z.string(),
     name: z.string(),
-    nic: z.string(),
-    phone: z.string(),
+    nic: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    phone: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     photo_url: z.optional(z.union([
         z.string(),
         z.null()
@@ -3207,7 +3807,10 @@ export const zStaffResponse = z.object({
         z.string(),
         z.null()
     ])),
-    reward_points_balance: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    reward_points_balance: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
     staff_type: zStaffType,
     updated_at: z.string(),
     user_email: z.optional(z.union([
@@ -3222,6 +3825,10 @@ export const zStaffResponse = z.object({
 export const zPaginatedStaffResponse = z.object({
     data: z.array(zStaffResponse),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
@@ -3350,24 +3957,90 @@ export const zStudentGuardianResponse = z.object({
     ]))
 });
 
+export const zStudentMarkEntryInput = z.object({
+    marking_scheme_part_id: z.string(),
+    marks_awarded: z.number()
+});
+
+export const zCreateStudentMarkRequest = z.object({
+    assessment_id: z.string(),
+    assessment_type: zAssessmentType,
+    entries: z.array(zStudentMarkEntryInput),
+    is_absent: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    marking_scheme_id: z.string(),
+    remarks: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    student_id: z.string(),
+    subject_id: z.string()
+});
+
+/**
+ * BulkCreateStudentMarkRequest
+ */
+export const zBulkCreateStudentMarkRequest = z.object({
+    marks: z.array(zCreateStudentMarkRequest)
+});
+
+export const zStudentMarkEntryResponse = z.object({
+    id: z.string(),
+    marking_scheme_part_id: z.string(),
+    marks_awarded: z.number(),
+    max_marks: z.number()
+});
+
 /**
  * StudentMarkResponse
  */
 export const zStudentMarkResponse = z.object({
+    assessment_id: z.string(),
+    assessment_type: zAssessmentType,
     entered_at: z.string(),
     entered_by: z.string(),
-    exam_id: z.string(),
+    entries: z.array(zStudentMarkEntryResponse),
+    grade: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    grade_point: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
     id: z.string(),
     is_absent: z.boolean(),
-    marks_obtained: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    marking_scheme_id: z.string(),
+    percentage: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
     remarks: z.optional(z.union([
         z.string(),
         z.null()
     ])),
     student_id: z.string(),
     subject_id: z.string(),
+    total_marks: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
     updated_at: z.string(),
     updated_by: z.optional(z.union([
+        z.string(),
+        z.null()
+    ]))
+});
+
+/**
+ * PaginatedStudentMarksResponse
+ */
+export const zPaginatedStudentMarksResponse = z.object({
+    data: z.array(zStudentMarkResponse),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
         z.string(),
         z.null()
     ]))
@@ -3378,7 +4051,8 @@ export const zStudentStatus = z.enum([
     'Transferred',
     'Graduated',
     'Withdrawn',
-    'Suspended'
+    'Suspended',
+    'Repeater'
 ]);
 
 /**
@@ -3407,8 +4081,11 @@ export const zCreateStudentRequest = z.object({
         z.string(),
         z.null()
     ])),
-    nic_or_birth_certificate: z.string(),
     phone: z.string(),
+    photo_url: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     religion: z.optional(z.union([
         zReligion,
         z.null()
@@ -3423,6 +4100,10 @@ export const zCreateStudentRequest = z.object({
  * StudentResponse
  */
 export const zStudentResponse = z.object({
+    address: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     admission_number: z.string(),
     created_at: z.string(),
     dob: z.iso.date(),
@@ -3437,7 +4118,14 @@ export const zStudentResponse = z.object({
     gender: zGender,
     id: z.string(),
     name_english: z.string(),
-    nic_or_birth_certificate: z.string(),
+    phone: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    photo_url: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     profile_address: z.optional(z.union([
         z.string(),
         z.null()
@@ -3462,7 +4150,10 @@ export const zStudentResponse = z.object({
         zReligion,
         z.null()
     ])),
-    status: zStudentStatus,
+    status: z.optional(z.union([
+        zStudentStatus,
+        z.null()
+    ])),
     updated_at: z.string(),
     user_email: z.optional(z.union([
         z.string(),
@@ -3471,36 +4162,15 @@ export const zStudentResponse = z.object({
 });
 
 /**
- * DetailedAssetAllocationResponse
- */
-export const zDetailedAssetAllocationResponse = z.object({
-    allocated_by: z.string(),
-    allocated_to_staff: z.optional(z.union([
-        zStaffResponse,
-        z.null()
-    ])),
-    allocated_to_student: z.optional(z.union([
-        zStudentResponse,
-        z.null()
-    ])),
-    allocation_date: z.string(),
-    created_at: z.string(),
-    id: z.string(),
-    item_id: z.string(),
-    quantity: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    return_date: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    updated_at: z.string()
-});
-
-/**
  * PaginatedStudentResponse
  */
 export const zPaginatedStudentResponse = z.object({
     data: z.array(zStudentResponse),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
@@ -3542,6 +4212,10 @@ export const zSubjectResponse = z.object({
 export const zPaginatedSubjectResponse = z.object({
     data: z.array(zSubjectResponse),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
@@ -3556,7 +4230,7 @@ export const zSubmitExcuseRequest = z.object({
         z.string(),
         z.null()
     ])),
-    excuse_type: z.string()
+    excuse_type: zExcuseType
 });
 
 /**
@@ -3663,11 +4337,6 @@ export const zTeacherRewardHistory = z.object({
     created_at: z.string(),
     id: z.string(),
     points: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    reason_type: zRewardReasonType,
-    reference_id: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
     teacher_id: z.string()
 });
 
@@ -3719,7 +4388,6 @@ export const zTimetableResponse = z.object({
         z.null()
     ])),
     id: z.string(),
-    period_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
     room: z.string(),
     start_time: z.string(),
     subject_id: z.string(),
@@ -3781,39 +4449,6 @@ export const zTrendPoint = z.object({
  */
 export const zTrialBalanceResponse = z.object({
     account_balances: z.record(z.string(), z.number())
-});
-
-/**
- * UniformIssueResponse
- */
-export const zUniformIssueResponse = z.object({
-    amount_collected: z.number(),
-    created_at: z.string(),
-    id: z.string(),
-    issue_date: z.string(),
-    issued_by: z.string(),
-    quantity: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    student_id: z.string(),
-    uniform_item_id: z.string(),
-    updated_at: z.string()
-});
-
-/**
- * UniformItemResponse
- */
-export const zUniformItemResponse = z.object({
-    created_at: z.string(),
-    gender: z.string(),
-    grade_level: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    id: z.string(),
-    item_name: z.string(),
-    price: z.number(),
-    quantity: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    size: z.string(),
-    updated_at: z.string()
 });
 
 /**
@@ -3909,19 +4544,11 @@ export const zUpdateClassRequest = z.object({
         z.string(),
         z.null()
     ])),
-    max_capacity: z.optional(z.union([
-        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-        z.null()
-    ])),
     medium: z.optional(z.union([
         zMedium,
         z.null()
     ])),
-    room_number: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    section_name: z.optional(z.union([
+    room_id: z.optional(z.union([
         z.string(),
         z.null()
     ]))
@@ -3991,44 +4618,44 @@ export const zUpdateEmergencyStatusRequest = z.object({
 });
 
 /**
- * UpdateExamRequest
+ * UpdateExamStructureRequest
  */
-export const zUpdateExamRequest = z.object({
-    academic_year_id: z.optional(z.union([
+export const zUpdateExamStructureRequest = z.object({
+    description: z.optional(z.union([
         z.string(),
         z.null()
     ])),
-    end_date: z.optional(z.union([
-        z.string(),
+    is_active: z.optional(z.union([
+        z.boolean(),
         z.null()
     ])),
-    exam_type_id: z.optional(z.union([
-        z.string(),
+    medium: z.optional(z.union([
+        zMedium,
         z.null()
     ])),
     name: z.optional(z.union([
         z.string(),
         z.null()
     ])),
-    start_date: z.optional(z.union([
-        z.string(),
+    scope_type: z.optional(z.union([
+        zExamScopeType,
         z.null()
     ])),
-    term_id: z.optional(z.union([
-        z.string(),
+    valid_from: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    valid_to: z.optional(z.union([
+        z.iso.date(),
         z.null()
     ]))
 });
 
 /**
- * UpdateExamSubjectRequest
+ * UpdateExamStructureSubjectRequest
  */
-export const zUpdateExamSubjectRequest = z.object({
-    date: z.optional(z.union([
-        z.iso.date(),
-        z.null()
-    ])),
-    duration: z.optional(z.union([
+export const zUpdateExamStructureSubjectRequest = z.object({
+    duration_minutes: z.optional(z.union([
         z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
         z.null()
     ])),
@@ -4036,30 +4663,16 @@ export const zUpdateExamSubjectRequest = z.object({
         z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
         z.null()
     ])),
+    order_index: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
     pass_marks: z.optional(z.union([
         z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
         z.null()
     ])),
-    time: z.optional(z.union([
+    subject_id: z.optional(z.union([
         z.string(),
-        z.null()
-    ]))
-});
-
-/**
- * UpdateExamTypeRequest
- */
-export const zUpdateExamTypeRequest = z.object({
-    description: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    name: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    weightage: z.optional(z.union([
-        z.number(),
         z.null()
     ]))
 });
@@ -4101,6 +4714,74 @@ export const zUpdateFeeStructureRequest = z.object({
 });
 
 /**
+ * UpdateGovernmentExamRequest
+ */
+export const zUpdateGovernmentExamRequest = z.object({
+    authority: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    end_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    exam_structure_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    exam_year: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    level: z.optional(z.union([
+        zExamLevel,
+        z.null()
+    ])),
+    name: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    start_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    status: z.optional(z.union([
+        zExamStatus,
+        z.null()
+    ]))
+});
+
+/**
+ * UpdateGovernmentExamSubjectRequest
+ */
+export const zUpdateGovernmentExamSubjectRequest = z.object({
+    duration_minutes: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    exam_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    exam_time: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    max_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    pass_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    subject_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ]))
+});
+
+/**
  * UpdateGradeLevelRequest
  */
 export const zUpdateGradeLevelRequest = z.object({
@@ -4130,41 +4811,11 @@ export const zUpdateGradePeriodRequest = z.object({
         z.boolean(),
         z.null()
     ])),
-    period_number: z.optional(z.union([
-        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    is_optional: z.optional(z.union([
+        z.boolean(),
         z.null()
     ])),
     start_time: z.optional(z.union([
-        z.string(),
-        z.null()
-    ]))
-});
-
-/**
- * UpdateGradingCriterion
- */
-export const zUpdateGradingCriterion = z.object({
-    description: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    grade: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    grade_point: z.optional(z.union([
-        z.number(),
-        z.null()
-    ])),
-    max_marks: z.optional(z.union([
-        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-        z.null()
-    ])),
-    min_marks: z.optional(z.union([
-        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-        z.null()
-    ])),
-    scheme_id: z.optional(z.union([
         z.string(),
         z.null()
     ]))
@@ -4178,38 +4829,28 @@ export const zUpdateGradingScheme = z.object({
         z.string(),
         z.null()
     ])),
-    grade_level: z.optional(z.union([
+    grade_level_id: z.optional(z.union([
         z.string(),
+        z.null()
+    ])),
+    is_default: z.optional(z.union([
+        z.boolean(),
         z.null()
     ])),
     name: z.optional(z.union([
         z.string(),
         z.null()
-    ]))
-});
-
-/**
- * UpdateInventoryItemRequest
- */
-export const zUpdateInventoryItemRequest = z.object({
-    description: z.optional(z.union([
-        z.string(),
-        z.null()
     ])),
-    item_name: z.optional(z.union([
-        z.string(),
-        z.null()
-    ])),
-    reorder_level: z.optional(z.union([
+    pass_mark: z.optional(z.union([
         z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
         z.null()
     ])),
-    unit: z.optional(z.union([
+    scale_definition: z.optional(z.union([
         z.string(),
         z.null()
     ])),
-    unit_price: z.optional(z.union([
-        z.number(),
+    scheme_type: z.optional(z.union([
+        zGradingSchemeType,
         z.null()
     ]))
 });
@@ -4279,18 +4920,83 @@ export const zUpdateLibrarySettingsRequest = z.object({
 });
 
 /**
- * UpdateMaintenanceStatusRequest
+ * UpdateMarkingSchemePartRequest
  */
-export const zUpdateMaintenanceStatusRequest = z.object({
-    assigned_to: z.optional(z.union([
+export const zUpdateMarkingSchemePartRequest = z.object({
+    max_marks: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    order_index: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    paper_label: z.optional(z.union([
         z.string(),
         z.null()
     ])),
-    resolved_date: z.optional(z.union([
+    part_label: z.optional(z.union([
         z.string(),
         z.null()
     ])),
-    status: zMaintenanceStatus
+    question_label: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    structure_json: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    weight_ratio: z.optional(z.union([
+        z.number(),
+        z.null()
+    ]))
+});
+
+/**
+ * UpdateMarkingSchemeRequest
+ */
+export const zUpdateMarkingSchemeRequest = z.object({
+    calculation_fn: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    curriculum_standard_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    description: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    grade_level_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    is_active: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
+    name: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    stream_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    subject_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    valid_from: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    valid_to: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ]))
 });
 
 /**
@@ -4318,18 +5024,60 @@ export const zUpdateProfileRequest = z.object({
 });
 
 /**
- * UpdateResourceRequest
+ * UpdateReportCardMarkRequest
  */
-export const zUpdateResourceRequest = z.object({
-    description: z.optional(z.union([
+export const zUpdateReportCardMarkRequest = z.object({
+    grade: z.optional(z.union([
         z.string(),
         z.null()
     ])),
-    resource_name: z.optional(z.union([
+    grade_point: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    marking_scheme_id: z.optional(z.union([
         z.string(),
         z.null()
     ])),
-    resource_type: z.optional(z.union([
+    percentage: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    remarks: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    total_marks: z.optional(z.union([
+        z.number(),
+        z.null()
+    ]))
+});
+
+/**
+ * UpdateReportCardRequest
+ */
+export const zUpdateReportCardRequest = z.object({
+    grading_scheme_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    overall_gpa: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    overall_grade: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    overall_percentage: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    rank: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    remarks: z.optional(z.union([
         z.string(),
         z.null()
     ]))
@@ -4358,6 +5106,74 @@ export const zUpdateSchoolSettingRequest = z.object({
         z.null()
     ])),
     setting_value: z.string()
+});
+
+/**
+ * UpdateSchoolTestRequest
+ */
+export const zUpdateSchoolTestRequest = z.object({
+    academic_year_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    end_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    exam_structure_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    name: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    start_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    status: z.optional(z.union([
+        zExamStatus,
+        z.null()
+    ])),
+    term_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    test_type: z.optional(z.union([
+        zSchoolTestType,
+        z.null()
+    ]))
+});
+
+/**
+ * UpdateSchoolTestSubjectRequest
+ */
+export const zUpdateSchoolTestSubjectRequest = z.object({
+    duration_minutes: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    max_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    pass_marks: z.optional(z.union([
+        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        z.null()
+    ])),
+    subject_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    test_date: z.optional(z.union([
+        z.iso.date(),
+        z.null()
+    ])),
+    test_time: z.optional(z.union([
+        z.string(),
+        z.null()
+    ]))
 });
 
 /**
@@ -4394,8 +5210,16 @@ export const zUpdateStaffRequest = z.object({
         z.iso.date(),
         z.null()
     ])),
-    gender: z.optional(z.union([
+    email: z.optional(z.union([
         z.string(),
+        z.null()
+    ])),
+    employment_status: z.optional(z.union([
+        zEmploymentStatus,
+        z.null()
+    ])),
+    gender: z.optional(z.union([
+        zGender,
         z.null()
     ])),
     name: z.optional(z.union([
@@ -4409,14 +5233,15 @@ export const zUpdateStaffRequest = z.object({
     phone: z.optional(z.union([
         z.string(),
         z.null()
+    ])),
+    photo_url: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    staff_type: z.optional(z.union([
+        zStaffType,
+        z.null()
     ]))
-});
-
-/**
- * UpdateStockRequest
- */
-export const zUpdateStockRequest = z.object({
-    quantity: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
@@ -4475,12 +5300,12 @@ export const zUpdateStudentGuardianRequest = z.object({
  * UpdateStudentMarkRequest
  */
 export const zUpdateStudentMarkRequest = z.object({
-    is_absent: z.optional(z.union([
-        z.boolean(),
+    entries: z.optional(z.union([
+        z.array(zStudentMarkEntryInput),
         z.null()
     ])),
-    marks_obtained: z.optional(z.union([
-        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    is_absent: z.optional(z.union([
+        z.boolean(),
         z.null()
     ])),
     remarks: z.optional(z.union([
@@ -4493,8 +5318,16 @@ export const zUpdateStudentMarkRequest = z.object({
  * UpdateStudentRequest
  */
 export const zUpdateStudentRequest = z.object({
+    address: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     dob: z.optional(z.union([
         z.iso.date(),
+        z.null()
+    ])),
+    email: z.optional(z.union([
+        z.string(),
         z.null()
     ])),
     ethnicity: z.optional(z.union([
@@ -4505,7 +5338,11 @@ export const zUpdateStudentRequest = z.object({
         zGender,
         z.null()
     ])),
-    nic_or_birth_certificate: z.optional(z.union([
+    phone: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    photo_url: z.optional(z.union([
         z.string(),
         z.null()
     ])),
@@ -4603,10 +5440,6 @@ export const zUpdateTimetableRequest = z.object({
         z.string(),
         z.null()
     ])),
-    period_number: z.optional(z.union([
-        z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-        z.null()
-    ])),
     room: z.optional(z.union([
         z.string(),
         z.null()
@@ -4672,7 +5505,10 @@ export const zUserProfileResponse = z.object({
     created_at: z.string(),
     email: z.string(),
     id: z.string(),
-    is_verified: z.boolean(),
+    is_verified: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
     name: z.optional(z.union([
         z.string(),
         z.null()
@@ -4701,7 +5537,10 @@ export const zUserResponse = z.object({
     created_at: z.string(),
     email: z.string(),
     id: z.string(),
-    is_verified: z.boolean(),
+    is_verified: z.optional(z.union([
+        z.boolean(),
+        z.null()
+    ])),
     lockout_until: z.optional(z.union([
         z.string(),
         z.null()
@@ -4716,6 +5555,10 @@ export const zUserResponse = z.object({
 export const zPaginatedUserResponse = z.object({
     data: z.array(zUserResponse),
     limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+    next_last_id: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
     page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
     total_pages: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' })
@@ -4859,6 +5702,10 @@ export const zGetAllUsersData = z.object({
         ])),
         is_verified: z.optional(z.union([
             z.boolean(),
+            z.null()
+        ])),
+        last_id: z.optional(z.union([
+            z.string(),
             z.null()
         ])),
         limit: z.optional(z.union([
@@ -5192,6 +6039,10 @@ export const zGetAllAcademicYearsData = z.object({
             z.boolean(),
             z.null()
         ])),
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
         limit: z.optional(z.union([
             z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
             z.null()
@@ -5294,6 +6145,10 @@ export const zGetAllGradeLevelsData = z.object({
     path: z.optional(z.never()),
     query: z.optional(z.object({
         education_level: z.optional(z.union([
+            zEducationLevel,
+            z.null()
+        ])),
+        last_id: z.optional(z.union([
             z.string(),
             z.null()
         ])),
@@ -5424,6 +6279,10 @@ export const zGetAllClassesData = z.object({
             z.string(),
             z.null()
         ])),
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
         limit: z.optional(z.union([
             z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
             z.null()
@@ -5525,6 +6384,10 @@ export const zGetAllSubjectsData = z.object({
             z.boolean(),
             z.null()
         ])),
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
         limit: z.optional(z.union([
             z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
             z.null()
@@ -5619,6 +6482,10 @@ export const zGetStudentsBySubjectData = z.object({
         academic_year_id: z.string()
     }),
     query: z.optional(z.object({
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
         limit: z.optional(z.union([
             z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
             z.null()
@@ -5799,16 +6666,28 @@ export const zGetTimetableByTeacherData = z.object({
 
 export const zGetTimetableByTeacherResponse = z.array(zTimetableResponse);
 
-export const zGetAllExamTypesData = z.object({
+export const zGetAllExamStructuresData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
+        is_active: z.optional(z.union([
+            z.boolean(),
+            z.null()
+        ])),
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
         limit: z.optional(z.union([
             z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
             z.null()
         ])),
         page: z.optional(z.union([
             z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        scope_type: z.optional(z.union([
+            zExamScopeType,
             z.null()
         ])),
         search: z.optional(z.union([
@@ -5826,17 +6705,17 @@ export const zGetAllExamTypesData = z.object({
     }))
 });
 
-export const zGetAllExamTypesResponse = zPaginatedExamTypeResponse;
+export const zGetAllExamStructuresResponse = zPaginatedExamStructureResponse;
 
-export const zCreateExamTypeData = z.object({
-    body: zCreateExamTypeRequest,
+export const zCreateExamStructureData = z.object({
+    body: zCreateExamStructureRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zCreateExamTypeResponse = zExamTypeResponse;
+export const zCreateExamStructureResponse = zExamStructure;
 
-export const zDeleteExamTypeData = z.object({
+export const zDeleteExamStructureData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -5844,9 +6723,9 @@ export const zDeleteExamTypeData = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteExamTypeResponse = zMessageResponse;
+export const zDeleteExamStructureResponse = zMessageResponse;
 
-export const zGetExamTypeByIdData = z.object({
+export const zGetExamStructureByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -5854,43 +6733,102 @@ export const zGetExamTypeByIdData = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetExamTypeByIdResponse = zExamTypeResponse;
+export const zGetExamStructureByIdResponse = zExamStructure;
 
-export const zUpdateExamTypeData = z.object({
-    body: zUpdateExamTypeRequest,
+export const zUpdateExamStructureData = z.object({
+    body: zUpdateExamStructureRequest,
     path: z.object({
         id: z.string()
     }),
     query: z.optional(z.never())
 });
 
-export const zUpdateExamTypeResponse = zExamTypeResponse;
+export const zUpdateExamStructureResponse = zExamStructure;
 
-export const zBulkDeleteExamTypesData = z.object({
-    body: zBulkDeleteExamTypesRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zBulkDeleteExamTypesResponse = zMessageResponse;
-
-export const zBulkUpdateExamTypesData = z.object({
-    body: zBulkUpdateExamTypesRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zBulkUpdateExamTypesResponse = zMessageResponse;
-
-export const zGetAllExamsData = z.object({
+export const zBulkDeleteExamStructuresData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zBulkUpdateExamStructuresData = z.object({
+    body: zBulkUpdateExamStructuresRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zGetExamStructureSubjectsByStructureData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        structure_id: z.string()
+    }),
     query: z.optional(z.object({
-        academic_year_id: z.optional(z.union([
+        last_id: z.optional(z.union([
             z.string(),
             z.null()
         ])),
-        exam_type_id: z.optional(z.union([
+        limit: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        page: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ]))
+    }))
+});
+
+export const zGetExamStructureSubjectsByStructureResponse = zPaginatedExamStructureSubjectResponse;
+
+export const zCreateExamStructureSubjectData = z.object({
+    body: zCreateExamStructureSubjectRequest,
+    path: z.object({
+        structure_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zCreateExamStructureSubjectResponse = zExamStructureSubject;
+
+export const zDeleteExamStructureSubjectData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zDeleteExamStructureSubjectResponse = zMessageResponse;
+
+export const zGetExamStructureSubjectByIdData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zGetExamStructureSubjectByIdResponse = zExamStructureSubject;
+
+export const zUpdateExamStructureSubjectData = z.object({
+    body: zUpdateExamStructureSubjectRequest,
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zUpdateExamStructureSubjectResponse = zExamStructureSubject;
+
+export const zGetAllGovernmentExamsData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.object({
+        exam_structure_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        last_id: z.optional(z.union([
             z.string(),
             z.null()
         ])),
@@ -5912,6 +6850,168 @@ export const zGetAllExamsData = z.object({
         ])),
         sort_order: z.optional(z.union([
             z.string(),
+            z.null()
+        ])),
+        status: z.optional(z.union([
+            zExamStatus,
+            z.null()
+        ]))
+    }))
+});
+
+export const zGetAllGovernmentExamsResponse = zPaginatedGovernmentExamResponse;
+
+export const zCreateGovernmentExamData = z.object({
+    body: zCreateGovernmentExamRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zCreateGovernmentExamResponse = zGovernmentExam;
+
+export const zDeleteGovernmentExamData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zDeleteGovernmentExamResponse = zMessageResponse;
+
+export const zGetGovernmentExamByIdData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zGetGovernmentExamByIdResponse = zGovernmentExam;
+
+export const zUpdateGovernmentExamData = z.object({
+    body: zUpdateGovernmentExamRequest,
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zUpdateGovernmentExamResponse = zGovernmentExam;
+
+export const zBulkDeleteGovernmentExamsData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zBulkUpdateGovernmentExamsData = z.object({
+    body: zBulkUpdateGovernmentExamsRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zGetGovernmentExamSubjectsByExamData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        government_exam_id: z.string()
+    }),
+    query: z.optional(z.object({
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        limit: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        page: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ]))
+    }))
+});
+
+export const zGetGovernmentExamSubjectsByExamResponse = zPaginatedGovernmentExamSubjectResponse;
+
+export const zCreateGovernmentExamSubjectData = z.object({
+    body: zCreateGovernmentExamSubjectRequest,
+    path: z.object({
+        government_exam_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zCreateGovernmentExamSubjectResponse = zGovernmentExamSubject;
+
+export const zDeleteGovernmentExamSubjectData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zDeleteGovernmentExamSubjectResponse = zMessageResponse;
+
+export const zGetGovernmentExamSubjectByIdData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zGetGovernmentExamSubjectByIdResponse = zGovernmentExamSubject;
+
+export const zUpdateGovernmentExamSubjectData = z.object({
+    body: zUpdateGovernmentExamSubjectRequest,
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zUpdateGovernmentExamSubjectResponse = zGovernmentExamSubject;
+
+export const zGetAllSchoolTestsData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.object({
+        academic_year_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        exam_structure_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        limit: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        page: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        search: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        sort_by: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        sort_order: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        status: z.optional(z.union([
+            zExamStatus,
             z.null()
         ])),
         term_id: z.optional(z.union([
@@ -5921,17 +7021,17 @@ export const zGetAllExamsData = z.object({
     }))
 });
 
-export const zGetAllExamsResponse = zPaginatedExamResponse;
+export const zGetAllSchoolTestsResponse = zPaginatedSchoolTestResponse;
 
-export const zCreateExamData = z.object({
-    body: zCreateExamRequest,
+export const zCreateSchoolTestData = z.object({
+    body: zCreateSchoolTestRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zCreateExamResponse = zExamResponse;
+export const zCreateSchoolTestResponse = zSchoolTest;
 
-export const zDeleteExamData = z.object({
+export const zDeleteSchoolTestData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -5939,9 +7039,9 @@ export const zDeleteExamData = z.object({
     query: z.optional(z.never())
 });
 
-export const zDeleteExamResponse = zMessageResponse;
+export const zDeleteSchoolTestResponse = zMessageResponse;
 
-export const zGetExamByIdData = z.object({
+export const zGetSchoolTestByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
         id: z.string()
@@ -5949,131 +7049,291 @@ export const zGetExamByIdData = z.object({
     query: z.optional(z.never())
 });
 
-export const zGetExamByIdResponse = zExamResponse;
+export const zGetSchoolTestByIdResponse = zSchoolTest;
 
-export const zUpdateExamData = z.object({
-    body: zUpdateExamRequest,
+export const zUpdateSchoolTestData = z.object({
+    body: zUpdateSchoolTestRequest,
     path: z.object({
         id: z.string()
     }),
     query: z.optional(z.never())
 });
 
-export const zUpdateExamResponse = zExamResponse;
+export const zUpdateSchoolTestResponse = zSchoolTest;
 
-export const zGetExamsByTermIdData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        term_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zGetExamsByTermIdResponse = z.array(zExamResponse);
-
-export const zBulkDeleteExamsData = z.object({
-    body: zBulkDeleteExamsRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zBulkDeleteExamsResponse = zMessageResponse;
-
-export const zBulkUpdateExamsData = z.object({
-    body: zBulkUpdateExamsRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zBulkUpdateExamsResponse = zMessageResponse;
-
-export const zGetAllExamSubjectsData = z.object({
+export const zBulkDeleteSchoolTestsData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zGetAllExamSubjectsResponse = z.array(zExamSubjectResponse);
-
-export const zCreateExamSubjectData = z.object({
-    body: zCreateExamSubjectRequest,
+export const zBulkUpdateSchoolTestsData = z.object({
+    body: zBulkUpdateSchoolTestsRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zCreateExamSubjectResponse = zExamSubjectResponse;
-
-export const zDeleteExamSubjectData = z.object({
+export const zGetSchoolTestSubjectsByTestData = z.object({
     body: z.optional(z.never()),
     path: z.object({
-        exam_id: z.string(),
-        subject_id: z.string()
+        school_test_id: z.string()
+    }),
+    query: z.optional(z.object({
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        limit: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        page: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ]))
+    }))
+});
+
+export const zGetSchoolTestSubjectsByTestResponse = zPaginatedSchoolTestSubjectResponse;
+
+export const zCreateSchoolTestSubjectData = z.object({
+    body: zCreateSchoolTestSubjectRequest,
+    path: z.object({
+        school_test_id: z.string()
     }),
     query: z.optional(z.never())
 });
 
-export const zDeleteExamSubjectResponse = zMessageResponse;
+export const zCreateSchoolTestSubjectResponse = zSchoolTestSubject;
 
-export const zGetExamSubjectByIdsData = z.object({
+export const zDeleteSchoolTestSubjectData = z.object({
     body: z.optional(z.never()),
     path: z.object({
-        exam_id: z.string(),
-        subject_id: z.string()
+        id: z.string()
     }),
     query: z.optional(z.never())
 });
 
-export const zGetExamSubjectByIdsResponse = zExamSubjectResponse;
+export const zDeleteSchoolTestSubjectResponse = zMessageResponse;
 
-export const zUpdateExamSubjectData = z.object({
-    body: zUpdateExamSubjectRequest,
-    path: z.object({
-        exam_id: z.string(),
-        subject_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zUpdateExamSubjectResponse = zExamSubjectResponse;
-
-export const zGetExamSubjectsByExamIdData = z.object({
+export const zGetSchoolTestSubjectByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
-        exam_id: z.string()
+        id: z.string()
     }),
     query: z.optional(z.never())
 });
 
-export const zGetExamSubjectsByExamIdResponse = z.array(zExamSubjectResponse);
+export const zGetSchoolTestSubjectByIdResponse = zSchoolTestSubject;
 
-export const zGetExamSubjectsBySubjectIdData = z.object({
+export const zUpdateSchoolTestSubjectData = z.object({
+    body: zUpdateSchoolTestSubjectRequest,
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zUpdateSchoolTestSubjectResponse = zSchoolTestSubject;
+
+export const zGetAllMarkingSchemesData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.object({
+        curriculum_standard_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        grade_level_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        is_active: z.optional(z.union([
+            z.boolean(),
+            z.null()
+        ])),
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        limit: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        page: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        search: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        sort_by: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        sort_order: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        stream_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        subject_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ]))
+    }))
+});
+
+export const zGetAllMarkingSchemesResponse = zPaginatedMarkingSchemeResponse;
+
+export const zCreateMarkingSchemeData = z.object({
+    body: zCreateMarkingSchemeRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zCreateMarkingSchemeResponse = zMarkingScheme;
+
+export const zDeleteMarkingSchemeData = z.object({
     body: z.optional(z.never()),
     path: z.object({
-        subject_id: z.string()
+        id: z.string()
     }),
     query: z.optional(z.never())
 });
 
-export const zGetExamSubjectsBySubjectIdResponse = z.array(zExamSubjectResponse);
+export const zDeleteMarkingSchemeResponse = zMessageResponse;
 
-export const zGetExamScheduleData = z.object({
+export const zGetMarkingSchemeByIdData = z.object({
     body: z.optional(z.never()),
     path: z.object({
-        academic_year_id: z.string(),
-        term_id: z.string()
+        id: z.string()
     }),
     query: z.optional(z.never())
 });
 
-export const zGetExamScheduleResponse = z.array(zExamSubjectResponse);
+export const zGetMarkingSchemeByIdResponse = zMarkingScheme;
+
+export const zUpdateMarkingSchemeData = z.object({
+    body: zUpdateMarkingSchemeRequest,
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zUpdateMarkingSchemeResponse = zMarkingScheme;
+
+export const zBulkDeleteMarkingSchemesData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zBulkUpdateMarkingSchemesData = z.object({
+    body: zBulkUpdateMarkingSchemesRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zGetMarkingSchemePartsBySchemeData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        scheme_id: z.string()
+    }),
+    query: z.optional(z.object({
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        limit: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        page: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ]))
+    }))
+});
+
+export const zGetMarkingSchemePartsBySchemeResponse = zPaginatedMarkingSchemePartResponse;
+
+export const zCreateMarkingSchemePartData = z.object({
+    body: zCreateMarkingSchemePartRequest,
+    path: z.object({
+        scheme_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zCreateMarkingSchemePartResponse = zMarkingSchemePart;
+
+export const zDeleteMarkingSchemePartData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zDeleteMarkingSchemePartResponse = zMessageResponse;
+
+export const zGetMarkingSchemePartByIdData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zGetMarkingSchemePartByIdResponse = zMarkingSchemePart;
+
+export const zUpdateMarkingSchemePartData = z.object({
+    body: zUpdateMarkingSchemePartRequest,
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zUpdateMarkingSchemePartResponse = zMarkingSchemePart;
 
 export const zGetAllGradingSchemesData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
-    query: z.optional(z.never())
+    query: z.optional(z.object({
+        grade_level_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        is_default: z.optional(z.union([
+            z.boolean(),
+            z.null()
+        ])),
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        limit: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        page: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        scheme_type: z.optional(z.union([
+            zGradingSchemeType,
+            z.null()
+        ]))
+    }))
 });
 
-export const zGetAllGradingSchemesResponse = z.array(zGradingScheme);
+export const zGetAllGradingSchemesResponse = zPaginatedGradingSchemeResponse;
 
 export const zCreateGradingSchemeData = z.object({
     body: zNewGradingScheme,
@@ -6124,54 +7384,6 @@ export const zAssignGradingSchemeToGradeLevelData = z.object({
 
 export const zAssignGradingSchemeToGradeLevelResponse = zGradingScheme;
 
-export const zCreateGradingCriterionData = z.object({
-    body: zNewGradingCriterion,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zCreateGradingCriterionResponse = zGradingCriterion;
-
-export const zDeleteGradingCriterionData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zDeleteGradingCriterionResponse = zMessageResponse;
-
-export const zGetGradingCriterionByIdData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zGetGradingCriterionByIdResponse = zGradingCriterion;
-
-export const zUpdateGradingCriterionData = z.object({
-    body: zUpdateGradingCriterion,
-    path: z.object({
-        id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zUpdateGradingCriterionResponse = zGradingCriterion;
-
-export const zGetGradingCriteriaBySchemeIdData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        scheme_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zGetGradingCriteriaBySchemeIdResponse = z.array(zGradingCriterion);
-
 export const zCalculateZscoresData = z.object({
     body: zCalculateZScoreRequest,
     path: z.optional(z.never()),
@@ -6180,13 +7392,110 @@ export const zCalculateZscoresData = z.object({
 
 export const zCalculateZscoresResponse = zMessageResponse;
 
-export const zRegisterStudentSpecialExamData = z.object({
-    body: zExamRegistrationRequest,
+export const zGetAllReportCardsData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.object({
+        academic_year_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        class_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        limit: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        page: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ])),
+        student_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        term_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ]))
+    }))
+});
+
+export const zGetAllReportCardsResponse = zPaginatedReportCardResponse;
+
+export const zCreateReportCardData = z.object({
+    body: zCreateReportCardRequest,
     path: z.optional(z.never()),
     query: z.optional(z.never())
 });
 
-export const zRegisterStudentSpecialExamResponse = zMessageResponse;
+export const zCreateReportCardResponse = zReportCard;
+
+export const zDeleteReportCardData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zDeleteReportCardResponse = zMessageResponse;
+
+export const zGetReportCardByIdData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zGetReportCardByIdResponse = zReportCardDetailResponse;
+
+export const zUpdateReportCardData = z.object({
+    body: zUpdateReportCardRequest,
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zUpdateReportCardResponse = zReportCard;
+
+export const zCreateReportCardMarkData = z.object({
+    body: zCreateReportCardMarkRequest,
+    path: z.object({
+        report_card_id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zCreateReportCardMarkResponse = zReportCardMark;
+
+export const zDeleteReportCardMarkData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zDeleteReportCardMarkResponse = zMessageResponse;
+
+export const zUpdateReportCardMarkData = z.object({
+    body: zUpdateReportCardMarkRequest,
+    path: z.object({
+        id: z.string()
+    }),
+    query: z.optional(z.never())
+});
+
+export const zUpdateReportCardMarkResponse = zReportCardMark;
 
 export const zGenerateReportCardData = z.object({
     body: z.optional(z.never()),
@@ -6202,6 +7511,10 @@ export const zGetAllLibraryCategoriesData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
+        last_id: z.optional(z.union([
+            z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+            z.null()
+        ])),
         limit: z.optional(z.union([
             z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
             z.null()
@@ -6256,6 +7569,10 @@ export const zGetAllLibraryBooksData = z.object({
     path: z.optional(z.never()),
     query: z.optional(z.object({
         category_id: z.optional(z.union([
+            z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+            z.null()
+        ])),
+        last_id: z.optional(z.union([
             z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
             z.null()
         ])),
@@ -6466,180 +7783,14 @@ export const zGetLibraryStatsData = z.object({
 
 export const zGetLibraryStatsResponse = zLibraryStatsResponse;
 
-export const zGetAssetCategoriesData = z.object({
-    body: z.optional(z.never()),
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zGetAssetCategoriesResponse = z.array(zAssetCategoryResponse);
-
-export const zCreateAssetCategoryData = z.object({
-    body: zCreateAssetCategoryRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zCreateAssetCategoryResponse = zAssetCategoryResponse;
-
-export const zAddInventoryItemData = z.object({
-    body: zCreateInventoryItemRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zAddInventoryItemResponse = zInventoryItemResponse;
-
-export const zGetLowStockItemsData = z.object({
-    body: z.optional(z.never()),
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zGetLowStockItemsResponse = z.array(zInventoryItemResponse);
-
-export const zSearchInventoryData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        query: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zSearchInventoryResponse = z.array(zInventoryItemResponse);
-
-export const zGetInventoryByCategoryData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zGetInventoryByCategoryResponse = z.array(zInventoryItemResponse);
-
-export const zUpdateInventoryItemData = z.object({
-    body: zUpdateInventoryItemRequest,
-    path: z.object({
-        id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zUpdateInventoryItemResponse = zInventoryItemResponse;
-
-export const zUpdateStockQuantityData = z.object({
-    body: zUpdateStockRequest,
-    path: z.object({
-        id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zUpdateStockQuantityResponse = zInventoryItemResponse;
-
-export const zGetUniformInventoryData = z.object({
-    body: z.optional(z.never()),
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zGetUniformInventoryResponse = z.array(zUniformItemResponse);
-
-export const zCreateUniformItemData = z.object({
-    body: zCreateUniformItemRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zCreateUniformItemResponse = zUniformItemResponse;
-
-export const zIssueUniformData = z.object({
-    body: zIssueUniformRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zIssueUniformResponse = zUniformIssueResponse;
-
-export const zGetUniformIssueHistoryData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        student_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zGetUniformIssueHistoryResponse = z.array(zUniformIssueResponse);
-
-export const zAllocateAssetData = z.object({
-    body: zAllocateAssetRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zAllocateAssetResponse = zAssetAllocationResponse;
-
-export const zGetAllocationsByItemData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zGetAllocationsByItemResponse = z.array(zAssetAllocationResponse);
-
-export const zGetAllocationsByAssigneeData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zGetAllocationsByAssigneeResponse = z.array(zDetailedAssetAllocationResponse);
-
-export const zReturnAllocatedAssetData = z.object({
-    body: zReturnAssetRequest,
-    path: z.object({
-        id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zReturnAllocatedAssetResponse = zAssetAllocationResponse;
-
-export const zCreateMaintenanceRequestData = z.object({
-    body: zCreateMaintenanceRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zCreateMaintenanceRequestResponse = zMaintenanceRequestResponse;
-
-export const zGetPendingMaintenanceData = z.object({
-    body: z.optional(z.never()),
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zGetPendingMaintenanceResponse = z.array(zMaintenanceRequestResponse);
-
-export const zUpdateMaintenanceStatusData = z.object({
-    body: zUpdateMaintenanceStatusRequest,
-    path: z.object({
-        id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zUpdateMaintenanceStatusResponse = zMaintenanceRequestResponse;
-
 export const zGetAllBudgetCategoriesData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
     query: z.optional(z.object({
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
         limit: z.optional(z.union([
             z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
             z.null()
@@ -6844,6 +7995,10 @@ export const zGetAllFeeCategoriesData = z.object({
             z.boolean(),
             z.null()
         ])),
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
         limit: z.optional(z.union([
             z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
             z.null()
@@ -6921,6 +8076,10 @@ export const zGetAllFeeStructuresData = z.object({
         ])),
         is_mandatory: z.optional(z.union([
             z.boolean(),
+            z.null()
+        ])),
+        last_id: z.optional(z.union([
+            z.string(),
             z.null()
         ])),
         limit: z.optional(z.union([
@@ -7291,6 +8450,10 @@ export const zGetAllStaffData = z.object({
             zEmploymentStatus,
             z.null()
         ])),
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
         limit: z.optional(z.union([
             z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
             z.null()
@@ -7635,6 +8798,10 @@ export const zGetAllStudentsData = z.object({
             z.null()
         ])),
         created_before: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        last_id: z.optional(z.union([
             z.string(),
             z.null()
         ])),
@@ -8049,10 +9216,19 @@ export const zVerifyExcuseResponse = zMessageResponse;
 export const zGetAllStudentMarksData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
-    query: z.optional(z.never())
+    query: z.optional(z.object({
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        limit: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ]))
+    }))
 });
 
-export const zGetAllStudentMarksResponse = z.array(zStudentMarkResponse);
+export const zGetAllStudentMarksResponse = zPaginatedStudentMarksResponse;
 
 export const zCreateStudentMarkData = z.object({
     body: zCreateStudentMarkRequest,
@@ -8105,10 +9281,19 @@ export const zGetStudentMarksByStudentIdData = z.object({
     path: z.object({
         student_id: z.string()
     }),
-    query: z.optional(z.never())
+    query: z.optional(z.object({
+        last_id: z.optional(z.union([
+            z.string(),
+            z.null()
+        ])),
+        limit: z.optional(z.union([
+            z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }),
+            z.null()
+        ]))
+    }))
 });
 
-export const zGetStudentMarksByStudentIdResponse = z.array(zStudentMarkResponse);
+export const zGetStudentMarksByStudentIdResponse = zPaginatedStudentMarksResponse;
 
 export const zGetStudentMarksByExamAndClassData = z.object({
     body: z.optional(z.never()),
@@ -8293,68 +9478,6 @@ export const zMarkMessageAsReadData = z.object({
  * uint
  */
 export const zMarkMessageAsReadResponse = z.int().gte(0);
-
-export const zGetAllResourcesData = z.object({
-    body: z.optional(z.never()),
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zGetAllResourcesResponse = z.array(zResourceResponse);
-
-export const zCreateResourceData = z.object({
-    body: zCreateResourceRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zCreateResourceResponse = zResourceResponse;
-
-export const zDeleteResourceData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        resource_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zGetResourceByIdData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        resource_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zGetResourceByIdResponse = zResourceResponse;
-
-export const zUpdateResourceData = z.object({
-    body: zUpdateResourceRequest,
-    path: z.object({
-        resource_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zUpdateResourceResponse = zResourceResponse;
-
-export const zGetResourceBookingsData = z.object({
-    body: z.optional(z.never()),
-    path: z.object({
-        resource_id: z.string()
-    }),
-    query: z.optional(z.never())
-});
-
-export const zGetResourceBookingsResponse = z.array(zResourceBookingResponse);
-
-export const zBookResourceData = z.object({
-    body: zBookResourceRequest,
-    path: z.optional(z.never()),
-    query: z.optional(z.never())
-});
-
-export const zBookResourceResponse = zResourceBookingResponse;
 
 export const zGetAllCurriculumStandardsData = z.object({
     body: z.optional(z.never()),
