@@ -2,27 +2,15 @@ use super::utils::*;
 use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
+use backend::database::enums::{LibraryIssueStatus};
 use backend::models::resources::library::{NewLibraryBook, NewLibraryCategory, NewLibraryIssue};
+use backend::models::ids::IdPrefix;
 use backend::schema::*;
 use chrono::Utc;
 use diesel::insert_into;
 use diesel::prelude::*;
 use rand::Rng;
-use rand::seq::SliceRandom;
 use std::collections::HashSet;
-
-#[derive(Insertable)]
-#[diesel(table_name = library_settings)]
-pub struct NewLibrarySettings {
-    pub id: i32,
-    pub max_books_per_student: i32,
-    pub max_books_per_staff: i32,
-    pub issue_duration_days_student: i32,
-    pub issue_duration_days_staff: i32,
-    pub fine_per_day: f32,
-    pub created_at: chrono::NaiveDateTime,
-    pub updated_at: chrono::NaiveDateTime,
-}
 
 pub struct LibrarySeeder;
 
@@ -40,110 +28,80 @@ impl SeedModule for LibrarySeeder {
         _password_hash: &str,
         _used_emails: &mut HashSet<String>,
         context: &mut SeederContext,
-        seed_count_config: &crate::SeedCountConfig, // Add SeedCountConfig here
+        _seed_count_config: &crate::SeedCountConfig,
     ) -> Result<()> {
         println!("Seeding Library module...");
 
         let mut rng = rand::thread_rng();
 
-        // 1. Library Categories
-        let categories_data: Vec<NewLibraryCategory> = (0..seed_count_config.library_categories)
-            .map(|i| NewLibraryCategory {
-                category_name: format!("Category {}", i + 1),
-                description: Some(format!("Description for Category {}", i + 1)),
-            })
-            .collect();
-        insert_into(library_categories::table)
-            .values(&categories_data)
-            .execute(conn)?;
-
-        // Fetch generated IDs
-        let category_ids: Vec<i32> = library_categories::table
-            .select(library_categories::id)
-            .load(conn)?;
-        context.library_category_ids = category_ids;
-        println!(
-            "Seeded {} library categories.",
-            context.library_category_ids.len()
-        );
-
-        // 2. Library Books
-        if !context.library_category_ids.is_empty() {
-            let mut books_data = Vec::new();
-            for i in 0..seed_count_config.library_books {
-                books_data.push(NewLibraryBook {
-                    isbn: Some(format!("978-0-123456-{:02}", i + 1)),
-                    title: format!("Library Book {}", i + 1),
-                    author: generate_random_name(),
-                    publisher: Some(format!("Publisher {}", i + 1)),
-                    category_id: *context.library_category_ids.choose(&mut rng).unwrap(),
-                    quantity: rng.gen_range(1..=10),
-                    available_quantity: rng.gen_range(1..=10),
-                    rack_number: Some(format!("R-{}", i + 1)),
-                    added_date: random_date_in_past(2),
-                });
-            }
-            insert_into(library_books::table)
-                .values(&books_data)
+        // 1. library_categories
+        println!("Seeding library_categories...");
+        let cats = vec![
+            "Mathematics", "Physics", "Chemistry", "Biology", "Computer Science",
+            "History", "Geography", "Literature", "Philosophy", "Art", "Music",
+            "Fiction", "Non-Fiction", "Reference", "Encyclopedias"
+        ];
+        for name in cats {
+            insert_into(library_categories::table)
+                .values(&NewLibraryCategory {
+                    category_name: name.to_string(),
+                    description: Some(format!("Academic and reference books for {}", name)),
+                })
                 .execute(conn)?;
+        }
+        
+        let cat_ids: Vec<i32> = library_categories::table.select(library_categories::id).load(conn)?;
 
-            let book_ids: Vec<i32> = library_books::table.select(library_books::id).load(conn)?;
-            context.library_book_ids = book_ids;
-            println!("Seeded {} library books.", context.library_book_ids.len());
+        // 2. library_books
+        println!("Seeding library_books...");
+        for i in 0..100 {
+            insert_into(library_books::table)
+                .values(&NewLibraryBook {
+                    isbn: Some(format!("978-{:09}", rng.gen_range(100000000..999999999))),
+                    title: generate_realistic_title(),
+                    author: generate_random_name(),
+                    publisher: Some("Academic Press".to_string()),
+                    category_id: cat_ids[rng.gen_range(0..cat_ids.len())],
+                    quantity: 5,
+                    available_quantity: 5,
+                    rack_number: Some(format!("R-{:02}-{:02}", rng.gen_range(1..10), rng.gen_range(1..20))),
+                    added_date: Utc::now().date_naive(),
+                })
+                .execute(conn)?;
         }
 
-        // 3. Library Settings
-        let settings = NewLibrarySettings {
-            id: 1,
-            max_books_per_student: 2,
-            max_books_per_staff: 5,
-            issue_duration_days_student: 14,
-            issue_duration_days_staff: 30,
-            fine_per_day: 5.0,
-            created_at: Utc::now().naive_utc(),
-            updated_at: Utc::now().naive_utc(),
-        };
+        let book_ids: Vec<i32> = library_books::table.select(library_books::id).load(conn)?;
+
+        // 3. library_settings
+        println!("Seeding library_settings...");
         insert_into(library_settings::table)
-            .values(&settings)
+            .values((
+                library_settings::id.eq(1),
+                library_settings::max_books_per_student.eq(3),
+                library_settings::max_books_per_staff.eq(10),
+                library_settings::issue_duration_days_student.eq(14),
+                library_settings::issue_duration_days_staff.eq(30),
+                library_settings::fine_per_day.eq(5.0),
+                library_settings::created_at.eq(Utc::now().naive_utc()),
+                library_settings::updated_at.eq(Utc::now().naive_utc()),
+            ))
             .execute(conn)?;
-        println!("Seeded library settings.");
 
-        // 4. Library Issues
-        if !context.library_book_ids.is_empty()
-            && (!context.student_ids.is_empty() || !context.staff_ids.is_empty())
-        {
-            let mut issues = Vec::new();
-            for _ in 0..seed_count_config.library_issues {
-                let book_id = *context.library_book_ids.choose(&mut rng).unwrap();
-                let is_student_issue = rng.gen_bool(0.7); // 70% chance to be a student issue
-
-                let (student_id, staff_id) = if is_student_issue && !context.student_ids.is_empty()
-                {
-                    (Some(get_random_id(&context.student_ids)), None)
-                } else if !context.staff_ids.is_empty() {
-                    (None, Some(get_random_id(&context.staff_ids)))
-                } else {
-                    (None, None)
-                };
-
-                if student_id.is_some() || staff_id.is_some() {
-                    // Only create if assigned to someone
-                    issues.push(NewLibraryIssue {
-                        book_id,
-                        student_id,
-                        staff_id,
-                        issue_date: random_date_in_past(0),
-                        due_date: random_date_in_past(0) + chrono::Duration::days(14),
-                        issued_by: get_random_id(&context.user_ids), // Use a random user as issuer
-                        status: "Issued".to_string(),
-                        remarks: None,
-                    });
-                }
-            }
+        // 4. library_issues
+        println!("Seeding library_issues...");
+        for stu_id in context.student_ids.iter().take(50) {
             insert_into(library_issues::table)
-                .values(&issues)
+                .values(&NewLibraryIssue {
+                    book_id: book_ids[rng.gen_range(0..book_ids.len())],
+                    student_id: Some(stu_id.clone()),
+                    staff_id: None,
+                    issue_date: Utc::now().date_naive(),
+                    due_date: (Utc::now() + chrono::Duration::days(14)).date_naive(),
+                    issued_by: get_random_id(&context.user_ids),
+                    status: LibraryIssueStatus::Issued,
+                    remarks: None,
+                })
                 .execute(conn)?;
-            println!("Seeded {} library issues.", issues.len());
         }
 
         Ok(())

@@ -2,13 +2,14 @@ use super::utils::*;
 use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
-use backend::models::behavior_management::BehaviorIncident;
-use backend::models::behavior_management::BehaviorIncidentType;
-use backend::models::behavior_management::DetentionBalance;
+use backend::database::enums::{BehaviorIncidentStatus, SeverityLevel};
+use backend::models::behavior_management::{BehaviorIncident, BehaviorIncidentType, BehaviorIncidentDetail};
+use backend::models::student::DetentionBalance;
+use backend::models::ids::IdPrefix;
 use backend::schema::*;
+use chrono::Utc;
 use diesel::insert_into;
 use diesel::prelude::*;
-use rand::Rng;
 use std::collections::HashSet;
 
 pub struct BehaviorManagementSeeder;
@@ -27,107 +28,132 @@ impl SeedModule for BehaviorManagementSeeder {
         _password_hash: &str,
         _used_emails: &mut HashSet<String>,
         context: &mut SeederContext,
-        seed_count_config: &crate::SeedCountConfig, // Add SeedCountConfig here
+        _seed_count_config: &crate::SeedCountConfig,
     ) -> Result<()> {
         println!("Seeding Behavior Management module...");
 
-        let mut rng = rand::thread_rng();
+        // 1. behavior_incident_severity_levels
+        println!("Seeding severity levels...");
+        let levels = vec![
+            ("Low", 5),
+            ("Medium", 15),
+            ("High", 30),
+            ("Critical", 50),
+        ];
+        let mut severity_ids = Vec::new();
+        for (name, pts) in levels {
+            let id = next_id(conn, IdPrefix::BEHAVIOR);
+            insert_into(behavior_incident_severity_levels::table)
+                .values(&(
+                    behavior_incident_severity_levels::id.eq(id.clone()),
+                    behavior_incident_severity_levels::name.eq(name),
+                    behavior_incident_severity_levels::points.eq(pts),
+                    behavior_incident_severity_levels::created_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+            severity_ids.push(id);
+        }
 
-        // Seed Behavior Incident Types
-        let behavior_incident_types_data = (0..seed_count_config.behavior_incident_types)
-            .map(|i| BehaviorIncidentType {
-                id: generate_uuid(),
-                type_name: format!("Incident Type {}", i + 1),
-                default_points: rng.gen_range(1..=10),
-                description: Some(format!("Description for Incident Type {}", i + 1)),
-                created_at: random_datetime_in_past(2),
-                updated_at: random_datetime_in_past(1),
-            })
-            .collect::<Vec<BehaviorIncidentType>>();
+        // 2. behavior_incident_types
+        println!("Seeding behavior_incident_types...");
+        for i in 0..50 {
+            let id = next_id(conn, IdPrefix::BEHAVIOR);
+            insert_into(behavior_incident_types::table)
+                .values(&BehaviorIncidentType {
+                    id: id.clone(),
+                    type_name: format!("Incident Type {}", i),
+                    default_points: 10,
+                    description: None,
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                })
+                .execute(conn)?;
+            context.behavior_incident_type_ids.push(id);
+        }
 
-        insert_into(behavior_incident_types::table)
-            .values(&behavior_incident_types_data)
-            .execute(conn)?;
-
-        context.behavior_incident_type_ids = behavior_incident_types_data
-            .into_iter()
-            .map(|t| t.id)
-            .collect();
-        println!(
-            "Seeded {} behavior incident types.",
-            context.behavior_incident_type_ids.len()
-        );
-
-        // Seed Behavior Incidents
-        if context.student_ids.is_empty()
-            || context.user_ids.is_empty()
-            || context.behavior_incident_type_ids.is_empty()
-        {
-            println!(
-                "Skipping BehaviorIncident seeding: student_ids, user_ids, or behavior_incident_type_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let behavior_incidents_data = (0..seed_count_config.behavior_incidents)
-                .map(|i| BehaviorIncident {
-                    id: generate_uuid(),
+        // 3. behavior_incidents & details & participants & actions & followups
+        println!("Seeding behavior_incidents...");
+        for _ in 0..200 {
+            let id = next_id(conn, IdPrefix::BEHAVIOR);
+            insert_into(behavior_incidents::table)
+                .values(&BehaviorIncident {
+                    id: id.clone(),
                     student_id: get_random_id(&context.student_ids),
                     reported_by_user_id: get_random_id(&context.user_ids),
                     incident_type_id: get_random_id(&context.behavior_incident_type_ids),
-                    description: format!("Student incident {}.", i + 1),
-                    incident_date: random_datetime_in_past(1),
-                    points_awarded: rng.gen_range(1..=10),
-                    created_at: random_datetime_in_past(1),
-                    updated_at: random_datetime_in_past(0),
+                    incident_date: Utc::now().naive_utc(),
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
                 })
-                .collect::<Vec<BehaviorIncident>>();
-
-            insert_into(behavior_incidents::table)
-                .values(&behavior_incidents_data)
                 .execute(conn)?;
 
-            println!(
-                "Seeded {} behavior incidents.",
-                behavior_incidents_data.len()
-            );
-        }
-
-        // Seed Detention Balances
-        if context.student_ids.is_empty() {
-            println!(
-                "Skipping DetentionBalance seeding: student_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let num_detention_balances_to_seed =
-                seed_count_config.students.min(context.student_ids.len());
-            let mut detention_balances_data = Vec::new();
-            let mut students_with_detention = HashSet::new();
-
-            for _ in 0..num_detention_balances_to_seed {
-                let student_id = get_random_id(&context.student_ids);
-                // Ensure unique student_id for detention balances, as student_id is PK
-                if students_with_detention.insert(student_id.clone()) {
-                    let total_assigned = rng.gen_range(0.0..=20.0);
-                    let total_served = rng.gen_range(0.0..=total_assigned);
-
-                    detention_balances_data.push(DetentionBalance {
-                        student_id,
-                        total_hours_assigned: total_assigned,
-                        total_hours_served: total_served,
-                        remaining_hours: total_assigned - total_served,
-                        updated_at: random_datetime_in_past(0),
-                    });
-                }
-            }
-
-            insert_into(detention_balances::table)
-                .values(&detention_balances_data)
+            insert_into(behavior_incident_details::table)
+                .values(&BehaviorIncidentDetail {
+                    incident_id: id.clone(),
+                    description: "Incident happened in class".to_string(),
+                    points_awarded: 10,
+                    severity_id: Some(get_random_id(&severity_ids)),
+                    status: BehaviorIncidentStatus::Open,
+                    resolved_by: None,
+                    resolved_at: None,
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                })
                 .execute(conn)?;
 
-            println!(
-                "Seeded {} detention balances.",
-                detention_balances_data.len()
-            );
+            insert_into(behavior_incident_participants::table)
+                .values(&(
+                    behavior_incident_participants::incident_id.eq(id.clone()),
+                    behavior_incident_participants::participant_type.eq("Student"),
+                    behavior_incident_participants::participant_id.eq(get_random_id(&context.student_ids)),
+                    behavior_incident_participants::created_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+
+            insert_into(behavior_incident_actions::table)
+                .values(&(
+                    behavior_incident_actions::id.eq(next_id(conn, IdPrefix::BEHAVIOR)),
+                    behavior_incident_actions::incident_id.eq(id.clone()),
+                    behavior_incident_actions::action_type.eq("Warning"),
+                    behavior_incident_actions::status.eq("Pending"),
+                    behavior_incident_actions::created_at.eq(Utc::now().naive_utc()),
+                    behavior_incident_actions::updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+
+            insert_into(behavior_incident_followups::table)
+                .values(&(
+                    behavior_incident_followups::id.eq(next_id(conn, IdPrefix::BEHAVIOR)),
+                    behavior_incident_followups::incident_id.eq(id.clone()),
+                    behavior_incident_followups::followup_date.eq(Utc::now().date_naive()),
+                    behavior_incident_followups::notes.eq(Some("Followup notes".to_string())),
+                    behavior_incident_followups::created_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+
+            insert_into(behavior_incident_evidence::table)
+                .values(&(
+                    behavior_incident_evidence::id.eq(next_id(conn, IdPrefix::BEHAVIOR)),
+                    behavior_incident_evidence::incident_id.eq(id),
+                    behavior_incident_evidence::file_url.eq("http://example.com/evidence.jpg"),
+                    behavior_incident_evidence::created_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
         }
+
+        // 4. detention_balances
+        println!("Seeding detention_balances...");
+        let mut detentions = Vec::new();
+        for stu_id in &context.student_ids {
+            detentions.push(DetentionBalance {
+                student_id: stu_id.clone(),
+                total_hours_assigned: 0.0,
+                total_hours_served: 0.0,
+                remaining_hours: 0.0,
+                updated_at: Utc::now().naive_utc(),
+            });
+        }
+        insert_into(detention_balances::table).values(&detentions).execute(conn)?;
 
         Ok(())
     }

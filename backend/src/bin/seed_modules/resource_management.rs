@@ -2,20 +2,14 @@ use super::utils::*;
 use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
-use backend::database::enums::{AllocationType, MaintenanceStatus};
-use backend::models::resource_management::asset_allocation::AssetAllocation;
-use backend::models::resource_management::asset_allocation_staff::AssetAllocationStaff;
-use backend::models::resource_management::asset_allocation_student::AssetAllocationStudent;
-use backend::models::resource_management::asset_category::AssetCategory;
-use backend::models::resource_management::inventory_item::InventoryItem;
-use backend::models::resource_management::maintenance_request::MaintenanceRequest;
-use backend::models::resource_management::resource::Resource;
-use backend::models::resource_management::resource_booking::ResourceBooking;
+use backend::database::tables::Resource;
+use backend::models::{AssetCategory, InventoryItem};
+use backend::models::ids::IdPrefix;
 use backend::schema::*;
+use chrono::Utc;
 use diesel::insert_into;
 use diesel::prelude::*;
 use rand::Rng;
-use rand::seq::SliceRandom;
 use std::collections::HashSet;
 
 pub struct ResourceManagementSeeder;
@@ -34,271 +28,140 @@ impl SeedModule for ResourceManagementSeeder {
         _password_hash: &str,
         _used_emails: &mut HashSet<String>,
         context: &mut SeederContext,
-        seed_count_config: &crate::SeedCountConfig, // Add SeedCountConfig here
+        _seed_count_config: &crate::SeedCountConfig,
     ) -> Result<()> {
         println!("Seeding Resource Management module...");
 
         let mut rng = rand::thread_rng();
 
-        // Seed Asset Categories
-        let asset_categories_data = (0..seed_count_config.asset_categories)
-            .map(|i| AssetCategory {
-                id: generate_uuid(),
-                name: format!("Category {}", i + 1),
-                description: Some(format!("Description for Category {}", i + 1)),
-                created_at: random_datetime_in_past(2),
-                updated_at: random_datetime_in_past(1),
-            })
-            .collect::<Vec<AssetCategory>>();
-
-        insert_into(asset_categories::table)
-            .values(&asset_categories_data)
-            .execute(conn)?;
-
-        context.asset_category_ids = asset_categories_data.into_iter().map(|c| c.id).collect();
-        println!(
-            "Seeded {} asset categories.",
-            context.asset_category_ids.len()
-        );
-
-        // Seed Inventory Items
-        let inventory_items_data = (0..seed_count_config.inventory_items)
-            .map(|i| {
-                InventoryItem {
-                    id: generate_uuid(),
-                    category_id: get_random_id(&context.asset_category_ids),
-                    item_name: format!("Item {}", i + 1),
-                    description: Some(format!("Description for Item {}", i + 1)),
-                    unit: "unit".to_string(), // Default unit
-                    quantity: rng.gen_range(1..=100),
-                    reorder_level: rng.gen_range(5..=20),
-                    unit_price: rng.gen_range(10.0..=1000.0),
-                    created_at: random_datetime_in_past(2),
-                    updated_at: random_datetime_in_past(1),
-                }
-            })
-            .collect::<Vec<InventoryItem>>();
-
-        insert_into(inventory_items::table)
-            .values(&inventory_items_data)
-            .execute(conn)?;
-
-        context.inventory_item_ids = inventory_items_data.into_iter().map(|i| i.id).collect();
-        println!(
-            "Seeded {} inventory items.",
-            context.inventory_item_ids.len()
-        );
-
-        // Seed Resources
-        let resources_data = (0..seed_count_config.resources)
-            .map(|i| Resource {
-                id: generate_uuid(),
-                resource_name: format!("Resource {}", i + 1),
-                resource_type: match i % 3 {
-                    0 => "Venue".to_string(),
-                    1 => "Vehicle".to_string(),
-                    _ => "Equipment".to_string(),
-                },
-                description: Some(format!("Description for Resource {}", i + 1)),
-                created_at: random_datetime_in_past(2),
-                updated_at: random_datetime_in_past(1),
-            })
-            .collect::<Vec<Resource>>();
-
-        insert_into(resources::table)
-            .values(&resources_data)
-            .execute(conn)?;
-
-        context.resource_ids = resources_data.into_iter().map(|r| r.id).collect();
-        println!("Seeded {} resources.", context.resource_ids.len());
-
-        // Seed Asset Allocations
-        if context.user_ids.is_empty()
-            || context.staff_ids.is_empty()
-            || context.student_ids.is_empty()
-            || context.inventory_item_ids.is_empty()
-        {
-            println!(
-                "Skipping AssetAllocation seeding: user_ids, staff_ids, student_ids, or inventory_item_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let asset_allocations_data = (0..seed_count_config.asset_allocations)
-                .map(|i| {
-                    let allocated_to_type = if i % 2 == 0 {
-                        AllocationType::Teacher
-                    } else {
-                        AllocationType::Student
-                    };
-                    let allocated_to_id = if allocated_to_type == AllocationType::Teacher {
-                        get_random_id(&context.staff_ids)
-                    } else {
-                        get_random_id(&context.student_ids)
-                    };
-
-                    AssetAllocation {
-                        id: generate_uuid(),
-                        item_id: get_random_id(&context.inventory_item_ids),
-                        allocated_to_type: allocated_to_type.to_string(),
-                        allocated_to_id,
-                        quantity: rng.gen_range(1..=5),
-                        allocation_date: random_datetime_in_past(1),
-                        return_date: Some(random_datetime_in_past(0)),
-                        allocated_by: get_random_id(&context.user_ids),
-                        created_at: random_datetime_in_past(1),
-                        updated_at: random_datetime_in_past(0),
-                    }
+        // 1. asset_categories
+        println!("Seeding asset_categories...");
+        let cats = vec!["Electronics", "Furniture", "Stationery", "Sports Gear", "Laboratory", "Musical Instruments", "Vehicles", "Library Equipment", "Kitchen", "Maintenance"];
+        for name in cats {
+            let id = next_id(conn, IdPrefix::PROPERTY);
+            insert_into(asset_categories::table)
+                .values(&AssetCategory {
+                    id: id.clone(),
+                    name: name.to_string(),
+                    description: Some(format!("{} assets", name)),
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
                 })
-                .collect::<Vec<AssetAllocation>>();
+                .execute(conn)?;
+            context.asset_category_ids.push(id);
+        }
+
+        // 2. inventory_items
+        println!("Seeding inventory_items...");
+        for i in 0..100 {
+            let id = next_id(conn, IdPrefix::PROPERTY);
+            let cat_id = get_random_id(&context.asset_category_ids);
+            insert_into(inventory_items::table)
+                .values(&InventoryItem {
+                    id: id.clone(),
+                    category_id: cat_id.clone(),
+                    item_name: format!("Item {}", i),
+                    unit: "Unit".to_string(),
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                })
+                .execute(conn)?;
+            
+            insert_into(inventory_item_details::table)
+                .values(&(
+                    inventory_item_details::item_id.eq(id.clone()),
+                    inventory_item_details::description.eq(Some("Description".to_string())),
+                    inventory_item_details::quantity.eq(rng.gen_range(10..500)),
+                    inventory_item_details::reorder_level.eq(5),
+                    inventory_item_details::unit_price.eq(100.0),
+                    inventory_item_details::created_at.eq(Utc::now().naive_utc()),
+                    inventory_item_details::updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+
+            context.inventory_item_ids.push(id);
+        }
+
+        // 3. resources
+        println!("Seeding resources...");
+        let resources_list = vec!["Main Hall", "Lab A", "Lab B", "Bus 1", "Bus 2", "Projector 1", "Camera 1", "Auditorium", "Swimming Pool", "Field"];
+        for name in resources_list {
+            let id = next_id(conn, IdPrefix::RESOURCE);
+            insert_into(resources::table)
+                .values(&Resource {
+                    id: id.clone(),
+                    resource_name: name.to_string(),
+                    resource_type: "Venue".to_string(),
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                })
+                .execute(conn)?;
+
+            insert_into(resource_details::table)
+                .values(&(
+                    resource_details::resource_id.eq(id.clone()),
+                    resource_details::status.eq("Available"),
+                    resource_details::created_at.eq(Utc::now().naive_utc()),
+                    resource_details::updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+
+            context.resource_ids.push(id);
+        }
+
+        // 4. resource_assets, asset_maintenance_logs, asset_allocations, maintenance_requests
+        println!("Seeding detailed resource info...");
+        for res_id in &context.resource_ids {
+            for _ in 0..5 {
+                insert_into(resource_assets::table)
+                    .values((
+                        resource_assets::id.eq(next_id(conn, IdPrefix::PROPERTY)),
+                        resource_assets::resource_id.eq(res_id.clone()),
+                        resource_assets::inventory_item_id.eq(get_random_id(&context.inventory_item_ids)),
+                        resource_assets::quantity.eq(1.0),
+                        resource_assets::created_at.eq(Utc::now().naive_utc()),
+                    ))
+                    .execute(conn)?;
+            }
+        }
+
+        for item_id in &context.inventory_item_ids {
+            insert_into(asset_maintenance_logs::table)
+                .values((
+                    asset_maintenance_logs::id.eq(next_id(conn, IdPrefix::PROPERTY)),
+                    asset_maintenance_logs::item_id.eq(item_id.clone()),
+                    asset_maintenance_logs::maintenance_date.eq(Utc::now().date_naive()),
+                    asset_maintenance_logs::maintenance_type.eq("Corrective"),
+                    asset_maintenance_logs::created_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
 
             insert_into(asset_allocations::table)
-                .values(&asset_allocations_data)
+                .values((
+                    asset_allocations::id.eq(next_id(conn, IdPrefix::PROPERTY_ALLOCATION)),
+                    asset_allocations::item_id.eq(item_id.clone()),
+                    asset_allocations::allocated_to_type.eq("Teacher"),
+                    asset_allocations::allocated_to_id.eq(get_random_id(&context.staff_ids)),
+                    asset_allocations::quantity.eq(1),
+                    asset_allocations::allocation_date.eq(Utc::now().naive_utc()),
+                    asset_allocations::allocated_by.eq(get_random_id(&context.user_ids)),
+                    asset_allocations::created_at.eq(Utc::now().naive_utc()),
+                    asset_allocations::updated_at.eq(Utc::now().naive_utc()),
+                ))
                 .execute(conn)?;
-
-            context.asset_allocation_ids =
-                asset_allocations_data.into_iter().map(|a| a.id).collect();
-            println!(
-                "Seeded {} asset allocations.",
-                context.asset_allocation_ids.len()
-            );
-        }
-
-        // Seed Maintenance Requests
-        if context.inventory_item_ids.is_empty()
-            || context.user_ids.is_empty()
-            || context.staff_ids.is_empty()
-        {
-            println!(
-                "Skipping MaintenanceRequest seeding: inventory_item_ids, user_ids, or staff_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let maintenance_requests_data = (0..seed_count_config.maintenance_requests)
-                .map(|i| MaintenanceRequest {
-                    id: generate_uuid(),
-                    item_id: get_random_id(&context.inventory_item_ids),
-                    reported_by: get_random_id(&context.user_ids),
-                    reported_date: random_datetime_in_past(1),
-                    status: vec![
-                        MaintenanceStatus::Pending,
-                        MaintenanceStatus::InProgress,
-                        MaintenanceStatus::Completed,
-                    ]
-                    .choose(&mut rng)
-                    .unwrap()
-                    .to_string(),
-                    assigned_to: Some(get_random_id(&context.staff_ids)),
-                    resolved_date: Some(random_datetime_in_past(0)),
-                    created_at: random_datetime_in_past(1),
-                    updated_at: random_datetime_in_past(0),
-                    issue_description: format!("Issue with item {}: {}", i + 1, generate_uuid()),
-                })
-                .collect::<Vec<MaintenanceRequest>>();
 
             insert_into(maintenance_requests::table)
-                .values(&maintenance_requests_data)
+                .values((
+                    maintenance_requests::id.eq(next_id(conn, IdPrefix::PROPERTY)),
+                    maintenance_requests::item_id.eq(item_id.clone()),
+                    maintenance_requests::issue_description.eq("Something broke"),
+                    maintenance_requests::reported_by.eq(get_random_id(&context.user_ids)),
+                    maintenance_requests::reported_date.eq(Utc::now().naive_utc()),
+                    maintenance_requests::status.eq("Pending"),
+                    maintenance_requests::created_at.eq(Utc::now().naive_utc()),
+                    maintenance_requests::updated_at.eq(Utc::now().naive_utc()),
+                ))
                 .execute(conn)?;
-
-            println!(
-                "Seeded {} maintenance requests.",
-                maintenance_requests_data.len()
-            );
-        }
-
-        // Seed Resource Bookings
-        if context.resource_ids.is_empty() || context.user_ids.is_empty() {
-            println!(
-                "Skipping ResourceBooking seeding: resource_ids or user_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let resource_bookings_data = (0..seed_count_config.resource_bookings)
-                .map(|_| {
-                    let start_time = random_datetime_in_past(1);
-                    let end_time = start_time + chrono::Duration::hours(rng.gen_range(1..=5));
-                    ResourceBooking {
-                        id: generate_uuid(),
-                        resource_id: get_random_id(&context.resource_ids),
-                        booked_by_user_id: get_random_id(&context.user_ids),
-                        start_time,
-                        end_time,
-                        related_event_id: if rng.gen_bool(0.5) {
-                            Some(generate_uuid())
-                        } else {
-                            None
-                        }, // Dummy event ID
-                        created_at: random_datetime_in_past(1),
-                        updated_at: random_datetime_in_past(0),
-                    }
-                })
-                .collect::<Vec<ResourceBooking>>();
-
-            insert_into(resource_bookings::table)
-                .values(&resource_bookings_data)
-                .execute(conn)?;
-
-            println!("Seeded {} resource bookings.", resource_bookings_data.len());
-        }
-
-        // Seed Asset Allocation Staff
-        if !context.asset_allocation_ids.is_empty() && !context.staff_ids.is_empty() {
-            let mut asset_allocation_staff_data = Vec::new();
-            let mut seen_allocations = HashSet::new();
-
-            for _ in 0..seed_count_config.asset_allocations {
-                let asset_allocation_id = get_random_id(&context.asset_allocation_ids);
-                let staff_id = get_random_id(&context.staff_ids);
-
-                if seen_allocations.insert((asset_allocation_id.clone(), staff_id.clone())) {
-                    asset_allocation_staff_data.push(AssetAllocationStaff {
-                        asset_allocation_id,
-                        staff_id,
-                        created_at: random_datetime_in_past(1),
-                    });
-                }
-            }
-
-            insert_into(asset_allocations_staff::table)
-                .values(&asset_allocation_staff_data)
-                .execute(conn)?;
-
-            println!(
-                "Seeded {} asset allocation staff entries.",
-                asset_allocation_staff_data.len()
-            );
-        } else {
-            println!(
-                "Skipping AssetAllocationStaff seeding: asset_allocation_ids or staff_ids are empty."
-            );
-        }
-
-        // Seed Asset Allocation Students
-        if !context.asset_allocation_ids.is_empty() && !context.student_ids.is_empty() {
-            let mut asset_allocation_student_data = Vec::new();
-            let mut seen_allocations = HashSet::new();
-
-            for _ in 0..seed_count_config.asset_allocations {
-                let asset_allocation_id = get_random_id(&context.asset_allocation_ids);
-                let student_id = get_random_id(&context.student_ids);
-
-                if seen_allocations.insert((asset_allocation_id.clone(), student_id.clone())) {
-                    asset_allocation_student_data.push(AssetAllocationStudent {
-                        asset_allocation_id,
-                        student_id,
-                        created_at: random_datetime_in_past(1),
-                    });
-                }
-            }
-
-            insert_into(asset_allocations_students::table)
-                .values(&asset_allocation_student_data)
-                .execute(conn)?;
-
-            println!(
-                "Seeded {} asset allocation student entries.",
-                asset_allocation_student_data.len()
-            );
-        } else {
-            println!(
-                "Skipping AssetAllocationStudents seeding: asset_allocation_ids or student_ids are empty."
-            );
         }
 
         Ok(())

@@ -149,6 +149,15 @@ diesel_text_enum! {
 }
 
 diesel_text_enum! {
+    pub enum BehaviorIncidentStatus {
+        Open,
+        UnderReview,
+        Resolved,
+        Dismissed,
+    }
+}
+
+diesel_text_enum! {
     pub enum ExcuseType {
         Medical,
         Educational,
@@ -175,7 +184,6 @@ diesel_text_enum! {
         Bereavement,
         Religious,
         Other,
-        Medical,
     }
 }
 
@@ -194,8 +202,6 @@ diesel_text_enum! {
         Personal,
         Disciplinary,
         Dismissal,
-        FamilyEvent,
-        Other,
     }
 }
 
@@ -222,6 +228,7 @@ diesel_text_enum! {
         Graduated,
         Withdrawn,
         Suspended,
+        Repeater,
     }
 }
 
@@ -274,9 +281,11 @@ diesel_text_enum! {
 
 diesel_text_enum! {
     pub enum FeeFrequency {
+        Daily,
+        Weekly,
         Monthly,
-        Quarterly,
-        Annually,
+        Term,
+        Annual,
         OneTime,
     }
 }
@@ -287,6 +296,9 @@ diesel_text_enum! {
         BankTransfer,
         Cheque,
         Online,
+        Card,
+        MobileMoney,
+        Other,
     }
 }
 
@@ -319,7 +331,6 @@ diesel_text_enum! {
     pub enum ComponentType {
         Allowance,
         Deduction,
-        Bonus,
     }
 }
 
@@ -378,6 +389,8 @@ diesel_text_enum! {
         Absent,
         Excused,
         Late,
+        HalfDay,
+        SchoolBusiness,
     }
 }
 
@@ -490,7 +503,9 @@ diesel_text_enum! {
     pub enum VerificationPurpose {
         EmailVerification,
         PasswordReset,
-        AccountRecovery,
+        TwoFactor,
+        Invite,
+        Other,
     }
 }
 
@@ -498,13 +513,12 @@ diesel_text_enum! {
     pub enum ExamScopeType {
         School,
         Government,
-        General,
     }
 }
 
 diesel_text_enum! {
     pub enum ExamStatus {
-        Draft,
+        Planned,
         Scheduled,
         Ongoing,
         Completed,
@@ -523,10 +537,14 @@ diesel_text_enum! {
 
 diesel_text_enum! {
     pub enum SchoolTestType {
+        Quiz,
         UnitTest,
-        MonthlyTest,
-        TermTest,
-        MockTest,
+        Midterm,
+        Final,
+        Practical,
+        Assignment,
+        Project,
+        Mock,
         Other,
     }
 }
@@ -534,8 +552,9 @@ diesel_text_enum! {
 diesel_text_enum! {
     pub enum GradingSchemeType {
         Percentage,
-        GradePoint,
-        Custom,
+        Points,
+        Letter,
+        GPA,
     }
 }
 
@@ -543,11 +562,6 @@ diesel_text_enum! {
     pub enum AssessmentType {
         SchoolTest,
         GovernmentExam,
-        Assignment,
-        Practical,
-        Project,
-        Quiz,
-        Other,
     }
 }
 
@@ -616,33 +630,34 @@ diesel_text_enum! {
 
 diesel_text_enum! {
     pub enum LessonDeliveryMode {
-        InPerson,
-        Online,
-        Hybrid,
+        Regular,
+        Substitution,
+        Extra,
+        Remedial,
         Practical,
+        Revision,
     }
 }
 
 diesel_text_enum! {
     pub enum FeeAmountType {
         Fixed,
-        Percentage,
+        Variable,
+        Range,
     }
 }
 
 diesel_text_enum! {
     pub enum FeeTypeEnum {
-        Tuition,
-        Admission,
-        Transport,
-        Exam,
-        Other,
-        Standard,
+        Recurring,
+        OneTime,
+        Adhoc,
     }
 }
 
 diesel_text_enum! {
     pub enum LateFeeTypeEnum {
+        None,
         Fixed,
         Percentage,
     }
@@ -654,6 +669,7 @@ diesel_text_enum! {
         Completed,
         Failed,
         Refunded,
+        Cancelled,
     }
 }
 

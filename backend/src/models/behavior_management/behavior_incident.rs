@@ -1,3 +1,4 @@
+use crate::database::enums::BehaviorIncidentStatus;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -31,7 +32,7 @@ pub struct BehaviorIncidentDetail {
     pub description: String,
     pub points_awarded: i32,
     pub severity_id: Option<String>,
-    pub status: String,
+    pub status: BehaviorIncidentStatus,
     pub resolved_by: Option<String>,
     pub resolved_at: Option<NaiveDateTime>,
     pub created_at: NaiveDateTime,

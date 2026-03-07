@@ -2,21 +2,18 @@ use super::utils::*;
 use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
-use backend::database::enums::RoleEnum;
 use backend::database::enums::{
-    EducationLevel, EmploymentStatus, Ethnicity, Gender, Medium, Religion, StaffType, StudentStatus,
+    EducationLevel, EmploymentStatus, Ethnicity, Gender, Medium, Religion, RoleEnum, StaffType,
+    StudentStatus,
 };
-use backend::models::academic::{AcademicYear, Class, GradeLevel, Subject, Term};
-use backend::database::tables::Stream;
-use backend::models::auth::{NewProfile, NewUser, NewUserProfile};
-use backend::models::staff::staff::NewStaff;
-use backend::models::student::student::NewStudent;
+use backend::database::tables::*;
+use backend::models::ids::IdPrefix;
 use backend::schema::*;
 use chrono::{NaiveDate, Utc};
 use diesel::insert_into;
 use diesel::prelude::*;
 use rand::Rng;
-use std::collections::HashSet; // Added necessary enums
+use std::collections::HashSet;
 
 pub struct CoreEntitiesSeeder;
 
@@ -40,513 +37,364 @@ impl SeedModule for CoreEntitiesSeeder {
 
         let mut rng = rand::thread_rng();
 
-        // Seed Academic Years
-        let academic_years_data: Vec<AcademicYear> = (0..seed_count_config.academic_years)
-            .map(|i| {
-                let year = 2023 + i as i32;
-                AcademicYear {
-                    id: generate_uuid(),
-                    year_start: year,
-                    year_end: year + 1,
-                    name: format!("Academic Year {}/{}", year, year + 1),
-                    current: year == 2024, // Keep 2024 as current for consistency
-                    created_at: random_datetime_in_past(3),
-                    updated_at: random_datetime_in_past(2),
-                }
-            })
-            .collect();
+        // 1. Academic Years
+        let mut academic_years_data = Vec::new();
+        for i in 0..seed_count_config.academic_years {
+            let year = 2024 + i as i32;
+            let id = next_id(conn, IdPrefix::ACADEMIC_YEAR);
+            academic_years_data.push(AcademicYear {
+                id: id.clone(),
+                year_start: year,
+                year_end: year + 1,
+                name: format!("Academic Year {}/{}", year, year + 1),
+                current: i == 0,
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            });
+            context.academic_year_ids.push(id);
+        }
         insert_into(academic_years::table)
             .values(&academic_years_data)
             .execute(conn)?;
-        context.academic_year_ids = academic_years_data.into_iter().map(|ay| ay.id).collect();
-        println!("Seeded {} academic years.", context.academic_year_ids.len());
 
-        // Seed Grade Levels
-        let grade_levels_data: Vec<GradeLevel> = (1..=seed_count_config.grade_levels)
-            .map(|grade| GradeLevel {
-                id: generate_uuid(),
-                grade_number: grade as i32,
-                grade_name: format!("Grade {}", grade),
-                education_level: match grade {
+        // 2. Grade Levels
+        let mut grade_levels_data = Vec::new();
+        for i in 1..=seed_count_config.grade_levels {
+            let id = next_id(conn, IdPrefix::GRADE_LEVEL);
+            grade_levels_data.push(GradeLevel {
+                id: id.clone(),
+                grade_number: i as i32,
+                grade_name: format!("Grade {}", i),
+                education_level: match i {
                     1..=5 => EducationLevel::Primary,
                     6..=9 => EducationLevel::JuniorSecondary,
-                    _ => EducationLevel::SeniorSecondary,
+                    10..=11 => EducationLevel::SeniorSecondary,
+                    _ => EducationLevel::Collegiate,
                 },
-                created_at: random_datetime_in_past(3),
-                updated_at: random_datetime_in_past(2),
-            })
-            .collect();
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            });
+            context.grade_level_ids.push(id);
+        }
         insert_into(grade_levels::table)
             .values(&grade_levels_data)
             .execute(conn)?;
-        context.grade_level_ids = grade_levels_data.into_iter().map(|gl| gl.id).collect();
-        println!("Seeded {} grade levels.", context.grade_level_ids.len());
 
-        // Seed Subjects
+        // 3. Subjects
+        let mut subjects_data = Vec::new();
         let base_subjects = vec![
-            "Mathematics",
-            "Science",
-            "English",
-            "Sinhala",
-            "History",
-            "Geography",
-            "Art",
-            "Music",
-            "Physical Education",
-            "Buddhism",
-            "Christianity",
-            "Islam",
-            "Hinduism",
-            "ICT",
-            "Drama",
+            "Mathematics", "Science", "English", "Sinhala", "History", 
+            "Geography", "Art", "Music", "ICT", "Buddhism", "Tamil",
+            "Health", "Civics", "Drama", "Commerce", "Agriculture",
+            "Biology", "Physics", "Chemistry", "Accounting", "Economics",
+            "Political Science", "Engineering Technology", "Biosystems Technology"
         ];
-        let mut used_subject_codes: HashSet<String> = HashSet::new();
-        let subjects_data: Vec<Subject> = (0..seed_count_config.subjects)
-            .map(|i| {
-                let name_index = i % base_subjects.len();
-                let base_name = base_subjects[name_index];
-                let name = if i < base_subjects.len() {
-                    base_name.to_string()
-                } else {
-                    format!("{} - {}", base_name, i / base_subjects.len())
-                };
-
-                let mut subject_code_base = name
-                    .chars()
-                    .filter(|c| c.is_alphabetic())
-                    .collect::<String>()
-                    .to_uppercase()
-                    .chars()
-                    .take(3)
-                    .collect::<String>();
-                if subject_code_base.is_empty() {
-                    subject_code_base = "SUB".to_string();
-                }
-
-                let mut subject_code = format!("SUB-{}", subject_code_base);
-                let mut counter = 1;
-                while used_subject_codes.contains(&subject_code) {
-                    subject_code = format!("SUB-{}{}", subject_code_base, counter);
-                    counter += 1;
-                }
-                used_subject_codes.insert(subject_code.clone());
-
-                Subject {
-                    id: generate_uuid(),
-                    subject_code,
-                    subject_name_en: name.clone(),
-                    subject_name_si: Some(format!("{} (සිංහල)", name)), // Dummy Sinhala name
-                    subject_name_ta: Some(format!("{} (தமிழ்)", name)), // Dummy Tamil name
-                    is_core: true, // Assuming all seeded subjects are core
-                    created_at: random_datetime_in_past(3),
-                    updated_at: random_datetime_in_past(2),
-                }
-            })
-            .collect();
-
+        for i in 0..seed_count_config.subjects {
+            let id = next_id(conn, IdPrefix::SUBJECT);
+            let name = if i < base_subjects.len() {
+                base_subjects[i].to_string()
+            } else {
+                generate_realistic_title()
+            };
+            subjects_data.push(Subject {
+                id: id.clone(),
+                subject_code: format!("SBJ-{:04}", i + 1),
+                subject_name_en: name.clone(),
+                subject_name_si: Some(format!("{} (Sinhala)", name)),
+                subject_name_ta: Some(format!("{} (Tamil)", name)),
+                is_core: rng.gen_bool(0.8),
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            });
+            context.subject_ids.push(id);
+        }
         insert_into(subjects::table)
             .values(&subjects_data)
             .execute(conn)?;
-        context.subject_ids = subjects_data.into_iter().map(|s| s.id).collect();
-        println!("Seeded {} subjects.", context.subject_ids.len());
 
-        // Seed Terms
-        let current_academic_year_id = context.academic_year_ids.iter().next().unwrap().clone(); // Assuming at least one academic year exists
-        let terms_data: Vec<Term> = (0..seed_count_config.terms)
-            .map(|i| {
-                let name = format!("Term {}", i + 1);
-                Term {
-                    id: generate_uuid(),
-                    academic_year_id: current_academic_year_id.clone(),
-                    name: name.clone(),
-                    term_number: (i + 1) as i32,
-                    start_date: random_date_in_past(1), // Dummy dates
-                    end_date: random_date_in_past(0),   // Dummy dates
-                    created_at: random_datetime_in_past(1),
-                    updated_at: random_datetime_in_past(0),
-                }
-            })
-            .collect();
+        // 4. Terms
+        let mut terms_data = Vec::new();
+        for ay_id in &context.academic_year_ids {
+            for i in 1..=seed_count_config.terms {
+                let id = next_id(conn, IdPrefix::TERM);
+                terms_data.push(Term {
+                    id: id.clone(),
+                    academic_year_id: ay_id.clone(),
+                    term_number: i as i32,
+                    name: format!("Term {}", i),
+                    start_date: NaiveDate::from_ymd_opt(2024, (i as u32 - 1) * 4 + 1, 1).unwrap(),
+                    end_date: NaiveDate::from_ymd_opt(2024, (i as u32 - 1) * 4 + 4, 28).unwrap(),
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                });
+                context.term_ids.push(id);
+            }
+        }
         insert_into(terms::table)
             .values(&terms_data)
             .execute(conn)?;
-        context.term_ids = terms_data.into_iter().map(|t| t.id).collect();
-        println!("Seeded {} terms.", context.term_ids.len());
 
-        // Seed Users and Profiles (Admin, Staff, Students, Guardians)
+        // 5. Users, Profiles, Security, Status
+        println!("Seeding Users and Profiles...");
+        let mut users_list = Vec::new();
+        let mut profiles_list = Vec::new();
+        let mut user_profiles_list = Vec::new();
+        let mut user_security_list = Vec::new();
+        let mut user_status_list = Vec::new();
+        let mut profile_contacts_list = Vec::new();
 
-        // Admin User
-        let admin_email = generate_random_email_unique(used_emails, "admin");
-        let admin_user_id = generate_uuid();
-        let new_admin_user = NewUser {
-            id: admin_user_id.clone(),
-            email: admin_email.clone(),
-            password_hash: password_hash.to_string(),
-            google_id: None,
-            github_id: None,
-            is_verified: true,
-            verification_token: None,
-            created_at: Utc::now().naive_utc(),
-            updated_at: Utc::now().naive_utc(),
-            verification_sent_at: None,
-            password_reset_token: None,
-            password_reset_sent_at: None,
-            failed_login_attempts: 0,
-            lockout_until: None,
-            role: RoleEnum::Admin,
-        };
-        insert_into(users::table)
-            .values(&new_admin_user)
-            .execute(conn)?;
-        context.user_ids.push(admin_user_id.clone());
+        for i in 0..seed_count_config.users {
+            let u_id = next_id(conn, IdPrefix::USER);
+            let p_id = next_id(conn, IdPrefix::PROFILE);
+            let email_prefix = generate_random_email_prefix();
+            let email = generate_random_email_unique(used_emails, &email_prefix);
 
-        let admin_profile_id = generate_uuid();
-        let new_admin_profile = NewProfile {
-            id: admin_profile_id.clone(),
-            name: "Admin User".to_string(),
-            address: Some(generate_random_address()),
-            phone: Some(generate_random_phone_number()),
-            photo_url: None,
-            created_at: Utc::now().naive_utc(),
-            updated_at: Utc::now().naive_utc(),
-        };
-        insert_into(profiles::table)
-            .values(&new_admin_profile)
-            .execute(conn)?;
-        context.profile_ids.push(admin_profile_id.clone());
-        insert_into(user_profiles::table)
-            .values(&NewUserProfile {
-                user_id: admin_user_id.clone(),
-                profile_id: admin_profile_id.clone(),
+            users_list.push(User {
+                id: u_id.clone(),
+                email: email.clone(),
+                password_hash: password_hash.to_string(),
                 created_at: Utc::now().naive_utc(),
                 updated_at: Utc::now().naive_utc(),
-            })
-            .execute(conn)?;
-        println!("Seeded Admin user and profile.");
+                role: if i == 0 { RoleEnum::Admin } else { RoleEnum::Guest },
+            });
 
-        // Staff Users and Profiles
-        for i in 1..=seed_count_config.staff {
-            let staff_email = generate_random_email_unique(used_emails, &format!("staff{}", i));
-            let staff_user_id = generate_uuid();
-            let new_staff_user = NewUser {
-                id: staff_user_id.clone(),
-                email: staff_email.clone(),
-                password_hash: password_hash.to_string(),
+            profiles_list.push(Profile {
+                id: p_id.clone(),
+                name: generate_random_name(),
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            });
+
+            user_profiles_list.push(UserProfile {
+                user_id: u_id.clone(),
+                profile_id: p_id.clone(),
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            });
+
+            user_security_list.push(UserSecurity {
+                user_id: u_id.clone(),
                 google_id: None,
                 github_id: None,
-                is_verified: true,
                 verification_token: None,
-                created_at: Utc::now().naive_utc(),
-                updated_at: Utc::now().naive_utc(),
                 verification_sent_at: None,
                 password_reset_token: None,
                 password_reset_sent_at: None,
                 failed_login_attempts: 0,
                 lockout_until: None,
-                role: RoleEnum::Teacher, // Assuming all seeded staff are teachers for simplicity
-            };
-            insert_into(users::table)
-                .values(&new_staff_user)
-                .execute(conn)?;
-            context.user_ids.push(staff_user_id.clone());
-
-            let staff_profile_id = generate_uuid();
-            let staff_name = generate_random_name();
-            let new_staff_profile = NewProfile {
-                id: staff_profile_id.clone(),
-                name: staff_name.clone(),
-                address: Some(generate_random_address()),
-                phone: Some(generate_random_phone_number()),
-                photo_url: None,
                 created_at: Utc::now().naive_utc(),
                 updated_at: Utc::now().naive_utc(),
-            };
-            insert_into(profiles::table)
-                .values(&new_staff_profile)
-                .execute(conn)?;
-            context.profile_ids.push(staff_profile_id.clone());
-            insert_into(user_profiles::table)
-                .values(&NewUserProfile {
-                    user_id: staff_user_id.clone(),
-                    profile_id: staff_profile_id.clone(),
-                    created_at: Utc::now().naive_utc(),
-                    updated_at: Utc::now().naive_utc(),
-                })
-                .execute(conn)?;
+            });
 
-            let staff_member_id = generate_uuid();
-            let new_staff_member = NewStaff {
-                id: staff_member_id.clone(),
-                employee_id: format!("EMP-{}", 1000 + i),
-                name: staff_name.clone(),
-                nic: format!("{:09}V", rng.gen_range(100000000..=999999999)), // Dummy NIC
-                dob: NaiveDate::from_ymd_opt(
-                    1970 + rng.gen_range(0..=30),
-                    rng.gen_range(1..=12),
-                    rng.gen_range(1..=28),
-                )
-                .unwrap(), // Dummy DOB
-                gender: if rng.gen_bool(0.5) {
-                    Gender::Male.to_string()
-                } else {
-                    Gender::Female.to_string()
-                }, // Dummy Gender
+            user_status_list.push(UserStatus {
+                user_id: u_id.clone(),
+                is_verified: true,
+                is_active: true,
+                disabled_at: None,
+                disabled_reason: None,
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            });
+
+            profile_contacts_list.push(ProfileContact {
+                profile_id: p_id.clone(),
+                address: Some(generate_random_address()),
+                phone: Some(generate_random_phone_number()),
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            });
+
+            context.user_ids.push(u_id);
+            context.profile_ids.push(p_id);
+        }
+
+        insert_into(users::table).values(&users_list).execute(conn)?;
+        insert_into(profiles::table).values(&profiles_list).execute(conn)?;
+        insert_into(user_profiles::table).values(&user_profiles_list).execute(conn)?;
+        insert_into(user_security::table).values(&user_security_list).execute(conn)?;
+        insert_into(user_status::table).values(&user_status_list).execute(conn)?;
+        insert_into(profile_contacts::table).values(&profile_contacts_list).execute(conn)?;
+
+        // 6. Staff
+        println!("Seeding Staff...");
+        let mut staff_list = Vec::new();
+        let mut staff_identity_list = Vec::new();
+        let mut staff_contacts_list = Vec::new();
+        let mut staff_employment_status_list = Vec::new();
+
+        for i in 0..seed_count_config.staff {
+            let s_id = next_id(conn, IdPrefix::STAFF);
+            let name = generate_random_name();
+            let email_prefix = generate_random_email_prefix();
+            let email = generate_random_email_unique(used_emails, &email_prefix);
+
+            staff_list.push(Staff {
+                id: s_id.clone(),
+                employee_id: format!("EMP-{:04}", i + 1),
+                name: name.clone(),
+                dob: NaiveDate::from_ymd_opt(1970 + rng.gen_range(0..30), 1, 1).unwrap(),
+                gender: if rng.gen_bool(0.5) { Gender::Male } else { Gender::Female },
+                staff_type: StaffType::Teaching,
+                profile_id: None,
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            });
+
+            staff_identity_list.push(StaffIdentity {
+                staff_id: s_id.clone(),
+                nic: format!("{:09}V", rng.gen_range(100000000..=999999999)),
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            });
+
+            staff_contacts_list.push(StaffContact {
+                staff_id: s_id.clone(),
                 address: generate_random_address(),
                 phone: generate_random_phone_number(),
-                email: staff_email.clone(),
+                email,
+                address_latitude: None,
+                address_longitude: None,
                 created_at: Utc::now().naive_utc(),
                 updated_at: Utc::now().naive_utc(),
-                employment_status: EmploymentStatus::Permanent, // Default status
-                staff_type: StaffType::Teaching,                // Default type
-                photo_url: None,
-                profile_id: Some(staff_profile_id.clone()),
-                reward_points_balance: 0,
-                };
+            });
 
-            insert_into(staff::table)
-                .values(&new_staff_member)
-                .execute(conn)?;
-            context.staff_ids.push(staff_member_id.clone());
+            staff_employment_status_list.push(StaffEmploymentStatus {
+                staff_id: s_id.clone(),
+                employment_status: EmploymentStatus::Permanent,
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            });
+
+            context.staff_ids.push(s_id);
         }
-        println!(
-            "Seeded {} staff users and profiles.",
-            seed_count_config.staff
-        );
 
-        // Student Users and Profiles
-        for i in 1..=seed_count_config.students {
-            let student_email = generate_random_email_unique(used_emails, &format!("student{}", i));
-            let student_user_id = generate_uuid();
-            let new_student_user = NewUser {
-                id: student_user_id.clone(),
-                email: student_email.clone(),
-                password_hash: password_hash.to_string(),
-                google_id: None,
-                github_id: None,
-                is_verified: true,
-                verification_token: None,
+        insert_into(staff::table).values(&staff_list).execute(conn)?;
+        insert_into(staff_identity::table).values(&staff_identity_list).execute(conn)?;
+        insert_into(staff_contacts::table).values(&staff_contacts_list).execute(conn)?;
+        insert_into(staff_employment_status::table).values(&staff_employment_status_list).execute(conn)?;
+
+        // 7. Students
+        println!("Seeding Students...");
+        let mut students_list = Vec::new();
+        let mut student_contacts_list = Vec::new();
+        let mut student_demographics_list = Vec::new();
+        let mut student_status_list = Vec::new();
+
+        for i in 0..seed_count_config.students {
+            let stu_id = next_id(conn, IdPrefix::STUDENT);
+            let name = generate_random_name();
+
+            students_list.push(Student {
+                id: stu_id.clone(),
+                admission_number: format!("ADM-{:05}", i + 1),
+                name_english: name.clone(),
+                name_sinhala: Some(format!("{} (Sinhala)", name)),
+                name_tamil: Some(format!("{} (Tamil)", name)),
+                dob: NaiveDate::from_ymd_opt(2010 + rng.gen_range(0..5), 1, 1).unwrap(),
+                gender: if rng.gen_bool(0.5) { Gender::Male } else { Gender::Female },
+                profile_id: None,
                 created_at: Utc::now().naive_utc(),
                 updated_at: Utc::now().naive_utc(),
-                verification_sent_at: None,
-                password_reset_token: None,
-                password_reset_sent_at: None,
-                failed_login_attempts: 0,
-                lockout_until: None,
-                role: RoleEnum::Student,
-            };
-            insert_into(users::table)
-                .values(&new_student_user)
-                .execute(conn)?;
-            context.user_ids.push(student_user_id.clone());
+            });
 
-            let student_profile_id = generate_uuid();
-            let student_name_english = generate_random_name();
-            let new_student_profile = NewProfile {
-                id: student_profile_id.clone(),
-                name: student_name_english.clone(),
-                address: Some(generate_random_address()),
-                phone: Some(generate_random_phone_number()),
-                photo_url: None,
-                created_at: Utc::now().naive_utc(),
-                updated_at: Utc::now().naive_utc(),
-            };
-            insert_into(profiles::table)
-                .values(&new_student_profile)
-                .execute(conn)?;
-            context.profile_ids.push(student_profile_id.clone());
-            insert_into(user_profiles::table)
-                .values(&NewUserProfile {
-                    user_id: student_user_id.clone(),
-                    profile_id: student_profile_id.clone(),
-                    created_at: Utc::now().naive_utc(),
-                    updated_at: Utc::now().naive_utc(),
-                })
-                .execute(conn)?;
-
-            let student_member_id = generate_uuid();
-            let new_student_member = NewStudent {
-                id: student_member_id.clone(),
-                admission_number: format!("ADM-{}", 2000 + i),
-                name_english: student_name_english.clone(),
-                name_sinhala: Some(format!("සිසුවා {}", i)), // Dummy Sinhala name
-                name_tamil: Some(format!("மாணவர் {}", i)),  // Dummy Tamil name
-                nic_or_birth_certificate: format!("{:09}V", rng.gen_range(100000000..=999999999)), // Dummy NIC
-                dob: NaiveDate::from_ymd_opt(
-                    2010 + (i as i32 % 3),
-                    (i as u32 % 12) + 1,
-                    (i as u32 % 28) + 1,
-                )
-                .unwrap(),
-                gender: if i % 2 == 0 {
-                    Gender::Male
-                } else {
-                    Gender::Female
-                }, // Dummy Gender
+            student_contacts_list.push(StudentContact {
+                student_id: stu_id.clone(),
                 address: generate_random_address(),
+                address_latitude: None,
+                address_longitude: None,
                 phone: generate_random_phone_number(),
-                email: Some(student_email),
-                religion: Some(match i % 3 {
-                    0 => Religion::Buddhism,
-                    1 => Religion::Christianity,
-                    _ => Religion::Islam,
-                }), // Dummy Religion
-                ethnicity: Some(match i % 3 {
-                    0 => Ethnicity::Sinhala,
-                    1 => Ethnicity::Tamil,
-                    _ => Ethnicity::Muslim,
-                }), // Dummy Ethnicity
+                email: Some(generate_random_email_unique(used_emails, &generate_random_email_prefix())),
                 created_at: Utc::now().naive_utc(),
                 updated_at: Utc::now().naive_utc(),
-                status: StudentStatus::Active, // Default status
-                photo_url: None,
-                profile_id: Some(student_profile_id.clone()),
-            };
+            });
 
-            insert_into(students::table)
-                .values(&new_student_member)
-                .execute(conn)?;
-            context.student_ids.push(student_member_id.clone());
-        }
-        println!(
-            "Seeded {} student users and profiles.",
-            seed_count_config.students
-        );
-
-        // Guardian Users and Profiles (without linking to specific students here, as that's complex and better handled by another seeder or a dedicated migration script)
-        for i in 1..=seed_count_config.guardians {
-            let guardian_email =
-                generate_random_email_unique(used_emails, &format!("guardian{}", i));
-            let guardian_user_id = generate_uuid();
-            let new_guardian_user = NewUser {
-                id: guardian_user_id.clone(),
-                email: guardian_email,
-                password_hash: password_hash.to_string(),
-                google_id: None,
-                github_id: None,
-                is_verified: true,
-                verification_token: None,
+            student_demographics_list.push(StudentDemographics {
+                student_id: stu_id.clone(),
+                religion: Some(Religion::Buddhism),
+                ethnicity: Some(Ethnicity::Sinhala),
                 created_at: Utc::now().naive_utc(),
                 updated_at: Utc::now().naive_utc(),
-                verification_sent_at: None,
-                password_reset_token: None,
-                password_reset_sent_at: None,
-                failed_login_attempts: 0,
-                lockout_until: None,
-                role: RoleEnum::Parent,
-            };
-            insert_into(users::table)
-                .values(&new_guardian_user)
-                .execute(conn)?;
-            context.user_ids.push(guardian_user_id.clone());
+            });
 
-            let guardian_profile_id = generate_uuid();
-            let new_guardian_profile = NewProfile {
-                id: guardian_profile_id.clone(),
-                name: format!("Guardian User {}", i),
-                address: Some(generate_random_address()),
-                phone: Some(generate_random_phone_number()),
-                photo_url: None,
+            student_status_list.push(StudentStatusRow {
+                student_id: stu_id.clone(),
+                status: StudentStatus::Active,
                 created_at: Utc::now().naive_utc(),
                 updated_at: Utc::now().naive_utc(),
-            };
-            insert_into(profiles::table)
-                .values(&new_guardian_profile)
-                .execute(conn)?;
-            context.profile_ids.push(guardian_profile_id.clone());
-            insert_into(user_profiles::table)
-                .values(&NewUserProfile {
-                    user_id: guardian_user_id.clone(),
-                    profile_id: guardian_profile_id.clone(),
-                    created_at: Utc::now().naive_utc(),
-                    updated_at: Utc::now().naive_utc(),
-                })
-                .execute(conn)?;
-        }
-        println!(
-            "Seeded {} guardian users and profiles.",
-            seed_count_config.guardians
-        );
+            });
 
-        // Seed Classes
-        if context.grade_level_ids.is_empty() {
-            println!("Skipping Class seeding: No grade levels available.");
-        } else {
-            let num_classes_to_seed = seed_count_config.classes;
-            let mut classes_data = Vec::new();
-
-            for i in 0..num_classes_to_seed {
-                let grade_id = get_random_id(&context.grade_level_ids);
-                let class_suffix_options = vec!["A", "B", "C", "D", "E"];
-                let class_suffix = class_suffix_options[i % class_suffix_options.len()];
-
-                let class_id = generate_uuid();
-                let new_class = Class {
-                    id: class_id.clone(),
-                    grade_id: grade_id.clone(),
-                    section_name: format!(
-                        "{} {}",
-                        get_grade_name_by_id(conn, &grade_id)
-                            .unwrap_or("Unknown Grade".to_string()),
-                        class_suffix
-                    ),
-                    academic_year_id: current_academic_year_id.clone(),
-                    class_teacher_id: if !context.staff_ids.is_empty() {
-                        Some(get_random_id(&context.staff_ids))
-                    } else {
-                        None
-                    },
-                    medium: Medium::English, // Default to English for now
-                    room_number: Some(format!("RM-{}", rng.gen_range(100..=999))),
-                    max_capacity: rng.gen_range(25..=40),
-                    created_at: random_datetime_in_past(1),
-                    updated_at: random_datetime_in_past(0),
-                };
-                classes_data.push(new_class);
-                context.class_ids.push(class_id.clone());
-            }
-            insert_into(classes::table)
-                .values(&classes_data)
-                .execute(conn)?;
-            println!("Seeded {} classes.", context.class_ids.len());
+            context.student_ids.push(stu_id);
         }
 
-        // Seed Streams
-        let base_streams = vec!["Arts", "Science", "Commerce", "Technology", "Vocational"];
-        let streams_data: Vec<Stream> = (0..seed_count_config.grade_streams)
-            .map(|i| {
-                let name_index = i % base_streams.len();
-                let base_name = base_streams[name_index];
-                let name = if i < base_streams.len() {
-                    base_name.to_string()
-                } else {
-                    format!("{} - {}", base_name, i / base_streams.len())
-                };
-                Stream {
-                    id: generate_uuid(),
-                    name: name.clone(),
-                    description: Some(format!("Academic stream for {}", name)),
-                    created_at: random_datetime_in_past(2),
-                    updated_at: random_datetime_in_past(1),
+        insert_into(students::table).values(&students_list).execute(conn)?;
+        insert_into(student_contacts::table).values(&student_contacts_list).execute(conn)?;
+        insert_into(student_demographics::table).values(&student_demographics_list).execute(conn)?;
+        insert_into(student_status::table).values(&student_status_list).execute(conn)?;
+
+        // 8. Classes
+        println!("Seeding Classes...");
+        let mut classes_list = Vec::new();
+        for gl_id in &context.grade_level_ids {
+            for ay_id in &context.academic_year_ids {
+                for section in &["A", "B", "C"] {
+                    let id = next_id(conn, IdPrefix::CLASS);
+                    classes_list.push(Class {
+                        id: id.clone(),
+                        grade_id: gl_id.clone(),
+                        academic_year_id: ay_id.clone(),
+                        class_teacher_id: Some(get_random_id(&context.staff_ids)),
+                        medium: Medium::English,
+                        room_id: None,
+                        created_at: Utc::now().naive_utc(),
+                        updated_at: Utc::now().naive_utc(),
+                    });
+                    context.class_ids.push(id);
                 }
-            })
-            .collect();
+            }
+        }
+        insert_into(classes::table).values(&classes_list).execute(conn)?;
 
-        insert_into(streams::table)
-            .values(&streams_data)
-            .execute(conn)?;
-        context.stream_ids = streams_data.into_iter().map(|s| s.id).collect();
-        println!("Seeded {} streams.", context.stream_ids.len());
+        // 9. Streams
+        println!("Seeding AlStreams...");
+        let mut al_streams_list = Vec::new();
+        let streams = vec!["Biological Science", "Physical Science", "Commerce", "Arts", "Technology"];
+        for name in streams {
+            let id = next_id(conn, IdPrefix::AL_STREAM);
+            al_streams_list.push(AlStream {
+                id: id.clone(),
+                name: name.to_string(),
+                description: Some(format!("{} stream", name)),
+                version_name: Some("2024 Version".to_string()),
+                start_date: Some(NaiveDate::from_ymd_opt(2024, 1, 1).unwrap()),
+                end_date: None,
+                is_active: true,
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            });
+            context.stream_ids.push(id);
+        }
+        insert_into(al_streams::table).values(&al_streams_list).execute(conn)?;
+
+        // 10. school_rooms
+        println!("Seeding school_rooms...");
+        let room_names = vec!["Main Hall", "Science Lab", "Computer Lab", "Library", "Staff Room", "Auditorium", "Music Room", "Art Room"];
+        for i in 1..=20 {
+            let room_id = format!("RM-{}", i);
+            let name = if (i as usize - 1) < room_names.len() {
+                room_names[i as usize - 1].to_string()
+            } else {
+                format!("Room {}", i)
+            };
+            insert_into(school_rooms::table)
+                .values(&(
+                    school_rooms::id.eq(room_id),
+                    school_rooms::name.eq(name),
+                    school_rooms::created_at.eq(Utc::now().naive_utc()),
+                    school_rooms::updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+        }
 
         Ok(())
     }
-}
-
-// Helper function to get grade name by ID (assuming it exists)
-fn get_grade_name_by_id(conn: &mut SqliteConnection, grade_id: &str) -> anyhow::Result<String> {
-    use backend::schema::grade_levels::dsl::*;
-    let name = grade_levels
-        .filter(id.eq(grade_id))
-        .select(grade_name)
-        .first::<String>(conn)?;
-    Ok(name)
 }

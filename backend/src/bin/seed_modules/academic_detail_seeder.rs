@@ -2,18 +2,14 @@ use super::utils::*;
 use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
-use backend::database::enums::SubstitutionStatus;
-use backend::models::academic::SubjectEnrollment;
-use backend::database::tables::{
-    ClassSubjectTeacher, GradeStream, GradeSubject, StreamSubject, Timetable,
-};
-use backend::models::staff::assignment::{TeacherClassAssignment, TeacherSubjectAssignment};
-use backend::models::staff::attendance::Substitution;
-use backend::models::student::enrollment::StudentClassAssignment;
+use backend::database::enums::Medium;
+use backend::database::tables::*;
+use backend::models::ids::IdPrefix;
 use backend::schema::*;
-use chrono::{NaiveDate, Utc};
+use chrono::{NaiveDate, NaiveTime, Utc};
 use diesel::insert_into;
 use diesel::prelude::*;
+use rand::Rng;
 use std::collections::HashSet;
 
 pub struct AcademicDetailSeeder;
@@ -32,321 +28,223 @@ impl SeedModule for AcademicDetailSeeder {
         _password_hash: &str,
         _used_emails: &mut HashSet<String>,
         context: &mut SeederContext,
-        seed_count_config: &crate::SeedCountConfig, // Add SeedCountConfig here
+        seed_count_config: &crate::SeedCountConfig,
     ) -> Result<()> {
         println!("Seeding Academic Detail module...");
 
-        // 1. Grade Streams
-        if !context.grade_level_ids.is_empty() && !context.stream_ids.is_empty() {
-            let mut grade_streams_data = Vec::new();
-            for grade_id in &context.grade_level_ids {
-                // Assign configurable number of streams to each grade level
-                for stream_id in context
-                    .stream_ids
-                    .iter()
-                    .take(seed_count_config.grade_streams_per_grade)
-                {
-                    grade_streams_data.push(GradeStream {
-                        grade_id: grade_id.clone(),
-                        stream_id: stream_id.clone(),
+        let mut rng = rand::thread_rng();
+
+        // 1. al_stream_grade_levels
+        println!("Seeding al_stream_grade_levels...");
+        let mut stream_gl_list = Vec::new();
+        for s_id in &context.stream_ids {
+            // High school grades usually
+            for gl_id in &context.grade_level_ids[10..] { 
+                stream_gl_list.push(AlStreamGradeLevel {
+                    stream_id: s_id.clone(),
+                    grade_level_id: gl_id.clone(),
+                    created_at: Utc::now().naive_utc(),
+                });
+            }
+        }
+        insert_into(al_stream_grade_levels::table).values(&stream_gl_list).execute(conn)?;
+
+        // 2. grade_subjects
+        println!("Seeding grade_subjects...");
+        let mut grade_subjects_list = Vec::new();
+        for gl_id in &context.grade_level_ids {
+            for sub_id in &context.subject_ids {
+                if rng.gen_bool(0.6) {
+                    grade_subjects_list.push(GradeSubject {
+                        grade_id: gl_id.clone(),
+                        subject_id: sub_id.clone(),
                         created_at: Utc::now().naive_utc(),
                         updated_at: Utc::now().naive_utc(),
                     });
                 }
             }
-            insert_into(grade_streams::table)
-                .values(&grade_streams_data)
-                .execute(conn)?;
-            println!("Seeded {} grade streams.", grade_streams_data.len());
         }
+        insert_into(grade_subjects::table).values(&grade_subjects_list).execute(conn)?;
 
-        // 2. Grade Subjects
-        if !context.grade_level_ids.is_empty() && !context.subject_ids.is_empty() {
-            let mut grade_subjects_data = Vec::new();
-            for grade_id in &context.grade_level_ids {
-                // Assign configurable number of random subjects to each grade level
-                let mut rng = rand::thread_rng();
-                let mut shuffled_subjects = context.subject_ids.clone();
-                use rand::seq::SliceRandom;
-                shuffled_subjects.shuffle(&mut rng);
-                for subject_id in shuffled_subjects
-                    .iter()
-                    .take(seed_count_config.grade_subjects_per_grade)
-                {
-                    grade_subjects_data.push(GradeSubject {
-                        grade_id: grade_id.clone(),
-                        subject_id: subject_id.clone(),
-                        created_at: Utc::now().naive_utc(),
-                        updated_at: Utc::now().naive_utc(),
-                    });
-                }
+        // 3. al_stream_required_subjects
+        println!("Seeding al_stream_required_subjects...");
+        let mut stream_req_subs = Vec::new();
+        for s_id in &context.stream_ids {
+            for sub_id in context.subject_ids.iter().take(3) {
+                stream_req_subs.push(AlStreamRequiredSubject {
+                    stream_id: s_id.clone(),
+                    subject_id: sub_id.clone(),
+                    created_at: Utc::now().naive_utc(),
+                });
             }
-            insert_into(grade_subjects::table)
-                .values(&grade_subjects_data)
-                .execute(conn)?;
-            println!("Seeded {} grade subjects.", grade_subjects_data.len());
         }
+        insert_into(al_stream_required_subjects::table).values(&stream_req_subs).execute(conn)?;
 
-        // 3. Stream Subjects
-        if !context.stream_ids.is_empty() && !context.subject_ids.is_empty() {
-            let mut stream_subjects_data = Vec::new();
-            for stream_id in &context.stream_ids {
-                // Assign configurable number of random subjects to each stream
-                let mut rng = rand::thread_rng();
-                let mut shuffled_subjects = context.subject_ids.clone();
-                use rand::seq::SliceRandom;
-                shuffled_subjects.shuffle(&mut rng);
-                for subject_id in shuffled_subjects
-                    .iter()
-                    .take(seed_count_config.stream_subjects_per_stream)
-                {
-                    stream_subjects_data.push(StreamSubject {
-                        stream_id: stream_id.clone(),
-                        subject_id: subject_id.clone(),
-                        created_at: Utc::now().naive_utc(),
-                        updated_at: Utc::now().naive_utc(),
-                    });
-                }
+        // 4. student_class_assignments
+        println!("Seeding student_class_assignments...");
+        let mut sca_list = Vec::new();
+        let mut sca_history_list = Vec::new();
+        for stu_id in &context.student_ids {
+            let cls_id = get_random_id(&context.class_ids);
+            // In a real app we'd need to find the grade_id of the class
+            // For now, just pick a random grade_id
+            let grl_id = get_random_id(&context.grade_level_ids);
+            let ay_id = context.academic_year_ids[0].clone();
+
+            let id = next_id(conn, IdPrefix::STUDENT_CLASS_ASSIGNMENT);
+            let assignment = StudentClassAssignment {
+                id: id.clone(),
+                student_id: stu_id.clone(),
+                academic_year_id: ay_id.clone(),
+                grade_id: grl_id.clone(),
+                class_id: cls_id.clone(),
+                from_date: NaiveDate::from_ymd_opt(2024, 1, 1).unwrap(),
+                to_date: None,
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            };
+            sca_list.push(assignment.clone());
+            
+            sca_history_list.push(StudentClassAssignmentHistory {
+                id: next_id(conn, IdPrefix::CLASS_ASSIGNMENT),
+                student_id: stu_id.clone(),
+                academic_year_id: ay_id,
+                grade_id: grl_id,
+                class_id: cls_id,
+                from_date: NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
+                to_date: Some(NaiveDate::from_ymd_opt(2023, 12, 31).unwrap()),
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            });
+        }
+        insert_into(student_class_assignments::table).values(&sca_list).execute(conn)?;
+        insert_into(student_class_assignments_history::table).values(&sca_history_list).execute(conn)?;
+
+        // 5. subject_enrollments
+        println!("Seeding subject_enrollments...");
+        let mut enrollments = Vec::new();
+        for stu_id in &context.student_ids {
+            let ay_id = context.academic_year_ids[0].clone();
+            for sub_id in context.subject_ids.iter().take(seed_count_config.subject_enrollments_per_student) {
+                enrollments.push(SubjectEnrollment {
+                    student_id: stu_id.clone(),
+                    subject_id: sub_id.clone(),
+                    academic_year_id: ay_id.clone(),
+                    created_at: Utc::now().naive_utc(),
+                });
             }
-            insert_into(stream_subjects::table)
-                .values(&stream_subjects_data)
-                .execute(conn)?;
-            println!("Seeded {} stream subjects.", stream_subjects_data.len());
         }
+        insert_into(subject_enrollments::table).values(&enrollments).execute(conn)?;
 
-        // 4. Student Class Assignments
-        if !context.student_ids.is_empty()
-            && !context.class_ids.is_empty()
-            && !context.academic_year_ids.is_empty()
-            && !context.grade_level_ids.is_empty()
-        {
-            let academic_year_id = context.academic_year_ids[0].clone();
-            let mut student_assignments = Vec::new();
-            for _ in 0..seed_count_config.student_class_assignments {
-                let student_id = get_random_id(&context.student_ids);
-                let class_id = get_random_id(&context.class_ids);
-                // Get grade_id for this class (simplified, assuming we know)
-                // In a real scenario we'd query the class to get its grade_id
-                let grade_id = get_random_id(&context.grade_level_ids);
+        // 6. teacher_class_assignments
+        println!("Seeding teacher_class_assignments...");
+        let mut tca_list = Vec::new();
+        for cls_id in &context.class_ids {
+            let t_id = get_random_id(&context.staff_ids);
+            let ay_id = context.academic_year_ids[0].clone();
+            tca_list.push(TeacherClassAssignment {
+                id: next_id(conn, IdPrefix::TEACHER_ASSIGNMENT),
+                teacher_id: t_id,
+                class_id: cls_id.clone(),
+                academic_year_id: ay_id,
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+            });
+        }
+        insert_into(teacher_class_assignments::table).values(&tca_list).execute(conn)?;
 
-                student_assignments.push(StudentClassAssignment {
-                    id: generate_uuid(),
-                    student_id: student_id.clone(),
-                    academic_year_id: academic_year_id.clone(),
-                    grade_id,
-                    class_id,
-                    from_date: NaiveDate::from_ymd_opt(2024, 1, 1).unwrap(),
-                    to_date: None,
+        // 7. teacher_subject_assignments
+        println!("Seeding teacher_subject_assignments...");
+        let mut tsa_list = Vec::new();
+        for t_id in &context.staff_ids {
+            let ay_id = context.academic_year_ids[0].clone();
+            for sub_id in context.subject_ids.iter().take(2) {
+                tsa_list.push(TeacherSubjectAssignment {
+                    id: next_id(conn, IdPrefix::TEACHER_ASSIGNMENT),
+                    teacher_id: t_id.clone(),
+                    subject_id: sub_id.clone(),
+                    academic_year_id: ay_id.clone(),
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                    medium: Medium::English,
+                });
+            }
+        }
+        insert_into(teacher_subject_assignments::table).values(&tsa_list).execute(conn)?;
+
+        // 8. class_subject_teachers
+        println!("Seeding class_subject_teachers...");
+        let mut cst_list = Vec::new();
+        for cls_id in &context.class_ids {
+            let ay_id = context.academic_year_ids[0].clone();
+            for sub_id in context.subject_ids.iter().take(5) {
+                cst_list.push(ClassSubjectTeacher {
+                    class_id: cls_id.clone(),
+                    subject_id: sub_id.clone(),
+                    teacher_id: get_random_id(&context.staff_ids),
+                    academic_year_id: ay_id.clone(),
                     created_at: Utc::now().naive_utc(),
                     updated_at: Utc::now().naive_utc(),
                 });
             }
-            insert_into(student_class_assignments::table)
-                .values(&student_assignments)
-                .execute(conn)?;
-            println!(
-                "Seeded {} student class assignments.",
-                student_assignments.len()
-            );
         }
+        insert_into(class_subject_teachers::table).values(&cst_list).execute(conn)?;
 
-        // 5. Subject Enrollments
-        if !context.student_ids.is_empty()
-            && !context.subject_ids.is_empty()
-            && !context.academic_year_ids.is_empty()
-        {
-            let academic_year_id = context.academic_year_ids[0].clone();
-            let mut subject_enrollments_data = Vec::new();
-            for student_id in &context.student_ids {
-                // Enroll each student in configurable number of random subjects
-                let mut rng = rand::thread_rng();
-                let mut shuffled_subjects = context.subject_ids.clone();
-                use rand::seq::SliceRandom;
-                shuffled_subjects.shuffle(&mut rng);
-                for subject_id in shuffled_subjects
-                    .iter()
-                    .take(seed_count_config.subject_enrollments_per_student)
-                {
-                    subject_enrollments_data.push(SubjectEnrollment {
-                        student_id: student_id.clone(),
-                        subject_id: subject_id.clone(),
-                        academic_year_id: academic_year_id.clone(),
-                        created_at: Utc::now().naive_utc(),
-                    });
-                }
-            }
-            insert_into(subject_enrollments::table)
-                .values(&subject_enrollments_data)
-                .execute(conn)?;
-            println!(
-                "Seeded {} subject enrollments.",
-                subject_enrollments_data.len()
-            );
-        }
-
-        // 6. Teacher Class Assignments
-        if !context.staff_ids.is_empty()
-            && !context.class_ids.is_empty()
-            && !context.academic_year_ids.is_empty()
-        {
-            let academic_year_id = context.academic_year_ids[0].clone();
-            let mut teacher_class_assignments_data = Vec::new();
-            for _ in
-                0..seed_count_config.teacher_class_assignments_per_class * context.class_ids.len()
-            {
-                let class_id = get_random_id(&context.class_ids);
-                let teacher_id = get_random_id(&context.staff_ids);
-                teacher_class_assignments_data.push(TeacherClassAssignment {
-                    id: generate_uuid(),
-                    teacher_id,
-                    class_id: class_id.clone(),
-                    academic_year_id: academic_year_id.clone(),
-                    created_at: Utc::now().naive_utc(),
-                    updated_at: Utc::now().naive_utc(),
-                });
-            }
-            insert_into(teacher_class_assignments::table)
-                .values(&teacher_class_assignments_data)
-                .execute(conn)?;
-            println!(
-                "Seeded {} teacher class assignments.",
-                teacher_class_assignments_data.len()
-            );
-        }
-
-        // 7. Teacher Subject Assignments
-        if !context.staff_ids.is_empty()
-            && !context.subject_ids.is_empty()
-            && !context.academic_year_ids.is_empty()
-        {
-            let academic_year_id = context.academic_year_ids[0].clone();
-            let mut teacher_subject_assignments_data = Vec::new();
-            for teacher_id in &context.staff_ids {
-                // Assign each teacher to configurable number of random subjects
-                let mut rng = rand::thread_rng();
-                let mut shuffled_subjects = context.subject_ids.clone();
-                use rand::seq::SliceRandom;
-                shuffled_subjects.shuffle(&mut rng);
-                for subject_id in shuffled_subjects
-                    .iter()
-                    .take(seed_count_config.teacher_subject_assignments_per_teacher)
-                {
-                    teacher_subject_assignments_data.push(TeacherSubjectAssignment {
-                        id: generate_uuid(),
-                        teacher_id: teacher_id.clone(),
-                        subject_id: subject_id.clone(),
-                        academic_year_id: academic_year_id.clone(),
-                        created_at: Utc::now().naive_utc(),
-                        updated_at: Utc::now().naive_utc(),
-                        medium: backend::database::enums::Medium::English,
-                    });
-                }
-            }
-            insert_into(teacher_subject_assignments::table)
-                .values(&teacher_subject_assignments_data)
-                .execute(conn)?;
-            println!(
-                "Seeded {} teacher subject assignments.",
-                teacher_subject_assignments_data.len()
-            );
-        }
-
-        // 8. Class Subject Teachers
-        if !context.class_ids.is_empty()
-            && !context.subject_ids.is_empty()
-            && !context.staff_ids.is_empty()
-            && !context.academic_year_ids.is_empty()
-        {
-            let academic_year_id = context.academic_year_ids[0].clone();
-            let mut cst_data = Vec::new();
-            for class_id in &context.class_ids {
-                // For each class, assign teachers to configurable number of subjects
-                let mut rng = rand::thread_rng();
-                let mut shuffled_subjects = context.subject_ids.clone();
-                use rand::seq::SliceRandom;
-                shuffled_subjects.shuffle(&mut rng);
-                for subject_id in shuffled_subjects
-                    .iter()
-                    .take(seed_count_config.class_subject_teachers_per_class)
-                {
-                    cst_data.push(ClassSubjectTeacher {
-                        class_id: class_id.clone(),
-                        subject_id: subject_id.clone(),
+        // 9. timetable
+        println!("Seeding timetable...");
+        let mut timetable_list = Vec::new();
+        let days = vec!["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+        for cls_id in &context.class_ids {
+            let ay_id = context.academic_year_ids[0].clone();
+            for day in &days {
+                for period in 1..=8 {
+                    let id = next_id(conn, IdPrefix::TIMETABLE);
+                    timetable_list.push(Timetable {
+                        id: id.clone(),
+                        class_id: cls_id.clone(),
+                        day_of_week: day.to_string(),
+                        subject_id: get_random_id(&context.subject_ids),
                         teacher_id: get_random_id(&context.staff_ids),
-                        academic_year_id: academic_year_id.clone(),
+                        start_time: NaiveTime::from_hms_opt(7 + period, 30, 0).unwrap(),
+                        end_time: NaiveTime::from_hms_opt(8 + period, 10, 0).unwrap(),
+                        room: format!("RM-{:02}", period),
+                        academic_year_id: ay_id.clone(),
+                        grade_period_id: None,
                         created_at: Utc::now().naive_utc(),
                         updated_at: Utc::now().naive_utc(),
                     });
+                    context.timetable_ids.push(id);
                 }
             }
-            insert_into(class_subject_teachers::table)
-                .values(&cst_data)
-                .execute(conn)?;
-            println!(
-                "Seeded {} class subject teacher assignments.",
-                cst_data.len()
-            );
         }
+        insert_into(timetable::table).values(&timetable_list).execute(conn)?;
 
-        // 9. Timetable
-        if !context.class_ids.is_empty()
-            && !context.subject_ids.is_empty()
-            && !context.staff_ids.is_empty()
-            && !context.academic_year_ids.is_empty()
-        {
-            let academic_year_id = context.academic_year_ids[0].clone();
-            let mut timetable_data = Vec::new();
-            let days = vec!["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-
-            for class_id in &context.class_ids {
-                for day in &days {
-                    for period in 1..=seed_count_config.timetable_entries_per_class_and_day {
-                        let id = generate_uuid();
-                        timetable_data.push(Timetable {
-                            id: id.clone(),
-                            class_id: class_id.clone(),
-                            day_of_week: day.to_string(),
-                            period_number: period as i32,
-                            subject_id: get_random_id(&context.subject_ids),
-                            teacher_id: get_random_id(&context.staff_ids),
-                            start_time: chrono::NaiveTime::from_hms_opt(8 + period as u32, 0, 0)
-                                .unwrap(),
-                            end_time: chrono::NaiveTime::from_hms_opt(9 + period as u32, 0, 0)
-                                .unwrap(),
-                            room: format!("Room {}", period),
-                            academic_year_id: academic_year_id.clone(),
-                            created_at: Utc::now().naive_utc(),
-                            updated_at: Utc::now().naive_utc(),
-                        });
-                        context.timetable_ids.push(id);
-                    }
+        // 10. al_stream_optional_groups & optional_subjects
+        println!("Seeding optional groups and subjects...");
+        for s_id in &context.stream_ids {
+            for i in 1..=2 {
+                let g_id = next_id(conn, IdPrefix::AL_STREAM);
+                insert_into(al_stream_optional_groups::table)
+                    .values(&(
+                        al_stream_optional_groups::id.eq(g_id.clone()),
+                        al_stream_optional_groups::stream_id.eq(s_id.clone()),
+                        al_stream_optional_groups::group_name.eq(format!("Optional Group {}", i)),
+                        al_stream_optional_groups::min_select.eq(1),
+                        al_stream_optional_groups::created_at.eq(Utc::now().naive_utc()),
+                        al_stream_optional_groups::updated_at.eq(Utc::now().naive_utc()),
+                    ))
+                    .execute(conn)?;
+                
+                for sub_id in context.subject_ids.iter().skip(5).take(2) {
+                    insert_into(al_stream_optional_subjects::table)
+                        .values(&(
+                            al_stream_optional_subjects::group_id.eq(g_id.clone()),
+                            al_stream_optional_subjects::subject_id.eq(sub_id.clone()),
+                            al_stream_optional_subjects::created_at.eq(Utc::now().naive_utc()),
+                        ))
+                        .execute(conn).ok();
                 }
             }
-            insert_into(timetable::table)
-                .values(&timetable_data)
-                .execute(conn)?;
-            println!("Seeded {} timetable entries.", timetable_data.len());
-        }
-
-        // 10. Substitutions
-        if !context.timetable_ids.is_empty() && !context.staff_ids.is_empty() {
-            let mut substitutions_data = Vec::new();
-            for i in 0..seed_count_config.substitutions {
-                substitutions_data.push(Substitution {
-                    id: generate_uuid(),
-                    original_teacher_id: get_random_id(&context.staff_ids),
-                    substitute_teacher_id: get_random_id(&context.staff_ids),
-                    timetable_id: get_random_id(&context.timetable_ids),
-                    date: NaiveDate::from_ymd_opt(2024, 2, (20 + (i as i32 % 5)) as u32).unwrap(), // Ensure date is within reasonable range
-                    status: SubstitutionStatus::Confirmed,
-                    remarks: Some("Teacher on leave".to_string()),
-                    created_at: Utc::now().naive_utc(),
-                });
-            }
-            insert_into(substitutions::table)
-                .values(&substitutions_data)
-                .execute(conn)?;
-            println!("Seeded {} substitutions.", substitutions_data.len());
         }
 
         Ok(())

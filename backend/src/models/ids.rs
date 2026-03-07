@@ -77,6 +77,8 @@ impl IdPrefix {
     pub const SCHOOL_TEST: Self = Self("stt");
     pub const REPORT_CARD: Self = Self("rcd");
     pub const MARKING_SCHEME: Self = Self("mks");
+    pub const MARKING_SCHEME_PART: Self = Self("mkp");
+    pub const ASSESSMENT: Self = Self("asm");
     pub const GRADING_SCHEME: Self = Self("gsc");
     pub const GRADING_CRITERION: Self = Self("gcr");
     pub const EXAM_TYPE: Self = Self("ext");
@@ -85,13 +87,17 @@ impl IdPrefix {
     pub const LEDGER: Self = Self("ldg");
     pub const ACCOUNT: Self = Self("acc");
     pub const BEHAVIOR: Self = Self("beh");
+    pub const SYLLABUS: Self = Self("syl");
+    pub const LESSON_PROGRESS: Self = Self("lsp");
     pub const CURRICULUM: Self = Self("cur");
     pub const APPEAL: Self = Self("apl");
     pub const ATTACHMENT: Self = Self("att");
     pub const REVIEW: Self = Self("rev");
+    pub const MATERIAL: Self = Self("mat");
     pub const TERM: Self = Self("trm");
     pub const SUBSTITUTION_PLAN: Self = Self("spl");
     pub const SUBJECT: Self = Self("sbj");
+    pub const AL_STREAM: Self = Self("als");
     pub const TIMETABLE: Self = Self("ttb");
     pub const GRADE_LEVEL: Self = Self("grl");
     pub const GRADE_PERIOD: Self = Self("grp");

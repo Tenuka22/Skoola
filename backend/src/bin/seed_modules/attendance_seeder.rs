@@ -3,20 +3,15 @@ use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
 use backend::database::enums::{
-    AttendanceStatus, DetailedStatus, EmergencyStatus, ExitReason, PolicyRuleType,
-    PreApprovedReason, SuspicionFlag,
+    AttendanceStatus, PolicyRuleType,
+    ConsequenceType, EmergencyStatus, ExitReason, PreApprovedReason, ExcuseType, AttendanceDiscrepancyType, SeverityLevel
 };
-use backend::models::staff::attendance::StaffAttendance;
-use backend::models::student::attendance::{
-    AttendanceAuditLog, AttendancePolicy, EmergencyRollCall, EmergencyRollCallEntry, ExitPass,
-    PreApprovedAbsence, StudentAttendance, StudentPeriodAttendance,
-};
+use backend::models::student::attendance::StudentAttendance;
+use backend::models::ids::IdPrefix;
 use backend::schema::*;
-use chrono::{NaiveDate, NaiveTime, Utc};
+use chrono::Utc;
 use diesel::insert_into;
 use diesel::prelude::*;
-use rand::Rng;
-use rand::seq::SliceRandom;
 use std::collections::HashSet;
 
 pub struct AttendanceSeeder;
@@ -35,280 +30,161 @@ impl SeedModule for AttendanceSeeder {
         _password_hash: &str,
         _used_emails: &mut HashSet<String>,
         context: &mut SeederContext,
-        seed_count_config: &crate::SeedCountConfig, // Add SeedCountConfig here
+        _seed_count_config: &crate::SeedCountConfig,
     ) -> Result<()> {
         println!("Seeding Attendance module...");
 
-        let mut rng = rand::thread_rng();
-
-        // 1. Attendance Policies
-        // Keeping hardcoded for now as these are usually fixed types
-        let attendance_policies_data = vec![
-            AttendancePolicy {
-                id: generate_uuid(),
-                name: "Late Policy".to_string(),
-                rule_type: PolicyRuleType::TotalLate,
-                threshold: 3,
-                consequence_type: "Warning".to_string(),
-                consequence_value: Some(1.0),
-                is_active: true,
-            },
-            AttendancePolicy {
-                id: generate_uuid(),
-                name: "Absent Policy".to_string(),
-                rule_type: PolicyRuleType::UnexcusedAbsent,
-                threshold: 5,
-                consequence_type: "Suspension".to_string(),
-                consequence_value: Some(1.0),
-                is_active: true,
-            },
-        ];
+        // 1. attendance_policies
+        println!("Seeding attendance_policies...");
         insert_into(attendance_policies::table)
-            .values(&attendance_policies_data)
+            .values(&(
+                attendance_policies::id.eq(next_id(conn, IdPrefix::ATTENDANCE)),
+                attendance_policies::name.eq("Standard Absence Policy"),
+                attendance_policies::rule_type.eq(PolicyRuleType::UnexcusedAbsent),
+                attendance_policies::threshold.eq(5),
+                attendance_policies::consequence_type.eq(ConsequenceType::Notification),
+                attendance_policies::is_active.eq(true),
+            ))
             .execute(conn)?;
-        println!(
-            "Seeded {} attendance policies.",
-            attendance_policies_data.len()
-        );
 
-        // 2. Student Attendance
-        if !context.student_ids.is_empty()
-            && !context.class_ids.is_empty()
-            && !context.user_ids.is_empty()
-        {
-            let mut student_attendance_data = Vec::new();
-            for i in 0..seed_count_config.student_attendance_entries {
-                let date = NaiveDate::from_ymd_opt(2024, 2, (i as u32 % 28) + 1).unwrap();
-                student_attendance_data.push(StudentAttendance {
-                    id: generate_uuid(),
-                    student_id: get_random_id(&context.student_ids),
-                    class_id: get_random_id(&context.class_ids),
-                    date,
-                    status: if rng.gen_bool(0.9) {
-                        AttendanceStatus::Present
-                    } else {
-                        AttendanceStatus::Absent
-                    },
-                    marked_by: get_random_id(&context.user_ids),
-                    remarks: None,
-                    created_at: Utc::now().naive_utc(),
-                    updated_at: Utc::now().naive_utc(),
-                    is_locked: false,
-                });
-            }
+        // 2. student_attendance
+        println!("Seeding student_attendance...");
+        let mut att_ids = Vec::new();
+        for (i, stu_id) in context.student_ids.iter().take(1000).enumerate() {
+            let id = next_id(conn, IdPrefix::ATTENDANCE);
+            att_ids.push(id.clone());
+            let class_id = &context.class_ids[i % context.class_ids.len()];
             insert_into(student_attendance::table)
-                .values(&student_attendance_data)
-                .execute(conn)?;
-            println!(
-                "Seeded {} student attendance entries.",
-                student_attendance_data.len()
-            );
-        }
-
-        // 3. Student Period Attendance
-        if !context.student_ids.is_empty()
-            && !context.class_ids.is_empty()
-            && !context.timetable_ids.is_empty()
-            && !context.user_ids.is_empty()
-        {
-            let mut period_attendance_data = Vec::new();
-            for i in 0..seed_count_config.student_period_attendance_entries {
-                let date = NaiveDate::from_ymd_opt(2024, 2, (i as u32 % 28) + 1).unwrap();
-                period_attendance_data.push(StudentPeriodAttendance {
-                    id: generate_uuid(),
-                    student_id: get_random_id(&context.student_ids),
-                    class_id: get_random_id(&context.class_ids),
-                    timetable_id: get_random_id(&context.timetable_ids),
-                    date,
-                    status: if rng.gen_bool(0.9) {
-                        AttendanceStatus::Present
-                    } else {
-                        AttendanceStatus::Late
-                    },
-                    minutes_late: if rng.gen_bool(0.1) {
-                        Some(rng.gen_range(5..=30))
-                    } else {
-                        Some(0)
-                    },
-                    remarks: None,
-                    is_locked: false,
-                    marked_by: get_random_id(&context.user_ids),
-                    created_at: Utc::now().naive_utc(),
-                    updated_at: Utc::now().naive_utc(),
-                    suspicion_flag: Some(SuspicionFlag::None),
-                    detailed_status: Some(DetailedStatus::Normal),
-                });
-            }
-            insert_into(student_period_attendance::table)
-                .values(&period_attendance_data)
-                .execute(conn)?;
-            println!(
-                "Seeded {} student period attendance entries.",
-                period_attendance_data.len()
-            );
-        }
-
-        // 4. Staff Attendance
-        if !context.staff_ids.is_empty() && !context.user_ids.is_empty() {
-            let mut staff_attendance_data = Vec::new();
-            for i in 0..seed_count_config.staff_attendance_entries {
-                let date = NaiveDate::from_ymd_opt(2024, 2, (i as u32 % 28) + 1).unwrap();
-                staff_attendance_data.push(StaffAttendance {
-                    id: generate_uuid(),
-                    staff_id: get_random_id(&context.staff_ids),
-                    date,
+                .values(&StudentAttendance {
+                    id,
+                    student_id: stu_id.clone(),
+                    class_id: class_id.clone(),
+                    date: Utc::now().date_naive(),
                     status: AttendanceStatus::Present,
-                    time_in: Some(NaiveTime::from_hms_opt(8, rng.gen_range(0..=15), 0).unwrap()),
-                    time_out: Some(NaiveTime::from_hms_opt(16, rng.gen_range(0..=30), 0).unwrap()),
+                    marked_by: get_random_id(&context.user_ids),
                     remarks: None,
                     created_at: Utc::now().naive_utc(),
                     updated_at: Utc::now().naive_utc(),
                     is_locked: false,
-                    marked_by: Some(get_random_id(&context.user_ids)),
-                });
-            }
-            insert_into(staff_attendance::table)
-                .values(&staff_attendance_data)
+                })
                 .execute(conn)?;
-            println!(
-                "Seeded {} staff attendance entries.",
-                staff_attendance_data.len()
-            );
         }
 
-        // 5. Exit Passes
-        if !context.student_ids.is_empty() && !context.user_ids.is_empty() {
-            let mut exit_passes_data = Vec::new();
-            for i in 0..seed_count_config.exit_passes {
-                exit_passes_data.push(ExitPass {
-                    id: generate_uuid(),
-                    student_id: get_random_id(&context.student_ids),
-                    date: NaiveDate::from_ymd_opt(2024, 2, (i as u32 % 28) + 1).unwrap(),
-                    exit_time: NaiveTime::from_hms_opt(14, rng.gen_range(0..=59), 0).unwrap(),
-                    reason_type: vec![
-                        ExitReason::Medical,
-                        ExitReason::Personal,
-                        ExitReason::Disciplinary,
-                        ExitReason::Dismissal,
-                    ]
-                    .choose(&mut rng)
-                    .unwrap()
-                    .clone(),
-                    remarks: Some(format!("Exit reason {}", i)),
-                    approved_by: get_random_id(&context.user_ids),
-                    guardian_notified: rng.gen_bool(0.8),
-                    gate_cleared_at: Some(Utc::now().naive_utc()),
-                    created_at: Utc::now().naive_utc(),
-                });
-            }
-            insert_into(exit_passes::table)
-                .values(&exit_passes_data)
+        // 2.1 attendance_excuses
+        println!("Seeding attendance_excuses...");
+        for att_id in att_ids.iter().take(100) {
+            insert_into(attendance_excuses::table)
+                .values(&(
+                    attendance_excuses::id.eq(next_id(conn, IdPrefix::ATTENDANCE)),
+                    attendance_excuses::attendance_record_id.eq(att_id.clone()),
+                    attendance_excuses::excuse_type.eq(ExcuseType::Medical),
+                    attendance_excuses::document_url.eq(Some("http://example.com/medical_cert.pdf")),
+                    attendance_excuses::is_verified.eq(true),
+                    attendance_excuses::verified_by.eq(Some(get_random_id(&context.user_ids))),
+                    attendance_excuses::created_at.eq(Utc::now().naive_utc()),
+                ))
                 .execute(conn)?;
-            println!("Seeded {} exit passes.", exit_passes_data.len());
         }
 
-        // 6. Pre-approved Absences
-        if !context.student_ids.is_empty() && !context.user_ids.is_empty() {
-            let mut pre_approved_data = Vec::new();
-            for i in 0..seed_count_config.pre_approved_absences {
-                let start_date =
-                    NaiveDate::from_ymd_opt(2024, rng.gen_range(1..=12), rng.gen_range(1..=28))
-                        .unwrap();
-                let end_date = start_date + chrono::Duration::days(rng.gen_range(1..=5));
-                pre_approved_data.push(PreApprovedAbsence {
-                    id: generate_uuid(),
-                    student_id: get_random_id(&context.student_ids),
-                    start_date,
-                    end_date,
-                    reason_type: vec![
-                        PreApprovedReason::FamilyEvent,
-                        PreApprovedReason::Sick,
-                        PreApprovedReason::Other,
-                    ]
-                    .choose(&mut rng)
-                    .unwrap()
-                    .clone(),
-                    remarks: Some(format!("Pre-approved absence {}", i)),
-                    approved_by: get_random_id(&context.user_ids),
-                    document_url: None,
-                    created_at: Utc::now().naive_utc(),
-                    updated_at: Utc::now().naive_utc(),
-                });
-            }
-            insert_into(pre_approved_absences::table)
-                .values(&pre_approved_data)
+        // 3. activities
+        println!("Seeding activities...");
+        for i in 0..50 {
+            let id = next_id(conn, IdPrefix::ACTIVITY);
+            insert_into(activities::table)
+                .values(&(
+                    activities::id.eq(id.clone()),
+                    activities::activity_type_id.eq(get_random_id(&context.activity_type_ids)),
+                    activities::name.eq(format!("Activity {}", i)),
+                    activities::start_time.eq(Utc::now().naive_utc()),
+                    activities::end_time.eq(Utc::now().naive_utc()),
+                    activities::academic_year_id.eq(&context.academic_year_ids[0]),
+                    activities::created_by.eq(get_random_id(&context.user_ids)),
+                    activities::created_at.eq(Utc::now().naive_utc()),
+                    activities::updated_at.eq(Utc::now().naive_utc()),
+                ))
                 .execute(conn)?;
-            println!("Seeded {} pre-approved absences.", pre_approved_data.len());
+            context.activity_ids.push(id);
         }
 
-        // 7. Emergency Roll Calls
-        if !context.user_ids.is_empty() {
-            for _ in 0..seed_count_config.emergency_roll_calls {
-                let roll_call_id = generate_uuid();
-                let roll_call = EmergencyRollCall {
-                    id: roll_call_id.clone(),
-                    event_name: format!("Emergency Drill {}", generate_uuid()),
-                    start_time: Utc::now().naive_utc()
-                        - chrono::Duration::minutes(rng.gen_range(10..=60)),
-                    end_time: Some(Utc::now().naive_utc()),
-                    initiated_by: get_random_id(&context.user_ids),
-                    status: "Safe".to_string(),
-                    created_at: Utc::now().naive_utc(),
-                };
-                insert_into(emergency_roll_calls::table)
-                    .values(&roll_call)
-                    .execute(conn)?;
+        // 4. emergency_roll_calls
+        println!("Seeding emergency_roll_calls...");
+        for i in 0..5 {
+            let rc_id = next_id(conn, IdPrefix::ATTENDANCE);
+            insert_into(emergency_roll_calls::table)
+                .values(&(
+                    emergency_roll_calls::id.eq(rc_id.clone()),
+                    emergency_roll_calls::event_name.eq(format!("Fire Drill {}", i)),
+                    emergency_roll_calls::start_time.eq(Utc::now().naive_utc()),
+                    emergency_roll_calls::initiated_by.eq(get_random_id(&context.user_ids)),
+                    emergency_roll_calls::status.eq(EmergencyStatus::Safe),
+                    emergency_roll_calls::created_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
 
-                let mut entries = Vec::new();
-                for _ in 0..seed_count_config.emergency_roll_call_entries_per_roll_call {
-                    entries.push(EmergencyRollCallEntry {
-                        roll_call_id: roll_call_id.clone(),
-                        user_id: get_random_id(&context.user_ids),
-                        status: vec![
-                            EmergencyStatus::Safe,
-                            EmergencyStatus::Missing,
-                            EmergencyStatus::Injured,
-                        ]
-                        .choose(&mut rng)
-                        .unwrap()
-                        .clone(),
-                        location_found: Some("Assembly Point".to_string()),
-                        marked_at: Some(Utc::now().naive_utc()),
-                    });
-                }
+            for u_id in context.user_ids.iter().take(50) {
                 insert_into(emergency_roll_call_entries::table)
-                    .values(&entries)
+                    .values(&(
+                        emergency_roll_call_entries::roll_call_id.eq(rc_id.clone()),
+                        emergency_roll_call_entries::user_id.eq(u_id.clone()),
+                        emergency_roll_call_entries::status.eq(EmergencyStatus::Safe),
+                    ))
                     .execute(conn)?;
-                println!(
-                    "Seeded 1 emergency roll call and {} entries.",
-                    entries.len()
-                );
             }
         }
 
-        // 8. Attendance Audit Log
-        if !context.user_ids.is_empty() {
-            let mut audit_logs = Vec::new();
-            for i in 0..seed_count_config.attendance_audit_logs {
-                audit_logs.push(AttendanceAuditLog {
-                    id: generate_uuid(),
-                    attendance_type: if rng.gen_bool(0.5) {
-                        "Student".to_string()
-                    } else {
-                        "Staff".to_string()
-                    },
-                    attendance_record_id: generate_uuid(), // This would typically be a real ID from StudentAttendance or StaffAttendance
-                    old_status: Some("Absent".to_string()),
-                    new_status: "Present".to_string(),
-                    change_reason: format!("Mistake in marking {}", i),
-                    changed_by: get_random_id(&context.user_ids),
-                    changed_at: Utc::now().naive_utc(),
-                });
-            }
-            insert_into(attendance_audit_log::table)
-                .values(&audit_logs)
+        // 5. staff_attendance
+        println!("Seeding staff_attendance...");
+        for s_id in &context.staff_ids {
+            insert_into(staff_attendance::table)
+                .values(&(
+                    staff_attendance::id.eq(next_id(conn, IdPrefix::ATTENDANCE)),
+                    staff_attendance::staff_id.eq(s_id.clone()),
+                    staff_attendance::date.eq(Utc::now().date_naive()),
+                    staff_attendance::status.eq(AttendanceStatus::Present),
+                    staff_attendance::created_at.eq(Utc::now().naive_utc()),
+                    staff_attendance::updated_at.eq(Utc::now().naive_utc()),
+                ))
                 .execute(conn)?;
-            println!("Seeded {} attendance audit log entries.", audit_logs.len());
+        }
+
+        // 6. exit_passes & pre_approved_absences
+        println!("Seeding exit passes and absences...");
+        for stu_id in context.student_ids.iter().take(100) {
+            insert_into(exit_passes::table)
+                .values(&(
+                    exit_passes::id.eq(next_id(conn, IdPrefix::ATTENDANCE)),
+                    exit_passes::student_id.eq(stu_id.clone()),
+                    exit_passes::date.eq(Utc::now().date_naive()),
+                    exit_passes::exit_time.eq(Utc::now().time()),
+                    exit_passes::reason_type.eq(ExitReason::Medical),
+                    exit_passes::approved_by.eq(get_random_id(&context.user_ids)),
+                    exit_passes::created_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+
+            insert_into(pre_approved_absences::table)
+                .values(&(
+                    pre_approved_absences::id.eq(next_id(conn, IdPrefix::ATTENDANCE)),
+                    pre_approved_absences::student_id.eq(stu_id.clone()),
+                    pre_approved_absences::start_date.eq(Utc::now().date_naive()),
+                    pre_approved_absences::end_date.eq(Utc::now().date_naive()),
+                    pre_approved_absences::reason_type.eq(PreApprovedReason::FamilyEvent),
+                    pre_approved_absences::approved_by.eq(get_random_id(&context.user_ids)),
+                    pre_approved_absences::created_at.eq(Utc::now().naive_utc()),
+                    pre_approved_absences::updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+
+            insert_into(attendance_discrepancies::table)
+                .values(&(
+                    attendance_discrepancies::id.eq(next_id(conn, IdPrefix::ATTENDANCE)),
+                    attendance_discrepancies::student_id.eq(stu_id.clone()),
+                    attendance_discrepancies::date.eq(Utc::now().date_naive()),
+                    attendance_discrepancies::discrepancy_type.eq("PeriodMismatch"),
+                    attendance_discrepancies::severity.eq("Medium"),
+                    attendance_discrepancies::created_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
         }
 
         Ok(())

@@ -2,29 +2,20 @@ use super::utils::*;
 use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
-use backend::database::enums::{ComponentType, FeeFrequency, PaymentMethod, TransactionType};
+use backend::database::enums::{
+    FeeFrequency, FeeAmountType, FeeTypeEnum, AccountTypeEnum, NormalBalanceType, PaymentMethod, PaymentStatusType,
+    TransactionType
+};
+use backend::models::finance::account::ChartOfAccount;
+use backend::models::finance::budget_category::BudgetCategory;
+use backend::models::finance::budget::Budget;
+use backend::models::finance::fees::{FeeCategory, FeeStructure, FeeStructurePricing, FeeStructureSchedule, StudentFee, FeePayment, FeePaymentDetail};
+use backend::models::ids::IdPrefix;
 use backend::schema::*;
+use chrono::{Utc, NaiveDate};
 use diesel::insert_into;
 use diesel::prelude::*;
-use rand::seq::SliceRandom;
 use std::collections::HashSet;
-
-use backend::models::finance::account::ChartOfAccount;
-use backend::models::finance::budget::Budget;
-use backend::models::finance::budget_category::BudgetCategory;
-use backend::models::finance::expense_category::ExpenseCategory;
-use backend::models::finance::fees::FeeCategory;
-use backend::models::finance::fees::FeePayment;
-use backend::models::finance::fees::FeeStructure;
-use backend::models::finance::fees::StudentFee;
-use backend::models::finance::income_source::IncomeSource;
-use backend::models::finance::ledger::GeneralLedgerEntry; // Corrected import
-use backend::models::finance::petty_cash_transaction::PettyCashTransaction;
-use backend::models::finance::salary::SalaryComponent;
-use backend::models::finance::salary::SalaryPayment;
-use backend::models::finance::salary::StaffSalary;
-use backend::models::finance::transaction::ExpenseTransaction;
-use backend::models::finance::transaction::IncomeTransaction;
 use rand::Rng;
 
 pub struct FinanceSeeder;
@@ -43,494 +34,388 @@ impl SeedModule for FinanceSeeder {
         _password_hash: &str,
         _used_emails: &mut HashSet<String>,
         context: &mut SeederContext,
-        seed_count_config: &crate::SeedCountConfig, // Add SeedCountConfig here
+        _seed_count_config: &crate::SeedCountConfig,
     ) -> Result<()> {
         println!("Seeding Finance module...");
 
         let mut rng = rand::thread_rng();
 
-        // Seed Chart of Accounts (base accounts)
-        let base_chart_of_accounts = vec![
-            ("1000", "Cash", "Asset", "Debit"),
-            ("1010", "Bank", "Asset", "Debit"),
-            ("2000", "Accounts Payable", "Liability", "Credit"),
-            ("3000", "Revenue", "Income", "Credit"),
-            ("4000", "Expenses", "Expense", "Debit"),
-        ];
-        let chart_of_accounts_data: Vec<ChartOfAccount> = (0..seed_count_config.chart_of_accounts)
-            .map(|i| {
-                let (code_prefix, name_prefix, type_prefix, balance_prefix) =
-                    base_chart_of_accounts[i % base_chart_of_accounts.len()];
-                let account_code = format!(
-                    "{}{:03}",
-                    code_prefix.chars().take(2).collect::<String>(),
-                    i + 1
-                );
-                let account_name = format!("{} Account {}", name_prefix, i + 1);
-                ChartOfAccount {
-                    id: generate_uuid(),
-                    account_code,
-                    account_name,
-                    account_type: type_prefix.to_string(),
-                    normal_balance: balance_prefix.to_string(),
+        // 1. chart_of_accounts
+        println!("Seeding chart_of_accounts...");
+        let mut coa_list = Vec::new();
+        for i in 0..200 {
+            let id = next_id(conn, IdPrefix::ACCOUNT);
+            coa_list.push(ChartOfAccount {
+                id: id.clone(),
+                account_code: format!("ACC-{:04}", i),
+                account_name: format!("Account {}", i),
+                account_type: if i % 2 == 0 { AccountTypeEnum::Asset } else { AccountTypeEnum::Expense },
+                normal_balance: if i % 2 == 0 { NormalBalanceType::Debit } else { NormalBalanceType::Credit },
+                description: None,
+                parent_account_id: None,
+                is_active: true,
+                created_at: Utc::now().naive_utc(),
+                updated_at: Utc::now().naive_utc(),
+                currency: "LKR".to_string(),
+            });
+            context.chart_of_account_ids.push(id);
+        }
+        insert_into(chart_of_accounts::table).values(&coa_list).execute(conn)?;
+
+        // 2. budget_categories & budgets
+        println!("Seeding budgets...");
+        for i in 0..50 {
+            let cat_id = next_id(conn, IdPrefix::FINANCIAL);
+            insert_into(budget_categories::table)
+                .values(&BudgetCategory {
+                    id: cat_id.clone(),
+                    name: format!("Budget Cat {}", i),
                     description: None,
-                    parent_account_id: None,
-                    is_active: true,
-                    created_at: random_datetime_in_past(3),
-                    updated_at: random_datetime_in_past(2),
-                }
-            })
-            .collect();
-
-        insert_into(chart_of_accounts::table)
-            .values(&chart_of_accounts_data)
-            .execute(conn)?;
-        context.chart_of_account_ids = chart_of_accounts_data
-            .into_iter()
-            .map(|coa| coa.id)
-            .collect();
-        println!(
-            "Seeded {} chart of accounts.",
-            context.chart_of_account_ids.len()
-        );
-
-        // Seed Budget Categories
-        let budget_categories_data = (0..seed_count_config.budget_categories)
-            .map(|i| BudgetCategory {
-                id: generate_uuid(),
-                name: format!("Budget Category {}", i + 1),
-                description: Some(format!("Description for Budget Category {}", i + 1)),
-                created_at: random_datetime_in_past(2),
-                updated_at: random_datetime_in_past(1),
-            })
-            .collect::<Vec<BudgetCategory>>();
-
-        insert_into(budget_categories::table)
-            .values(&budget_categories_data)
-            .execute(conn)?;
-        context.budget_category_ids = budget_categories_data.into_iter().map(|bc| bc.id).collect();
-        println!(
-            "Seeded {} budget categories.",
-            context.budget_category_ids.len()
-        );
-
-        // Seed Budgets
-        if context.academic_year_ids.is_empty() || context.budget_category_ids.is_empty() {
-            println!(
-                "Skipping Budget seeding: academic_year_ids or budget_category_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let budgets_data = (0..seed_count_config.budgets)
-                .map(|_| Budget {
-                    id: generate_uuid(),
-                    academic_year_id: get_random_id(&context.academic_year_ids),
-                    category_id: get_random_id(&context.budget_category_ids),
-                    allocated_amount: rng.gen_range(1000.0..=10000.0),
-                    spent_amount: rng.gen_range(0.0..=5000.0),
-                    created_at: random_datetime_in_past(1),
-                    updated_at: random_datetime_in_past(0),
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
                 })
-                .collect::<Vec<Budget>>();
-
-            insert_into(budgets::table)
-                .values(&budgets_data)
                 .execute(conn)?;
-            println!("Seeded {} budgets.", budgets_data.len());
+            
+            insert_into(budgets::table)
+                .values(&Budget {
+                    id: next_id(conn, IdPrefix::FINANCIAL),
+                    academic_year_id: context.academic_year_ids[0].clone(),
+                    category_id: cat_id,
+                    allocated_amount: 50000.0,
+                    spent_amount: 1000.0,
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                })
+                .execute(conn)?;
         }
 
-        // Seed Income Sources
-        let income_sources_data = (0..seed_count_config.income_sources)
-            .map(|i| IncomeSource {
-                id: generate_uuid(),
-                name: format!("Income Source {}", i + 1),
-                description: Some(format!("Description for Income Source {}", i + 1)),
-                created_at: random_datetime_in_past(2),
-                updated_at: random_datetime_in_past(1),
-            })
-            .collect::<Vec<IncomeSource>>();
-
-        insert_into(income_sources::table)
-            .values(&income_sources_data)
-            .execute(conn)?;
-        context.income_source_ids = income_sources_data.into_iter().map(|is| is.id).collect();
-        println!("Seeded {} income sources.", context.income_source_ids.len());
-
-        // Seed Income Transactions
-        if context.income_source_ids.is_empty() || context.staff_ids.is_empty() {
-            println!(
-                "Skipping IncomeTransaction seeding: income_source_ids or staff_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let income_transactions_data = (0..seed_count_config.income_transactions)
-                .map(|i| IncomeTransaction {
-                    id: generate_uuid(),
-                    source_id: get_random_id(&context.income_source_ids),
-                    amount: rng.gen_range(500.0..=5000.0),
-                    date: random_datetime_in_past(1),
-                    description: Some(format!("Income transaction {}", i + 1)),
-                    received_by: get_random_id(&context.staff_ids),
-                    receipt_number: format!("INC-REC-{}", i + 1),
-                    created_at: random_datetime_in_past(1),
-                    updated_at: random_datetime_in_past(0),
+        // 3. fee_categories, structures, pricing, schedule, items
+        println!("Seeding fee structures...");
+        let mut fee_structure_ids = Vec::new();
+        let mut fee_structure_item_ids = Vec::new();
+        for i in 0..20 {
+            let cat_id = next_id(conn, IdPrefix::FEE);
+            insert_into(fee_categories::table)
+                .values(&FeeCategory {
+                    id: cat_id.clone(),
+                    name: format!("Fee Category {}", i),
+                    description: None,
+                    is_mandatory: true,
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
                 })
-                .collect::<Vec<IncomeTransaction>>();
+                .execute(conn)?;
+
+            for gl_id in context.grade_level_ids.iter().take(5) {
+                let fs_id = next_id(conn, IdPrefix::FEE);
+                insert_into(fee_structures::table)
+                    .values(&FeeStructure {
+                        id: fs_id.clone(),
+                        grade_id: gl_id.clone(),
+                        academic_year_id: context.academic_year_ids[0].clone(),
+                        category_id: cat_id.clone(),
+                        created_at: Utc::now().naive_utc(),
+                        updated_at: Utc::now().naive_utc(),
+                    })
+                    .execute(conn)?;
+
+                insert_into(fee_structure_pricing::table)
+                    .values(&FeeStructurePricing {
+                        fee_structure_id: fs_id.clone(),
+                        amount: 1000.0,
+                        currency: "LKR".to_string(),
+                        amount_type: FeeAmountType::Fixed,
+                        created_at: Utc::now().naive_utc(),
+                        updated_at: Utc::now().naive_utc(),
+                    })
+                    .execute(conn)?;
+
+                insert_into(fee_structure_schedule::table)
+                    .values(&FeeStructureSchedule {
+                        fee_structure_id: fs_id.clone(),
+                        due_date: None,
+                        frequency: FeeFrequency::Monthly,
+                        fee_type: FeeTypeEnum::Recurring,
+                        effective_from: None,
+                        effective_to: None,
+                        due_day_of_month: Some(5),
+                        is_refundable: false,
+                        late_fee_type: None,
+                        late_fee_value: None,
+                        is_active: true,
+                        created_at: Utc::now().naive_utc(),
+                        updated_at: Utc::now().naive_utc(),
+                    })
+                    .execute(conn)?;
+
+                // 3.1 fee_structure_items
+                for j in 0..3 {
+                    let fsi_id = next_id(conn, IdPrefix::FEE);
+                    insert_into(fee_structure_items::table)
+                        .values(&(
+                            fee_structure_items::id.eq(fsi_id.clone()),
+                            fee_structure_items::fee_structure_id.eq(fs_id.clone()),
+                            fee_structure_items::item_name.eq(format!("Item {}", j)),
+                            fee_structure_items::amount.eq(333.33),
+                            fee_structure_items::is_optional.eq(false),
+                            fee_structure_items::order_index.eq(j as i32),
+                            fee_structure_items::created_at.eq(Utc::now().naive_utc()),
+                            fee_structure_items::updated_at.eq(Utc::now().naive_utc()),
+                        ))
+                        .execute(conn)?;
+                    fee_structure_item_ids.push(fsi_id);
+                }
+
+                fee_structure_ids.push(fs_id);
+            }
+        }
+
+        // 4. student_fees, fee_payments, allocations, invoices
+        println!("Seeding student fees, payments and invoices...");
+        for (i, stu_id) in context.student_ids.iter().take(500).enumerate() {
+            let fs_id = &fee_structure_ids[i % fee_structure_ids.len()];
+            let sf_id = next_id(conn, IdPrefix::FEE);
+            insert_into(student_fees::table)
+                .values(&StudentFee {
+                    id: sf_id.clone(),
+                    student_id: stu_id.clone(),
+                    fee_structure_id: fs_id.clone(),
+                    amount: 1000.0,
+                    is_exempted: false,
+                    exemption_reason: None,
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                })
+                .execute(conn)?;
+
+            let inv_id = next_id(conn, IdPrefix::FEE);
+            insert_into(fee_invoices::table)
+                .values(&(
+                    fee_invoices::id.eq(inv_id.clone()),
+                    fee_invoices::student_id.eq(stu_id.clone()),
+                    fee_invoices::academic_year_id.eq(context.academic_year_ids[0].clone()),
+                    fee_invoices::status.eq("Paid"),
+                    fee_invoices::total_amount.eq(1000.0),
+                    fee_invoices::balance_amount.eq(0.0),
+                    fee_invoices::created_at.eq(Utc::now().naive_utc()),
+                    fee_invoices::updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+
+            insert_into(fee_invoice_items::table)
+                .values(&(
+                    fee_invoice_items::id.eq(next_id(conn, IdPrefix::FEE)),
+                    fee_invoice_items::invoice_id.eq(inv_id.clone()),
+                    fee_invoice_items::description.eq("Tuition Fee"),
+                    fee_invoice_items::quantity.eq(1.0),
+                    fee_invoice_items::unit_amount.eq(1000.0),
+                    fee_invoice_items::total_amount.eq(1000.0),
+                    fee_invoice_items::created_at.eq(Utc::now().naive_utc()),
+                    fee_invoice_items::updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+
+            let p_id = next_id(conn, IdPrefix::FEE);
+            insert_into(fee_payments::table)
+                .values(&FeePayment {
+                    id: p_id.clone(),
+                    student_fee_id: sf_id,
+                    amount_paid: 1000.0,
+                    payment_date: Utc::now().naive_utc(),
+                    collected_by: get_random_id(&context.staff_ids),
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                })
+                .execute(conn)?;
+
+            insert_into(fee_payment_details::table)
+                .values(&FeePaymentDetail {
+                    payment_id: p_id.clone(),
+                    payment_method: PaymentMethod::Cash,
+                    payment_channel: None,
+                    payment_status: PaymentStatusType::Completed,
+                    receipt_number: format!("REC-{:06}", i),
+                    transaction_reference: None,
+                    remarks: None,
+                    recorded_by: Some(get_random_id(&context.user_ids)),
+                    created_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                })
+                .execute(conn)?;
+
+            insert_into(fee_payment_allocations::table)
+                .values(&(
+                    fee_payment_allocations::id.eq(next_id(conn, IdPrefix::FEE)),
+                    fee_payment_allocations::payment_id.eq(p_id),
+                    fee_payment_allocations::invoice_id.eq(inv_id),
+                    fee_payment_allocations::amount.eq(1000.0),
+                    fee_payment_allocations::created_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+        }
+
+        // 5. vendors & purchase_orders
+        println!("Seeding vendors and purchase orders...");
+        let mut vendor_ids = Vec::new();
+        for i in 0..50 {
+            let id = next_id(conn, IdPrefix::PROPERTY);
+            insert_into(vendors::table)
+                .values(&(
+                    vendors::id.eq(id.clone()),
+                    vendors::name.eq(format!("Vendor {}", i)),
+                    vendors::created_at.eq(Utc::now().naive_utc()),
+                    vendors::updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+            vendor_ids.push(id);
+        }
+
+        for i in 0..100 {
+            let po_id = next_id(conn, IdPrefix::PROPERTY);
+            insert_into(purchase_orders::table)
+                .values(&(
+                    purchase_orders::id.eq(po_id.clone()),
+                    purchase_orders::vendor_id.eq(get_random_id(&vendor_ids)),
+                    purchase_orders::order_date.eq(Utc::now().date_naive()),
+                    purchase_orders::status.eq("Draft"),
+                    purchase_orders::total_amount.eq(5000.0),
+                    purchase_orders::created_by.eq(get_random_id(&context.user_ids)),
+                    purchase_orders::created_at.eq(Utc::now().naive_utc()),
+                    purchase_orders::updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+            
+            insert_into(purchase_order_items::table)
+                .values(&(
+                    purchase_order_items::id.eq(next_id(conn, IdPrefix::PROPERTY)),
+                    purchase_order_items::purchase_order_id.eq(po_id),
+                    purchase_order_items::item_name.eq("Whiteboard Markers"),
+                    purchase_order_items::quantity.eq(10.0),
+                    purchase_order_items::unit_price.eq(500.0),
+                    purchase_order_items::total_price.eq(5000.0),
+                    purchase_order_items::created_at.eq(Utc::now().naive_utc()),
+                    purchase_order_items::updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+        }
+
+        // 6. ledger_transactions & entries
+        println!("Seeding ledger...");
+        for i in 0..200 {
+            let tx_id = next_id(conn, IdPrefix::LEDGER);
+            insert_into(ledger_transactions::table)
+                .values(&(
+                    ledger_transactions::id.eq(tx_id.clone()),
+                    ledger_transactions::transaction_date.eq(Utc::now().naive_utc()),
+                    ledger_transactions::description.eq(format!("Transaction {}", i)),
+                    ledger_transactions::created_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+
+            insert_into(ledger_entries::table)
+                .values(&(
+                    ledger_entries::id.eq(next_id(conn, IdPrefix::LEDGER)),
+                    ledger_entries::transaction_id.eq(tx_id.clone()),
+                    ledger_entries::account_id.eq(get_random_id(&context.chart_of_account_ids)),
+                    ledger_entries::entry_type.eq("Debit"),
+                    ledger_entries::amount.eq(1000.0),
+                    ledger_entries::created_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+
+            insert_into(ledger_entries::table)
+                .values(&(
+                    ledger_entries::id.eq(next_id(conn, IdPrefix::LEDGER)),
+                    ledger_entries::transaction_id.eq(tx_id),
+                    ledger_entries::account_id.eq(get_random_id(&context.chart_of_account_ids)),
+                    ledger_entries::entry_type.eq("Credit"),
+                    ledger_entries::amount.eq(1000.0),
+                    ledger_entries::created_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
+        }
+
+        // 7. income & expenses
+        println!("Seeding income and expenses...");
+        for i in 0..50 {
+            let inc_src_id = next_id(conn, IdPrefix::FINANCIAL);
+            insert_into(income_sources::table)
+                .values(&(
+                    income_sources::id.eq(inc_src_id.clone()),
+                    income_sources::name.eq(format!("Income Source {}", i)),
+                    income_sources::created_at.eq(Utc::now().naive_utc()),
+                    income_sources::updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
 
             insert_into(income_transactions::table)
-                .values(&income_transactions_data)
+                .values(&(
+                    income_transactions::id.eq(next_id(conn, IdPrefix::FINANCIAL)),
+                    income_transactions::source_id.eq(inc_src_id),
+                    income_transactions::amount.eq(2000.0),
+                    income_transactions::date.eq(Utc::now().naive_utc()),
+                    income_transactions::received_by.eq(get_random_id(&context.staff_ids)),
+                    income_transactions::receipt_number.eq(format!("INC-{:06}", i)),
+                    income_transactions::created_at.eq(Utc::now().naive_utc()),
+                    income_transactions::updated_at.eq(Utc::now().naive_utc()),
+                ))
                 .execute(conn)?;
-            println!(
-                "Seeded {} income transactions.",
-                income_transactions_data.len()
-            );
-        }
 
-        // Seed Expense Categories
-        let expense_categories_data = (0..seed_count_config.expense_categories)
-            .map(|i| ExpenseCategory {
-                id: generate_uuid(),
-                name: format!("Expense Category {}", i + 1),
-                description: Some(format!("Description for Expense Category {}", i + 1)),
-                created_at: random_datetime_in_past(2),
-                updated_at: random_datetime_in_past(1),
-            })
-            .collect::<Vec<ExpenseCategory>>();
-
-        insert_into(expense_categories::table)
-            .values(&expense_categories_data)
-            .execute(conn)?;
-        context.expense_category_ids = expense_categories_data
-            .into_iter()
-            .map(|ec| ec.id)
-            .collect();
-        println!(
-            "Seeded {} expense categories.",
-            context.expense_category_ids.len()
-        );
-
-        // Seed Expense Transactions
-        if context.expense_category_ids.is_empty() || context.staff_ids.is_empty() {
-            println!(
-                "Skipping ExpenseTransaction seeding: expense_category_ids or staff_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let expense_transactions_data = (0..seed_count_config.expense_transactions)
-                .map(|i| ExpenseTransaction {
-                    id: generate_uuid(),
-                    category_id: get_random_id(&context.expense_category_ids),
-                    amount: rng.gen_range(100.0..=2000.0),
-                    date: random_datetime_in_past(1),
-                    description: Some(format!("Expense transaction {}", i + 1)),
-                    vendor: Some(format!("Vendor {}", i + 1)),
-                    payment_method: vec![
-                        PaymentMethod::Cash,
-                        PaymentMethod::BankTransfer,
-                        PaymentMethod::Online,
-                    ]
-                    .choose(&mut rng)
-                    .unwrap()
-                    .clone(),
-                    approved_by: Some(get_random_id(&context.staff_ids)),
-                    receipt_url: if rng.gen_bool(0.5) {
-                        Some(format!("http://example.com/receipts/{}.pdf", i + 1))
-                    } else {
-                        None
-                    },
-                    created_at: random_datetime_in_past(1),
-                    updated_at: random_datetime_in_past(0),
-                })
-                .collect::<Vec<ExpenseTransaction>>();
+            let exp_cat_id = next_id(conn, IdPrefix::FINANCIAL);
+            insert_into(expense_categories::table)
+                .values(&(
+                    expense_categories::id.eq(exp_cat_id.clone()),
+                    expense_categories::name.eq(format!("Expense Cat {}", i)),
+                    expense_categories::created_at.eq(Utc::now().naive_utc()),
+                    expense_categories::updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .execute(conn)?;
 
             insert_into(expense_transactions::table)
-                .values(&expense_transactions_data)
+                .values(&(
+                    expense_transactions::id.eq(next_id(conn, IdPrefix::FINANCIAL)),
+                    expense_transactions::category_id.eq(exp_cat_id),
+                    expense_transactions::amount.eq(500.0),
+                    expense_transactions::date.eq(Utc::now().naive_utc()),
+                    expense_transactions::payment_method.eq(PaymentMethod::Cash),
+                    expense_transactions::created_at.eq(Utc::now().naive_utc()),
+                    expense_transactions::updated_at.eq(Utc::now().naive_utc()),
+                ))
                 .execute(conn)?;
-            println!(
-                "Seeded {} expense transactions.",
-                expense_transactions_data.len()
-            );
         }
 
-        // Seed Fee Categories
-        let fee_categories_data = (0..seed_count_config.fee_categories)
-            .map(|i| FeeCategory {
-                id: generate_uuid(),
-                name: format!("Fee Category {}", i + 1),
-                description: Some(format!("Description for Fee Category {}", i + 1)),
-                is_mandatory: rng.gen_bool(0.8),
-                created_at: random_datetime_in_past(2),
-                updated_at: random_datetime_in_past(1),
-            })
-            .collect::<Vec<FeeCategory>>();
-
-        insert_into(fee_categories::table)
-            .values(&fee_categories_data)
-            .execute(conn)?;
-        context.fee_category_ids = fee_categories_data.into_iter().map(|fc| fc.id).collect();
-        println!("Seeded {} fee categories.", context.fee_category_ids.len());
-
-        // Seed Fee Structures
-        if context.grade_level_ids.is_empty()
-            || context.academic_year_ids.is_empty()
-            || context.fee_category_ids.is_empty()
-        {
-            println!(
-                "Skipping FeeStructure seeding: grade_level_ids, academic_year_ids, or fee_category_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let fee_structures_data = (0..seed_count_config.fee_structures)
-                .map(|_| FeeStructure {
-                    id: generate_uuid(),
-                    grade_id: get_random_id(&context.grade_level_ids),
-                    academic_year_id: get_random_id(&context.academic_year_ids),
-                    category_id: get_random_id(&context.fee_category_ids),
-                    amount: rng.gen_range(5000.0..=20000.0),
-                    due_date: random_date_in_past(0),
-                    frequency: vec![
-                        FeeFrequency::Monthly,
-                        FeeFrequency::Quarterly,
-                        FeeFrequency::Annually,
-                    ]
-                    .choose(&mut rng)
-                    .unwrap()
-                    .clone(),
-                    created_at: random_datetime_in_past(1),
-                    updated_at: random_datetime_in_past(0),
-                })
-                .collect::<Vec<FeeStructure>>();
-
-            insert_into(fee_structures::table)
-                .values(&fee_structures_data)
-                .execute(conn)?;
-            context.fee_structure_ids = fee_structures_data.into_iter().map(|fs| fs.id).collect();
-            println!("Seeded {} fee structures.", context.fee_structure_ids.len());
-        }
-
-        // Seed Student Fees
-        if context.student_ids.is_empty() || context.fee_structure_ids.is_empty() {
-            println!(
-                "Skipping StudentFee seeding: student_ids or fee_structure_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let student_fees_data = (0..seed_count_config.student_fees)
-                .map(|i| StudentFee {
-                    id: generate_uuid(),
-                    student_id: get_random_id(&context.student_ids),
-                    fee_structure_id: get_random_id(&context.fee_structure_ids),
-                    amount: rng.gen_range(5000.0..=20000.0),
-                    is_exempted: rng.gen_bool(0.1),
-                    exemption_reason: if rng.gen_bool(0.1) {
-                        Some(format!("Financial Hardship {}", i + 1))
-                    } else {
-                        None
-                    },
-                    created_at: random_datetime_in_past(1),
-                    updated_at: random_datetime_in_past(0),
-                })
-                .collect::<Vec<StudentFee>>();
-
-            insert_into(student_fees::table)
-                .values(&student_fees_data)
-                .execute(conn)?;
-            context.student_fee_ids = student_fees_data.into_iter().map(|sf| sf.id).collect();
-            println!("Seeded {} student fees.", context.student_fee_ids.len());
-        }
-
-        // Seed Fee Payments
-        if context.student_fee_ids.is_empty() || context.staff_ids.is_empty() {
-            println!(
-                "Skipping FeePayment seeding: student_fee_ids or staff_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let fee_payments_data = (0..seed_count_config.fee_payments)
-                .map(|i| FeePayment {
-                    id: generate_uuid(),
-                    student_fee_id: get_random_id(&context.student_fee_ids),
-                    amount_paid: rng.gen_range(1000.0..=15000.0),
-                    payment_date: random_datetime_in_past(0),
-                    payment_method: vec![
-                        PaymentMethod::Cash,
-                        PaymentMethod::BankTransfer,
-                        PaymentMethod::Online,
-                    ]
-                    .choose(&mut rng)
-                    .unwrap()
-                    .clone(),
-                    receipt_number: format!("FEE-REC-{}", i + 1),
-                    collected_by: get_random_id(&context.staff_ids),
-                    remarks: if rng.gen_bool(0.2) {
-                        Some(format!("Paid for month {}", (i % 12) + 1))
-                    } else {
-                        None
-                    },
-                    created_at: random_datetime_in_past(0),
-                    updated_at: random_datetime_in_past(0),
-                })
-                .collect::<Vec<FeePayment>>();
-
-            insert_into(fee_payments::table)
-                .values(&fee_payments_data)
-                .execute(conn)?;
-            println!("Seeded {} fee payments.", fee_payments_data.len());
-        }
-
-        // Seed Salary Components
-        let salary_components_data = (0..seed_count_config.salary_components)
-            .map(|i| SalaryComponent {
-                id: generate_uuid(),
-                name: format!("Component {}", i + 1),
-                component_type: vec![
-                    ComponentType::Allowance,
-                    ComponentType::Deduction,
-                ]
-                .choose(&mut rng)
-                .unwrap()
-                .clone(),
-                description: Some(format!("Description for Component {}", i + 1)),
-                created_at: random_datetime_in_past(2),
-                updated_at: random_datetime_in_past(1),
-            })
-            .collect::<Vec<SalaryComponent>>();
-
-        insert_into(salary_components::table)
-            .values(&salary_components_data)
-            .execute(conn)?;
-        context.salary_component_ids = salary_components_data.into_iter().map(|sc| sc.id).collect();
-        println!(
-            "Seeded {} salary components.",
-            context.salary_component_ids.len()
-        );
-
-        // Seed Staff Salaries
-        if context.staff_ids.is_empty() || context.salary_component_ids.is_empty() {
-            println!(
-                "Skipping StaffSalary seeding: staff_ids or salary_component_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let mut used_staff_salaries = HashSet::new();
-            let staff_salaries_data = (0..seed_count_config.staff_salaries)
-                .filter_map(|_| {
-                    let staff_id = get_random_id(&context.staff_ids);
-                    let component_id = get_random_id(&context.salary_component_ids);
-
-                    if used_staff_salaries.contains(&(staff_id.clone(), component_id.clone())) {
-                        return None;
-                    }
-                    used_staff_salaries.insert((staff_id.clone(), component_id.clone()));
-
-                    Some(StaffSalary {
-                        staff_id,
-                        component_id,
-                        amount: rng.gen_range(10000.0..=100000.0),
-                        effective_from: random_date_in_past(1),
-                        created_at: random_datetime_in_past(1),
-                        updated_at: random_datetime_in_past(0),
-                    })
-                })
-                .collect::<Vec<StaffSalary>>();
-
-            insert_into(staff_salaries::table)
-                .values(&staff_salaries_data)
-                .execute(conn)?;
-            println!("Seeded {} staff salaries.", staff_salaries_data.len());
-        }
-
-        // Seed Salary Payments
-        if context.staff_ids.is_empty() {
-            println!(
-                "Skipping SalaryPayment seeding: staff_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let salary_payments_data = (0..seed_count_config.salary_payments)
-                .map(|i| SalaryPayment {
-                    id: generate_uuid(),
-                    staff_id: get_random_id(&context.staff_ids),
-                    payment_month: rng.gen_range(1..=12),
-                    payment_year: rng.gen_range(2023..=2025),
-                    gross_salary: rng.gen_range(50000.0..=150000.0),
-                    total_deductions: rng.gen_range(5000.0..=20000.0),
-                    net_salary: rng.gen_range(40000.0..=130000.0),
-                    payment_date: random_datetime_in_past(0),
-                    payment_method: PaymentMethod::BankTransfer
-                        .to_string(),
-                    remarks: if rng.gen_bool(0.2) {
-                        Some(format!("Bonus included for Q{}", (i % 4) + 1))
-                    } else {
-                        None
-                    },
-                    created_at: random_datetime_in_past(0),
-                    updated_at: random_datetime_in_past(0),
-                })
-                .collect::<Vec<SalaryPayment>>();
-
-            insert_into(salary_payments::table)
-                .values(&salary_payments_data)
-                .execute(conn)?;
-            println!("Seeded {} salary payments.", salary_payments_data.len());
-        }
-
-        // Seed Petty Cash Transactions
-        if context.staff_ids.is_empty() {
-            println!(
-                "Skipping PettyCashTransaction seeding: staff_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let petty_cash_transactions_data = (0..seed_count_config.petty_cash_transactions)
-                .map(|i| PettyCashTransaction {
-                    id: generate_uuid(),
-                    amount: rng.gen_range(100.0..=1000.0),
-                    transaction_type: vec![
-                        TransactionType::Received,
-                        TransactionType::Spent,
-                    ]
-                    .choose(&mut rng)
-                    .unwrap()
-                    .clone(),
-                    date: random_datetime_in_past(0),
-                    description: Some(format!("Petty cash transaction {}", i + 1)),
-                    handled_by: get_random_id(&context.staff_ids),
-                    created_at: random_datetime_in_past(0),
-                    updated_at: random_datetime_in_past(0),
-                })
-                .collect::<Vec<PettyCashTransaction>>();
-
+        // 8. petty cash
+        println!("Seeding petty cash...");
+        for i in 0..100 {
             insert_into(petty_cash_transactions::table)
-                .values(&petty_cash_transactions_data)
+                .values(&(
+                    petty_cash_transactions::id.eq(next_id(conn, IdPrefix::FINANCIAL)),
+                    petty_cash_transactions::amount.eq(100.0),
+                    petty_cash_transactions::transaction_type.eq(TransactionType::Spent),
+                    petty_cash_transactions::date.eq(Utc::now().naive_utc()),
+                    petty_cash_transactions::handled_by.eq(get_random_id(&context.staff_ids)),
+                    petty_cash_transactions::created_at.eq(Utc::now().naive_utc()),
+                    petty_cash_transactions::updated_at.eq(Utc::now().naive_utc()),
+                ))
                 .execute(conn)?;
-            println!(
-                "Seeded {} petty cash transactions.",
-                petty_cash_transactions_data.len()
-            );
         }
 
-        // Seed General Ledger entries
-        if context.chart_of_account_ids.is_empty() {
-            println!(
-                "Skipping GeneralLedger seeding: chart_of_account_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let general_ledger_data = (0..seed_count_config.general_ledger_entries)
-                .map(|i| {
-                    let debit_account_id = get_random_id(&context.chart_of_account_ids);
-                    let credit_account_id = get_random_id(&context.chart_of_account_ids);
-                    GeneralLedgerEntry {
-                        id: generate_uuid(),
-                        transaction_date: random_date_in_past(0),
-                        description: Some(format!("GL entry {}", i + 1)),
-                        debit_account_id,
-                        credit_account_id,
-                        amount: rng.gen_range(10.0..=5000.0),
-                        created_at: random_datetime_in_past(0),
-                        updated_at: random_datetime_in_past(0),
-                    }
-                })
-                .collect::<Vec<GeneralLedgerEntry>>();
-
-            insert_into(general_ledger::table)
-                .values(&general_ledger_data)
-                .execute(conn)?;
-            println!(
-                "Seeded {} general ledger entries.",
-                general_ledger_data.len()
-            );
+        // 9. inventory_transactions
+        println!("Seeding inventory_transactions...");
+        for item_id in &context.inventory_item_ids {
+            for _ in 0..5 {
+                insert_into(inventory_transactions::table)
+                    .values(&(
+                        inventory_transactions::id.eq(next_id(conn, IdPrefix::PROPERTY)),
+                        inventory_transactions::item_id.eq(item_id.clone()),
+                        inventory_transactions::transaction_type.eq("Restock"),
+                        inventory_transactions::quantity.eq(10.0),
+                        inventory_transactions::unit_cost.eq(Some(500.0)),
+                        inventory_transactions::transaction_date.eq(Utc::now().naive_utc()),
+                        inventory_transactions::created_at.eq(Utc::now().naive_utc()),
+                    ))
+                    .execute(conn)?;
+            }
         }
 
         Ok(())

@@ -2,15 +2,14 @@ use super::utils::*;
 use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
-use backend::models::curriculum_management::CurriculumStandard;
-use backend::models::curriculum_management::LessonProgress;
-use backend::models::curriculum_management::Syllabus;
+use backend::database::enums::{LessonDeliveryMode, Medium};
+use backend::database::tables::LessonProgress;
+use backend::models::ids::IdPrefix;
 use backend::schema::*;
+use chrono::Utc;
 use diesel::insert_into;
 use diesel::prelude::*;
-use rand::Rng;
 use std::collections::HashSet;
-use backend::database::enums::Medium;
 
 pub struct CurriculumManagementSeeder;
 
@@ -28,130 +27,101 @@ impl SeedModule for CurriculumManagementSeeder {
         _password_hash: &str,
         _used_emails: &mut HashSet<String>,
         context: &mut SeederContext,
-        seed_count_config: &crate::SeedCountConfig, // Add SeedCountConfig here
+        _seed_count_config: &crate::SeedCountConfig,
     ) -> Result<()> {
         println!("Seeding Curriculum Management module...");
 
-        let mut rng = rand::thread_rng();
+        // 1. curriculum_standards
+        println!("Seeding curriculum_standards...");
+        for sub_id in &context.subject_ids {
+            for gl_id in &context.grade_level_ids {
+                let id = next_id(conn, IdPrefix::CURRICULUM);
+                insert_into(curriculum_standards::table)
+                    .values(&(
+                        curriculum_standards::id.eq(id.clone()),
+                        curriculum_standards::subject_id.eq(sub_id.clone()),
+                        curriculum_standards::grade_level_id.eq(gl_id.clone()),
+                        curriculum_standards::standard_code.eq(format!("STD-{}", id)),
+                        curriculum_standards::medium.eq(Medium::English),
+                        curriculum_standards::is_active.eq(true),
+                        curriculum_standards::created_at.eq(Utc::now().naive_utc()),
+                        curriculum_standards::updated_at.eq(Utc::now().naive_utc()),
+                    ))
+                    .execute(conn)?;
+                context.curriculum_standard_ids.push(id.clone());
 
-        // Seed Curriculum Standards
-        if context.subject_ids.is_empty() || context.grade_level_ids.is_empty() {
-            println!(
-                "Skipping CurriculumStandard seeding: subject_ids or grade_level_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let curriculum_standards_data = (0..seed_count_config.curriculum_standards)
-                .map(|i| CurriculumStandard {
-                    id: generate_uuid(),
-                    subject_id: get_random_id(&context.subject_ids),
-                    grade_level_id: get_random_id(&context.grade_level_ids),
-                    standard_code: format!("STD-{}", i + 1),
-                    description: Some(format!("Description for Standard {}", i + 1)),
-                    created_at: random_datetime_in_past(2),
-                    updated_at: random_datetime_in_past(1),
-                    medium: Medium::English,
-                    version_name: Some(format!("Version {}", i + 1)),
-                    start_date: Some(random_date_in_past(2)),
-                    end_date: Some(random_date_in_past(0)),
-                    is_active: true,
-                })
-                .collect::<Vec<CurriculumStandard>>();
-
-            insert_into(curriculum_standards::table)
-                .values(&curriculum_standards_data)
-                .execute(conn)?;
-
-            context.curriculum_standard_ids = curriculum_standards_data
-                .into_iter()
-                .map(|c| c.id)
-                .collect();
-            println!(
-                "Seeded {} curriculum standards.",
-                context.curriculum_standard_ids.len()
-            );
+                // 2. curriculum_topics
+                for _ in 0..5 {
+                    let topic_id = next_id(conn, IdPrefix::CURRICULUM);
+                    insert_into(curriculum_topics::table)
+                        .values(&(
+                            curriculum_topics::id.eq(topic_id.clone()),
+                            curriculum_topics::curriculum_standard_id.eq(id.clone()),
+                            curriculum_topics::topic_name.eq(generate_realistic_title()),
+                            curriculum_topics::full_time_hours.eq(10.0),
+                            curriculum_topics::extra_time_hours.eq(2.0),
+                            curriculum_topics::practical_hours.eq(4.0),
+                            curriculum_topics::created_at.eq(Utc::now().naive_utc()),
+                            curriculum_topics::updated_at.eq(Utc::now().naive_utc()),
+                        ))
+                        .execute(conn)?;
+                    context.curriculum_topic_ids.push(topic_id);
+                }
+            }
         }
 
-        // Seed Syllabus
-        if context.curriculum_standard_ids.is_empty() {
-            println!(
-                "Skipping Syllabus seeding: curriculum_standard_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let syllabus_data = (0..seed_count_config.syllabi)
-                .map(|i| Syllabus {
-                    id: generate_uuid(),
-                    curriculum_standard_id: get_random_id(&context.curriculum_standard_ids),
-                    topic_name: format!("Topic {}", i + 1),
-                    suggested_duration_hours: Some(rng.gen_range(1..=10)),
-                    description: Some(format!("Description for Topic {}", i + 1)),
-                    created_at: random_datetime_in_past(1),
-                    updated_at: random_datetime_in_past(0),
-                    parent_id: None,
-                    is_practical: rng.gen_bool(0.2),
-                    required_periods: rng.gen_range(1..=5),
-                    buffer_periods: rng.gen_range(0..=2),
-                })
-                .collect::<Vec<Syllabus>>();
-
-            insert_into(syllabus::table)
-                .values(&syllabus_data)
-                .execute(conn)?;
-
-            context.syllabus_ids = syllabus_data.into_iter().map(|s| s.id).collect();
-            println!("Seeded {} syllabus entries.", context.syllabus_ids.len());
-        }
-
-        // Seed Lesson Progress
-        if context.class_ids.is_empty()
-            || context.subject_ids.is_empty()
-            || context.staff_ids.is_empty()
-            || context.syllabus_ids.is_empty()
-        {
-            println!(
-                "Skipping LessonProgress seeding: class_ids, subject_ids, staff_ids, or syllabus_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let lesson_progress_data = (0..seed_count_config.lesson_progress_entries)
-                .map(|i| {
-                    LessonProgress {
-                        id: generate_uuid(),
-                        class_id: get_random_id(&context.class_ids),
-                        subject_id: get_random_id(&context.subject_ids),
-                        teacher_id: get_random_id(&context.staff_ids),
-                        timetable_id: None, // FK to timetable table, set to None as timetable isn't seeded yet
-                        date: random_date_in_past(1),
-                        topic_covered: format!("Covered Topic {}", i + 1),
-                        sub_topic: Some(format!("Sub-topic {}", i + 1)),
-                        homework_assigned: if rng.gen_bool(0.5) {
-                            Some(format!("Homework for Topic {}", i + 1))
-                        } else {
-                            None
-                        },
-                        resources_used: if rng.gen_bool(0.5) {
-                            Some(format!("Resources {}", i + 1))
-                        } else {
-                            None
-                        },
-                        progress_percentage: Some(rng.gen_range(50..=100)),
-                        is_substitution: rng.gen_bool(0.1),
-                        created_at: random_datetime_in_past(1),
-                        syllabus_id: Some(get_random_id(&context.syllabus_ids)),
+        // 3. lesson_progress & details
+        println!("Seeding lesson_progress...");
+        for (i, class_id) in context.class_ids.iter().take(20).enumerate() {
+            let sub_id = &context.subject_ids[i % context.subject_ids.len()];
+            let teacher_id = &context.staff_ids[i % context.staff_ids.len()];
+            
+            for d in 0..20 {
+                let lp_id = next_id(conn, IdPrefix::LESSON_PROGRESS);
+                insert_into(lesson_progress::table)
+                    .values(&LessonProgress {
+                        id: lp_id.clone(),
+                        class_id: class_id.clone(),
+                        subject_id: sub_id.clone(),
+                        teacher_id: teacher_id.clone(),
+                        timetable_id: None,
+                        curriculum_topic_id: Some(get_random_id(&context.curriculum_topic_ids)),
+                        date: Utc::now().date_naive() - chrono::Duration::days(d as i64),
+                        lesson_summary: generate_realistic_paragraph(),
+                        homework_assigned: Some(generate_realistic_sentence()),
+                        resources_used: Some("Video, Handouts".to_string()),
+                        progress_percentage: Some(5 * (d + 1) as i32),
+                        delivery_mode: LessonDeliveryMode::Regular,
+                        planned_duration_minutes: Some(40),
+                        actual_duration_minutes: Some(45),
+                        created_at: Utc::now().naive_utc(),
                         verified_by: None,
                         verified_at: None,
-                        is_skipped: rng.gen_bool(0.05),
-                        priority_level: rng.gen_range(1..=3),
-                    }
-                })
-                .collect::<Vec<LessonProgress>>();
+                        is_skipped: false,
+                        priority_level: 1,
+                    })
+                    .execute(conn)?;
 
-            insert_into(lesson_progress::table)
-                .values(&lesson_progress_data)
-                .execute(conn)?;
-
-            println!(
-                "Seeded {} lesson progress entries.",
-                lesson_progress_data.len()
-            );
+                // lesson_progress_periods
+                insert_into(lesson_progress_periods::table)
+                    .values(&(
+                        lesson_progress_periods::lesson_progress_id.eq(lp_id.clone()),
+                        lesson_progress_periods::timetable_id.eq(get_random_id(&context.timetable_ids)),
+                        lesson_progress_periods::date.eq(Utc::now().date_naive()),
+                    ))
+                    .execute(conn).ok();
+                
+                // attachments
+                insert_into(lesson_progress_attachments::table)
+                    .values(&(
+                        lesson_progress_attachments::id.eq(next_id(conn, IdPrefix::ATTACHMENT)),
+                        lesson_progress_attachments::lesson_progress_id.eq(lp_id.clone()),
+                        lesson_progress_attachments::file_name.eq("Lesson_Material.pdf"),
+                        lesson_progress_attachments::file_url.eq("http://example.com/file.pdf"),
+                        lesson_progress_attachments::created_at.eq(Utc::now().naive_utc()),
+                    ))
+                    .execute(conn).ok();
+            }
         }
 
         Ok(())

@@ -2,8 +2,11 @@ use fake::Fake;
 use fake::faker::address::en::{CityName, StateName, StreetName};
 use fake::faker::name::en::Name;
 use fake::faker::phone_number::en::PhoneNumber;
+use fake::faker::lorem::en::{Sentence, Words};
 use rand::seq::SliceRandom;
 use std::collections::HashSet;
+use diesel::prelude::SqliteConnection;
+use backend::models::ids::{generate_prefixed_id, IdPrefix};
 
 pub fn generate_random_name() -> String {
     Name().fake()
@@ -22,7 +25,22 @@ pub fn generate_random_phone_number() -> String {
     PhoneNumber().fake()
 }
 
-// Re-exporting from seed.rs for now, until we move common utilities
+pub fn generate_realistic_title() -> String {
+    let words: Vec<String> = Words(2..5).fake();
+    words.join(" ")
+}
+
+pub fn generate_realistic_sentence() -> String {
+    Sentence(5..10).fake()
+}
+
+pub fn generate_realistic_paragraph() -> String {
+    use fake::faker::lorem::en::Sentences;
+    let sentences: Vec<String> = Sentences(3..6).fake();
+    sentences.join(" ")
+}
+
+// Re-exporting from seed.rs
 pub use crate::{generate_uuid, random_date_in_past, random_datetime_in_past};
 
 pub fn get_random_id(ids: &[String]) -> String {
@@ -55,4 +73,8 @@ pub fn generate_random_email_unique_with_domain(
     }
     used_emails.insert(email.clone());
     email
+}
+
+pub fn next_id(conn: &mut SqliteConnection, prefix: IdPrefix) -> String {
+    generate_prefixed_id(conn, prefix).expect("Failed to generate prefixed ID")
 }

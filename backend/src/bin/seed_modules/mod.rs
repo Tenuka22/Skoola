@@ -4,6 +4,7 @@ use diesel::sqlite::SqliteConnection;
 use std::collections::HashSet; // Import Config from the main crate (seed.rs)
 
 pub mod academic_detail_seeder;
+pub mod advanced_modules_seeder;
 pub mod attendance_seeder;
 pub mod audit_log;
 pub mod behavior_management;
@@ -36,6 +37,7 @@ pub struct SeederContext {
     pub resource_ids: Vec<String>,
     pub asset_allocation_ids: Vec<String>,
     pub curriculum_standard_ids: Vec<String>,
+    pub curriculum_topic_ids: Vec<String>,
     pub syllabus_ids: Vec<String>,
     pub behavior_incident_type_ids: Vec<String>,
     pub exam_type_ids: Vec<String>,
@@ -82,6 +84,7 @@ impl SeederContext {
             resource_ids: Vec::new(),
             asset_allocation_ids: Vec::new(),
             curriculum_standard_ids: Vec::new(),
+            curriculum_topic_ids: Vec::new(),
             syllabus_ids: Vec::new(),
             behavior_incident_type_ids: Vec::new(),
             exam_type_ids: Vec::new(),

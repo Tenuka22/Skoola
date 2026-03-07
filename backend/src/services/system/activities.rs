@@ -160,7 +160,7 @@ pub async fn enroll_participant(
     let new_participant = ActivityParticipant {
         activity_id,
         user_id: req.user_id,
-        participant_type: req.participant_type,
+        participant_type: req.participant_type.to_string(),
         enrollment_reason: req.enrollment_reason,
         created_at: Utc::now().naive_utc(),
     };
@@ -193,7 +193,7 @@ pub async fn mark_activity_attendance(
         id: generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?,
         activity_id: activity_id.clone(),
         user_id: user_id.clone(),
-        status: activity_status,
+        status: activity_status.to_string(),
         check_in_time: Some(Utc::now().naive_utc()),
         check_out_time: None,
         remarks: None,

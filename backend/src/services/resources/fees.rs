@@ -203,7 +203,7 @@ pub async fn create_structure(
         fee_structure_id: new_structure.id.clone(),
         due_date: Some(req.due_date),
         frequency: req.frequency,
-        fee_type: FeeTypeEnum::Standard,
+        fee_type: FeeTypeEnum::Recurring,
         effective_from: None,
         effective_to: None,
         due_day_of_month: None,

@@ -2,11 +2,11 @@ use super::utils::*;
 use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
-use backend::models::system::AuditLog;
+use backend::models::ids::IdPrefix;
 use backend::schema::*;
+use chrono::Utc;
 use diesel::insert_into;
 use diesel::prelude::*;
-use rand::Rng;
 use std::collections::HashSet;
 
 pub struct AuditLogSeeder;
@@ -25,52 +25,26 @@ impl SeedModule for AuditLogSeeder {
         _password_hash: &str,
         _used_emails: &mut HashSet<String>,
         context: &mut SeederContext,
-        seed_count_config: &crate::SeedCountConfig, // Add SeedCountConfig here
+        _seed_count_config: &crate::SeedCountConfig,
     ) -> Result<()> {
         println!("Seeding Audit Log module...");
 
-        // Seed Audit Logs
-        if context.user_ids.is_empty() {
-            println!(
-                "Skipping AuditLog seeding: user_ids are empty. Ensure relevant seeders run first."
-            );
-        } else {
-            let audit_logs_data = (0..seed_count_config.audit_log_entries)
-                .map(|i| AuditLog {
-                    id: generate_uuid(),
-                    user_id: get_random_id(&context.user_ids),
-                    action_type: match i % 3 {
-                        0 => "CREATE".to_string(),
-                        1 => "UPDATE".to_string(),
-                        _ => "DELETE".to_string(),
-                    },
-                    table_name: match i % 5 {
-                        0 => "users".to_string(),
-                        1 => "students".to_string(),
-                        2 => "staff".to_string(),
-                        3 => "classes".to_string(),
-                        _ => "inventory_items".to_string(),
-                    },
-                    record_pk: generate_uuid(),
-                    old_value_json: if rand::thread_rng().gen_bool(0.5) {
-                        Some(format!(r#"{{"field": "old_value_{}"}}"#, i))
-                    } else {
-                        None
-                    },
-                    new_value_json: if rand::thread_rng().gen_bool(0.5) {
-                        Some(format!(r#"{{"field": "new_value_{}"}}"#, i))
-                    } else {
-                        None
-                    },
-                    timestamp: random_datetime_in_past(1),
-                })
-                .collect::<Vec<AuditLog>>();
-
+        // 1. audit_log
+        println!("Seeding audit_log...");
+        // Since AuditLog might not be in tables.rs, let's use the tuple values correctly
+        for i in 0..10 {
             insert_into(audit_log::table)
-                .values(&audit_logs_data)
+                .values((
+                    audit_log::id.eq(next_id(conn, IdPrefix::AUDIT)),
+                    audit_log::user_id.eq(get_random_id(&context.user_ids)),
+                    audit_log::action_type.eq("CREATE"),
+                    audit_log::table_name.eq("students"),
+                    audit_log::record_pk.eq(get_random_id(&context.student_ids)),
+                    audit_log::old_value_json.eq(None as Option<String>),
+                    audit_log::new_value_json.eq(Some(format!(r#"{{"name": "New student {}"}}"#, i))),
+                    audit_log::timestamp.eq(Utc::now().naive_utc()),
+                ))
                 .execute(conn)?;
-
-            println!("Seeded {} audit log entries.", audit_logs_data.len());
         }
 
         Ok(())
