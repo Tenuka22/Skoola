@@ -638,6 +638,31 @@ diesel::table! {
 }
 
 diesel::table! {
+    exams (id) {
+        id -> Text,
+        exam_type_id -> Text,
+        name -> Text,
+        academic_year_id -> Text,
+        term_id -> Nullable<Text>,
+        start_date -> Nullable<Date>,
+        end_date -> Nullable<Date>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    exam_types (id) {
+        id -> Text,
+        name -> Text,
+        description -> Nullable<Text>,
+        weightage -> Float,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     exit_passes (id) {
         id -> Text,
         student_id -> Text,

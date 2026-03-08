@@ -1,75 +1,45 @@
+use crate::models::academic::terms::{CreateTermRequest, Term, TermQuery, TermResponse, UpdateTermRequest};
+use crate::schema::terms;
+use crate::{AppState, errors::APIError};
+use crate::models::ids::{generate_prefixed_id, IdPrefix};
+use crate::impl_admin_entity_service;
 use actix_web::web;
+use chrono::Utc;
 use diesel::prelude::*;
 
-use crate::{
-    AppState, // Changed from database::connection::DbPool
-    errors::APIError,
-    models::ids::{generate_prefixed_id, IdPrefix},
-    models::terms::{CreateTermRequest, Term, TermResponse},
-    schema::{academic_years, terms},
-};
-
-pub async fn create_term(
-    app_state: web::Data<AppState>, // Changed parameter name and type
-    new_term_req: CreateTermRequest,
-) -> Result<TermResponse, APIError> {
-    let mut conn = app_state.db_pool.get()?; // Corrected connection acquisition
-
-    // Check if the academic year exists
-    let academic_year_exists: bool = academic_years::table
-        .filter(academic_years::id.eq(&new_term_req.academic_year_id))
-        .select(diesel::dsl::count(academic_years::id))
-        .get_result::<i64>(&mut conn)?
-        > 0;
-
-    if !academic_year_exists {
-        return Err(APIError::bad_request("Academic year not found"));
+impl_admin_entity_service!(
+    TermService,
+    terms::table,
+    Term,
+    TermResponse,
+    terms::id,
+    TermQuery,
+    |q: terms::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| {
+        q
+    },
+    |q: terms::BoxedQuery<'static, diesel::sqlite::Sqlite>, _sort_by, _sort_order| {
+        q.order(terms::term_number.asc())
     }
+);
 
-    // Check for duplicate term name within the academic year
-    let duplicate_name: Option<Term> = terms::table
-        .filter(terms::academic_year_id.eq(&new_term_req.academic_year_id))
-        .filter(terms::name.eq(&new_term_req.name))
-        .first::<Term>(&mut conn)
-        .optional()?;
+impl TermService {
+    pub async fn create_with_logic(
+        pool: web::Data<AppState>,
+        req: CreateTermRequest,
+    ) -> Result<TermResponse, APIError> {
+        let mut conn = pool.db_pool.get()?;
+        let id = generate_prefixed_id(&mut conn, IdPrefix::TERM)?;
+        let new_item = Term {
+            id,
+            academic_year_id: req.academic_year_id,
+            term_number: req.term_number,
+            name: req.name,
+            start_date: req.start_date,
+            end_date: req.end_date,
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
+        };
 
-    if duplicate_name.is_some() {
-        return Err(APIError::bad_request(
-            "Term with this name already exists for the academic year",
-        ));
+        Self::generic_create(pool, new_item).await
     }
-
-    // Check for overlapping dates within the academic year
-    let overlapping_term_exists: bool = terms::table
-        .filter(terms::academic_year_id.eq(&new_term_req.academic_year_id))
-        .filter(terms::start_date.le(&new_term_req.end_date))
-        .filter(terms::end_date.ge(&new_term_req.start_date))
-        .select(diesel::dsl::count(terms::id))
-        .get_result::<i64>(&mut conn)?
-        > 0;
-
-    if overlapping_term_exists {
-        return Err(APIError::bad_request(
-            "Term dates overlap with an existing term in the academic year",
-        ));
-    }
-
-    let term_id = generate_prefixed_id(&mut conn, IdPrefix::TERM)?;
-
-    let new_term = Term {
-        id: term_id,
-        academic_year_id: new_term_req.academic_year_id.clone(),
-        term_number: new_term_req.term_number,
-        name: new_term_req.name.clone(),
-        start_date: new_term_req.start_date,
-        end_date: new_term_req.end_date,
-        created_at: chrono::Local::now().naive_local(),
-        updated_at: chrono::Local::now().naive_local(),
-    };
-
-    diesel::insert_into(terms::table)
-        .values(&new_term)
-        .execute(&mut conn)?;
-
-    Ok(new_term.into())
 }

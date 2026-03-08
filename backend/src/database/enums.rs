@@ -13,7 +13,7 @@ macro_rules! diesel_text_enum {
         $($variant:ident),+ $(,)?
     }) => {
         $(#[$outer])*
-        #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, AsExpression, FromSqlRow, PartialEq, Eq, Hash)]
+        #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Copy, AsExpression, FromSqlRow, PartialEq, Eq, Hash)]
         #[diesel(sql_type = Text)]
         pub enum $name {
             $($variant),+
@@ -480,10 +480,12 @@ diesel_text_enum! {
         BehaviorIncidentTypeRead,
         BehaviorIncidentTypeUpdate,
         BehaviorIncidentTypeDelete,
+        BehaviorIncidentTypeManage,
         BehaviorIncidentRecord,
         BehaviorIncidentRead,
         BehaviorIncidentUpdate,
         BehaviorIncidentDelete,
+        BehaviorIncidentManage,
         ViewFinancialReports,
         SystemAdmin,
         UserUpdateMedium,
@@ -748,8 +750,10 @@ impl PermissionEnum {
             | PermissionEnum::MessagingSend
             | PermissionEnum::MessagingManage
             | PermissionEnum::BehaviorIncidentTypeUpdate
+            | PermissionEnum::BehaviorIncidentTypeManage
             | PermissionEnum::BehaviorIncidentRecord
-            | PermissionEnum::BehaviorIncidentUpdate => PermissionSeverity::Medium,
+            | PermissionEnum::BehaviorIncidentUpdate
+            | PermissionEnum::BehaviorIncidentManage => PermissionSeverity::Medium,
 
             PermissionEnum::UserRead
             | PermissionEnum::RoleRead

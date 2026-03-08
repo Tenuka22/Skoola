@@ -1,8 +1,10 @@
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+use apistos::ApiComponent;
+use schemars::JsonSchema;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::behavior_incident_types)]
 pub struct BehaviorIncidentType {
     pub id: String,
@@ -13,7 +15,7 @@ pub struct BehaviorIncidentType {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Insertable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Insertable, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::behavior_incident_types)]
 pub struct NewBehaviorIncidentType {
     pub id: String,

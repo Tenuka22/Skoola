@@ -2,8 +2,10 @@ use crate::database::enums::BehaviorIncidentStatus;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+use apistos::ApiComponent;
+use schemars::JsonSchema;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::behavior_incidents)]
 pub struct BehaviorIncident {
     pub id: String,
@@ -15,7 +17,7 @@ pub struct BehaviorIncident {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Insertable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Insertable, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::behavior_incidents)]
 pub struct NewBehaviorIncident {
     pub id: String,
@@ -25,7 +27,7 @@ pub struct NewBehaviorIncident {
     pub incident_date: NaiveDateTime,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::behavior_incident_details)]
 pub struct BehaviorIncidentDetail {
     pub incident_id: String,
@@ -39,7 +41,7 @@ pub struct BehaviorIncidentDetail {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Insertable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Insertable, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::behavior_incident_details)]
 pub struct NewBehaviorIncidentDetail {
     pub incident_id: String,

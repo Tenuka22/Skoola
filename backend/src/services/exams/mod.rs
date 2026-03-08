@@ -5,3 +5,5 @@ pub mod marking_schemes;
 pub mod grading_schemes;
 pub mod report_cards;
 pub mod zscore;
+pub mod exam_types;
+pub mod exams;

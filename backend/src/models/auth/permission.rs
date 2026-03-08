@@ -65,6 +65,42 @@ pub struct UserSetPermission {
     pub permission: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema, Clone)]
+pub struct CreateUserSetRequest {
+    pub name: String,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema, Clone, AsChangeset)]
+#[diesel(table_name = crate::schema::user_sets)]
+pub struct UpdateUserSetRequest {
+    pub name: Option<String>,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
+pub struct UserSetQuery {
+    pub search: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+    pub last_id: Option<String>,
+}
+
+impl crate::services::admin_db::AsAdminQuery for UserSetQuery {
+    fn as_admin_query(&self) -> crate::services::admin_db::AdminQuery {
+        crate::services::admin_db::AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: self.last_id.clone(),
+        }
+    }
+}
+
 #[derive(
     Debug,
     Serialize,

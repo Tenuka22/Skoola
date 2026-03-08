@@ -202,11 +202,35 @@ pub struct CreateFeeCategoryRequest {
     pub is_mandatory: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
+#[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
+#[diesel(table_name = crate::schema::fee_categories)]
 pub struct UpdateFeeCategoryRequest {
     pub name: Option<String>,
     pub description: Option<String>,
     pub is_mandatory: Option<bool>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct FeeCategoryQuery {
+    pub search: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+    pub last_id: Option<String>,
+}
+
+impl crate::services::admin_db::AsAdminQuery for FeeCategoryQuery {
+    fn as_admin_query(&self) -> crate::services::admin_db::AdminQuery {
+        crate::services::admin_db::AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: self.last_id.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
@@ -238,15 +262,39 @@ pub struct CreateFeeStructureRequest {
     pub academic_year_id: String,
     pub category_id: String,
     pub amount: f32,
-    pub due_date: NaiveDate,
+    pub due_date: Option<NaiveDate>,
     pub frequency: FeeFrequency,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
+#[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
+#[diesel(table_name = crate::schema::fee_structures)]
 pub struct UpdateFeeStructureRequest {
-    pub amount: Option<f32>,
-    pub due_date: Option<NaiveDate>,
-    pub frequency: Option<FeeFrequency>,
+    pub grade_id: Option<String>,
+    pub academic_year_id: Option<String>,
+    pub category_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct FeeStructureQuery {
+    pub search: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+    pub last_id: Option<String>,
+}
+
+impl crate::services::admin_db::AsAdminQuery for FeeStructureQuery {
+    fn as_admin_query(&self) -> crate::services::admin_db::AdminQuery {
+        crate::services::admin_db::AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: self.last_id.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]

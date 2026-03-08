@@ -320,10 +320,10 @@ pub struct Staff {
     pub name: String,
     pub dob: NaiveDate,
     pub gender: Gender,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
     pub staff_type: StaffType,
     pub profile_id: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
@@ -433,9 +433,9 @@ pub struct Student {
     pub name_tamil: Option<String>,
     pub dob: NaiveDate,
     pub gender: Gender,
+    pub profile_id: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub profile_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]

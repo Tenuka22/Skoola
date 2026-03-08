@@ -1,4 +1,6 @@
 pub mod exam_structures;
+pub mod exam_types;
+pub mod exams;
 pub mod government_exams;
 pub mod school_tests;
 pub mod marking_schemes;

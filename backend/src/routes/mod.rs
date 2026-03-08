@@ -12,14 +12,19 @@ pub mod system;
 use apistos::web;
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::scope("/admin")
+            .configure(|c| auth::configure_admin(c))
+            .configure(|c| academic::configure(c))
+            .configure(|c| exams::configure(c))
+            .configure(|c| resources::configure(c))
+            .configure(|c| staff::configure(c))
+            .configure(|c| students::configure(c))
+            .configure(|c| system::configure(c))
+            .configure(|c| messaging::configure(c))
+            .configure(|c| curriculum_management::configure(c))
+            .configure(|c| behavior_management::configure(c)),
+    );
+
     cfg.configure(|c| auth::configure(c));
-    cfg.configure(|c| academic::configure(c));
-    cfg.configure(|c| exams::configure(c));
-    cfg.configure(|c| resources::configure(c));
-    cfg.configure(|c| staff::configure(c));
-    cfg.configure(|c| students::configure(c));
-    cfg.configure(|c| system::configure(c));
-    cfg.configure(|c| messaging::configure(c));
-    cfg.configure(|c| curriculum_management::configure(c));
-    cfg.configure(|c| behavior_management::configure(c));
 }

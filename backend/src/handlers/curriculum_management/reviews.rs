@@ -13,6 +13,9 @@ pub struct SubmitReviewRequest {
     pub feedback: Option<String>,
 }
 
+use crate::models::CurrentUser;
+use crate::database::enums::RoleEnum;
+
 #[api_operation(
     summary = "Submit Lesson Review",
     description = "Allows a student or guardian to submit feedback on a lesson's clarity.",
@@ -21,13 +24,16 @@ pub struct SubmitReviewRequest {
 )]
 pub async fn submit_lesson_review(
     data: Data<AppState>,
+    current_user: CurrentUser,
     body: Json<SubmitReviewRequest>,
-) -> Result<Json<LessonReview>, APIError> {
-    // TODO: Get reviewer info from auth
-    let reviewer_id = "reviewer_placeholder".to_string();
-    let reviewer_type = ReviewerType::Student;
+) -> Result<Json<LessonReview>, crate::errors::APIError> {
+    let reviewer_type = if current_user.roles.contains(&RoleEnum::Student) {
+        ReviewerType::Student
+    } else {
+        ReviewerType::Guardian
+    };
     
-    let res = reviews::submit_review(data, body.lesson_progress_id.clone(), reviewer_id, reviewer_type, body.rating, body.feedback.clone()).await?;
+    let res = reviews::submit_review(data, body.lesson_progress_id.clone(), current_user.id, reviewer_type, body.rating, body.feedback.clone()).await?;
     Ok(Json(res))
 }
 

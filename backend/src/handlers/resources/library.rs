@@ -308,6 +308,8 @@ pub async fn delete_book(
     }))
 }
 
+use crate::models::CurrentUser;
+
 // ============= Issue/Return Handlers =============
 
 #[api_operation(
@@ -318,11 +320,10 @@ pub async fn delete_book(
 )]
 pub async fn issue_book(
     pool: web::Data<DbPool>,
+    current_user: CurrentUser,
     req: web::Json<IssueBookRequest>,
-) -> Result<Json<LibraryIssueResponse>, APIError> {
-    // TODO: Get actual staff ID from authentication context
-    let issued_by_id = "1".to_string(); // Placeholder
-    let issue = library::issue_book(&pool, req.into_inner(), issued_by_id)?;
+) -> Result<Json<LibraryIssueResponse>, crate::errors::APIError> {
+    let issue = library::issue_book(&pool, req.into_inner(), current_user.id)?;
     Ok(Json(issue))
 }
 

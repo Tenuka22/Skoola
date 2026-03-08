@@ -24,9 +24,9 @@ pub struct User {
     pub id: String,
     pub email: String,
     pub password_hash: String,
+    pub role: RoleEnum,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub role: RoleEnum,
 }
 
 #[derive(Debug, Insertable)]
@@ -35,9 +35,9 @@ pub struct NewUser {
     pub id: String,
     pub email: String,
     pub password_hash: String,
+    pub role: RoleEnum,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub role: RoleEnum,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -50,6 +50,29 @@ pub struct RegisterRequest {
 pub struct LoginRequest {
     pub email: String,
     pub password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
+pub struct UserQuery {
+    pub search: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+    pub last_id: Option<String>,
+}
+
+impl crate::services::admin_db::AsAdminQuery for UserQuery {
+    fn as_admin_query(&self) -> crate::services::admin_db::AdminQuery {
+        crate::services::admin_db::AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: self.last_id.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -134,6 +157,20 @@ pub struct PasswordResetRequest {
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct PasswordReset {
     pub new_password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct CreateUserRequest {
+    pub email: String,
+    pub password: String,
+    pub role: RoleEnum,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
+#[diesel(table_name = users)]
+pub struct UpdateUserRequest {
+    pub email: Option<String>,
+    pub role: Option<RoleEnum>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]

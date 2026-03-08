@@ -1,9 +1,10 @@
+pub mod admin_db;
 pub mod academic;
 pub mod auth;
 pub mod behavior_management;
 pub mod curriculum_management;
 pub mod exams;
-pub mod finance; // Added
+pub mod finance;
 pub mod messaging;
 pub mod resources;
 pub mod staff;

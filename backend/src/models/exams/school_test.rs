@@ -5,6 +5,104 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use crate::database::enums::{ExamStatus, SchoolTestType};
 
+#[derive(Debug, Clone, Deserialize, JsonSchema, ApiComponent)]
+pub struct SchoolTestQuery {
+    pub search: Option<String>,
+    pub status: Option<ExamStatus>,
+    pub academic_year_id: Option<String>,
+    pub term_id: Option<String>,
+    pub exam_structure_id: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+    pub last_id: Option<String>,
+}
+
+impl crate::services::admin_db::AsAdminQuery for SchoolTestQuery {
+    fn as_admin_query(&self) -> crate::services::admin_db::AdminQuery {
+        crate::services::admin_db::AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: self.last_id.clone(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, JsonSchema, ApiComponent)]
+pub struct SchoolTestSubjectQuery {
+    pub search: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+    pub last_id: Option<String>,
+}
+
+impl crate::services::admin_db::AsAdminQuery for SchoolTestSubjectQuery {
+    fn as_admin_query(&self) -> crate::services::admin_db::AdminQuery {
+        crate::services::admin_db::AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: self.last_id.clone(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct CreateSchoolTestRequest {
+    pub exam_structure_id: String,
+    pub name: String,
+    pub test_type: SchoolTestType,
+    pub academic_year_id: String,
+    pub term_id: Option<String>,
+    pub start_date: Option<chrono::NaiveDate>,
+    pub end_date: Option<chrono::NaiveDate>,
+    pub status: ExamStatus,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent, Default, AsChangeset)]
+#[diesel(table_name = crate::schema::school_tests)]
+pub struct UpdateSchoolTestRequest {
+    pub exam_structure_id: Option<String>,
+    pub name: Option<String>,
+    pub test_type: Option<SchoolTestType>,
+    pub academic_year_id: Option<String>,
+    pub term_id: Option<String>,
+    pub start_date: Option<chrono::NaiveDate>,
+    pub end_date: Option<chrono::NaiveDate>,
+    pub status: Option<ExamStatus>,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct CreateSchoolTestSubjectRequest {
+    pub school_test_id: String,
+    pub subject_id: String,
+    pub test_date: Option<chrono::NaiveDate>,
+    pub test_time: Option<chrono::NaiveTime>,
+    pub duration_minutes: Option<i32>,
+    pub max_marks: Option<i32>,
+    pub pass_marks: Option<i32>,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent, Default, AsChangeset)]
+#[diesel(table_name = crate::schema::school_test_subjects)]
+pub struct UpdateSchoolTestSubjectRequest {
+    pub school_test_id: Option<String>,
+    pub subject_id: Option<String>,
+    pub test_date: Option<chrono::NaiveDate>,
+    pub test_time: Option<chrono::NaiveTime>,
+    pub duration_minutes: Option<i32>,
+    pub max_marks: Option<i32>,
+    pub pass_marks: Option<i32>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::school_tests)]
 pub struct SchoolTest {

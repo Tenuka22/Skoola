@@ -1,3 +1,4 @@
+pub mod admin_macros;
 pub mod academic;
 pub mod auth;
 pub mod behavior_management;

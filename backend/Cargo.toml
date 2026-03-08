@@ -47,6 +47,7 @@ sanitize-filename = "0.6.0"
 anyhow = "1.0"
 fake = "2.5.0"
 clap = { version = "4.0", features = ["derive"] }
+paste = "1.0.15"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

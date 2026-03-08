@@ -32,6 +32,8 @@ pub async fn submit_practical_appeal(
     Ok(Json(res))
 }
 
+use crate::models::CurrentUser;
+
 #[api_operation(
     summary = "Review Practical Appeal",
     description = "Allows an admin or manager to approve/reject a practical lesson appeal.",
@@ -40,11 +42,10 @@ pub async fn submit_practical_appeal(
 )]
 pub async fn review_practical_appeal(
     data: Data<AppState>,
+    current_user: CurrentUser,
     path: Path<String>, // appeal_id
     body: Json<ReviewAppealRequest>,
-) -> Result<Json<PracticalLessonAppeal>, APIError> {
-    // TODO: Get admin_id from auth
-    let admin_id = "admin_placeholder".to_string();
-    let res = appeals::review_appeal(data, path.into_inner(), admin_id, body.status.clone()).await?;
+) -> Result<Json<PracticalLessonAppeal>, crate::errors::APIError> {
+    let res = appeals::review_appeal(data, path.into_inner(), current_user.id, body.status.clone()).await?;
     Ok(Json(res))
 }

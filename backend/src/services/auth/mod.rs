@@ -3,3 +3,6 @@ pub mod oauth;
 pub mod session;
 pub mod user_permissions;
 pub mod user_service;
+pub mod users;
+pub mod role_sets;
+pub mod user_sets;

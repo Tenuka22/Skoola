@@ -71,6 +71,7 @@ impl IdPrefix {
     pub const FINANCIAL_ALLOCATION: Self = Self("fal");
     pub const FINANCIAL: Self = Self("fin");
     pub const FEE: Self = Self("fee");
+    pub const FEE_STRUCTURE: Self = Self("fst");
     pub const CO_CURRICULAR_ALLOCATION: Self = Self("cca");
     pub const CO_CURRICULAR: Self = Self("coc");
     pub const GOVERNMENT_EXAM: Self = Self("gex");

@@ -8,8 +8,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Queryable, Insertable, AsChangeset, Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[diesel(table_name = terms)]
 pub struct Term {
-    pub id: String,               // Changed from i32 to String
-    pub academic_year_id: String, // Changed from i32 to String
+    pub id: String,
+    pub academic_year_id: String,
     pub term_number: i32,
     pub name: String,
     pub start_date: NaiveDate,
@@ -23,27 +23,51 @@ pub struct Term {
 )]
 #[diesel(table_name = terms)]
 pub struct CreateTermRequest {
-    pub academic_year_id: String, // Changed from i32 to String
+    pub academic_year_id: String,
     pub term_number: i32,
     pub name: String,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, AsChangeset)]
+#[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = terms)]
 pub struct UpdateTermRequest {
-    pub academic_year_id: Option<String>, // Changed from Option<i32> to Option<String>
+    pub academic_year_id: Option<String>,
     pub term_number: Option<i32>,
     pub name: Option<String>,
     pub start_date: Option<NaiveDate>,
     pub end_date: Option<NaiveDate>,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct TermQuery {
+    pub search: Option<String>,
+    pub academic_year_id: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+    pub last_id: Option<String>,
+}
+
+impl crate::services::admin_db::AsAdminQuery for TermQuery {
+    fn as_admin_query(&self) -> crate::services::admin_db::AdminQuery {
+        crate::services::admin_db::AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: self.last_id.clone(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct TermResponse {
-    pub id: String,               // Changed from i32 to String
-    pub academic_year_id: String, // Changed from i32 to String
+    pub id: String,
+    pub academic_year_id: String,
     pub term_number: i32,
     pub name: String,
     pub start_date: NaiveDate,

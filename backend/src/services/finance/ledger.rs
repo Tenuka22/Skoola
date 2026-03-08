@@ -33,7 +33,15 @@ pub async fn record_transaction(
         ));
     }
 
-    // TODO: Add more robust validation, e.g., checking if accounts exist and are of correct type
+    // Verify accounts exist
+    let account_count = crate::schema::chart_of_accounts::table
+        .filter(crate::schema::chart_of_accounts::id.eq_any(vec![&debit_account_id, &credit_account_id]))
+        .count()
+        .get_result::<i64>(&mut conn)?;
+
+    if account_count < 2 {
+        return Err(APIError::bad_request("One or both accounts do not exist"));
+    }
 
     let new_entry = NewGeneralLedgerEntry {
         id: id.clone(),
