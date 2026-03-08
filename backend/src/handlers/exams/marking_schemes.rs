@@ -3,12 +3,7 @@ use crate::models::exams::marking_scheme::{
     CreateMarkingSchemePartRequest, UpdateMarkingSchemePartRequest, MarkingSchemePart, MarkingSchemePartQuery
 };
 use crate::services::exams::marking_schemes::{MarkingSchemeService, MarkingSchemePartService};
-use crate::{create_admin_handlers, AppState};
-use actix_web::web;
-use actix_web::web::Json;
-use apistos::{ApiComponent, api_operation};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use crate::create_admin_handlers;
 
 create_admin_handlers!(
     tag => "marking_schemes",

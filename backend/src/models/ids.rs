@@ -109,6 +109,7 @@ impl IdPrefix {
     pub const PERMISSION_SET: Self = Self("pst");
     pub const LEAVE: Self = Self("lev");
     pub const SEED: Self = Self("sed");
+    pub const FILE: Self = Self("fil");
 }
 
 #[derive(diesel::QueryableByName)]

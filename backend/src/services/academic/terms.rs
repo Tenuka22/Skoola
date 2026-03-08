@@ -1,11 +1,10 @@
-use crate::models::academic::terms::{CreateTermRequest, Term, TermQuery, TermResponse, UpdateTermRequest};
+use crate::models::academic::terms::{CreateTermRequest, Term, TermQuery, TermResponse};
 use crate::schema::terms;
 use crate::{AppState, errors::APIError};
 use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::impl_admin_entity_service;
 use actix_web::web;
 use chrono::Utc;
-use diesel::prelude::*;
 
 impl_admin_entity_service!(
     TermService,

@@ -3,6 +3,28 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use diesel::AsChangeset;
 
+use crate::schema::role_sets;
+use diesel::prelude::*;
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    Queryable,
+    Selectable,
+    Insertable,
+    Clone,
+)]
+#[diesel(table_name = role_sets)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct RoleSet {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+}
+
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct CreateRoleRequest {
     pub name: String,

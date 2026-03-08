@@ -6,12 +6,11 @@ use crate::AppState;
 use crate::errors::APIError;
 use crate::handlers::behavior_management::{
     CreateBehaviorIncidentTypeRequest, RecordBehaviorIncidentRequest,
-    UpdateBehaviorIncidentRequest, UpdateBehaviorIncidentTypeRequest,
 };
 use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::models::behavior_management::{
-    BehaviorIncident, BehaviorIncidentDetail, BehaviorIncidentType, NewBehaviorIncident,
-    NewBehaviorIncidentDetail, NewBehaviorIncidentType,
+    BehaviorIncident, BehaviorIncidentType,
+    NewBehaviorIncidentDetail,
 };
 use crate::schema::{behavior_incident_details, behavior_incident_types, behavior_incidents};
 use crate::impl_admin_entity_service;

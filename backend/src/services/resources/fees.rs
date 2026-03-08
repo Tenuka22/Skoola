@@ -1,27 +1,24 @@
 use crate::AppState;
-use crate::database::enums::{FeeAmountType, FeeTypeEnum, PaymentStatusType, FeeFrequency};
+use crate::database::enums::{FeeAmountType, FeeTypeEnum};
 use crate::errors::APIError;
 use crate::models::finance::fees::{
-    ApplyWaiverRequest, AssignFeeToStudentRequest, BulkAssignFeesRequest, CreateFeeCategoryRequest,
-    CreateFeeStructureRequest, ExportReportResponse, FeeReceiptResponse, RecordFeePaymentRequest,
-    UpdateFeeCategoryChangeset, UpdateFeeCategoryRequest, FeeCategoryResponse, FeeStructureResponse,
+    CreateFeeCategoryRequest,
+    CreateFeeStructureRequest, FeeCategoryResponse, FeeStructureResponse,
 };
 use crate::models::finance::fees::{
-    FeeCategory, FeePayment, FeePaymentDetail, FeeStructure, FeeStructurePricing,
-    FeeStructureSchedule, NewFeePaymentDetail, StudentFee,
+    FeeCategory, FeeStructure,
     NewFeeStructure, NewFeeStructurePricing, NewFeeStructureSchedule,
 };
 use actix_web::web;
 
 use crate::schema::{
-    fee_categories, fee_payment_details, fee_payments, fee_structure_pricing,
-    fee_structure_schedule, fee_structures, grade_levels, student_class_assignments, student_fees,
-    students,
+    fee_categories, fee_structure_pricing,
+    fee_structure_schedule, fee_structures,
 };
 use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::impl_admin_entity_service;
 use crate::handlers::resources::fees::{FeeCategoryQuery, FeeStructureQuery};
-use chrono::{NaiveDateTime, Utc};
+use chrono::Utc;
 use diesel::prelude::*;
 
 impl_admin_entity_service!(

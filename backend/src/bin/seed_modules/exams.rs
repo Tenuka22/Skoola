@@ -11,7 +11,7 @@ use backend::models::exams::school_test::{SchoolTest, SchoolTestSubject};
 use backend::models::exams::student_marks::{
     StudentMark, StudentMarkEntry, StudentMarkEntryHistory, StudentMarkHistory,
 };
-use backend::models::exams::zscore::{StudentZScore, ZScoreCalculation};
+use backend::models::exams::zscore::{StudentZScore};
 use backend::models::ids::IdPrefix;
 use backend::schema::*;
 use chrono::Utc;

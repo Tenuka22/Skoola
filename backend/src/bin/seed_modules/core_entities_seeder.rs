@@ -336,7 +336,7 @@ impl SeedModule for CoreEntitiesSeeder {
         let mut classes_list = Vec::new();
         for gl_id in &context.grade_level_ids {
             for ay_id in &context.academic_year_ids {
-                for section in &["A", "B", "C"] {
+                for _ in &["A", "B", "C"] {
                     let id = next_id(conn, IdPrefix::CLASS);
                     classes_list.push(Class {
                         id: id.clone(),

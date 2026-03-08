@@ -1,6 +1,5 @@
 use crate::models::academic::grade_level::{
     CreateGradeLevelRequest, GradeLevel, GradeLevelQuery, GradeLevelResponse,
-    UpdateGradeLevelRequest,
 };
 use crate::schema::grade_levels;
 use crate::{AppState, errors::APIError};
@@ -8,7 +7,6 @@ use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::impl_admin_entity_service;
 use actix_web::web;
 use chrono::Utc;
-use diesel::prelude::*;
 
 impl_admin_entity_service!(
     GradeLevelService,

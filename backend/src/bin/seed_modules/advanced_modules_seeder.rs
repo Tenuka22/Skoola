@@ -3,7 +3,6 @@ use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
 use backend::database::enums::*;
-use backend::database::tables::*;
 use backend::models::ids::IdPrefix;
 use backend::schema::*;
 use chrono::Utc;

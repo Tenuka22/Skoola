@@ -1,11 +1,6 @@
 use crate::models::auth::permission::{CreateUserSetRequest, UpdateUserSetRequest, UserSet, UserSetQuery};
 use crate::services::auth::user_sets::UserSetService;
-use crate::{create_admin_handlers, AppState};
-use actix_web::web;
-use actix_web::web::Json;
-use apistos::{ApiComponent, api_operation};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use crate::create_admin_handlers;
 
 create_admin_handlers!(
     tag => "user_sets",

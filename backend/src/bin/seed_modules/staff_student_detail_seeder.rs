@@ -2,14 +2,13 @@ use super::utils::*;
 use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
-use backend::database::enums::{LeaveStatus, Religion, Ethnicity, ComponentType, StaffLeaveType};
+use backend::database::enums::{ComponentType};
 use backend::database::tables::*;
 use backend::models::ids::IdPrefix;
 use backend::schema::*;
 use chrono::{NaiveDate, Utc};
 use diesel::insert_into;
 use diesel::prelude::*;
-use rand::Rng;
 use std::collections::HashSet;
 
 pub struct StaffStudentDetailSeeder;
@@ -28,11 +27,9 @@ impl SeedModule for StaffStudentDetailSeeder {
         _password_hash: &str,
         _used_emails: &mut HashSet<String>,
         context: &mut SeederContext,
-        seed_count_config: &crate::SeedCountConfig,
+        _seed_count_config: &crate::SeedCountConfig,
     ) -> Result<()> {
         println!("Seeding Staff & Student Detail module...");
-
-        let mut rng = rand::thread_rng();
 
         // 1. staff_departments
         println!("Seeding staff_departments...");

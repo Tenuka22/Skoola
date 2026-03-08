@@ -4,7 +4,6 @@ use anyhow::Result;
 use backend::config::Config;
 use backend::database::enums::{LibraryIssueStatus};
 use backend::models::resources::library::{NewLibraryBook, NewLibraryCategory, NewLibraryIssue};
-use backend::models::ids::IdPrefix;
 use backend::schema::*;
 use chrono::Utc;
 use diesel::insert_into;
@@ -54,7 +53,7 @@ impl SeedModule for LibrarySeeder {
 
         // 2. library_books
         println!("Seeding library_books...");
-        for i in 0..100 {
+        for _ in 0..100 {
             insert_into(library_books::table)
                 .values(&NewLibraryBook {
                     isbn: Some(format!("978-{:09}", rng.gen_range(100000000..999999999))),

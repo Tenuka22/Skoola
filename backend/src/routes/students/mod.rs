@@ -11,9 +11,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 required_permission: PermissionEnum::StudentManage,
             })
             .wrap(Authenticated)
-            .route("", web::post().to(student::create_student))
-            .route("/{id}", web::get().to(student::get_student_by_id))
             .route("", web::get().to(student::get_all_student))
+            .route("/{id}", web::get().to(student::get_student_by_id))
             .route("/{id}", web::put().to(student::update_student))
             .route("/{id}", web::delete().to(student::delete_student))
             .route("/bulk", web::delete().to(student::bulk_delete_student))

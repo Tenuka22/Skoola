@@ -3102,4 +3102,17 @@ diesel::allow_tables_to_appear_in_same_query!(
     vendors,
     verification_tokens,
     zscore_calculations,
+    files,
 );
+
+diesel::table! {
+    files (id) {
+        id -> Text,
+        file_name -> Text,
+        file_path -> Text,
+        mime_type -> Text,
+        file_size -> Integer,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}

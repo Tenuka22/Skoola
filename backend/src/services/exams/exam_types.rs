@@ -4,14 +4,13 @@ use crate::{
     AppState,
     errors::APIError,
     models::exams::exam_type::{
-        CreateExamTypeRequest, ExamType, ExamTypeResponse, UpdateExamTypeRequest,
+        CreateExamTypeRequest, ExamType, ExamTypeResponse,
     },
 };
 use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::impl_admin_entity_service;
 use actix_web::web;
 use chrono::Utc;
-use diesel::prelude::*;
 
 impl_admin_entity_service!(
     ExamTypeService,

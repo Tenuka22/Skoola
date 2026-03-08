@@ -1,5 +1,5 @@
 use crate::database::enums::{Ethnicity, Gender, Religion, StudentStatus};
-use crate::schema::{student_contacts, student_demographics, student_media, student_status, students};
+use crate::schema::students;
 use apistos::ApiComponent;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::prelude::*;

@@ -1,5 +1,5 @@
 use actix_web::web::Json;
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{web, HttpRequest};
 use apistos::{api_operation, ApiComponent};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};

@@ -1,7 +1,7 @@
 use crate::errors::APIError;
 use crate::models::exams::government_exam::{
     GovernmentExam, GovernmentExamSubject, CreateGovernmentExamRequest, UpdateGovernmentExamRequest,
-    CreateGovernmentExamSubjectRequest, UpdateGovernmentExamSubjectRequest, GovernmentExamQuery, GovernmentExamSubjectQuery,
+    CreateGovernmentExamSubjectRequest, GovernmentExamQuery, GovernmentExamSubjectQuery,
 };
 use crate::schema::{government_exam_subjects, government_exams};
 use crate::AppState;

@@ -1,7 +1,7 @@
 use crate::errors::APIError;
 use crate::models::exams::marking_scheme::{
     CreateMarkingSchemePartRequest, CreateMarkingSchemeRequest,
-    MarkingScheme, MarkingSchemePart, UpdateMarkingSchemePartRequest,
+    MarkingScheme, MarkingSchemePart,
     UpdateMarkingSchemeRequest, MarkingSchemePartQuery, MarkingSchemeQuery,
 };
 use crate::schema::{marking_scheme_parts, marking_schemes};

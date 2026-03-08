@@ -1,7 +1,5 @@
 use crate::models::academic::subject::{
-    AssignSubjectToGradeRequest, AssignSubjectToStreamRequest, CreateSubjectRequest,
-    EnrollStudentInSubjectRequest, Subject, SubjectEnrollmentResponse, SubjectQuery, SubjectResponse,
-    UpdateSubjectRequest,
+    CreateSubjectRequest, Subject, SubjectQuery, SubjectResponse,
 };
 use crate::schema::subjects;
 use crate::{AppState, errors::APIError};
@@ -9,7 +7,6 @@ use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::impl_admin_entity_service;
 use actix_web::web;
 use chrono::Utc;
-use diesel::prelude::*;
 
 impl_admin_entity_service!(
     SubjectService,

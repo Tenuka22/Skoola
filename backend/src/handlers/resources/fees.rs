@@ -1,9 +1,7 @@
-use crate::models::finance::fees::{CreateFeeCategoryRequest, UpdateFeeCategoryRequest, FeeCategoryResponse, FeeCategory, CreateFeeStructureRequest, UpdateFeeStructureRequest, FeeStructureResponse, FeeStructure};
+use crate::models::finance::fees::{CreateFeeCategoryRequest, UpdateFeeCategoryRequest, FeeCategoryResponse, CreateFeeStructureRequest, UpdateFeeStructureRequest, FeeStructureResponse};
 use crate::services::resources::fees::{FeeCategoryService, FeeStructureService};
-use crate::{create_admin_handlers, AppState};
-use actix_web::web;
-use actix_web::web::Json;
-use apistos::{ApiComponent, api_operation};
+use crate::create_admin_handlers;
+use apistos::ApiComponent;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 

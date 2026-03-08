@@ -1,11 +1,6 @@
-use crate::models::exams::exam_type::{CreateExamTypeRequest, UpdateExamTypeRequest, ExamTypeResponse, ExamType, ExamTypeQuery};
+use crate::models::exams::exam_type::{CreateExamTypeRequest, UpdateExamTypeRequest, ExamTypeResponse, ExamTypeQuery};
 use crate::services::exams::exam_types::ExamTypeService;
-use crate::{create_admin_handlers, AppState};
-use actix_web::web;
-use actix_web::web::Json;
-use apistos::{ApiComponent, api_operation};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use crate::create_admin_handlers;
 
 create_admin_handlers!(
     tag => "exam_types",

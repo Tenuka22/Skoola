@@ -2,7 +2,7 @@ use super::utils::*;
 use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
-use backend::database::enums::{BehaviorIncidentStatus, SeverityLevel};
+use backend::database::enums::{BehaviorIncidentStatus};
 use backend::models::behavior_management::{BehaviorIncident, BehaviorIncidentType, BehaviorIncidentDetail};
 use backend::models::student::DetentionBalance;
 use backend::models::ids::IdPrefix;
@@ -56,6 +56,7 @@ impl SeedModule for BehaviorManagementSeeder {
 
         // 2. behavior_incident_types
         println!("Seeding behavior_incident_types...");
+        let mut behavior_incident_type_ids = Vec::new();
         for i in 0..50 {
             let id = next_id(conn, IdPrefix::BEHAVIOR);
             insert_into(behavior_incident_types::table)
@@ -68,7 +69,7 @@ impl SeedModule for BehaviorManagementSeeder {
                     updated_at: Utc::now().naive_utc(),
                 })
                 .execute(conn)?;
-            context.behavior_incident_type_ids.push(id);
+            behavior_incident_type_ids.push(id);
         }
 
         // 3. behavior_incidents & details & participants & actions & followups
@@ -80,7 +81,7 @@ impl SeedModule for BehaviorManagementSeeder {
                     id: id.clone(),
                     student_id: get_random_id(&context.student_ids),
                     reported_by_user_id: get_random_id(&context.user_ids),
-                    incident_type_id: get_random_id(&context.behavior_incident_type_ids),
+                    incident_type_id: get_random_id(&behavior_incident_type_ids),
                     incident_date: Utc::now().naive_utc(),
                     created_at: Utc::now().naive_utc(),
                     updated_at: Utc::now().naive_utc(),

@@ -111,7 +111,8 @@ impl SeedModule for ResourceManagementSeeder {
 
         // 4. resource_assets, asset_maintenance_logs, asset_allocations, maintenance_requests
         println!("Seeding detailed resource info...");
-        for res_id in &context.resource_ids {
+        let res_ids: &[String] = &context.resource_ids;
+        for res_id in res_ids {
             for _ in 0..5 {
                 insert_into(resource_assets::table)
                     .values((
@@ -125,7 +126,8 @@ impl SeedModule for ResourceManagementSeeder {
             }
         }
 
-        for item_id in &context.inventory_item_ids {
+        let item_ids: &[String] = &context.inventory_item_ids;
+        for item_id in item_ids {
             insert_into(asset_maintenance_logs::table)
                 .values((
                     asset_maintenance_logs::id.eq(next_id(conn, IdPrefix::PROPERTY)),

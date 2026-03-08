@@ -20,9 +20,18 @@ pub use finance::*;
 pub use ids::*;
 pub use messaging::*;
 pub use resources::*;
-pub use staff::*;
-pub use student::*;
-pub use system::*;
+pub use staff::{
+    Staff, StaffQuery, StaffResponse, attendance as StaffAttendance, history as StaffHistory,
+    LessonProgress as StaffLessonProgress,
+};
+pub use student::{
+    Student, StudentQuery, StudentResponse, attendance as StudentAttendance,
+    history as StudentHistory, DetentionBalance as StudentDetentionBalance,
+};
+pub use system::{
+    FileModel, FileQuery, FileResponse,
+    SchoolSettingResponse, UpdateSchoolSettingRequest,
+};
 
 use apistos::ApiComponent;
 use schemars::JsonSchema;

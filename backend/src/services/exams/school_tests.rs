@@ -1,7 +1,7 @@
 use crate::errors::APIError;
 use crate::models::exams::school_test::{
     CreateSchoolTestRequest, UpdateSchoolTestRequest,
-    CreateSchoolTestSubjectRequest, UpdateSchoolTestSubjectRequest,
+    CreateSchoolTestSubjectRequest,
     SchoolTest, SchoolTestSubject, SchoolTestQuery, SchoolTestSubjectQuery,
 };
 use crate::schema::{school_test_subjects, school_tests};

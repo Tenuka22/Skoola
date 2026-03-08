@@ -1,11 +1,6 @@
-use crate::models::academic::subject::{CreateSubjectRequest, UpdateSubjectRequest, SubjectResponse, Subject, SubjectQuery};
+use crate::models::academic::subject::{CreateSubjectRequest, UpdateSubjectRequest, SubjectResponse, SubjectQuery};
 use crate::services::academic::subject::SubjectService;
-use crate::{create_admin_handlers, AppState};
-use actix_web::web;
-use actix_web::web::Json;
-use apistos::{ApiComponent, api_operation};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use crate::create_admin_handlers;
 
 create_admin_handlers!(
     tag => "subjects",

@@ -1,11 +1,6 @@
 use crate::models::exams::grading_scheme::{CreateGradingSchemeRequest, UpdateGradingSchemeRequest, GradingScheme, GradingSchemeQuery};
 use crate::services::exams::grading_schemes::GradingSchemeService;
-use crate::{create_admin_handlers, AppState};
-use actix_web::web;
-use actix_web::web::Json;
-use apistos::{ApiComponent, api_operation};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use crate::create_admin_handlers;
 
 create_admin_handlers!(
     tag => "grading_schemes",

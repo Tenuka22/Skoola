@@ -3,12 +3,7 @@ use crate::models::exams::school_test::{
     CreateSchoolTestSubjectRequest, UpdateSchoolTestSubjectRequest, SchoolTestSubject, SchoolTestSubjectQuery
 };
 use crate::services::exams::school_tests::{SchoolTestService, SchoolTestSubjectService};
-use crate::{create_admin_handlers, AppState};
-use actix_web::web;
-use actix_web::web::Json;
-use apistos::{ApiComponent, api_operation};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use crate::create_admin_handlers;
 
 create_admin_handlers!(
     tag => "school_tests",

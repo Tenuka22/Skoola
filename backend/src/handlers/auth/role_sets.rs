@@ -1,12 +1,6 @@
-use crate::models::auth::role::{CreateRoleSetRequest, UpdateRoleSetRequest, RoleSetQuery};
-use crate::database::tables::RoleSet;
+use crate::models::auth::role::{CreateRoleSetRequest, UpdateRoleSetRequest, RoleSet, RoleSetQuery};
 use crate::services::auth::role_sets::RoleSetService;
-use crate::{create_admin_handlers, AppState};
-use actix_web::web;
-use actix_web::web::Json;
-use apistos::{ApiComponent, api_operation};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use crate::create_admin_handlers;
 
 create_admin_handlers!(
     tag => "role_sets",

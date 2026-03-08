@@ -41,7 +41,6 @@ pub fn generate_realistic_paragraph() -> String {
 }
 
 // Re-exporting from seed.rs
-pub use crate::{generate_uuid, random_date_in_past, random_datetime_in_past};
 
 pub fn get_random_id(ids: &[String]) -> String {
     if ids.is_empty() {

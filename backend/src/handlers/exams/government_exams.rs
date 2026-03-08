@@ -3,12 +3,7 @@ use crate::models::exams::government_exam::{
     CreateGovernmentExamSubjectRequest, UpdateGovernmentExamSubjectRequest, GovernmentExamSubject, GovernmentExamSubjectQuery
 };
 use crate::services::exams::government_exams::{GovernmentExamService, GovernmentExamSubjectService};
-use crate::{create_admin_handlers, AppState};
-use actix_web::web;
-use actix_web::web::Json;
-use apistos::{ApiComponent, api_operation};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use crate::create_admin_handlers;
 
 create_admin_handlers!(
     tag => "government_exams",

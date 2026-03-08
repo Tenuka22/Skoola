@@ -1,7 +1,7 @@
 use crate::database::enums::PermissionEnum;
 use crate::handlers::exams::{
-    exam_structures, government_exams, grading_schemes, marking_schemes, report_cards,
-    school_tests, zscore, exam_types, exams,
+    exam_structures, government_exams, grading_schemes, marking_schemes,
+    school_tests, exam_types, exams,
 };
 use crate::utils::jwt::Authenticated;
 use crate::utils::permission_verification::PermissionVerification;

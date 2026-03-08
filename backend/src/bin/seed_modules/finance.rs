@@ -12,11 +12,10 @@ use backend::models::finance::budget::Budget;
 use backend::models::finance::fees::{FeeCategory, FeeStructure, FeeStructurePricing, FeeStructureSchedule, StudentFee, FeePayment, FeePaymentDetail};
 use backend::models::ids::IdPrefix;
 use backend::schema::*;
-use chrono::{Utc, NaiveDate};
+use chrono::Utc;
 use diesel::insert_into;
 use diesel::prelude::*;
 use std::collections::HashSet;
-use rand::Rng;
 
 pub struct FinanceSeeder;
 
@@ -37,8 +36,6 @@ impl SeedModule for FinanceSeeder {
         _seed_count_config: &crate::SeedCountConfig,
     ) -> Result<()> {
         println!("Seeding Finance module...");
-
-        let mut rng = rand::thread_rng();
 
         // 1. chart_of_accounts
         println!("Seeding chart_of_accounts...");
@@ -92,7 +89,6 @@ impl SeedModule for FinanceSeeder {
         // 3. fee_categories, structures, pricing, schedule, items
         println!("Seeding fee structures...");
         let mut fee_structure_ids = Vec::new();
-        let mut fee_structure_item_ids = Vec::new();
         for i in 0..20 {
             let cat_id = next_id(conn, IdPrefix::FEE);
             insert_into(fee_categories::table)
@@ -163,7 +159,6 @@ impl SeedModule for FinanceSeeder {
                             fee_structure_items::updated_at.eq(Utc::now().naive_utc()),
                         ))
                         .execute(conn)?;
-                    fee_structure_item_ids.push(fsi_id);
                 }
 
                 fee_structure_ids.push(fs_id);
@@ -270,7 +265,7 @@ impl SeedModule for FinanceSeeder {
             vendor_ids.push(id);
         }
 
-        for i in 0..100 {
+        for _ in 0..100 {
             let po_id = next_id(conn, IdPrefix::PROPERTY);
             insert_into(purchase_orders::table)
                 .values(&(
@@ -386,7 +381,7 @@ impl SeedModule for FinanceSeeder {
 
         // 8. petty cash
         println!("Seeding petty cash...");
-        for i in 0..100 {
+        for _ in 0..100 {
             insert_into(petty_cash_transactions::table)
                 .values(&(
                     petty_cash_transactions::id.eq(next_id(conn, IdPrefix::FINANCIAL)),
@@ -402,7 +397,8 @@ impl SeedModule for FinanceSeeder {
 
         // 9. inventory_transactions
         println!("Seeding inventory_transactions...");
-        for item_id in &context.inventory_item_ids {
+        let item_ids: &[String] = &context.inventory_item_ids;
+        for item_id in item_ids {
             for _ in 0..5 {
                 insert_into(inventory_transactions::table)
                     .values(&(

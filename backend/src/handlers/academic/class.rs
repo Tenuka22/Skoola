@@ -1,11 +1,9 @@
-use crate::models::academic::class::{CreateClassRequest, UpdateClassRequest, ClassResponse, Class, ClassQuery};
+use crate::models::academic::class::{CreateClassRequest, UpdateClassRequest, ClassResponse, ClassQuery};
 use crate::services::academic::class::ClassService;
 use crate::{create_admin_handlers, AppState};
 use actix_web::web;
 use actix_web::web::Json;
-use apistos::{ApiComponent, api_operation};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use apistos::api_operation;
 
 create_admin_handlers!(
     tag => "classes",

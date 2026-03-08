@@ -11,9 +11,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 required_permission: PermissionEnum::StaffManage,
             })
             .wrap(Authenticated)
-            .route("", web::post().to(staff::create_staff))
-            .route("/{id}", web::get().to(staff::get_staff_by_id))
             .route("", web::get().to(staff::get_all_staff))
+            .route("/{id}", web::get().to(staff::get_staff_by_id))
             .route("/{id}", web::put().to(staff::update_staff))
             .route("/{id}", web::delete().to(staff::delete_staff))
             .route("/bulk", web::delete().to(staff::bulk_delete_staff))

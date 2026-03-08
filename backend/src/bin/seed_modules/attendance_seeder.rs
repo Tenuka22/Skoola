@@ -4,7 +4,7 @@ use anyhow::Result;
 use backend::config::Config;
 use backend::database::enums::{
     AttendanceStatus, PolicyRuleType,
-    ConsequenceType, EmergencyStatus, ExitReason, PreApprovedReason, ExcuseType, AttendanceDiscrepancyType, SeverityLevel
+    ConsequenceType, EmergencyStatus, ExitReason, PreApprovedReason, ExcuseType
 };
 use backend::models::student::attendance::StudentAttendance;
 use backend::models::ids::IdPrefix;

@@ -4,13 +4,11 @@ use diesel::prelude::*;
 
 use crate::AppState;
 use crate::errors::APIError;
-use crate::handlers::curriculum_management::{
-    CreateCurriculumStandardRequest, CreateSyllabusRequest, UpdateCurriculumStandardRequest,
-    UpdateSyllabusRequest,
-};
 use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::models::curriculum_management::{
     CurriculumStandard, CurriculumTopic, CurriculumStandardQuery, CurriculumTopicQuery,
+    CreateCurriculumStandardRequest, UpdateCurriculumStandardRequest, CreateSyllabusRequest,
+    UpdateSyllabusRequest,
 };
 use crate::schema::{curriculum_standards, curriculum_topics};
 use crate::impl_admin_entity_service;
@@ -66,29 +64,106 @@ impl_admin_entity_service!(
     }
 );
 
+impl CurriculumStandardService {
+    pub async fn create_with_logic(
+        data: Data<AppState>,
+        req: CreateCurriculumStandardRequest,
+    ) -> Result<CurriculumStandard, APIError> {
+        let mut conn = data.db_pool.get()?;
+        let id = generate_prefixed_id(&mut conn, IdPrefix::CURRICULUM)?;
+        let new_standard = CurriculumStandard {
+            id: id.clone(),
+            subject_id: req.subject_id,
+            grade_level_id: req.grade_level_id,
+            standard_code: req.standard_code,
+            description: req.description,
+            medium: req.medium,
+            version_name: req.version_name,
+            start_date: req.start_date,
+            end_date: req.end_date,
+            is_active: req.is_active,
+            stream_id: None,
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
+        };
+
+        Self::generic_create(data, new_standard).await
+    }
+
+    pub async fn update_with_logic(
+        data: Data<AppState>,
+        standard_id: String,
+        req: UpdateCurriculumStandardRequest,
+    ) -> Result<CurriculumStandard, APIError> {
+        Self::generic_update(data, standard_id, (req, curriculum_standards::updated_at.eq(Utc::now().naive_utc()))).await
+    }
+}
+
+impl SyllabusTopicService {
+    pub async fn create_with_logic(
+        data: Data<AppState>,
+        req: CreateSyllabusRequest,
+    ) -> Result<CurriculumTopic, APIError> {
+        let mut conn = data.db_pool.get()?;
+        let id = generate_prefixed_id(&mut conn, IdPrefix::CURRICULUM)?;
+        let new_topic = CurriculumTopic {
+            id: id.clone(),
+            curriculum_standard_id: req.curriculum_standard_id,
+            parent_id: req.parent_id,
+            topic_name: req.topic_name,
+            full_time_hours: req.suggested_duration_hours.unwrap_or(0) as f32,
+            extra_time_hours: req.buffer_periods as f32,
+            practical_hours: if req.is_practical {
+                req.required_periods as f32
+            } else {
+                0.0
+            },
+            order_index: None,
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
+        };
+        
+        Self::generic_create(data, new_topic).await
+    }
+
+    pub async fn update_with_logic(
+        data: Data<AppState>,
+        syllabus_id: String,
+        req: UpdateSyllabusRequest,
+    ) -> Result<CurriculumTopic, APIError> {
+        let mut conn = data.db_pool.get()?;
+        let target = curriculum_topics::table.filter(curriculum_topics::id.eq(&syllabus_id));
+
+        let updated = diesel::update(target)
+            .set((
+                req.topic_name.map(|v| curriculum_topics::topic_name.eq(v)),
+                req.suggested_duration_hours
+                    .map(|v| curriculum_topics::full_time_hours.eq(v as f32)),
+                req.buffer_periods
+                    .map(|v| curriculum_topics::extra_time_hours.eq(v as f32)),
+                req.required_periods
+                    .map(|v| curriculum_topics::practical_hours.eq(v as f32)),
+                req.parent_id.map(|v| curriculum_topics::parent_id.eq(v)),
+                curriculum_topics::updated_at.eq(Utc::now().naive_utc()),
+            ))
+            .execute(&mut conn)?;
+
+        if updated == 0 {
+            return Err(APIError::not_found(&format!(
+                "Syllabus topic with ID {} not found",
+                syllabus_id
+            )));
+        }
+
+        Self::generic_get_by_id(data, syllabus_id).await
+    }
+}
+
 pub async fn create_curriculum_standard(
     data: Data<AppState>,
     req: CreateCurriculumStandardRequest,
 ) -> Result<CurriculumStandard, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let id = generate_prefixed_id(&mut conn, IdPrefix::CURRICULUM)?;
-    let new_standard = CurriculumStandard {
-        id: id.clone(),
-        subject_id: req.subject_id,
-        grade_level_id: req.grade_level_id,
-        standard_code: req.standard_code,
-        description: req.description,
-        medium: req.medium,
-        version_name: req.version_name,
-        start_date: req.start_date,
-        end_date: req.end_date,
-        is_active: req.is_active,
-        stream_id: None,
-        created_at: Utc::now().naive_utc(),
-        updated_at: Utc::now().naive_utc(),
-    };
-
-    CurriculumStandardService::generic_create(data, new_standard).await
+    CurriculumStandardService::create_with_logic(data, req).await
 }
 
 pub async fn get_curriculum_standard_by_id(
@@ -119,33 +194,7 @@ pub async fn update_curriculum_standard(
     standard_id: String,
     req: UpdateCurriculumStandardRequest,
 ) -> Result<CurriculumStandard, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let target = curriculum_standards::table.filter(curriculum_standards::id.eq(&standard_id));
-    let updated = diesel::update(target)
-        .set((
-            req.subject_id.map(|v| curriculum_standards::subject_id.eq(v)),
-            req.grade_level_id
-                .map(|v| curriculum_standards::grade_level_id.eq(v)),
-            req.standard_code
-                .map(|v| curriculum_standards::standard_code.eq(v)),
-            req.description
-                .map(|v| curriculum_standards::description.eq(v)),
-            req.medium.map(|v| curriculum_standards::medium.eq(v)),
-            req.version_name
-                .map(|v| curriculum_standards::version_name.eq(v)),
-            req.start_date.map(|v| curriculum_standards::start_date.eq(v)),
-            req.end_date.map(|v| curriculum_standards::end_date.eq(v)),
-            req.is_active.map(|v| curriculum_standards::is_active.eq(v)),
-            curriculum_standards::updated_at.eq(Utc::now().naive_utc()),
-        ))
-        .execute(&mut conn)?;
-    if updated == 0 {
-        return Err(APIError::not_found(&format!(
-            "Curriculum standard with ID {} not found",
-            standard_id
-        )));
-    }
-    CurriculumStandardService::generic_get_by_id(data, standard_id).await
+    CurriculumStandardService::update_with_logic(data, standard_id, req).await
 }
 
 pub async fn delete_curriculum_standard(
@@ -159,26 +208,7 @@ pub async fn create_syllabus_topic(
     data: Data<AppState>,
     req: CreateSyllabusRequest,
 ) -> Result<CurriculumTopic, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let id = generate_prefixed_id(&mut conn, IdPrefix::CURRICULUM)?;
-    let new_topic = CurriculumTopic {
-        id: id.clone(),
-        curriculum_standard_id: req.curriculum_standard_id,
-        parent_id: req.parent_id,
-        topic_name: req.topic_name,
-        full_time_hours: req.suggested_duration_hours.unwrap_or(0) as f32,
-        extra_time_hours: req.buffer_periods as f32,
-        practical_hours: if req.is_practical {
-            req.required_periods as f32
-        } else {
-            0.0
-        },
-        order_index: None,
-        created_at: Utc::now().naive_utc(),
-        updated_at: Utc::now().naive_utc(),
-    };
-    
-    SyllabusTopicService::generic_create(data, new_topic).await
+    SyllabusTopicService::create_with_logic(data, req).await
 }
 
 pub async fn get_syllabus_topic_by_id(
@@ -210,31 +240,7 @@ pub async fn update_syllabus_topic(
     syllabus_id: String,
     req: UpdateSyllabusRequest,
 ) -> Result<CurriculumTopic, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let target = curriculum_topics::table.filter(curriculum_topics::id.eq(&syllabus_id));
-
-    let updated = diesel::update(target)
-        .set((
-            req.topic_name.map(|v| curriculum_topics::topic_name.eq(v)),
-            req.suggested_duration_hours
-                .map(|v| curriculum_topics::full_time_hours.eq(v as f32)),
-            req.buffer_periods
-                .map(|v| curriculum_topics::extra_time_hours.eq(v as f32)),
-            req.required_periods
-                .map(|v| curriculum_topics::practical_hours.eq(v as f32)),
-            req.parent_id.map(|v| curriculum_topics::parent_id.eq(v)),
-            curriculum_topics::updated_at.eq(Utc::now().naive_utc()),
-        ))
-        .execute(&mut conn)?;
-
-    if updated == 0 {
-        return Err(APIError::not_found(&format!(
-            "Syllabus topic with ID {} not found",
-            syllabus_id
-        )));
-    }
-
-    SyllabusTopicService::generic_get_by_id(data, syllabus_id).await
+    SyllabusTopicService::update_with_logic(data, syllabus_id, req).await
 }
 
 pub async fn delete_syllabus_topic(

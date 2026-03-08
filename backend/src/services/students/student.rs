@@ -1,20 +1,11 @@
-use crate::database::enums::StudentStatus;
-use crate::schema::{
-    profiles, student_contacts, student_demographics, student_media, student_status, students,
-};
-use crate::{
-    AppState,
-    errors::APIError,
-};
-use crate::models::student::student::{
-    CreateStudentRequest, Student, StudentResponse, UpdateStudentRequest, StudentQuery,
-};
-use crate::models::{NewProfile, Profile};
+use crate::AppState;
+use crate::errors::APIError;
+use crate::models::student::student::{CreateStudentRequest, Student, StudentQuery, StudentResponse};
+use crate::schema::students;
 use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::impl_admin_entity_service;
 use actix_web::web;
 use chrono::Utc;
-use diesel::prelude::*;
 
 impl_admin_entity_service!(
     StudentService,
@@ -24,14 +15,12 @@ impl_admin_entity_service!(
     students::id,
     StudentQuery,
     |q: students::BoxedQuery<'static, diesel::sqlite::Sqlite>, search: String| {
-        let pattern = format!("%{}%", search);
-        q.filter(students::name_english.like(pattern.clone())
-            .or(students::admission_number.like(pattern)))
+        q.filter(students::name_english.like(search))
     },
     |q: students::BoxedQuery<'static, diesel::sqlite::Sqlite>, sort_by, sort_order| {
         match (sort_by, sort_order) {
-            ("name", "asc") => q.order(students::name_english.asc()),
-            ("name", "desc") => q.order(students::name_english.desc()),
+            ("name_english", "asc") => q.order(students::name_english.asc()),
+            ("name_english", "desc") => q.order(students::name_english.desc()),
             _ => q.order(students::created_at.desc()),
         }
     }
@@ -43,36 +32,21 @@ impl StudentService {
         req: CreateStudentRequest,
     ) -> Result<StudentResponse, APIError> {
         let mut conn = pool.db_pool.get()?;
+        let id = generate_prefixed_id(&mut conn, IdPrefix::STUDENT)?;
         
-        let profile_id = generate_prefixed_id(&mut conn, IdPrefix::PROFILE)?;
-        let student_id = generate_prefixed_id(&mut conn, IdPrefix::STUDENT)?;
+        let new_item = Student {
+            id,
+            admission_number: req.admission_number,
+            name_english: req.name_english,
+            name_sinhala: req.name_sinhala,
+            name_tamil: req.name_tamil,
+            dob: req.dob,
+            gender: req.gender,
+            profile_id: None,
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
+        };
 
-        let res = conn.transaction::<_, APIError, _>(|conn| {
-            let new_profile = NewProfile {
-                id: profile_id.clone(),
-                name: req.name_english.clone(),
-                created_at: Utc::now().naive_utc(),
-                updated_at: Utc::now().naive_utc(),
-            };
-            diesel::insert_into(profiles::table).values(&new_profile).execute(conn)?;
-
-            let new_student = Student {
-                id: student_id.clone(),
-                admission_number: req.admission_number.clone(),
-                name_english: req.name_english.clone(),
-                name_sinhala: req.name_sinhala.clone(),
-                name_tamil: req.name_tamil.clone(),
-                dob: req.dob,
-                gender: req.gender.clone(),
-                profile_id: Some(profile_id.clone()),
-                created_at: Utc::now().naive_utc(),
-                updated_at: Utc::now().naive_utc(),
-            };
-            diesel::insert_into(students::table).values(&new_student).execute(conn)?;
-
-            Ok(new_student)
-        })?;
-
-        Self::generic_create(pool, res).await
+        Self::generic_create(pool, new_item).await
     }
 }

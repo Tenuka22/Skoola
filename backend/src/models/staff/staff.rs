@@ -5,10 +5,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use crate::database::enums::{EmploymentStatus, Gender, StaffType};
-use crate::schema::{
-    staff, staff_contacts, staff_employment_status, staff_identity, staff_media,
-    staff_reward_snapshots, staff_subjects,
-};
+use crate::schema::staff;
 
 #[derive(
     Debug,

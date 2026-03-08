@@ -1,14 +1,11 @@
 use crate::AppState;
 use crate::errors::APIError;
 use actix_web::web;
-use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use diesel::sqlite::SqliteConnection;
 use serde::{Deserialize, Serialize};
 use apistos::ApiComponent;
 use schemars::JsonSchema;
-use chrono::Utc;
-use diesel::sqlite::Sqlite;
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone, Default)]
 pub struct AdminQuery {

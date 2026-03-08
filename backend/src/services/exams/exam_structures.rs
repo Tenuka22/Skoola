@@ -231,7 +231,7 @@ pub async fn get_exam_structure_subjects_by_structure(
     let mut data_query = exam_structure_subjects::table
         .filter(exam_structure_subjects::structure_id.eq(&structure_id))
         .into_boxed();
-    let mut count_query = exam_structure_subjects::table
+    let count_query = exam_structure_subjects::table
         .filter(exam_structure_subjects::structure_id.eq(&structure_id))
         .into_boxed();
 

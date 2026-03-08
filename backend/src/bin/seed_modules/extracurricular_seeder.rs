@@ -2,7 +2,6 @@ use super::utils::*;
 use super::{SeedModule, SeederContext};
 use anyhow::Result;
 use backend::config::Config;
-use backend::database::enums::{LeaveStatus, RewardReasonType};
 use backend::database::tables::ActivityType;
 use backend::models::{Sport, Club};
 use backend::models::ids::IdPrefix;
@@ -101,7 +100,6 @@ impl SeedModule for ExtracurricularSeeder {
                     competitions::updated_at.eq(Utc::now().naive_utc()),
                 ))
                 .execute(conn)?;
-            context.competition_ids.push(comp_id);
 
             let event_id = next_id(conn, IdPrefix::CO_CURRICULAR);
             insert_into(cultural_events::table)
@@ -114,7 +112,6 @@ impl SeedModule for ExtracurricularSeeder {
                     cultural_events::updated_at.eq(Utc::now().naive_utc()),
                 ))
                 .execute(conn)?;
-            context.cultural_event_ids.push(event_id);
         }
 
         // 5. activity_participants & activity_attendance
