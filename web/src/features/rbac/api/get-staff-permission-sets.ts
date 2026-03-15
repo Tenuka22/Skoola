@@ -1,16 +1,38 @@
 import { queryOptions } from '@tanstack/react-query'
-import type { GetStaffPermissionSetsData } from '@/lib/api/types.gen'
-import type { Options } from '@/lib/api/sdk.gen'
 import { authClient } from '@/lib/clients'
-import { getStaffPermissionSetsOptions as getStaffPermissionSetsOptionsApi } from '@/lib/api/@tanstack/react-query.gen'
+
+type PermissionSet = {
+  id: string
+  name: string
+  description?: string
+}
+
+type GetStaffPermissionSetsInput = {
+  path: {
+    staff_id: string
+  }
+}
 
 export const getStaffPermissionSetsQueryOptions = (
-  options: Options<GetStaffPermissionSetsData>,
+  options: GetStaffPermissionSetsInput,
 ) => {
   return queryOptions({
-    ...getStaffPermissionSetsOptionsApi({
-      client: authClient,
-      ...options,
-    }),
+    queryKey: ['staff-permission-sets', options.path.staff_id],
+    queryFn: async () => {
+      const result = await authClient.request<
+        PermissionSet[],
+        unknown,
+        false,
+        'data'
+      >({
+        url: '/admin/staff/{staff_id}/permission-sets',
+        method: 'GET',
+        responseStyle: 'data',
+        throwOnError: false,
+        path: options.path,
+      })
+
+      return result ?? []
+    },
   })
 }

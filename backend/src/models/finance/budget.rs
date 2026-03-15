@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     ApiComponent,
 )]
@@ -33,11 +34,39 @@ pub struct SetBudgetRequest {
     pub academic_year_id: String,
     pub category_id: String,
     pub allocated_amount: f32,
+    pub spent_amount: Option<f32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
+#[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
+#[diesel(table_name = budgets)]
 pub struct UpdateBudgetRequest {
-    pub allocated_amount: f32,
+    pub academic_year_id: Option<String>,
+    pub category_id: Option<String>,
+    pub allocated_amount: Option<f32>,
+    pub spent_amount: Option<f32>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct BudgetQuery {
+    pub search: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+    pub last_id: Option<String>,
+}
+
+impl crate::services::admin_db::AsAdminQuery for BudgetQuery {
+    fn as_admin_query(&self) -> crate::services::admin_db::AdminQuery {
+        crate::services::admin_db::AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: self.last_id.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]

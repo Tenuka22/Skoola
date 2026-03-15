@@ -2,304 +2,472 @@ use crate::AppState;
 use apistos::api_operation;
 
 use crate::errors::APIError;
-use crate::models::MessageResponse;
 use crate::models::finance::budget::{
-    BudgetComparisonResponse, BudgetResponse, BudgetSummaryResponse, SetBudgetRequest,
-    UpdateBudgetRequest,
+    Budget, BudgetComparisonResponse, BudgetSummaryResponse, SetBudgetRequest,
+    UpdateBudgetRequest, BudgetQuery,
 };
 use crate::models::finance::budget_category::{
-    BudgetCategoryResponse, CreateBudgetCategoryRequest,
+    BudgetCategory, CreateBudgetCategoryRequest, UpdateBudgetCategoryRequest, BudgetCategoryQuery,
 };
+use crate::models::finance::income_source::{IncomeSource, CreateIncomeSourceRequest, UpdateIncomeSourceRequest, IncomeSourceQuery};
+use crate::models::finance::expense_category::{ExpenseCategory, CreateExpenseCategoryRequest, UpdateExpenseCategoryRequest, ExpenseCategoryQuery};
 use crate::models::finance::petty_cash_transaction::{
-    PettyCashTransactionResponse, RecordPettyCashRequest,
+    PettyCashTransaction, RecordPettyCashRequest,
 };
 use crate::models::finance::salary::{
-    CreateSalaryComponentRequest, RecordSalaryPaymentRequest, SalaryComponentResponse,
-    SalaryPaymentResponse, SetStaffSalaryRequest, StaffSalaryResponse,
+    CreateSalaryComponentRequest, RecordSalaryPaymentRequest, SetStaffSalaryRequest,
+    SalaryComponent, SalaryPayment, StaffSalary,
 };
 use crate::models::finance::transaction::{
-    ExpenseTransactionResponse, IncomeTransactionResponse, ReconcilePettyCashRequest,
+    ExpenseTransaction, IncomeTransaction, ReconcilePettyCashRequest,
     RecordExpenseRequest, RecordIncomeRequest,
 };
+use crate::models::finance::account::{
+    ChartOfAccount, ChartOfAccountQuery, CreateChartOfAccountRequest, UpdateChartOfAccountRequest,
+};
+use crate::models::finance::ledger::{
+    GeneralLedgerEntry, GeneralLedgerQuery, CreateGeneralLedgerRequest, UpdateGeneralLedgerRequest,
+    LedgerEntry, LedgerEntryQuery, CreateLedgerEntryRequest, UpdateLedgerEntryRequest,
+    LedgerTransaction, LedgerTransactionQuery, CreateLedgerTransactionRequest, UpdateLedgerTransactionRequest,
+};
+use crate::services::resources::financial::{
+    BudgetCategoryService, BudgetService, IncomeSourceService, IncomeTransactionService,
+    ExpenseCategoryService, ExpenseTransactionService, PettyCashTransactionService,
+    SalaryComponentService, SalaryPaymentService, ChartOfAccountService, GeneralLedgerService,
+    LedgerTransactionService, LedgerEntryService,
+};
+use crate::services::finance::fees_v2::{FeeInvoiceService, FeeInvoiceItemService, FeePaymentAllocationService, FeeStructureItemService};
+use crate::services::finance::procurement::{VendorService, PurchaseOrderService, PurchaseOrderItemService};
+// use crate::services::finance::procurement::VendorCategoryService;
+use crate::services::finance::detention::DetentionBalanceService;
+use crate::models::finance::fees_v2::*;
+use crate::models::finance::procurement::*;
+use crate::models::finance::detention::*;
 use crate::services::resources::financial;
-use actix_web::web::{Data, Json, Path, Query};
-use apistos::{ApiComponent, web};
-use chrono::NaiveDateTime;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use actix_web::web::{Data, Json, Path};
+use apistos::web;
+use crate::create_admin_handlers;
+use crate::services::admin_db::AdminQuery;
+use crate::database::enums::PermissionEnum;
+use crate::utils::jwt::{Authenticated, UserId};
+use crate::utils::permission_verification::PermissionVerification;
+use actix_web::HttpRequest;
 
-// Budget Category structs
-#[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
-pub struct BudgetCategoryQuery {
-    pub search: Option<String>,
-    pub sort_by: Option<String>,
-    pub sort_order: Option<String>,
-    pub page: Option<i64>,
-    pub limit: Option<i64>,
-    pub last_id: Option<String>,
-}
+create_admin_handlers!(
+    tag => "chart_of_accounts",
+    entity => ChartOfAccount,
+    response => ChartOfAccount,
+    query => ChartOfAccountQuery,
+    create => CreateChartOfAccountRequest,
+    update => UpdateChartOfAccountRequest,
+    service => ChartOfAccountService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
 
-#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
-pub struct PaginatedBudgetCategoryResponse {
-    pub data: Vec<BudgetCategoryResponse>,
-    pub total: i64,
-    pub page: i64,
-    pub limit: i64,
-    pub total_pages: i64,
-    pub next_last_id: Option<String>,
-}
+create_admin_handlers!(
+    tag => "general_ledger",
+    entity => GeneralLedgerEntry,
+    response => GeneralLedgerEntry,
+    query => GeneralLedgerQuery,
+    create => CreateGeneralLedgerRequest,
+    update => UpdateGeneralLedgerRequest,
+    service => GeneralLedgerService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
-pub struct BulkDeleteBudgetCategoriesRequest {
-    pub category_ids: Vec<String>,
-}
+create_admin_handlers!(
+    tag => "ledger_transactions",
+    entity => LedgerTransaction,
+    response => LedgerTransaction,
+    query => LedgerTransactionQuery,
+    create => CreateLedgerTransactionRequest,
+    update => UpdateLedgerTransactionRequest,
+    service => LedgerTransactionService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
-pub struct BulkUpdateBudgetCategoriesRequest {
-    pub category_ids: Vec<String>,
-    pub name: Option<String>,
-    pub description: Option<String>,
-}
+create_admin_handlers!(
+    tag => "ledger_entries",
+    entity => LedgerEntry,
+    response => LedgerEntry,
+    query => LedgerEntryQuery,
+    create => CreateLedgerEntryRequest,
+    update => UpdateLedgerEntryRequest,
+    service => LedgerEntryService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
+
+create_admin_handlers!(
+    tag => "budget_categories",
+    entity => BudgetCategory,
+    response => BudgetCategory,
+    query => BudgetCategoryQuery,
+    create => CreateBudgetCategoryRequest,
+    update => UpdateBudgetCategoryRequest,
+    service => BudgetCategoryService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
+
+create_admin_handlers!(
+    tag => "budgets",
+    entity => Budget,
+    response => Budget,
+    query => BudgetQuery,
+    create => SetBudgetRequest,
+    update => UpdateBudgetRequest,
+    service => BudgetService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
+
+create_admin_handlers!(
+    tag => "income_sources",
+    entity => IncomeSource,
+    response => IncomeSource,
+    query => IncomeSourceQuery,
+    create => CreateIncomeSourceRequest,
+    update => UpdateIncomeSourceRequest,
+    service => IncomeSourceService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
+
+create_admin_handlers!(
+    tag => "income_transactions",
+    entity => IncomeTransaction,
+    response => IncomeTransaction,
+    query => AdminQuery,
+    create => RecordIncomeRequest,
+    update => AdminQuery, // Dummy
+    service => IncomeTransactionService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
+
+create_admin_handlers!(
+    tag => "expense_categories",
+    entity => ExpenseCategory,
+    response => ExpenseCategory,
+    query => ExpenseCategoryQuery,
+    create => CreateExpenseCategoryRequest,
+    update => UpdateExpenseCategoryRequest,
+    service => ExpenseCategoryService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
+
+create_admin_handlers!(
+    tag => "expense_transactions",
+    entity => ExpenseTransaction,
+    response => ExpenseTransaction,
+    query => AdminQuery,
+    create => RecordExpenseRequest,
+    update => AdminQuery, // Dummy
+    service => ExpenseTransactionService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
+
+create_admin_handlers!(
+    tag => "petty_cash_transactions",
+    entity => PettyCashTransaction,
+    response => PettyCashTransaction,
+    query => AdminQuery,
+    create => RecordPettyCashRequest,
+    update => AdminQuery, // Dummy
+    service => PettyCashTransactionService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
+
+create_admin_handlers!(
+    tag => "salary_components",
+    entity => SalaryComponent,
+    response => SalaryComponent,
+    query => AdminQuery,
+    create => CreateSalaryComponentRequest,
+    update => AdminQuery, // Dummy
+    service => SalaryComponentService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
+
+create_admin_handlers!(
+    tag => "salary_payments",
+    entity => SalaryPayment,
+    response => SalaryPayment,
+    query => AdminQuery,
+    create => RecordSalaryPaymentRequest,
+    update => AdminQuery, // Dummy
+    service => SalaryPaymentService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
+
+create_admin_handlers!(
+    tag => "fee_invoices",
+    entity => FeeInvoice,
+    response => FeeInvoiceResponse,
+    query => FeeInvoiceQuery,
+    create => CreateFeeInvoiceRequest,
+    update => UpdateFeeInvoiceRequest,
+    service => FeeInvoiceService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
+
+create_admin_handlers!(
+    tag => "fee_invoice_items",
+    entity => FeeInvoiceItem,
+    response => FeeInvoiceItem,
+    query => AdminQuery,
+    create => CreateFeeInvoiceItemRequest,
+    update => AdminQuery, // Placeholder
+    service => FeeInvoiceItemService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
+
+create_admin_handlers!(
+    tag => "fee_payment_allocations",
+    entity => FeePaymentAllocation,
+    response => FeePaymentAllocation,
+    query => AdminQuery,
+    create => CreateFeePaymentAllocationRequest,
+    update => AdminQuery, // Placeholder
+    service => FeePaymentAllocationService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
+
+create_admin_handlers!(
+    tag => "fee_structure_items",
+    entity => FeeStructureItem,
+    response => FeeStructureItem,
+    query => AdminQuery,
+    create => CreateFeeStructureItemRequest,
+    update => AdminQuery, // Placeholder
+    service => FeeStructureItemService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
+
+create_admin_handlers!(
+    tag => "vendors",
+    entity => Vendor,
+    response => Vendor,
+    query => AdminQuery,
+    create => CreateVendorRequest,
+    update => UpdateVendorRequest,
+    service => VendorService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
+
+/*
+create_admin_handlers!(
+    tag => "vendor_categories",
+    entity => VendorCategory,
+    response => VendorCategory,
+    query => AdminQuery,
+    create => CreateVendorCategoryRequest,
+    update => AdminQuery, // Placeholder
+    service => VendorCategoryService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
+*/
+
+create_admin_handlers!(
+    tag => "purchase_orders",
+    entity => PurchaseOrder,
+    response => PurchaseOrder,
+    query => AdminQuery,
+    create => CreatePurchaseOrderRequest,
+    update => UpdatePurchaseOrderRequest,
+    service => PurchaseOrderService,
+    methods => {
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
+
+create_admin_handlers!(
+    tag => "purchase_order_items",
+    entity => PurchaseOrderItem,
+    response => PurchaseOrderItem,
+    query => AdminQuery,
+    create => CreatePurchaseOrderItemRequest,
+    update => UpdatePurchaseOrderItemRequest,
+    service => PurchaseOrderItemService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
 
 #[api_operation(
-    summary = "Create budget category",
-    description = "Creates a new category for budgeting purposes.",
+    summary = "Create Purchase Order",
+    description = "Creates a new purchase order and sets the current user as the creator.",
     tag = "financial",
-    operation_id = "create_budget_category"
+    operation_id = "create_purchase_order"
 )]
-pub async fn create_budget_category(
+pub async fn create_purchase_order(
     data: Data<AppState>,
-    req: Json<CreateBudgetCategoryRequest>,
-) -> Result<Json<BudgetCategoryResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let cat = financial::create_budget_category(&mut conn, req.into_inner())?;
-    Ok(Json(BudgetCategoryResponse::from(cat)))
+    req: HttpRequest,
+    body: Json<CreatePurchaseOrderRequest>,
+) -> Result<Json<PurchaseOrder>, APIError> {
+    let user_id = UserId::from_request(&req)?;
+    let res = PurchaseOrderService::create_with_logic(data, body.into_inner(), user_id.0).await?;
+    Ok(Json(res))
 }
 
-#[api_operation(
-    summary = "Get all budget categories",
-    description = "Retrieves a paginated list of all budget categories.",
-    tag = "financial",
-    operation_id = "get_all_budget_categories"
-)]
-pub async fn get_all_budget_categories(
-    data: Data<AppState>,
-    query: Query<BudgetCategoryQuery>,
-) -> Result<Json<PaginatedBudgetCategoryResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let inner_query = query.into_inner();
-    let (categories, total_categories, total_pages): (
-        Vec<crate::models::finance::budget_category::BudgetCategory>,
-        i64,
-        i64,
-    ) = financial::get_all_budget_categories(&mut conn, inner_query.clone()).await?;
-    let next_last_id = categories.last().map(|c| c.id.clone());
-    Ok(Json(PaginatedBudgetCategoryResponse {
-        data: categories
-            .into_iter()
-            .map(BudgetCategoryResponse::from)
-            .collect(),
-        total: total_categories,
-        page: inner_query.page.unwrap_or(1),
-        limit: inner_query.limit.unwrap_or(10),
-        total_pages,
-        next_last_id,
-    }))
-}
-
-#[api_operation(
-    summary = "Bulk delete budget categories",
-    description = "Deletes multiple budget categories by their IDs.",
-    tag = "financial",
-    operation_id = "bulk_delete_budget_categories"
-)]
-pub async fn bulk_delete_budget_categories(
-    data: Data<AppState>,
-    body: Json<BulkDeleteBudgetCategoriesRequest>,
-) -> Result<Json<MessageResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    financial::bulk_delete_budget_categories(&mut conn, body.into_inner().category_ids).await?;
-    Ok(Json(MessageResponse {
-        message: "Budget categories deleted successfully".to_string(),
-    }))
-}
-
-#[api_operation(
-    summary = "Bulk update budget categories",
-    description = "Updates multiple budget categories' information.",
-    tag = "financial",
-    operation_id = "bulk_update_budget_categories"
-)]
-pub async fn bulk_update_budget_categories(
-    data: Data<AppState>,
-    body: Json<BulkUpdateBudgetCategoriesRequest>,
-) -> Result<Json<MessageResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    financial::bulk_update_budget_categories(&mut conn, body.into_inner()).await?;
-    Ok(Json(MessageResponse {
-        message: "Budget categories updated successfully".to_string(),
-    }))
-}
-
-#[api_operation(
-    summary = "Set budget",
-    description = "Sets or updates a budget for a category and academic year.",
-    tag = "financial",
-    operation_id = "set_budget"
-)]
-pub async fn set_budget(
-    data: Data<AppState>,
-    req: Json<SetBudgetRequest>,
-) -> Result<Json<BudgetResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let budget = financial::set_budget(&mut conn, req.into_inner())?;
-    Ok(Json(BudgetResponse::from(budget)))
-}
-
-#[api_operation(
-    summary = "Record income",
-    description = "Records a new income transaction.",
-    tag = "financial",
-    operation_id = "record_income"
-)]
-pub async fn record_income(
-    data: Data<AppState>,
-    req: Json<RecordIncomeRequest>,
-) -> Result<Json<IncomeTransactionResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let trans = financial::record_income(&mut conn, req.into_inner())?;
-    Ok(Json(IncomeTransactionResponse::from(trans)))
-}
-
-#[api_operation(
-    summary = "Record expense",
-    description = "Records a new expense transaction.",
-    tag = "financial",
-    operation_id = "record_expense"
-)]
-pub async fn record_expense(
-    data: Data<AppState>,
-    req: Json<RecordExpenseRequest>,
-) -> Result<Json<ExpenseTransactionResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let trans = financial::record_expense(data.clone(), &mut conn, req.into_inner()).await?;
-    Ok(Json(ExpenseTransactionResponse::from(trans)))
-}
-
-#[api_operation(
-    summary = "Record petty cash",
-    description = "Records a new petty cash transaction.",
-    tag = "financial",
-    operation_id = "record_petty_cash"
-)]
-pub async fn record_petty_cash(
-    data: Data<AppState>,
-    req: Json<RecordPettyCashRequest>,
-) -> Result<Json<PettyCashTransactionResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let trans = financial::record_petty_cash(&mut conn, req.into_inner())?;
-    Ok(Json(PettyCashTransactionResponse::from(trans)))
-}
-
-#[api_operation(
-    summary = "Create salary component",
-    description = "Creates a new salary component (e.g., Basic, Allowance).",
-    tag = "financial",
-    operation_id = "create_salary_component"
-)]
-pub async fn create_salary_component(
-    data: Data<AppState>,
-    req: Json<CreateSalaryComponentRequest>,
-) -> Result<Json<SalaryComponentResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let comp = financial::create_salary_component(&mut conn, req.into_inner())?;
-    Ok(Json(SalaryComponentResponse::from(comp)))
-}
-
-#[api_operation(
-    summary = "Set staff salary",
-    description = "Defines the salary structure for a specific staff member.",
-    tag = "financial",
-    operation_id = "set_staff_salary"
-)]
-pub async fn set_staff_salary(
-    data: Data<AppState>,
-    req: Json<SetStaffSalaryRequest>,
-) -> Result<Json<StaffSalaryResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let salary = financial::set_staff_salary(&mut conn, req.into_inner())?;
-    Ok(Json(StaffSalaryResponse::from(salary)))
-}
-
-pub fn config(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::scope("/financial")
-            .route("/budget-categories", web::post().to(create_budget_category))
-            .route(
-                "/budget-categories",
-                web::get().to(get_all_budget_categories),
-            )
-            .route(
-                "/budget-categories/bulk",
-                web::delete().to(bulk_delete_budget_categories),
-            )
-            .route(
-                "/budget-categories/bulk",
-                web::patch().to(bulk_update_budget_categories),
-            )
-            .route("/budgets", web::post().to(set_budget))
-            .route("/budgets/{id}", web::patch().to(update_budget))
-            .route(
-                "/budgets/summary/{year_id}",
-                web::get().to(get_budget_summary),
-            )
-            .route(
-                "/budgets/comparison/{year_id}",
-                web::get().to(get_budget_comparison),
-            )
-            .route("/income", web::post().to(record_income))
-            .route(
-                "/income/source/{source_id}",
-                web::get().to(get_income_by_source),
-            )
-            .route("/income/report", web::get().to(get_income_report))
-            .route("/expense", web::post().to(record_expense))
-            .route(
-                "/expense/category/{cat_id}",
-                web::get().to(get_expenses_by_category),
-            )
-            .route("/expense/report", web::get().to(get_expense_report))
-            .route("/petty-cash", web::post().to(record_petty_cash))
-            .route(
-                "/petty-cash/reconcile",
-                web::post().to(reconcile_petty_cash),
-            )
-            .route("/petty-cash/balance", web::get().to(get_petty_cash_balance))
-            .route(
-                "/salary-components",
-                web::post().to(create_salary_component),
-            )
-            .route("/staff-salary", web::post().to(set_staff_salary))
-            .route("/salary-payments", web::post().to(record_salary_payment)),
-    );
-}
-
-#[api_operation(
-    summary = "Update budget allocation",
-    description = "Updates the allocation for an existing budget.",
-    tag = "financial",
-    operation_id = "update_budget_allocation"
-)]
-pub async fn update_budget(
-    data: Data<AppState>,
-    path: Path<String>,
-    req: Json<UpdateBudgetRequest>,
-) -> Result<Json<BudgetResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let budget =
-        financial::update_budget_allocation(&mut conn, &path.into_inner(), req.into_inner())?;
-    Ok(Json(BudgetResponse::from(budget)))
-}
+create_admin_handlers!(
+    tag => "detention_balances",
+    entity => DetentionBalance,
+    response => DetentionBalanceResponse,
+    query => DetentionBalanceQuery,
+    create => CreateDetentionBalanceRequest,
+    update => UpdateDetentionBalanceRequest,
+    service => DetentionBalanceService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
 
 #[api_operation(
     summary = "Get budget summary",
@@ -312,126 +480,13 @@ pub async fn get_budget_summary(
     path: Path<String>,
 ) -> Result<Json<Vec<BudgetSummaryResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let summary = financial::get_budget_summary(&mut conn, &path.into_inner())?;
-    Ok(Json(summary))
-}
-
-#[api_operation(
-    summary = "Get income by source",
-    description = "Retrieves all income transactions for a specific source.",
-    tag = "financial",
-    operation_id = "get_income_by_source"
-)]
-pub async fn get_income_by_source(
-    data: Data<AppState>,
-    path: Path<String>,
-) -> Result<Json<Vec<IncomeTransactionResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let trans = financial::get_income_by_source(&mut conn, &path.into_inner())?;
-    Ok(Json(
-        trans
-            .into_iter()
-            .map(IncomeTransactionResponse::from)
-            .collect(),
-    ))
-}
-
-#[api_operation(
-    summary = "Get expenses by category",
-    description = "Retrieves all expense transactions for a specific category.",
-    tag = "financial",
-    operation_id = "get_expenses_by_category"
-)]
-pub async fn get_expenses_by_category(
-    data: Data<AppState>,
-    path: Path<String>,
-) -> Result<Json<Vec<ExpenseTransactionResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let trans = financial::get_expenses_by_category(&mut conn, &path.into_inner())?;
-    Ok(Json(
-        trans
-            .into_iter()
-            .map(ExpenseTransactionResponse::from)
-            .collect(),
-    ))
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
-pub struct DateRangeRequest {
-    pub start: NaiveDateTime,
-    pub end: NaiveDateTime,
-}
-
-#[api_operation(
-    summary = "Get income report (date range)",
-    description = "Retrieves an income report within a specified date range.",
-    tag = "financial",
-    operation_id = "get_income_report"
-)]
-pub async fn get_income_report(
-    data: Data<AppState>,
-    query: Query<DateRangeRequest>,
-) -> Result<Json<Vec<IncomeTransactionResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let trans = financial::get_income_by_date_range(&mut conn, query.start, query.end)?;
-    Ok(Json(
-        trans
-            .into_iter()
-            .map(IncomeTransactionResponse::from)
-            .collect(),
-    ))
-}
-
-#[api_operation(
-    summary = "Get expense report (date range)",
-    description = "Retrieves an expense report within a specified date range.",
-    tag = "financial",
-    operation_id = "get_expense_report"
-)]
-pub async fn get_expense_report(
-    data: Data<AppState>,
-    query: Query<DateRangeRequest>,
-) -> Result<Json<Vec<ExpenseTransactionResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let trans = financial::get_expenses_by_date_range(&mut conn, query.start, query.end)?;
-    Ok(Json(
-        trans
-            .into_iter()
-            .map(ExpenseTransactionResponse::from)
-            .collect(),
-    ))
-}
-
-#[api_operation(
-    summary = "Get petty cash balance",
-    description = "Retrieves the current balance of the petty cash fund.",
-    tag = "financial",
-    operation_id = "get_petty_cash_balance"
-)]
-pub async fn get_petty_cash_balance(data: Data<AppState>) -> Result<Json<f32>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let balance = financial::get_petty_cash_balance(&mut conn)?;
-    Ok(Json(balance))
-}
-
-#[api_operation(
-    summary = "Record salary payment",
-    description = "Records a new salary payment for a staff member.",
-    tag = "financial",
-    operation_id = "record_salary_payment"
-)]
-pub async fn record_salary_payment(
-    data: Data<AppState>,
-    req: Json<RecordSalaryPaymentRequest>,
-) -> Result<Json<SalaryPaymentResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let payment = financial::record_salary_payment(&mut conn, req.into_inner())?;
-    Ok(Json(SalaryPaymentResponse::from(payment)))
+    let res = financial::get_budget_summary(&mut conn, &path.into_inner())?;
+    Ok(Json(res))
 }
 
 #[api_operation(
     summary = "Get budget comparison",
-    description = "Retrieves a comparison report between budgeted and actual figures.",
+    description = "Retrieves a comparison of budgets for a specific year.",
     tag = "financial",
     operation_id = "get_budget_comparison"
 )]
@@ -440,21 +495,177 @@ pub async fn get_budget_comparison(
     path: Path<String>,
 ) -> Result<Json<Vec<BudgetComparisonResponse>>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let comparison = financial::get_budget_comparison(&mut conn, &path.into_inner())?;
-    Ok(Json(comparison))
+    let res = financial::get_budget_comparison(&mut conn, &path.into_inner())?;
+    Ok(Json(res))
+}
+
+#[api_operation(
+    summary = "Record expense",
+    description = "Records a new expense transaction.",
+    tag = "financial",
+    operation_id = "record_expense_manual"
+)]
+pub async fn record_expense(
+    data: Data<AppState>,
+    req: Json<RecordExpenseRequest>,
+) -> Result<Json<ExpenseTransaction>, APIError> {
+    let res = financial::record_expense(data, req.into_inner()).await?;
+    Ok(Json(res))
 }
 
 #[api_operation(
     summary = "Reconcile petty cash",
-    description = "Reconciles the petty cash fund.",
+    description = "Reconciles the petty cash balance with the physical balance.",
     tag = "financial",
-    operation_id = "reconcile_petty_cash"
+    operation_id = "reconcile_petty_cash_manual"
 )]
 pub async fn reconcile_petty_cash(
     data: Data<AppState>,
     req: Json<ReconcilePettyCashRequest>,
-) -> Result<Json<PettyCashTransactionResponse>, APIError> {
+) -> Result<Json<PettyCashTransaction>, APIError> {
+    let res = financial::reconcile_petty_cash(data, req.into_inner()).await?;
+    Ok(Json(res))
+}
+
+#[api_operation(
+    summary = "Get petty cash balance",
+    description = "Retrieves the current petty cash balance.",
+    tag = "financial",
+    operation_id = "get_petty_cash_balance_manual"
+)]
+pub async fn get_petty_cash_balance(
+    data: Data<AppState>,
+) -> Result<Json<f32>, APIError> {
     let mut conn = data.db_pool.get()?;
-    let trans = financial::reconcile_petty_cash(&mut conn, req.into_inner())?;
-    Ok(Json(PettyCashTransactionResponse::from(trans)))
+    let res = financial::get_petty_cash_balance(&mut conn)?;
+    Ok(Json(res))
+}
+
+#[api_operation(
+    summary = "Set staff salary",
+    description = "Defines the salary structure for a specific staff member.",
+    tag = "financial",
+    operation_id = "set_staff_salary_manual"
+)]
+pub async fn set_staff_salary(
+    data: Data<AppState>,
+    req: Json<SetStaffSalaryRequest>,
+) -> Result<Json<StaffSalary>, APIError> {
+    let res = financial::set_staff_salary(data, req.into_inner()).await?;
+    Ok(Json(res))
+}
+
+pub fn config(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::scope("/financial-ops")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::SystemAdmin })
+            .route("/budgets/summary/{year_id}", web::get().to(get_budget_summary))
+            .route("/budgets/comparison/{year_id}", web::get().to(get_budget_comparison))
+            .route("/expenses", web::post().to(record_expense))
+            .route("/petty-cash/reconcile", web::post().to(reconcile_petty_cash))
+            .route("/petty-cash/balance", web::get().to(get_petty_cash_balance))
+            .route("/salaries/staff", web::post().to(set_staff_salary)),
+    )
+    .service(
+        web::scope("/fee-invoices")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::SystemAdmin })
+            .route("", web::post().to(create_fee_invoice))
+            .route("/{id}", web::get().to(get_fee_invoice_by_id))
+            .route("", web::get().to(get_all_fee_invoice))
+            .route("/{id}", web::put().to(update_fee_invoice))
+            .route("/{id}", web::delete().to(delete_fee_invoice))
+            .route("/bulk", web::delete().to(bulk_delete_fee_invoice))
+            .route("/bulk", web::patch().to(bulk_update_fee_invoice)),
+    )
+    .service(
+        web::scope("/fee-invoice-items")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::SystemAdmin })
+            .route("", web::post().to(create_fee_invoice_item))
+            .route("/{id}", web::get().to(get_fee_invoice_item_by_id))
+            .route("", web::get().to(get_all_fee_invoice_item))
+            .route("/{id}", web::delete().to(delete_fee_invoice_item))
+            .route("/bulk", web::delete().to(bulk_delete_fee_invoice_item)),
+    )
+    .service(
+        web::scope("/fee-payment-allocations")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::SystemAdmin })
+            .route("", web::post().to(create_fee_payment_allocation))
+            .route("/{id}", web::get().to(get_fee_payment_allocation_by_id))
+            .route("", web::get().to(get_all_fee_payment_allocation))
+            .route("/{id}", web::delete().to(delete_fee_payment_allocation))
+            .route("/bulk", web::delete().to(bulk_delete_fee_payment_allocation)),
+    )
+    .service(
+        web::scope("/fee-structure-items")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::SystemAdmin })
+            .route("", web::post().to(create_fee_structure_item))
+            .route("/{id}", web::get().to(get_fee_structure_item_by_id))
+            .route("", web::get().to(get_all_fee_structure_item))
+            .route("/{id}", web::delete().to(delete_fee_structure_item))
+            .route("/bulk", web::delete().to(bulk_delete_fee_structure_item)),
+    )
+    .service(
+        web::scope("/vendors")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::SystemAdmin })
+            .route("", web::post().to(create_vendor))
+            .route("/{id}", web::get().to(get_vendor_by_id))
+            .route("", web::get().to(get_all_vendor))
+            .route("/{id}", web::put().to(update_vendor))
+            .route("/{id}", web::delete().to(delete_vendor))
+            .route("/bulk", web::delete().to(bulk_delete_vendor))
+            .route("/bulk", web::patch().to(bulk_update_vendor)),
+    )
+/*
+    .service(
+        web::scope("/vendor-categories")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::SystemAdmin })
+            .route("", web::post().to(create_vendor_category))
+            .route("/{id}", web::get().to(get_vendor_category_by_id))
+            .route("", web::get().to(get_all_vendor_category))
+            .route("/{id}", web::put().to(update_vendor_category))
+            .route("/{id}", web::delete().to(delete_vendor_category))
+            .route("/bulk", web::delete().to(bulk_delete_vendor_category)),
+    )
+*/
+    .service(
+        web::scope("/purchase-orders")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::SystemAdmin })
+            .route("", web::post().to(create_purchase_order))
+            .route("/{id}", web::get().to(get_purchase_order_by_id))
+            .route("", web::get().to(get_all_purchase_order))
+            .route("/{id}", web::put().to(update_purchase_order))
+            .route("/{id}", web::delete().to(delete_purchase_order))
+            .route("/bulk", web::delete().to(bulk_delete_purchase_order)),
+    )
+    .service(
+        web::scope("/purchase-order-items")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::SystemAdmin })
+            .route("", web::post().to(create_purchase_order_item))
+            .route("/{id}", web::get().to(get_purchase_order_item_by_id))
+            .route("", web::get().to(get_all_purchase_order_item))
+            .route("/{id}", web::put().to(update_purchase_order_item))
+            .route("/{id}", web::delete().to(delete_purchase_order_item))
+            .route("/bulk", web::delete().to(bulk_delete_purchase_order_item)),
+    )
+    .service(
+        web::scope("/detention-balances")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::SystemAdmin })
+            .route("", web::post().to(create_detention_balance))
+            .route("/{id}", web::get().to(get_detention_balance_by_id))
+            .route("", web::get().to(get_all_detention_balance))
+            .route("/{id}", web::put().to(update_detention_balance))
+            .route("/{id}", web::delete().to(delete_detention_balance))
+            .route("/bulk", web::delete().to(bulk_delete_detention_balance))
+            .route("/bulk", web::patch().to(bulk_update_detention_balance)),
+    );
 }

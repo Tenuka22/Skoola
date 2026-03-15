@@ -38,17 +38,15 @@ export function PermissionSetsTab() {
   const { selectedPermissionSetId, setSelectedPermissionSetId } =
     useRBACSearchParams()
 
-  const { data: sets = [], isLoading } = useQuery(
-    getPermissionSetsQueryOptions(),
-  )
+  const { data: sets = [], isLoading } = useQuery(getPermissionSetsQueryOptions())
 
   const deleteSet = useDeletePermissionSet()
 
-  const filteredSets =
-    sets?.filter((s) => s.name.toLowerCase().includes(search.toLowerCase())) ||
-    []
+  const filteredSets = sets.filter((s) =>
+    s.name.toLowerCase().includes(search.toLowerCase()),
+  )
 
-  const selectedSet = sets?.find((s) => s.id === selectedPermissionSetId)
+  const selectedSet = sets.find((s) => s.id === selectedPermissionSetId)
 
   return (
     <Card>
@@ -133,7 +131,7 @@ export function PermissionSetsTab() {
                             e.stopPropagation()
                             deleteSet.mutate(
                               {
-                                path: { user_set_id: set.id },
+                                path: { id: set.id },
                               },
                               {
                                 onSuccess: () => {

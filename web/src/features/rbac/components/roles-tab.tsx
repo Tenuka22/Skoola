@@ -43,10 +43,24 @@ function RoleCard({
     getRolePermissionsQueryOptions({ path: { role_id: role } }),
   )
 
-  const permissionCount = React.useMemo(() => {
-    const perms = rawPermissions?.permissions || []
-    return perms.filter(isPermissionEnum).length
+  const permissionsFromResponse = React.useMemo(() => {
+    if (!rawPermissions || typeof rawPermissions !== 'object') {
+      return []
+    }
+
+    if (!('permissions' in rawPermissions)) {
+      return []
+    }
+
+    const candidate = rawPermissions.permissions
+    return Array.isArray(candidate)
+      ? candidate.filter((p: unknown) => typeof p === 'string')
+      : []
   }, [rawPermissions])
+
+  const permissionCount = React.useMemo(() => {
+    return permissionsFromResponse.filter(isPermissionEnum).length
+  }, [permissionsFromResponse])
 
   const description =
     role === 'FullAdmin'

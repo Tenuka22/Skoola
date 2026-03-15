@@ -1,16 +1,38 @@
 import { queryOptions } from '@tanstack/react-query'
-import type { Options } from '@/lib/api/sdk.gen'
-import type { GetAllPermissionSetsData } from '@/lib/api/types.gen'
-import { getAllPermissionSetsOptions } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 
+type PermissionSet = {
+  id: string
+  name: string
+  description?: string
+}
+
+type GetPermissionSetsResponse = PermissionSet[]
+
+type GetPermissionSetsOptions = {
+  query?: Record<string, string | number | boolean | undefined>
+}
+
 export const getPermissionSetsQueryOptions = (
-  options?: Options<GetAllPermissionSetsData>,
+  options?: GetPermissionSetsOptions,
 ) => {
   return queryOptions({
-    ...getAllPermissionSetsOptions({
-      client: authClient,
-      ...options,
-    }),
+    queryKey: ['permission-sets', options?.query ?? {}],
+    queryFn: async () => {
+      const result = await authClient.request<
+        GetPermissionSetsResponse,
+        unknown,
+        false,
+        'data'
+      >({
+        url: '/admin/user-sets',
+        method: 'GET',
+        responseStyle: 'data',
+        throwOnError: false,
+        query: options?.query,
+      })
+
+      return result ?? []
+    },
   })
 }

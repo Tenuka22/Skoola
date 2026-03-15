@@ -9,7 +9,10 @@ use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::models::messaging::{
     Conversation, Message, NewConversation, NewConversationParticipant, NewMessage,
 };
-use crate::schema::{conversation_participants, conversations, messages};
+use crate::schema::{conversation_participants, conversations as conversations_schema, messages as messages_schema};
+
+pub mod conversations;
+pub mod messages;
 
 // Service to start a new conversation
 pub async fn start_new_conversation(
@@ -25,16 +28,18 @@ pub async fn start_new_conversation(
     }
 
     let new_conversation_id = generate_prefixed_id(&mut conn, IdPrefix::CONVERSATION)?;
+    let now = Utc::now().naive_utc();
     let new_conversation = NewConversation {
         id: new_conversation_id.clone(),
         subject: req.subject,
+        created_at: now,
     };
 
-    diesel::insert_into(conversations::table)
+    diesel::insert_into(conversations_schema::table)
         .values(&new_conversation)
         .execute(&mut conn)?;
 
-    let conversation = conversations::table
+    let conversation = conversations_schema::table
         .find(&new_conversation_id)
         .first::<Conversation>(&mut conn)?;
 
@@ -62,8 +67,8 @@ pub async fn get_user_conversations(
 
     let user_conversations = conversation_participants::table
         .filter(conversation_participants::user_id.eq(user_id))
-        .inner_join(conversations::table)
-        .select(conversations::all_columns)
+        .inner_join(conversations_schema::table)
+        .select(conversations_schema::all_columns)
         .load::<Conversation>(&mut conn)?;
 
     Ok(user_conversations)
@@ -98,13 +103,14 @@ pub async fn send_message(
         conversation_id,
         sender_user_id,
         content,
+        sent_at: Utc::now().naive_utc(),
     };
 
-    diesel::insert_into(messages::table)
+    diesel::insert_into(messages_schema::table)
         .values(&new_message)
         .execute(&mut conn)?;
 
-    let message = messages::table
+    let message = messages_schema::table
         .find(&new_message_id)
         .first::<Message>(&mut conn)?;
 
@@ -133,9 +139,9 @@ pub async fn get_conversation_messages(
         ));
     }
 
-    let conversation_messages = messages::table
-        .filter(messages::conversation_id.eq(conversation_id))
-        .order(messages::sent_at.asc())
+    let conversation_messages = messages_schema::table
+        .filter(messages_schema::conversation_id.eq(conversation_id))
+        .order(messages_schema::sent_at.asc())
         .load::<Message>(&mut conn)?;
 
     Ok(conversation_messages)
@@ -150,8 +156,8 @@ pub async fn mark_message_as_read(
     let mut conn = data.db_pool.get()?;
 
     // Find the message to get its conversation_id
-    let message: Message = messages::table
-        .filter(messages::id.eq(&message_id))
+    let message: Message = messages_schema::table
+        .filter(messages_schema::id.eq(&message_id))
         .first::<Message>(&mut conn)
         .optional()?
         .ok_or_else(|| APIError::not_found("Message not found"))?;
@@ -170,8 +176,8 @@ pub async fn mark_message_as_read(
         ));
     }
 
-    let updated_rows = diesel::update(messages::table.filter(messages::id.eq(message_id)))
-        .set(messages::read_at.eq(Some(Utc::now().naive_utc())))
+    let updated_rows = diesel::update(messages_schema::table.filter(messages_schema::id.eq(message_id)))
+        .set(messages_schema::read_at.eq(Some(Utc::now().naive_utc())))
         .execute(&mut conn)?;
 
     Ok(updated_rows)

@@ -21,12 +21,14 @@ dev-backend-hr:
 check-backend:
     cd backend; cargo check
 
+check-admin-crud:
+    powershell -NoProfile -ExecutionPolicy Bypass -File .\\backend\\scripts\\check_admin_crud_coverage.ps1
+
 db-seed:
     cd backend; cargo run --bin seed
 
 db-migrate:
     cd backend; diesel migration run; diesel print-schema > src/schema.rs
-
 
 # ---------------- WEB ----------------
 

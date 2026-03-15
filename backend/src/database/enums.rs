@@ -445,6 +445,7 @@ diesel_text_enum! {
         GradeLevelManage,
         ClassManage,
         SubjectManage,
+        AlStreamManage,
         ClassSubjectTeacherManage,
         TimetableManage,
         ExamTypeManage,
@@ -486,7 +487,29 @@ diesel_text_enum! {
         BehaviorIncidentUpdate,
         BehaviorIncidentDelete,
         BehaviorIncidentManage,
+        FinanceCreate,
+        FinanceRead,
+        FinanceUpdate,
+        FinanceDelete,
+        FinanceManage,
         ViewFinancialReports,
+        ReportCardMarkManage,
+        AttendancePolicyManage,
+        AttendanceExcuseManage,
+        AttendanceDiscrepancyManage,
+        EmergencyRollCallManage,
+        PracticalLessonAppealManage,
+        LessonProgressAttachmentManage,
+        StudentDocumentManage,
+        StudentContactManage,
+        StudentStatusManage,
+        StudentMedicalManage,
+        StudentFeeManage,
+        StudentMissedLessonManage,
+        StaffContractManage,
+        StaffEventManage,
+        StaffStatusManage,
+        StaffIdentityManage,
         SystemAdmin,
         UserUpdateMedium,
         UserDeleteSevere,
@@ -708,6 +731,7 @@ impl PermissionEnum {
             | PermissionEnum::MessagingDelete
             | PermissionEnum::BehaviorIncidentTypeDelete
             | PermissionEnum::BehaviorIncidentDelete
+            | PermissionEnum::FinanceDelete
             | PermissionEnum::UserDeleteSevere => PermissionSeverity::Severe,
 
             PermissionEnum::UserUpdate
@@ -720,6 +744,7 @@ impl PermissionEnum {
             | PermissionEnum::GradeLevelManage
             | PermissionEnum::ClassManage
             | PermissionEnum::SubjectManage
+            | PermissionEnum::AlStreamManage
             | PermissionEnum::ClassSubjectTeacherManage
             | PermissionEnum::TimetableManage
             | PermissionEnum::ExamTypeManage
@@ -753,7 +778,16 @@ impl PermissionEnum {
             | PermissionEnum::BehaviorIncidentTypeManage
             | PermissionEnum::BehaviorIncidentRecord
             | PermissionEnum::BehaviorIncidentUpdate
-            | PermissionEnum::BehaviorIncidentManage => PermissionSeverity::Medium,
+            | PermissionEnum::BehaviorIncidentManage
+            | PermissionEnum::FinanceUpdate
+            | PermissionEnum::FinanceManage
+            | PermissionEnum::ReportCardMarkManage
+            | PermissionEnum::AttendancePolicyManage
+            | PermissionEnum::AttendanceExcuseManage
+            | PermissionEnum::AttendanceDiscrepancyManage
+            | PermissionEnum::EmergencyRollCallManage
+            | PermissionEnum::PracticalLessonAppealManage
+            | PermissionEnum::LessonProgressAttachmentManage => PermissionSeverity::Medium,
 
             PermissionEnum::UserRead
             | PermissionEnum::RoleRead
@@ -771,9 +805,12 @@ impl PermissionEnum {
             | PermissionEnum::BehaviorIncidentTypeCreate
             | PermissionEnum::BehaviorIncidentTypeRead
             | PermissionEnum::BehaviorIncidentRead
+            | PermissionEnum::FinanceCreate
+            | PermissionEnum::FinanceRead
             | PermissionEnum::ViewFinancialReports => PermissionSeverity::Low,
 
             _ => PermissionSeverity::Medium,
         }
     }
 }
+

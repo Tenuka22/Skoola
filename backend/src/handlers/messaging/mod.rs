@@ -82,6 +82,8 @@ pub struct SendMessageRequest {
 
 use crate::models::auth::CurrentUser;
 
+pub mod admin;
+
 #[api_operation(
     summary = "Create Conversation",
     description = "Starts a new conversation with one or more participants.",

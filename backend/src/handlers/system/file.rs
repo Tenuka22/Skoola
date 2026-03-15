@@ -1,4 +1,4 @@
-use crate::models::system::file::{FileModel, FileQuery, FileResponse, UpdateFileRequest};
+use crate::models::system::file::{CreateFileRequest, FileQuery, FileResponse, UpdateFileRequest};
 use crate::services::system::file::FileService;
 use crate::{create_admin_handlers, AppState};
 use crate::database::enums::PermissionEnum;
@@ -13,17 +13,18 @@ create_admin_handlers!(
     entity => File,
     response => FileResponse,
     query => FileQuery,
-    create => FileModel,
+    create => CreateFileRequest,
     update => UpdateFileRequest,
     service => FileService,
     methods => {
+        create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
         update => generic_update,
         delete => delete_with_file,
         bulk_delete => generic_bulk_delete,
         bulk_update => generic_bulk_update,
-        bulk_create => generic_bulk_create
+        bulk_create => bulk_create_with_logic
     }
 );
 

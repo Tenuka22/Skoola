@@ -4,8 +4,7 @@ import { toast } from 'sonner'
 import type { RegisterUserData } from '@/lib/api/types.gen'
 import type { Options } from '@/lib/api/sdk.gen'
 import {
-  getAllUsersQueryKey,
-  getUserStatisticsQueryKey,
+  getAllUserQueryKey,
   registerUserMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
@@ -20,10 +19,7 @@ export const useRegisterUser = (
     onSuccess: () => {
       toast.success('User created successfully')
       queryClient.invalidateQueries({
-        queryKey: getAllUsersQueryKey(),
-      })
-      queryClient.invalidateQueries({
-        queryKey: getUserStatisticsQueryKey(),
+        queryKey: getAllUserQueryKey(),
       })
     },
     onError: (error) => {

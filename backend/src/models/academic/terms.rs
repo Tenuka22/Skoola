@@ -5,7 +5,18 @@ use diesel::{AsChangeset, Insertable, Queryable};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Queryable, Insertable, AsChangeset, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(
+    Queryable,
+    Insertable,
+    AsChangeset,
+    Debug,
+    Clone,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    JsonSchema,
+    ApiComponent,
+)]
 #[diesel(table_name = terms)]
 pub struct Term {
     pub id: String,

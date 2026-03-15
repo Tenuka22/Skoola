@@ -1,5 +1,5 @@
 use crate::models::academic::class::{CreateClassRequest, UpdateClassRequest, ClassResponse, ClassQuery};
-use crate::services::academic::class::ClassService;
+use crate::services::academic::ClassService;
 use crate::{create_admin_handlers, AppState};
 use actix_web::web;
 use actix_web::web::Json;

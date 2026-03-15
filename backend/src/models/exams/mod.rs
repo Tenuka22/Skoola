@@ -1,21 +1,27 @@
 pub mod exam_structure;
 pub mod exam_type;
 pub mod exam;
+pub mod exam_subject;
 pub mod government_exam;
+pub mod grading_criterion;
 pub mod grading_scheme;
 pub mod marking_scheme;
 pub mod report_card;
 pub mod school_test;
+pub mod special_exam;
 pub mod student_marks;
 pub mod zscore;
 
 pub use exam_structure::*;
 pub use exam_type::*;
 pub use exam::*;
+pub use exam_subject::*;
 pub use government_exam::*;
+pub use grading_criterion::*;
 pub use grading_scheme::*;
 pub use marking_scheme::*;
 pub use report_card::*;
 pub use school_test::*;
+pub use special_exam::*;
 pub use student_marks::*;
 pub use zscore::*;

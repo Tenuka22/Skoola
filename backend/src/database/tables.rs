@@ -938,6 +938,22 @@ pub struct CurriculumStandard {
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
+#[diesel(table_name = curriculum_topics)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct CurriculumTopic {
+    pub id: String,
+    pub curriculum_standard_id: String,
+    pub parent_id: Option<String>,
+    pub topic_name: String,
+    pub full_time_hours: f32,
+    pub extra_time_hours: f32,
+    pub practical_hours: f32,
+    pub order_index: Option<i32>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
 #[diesel(table_name = student_missed_lessons)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct StudentMissedLesson {

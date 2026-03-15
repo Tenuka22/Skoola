@@ -1,51 +1,153 @@
 use crate::{
     AppState, errors::APIError, models::resources::co_curricular::*,
-    services::resources::co_curricular,
 };
+use crate::services::resources::co_curricular::{
+    SportService, SportTeamService, ClubService, CompetitionService,
+    StudentAchievementService, CulturalEventService, ClubActivityService,
+    self as co_curricular_service
+};
+use crate::utils::jwt::Authenticated;
+use crate::utils::permission_verification::PermissionVerification;
+use crate::database::enums::PermissionEnum;
 use actix_web::web::{Data, Json, Path};
 use apistos::{api_operation, web};
-// use serde_json; // Removed unused import
+use crate::create_admin_handlers;
+use crate::services::admin_db::AdminQuery;
 
-// --- Sports Handlers ---
+create_admin_handlers!(
+    tag => "sports",
+    entity => Sport,
+    response => Sport,
+    query => AdminQuery,
+    create => CreateSportRequest,
+    update => UpdateSportRequest,
+    service => SportService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
 
-#[api_operation(
-    summary = "Create a new sport",
-    description = "Creates a new sport category in the system.",
-    tag = "co-curricular",
-    operation_id = "create_sport"
-)]
-pub async fn create_sport(
-    data: Data<AppState>,
-    body: Json<CreateSportRequest>,
-) -> Result<Json<Sport>, APIError> {
-    let sport = co_curricular::create_sport(data, body.into_inner()).await?;
-    Ok(Json(sport))
-}
+create_admin_handlers!(
+    tag => "sport_teams",
+    entity => SportTeam,
+    response => SportTeam,
+    query => AdminQuery,
+    create => CreateSportTeamRequest,
+    update => UpdateSportTeamRequest,
+    service => SportTeamService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
 
-#[api_operation(
-    summary = "Get all sports",
-    description = "Retrieves a list of all sports available in the school.",
-    tag = "co-curricular",
-    operation_id = "get_all_sports"
-)]
-pub async fn get_all_sports(data: Data<AppState>) -> Result<Json<Vec<Sport>>, APIError> {
-    let sports = co_curricular::get_all_sports(data).await?;
-    Ok(Json(sports))
-}
+create_admin_handlers!(
+    tag => "clubs",
+    entity => Club,
+    response => Club,
+    query => AdminQuery,
+    create => CreateClubRequest,
+    update => UpdateClubRequest,
+    service => ClubService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
 
-#[api_operation(
-    summary = "Create a sport team",
-    description = "Creates a new sport team for a specific sport and grade level.",
-    tag = "co-curricular",
-    operation_id = "create_sport_team"
-)]
-pub async fn create_sport_team(
-    data: Data<AppState>,
-    body: Json<CreateSportTeamRequest>,
-) -> Result<Json<SportTeam>, APIError> {
-    let team = co_curricular::create_sport_team(data, body.into_inner()).await?;
-    Ok(Json(team))
-}
+create_admin_handlers!(
+    tag => "competitions",
+    entity => Competition,
+    response => Competition,
+    query => AdminQuery,
+    create => CreateCompetitionRequest,
+    update => UpdateCompetitionRequest,
+    service => CompetitionService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
+
+create_admin_handlers!(
+    tag => "student_achievements",
+    entity => StudentAchievement,
+    response => StudentAchievement,
+    query => AdminQuery,
+    create => CreateStudentAchievementRequest,
+    update => UpdateStudentAchievementRequest,
+    service => StudentAchievementService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
+
+create_admin_handlers!(
+    tag => "cultural_events",
+    entity => CulturalEvent,
+    response => CulturalEvent,
+    query => AdminQuery,
+    create => CreateCulturalEventRequest,
+    update => UpdateCulturalEventRequest,
+    service => CulturalEventService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
+
+create_admin_handlers!(
+    tag => "club_activities",
+    entity => ClubActivity,
+    response => ClubActivity,
+    query => AdminQuery,
+    create => CreateClubActivityRequest,
+    update => UpdateClubActivityRequest,
+    service => ClubActivityService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
+
+// --- Specialized Handlers ---
 
 #[api_operation(
     summary = "Add member to sport team",
@@ -59,22 +161,8 @@ pub async fn add_sport_team_member(
     body: Json<AddSportTeamMemberRequest>,
 ) -> Result<Json<SportTeamMember>, APIError> {
     let team_id = path.into_inner();
-    let member = co_curricular::add_sport_team_member(data, team_id, body.into_inner()).await?;
+    let member = co_curricular_service::add_sport_team_member(data, team_id, body.into_inner()).await?;
     Ok(Json(member))
-}
-
-#[api_operation(
-    summary = "Create sport event",
-    description = "Registers a new sport event (e.g., match, tournament).",
-    tag = "co-curricular",
-    operation_id = "create_sport_event"
-)]
-pub async fn create_sport_event(
-    data: Data<AppState>,
-    body: Json<CreateSportEventRequest>,
-) -> Result<Json<SportEvent>, APIError> {
-    let event = co_curricular::create_sport_event(data, body.into_inner()).await?;
-    Ok(Json(event))
 }
 
 #[api_operation(
@@ -90,24 +178,8 @@ pub async fn record_sport_event_result(
 ) -> Result<Json<SportEventParticipant>, APIError> {
     let event_id = path.into_inner();
     let participant =
-        co_curricular::record_sport_event_result(data, event_id, body.into_inner()).await?;
+        co_curricular_service::record_sport_event_result(data, event_id, body.into_inner()).await?;
     Ok(Json(participant))
-}
-
-// --- Clubs Handlers ---
-
-#[api_operation(
-    summary = "Create a new club",
-    description = "Creates a new school club or society.",
-    tag = "co-curricular",
-    operation_id = "create_club"
-)]
-pub async fn create_club(
-    data: Data<AppState>,
-    body: Json<CreateClubRequest>,
-) -> Result<Json<Club>, APIError> {
-    let club = co_curricular::create_club(data, body.into_inner()).await?;
-    Ok(Json(club))
 }
 
 #[api_operation(
@@ -122,38 +194,8 @@ pub async fn add_club_member(
     body: Json<AddClubMemberRequest>,
 ) -> Result<Json<ClubMember>, APIError> {
     let club_id = path.into_inner();
-    let member = co_curricular::add_club_member(data, club_id, body.into_inner()).await?;
+    let member = co_curricular_service::add_club_member(data, club_id, body.into_inner()).await?;
     Ok(Json(member))
-}
-
-#[api_operation(
-    summary = "Create club activity",
-    description = "Logs a specific activity or meeting for a club.",
-    tag = "co-curricular",
-    operation_id = "create_club_activity"
-)]
-pub async fn create_club_activity(
-    data: Data<AppState>,
-    body: Json<CreateClubActivityRequest>,
-) -> Result<Json<ClubActivity>, APIError> {
-    let activity = co_curricular::create_club_activity(data, body.into_inner()).await?;
-    Ok(Json(activity))
-}
-
-// --- Competitions Handlers ---
-
-#[api_operation(
-    summary = "Create a competition",
-    description = "Registers a new school or inter-school competition.",
-    tag = "co-curricular",
-    operation_id = "create_competition"
-)]
-pub async fn create_competition(
-    data: Data<AppState>,
-    body: Json<CreateCompetitionRequest>,
-) -> Result<Json<Competition>, APIError> {
-    let comp = co_curricular::create_competition(data, body.into_inner()).await?;
-    Ok(Json(comp))
 }
 
 #[api_operation(
@@ -169,38 +211,8 @@ pub async fn add_competition_participant(
 ) -> Result<Json<CompetitionParticipant>, APIError> {
     let competition_id = path.into_inner();
     let participant =
-        co_curricular::add_competition_participant(data, competition_id, body.into_inner()).await?;
+        co_curricular_service::add_competition_participant(data, competition_id, body.into_inner()).await?;
     Ok(Json(participant))
-}
-
-#[api_operation(
-    summary = "Create student achievement",
-    description = "Records an achievement or award earned by a student.",
-    tag = "co-curricular",
-    operation_id = "create_student_achievement"
-)]
-pub async fn create_student_achievement(
-    data: Data<AppState>,
-    body: Json<CreateStudentAchievementRequest>,
-) -> Result<Json<StudentAchievement>, APIError> {
-    let achievement = co_curricular::create_student_achievement(data, body.into_inner()).await?;
-    Ok(Json(achievement))
-}
-
-// --- Cultural Handlers ---
-
-#[api_operation(
-    summary = "Create cultural event",
-    description = "Registers a new cultural event (e.g., concert, exhibition).",
-    tag = "co-curricular",
-    operation_id = "create_cultural_event"
-)]
-pub async fn create_cultural_event(
-    data: Data<AppState>,
-    body: Json<CreateCulturalEventRequest>,
-) -> Result<Json<CulturalEvent>, APIError> {
-    let event = co_curricular::create_cultural_event(data, body.into_inner()).await?;
-    Ok(Json(event))
 }
 
 #[api_operation(
@@ -216,7 +228,7 @@ pub async fn add_cultural_event_participant(
 ) -> Result<Json<CulturalEventParticipant>, APIError> {
     let event_id = path.into_inner();
     let participant =
-        co_curricular::add_cultural_event_participant(data, event_id, body.into_inner()).await?;
+        co_curricular_service::add_cultural_event_participant(data, event_id, body.into_inner()).await?;
     Ok(Json(participant))
 }
 
@@ -231,47 +243,68 @@ pub async fn get_student_summary(
     path: Path<String>,
 ) -> Result<Json<StudentCoCurricularSummary>, APIError> {
     let student_id = path.into_inner();
-    let summary = co_curricular::get_student_co_curricular_summary(data, student_id).await?;
+    let summary = co_curricular_service::get_student_co_curricular_summary(data, student_id).await?;
     Ok(Json(summary))
 }
 
 pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/co-curricular")
-            // Sports
-            .route("/sports", web::post().to(create_sport))
-            .route("/sports", web::get().to(get_all_sports))
-            .route("/sports/teams", web::post().to(create_sport_team))
-            .route(
-                "/sports/teams/{team_id}/members",
-                web::post().to(add_sport_team_member),
-            )
-            .route("/sports/events", web::post().to(create_sport_event))
-            .route(
-                "/sports/events/{event_id}/results",
-                web::post().to(record_sport_event_result),
-            )
-            // Clubs
-            .route("/clubs", web::post().to(create_club))
+        web::scope("/sports")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::CoCurricularManage })
+            .route("", web::post().to(create_sport))
+            .route("/{id}", web::get().to(get_sport_by_id))
+            .route("", web::get().to(get_all_sport))
+            .route("/{id}", web::put().to(update_sport))
+            .route("/{id}", web::delete().to(delete_sport))
+            .route("/bulk", web::delete().to(bulk_delete_sport))
+            .route("/bulk", web::patch().to(bulk_update_sport)),
+    )
+    .service(
+        web::scope("/sport-teams")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::CoCurricularManage })
+            .route("", web::post().to(create_sport_team))
+            .route("/{id}", web::get().to(get_sport_team_by_id))
+            .route("", web::get().to(get_all_sport_team))
+            .route("/{id}", web::put().to(update_sport_team))
+            .route("/{id}", web::delete().to(delete_sport_team))
+            .route("/bulk", web::delete().to(bulk_delete_sport_team))
+            .route("/bulk", web::patch().to(bulk_update_sport_team)),
+    )
+    .service(
+        web::scope("/clubs")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::CoCurricularManage })
+            .route("", web::post().to(create_club))
+            .route("/{id}", web::get().to(get_club_by_id))
+            .route("", web::get().to(get_all_club))
+            .route("/{id}", web::put().to(update_club))
+            .route("/{id}", web::delete().to(delete_club))
+            .route("/bulk", web::delete().to(bulk_delete_club))
+            .route("/bulk", web::patch().to(bulk_update_club)),
+    )
+    .service(
+        web::scope("/club-activities")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::CoCurricularManage })
+            .route("", web::post().to(create_club_activity))
+            .route("/{id}", web::get().to(get_club_activity_by_id))
+            .route("", web::get().to(get_all_club_activity))
+            .route("/{id}", web::put().to(update_club_activity))
+            .route("/{id}", web::delete().to(delete_club_activity))
+            .route("/bulk", web::delete().to(bulk_delete_club_activity))
+            .route("/bulk", web::patch().to(bulk_update_club_activity)),
+    )
+    .service(
+        web::scope("/co-curricular-ops")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::CoCurricularManage })
+            .route("/sports/teams/{team_id}/members", web::post().to(add_sport_team_member))
+            .route("/sports/events/{event_id}/results", web::post().to(record_sport_event_result))
             .route("/clubs/{club_id}/members", web::post().to(add_club_member))
-            .route("/clubs/activities", web::post().to(create_club_activity))
-            // Competitions
-            .route("/competitions", web::post().to(create_competition))
-            .route(
-                "/competitions/{id}/participants",
-                web::post().to(add_competition_participant),
-            )
-            .route("/achievements", web::post().to(create_student_achievement))
-            // Cultural
-            .route("/cultural/events", web::post().to(create_cultural_event))
-            .route(
-                "/cultural/events/{id}/participants",
-                web::post().to(add_cultural_event_participant),
-            )
-            // Summary
-            .route(
-                "/summary/student/{student_id}",
-                web::get().to(get_student_summary),
-            ),
+            .route("/competitions/{id}/participants", web::post().to(add_competition_participant))
+            .route("/cultural/events/{id}/participants", web::post().to(add_cultural_event_participant))
+            .route("/summary/student/{student_id}", web::get().to(get_student_summary)),
     );
 }

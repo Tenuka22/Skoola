@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import type { UpdateUserData } from '@/lib/api/types.gen'
 import type { Options } from '@/lib/api/sdk.gen'
 import {
-  getAllUsersQueryKey,
+  getAllUserQueryKey,
   updateUserMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
@@ -17,7 +17,7 @@ export const useUpdateUser = (options?: Partial<Options<UpdateUserData>>) => {
     onSuccess: () => {
       toast.success('User updated successfully')
       queryClient.invalidateQueries({
-        queryKey: getAllUsersQueryKey(),
+        queryKey: getAllUserQueryKey(),
       })
     },
     onError: (error) => {

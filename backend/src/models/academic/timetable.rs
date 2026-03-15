@@ -30,9 +30,9 @@ pub struct Timetable {
     pub end_time: NaiveTime,
     pub room: String,
     pub academic_year_id: String,
+    pub grade_period_id: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub grade_period_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Insertable, JsonSchema, ApiComponent)]
@@ -63,6 +63,33 @@ pub struct UpdateTimetableRequest {
     pub grade_period_id: Option<String>,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct TimetableQuery {
+    pub search: Option<String>,
+    pub class_id: Option<String>,
+    pub teacher_id: Option<String>,
+    pub day_of_week: Option<String>,
+    pub academic_year_id: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+    pub last_id: Option<String>,
+}
+
+impl crate::services::admin_db::AsAdminQuery for TimetableQuery {
+    fn as_admin_query(&self) -> crate::services::admin_db::AdminQuery {
+        crate::services::admin_db::AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: self.last_id.clone(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct TimetableResponse {
     pub id: String,
@@ -74,9 +101,9 @@ pub struct TimetableResponse {
     pub end_time: NaiveTime,
     pub room: String,
     pub academic_year_id: String,
+    pub grade_period_id: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub grade_period_id: Option<String>,
 }
 
 impl From<Timetable> for TimetableResponse {
@@ -91,9 +118,9 @@ impl From<Timetable> for TimetableResponse {
             end_time: timetable.end_time,
             room: timetable.room,
             academic_year_id: timetable.academic_year_id,
+            grade_period_id: timetable.grade_period_id,
             created_at: timetable.created_at,
             updated_at: timetable.updated_at,
-            grade_period_id: timetable.grade_period_id,
         }
     }
 }

@@ -3,7 +3,7 @@ use crate::AppState;
 use crate::errors::APIError;
 use crate::services::system::email::send_email;
 use crate::database::tables::{StudentMissedLesson, LessonProgressAttachment, StudentGuardian, Student};
-use crate::models::staff::attendance::LessonProgress;
+use crate::models::curriculum_management::LessonProgress;
 use actix_web::web;
 use diesel::prelude::*;
 use chrono::Utc;

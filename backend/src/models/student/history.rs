@@ -3,9 +3,10 @@ use chrono::{NaiveDate, NaiveDateTime};
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use apistos::ApiComponent;
 
 #[derive(
-    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema,
+    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent
 )]
 #[diesel(table_name = student_class_assignments_history)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -22,7 +23,7 @@ pub struct StudentClassAssignmentHistory {
 }
 
 #[derive(
-    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema,
+    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent
 )]
 #[diesel(table_name = student_previous_schools)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -37,7 +38,7 @@ pub struct StudentPreviousSchool {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct CreateStudentPreviousSchoolRequest {
     pub student_id: String,
     pub school_name: String,
@@ -46,7 +47,7 @@ pub struct CreateStudentPreviousSchoolRequest {
     pub reason_for_leaving: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = student_previous_schools)]
 pub struct UpdateStudentPreviousSchoolRequest {
     pub school_name: Option<String>,
@@ -55,7 +56,7 @@ pub struct UpdateStudentPreviousSchoolRequest {
     pub reason_for_leaving: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct StudentPreviousSchoolResponse {
     pub id: String,
     pub student_id: String,

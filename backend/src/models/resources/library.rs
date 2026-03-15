@@ -1,15 +1,26 @@
+use crate::database::enums::LibraryIssueStatus;
+use crate::schema::{library_books, library_categories, library_issues, library_settings};
 use apistos::ApiComponent;
 use chrono::NaiveDate;
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use crate::database::enums::LibraryIssueStatus;
-
-use crate::schema::{library_books, library_categories, library_issues, library_settings};
+use crate::services::admin_db::{AdminQuery, AsAdminQuery};
 
 // ============= Database Models =============
 
-#[derive(Debug, Clone, Queryable, Selectable, Serialize, Deserialize, JsonSchema, ApiComponent)]
+#[derive(
+    Debug,
+    Clone,
+    Queryable,
+    Selectable,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    Insertable,
+    AsChangeset,
+)]
 #[diesel(table_name = library_categories)]
 pub struct LibraryCategory {
     pub id: i32,
@@ -17,6 +28,45 @@ pub struct LibraryCategory {
     pub description: Option<String>,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct LibraryCategoryResponse {
+    pub id: i32,
+    pub category_name: String,
+    pub description: Option<String>,
+}
+
+impl From<LibraryCategory> for LibraryCategoryResponse {
+    fn from(c: LibraryCategory) -> Self {
+        Self {
+            id: c.id,
+            category_name: c.category_name,
+            description: c.description,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct LibraryCategoryQuery {
+    pub search: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}
+
+impl AsAdminQuery for LibraryCategoryQuery {
+    fn as_admin_query(&self) -> AdminQuery {
+        AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: None,
+        }
+    }
 }
 
 #[derive(
@@ -28,6 +78,7 @@ pub struct LibraryCategory {
     Deserialize,
     JsonSchema,
     ApiComponent,
+    Insertable,
     AsChangeset,
 )]
 #[diesel(table_name = library_books)]
@@ -46,7 +97,41 @@ pub struct LibraryBook {
     pub updated_at: chrono::NaiveDateTime,
 }
 
-#[derive(Debug, Clone, Queryable, Selectable, Serialize, Deserialize, JsonSchema, ApiComponent)]
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct LibraryBookQuery {
+    pub search: Option<String>,
+    pub category_id: Option<i32>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}
+
+impl AsAdminQuery for LibraryBookQuery {
+    fn as_admin_query(&self) -> AdminQuery {
+        AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: None,
+        }
+    }
+}
+
+#[derive(
+    Debug,
+    Clone,
+    Queryable,
+    Selectable,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    Insertable,
+    AsChangeset,
+)]
 #[diesel(table_name = library_settings)]
 pub struct LibrarySettings {
     pub id: i32,
@@ -59,7 +144,63 @@ pub struct LibrarySettings {
     pub updated_at: chrono::NaiveDateTime,
 }
 
-#[derive(Debug, Clone, Queryable, Selectable, Serialize, Deserialize, JsonSchema, ApiComponent)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct LibrarySettingsResponse {
+    pub id: i32,
+    pub max_books_per_student: i32,
+    pub max_books_per_staff: i32,
+    pub issue_duration_days_student: i32,
+    pub issue_duration_days_staff: i32,
+    pub fine_per_day: f32,
+}
+
+impl From<LibrarySettings> for LibrarySettingsResponse {
+    fn from(s: LibrarySettings) -> Self {
+        Self {
+            id: s.id,
+            max_books_per_student: s.max_books_per_student,
+            max_books_per_staff: s.max_books_per_staff,
+            issue_duration_days_student: s.issue_duration_days_student,
+            issue_duration_days_staff: s.issue_duration_days_staff,
+            fine_per_day: s.fine_per_day,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct LibrarySettingsQuery {
+    pub search: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}
+
+impl AsAdminQuery for LibrarySettingsQuery {
+    fn as_admin_query(&self) -> AdminQuery {
+        AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: None,
+        }
+    }
+}
+
+#[derive(
+    Debug,
+    Clone,
+    Queryable,
+    Selectable,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    ApiComponent,
+    Insertable,
+    AsChangeset,
+)]
 #[diesel(table_name = library_issues)]
 pub struct LibraryIssue {
     pub id: i32,
@@ -78,11 +219,44 @@ pub struct LibraryIssue {
     pub updated_at: chrono::NaiveDateTime,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct LibraryIssueQuery {
+    pub search: Option<String>,
+    pub student_id: Option<String>,
+    pub staff_id: Option<String>,
+    pub status: Option<LibraryIssueStatus>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}
+
+impl AsAdminQuery for LibraryIssueQuery {
+    fn as_admin_query(&self) -> AdminQuery {
+        AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: None,
+        }
+    }
+}
+
 // ============= Request Models =============
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent, Clone, AsChangeset)]
+#[diesel(table_name = library_categories)]
 pub struct CreateLibraryCategoryRequest {
     pub category_name: String,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent, Clone, AsChangeset)]
+#[diesel(table_name = library_categories)]
+pub struct UpdateLibraryCategoryRequest {
+    pub category_name: Option<String>,
     pub description: Option<String>,
 }
 
@@ -97,7 +271,8 @@ pub struct CreateLibraryBookRequest {
     pub rack_number: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent, AsChangeset)]
+#[diesel(table_name = library_books)]
 pub struct UpdateLibraryBookRequest {
     pub isbn: Option<String>,
     pub title: Option<String>,
@@ -114,11 +289,27 @@ pub struct IssueBookRequest {
     pub book_id: i32,
     pub student_id: Option<String>,
     pub staff_id: Option<String>,
-    pub remarks: Option<String>,
+    pub remarks: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
 pub struct ReturnBookRequest {
+    pub remarks: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
+pub struct PayFineRequest {
+    pub amount: f32,
+    pub payment_method: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent, Clone, AsChangeset)]
+#[diesel(table_name = library_issues)]
+pub struct UpdateLibraryIssueRequest {
+    pub return_date: Option<NaiveDate>,
+    pub status: Option<LibraryIssueStatus>,
+    pub fine_amount: Option<f32>,
+    pub fine_paid: Option<bool>,
     pub remarks: Option<String>,
 }
 
@@ -129,11 +320,6 @@ pub struct UpdateLibrarySettingsRequest {
     pub issue_duration_days_student: Option<i32>,
     pub issue_duration_days_staff: Option<i32>,
     pub fine_per_day: Option<f32>,
-}
-
-#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
-pub struct PayFineRequest {
-    pub amount: f32,
 }
 
 // ============= Response Models =============

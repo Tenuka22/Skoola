@@ -65,7 +65,7 @@ impl IdPrefix {
     pub const ACTIVITY: Self = Self("act");
     pub const AUDIT: Self = Self("aud");
     pub const STUDENT_CLASS_ASSIGNMENT: Self = Self("sca");
-    pub const ATTENDANCE_POLICY: Self = Self("apl");
+    pub const ATTENDANCE_POLICY: Self = Self("atp");
     pub const PROPERTY_ALLOCATION: Self = Self("pal");
     pub const PROPERTY: Self = Self("prp");
     pub const FINANCIAL_ALLOCATION: Self = Self("fal");
@@ -77,6 +77,7 @@ impl IdPrefix {
     pub const GOVERNMENT_EXAM: Self = Self("gex");
     pub const SCHOOL_TEST: Self = Self("stt");
     pub const REPORT_CARD: Self = Self("rcd");
+    pub const REPORT_CARD_MARK: Self = Self("rcm");
     pub const MARKING_SCHEME: Self = Self("mks");
     pub const MARKING_SCHEME_PART: Self = Self("mkp");
     pub const ASSESSMENT: Self = Self("asm");
@@ -85,13 +86,18 @@ impl IdPrefix {
     pub const EXAM_TYPE: Self = Self("ext");
     pub const EXAM_STRUCTURE: Self = Self("exs");
     pub const EXAM: Self = Self("exm");
+    pub const EXAM_SUBJECT: Self = Self("exj");
     pub const LEDGER: Self = Self("ldg");
+    pub const LEDGER_ENTRY: Self = Self("lge");
+    pub const LEDGER_TRANSACTION: Self = Self("lgt");
     pub const ACCOUNT: Self = Self("acc");
     pub const BEHAVIOR: Self = Self("beh");
     pub const SYLLABUS: Self = Self("syl");
     pub const LESSON_PROGRESS: Self = Self("lsp");
     pub const CURRICULUM: Self = Self("cur");
     pub const APPEAL: Self = Self("apl");
+    pub const ATTENDANCE_EXCUSE: Self = Self("ate");
+    pub const ATTENDANCE_DISCREPANCY: Self = Self("atd");
     pub const ATTACHMENT: Self = Self("att");
     pub const REVIEW: Self = Self("rev");
     pub const MATERIAL: Self = Self("mat");
@@ -99,6 +105,7 @@ impl IdPrefix {
     pub const SUBSTITUTION_PLAN: Self = Self("spl");
     pub const SUBJECT: Self = Self("sbj");
     pub const AL_STREAM: Self = Self("als");
+    pub const AL_STREAM_OPTIONAL_GROUP: Self = Self("asg");
     pub const TIMETABLE: Self = Self("ttb");
     pub const GRADE_LEVEL: Self = Self("grl");
     pub const GRADE_PERIOD: Self = Self("grp");
@@ -108,9 +115,34 @@ impl IdPrefix {
     pub const ROLE_SET: Self = Self("rst");
     pub const PERMISSION_SET: Self = Self("pst");
     pub const LEAVE: Self = Self("lev");
+    pub const STAFF_CONTRACT: Self = Self("sct");
+    pub const STAFF_EVENT: Self = Self("sev");
+    pub const STAFF_LEAVE_REQUEST: Self = Self("slr");
+    pub const STAFF_LEAVE_TYPE: Self = Self("slt");
+    pub const STUDENT_ALLERGY: Self = Self("sag");
+    pub const STUDENT_BIRTH_CERTIFICATE: Self = Self("sbc");
+    pub const STUDENT_EMERGENCY_CONTACT: Self = Self("sec");
+    pub const STUDENT_FEE: Self = Self("sfe");
+    pub const STUDENT_MARK_ENTRY: Self = Self("sme");
+    pub const STUDENT_MEDICAL_CONDITION: Self = Self("smc");
+    pub const STUDENT_MEDICATION: Self = Self("smd");
+    pub const STUDENT_MISSED_LESSON: Self = Self("sml");
+    pub const STUDENT_NIC: Self = Self("sni");
+    pub const STUDENT_PERIOD_ATTENDANCE: Self = Self("spa");
     pub const SEED: Self = Self("sed");
     pub const FILE: Self = Self("fil");
+    pub const RESOURCE_ASSET: Self = Self("rsa");
+    pub const FEE_INVOICE: Self = Self("fiv");
+    pub const AI_NOTE: Self = Self("ain");
+    pub const AI_NOTE_SECTION: Self = Self("ans");
+    pub const VENDOR: Self = Self("ven");
+    pub const PURCHASE_ORDER: Self = Self("pur");
+    pub const EXAM_STRUCTURE_SUBJECT: Self = Self("ess");
+    pub const CURRICULUM_STANDARD: Self = Self("cst");
+    pub const CURRICULUM_TOPIC: Self = Self("ctp");
+    pub const LESSON_REVIEW: Self = Self("lrv");
 }
+
 
 #[derive(diesel::QueryableByName)]
 struct NextIdRow {

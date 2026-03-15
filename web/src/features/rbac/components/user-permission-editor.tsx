@@ -1,11 +1,9 @@
 import * as React from 'react'
-import { useQueries, useQuery } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Alert01Icon,
   CheckmarkCircle02Icon,
-  Layers01Icon,
   Shield01Icon,
   ViewIcon,
 } from '@hugeicons/core-free-icons'
@@ -16,23 +14,16 @@ import {
 } from '../utils/permissions'
 import { ALL_PERMISSION_ENUM_VALUES } from '../utils/constants'
 import {
-  getPermissionSetsQueryOptions,
   getRolePermissionsQueryOptions,
-  getStaffPermissionSetsQueryOptions,
   getUserPermissionsQueryOptions,
-  getUserSetPermissionsQueryOptions,
-  useAssignPermissionSetToStaff,
   useAssignPermissionToUser,
   useUnassignPermissionFromUser,
-  useUnassignPermissionSetFromStaff,
 } from '../api'
 import { PermissionList } from './permission-list'
 import type {
   PermissionEnum,
   RoleEnum,
-  StaffResponse as Staff,
   UserResponse,
-  UserSet,
 } from '@/lib/api/types.gen'
 import { Badge } from '@/components/ui/badge'
 
@@ -44,8 +35,6 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Input } from '@/components/ui/input'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   Select,
   SelectContent,
@@ -61,15 +50,8 @@ import {
   Stack,
   Text,
 } from '@/components/primitives'
-import {
-  Empty,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
-import { getAllStaffQueryOptions } from '@/features/staff/api'
 import { useUpdateUser } from '@/features/users/api'
 
 interface UserPermissionEditorProps {
@@ -79,87 +61,75 @@ interface UserPermissionEditorProps {
 export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
   const isFullAdmin = user.role === 'FullAdmin'
 
-  const { data: staffList } = useQuery(
-    getAllStaffQueryOptions({ query: { limit: 100 } }),
-  )
-  const staffMember = staffList?.data.find((s: Staff) => s.email === user.email)
-
   const { data: rawDirectPermissions } = useQuery(
     getUserPermissionsQueryOptions({ path: { user_id: user.id } }),
   )
 
-  const { data: allPermissionSets = [] } = useQuery(
-    getPermissionSetsQueryOptions(),
-  )
+  const directPermissionsFromResponse = React.useMemo(() => {
+    if (!rawDirectPermissions || typeof rawDirectPermissions !== 'object') {
+      return []
+    }
 
-  const { data: userPermissionSets = [] } = useQuery({
-    ...getStaffPermissionSetsQueryOptions({
-      path: { staff_id: staffMember?.id || '' },
-    }),
-    enabled: !!staffMember,
-    // Removed select: (data) => data.user_sets || [], as data is already UserSet[]
-  })
+    if (!('permissions' in rawDirectPermissions)) {
+      return []
+    }
+
+    const candidate = rawDirectPermissions.permissions
+    return Array.isArray(candidate)
+      ? candidate.filter((p: unknown) => typeof p === 'string')
+      : []
+  }, [rawDirectPermissions])
 
   const directPermissions = React.useMemo(
-    () =>
-      (rawDirectPermissions?.permissions || [])
-        .filter(isPermissionEnum)
-        .filter(Boolean),
-    [rawDirectPermissions],
+    () => directPermissionsFromResponse.filter(isPermissionEnum),
+    [directPermissionsFromResponse],
   )
 
-  const { data: rolePermissions = [] } = useQuery({
+  const { data: rawRolePermissions } = useQuery({
     ...getRolePermissionsQueryOptions({ path: { role_id: user.role } }),
     enabled: !!user.role,
-    select: (data) => data?.permissions || [], // Re-added select function
   })
 
-  const setPermissionsResults = useQueries({
-    queries: userPermissionSets.map((set: UserSet) => ({
-      ...getUserSetPermissionsQueryOptions({ path: { user_set_id: set.id } }),
-      enabled: !!set.id,
-    })),
-  })
+  const rolePermissionsFromResponse = React.useMemo(() => {
+    if (!rawRolePermissions || typeof rawRolePermissions !== 'object') {
+      return []
+    }
+
+    if (!('permissions' in rawRolePermissions)) {
+      return []
+    }
+
+    const candidate = rawRolePermissions.permissions
+    return Array.isArray(candidate)
+      ? candidate.filter((p: unknown) => typeof p === 'string')
+      : []
+  }, [rawRolePermissions])
 
   const inheritedPermissions = React.useMemo(() => {
     const inherited: Array<{
       permission: PermissionEnum
-      source: 'role' | 'set'
+      source: 'role'
       sourceName?: string
     }> = []
 
-    if (rolePermissions.length > 0) {
-      rolePermissions.filter(isPermissionEnum).forEach((p) => {
-        inherited.push({ permission: p, source: 'role', sourceName: user.role })
+    rolePermissionsFromResponse.filter(isPermissionEnum).forEach((permission) => {
+      inherited.push({
+        permission,
+        source: 'role',
+        sourceName: user.role,
       })
-    }
-
-    setPermissionsResults.forEach((res, index) => {
-      const set = userPermissionSets[index]
-      if (res.data?.permissions) {
-        res.data.permissions.filter(isPermissionEnum).forEach((p) => {
-          inherited.push({
-            permission: p,
-            source: 'set',
-            sourceName: set.name,
-          })
-        })
-      }
     })
 
     return inherited
-  }, [rolePermissions, setPermissionsResults, userPermissionSets, user.role])
+  }, [rolePermissionsFromResponse, user.role])
 
   const updateUserRole = useUpdateUser()
 
   const assignDirectPermission = useAssignPermissionToUser()
   const unassignDirectPermission = useUnassignPermissionFromUser()
 
-  const assignSetToStaff = useAssignPermissionSetToStaff()
-  const unassignSetFromStaff = useUnassignPermissionSetFromStaff()
-
   const handleRoleChange = (role: RoleEnum) => {
-    updateUserRole.mutate({ path: { user_id: user.id }, body: { role } })
+    updateUserRole.mutate({ path: { id: user.id }, body: { role } })
   }
 
   const handleToggleDirectPermission = (
@@ -180,39 +150,12 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
     }
   }
 
-  const handleAssignSet = (setId: string) => {
-    if (!staffMember) {
-      toast.info('User is not linked to a staff member.')
-      return
-    }
-    assignSetToStaff.mutate({
-      path: { staff_id: staffMember.id, set_id: setId },
-    })
-  }
-
-  const handleUnassignSet = (setId: string) => {
-    if (!staffMember) return
-    unassignSetFromStaff.mutate({
-      path: { staff_id: staffMember.id, set_id: setId },
-    })
-  }
 
   const name = user.email
     .split('@')[0]
     .replace(/[._]/g, ' ')
     .replace(/\b\w/g, (l) => l.toUpperCase())
   const initials = name.substring(0, 2).toUpperCase()
-
-  const [searchTerm, setSearchTerm] = React.useState('')
-  const filteredPermissionSets = React.useMemo(() => {
-    if (!searchTerm) {
-      return allPermissionSets
-    }
-    const lowerCaseSearchTerm = searchTerm.toLowerCase()
-    return allPermissionSets.filter((set) =>
-      set.name.toLowerCase().includes(lowerCaseSearchTerm),
-    )
-  }, [allPermissionSets, searchTerm])
 
   return (
     <Stack gap={4} p={0}>
@@ -235,14 +178,6 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
                   <Text size="xs" className="truncate" muted>
                     ID: {user.id}
                   </Text>
-                  {staffMember && (
-                    <Badge
-                      variant="outline"
-                      className="h-4 text-[10px] px-1 bg-green-500/10 text-green-600 border-green-600/20"
-                    >
-                      Staff Linked
-                    </Badge>
-                  )}
                 </HStack>
               </Stack>
             </HStack>
@@ -294,12 +229,6 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
               <HStack gap={2} p={0}>
                 <HugeiconsIcon icon={ViewIcon} className="size-4" />
                 <span>Overview</span>
-              </HStack>
-            </TabsTrigger>
-            <TabsTrigger value="groups">
-              <HStack gap={2} p={0}>
-                <HugeiconsIcon icon={Layers01Icon} className="size-4" />
-                <span>Groups & Sets</span>
               </HStack>
             </TabsTrigger>
             <TabsTrigger value="direct">
@@ -405,74 +334,6 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
                   </Grid>
                 </Stack>
               </CardHeader>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="groups">
-            <Card className="p-4 flex flex-col">
-              <Stack gap={4} className="flex-1">
-                <Stack gap={1}>
-                  <Heading size="h4">Linked Permission Sets</Heading>
-                  <Text size="xs" muted>
-                    Assign or remove reusable permission groups from staff.
-                  </Text>
-                  <Input
-                    placeholder="Search permission sets..."
-                    className="h-8 text-xs w-full mt-2"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </Stack>
-
-                <Stack gap={2}>
-                  {filteredPermissionSets.length === 0 ? (
-                    <Empty className="py-8 border-0">
-                      <EmptyHeader>
-                        <EmptyMedia variant="icon">
-                          <HugeiconsIcon icon={Layers01Icon} />
-                        </EmptyMedia>
-                        <EmptyTitle className="text-sm">
-                          No permission sets available
-                        </EmptyTitle>
-                      </EmptyHeader>
-                    </Empty>
-                  ) : (
-                    allPermissionSets.map((set) => {
-                      const isLinked = userPermissionSets.some(
-                        (us: UserSet) => us.id === set.id,
-                      )
-                      return (
-                        <HStack
-                          key={set.id}
-                          p={2}
-                          justify="between"
-                          className="rounded-md bg-muted/50 group border border-transparent hover:border-border transition-all"
-                        >
-                          <HStack gap={2} className="min-w-0">
-                            <Checkbox
-                              id={`set-${set.id}`}
-                              checked={isLinked}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  handleAssignSet(set.id)
-                                } else {
-                                  handleUnassignSet(set.id)
-                                }
-                              }}
-                            />
-                            <label
-                              htmlFor={`set-${set.id}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1 truncate"
-                            >
-                              {set.name}
-                            </label>
-                          </HStack>
-                        </HStack>
-                      )
-                    })
-                  )}
-                </Stack>
-              </Stack>
             </Card>
           </TabsContent>
 

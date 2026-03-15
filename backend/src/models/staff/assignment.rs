@@ -15,13 +15,13 @@ use crate::database::enums::Medium;
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     Associations,
     ApiComponent,
 )]
 #[diesel(table_name = teacher_class_assignments)]
 #[diesel(belongs_to(Staff, foreign_key = teacher_id))]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct TeacherClassAssignment {
     pub id: String,
     pub teacher_id: String,
@@ -29,6 +29,14 @@ pub struct TeacherClassAssignment {
     pub academic_year_id: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Insertable, JsonSchema, ApiComponent)]
+#[diesel(table_name = teacher_class_assignments)]
+pub struct CreateTeacherClassAssignmentRequest {
+    pub teacher_id: String,
+    pub class_id: String,
+    pub academic_year_id: String,
 }
 
 #[derive(
@@ -39,13 +47,13 @@ pub struct TeacherClassAssignment {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     Associations,
     ApiComponent,
 )]
 #[diesel(table_name = teacher_subject_assignments)]
 #[diesel(belongs_to(Staff, foreign_key = teacher_id))]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct TeacherSubjectAssignment {
     pub id: String,
     pub teacher_id: String,
@@ -53,6 +61,15 @@ pub struct TeacherSubjectAssignment {
     pub academic_year_id: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub medium: Medium,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Insertable, JsonSchema, ApiComponent)]
+#[diesel(table_name = teacher_subject_assignments)]
+pub struct CreateTeacherSubjectAssignmentRequest {
+    pub teacher_id: String,
+    pub subject_id: String,
+    pub academic_year_id: String,
     pub medium: Medium,
 }
 

@@ -41,7 +41,341 @@ export const AcademicYearResponseSchema = {
     }
 } as const;
 
+export const ActivityResponseSchema = {
+    title: 'ActivityResponse',
+    type: 'object',
+    required: [
+        'activity_type_id',
+        'created_by',
+        'end_time',
+        'id',
+        'is_mandatory',
+        'name',
+        'start_time'
+    ],
+    properties: {
+        activity_type_id: {
+            type: 'string'
+        },
+        created_by: {
+            type: 'string'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        end_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        id: {
+            type: 'string'
+        },
+        is_mandatory: {
+            type: 'boolean'
+        },
+        location: {
+            type: 'string',
+            nullable: true
+        },
+        name: {
+            type: 'string'
+        },
+        start_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const ActivityTypeResponseSchema = {
+    title: 'ActivityTypeResponse',
+    type: 'object',
+    required: [
+        'id',
+        'name'
+    ],
+    properties: {
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const AddClubMemberRequestSchema = {
+    title: 'AddClubMemberRequest',
+    type: 'object',
+    required: [
+        'joined_date',
+        'role',
+        'student_id'
+    ],
+    properties: {
+        joined_date: {
+            type: 'string',
+            format: 'date'
+        },
+        role: {
+            type: 'string'
+        },
+        student_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const AllocateAssetRequestSchema = {
+    title: 'AllocateAssetRequest',
+    type: 'object',
+    required: [
+        'allocated_by',
+        'item_id',
+        'quantity'
+    ],
+    properties: {
+        allocated_by: {
+            type: 'string'
+        },
+        item_id: {
+            type: 'string'
+        },
+        quantity: {
+            type: 'integer',
+            format: 'int32'
+        },
+        staff_id: {
+            type: 'string',
+            nullable: true
+        },
+        student_id: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const AppealStatusSchema = {
+    type: 'string',
+    enum: [
+        'Pending',
+        'Approved',
+        'Rejected'
+    ]
+} as const;
+
+export const ApplyLeaveRequestSchema = {
+    title: 'ApplyLeaveRequest',
+    type: 'object',
+    required: [
+        'from_date',
+        'leave_type',
+        'reason',
+        'to_date'
+    ],
+    properties: {
+        from_date: {
+            type: 'string',
+            format: 'date'
+        },
+        leave_type: {
+            $ref: '#/components/schemas/StaffLeaveType'
+        },
+        reason: {
+            type: 'string'
+        },
+        to_date: {
+            type: 'string',
+            format: 'date'
+        }
+    }
+} as const;
+
+export const ApproveRejectLeaveRequestSchema = {
+    title: 'ApproveRejectLeaveRequest',
+    type: 'object',
+    required: [
+        'status'
+    ],
+    properties: {
+        status: {
+            $ref: '#/components/schemas/LeaveStatus'
+        }
+    }
+} as const;
+
+export const AssessmentTypeSchema = {
+    type: 'string',
+    enum: [
+        'SchoolTest',
+        'GovernmentExam'
+    ]
+} as const;
+
+export const AssetAllocationResponseSchema = {
+    title: 'AssetAllocationResponse',
+    type: 'object',
+    required: [
+        'allocated_by',
+        'allocation_date',
+        'created_at',
+        'id',
+        'item_id',
+        'quantity',
+        'updated_at'
+    ],
+    properties: {
+        allocated_by: {
+            type: 'string'
+        },
+        allocation_date: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        id: {
+            type: 'string'
+        },
+        item_id: {
+            type: 'string'
+        },
+        quantity: {
+            type: 'integer',
+            format: 'int32'
+        },
+        return_date: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const AssetCategoryResponseSchema = {
+    title: 'AssetCategoryResponse',
+    type: 'object',
+    required: [
+        'created_at',
+        'id',
+        'name',
+        'updated_at'
+    ],
+    properties: {
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const AttendanceExcuseResponseSchema = {
+    title: 'AttendanceExcuseResponse',
+    type: 'object',
+    required: [
+        'attendance_record_id',
+        'excuse_type',
+        'id',
+        'is_verified'
+    ],
+    properties: {
+        attendance_record_id: {
+            type: 'string'
+        },
+        excuse_type: {
+            $ref: '#/components/schemas/ExcuseType'
+        },
+        id: {
+            type: 'string'
+        },
+        is_verified: {
+            type: 'boolean'
+        }
+    }
+} as const;
+
+export const AttendanceStatusSchema = {
+    type: 'string',
+    enum: [
+        'Present',
+        'Absent',
+        'Late',
+        'Excused',
+        'HalfDay',
+        'SchoolBusiness'
+    ]
+} as const;
+
+export const AuditLogResponseSchema = {
+    title: 'AuditLogResponse',
+    type: 'object',
+    required: [
+        'action_type',
+        'id',
+        'record_pk',
+        'table_name',
+        'timestamp',
+        'user_id'
+    ],
+    properties: {
+        action_type: {
+            type: 'string'
+        },
+        id: {
+            type: 'string'
+        },
+        new_value_json: {
+            type: 'string',
+            nullable: true
+        },
+        old_value_json: {
+            type: 'string',
+            nullable: true
+        },
+        record_pk: {
+            type: 'string'
+        },
+        table_name: {
+            type: 'string'
+        },
+        timestamp: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        user_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const BehaviorIncidentSchema = {
+    title: 'BehaviorIncident',
     type: 'object',
     required: [
         'created_at',
@@ -81,6 +415,7 @@ export const BehaviorIncidentSchema = {
 } as const;
 
 export const BehaviorIncidentTypeSchema = {
+    title: 'BehaviorIncidentType',
     type: 'object',
     required: [
         'created_at',
@@ -115,24 +450,156 @@ export const BehaviorIncidentTypeSchema = {
     }
 } as const;
 
-export const BulkCreateRequest_for_CurriculumStandardSchema = {
-    title: 'BulkCreateRequest_for_CurriculumStandard',
+export const BudgetCategoryResponseSchema = {
     type: 'object',
     required: [
-        'items'
+        'created_at',
+        'id',
+        'name',
+        'updated_at'
     ],
     properties: {
-        items: {
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const BudgetComparisonResponseSchema = {
+    title: 'BudgetComparisonResponse',
+    type: 'object',
+    required: [
+        'actual_spent',
+        'allocated',
+        'category_name',
+        'variance',
+        'variance_percentage'
+    ],
+    properties: {
+        actual_spent: {
+            type: 'number',
+            format: 'float'
+        },
+        allocated: {
+            type: 'number',
+            format: 'float'
+        },
+        category_name: {
+            type: 'string'
+        },
+        variance: {
+            type: 'number',
+            format: 'float'
+        },
+        variance_percentage: {
+            type: 'number',
+            format: 'float'
+        }
+    }
+} as const;
+
+export const BudgetResponseSchema = {
+    title: 'BudgetResponse',
+    type: 'object',
+    required: [
+        'academic_year_id',
+        'allocated_amount',
+        'category_id',
+        'created_at',
+        'id',
+        'spent_amount',
+        'updated_at'
+    ],
+    properties: {
+        academic_year_id: {
+            type: 'string'
+        },
+        allocated_amount: {
+            type: 'number',
+            format: 'float'
+        },
+        category_id: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        id: {
+            type: 'string'
+        },
+        spent_amount: {
+            type: 'number',
+            format: 'float'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const BudgetSummaryResponseSchema = {
+    title: 'BudgetSummaryResponse',
+    type: 'object',
+    required: [
+        'allocated',
+        'category_name',
+        'remaining',
+        'spent'
+    ],
+    properties: {
+        allocated: {
+            type: 'number',
+            format: 'float'
+        },
+        category_name: {
+            type: 'string'
+        },
+        remaining: {
+            type: 'number',
+            format: 'float'
+        },
+        spent: {
+            type: 'number',
+            format: 'float'
+        }
+    }
+} as const;
+
+export const BulkAssignStudentClassRequestSchema = {
+    title: 'BulkAssignStudentClassRequest',
+    type: 'object',
+    required: [
+        'assignments'
+    ],
+    properties: {
+        assignments: {
             type: 'array',
             items: {
-                $ref: '#/components/schemas/CurriculumStandard'
+                $ref: '#/components/schemas/CreateStudentClassAssignmentRequest'
             }
         }
     }
 } as const;
 
-export const BulkCreateRequest_for_CurriculumTopicSchema = {
-    title: 'BulkCreateRequest_for_CurriculumTopic',
+export const BulkCreateRequest_for_CreateCurriculumStandardRequestSchema = {
+    title: 'BulkCreateRequest_for_CreateCurriculumStandardRequest',
     type: 'object',
     required: [
         'items'
@@ -141,14 +608,14 @@ export const BulkCreateRequest_for_CurriculumTopicSchema = {
         items: {
             type: 'array',
             items: {
-                $ref: '#/components/schemas/CurriculumTopic'
+                $ref: '#/components/schemas/CreateCurriculumStandardRequest'
             }
         }
     }
 } as const;
 
-export const BulkCreateRequest_for_FileModelSchema = {
-    title: 'BulkCreateRequest_for_FileModel',
+export const BulkCreateRequest_for_CreateFileRequestSchema = {
+    title: 'BulkCreateRequest_for_CreateFileRequest',
     type: 'object',
     required: [
         'items'
@@ -157,7 +624,39 @@ export const BulkCreateRequest_for_FileModelSchema = {
         items: {
             type: 'array',
             items: {
-                $ref: '#/components/schemas/FileModel'
+                $ref: '#/components/schemas/CreateFileRequest'
+            }
+        }
+    }
+} as const;
+
+export const BulkCreateRequest_for_CreateSyllabusRequestSchema = {
+    title: 'BulkCreateRequest_for_CreateSyllabusRequest',
+    type: 'object',
+    required: [
+        'items'
+    ],
+    properties: {
+        items: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/CreateSyllabusRequest'
+            }
+        }
+    }
+} as const;
+
+export const BulkCreateStudentMarkRequestSchema = {
+    title: 'BulkCreateStudentMarkRequest',
+    type: 'object',
+    required: [
+        'marks'
+    ],
+    properties: {
+        marks: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/CreateStudentMarkRequest'
             }
         }
     }
@@ -179,65 +678,68 @@ export const BulkIdRequestSchema = {
     }
 } as const;
 
-export const BulkUpdateRequest_for_BehaviorIncidentSchema = {
-    title: 'BulkUpdateRequest_for_BehaviorIncident',
+export const BulkMarkStaffAttendanceItemSchema = {
     type: 'object',
     required: [
-        'updates'
+        'staff_id',
+        'status'
     ],
     properties: {
-        updates: {
-            type: 'array',
-            items: {
-                $ref: '#/components/schemas/EntityUpdate_for_BehaviorIncident'
-            }
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        staff_id: {
+            type: 'string'
+        },
+        status: {
+            $ref: '#/components/schemas/AttendanceStatus'
+        },
+        time_in: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        time_out: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
         }
     }
 } as const;
 
-export const BulkUpdateRequest_for_BehaviorIncidentTypeSchema = {
-    title: 'BulkUpdateRequest_for_BehaviorIncidentType',
+export const BulkMarkStaffAttendanceRequestSchema = {
+    title: 'BulkMarkStaffAttendanceRequest',
     type: 'object',
     required: [
-        'updates'
+        'attendance_records',
+        'date'
     ],
     properties: {
-        updates: {
+        attendance_records: {
             type: 'array',
             items: {
-                $ref: '#/components/schemas/EntityUpdate_for_BehaviorIncidentType'
+                $ref: '#/components/schemas/BulkMarkStaffAttendanceItem'
             }
+        },
+        date: {
+            type: 'string',
+            format: 'date'
         }
     }
 } as const;
 
-export const BulkUpdateRequest_for_CurriculumStandardSchema = {
-    title: 'BulkUpdateRequest_for_CurriculumStandard',
+export const BulkMarkStudentAttendanceRequestSchema = {
+    title: 'BulkMarkStudentAttendanceRequest',
     type: 'object',
     required: [
-        'updates'
+        'attendance_records'
     ],
     properties: {
-        updates: {
+        attendance_records: {
             type: 'array',
             items: {
-                $ref: '#/components/schemas/EntityUpdate_for_CurriculumStandard'
-            }
-        }
-    }
-} as const;
-
-export const BulkUpdateRequest_for_CurriculumTopicSchema = {
-    title: 'BulkUpdateRequest_for_CurriculumTopic',
-    type: 'object',
-    required: [
-        'updates'
-    ],
-    properties: {
-        updates: {
-            type: 'array',
-            items: {
-                $ref: '#/components/schemas/EntityUpdate_for_CurriculumTopic'
+                $ref: '#/components/schemas/MarkStudentAttendanceRequest'
             }
         }
     }
@@ -259,6 +761,38 @@ export const BulkUpdateRequest_for_UpdateAcademicYearRequestSchema = {
     }
 } as const;
 
+export const BulkUpdateRequest_for_UpdateBehaviorIncidentRequestSchema = {
+    title: 'BulkUpdateRequest_for_UpdateBehaviorIncidentRequest',
+    type: 'object',
+    required: [
+        'updates'
+    ],
+    properties: {
+        updates: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/EntityUpdate_for_UpdateBehaviorIncidentRequest'
+            }
+        }
+    }
+} as const;
+
+export const BulkUpdateRequest_for_UpdateBehaviorIncidentTypeRequestSchema = {
+    title: 'BulkUpdateRequest_for_UpdateBehaviorIncidentTypeRequest',
+    type: 'object',
+    required: [
+        'updates'
+    ],
+    properties: {
+        updates: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/EntityUpdate_for_UpdateBehaviorIncidentTypeRequest'
+            }
+        }
+    }
+} as const;
+
 export const BulkUpdateRequest_for_UpdateClassRequestSchema = {
     title: 'BulkUpdateRequest_for_UpdateClassRequest',
     type: 'object',
@@ -275,6 +809,22 @@ export const BulkUpdateRequest_for_UpdateClassRequestSchema = {
     }
 } as const;
 
+export const BulkUpdateRequest_for_UpdateCurriculumStandardRequestSchema = {
+    title: 'BulkUpdateRequest_for_UpdateCurriculumStandardRequest',
+    type: 'object',
+    required: [
+        'updates'
+    ],
+    properties: {
+        updates: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/EntityUpdate_for_UpdateCurriculumStandardRequest'
+            }
+        }
+    }
+} as const;
+
 export const BulkUpdateRequest_for_UpdateExamRequestSchema = {
     title: 'BulkUpdateRequest_for_UpdateExamRequest',
     type: 'object',
@@ -286,6 +836,22 @@ export const BulkUpdateRequest_for_UpdateExamRequestSchema = {
             type: 'array',
             items: {
                 $ref: '#/components/schemas/EntityUpdate_for_UpdateExamRequest'
+            }
+        }
+    }
+} as const;
+
+export const BulkUpdateRequest_for_UpdateExamSubjectRequestSchema = {
+    title: 'BulkUpdateRequest_for_UpdateExamSubjectRequest',
+    type: 'object',
+    required: [
+        'updates'
+    ],
+    properties: {
+        updates: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/EntityUpdate_for_UpdateExamSubjectRequest'
             }
         }
     }
@@ -403,6 +969,22 @@ export const BulkUpdateRequest_for_UpdateGradeLevelRequestSchema = {
     }
 } as const;
 
+export const BulkUpdateRequest_for_UpdateGradePeriodRequestSchema = {
+    title: 'BulkUpdateRequest_for_UpdateGradePeriodRequest',
+    type: 'object',
+    required: [
+        'updates'
+    ],
+    properties: {
+        updates: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/EntityUpdate_for_UpdateGradePeriodRequest'
+            }
+        }
+    }
+} as const;
+
 export const BulkUpdateRequest_for_UpdateGradingSchemeRequestSchema = {
     title: 'BulkUpdateRequest_for_UpdateGradingSchemeRequest',
     type: 'object',
@@ -462,6 +1044,22 @@ export const BulkUpdateRequest_for_UpdateRoleSetRequestSchema = {
             type: 'array',
             items: {
                 $ref: '#/components/schemas/EntityUpdate_for_UpdateRoleSetRequest'
+            }
+        }
+    }
+} as const;
+
+export const BulkUpdateRequest_for_UpdateSchoolRoomRequestSchema = {
+    title: 'BulkUpdateRequest_for_UpdateSchoolRoomRequest',
+    type: 'object',
+    required: [
+        'updates'
+    ],
+    properties: {
+        updates: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/EntityUpdate_for_UpdateSchoolRoomRequest'
             }
         }
     }
@@ -547,6 +1145,38 @@ export const BulkUpdateRequest_for_UpdateSubjectRequestSchema = {
     }
 } as const;
 
+export const BulkUpdateRequest_for_UpdateSubstitutionPlanRequestSchema = {
+    title: 'BulkUpdateRequest_for_UpdateSubstitutionPlanRequest',
+    type: 'object',
+    required: [
+        'updates'
+    ],
+    properties: {
+        updates: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/EntityUpdate_for_UpdateSubstitutionPlanRequest'
+            }
+        }
+    }
+} as const;
+
+export const BulkUpdateRequest_for_UpdateSyllabusRequestSchema = {
+    title: 'BulkUpdateRequest_for_UpdateSyllabusRequest',
+    type: 'object',
+    required: [
+        'updates'
+    ],
+    properties: {
+        updates: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/EntityUpdate_for_UpdateSyllabusRequest'
+            }
+        }
+    }
+} as const;
+
 export const BulkUpdateRequest_for_UpdateTermRequestSchema = {
     title: 'BulkUpdateRequest_for_UpdateTermRequest',
     type: 'object',
@@ -558,6 +1188,22 @@ export const BulkUpdateRequest_for_UpdateTermRequestSchema = {
             type: 'array',
             items: {
                 $ref: '#/components/schemas/EntityUpdate_for_UpdateTermRequest'
+            }
+        }
+    }
+} as const;
+
+export const BulkUpdateRequest_for_UpdateTimetableRequestSchema = {
+    title: 'BulkUpdateRequest_for_UpdateTimetableRequest',
+    type: 'object',
+    required: [
+        'updates'
+    ],
+    properties: {
+        updates: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/EntityUpdate_for_UpdateTimetableRequest'
             }
         }
     }
@@ -591,6 +1237,23 @@ export const BulkUpdateRequest_for_UpdateUserSetRequestSchema = {
             items: {
                 $ref: '#/components/schemas/EntityUpdate_for_UpdateUserSetRequest'
             }
+        }
+    }
+} as const;
+
+export const CalculateZScoreRequestSchema = {
+    title: 'CalculateZScoreRequest',
+    type: 'object',
+    required: [
+        'assessment_id',
+        'assessment_type'
+    ],
+    properties: {
+        assessment_id: {
+            type: 'string'
+        },
+        assessment_type: {
+            $ref: '#/components/schemas/AssessmentType'
         }
     }
 } as const;
@@ -672,6 +1335,111 @@ export const ClassResponseSchema = {
     }
 } as const;
 
+export const ClubSchema = {
+    title: 'Club',
+    type: 'object',
+    required: [
+        'club_name',
+        'created_at',
+        'id',
+        'teacher_in_charge_id',
+        'updated_at'
+    ],
+    properties: {
+        club_name: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        meeting_schedule: {
+            type: 'string',
+            nullable: true
+        },
+        teacher_in_charge_id: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const ClubMemberSchema = {
+    title: 'ClubMember',
+    type: 'object',
+    required: [
+        'club_id',
+        'created_at',
+        'joined_date',
+        'role',
+        'student_id',
+        'updated_at'
+    ],
+    properties: {
+        club_id: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        joined_date: {
+            type: 'string',
+            format: 'date'
+        },
+        role: {
+            type: 'string'
+        },
+        student_id: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const ComponentTypeSchema = {
+    type: 'string',
+    enum: [
+        'Allowance',
+        'Deduction'
+    ]
+} as const;
+
+export const ConversationResponseSchema = {
+    title: 'ConversationResponse',
+    type: 'object',
+    required: [
+        'created_at',
+        'id',
+        'subject'
+    ],
+    properties: {
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        id: {
+            type: 'string'
+        },
+        subject: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const CreateAcademicYearRequestSchema = {
     title: 'CreateAcademicYearRequest',
     type: 'object',
@@ -703,6 +1471,83 @@ export const CreateAcademicYearRequestSchema = {
     }
 } as const;
 
+export const CreateActivityRequestSchema = {
+    title: 'CreateActivityRequest',
+    type: 'object',
+    required: [
+        'academic_year_id',
+        'activity_type_id',
+        'end_time',
+        'is_mandatory',
+        'name',
+        'start_time'
+    ],
+    properties: {
+        academic_year_id: {
+            type: 'string'
+        },
+        activity_type_id: {
+            type: 'string'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        end_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        is_mandatory: {
+            type: 'boolean'
+        },
+        location: {
+            type: 'string',
+            nullable: true
+        },
+        name: {
+            type: 'string'
+        },
+        start_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const CreateActivityTypeRequestSchema = {
+    title: 'CreateActivityTypeRequest',
+    type: 'object',
+    required: [
+        'name'
+    ],
+    properties: {
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        name: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const CreateAssetCategoryRequestSchema = {
+    title: 'CreateAssetCategoryRequest',
+    type: 'object',
+    required: [
+        'name'
+    ],
+    properties: {
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        name: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const CreateBehaviorIncidentTypeRequestSchema = {
     title: 'CreateBehaviorIncidentTypeRequest',
     type: 'object',
@@ -720,6 +1565,23 @@ export const CreateBehaviorIncidentTypeRequestSchema = {
             nullable: true
         },
         type_name: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const CreateBudgetCategoryRequestSchema = {
+    title: 'CreateBudgetCategoryRequest',
+    type: 'object',
+    required: [
+        'name'
+    ],
+    properties: {
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        name: {
             type: 'string'
         }
     }
@@ -758,8 +1620,54 @@ export const CreateClassRequestSchema = {
     }
 } as const;
 
+export const CreateClubRequestSchema = {
+    title: 'CreateClubRequest',
+    type: 'object',
+    required: [
+        'club_name',
+        'teacher_in_charge_id'
+    ],
+    properties: {
+        club_name: {
+            type: 'string'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        meeting_schedule: {
+            type: 'string',
+            nullable: true
+        },
+        teacher_in_charge_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const CreateConversationRequestSchema = {
+    title: 'CreateConversationRequest',
+    type: 'object',
+    required: [
+        'participant_ids',
+        'subject'
+    ],
+    properties: {
+        participant_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            },
+            minItems: 1
+        },
+        subject: {
+            type: 'string',
+            minLength: 1
+        }
+    }
+} as const;
+
 export const CreateCurriculumStandardRequestSchema = {
-    title: 'CreateCurriculumStandardRequest',
     type: 'object',
     required: [
         'grade_level_id',
@@ -890,6 +1798,48 @@ export const CreateExamStructureRequestSchema = {
     }
 } as const;
 
+export const CreateExamSubjectRequestSchema = {
+    title: 'CreateExamSubjectRequest',
+    type: 'object',
+    required: [
+        'exam_id',
+        'subject_id'
+    ],
+    properties: {
+        date: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+        },
+        duration: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        exam_id: {
+            type: 'string'
+        },
+        max_marks: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        pass_marks: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        subject_id: {
+            type: 'string'
+        },
+        time: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        }
+    }
+} as const;
+
 export const CreateExamTypeRequestSchema = {
     title: 'CreateExamTypeRequest',
     type: 'object',
@@ -967,6 +1917,31 @@ export const CreateFeeStructureRequestSchema = {
             $ref: '#/components/schemas/FeeFrequency'
         },
         grade_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const CreateFileRequestSchema = {
+    type: 'object',
+    required: [
+        'file_name',
+        'file_path',
+        'file_size',
+        'mime_type'
+    ],
+    properties: {
+        file_name: {
+            type: 'string'
+        },
+        file_path: {
+            type: 'string'
+        },
+        file_size: {
+            type: 'integer',
+            format: 'int32'
+        },
+        mime_type: {
             type: 'string'
         }
     }
@@ -1088,6 +2063,64 @@ export const CreateGradeLevelRequestSchema = {
     }
 } as const;
 
+export const CreateGradePeriodRequestSchema = {
+    title: 'CreateGradePeriodRequest',
+    type: 'object',
+    required: [
+        'end_time',
+        'grade_id',
+        'is_break',
+        'is_optional',
+        'start_time'
+    ],
+    properties: {
+        end_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        grade_id: {
+            type: 'string'
+        },
+        is_break: {
+            type: 'boolean'
+        },
+        is_optional: {
+            type: 'boolean'
+        },
+        start_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const CreateGradingCriterionRequestSchema = {
+    title: 'CreateGradingCriterionRequest',
+    type: 'object',
+    required: [
+        'grade',
+        'max_mark',
+        'min_mark',
+        'scheme_id'
+    ],
+    properties: {
+        grade: {
+            type: 'string'
+        },
+        max_mark: {
+            type: 'integer',
+            format: 'int32'
+        },
+        min_mark: {
+            type: 'integer',
+            format: 'int32'
+        },
+        scheme_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const CreateGradingSchemeRequestSchema = {
     title: 'CreateGradingSchemeRequest',
     type: 'object',
@@ -1122,6 +2155,193 @@ export const CreateGradingSchemeRequestSchema = {
         },
         scheme_type: {
             $ref: '#/components/schemas/GradingSchemeType'
+        }
+    }
+} as const;
+
+export const CreateInventoryItemRequestSchema = {
+    title: 'CreateInventoryItemRequest',
+    type: 'object',
+    required: [
+        'category_id',
+        'item_name',
+        'quantity',
+        'reorder_level',
+        'unit',
+        'unit_price'
+    ],
+    properties: {
+        category_id: {
+            type: 'string'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        item_name: {
+            type: 'string'
+        },
+        quantity: {
+            type: 'integer',
+            format: 'int32'
+        },
+        reorder_level: {
+            type: 'integer',
+            format: 'int32'
+        },
+        unit: {
+            type: 'string'
+        },
+        unit_price: {
+            type: 'number',
+            format: 'float'
+        }
+    }
+} as const;
+
+export const CreateLessonProgressRequestSchema = {
+    title: 'CreateLessonProgressRequest',
+    type: 'object',
+    required: [
+        'class_id',
+        'date',
+        'delivery_mode',
+        'is_skipped',
+        'lesson_summary',
+        'priority_level',
+        'subject_id',
+        'timetable_id'
+    ],
+    properties: {
+        actual_duration_minutes: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        class_id: {
+            type: 'string'
+        },
+        curriculum_topic_id: {
+            type: 'string',
+            nullable: true
+        },
+        date: {
+            type: 'string',
+            format: 'date'
+        },
+        delivery_mode: {
+            $ref: '#/components/schemas/LessonDeliveryMode'
+        },
+        homework_assigned: {
+            type: 'string',
+            nullable: true
+        },
+        is_skipped: {
+            type: 'boolean'
+        },
+        lesson_summary: {
+            type: 'string'
+        },
+        planned_duration_minutes: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        priority_level: {
+            type: 'integer',
+            format: 'int32'
+        },
+        progress_percentage: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        resources_used: {
+            type: 'string',
+            nullable: true
+        },
+        subject_id: {
+            type: 'string'
+        },
+        timetable_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const CreateLibraryBookRequestSchema = {
+    title: 'CreateLibraryBookRequest',
+    type: 'object',
+    required: [
+        'author',
+        'category_id',
+        'quantity',
+        'title'
+    ],
+    properties: {
+        author: {
+            type: 'string'
+        },
+        category_id: {
+            type: 'integer',
+            format: 'int32'
+        },
+        isbn: {
+            type: 'string',
+            nullable: true
+        },
+        publisher: {
+            type: 'string',
+            nullable: true
+        },
+        quantity: {
+            type: 'integer',
+            format: 'int32'
+        },
+        rack_number: {
+            type: 'string',
+            nullable: true
+        },
+        title: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const CreateLibraryCategoryRequestSchema = {
+    title: 'CreateLibraryCategoryRequest',
+    type: 'object',
+    required: [
+        'category_name'
+    ],
+    properties: {
+        category_name: {
+            type: 'string'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const CreateMaintenanceRequestSchema = {
+    title: 'CreateMaintenanceRequest',
+    type: 'object',
+    required: [
+        'issue_description',
+        'item_id',
+        'reported_by'
+    ],
+    properties: {
+        issue_description: {
+            type: 'string'
+        },
+        item_id: {
+            type: 'string'
+        },
+        reported_by: {
+            type: 'string'
         }
     }
 } as const;
@@ -1221,6 +2441,113 @@ export const CreateMarkingSchemeRequestSchema = {
     }
 } as const;
 
+export const CreateReportCardMarkRequestSchema = {
+    title: 'CreateReportCardMarkRequest',
+    type: 'object',
+    required: [
+        'assessment_id',
+        'assessment_type',
+        'subject_id'
+    ],
+    properties: {
+        assessment_id: {
+            type: 'string'
+        },
+        assessment_type: {
+            $ref: '#/components/schemas/AssessmentType'
+        },
+        grade: {
+            type: 'string',
+            nullable: true
+        },
+        grade_point: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        marking_scheme_id: {
+            type: 'string',
+            nullable: true
+        },
+        percentage: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        subject_id: {
+            type: 'string'
+        },
+        total_marks: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        }
+    }
+} as const;
+
+export const CreateReportCardRequestSchema = {
+    title: 'CreateReportCardRequest',
+    type: 'object',
+    required: [
+        'academic_year_id',
+        'class_id',
+        'student_id',
+        'term_id'
+    ],
+    properties: {
+        academic_year_id: {
+            type: 'string'
+        },
+        class_id: {
+            type: 'string'
+        },
+        grading_scheme_id: {
+            type: 'string',
+            nullable: true
+        },
+        marks: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/CreateReportCardMarkRequest'
+            },
+            nullable: true
+        },
+        overall_gpa: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        overall_grade: {
+            type: 'string',
+            nullable: true
+        },
+        overall_percentage: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        rank: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        student_id: {
+            type: 'string'
+        },
+        term_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const CreateRoleSetRequestSchema = {
     title: 'CreateRoleSetRequest',
     type: 'object',
@@ -1234,6 +2561,56 @@ export const CreateRoleSetRequestSchema = {
         },
         name: {
             type: 'string'
+        }
+    }
+} as const;
+
+export const CreateSalaryComponentRequestSchema = {
+    title: 'CreateSalaryComponentRequest',
+    type: 'object',
+    required: [
+        'component_type',
+        'name'
+    ],
+    properties: {
+        component_type: {
+            $ref: '#/components/schemas/ComponentType'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        name: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const CreateSchoolRoomRequestSchema = {
+    title: 'CreateSchoolRoomRequest',
+    type: 'object',
+    required: [
+        'id'
+    ],
+    properties: {
+        building: {
+            type: 'string',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        floor: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        name: {
+            type: 'string',
+            nullable: true
         }
     }
 } as const;
@@ -1323,6 +2700,166 @@ export const CreateSchoolTestSubjectRequestSchema = {
     }
 } as const;
 
+export const CreateSportRequestSchema = {
+    title: 'CreateSportRequest',
+    type: 'object',
+    required: [
+        'category',
+        'sport_name'
+    ],
+    properties: {
+        category: {
+            type: 'string'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        sport_name: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const CreateSportTeamRequestSchema = {
+    title: 'CreateSportTeamRequest',
+    type: 'object',
+    required: [
+        'coach_id',
+        'grade_level',
+        'sport_id',
+        'team_name'
+    ],
+    properties: {
+        coach_id: {
+            type: 'string'
+        },
+        grade_level: {
+            type: 'string'
+        },
+        sport_id: {
+            type: 'string'
+        },
+        team_name: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const CreateStudentClassAssignmentRequestSchema = {
+    type: 'object',
+    required: [
+        'academic_year_id',
+        'class_id',
+        'from_date',
+        'grade_id',
+        'student_id'
+    ],
+    properties: {
+        academic_year_id: {
+            type: 'string'
+        },
+        class_id: {
+            type: 'string'
+        },
+        from_date: {
+            type: 'string',
+            format: 'date'
+        },
+        grade_id: {
+            type: 'string'
+        },
+        student_id: {
+            type: 'string'
+        },
+        to_date: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+        }
+    }
+} as const;
+
+export const CreateStudentGuardianRequestSchema = {
+    title: 'CreateStudentGuardianRequest',
+    type: 'object',
+    required: [
+        'address',
+        'id',
+        'name',
+        'phone',
+        'relationship',
+        'student_id'
+    ],
+    properties: {
+        address: {
+            type: 'string'
+        },
+        email: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        },
+        phone: {
+            type: 'string'
+        },
+        relationship: {
+            type: 'string'
+        },
+        student_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const CreateStudentMarkRequestSchema = {
+    type: 'object',
+    required: [
+        'assessment_id',
+        'assessment_type',
+        'entries',
+        'marking_scheme_id',
+        'student_id',
+        'subject_id'
+    ],
+    properties: {
+        assessment_id: {
+            type: 'string'
+        },
+        assessment_type: {
+            $ref: '#/components/schemas/AssessmentType'
+        },
+        entries: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/StudentMarkEntryInput'
+            }
+        },
+        is_absent: {
+            type: 'boolean',
+            nullable: true
+        },
+        marking_scheme_id: {
+            type: 'string'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        student_id: {
+            type: 'string'
+        },
+        subject_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const CreateSubjectRequestSchema = {
     title: 'CreateSubjectRequest',
     type: 'object',
@@ -1356,8 +2893,29 @@ export const CreateSubjectRequestSchema = {
     }
 } as const;
 
+export const CreateSubstitutionRequestSchema = {
+    title: 'CreateSubstitutionRequest',
+    type: 'object',
+    required: [
+        'date',
+        'original_teacher_id',
+        'timetable_id'
+    ],
+    properties: {
+        date: {
+            type: 'string',
+            format: 'date'
+        },
+        original_teacher_id: {
+            type: 'string'
+        },
+        timetable_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const CreateSyllabusRequestSchema = {
-    title: 'CreateSyllabusRequest',
     type: 'object',
     required: [
         'buffer_periods',
@@ -1434,6 +2992,120 @@ export const CreateTermRequestSchema = {
     }
 } as const;
 
+export const CreateTimetableRequestSchema = {
+    title: 'CreateTimetableRequest',
+    type: 'object',
+    required: [
+        'academic_year_id',
+        'class_id',
+        'day_of_week',
+        'end_time',
+        'room',
+        'start_time',
+        'subject_id',
+        'teacher_id'
+    ],
+    properties: {
+        academic_year_id: {
+            type: 'string'
+        },
+        class_id: {
+            type: 'string'
+        },
+        day_of_week: {
+            type: 'string'
+        },
+        end_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        grade_period_id: {
+            type: 'string',
+            nullable: true
+        },
+        room: {
+            type: 'string'
+        },
+        start_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        subject_id: {
+            type: 'string'
+        },
+        teacher_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const CreateUniformItemRequestSchema = {
+    title: 'CreateUniformItemRequest',
+    type: 'object',
+    required: [
+        'gender',
+        'item_name',
+        'price',
+        'quantity',
+        'size'
+    ],
+    properties: {
+        gender: {
+            type: 'string'
+        },
+        grade_level: {
+            type: 'string',
+            nullable: true
+        },
+        item_name: {
+            type: 'string'
+        },
+        price: {
+            type: 'number',
+            format: 'float'
+        },
+        quantity: {
+            type: 'integer',
+            format: 'int32'
+        },
+        size: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const CreateUnitAllocationRequestSchema = {
+    title: 'CreateUnitAllocationRequest',
+    type: 'object',
+    required: [
+        'buffer_periods',
+        'class_id',
+        'curriculum_topic_id',
+        'planned_periods'
+    ],
+    properties: {
+        buffer_periods: {
+            type: 'integer',
+            format: 'int32'
+        },
+        class_id: {
+            type: 'string'
+        },
+        curriculum_topic_id: {
+            type: 'string'
+        },
+        planned_periods: {
+            type: 'integer',
+            format: 'int32'
+        },
+        target_date: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+        }
+    }
+} as const;
+
 export const CreateUserSetRequestSchema = {
     title: 'CreateUserSetRequest',
     type: 'object',
@@ -1479,6 +3151,7 @@ export const CurrentUserSchema = {
 } as const;
 
 export const CurriculumStandardSchema = {
+    title: 'CurriculumStandard',
     type: 'object',
     required: [
         'created_at',
@@ -1542,68 +3215,8 @@ export const CurriculumStandardSchema = {
     }
 } as const;
 
-export const CurriculumStandardResponseSchema = {
-    title: 'CurriculumStandardResponse',
-    type: 'object',
-    required: [
-        'created_at',
-        'grade_level_id',
-        'id',
-        'is_active',
-        'medium',
-        'standard_code',
-        'subject_id',
-        'updated_at'
-    ],
-    properties: {
-        created_at: {
-            type: 'string',
-            format: 'partial-date-time'
-        },
-        description: {
-            type: 'string',
-            nullable: true
-        },
-        end_date: {
-            type: 'string',
-            format: 'date',
-            nullable: true
-        },
-        grade_level_id: {
-            type: 'string'
-        },
-        id: {
-            type: 'string'
-        },
-        is_active: {
-            type: 'boolean'
-        },
-        medium: {
-            $ref: '#/components/schemas/Medium'
-        },
-        standard_code: {
-            type: 'string'
-        },
-        start_date: {
-            type: 'string',
-            format: 'date',
-            nullable: true
-        },
-        subject_id: {
-            type: 'string'
-        },
-        updated_at: {
-            type: 'string',
-            format: 'partial-date-time'
-        },
-        version_name: {
-            type: 'string',
-            nullable: true
-        }
-    }
-} as const;
-
 export const CurriculumTopicSchema = {
+    title: 'CurriculumTopic',
     type: 'object',
     required: [
         'created_at',
@@ -1667,6 +3280,16 @@ export const EducationLevelSchema = {
     ]
 } as const;
 
+export const EmergencyStatusSchema = {
+    type: 'string',
+    enum: [
+        'Safe',
+        'Missing',
+        'Unknown',
+        'Injured'
+    ]
+} as const;
+
 export const EmploymentStatusSchema = {
     type: 'string',
     enum: [
@@ -1676,65 +3299,59 @@ export const EmploymentStatusSchema = {
     ]
 } as const;
 
-export const EntityUpdate_for_BehaviorIncidentSchema = {
+export const EnrichedStudentAttendanceSchema = {
+    title: 'EnrichedStudentAttendance',
     type: 'object',
     required: [
-        'data',
-        'id'
+        'student_id',
+        'student_name'
     ],
     properties: {
-        data: {
-            $ref: '#/components/schemas/BehaviorIncident'
+        medical_alerts: {
+            type: 'string',
+            nullable: true
         },
-        id: {
+        status: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/AttendanceStatus'
+                }
+            ],
+            nullable: true
+        },
+        student_id: {
             type: 'string'
+        },
+        student_name: {
+            type: 'string'
+        },
+        suspicion_flag: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/SuspicionFlag'
+                }
+            ],
+            nullable: true
         }
     }
 } as const;
 
-export const EntityUpdate_for_BehaviorIncidentTypeSchema = {
+export const EnrollParticipantRequestSchema = {
+    title: 'EnrollParticipantRequest',
     type: 'object',
     required: [
-        'data',
-        'id'
+        'participant_type',
+        'user_id'
     ],
     properties: {
-        data: {
-            $ref: '#/components/schemas/BehaviorIncidentType'
+        enrollment_reason: {
+            type: 'string',
+            nullable: true
         },
-        id: {
-            type: 'string'
-        }
-    }
-} as const;
-
-export const EntityUpdate_for_CurriculumStandardSchema = {
-    type: 'object',
-    required: [
-        'data',
-        'id'
-    ],
-    properties: {
-        data: {
-            $ref: '#/components/schemas/CurriculumStandard'
+        participant_type: {
+            $ref: '#/components/schemas/ParticipantType'
         },
-        id: {
-            type: 'string'
-        }
-    }
-} as const;
-
-export const EntityUpdate_for_CurriculumTopicSchema = {
-    type: 'object',
-    required: [
-        'data',
-        'id'
-    ],
-    properties: {
-        data: {
-            $ref: '#/components/schemas/CurriculumTopic'
-        },
-        id: {
+        user_id: {
             type: 'string'
         }
     }
@@ -1749,6 +3366,38 @@ export const EntityUpdate_for_UpdateAcademicYearRequestSchema = {
     properties: {
         data: {
             $ref: '#/components/schemas/UpdateAcademicYearRequest'
+        },
+        id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const EntityUpdate_for_UpdateBehaviorIncidentRequestSchema = {
+    type: 'object',
+    required: [
+        'data',
+        'id'
+    ],
+    properties: {
+        data: {
+            $ref: '#/components/schemas/UpdateBehaviorIncidentRequest'
+        },
+        id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const EntityUpdate_for_UpdateBehaviorIncidentTypeRequestSchema = {
+    type: 'object',
+    required: [
+        'data',
+        'id'
+    ],
+    properties: {
+        data: {
+            $ref: '#/components/schemas/UpdateBehaviorIncidentTypeRequest'
         },
         id: {
             type: 'string'
@@ -1772,6 +3421,22 @@ export const EntityUpdate_for_UpdateClassRequestSchema = {
     }
 } as const;
 
+export const EntityUpdate_for_UpdateCurriculumStandardRequestSchema = {
+    type: 'object',
+    required: [
+        'data',
+        'id'
+    ],
+    properties: {
+        data: {
+            $ref: '#/components/schemas/UpdateCurriculumStandardRequest'
+        },
+        id: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const EntityUpdate_for_UpdateExamRequestSchema = {
     type: 'object',
     required: [
@@ -1781,6 +3446,22 @@ export const EntityUpdate_for_UpdateExamRequestSchema = {
     properties: {
         data: {
             $ref: '#/components/schemas/UpdateExamRequest'
+        },
+        id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const EntityUpdate_for_UpdateExamSubjectRequestSchema = {
+    type: 'object',
+    required: [
+        'data',
+        'id'
+    ],
+    properties: {
+        data: {
+            $ref: '#/components/schemas/UpdateExamSubjectRequest'
         },
         id: {
             type: 'string'
@@ -1900,6 +3581,22 @@ export const EntityUpdate_for_UpdateGradeLevelRequestSchema = {
     }
 } as const;
 
+export const EntityUpdate_for_UpdateGradePeriodRequestSchema = {
+    type: 'object',
+    required: [
+        'data',
+        'id'
+    ],
+    properties: {
+        data: {
+            $ref: '#/components/schemas/UpdateGradePeriodRequest'
+        },
+        id: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const EntityUpdate_for_UpdateGradingSchemeRequestSchema = {
     type: 'object',
     required: [
@@ -1957,6 +3654,22 @@ export const EntityUpdate_for_UpdateRoleSetRequestSchema = {
     properties: {
         data: {
             $ref: '#/components/schemas/UpdateRoleSetRequest'
+        },
+        id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const EntityUpdate_for_UpdateSchoolRoomRequestSchema = {
+    type: 'object',
+    required: [
+        'data',
+        'id'
+    ],
+    properties: {
+        data: {
+            $ref: '#/components/schemas/UpdateSchoolRoomRequest'
         },
         id: {
             type: 'string'
@@ -2044,6 +3757,38 @@ export const EntityUpdate_for_UpdateSubjectRequestSchema = {
     }
 } as const;
 
+export const EntityUpdate_for_UpdateSubstitutionPlanRequestSchema = {
+    type: 'object',
+    required: [
+        'data',
+        'id'
+    ],
+    properties: {
+        data: {
+            $ref: '#/components/schemas/UpdateSubstitutionPlanRequest'
+        },
+        id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const EntityUpdate_for_UpdateSyllabusRequestSchema = {
+    type: 'object',
+    required: [
+        'data',
+        'id'
+    ],
+    properties: {
+        data: {
+            $ref: '#/components/schemas/UpdateSyllabusRequest'
+        },
+        id: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const EntityUpdate_for_UpdateTermRequestSchema = {
     type: 'object',
     required: [
@@ -2053,6 +3798,22 @@ export const EntityUpdate_for_UpdateTermRequestSchema = {
     properties: {
         data: {
             $ref: '#/components/schemas/UpdateTermRequest'
+        },
+        id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const EntityUpdate_for_UpdateTimetableRequestSchema = {
+    type: 'object',
+    required: [
+        'data',
+        'id'
+    ],
+    properties: {
+        data: {
+            $ref: '#/components/schemas/UpdateTimetableRequest'
         },
         id: {
             type: 'string'
@@ -2100,6 +3861,27 @@ export const ExamLevelSchema = {
         'Scholarship',
         'Other'
     ]
+} as const;
+
+export const ExamRegistrationRequestSchema = {
+    title: 'ExamRegistrationRequest',
+    type: 'object',
+    required: [
+        'exam_name',
+        'student_id'
+    ],
+    properties: {
+        exam_name: {
+            type: 'string'
+        },
+        notes: {
+            type: 'string',
+            nullable: true
+        },
+        student_id: {
+            type: 'string'
+        }
+    }
 } as const;
 
 export const ExamResponseSchema = {
@@ -2227,6 +4009,52 @@ export const ExamStructureSchema = {
     }
 } as const;
 
+export const ExamSubjectResponseSchema = {
+    title: 'ExamSubjectResponse',
+    type: 'object',
+    required: [
+        'exam_id',
+        'id',
+        'subject_id'
+    ],
+    properties: {
+        date: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+        },
+        duration: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        exam_id: {
+            type: 'string'
+        },
+        id: {
+            type: 'string'
+        },
+        max_marks: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        pass_marks: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        subject_id: {
+            type: 'string'
+        },
+        time: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        }
+    }
+} as const;
+
 export const ExamTypeResponseSchema = {
     title: 'ExamTypeResponse',
     type: 'object',
@@ -2259,6 +4087,131 @@ export const ExamTypeResponseSchema = {
         weightage: {
             type: 'number',
             format: 'float'
+        }
+    }
+} as const;
+
+export const ExcuseTypeSchema = {
+    type: 'string',
+    enum: [
+        'Medical',
+        'Educational',
+        'Family',
+        'Bereavement',
+        'Official'
+    ]
+} as const;
+
+export const ExitPassResponseSchema = {
+    title: 'ExitPassResponse',
+    type: 'object',
+    required: [
+        'approved_by',
+        'date',
+        'exit_time',
+        'guardian_notified',
+        'id',
+        'reason_type',
+        'student_id'
+    ],
+    properties: {
+        approved_by: {
+            type: 'string'
+        },
+        bulk_pass_id: {
+            type: 'string',
+            nullable: true
+        },
+        date: {
+            type: 'string',
+            format: 'date'
+        },
+        exit_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        guardian_notified: {
+            type: 'boolean'
+        },
+        id: {
+            type: 'string'
+        },
+        reason_type: {
+            $ref: '#/components/schemas/ExitReason'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        student_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const ExitReasonSchema = {
+    type: 'string',
+    enum: [
+        'Medical',
+        'Personal',
+        'Disciplinary',
+        'Dismissal'
+    ]
+} as const;
+
+export const ExpenseTransactionResponseSchema = {
+    title: 'ExpenseTransactionResponse',
+    type: 'object',
+    required: [
+        'amount',
+        'category_id',
+        'created_at',
+        'date',
+        'id',
+        'payment_method',
+        'updated_at'
+    ],
+    properties: {
+        amount: {
+            type: 'number',
+            format: 'float'
+        },
+        approved_by: {
+            type: 'string',
+            nullable: true
+        },
+        category_id: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        date: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        payment_method: {
+            $ref: '#/components/schemas/PaymentMethod'
+        },
+        receipt_url: {
+            type: 'string',
+            nullable: true
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        vendor: {
+            type: 'string',
+            nullable: true
         }
     }
 } as const;
@@ -2354,45 +4307,6 @@ export const FeeStructureResponseSchema = {
             type: 'string'
         },
         id: {
-            type: 'string'
-        },
-        updated_at: {
-            type: 'string',
-            format: 'partial-date-time'
-        }
-    }
-} as const;
-
-export const FileModelSchema = {
-    type: 'object',
-    required: [
-        'created_at',
-        'file_name',
-        'file_path',
-        'file_size',
-        'id',
-        'mime_type',
-        'updated_at'
-    ],
-    properties: {
-        created_at: {
-            type: 'string',
-            format: 'partial-date-time'
-        },
-        file_name: {
-            type: 'string'
-        },
-        file_path: {
-            type: 'string'
-        },
-        file_size: {
-            type: 'integer',
-            format: 'int32'
-        },
-        id: {
-            type: 'string'
-        },
-        mime_type: {
             type: 'string'
         },
         updated_at: {
@@ -2605,6 +4519,92 @@ export const GradeLevelResponseSchema = {
     }
 } as const;
 
+export const GradePeriodResponseSchema = {
+    title: 'GradePeriodResponse',
+    type: 'object',
+    required: [
+        'created_at',
+        'end_time',
+        'grade_id',
+        'id',
+        'is_break',
+        'is_optional',
+        'start_time',
+        'updated_at'
+    ],
+    properties: {
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        end_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        grade_id: {
+            type: 'string'
+        },
+        id: {
+            type: 'string'
+        },
+        is_break: {
+            type: 'boolean'
+        },
+        is_optional: {
+            type: 'boolean'
+        },
+        start_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const GradingCriterionSchema = {
+    title: 'GradingCriterion',
+    type: 'object',
+    required: [
+        'created_at',
+        'grade',
+        'id',
+        'max_mark',
+        'min_mark',
+        'scheme_id',
+        'updated_at'
+    ],
+    properties: {
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        grade: {
+            type: 'string'
+        },
+        id: {
+            type: 'string'
+        },
+        max_mark: {
+            type: 'integer',
+            format: 'int32'
+        },
+        min_mark: {
+            type: 'integer',
+            format: 'int32'
+        },
+        scheme_id: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
 export const GradingSchemeSchema = {
     title: 'GradingScheme',
     type: 'object',
@@ -2667,6 +4667,600 @@ export const GradingSchemeTypeSchema = {
     ]
 } as const;
 
+export const IncomeTransactionResponseSchema = {
+    title: 'IncomeTransactionResponse',
+    type: 'object',
+    required: [
+        'amount',
+        'created_at',
+        'date',
+        'id',
+        'receipt_number',
+        'received_by',
+        'source_id',
+        'updated_at'
+    ],
+    properties: {
+        amount: {
+            type: 'number',
+            format: 'float'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        date: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        receipt_number: {
+            type: 'string'
+        },
+        received_by: {
+            type: 'string'
+        },
+        source_id: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const InitiateEmergencyRollCallRequestSchema = {
+    title: 'InitiateEmergencyRollCallRequest',
+    type: 'object',
+    required: [
+        'event_name'
+    ],
+    properties: {
+        event_name: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const InventoryItemResponseSchema = {
+    title: 'InventoryItemResponse',
+    type: 'object',
+    required: [
+        'category_id',
+        'created_at',
+        'id',
+        'item_name',
+        'unit',
+        'updated_at'
+    ],
+    properties: {
+        category_id: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        item_name: {
+            type: 'string'
+        },
+        quantity: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        reorder_level: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        unit: {
+            type: 'string'
+        },
+        unit_price: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const IssueBookRequestSchema = {
+    title: 'IssueBookRequest',
+    type: 'object',
+    required: [
+        'book_id'
+    ],
+    properties: {
+        book_id: {
+            type: 'integer',
+            format: 'int32'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        staff_id: {
+            type: 'string',
+            nullable: true
+        },
+        student_id: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const IssueExitPassRequestSchema = {
+    title: 'IssueExitPassRequest',
+    type: 'object',
+    required: [
+        'exit_time',
+        'reason',
+        'student_id'
+    ],
+    properties: {
+        exit_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        reason: {
+            $ref: '#/components/schemas/ExitReason'
+        },
+        student_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const IssueUniformRequestSchema = {
+    title: 'IssueUniformRequest',
+    type: 'object',
+    required: [
+        'amount_collected',
+        'issued_by',
+        'quantity',
+        'student_id',
+        'uniform_item_id'
+    ],
+    properties: {
+        amount_collected: {
+            type: 'number',
+            format: 'float'
+        },
+        issued_by: {
+            type: 'string'
+        },
+        quantity: {
+            type: 'integer',
+            format: 'int32'
+        },
+        student_id: {
+            type: 'string'
+        },
+        uniform_item_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const LeaveBalanceResponseSchema = {
+    title: 'LeaveBalanceResponse',
+    type: 'object',
+    required: [
+        'leave_type',
+        'staff_id',
+        'total_days_taken'
+    ],
+    properties: {
+        leave_type: {
+            $ref: '#/components/schemas/StaffLeaveType'
+        },
+        staff_id: {
+            type: 'string'
+        },
+        total_days_taken: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const LeaveStatusSchema = {
+    type: 'string',
+    enum: [
+        'Pending',
+        'Approved',
+        'Rejected'
+    ]
+} as const;
+
+export const LessonDeliveryModeSchema = {
+    type: 'string',
+    enum: [
+        'Regular',
+        'Substitution',
+        'Extra',
+        'Remedial',
+        'Practical',
+        'Revision'
+    ]
+} as const;
+
+export const LessonProgressAttachmentSchema = {
+    title: 'LessonProgressAttachment',
+    type: 'object',
+    required: [
+        'created_at',
+        'file_name',
+        'file_url',
+        'id',
+        'lesson_progress_id'
+    ],
+    properties: {
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        file_name: {
+            type: 'string'
+        },
+        file_type: {
+            type: 'string',
+            nullable: true
+        },
+        file_url: {
+            type: 'string'
+        },
+        id: {
+            type: 'string'
+        },
+        lesson_progress_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const LessonProgressResponseSchema = {
+    title: 'LessonProgressResponse',
+    type: 'object',
+    required: [
+        'class_id',
+        'date',
+        'id',
+        'is_skipped',
+        'lesson_summary',
+        'priority_level',
+        'subject_id',
+        'teacher_id'
+    ],
+    properties: {
+        class_id: {
+            type: 'string'
+        },
+        date: {
+            type: 'string',
+            format: 'date'
+        },
+        id: {
+            type: 'string'
+        },
+        is_skipped: {
+            type: 'boolean'
+        },
+        lesson_summary: {
+            type: 'string'
+        },
+        priority_level: {
+            type: 'integer',
+            format: 'int32'
+        },
+        progress_percentage: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        subject_id: {
+            type: 'string'
+        },
+        teacher_id: {
+            type: 'string'
+        },
+        verified_at: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        verified_by: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const LessonReviewSchema = {
+    title: 'LessonReview',
+    type: 'object',
+    required: [
+        'clarity_rating',
+        'created_at',
+        'id',
+        'lesson_progress_id',
+        'reviewer_id',
+        'reviewer_type'
+    ],
+    properties: {
+        clarity_rating: {
+            type: 'integer',
+            format: 'int32'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        feedback_text: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        lesson_progress_id: {
+            type: 'string'
+        },
+        reviewer_id: {
+            type: 'string'
+        },
+        reviewer_type: {
+            $ref: '#/components/schemas/ReviewerType'
+        }
+    }
+} as const;
+
+export const LibraryBookResponseSchema = {
+    type: 'object',
+    required: [
+        'added_date',
+        'author',
+        'available_quantity',
+        'category_id',
+        'category_name',
+        'id',
+        'quantity',
+        'title'
+    ],
+    properties: {
+        added_date: {
+            type: 'string',
+            format: 'date'
+        },
+        author: {
+            type: 'string'
+        },
+        available_quantity: {
+            type: 'integer',
+            format: 'int32'
+        },
+        category_id: {
+            type: 'integer',
+            format: 'int32'
+        },
+        category_name: {
+            type: 'string'
+        },
+        id: {
+            type: 'integer',
+            format: 'int32'
+        },
+        isbn: {
+            type: 'string',
+            nullable: true
+        },
+        publisher: {
+            type: 'string',
+            nullable: true
+        },
+        quantity: {
+            type: 'integer',
+            format: 'int32'
+        },
+        rack_number: {
+            type: 'string',
+            nullable: true
+        },
+        title: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const LibraryCategorySchema = {
+    type: 'object',
+    required: [
+        'category_name',
+        'created_at',
+        'id',
+        'updated_at'
+    ],
+    properties: {
+        category_name: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'integer',
+            format: 'int32'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const LibraryIssueResponseSchema = {
+    title: 'LibraryIssueResponse',
+    type: 'object',
+    required: [
+        'book_id',
+        'book_title',
+        'due_date',
+        'fine_paid',
+        'id',
+        'issue_date',
+        'issued_by',
+        'issued_by_name',
+        'status'
+    ],
+    properties: {
+        book_id: {
+            type: 'integer',
+            format: 'int32'
+        },
+        book_title: {
+            type: 'string'
+        },
+        due_date: {
+            type: 'string',
+            format: 'date'
+        },
+        fine_amount: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        fine_paid: {
+            type: 'boolean'
+        },
+        id: {
+            type: 'integer',
+            format: 'int32'
+        },
+        issue_date: {
+            type: 'string',
+            format: 'date'
+        },
+        issued_by: {
+            type: 'string'
+        },
+        issued_by_name: {
+            type: 'string'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        return_date: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+        },
+        staff_id: {
+            type: 'string',
+            nullable: true
+        },
+        staff_name: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            $ref: '#/components/schemas/LibraryIssueStatus'
+        },
+        student_id: {
+            type: 'string',
+            nullable: true
+        },
+        student_name: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const LibraryIssueStatusSchema = {
+    type: 'string',
+    enum: [
+        'Issued',
+        'Returned',
+        'Overdue',
+        'Lost'
+    ]
+} as const;
+
+export const LibrarySettingsSchema = {
+    title: 'LibrarySettings',
+    type: 'object',
+    required: [
+        'created_at',
+        'fine_per_day',
+        'id',
+        'issue_duration_days_staff',
+        'issue_duration_days_student',
+        'max_books_per_staff',
+        'max_books_per_student',
+        'updated_at'
+    ],
+    properties: {
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        fine_per_day: {
+            type: 'number',
+            format: 'float'
+        },
+        id: {
+            type: 'integer',
+            format: 'int32'
+        },
+        issue_duration_days_staff: {
+            type: 'integer',
+            format: 'int32'
+        },
+        issue_duration_days_student: {
+            type: 'integer',
+            format: 'int32'
+        },
+        max_books_per_staff: {
+            type: 'integer',
+            format: 'int32'
+        },
+        max_books_per_student: {
+            type: 'integer',
+            format: 'int32'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
 export const LoginRequestSchema = {
     title: 'LoginRequest',
     type: 'object',
@@ -2679,6 +5273,225 @@ export const LoginRequestSchema = {
             type: 'string'
         },
         password: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const MaintenanceRequestResponseSchema = {
+    title: 'MaintenanceRequestResponse',
+    type: 'object',
+    required: [
+        'created_at',
+        'id',
+        'issue_description',
+        'item_id',
+        'reported_by',
+        'reported_date',
+        'status',
+        'updated_at'
+    ],
+    properties: {
+        assigned_to: {
+            type: 'string',
+            nullable: true
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        id: {
+            type: 'string'
+        },
+        issue_description: {
+            type: 'string'
+        },
+        item_id: {
+            type: 'string'
+        },
+        reported_by: {
+            type: 'string'
+        },
+        reported_date: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        resolved_date: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        status: {
+            $ref: '#/components/schemas/MaintenanceStatus'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const MaintenanceStatusSchema = {
+    type: 'string',
+    enum: [
+        'Pending',
+        'InProgress',
+        'Completed',
+        'Cancelled'
+    ]
+} as const;
+
+export const MarkActivityAttendanceRequestSchema = {
+    title: 'MarkActivityAttendanceRequest',
+    type: 'object',
+    required: [
+        'status',
+        'user_id'
+    ],
+    properties: {
+        status: {
+            $ref: '#/components/schemas/AttendanceStatus'
+        },
+        user_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const MarkPeriodAttendanceRequestSchema = {
+    title: 'MarkPeriodAttendanceRequest',
+    type: 'object',
+    required: [
+        'class_id',
+        'date',
+        'status',
+        'student_id',
+        'timetable_id'
+    ],
+    properties: {
+        class_id: {
+            type: 'string'
+        },
+        date: {
+            type: 'string',
+            format: 'date'
+        },
+        minutes_late: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            $ref: '#/components/schemas/AttendanceStatus'
+        },
+        student_id: {
+            type: 'string'
+        },
+        timetable_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const MarkStaffAttendanceRequestSchema = {
+    title: 'MarkStaffAttendanceRequest',
+    type: 'object',
+    required: [
+        'date',
+        'status'
+    ],
+    properties: {
+        date: {
+            type: 'string',
+            format: 'date'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            $ref: '#/components/schemas/AttendanceStatus'
+        },
+        time_in: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        time_out: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        }
+    }
+} as const;
+
+export const MarkStudentAttendanceRequestSchema = {
+    title: 'MarkStudentAttendanceRequest',
+    type: 'object',
+    required: [
+        'class_id',
+        'date',
+        'marked_by',
+        'status',
+        'student_id'
+    ],
+    properties: {
+        class_id: {
+            type: 'string'
+        },
+        date: {
+            type: 'string',
+            format: 'date'
+        },
+        marked_by: {
+            type: 'string'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            $ref: '#/components/schemas/AttendanceStatus'
+        },
+        student_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const MarkTeacherPeriodAttendanceRequestSchema = {
+    title: 'MarkTeacherPeriodAttendanceRequest',
+    type: 'object',
+    required: [
+        'date',
+        'is_substitution',
+        'status',
+        'timetable_id'
+    ],
+    properties: {
+        date: {
+            type: 'string',
+            format: 'date'
+        },
+        is_substitution: {
+            type: 'boolean'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            $ref: '#/components/schemas/TeacherPeriodStatus'
+        },
+        substitution_id: {
+            type: 'string',
+            nullable: true
+        },
+        timetable_id: {
             type: 'string'
         }
     }
@@ -2829,6 +5642,85 @@ export const MessageResponseSchema = {
     }
 } as const;
 
+export const MonthlyAttendancePercentageResponseSchema = {
+    title: 'MonthlyAttendancePercentageResponse',
+    type: 'object',
+    required: [
+        'attendance_percentage',
+        'month',
+        'present_days',
+        'staff_id',
+        'total_working_days',
+        'year'
+    ],
+    properties: {
+        attendance_percentage: {
+            type: 'number',
+            format: 'double'
+        },
+        month: {
+            type: 'integer',
+            format: 'uint32',
+            minimum: 0
+        },
+        present_days: {
+            type: 'integer',
+            format: 'int64'
+        },
+        staff_id: {
+            type: 'string'
+        },
+        total_working_days: {
+            type: 'integer',
+            format: 'int64'
+        },
+        year: {
+            type: 'integer',
+            format: 'int32'
+        }
+    }
+} as const;
+
+export const PaginatedBudgetCategoryResponseSchema = {
+    title: 'PaginatedBudgetCategoryResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/BudgetCategoryResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        next_last_id: {
+            type: 'string',
+            nullable: true
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
 export const PaginatedExamStructureResponseSchema = {
     title: 'PaginatedExamStructureResponse',
     type: 'object',
@@ -2844,6 +5736,128 @@ export const PaginatedExamStructureResponseSchema = {
             type: 'array',
             items: {
                 $ref: '#/components/schemas/ExamStructure'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        next_last_id: {
+            type: 'string',
+            nullable: true
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedLibraryBookResponseSchema = {
+    title: 'PaginatedLibraryBookResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/LibraryBookResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        next_last_id: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedLibraryCategoryResponseSchema = {
+    title: 'PaginatedLibraryCategoryResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/LibraryCategory'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        next_last_id: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedReportCardResponseSchema = {
+    title: 'PaginatedReportCardResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/ReportCard'
             }
         },
         limit: {
@@ -3429,6 +6443,46 @@ export const PaginatedResponse_for_GradeLevelResponseSchema = {
     }
 } as const;
 
+export const PaginatedResponse_for_GradePeriodResponseSchema = {
+    title: 'PaginatedResponse_for_GradePeriodResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/GradePeriodResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        next_last_id: {
+            type: 'string',
+            nullable: true
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
 export const PaginatedResponse_for_GradingSchemeSchema = {
     title: 'PaginatedResponse_for_GradingScheme',
     type: 'object',
@@ -3564,6 +6618,46 @@ export const PaginatedResponse_for_RoleSetSchema = {
             type: 'array',
             items: {
                 $ref: '#/components/schemas/RoleSet'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        next_last_id: {
+            type: 'string',
+            nullable: true
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedResponse_for_SchoolRoomResponseSchema = {
+    title: 'PaginatedResponse_for_SchoolRoomResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/SchoolRoomResponse'
             }
         },
         limit: {
@@ -3789,6 +6883,46 @@ export const PaginatedResponse_for_SubjectResponseSchema = {
     }
 } as const;
 
+export const PaginatedResponse_for_SubstitutionPlanSchema = {
+    title: 'PaginatedResponse_for_SubstitutionPlan',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/SubstitutionPlan'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        next_last_id: {
+            type: 'string',
+            nullable: true
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
 export const PaginatedResponse_for_TermResponseSchema = {
     title: 'PaginatedResponse_for_TermResponse',
     type: 'object',
@@ -3804,6 +6938,46 @@ export const PaginatedResponse_for_TermResponseSchema = {
             type: 'array',
             items: {
                 $ref: '#/components/schemas/TermResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        next_last_id: {
+            type: 'string',
+            nullable: true
+        },
+        page: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total: {
+            type: 'integer',
+            format: 'int64'
+        },
+        total_pages: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const PaginatedResponse_for_TimetableResponseSchema = {
+    title: 'PaginatedResponse_for_TimetableResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit',
+        'page',
+        'total',
+        'total_pages'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/TimetableResponse'
             }
         },
         limit: {
@@ -3909,6 +7083,41 @@ export const PaginatedResponse_for_UserSetSchema = {
     }
 } as const;
 
+export const PaginatedStudentMarksResponseSchema = {
+    title: 'PaginatedStudentMarksResponse',
+    type: 'object',
+    required: [
+        'data',
+        'limit'
+    ],
+    properties: {
+        data: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/StudentMarkResponse'
+            }
+        },
+        limit: {
+            type: 'integer',
+            format: 'int64'
+        },
+        next_last_id: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const ParticipantTypeSchema = {
+    type: 'string',
+    enum: [
+        'Participant',
+        'Organizer',
+        'Supervisor',
+        'Detained'
+    ]
+} as const;
+
 export const PasswordResetSchema = {
     title: 'PasswordReset',
     type: 'object',
@@ -3933,6 +7142,19 @@ export const PasswordResetRequestSchema = {
             type: 'string'
         }
     }
+} as const;
+
+export const PaymentMethodSchema = {
+    type: 'string',
+    enum: [
+        'Cash',
+        'BankTransfer',
+        'Cheque',
+        'Online',
+        'Card',
+        'MobileMoney',
+        'Other'
+    ]
 } as const;
 
 export const PermissionEnumSchema = {
@@ -4026,6 +7248,150 @@ export const PermissionEnumSchema = {
     ]
 } as const;
 
+export const PettyCashTransactionResponseSchema = {
+    title: 'PettyCashTransactionResponse',
+    type: 'object',
+    required: [
+        'amount',
+        'created_at',
+        'date',
+        'handled_by',
+        'id',
+        'transaction_type',
+        'updated_at'
+    ],
+    properties: {
+        amount: {
+            type: 'number',
+            format: 'float'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        date: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        handled_by: {
+            type: 'string'
+        },
+        id: {
+            type: 'string'
+        },
+        transaction_type: {
+            $ref: '#/components/schemas/TransactionType'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const PracticalLessonAppealSchema = {
+    title: 'PracticalLessonAppeal',
+    type: 'object',
+    required: [
+        'appeal_reason',
+        'created_at',
+        'id',
+        'lesson_progress_id',
+        'status'
+    ],
+    properties: {
+        appeal_reason: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        evidence_image_url: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        lesson_progress_id: {
+            type: 'string'
+        },
+        reviewed_at: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        reviewed_by: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            $ref: '#/components/schemas/AppealStatus'
+        }
+    }
+} as const;
+
+export const PromoteStudentRequestSchema = {
+    title: 'PromoteStudentRequest',
+    type: 'object',
+    required: [
+        'current_academic_year_id',
+        'new_academic_year_id',
+        'new_assignment_from_date',
+        'new_class_id',
+        'new_grade_id',
+        'student_id'
+    ],
+    properties: {
+        current_academic_year_id: {
+            type: 'string'
+        },
+        new_academic_year_id: {
+            type: 'string'
+        },
+        new_assignment_from_date: {
+            type: 'string',
+            format: 'date'
+        },
+        new_class_id: {
+            type: 'string'
+        },
+        new_grade_id: {
+            type: 'string'
+        },
+        student_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const ReconcilePettyCashRequestSchema = {
+    title: 'ReconcilePettyCashRequest',
+    type: 'object',
+    required: [
+        'handled_by',
+        'physical_balance'
+    ],
+    properties: {
+        handled_by: {
+            type: 'string'
+        },
+        physical_balance: {
+            type: 'number',
+            format: 'float'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
 export const RecordBehaviorIncidentRequestSchema = {
     title: 'RecordBehaviorIncidentRequest',
     type: 'object',
@@ -4053,6 +7419,166 @@ export const RecordBehaviorIncidentRequestSchema = {
         },
         student_id: {
             type: 'string'
+        }
+    }
+} as const;
+
+export const RecordExpenseRequestSchema = {
+    title: 'RecordExpenseRequest',
+    type: 'object',
+    required: [
+        'amount',
+        'category_id',
+        'payment_method'
+    ],
+    properties: {
+        amount: {
+            type: 'number',
+            format: 'float'
+        },
+        approved_by: {
+            type: 'string',
+            nullable: true
+        },
+        category_id: {
+            type: 'string'
+        },
+        date: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        payment_method: {
+            $ref: '#/components/schemas/PaymentMethod'
+        },
+        receipt_url: {
+            type: 'string',
+            nullable: true
+        },
+        vendor: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const RecordIncomeRequestSchema = {
+    title: 'RecordIncomeRequest',
+    type: 'object',
+    required: [
+        'amount',
+        'receipt_number',
+        'received_by',
+        'source_id'
+    ],
+    properties: {
+        amount: {
+            type: 'number',
+            format: 'float'
+        },
+        date: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        receipt_number: {
+            type: 'string'
+        },
+        received_by: {
+            type: 'string'
+        },
+        source_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const RecordPettyCashRequestSchema = {
+    title: 'RecordPettyCashRequest',
+    type: 'object',
+    required: [
+        'amount',
+        'handled_by',
+        'transaction_type'
+    ],
+    properties: {
+        amount: {
+            type: 'number',
+            format: 'float'
+        },
+        date: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        handled_by: {
+            type: 'string'
+        },
+        transaction_type: {
+            $ref: '#/components/schemas/TransactionType'
+        }
+    }
+} as const;
+
+export const RecordSalaryPaymentRequestSchema = {
+    title: 'RecordSalaryPaymentRequest',
+    type: 'object',
+    required: [
+        'gross_salary',
+        'net_salary',
+        'payment_method',
+        'payment_month',
+        'payment_year',
+        'staff_id',
+        'total_deductions'
+    ],
+    properties: {
+        gross_salary: {
+            type: 'number',
+            format: 'float'
+        },
+        net_salary: {
+            type: 'number',
+            format: 'float'
+        },
+        payment_date: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        payment_method: {
+            $ref: '#/components/schemas/SalaryPaymentMethod'
+        },
+        payment_month: {
+            type: 'integer',
+            format: 'int32'
+        },
+        payment_year: {
+            type: 'integer',
+            format: 'int32'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        staff_id: {
+            type: 'string'
+        },
+        total_deductions: {
+            type: 'number',
+            format: 'float'
         }
     }
 } as const;
@@ -4087,6 +7613,166 @@ export const RegisterRequestSchema = {
     }
 } as const;
 
+export const ReportCardSchema = {
+    type: 'object',
+    required: [
+        'academic_year_id',
+        'class_id',
+        'created_at',
+        'generated_at',
+        'generated_by',
+        'id',
+        'student_id',
+        'term_id',
+        'updated_at'
+    ],
+    properties: {
+        academic_year_id: {
+            type: 'string'
+        },
+        class_id: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        generated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        generated_by: {
+            type: 'string'
+        },
+        grading_scheme_id: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        overall_gpa: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        overall_grade: {
+            type: 'string',
+            nullable: true
+        },
+        overall_percentage: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        rank: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        student_id: {
+            type: 'string'
+        },
+        term_id: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const ReportCardDetailResponseSchema = {
+    title: 'ReportCardDetailResponse',
+    type: 'object',
+    required: [
+        'marks',
+        'report_card'
+    ],
+    properties: {
+        marks: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/ReportCardMark'
+            }
+        },
+        report_card: {
+            $ref: '#/components/schemas/ReportCard'
+        }
+    }
+} as const;
+
+export const ReportCardMarkSchema = {
+    title: 'ReportCardMark',
+    type: 'object',
+    required: [
+        'assessment_id',
+        'assessment_type',
+        'created_at',
+        'id',
+        'report_card_id',
+        'subject_id',
+        'updated_at'
+    ],
+    properties: {
+        assessment_id: {
+            type: 'string'
+        },
+        assessment_type: {
+            $ref: '#/components/schemas/AssessmentType'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        grade: {
+            type: 'string',
+            nullable: true
+        },
+        grade_point: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        marking_scheme_id: {
+            type: 'string',
+            nullable: true
+        },
+        percentage: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        report_card_id: {
+            type: 'string'
+        },
+        subject_id: {
+            type: 'string'
+        },
+        total_marks: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
 export const ResendVerificationEmailRequestSchema = {
     title: 'ResendVerificationEmailRequest',
     type: 'object',
@@ -4098,6 +7784,50 @@ export const ResendVerificationEmailRequestSchema = {
             type: 'string'
         }
     }
+} as const;
+
+export const ReturnAssetRequestSchema = {
+    title: 'ReturnAssetRequest',
+    type: 'object',
+    properties: {
+        return_date: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        }
+    }
+} as const;
+
+export const ReturnBookRequestSchema = {
+    title: 'ReturnBookRequest',
+    type: 'object',
+    properties: {
+        remarks: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const ReviewAppealRequestSchema = {
+    title: 'ReviewAppealRequest',
+    type: 'object',
+    required: [
+        'status'
+    ],
+    properties: {
+        status: {
+            $ref: '#/components/schemas/AppealStatus'
+        }
+    }
+} as const;
+
+export const ReviewerTypeSchema = {
+    type: 'string',
+    enum: [
+        'Guardian',
+        'Student'
+    ]
 } as const;
 
 export const RoleEnumSchema = {
@@ -4114,6 +7844,19 @@ export const RoleEnumSchema = {
         'Accountant',
         'Librarian'
     ]
+} as const;
+
+export const RolePermissionRequestSchema = {
+    title: 'RolePermissionRequest',
+    type: 'object',
+    required: [
+        'permission'
+    ],
+    properties: {
+        permission: {
+            $ref: '#/components/schemas/PermissionEnum'
+        }
+    }
 } as const;
 
 export const RoleSetSchema = {
@@ -4133,6 +7876,156 @@ export const RoleSetSchema = {
         },
         name: {
             type: 'string'
+        }
+    }
+} as const;
+
+export const SalaryComponentResponseSchema = {
+    title: 'SalaryComponentResponse',
+    type: 'object',
+    required: [
+        'component_type',
+        'created_at',
+        'id',
+        'name',
+        'updated_at'
+    ],
+    properties: {
+        component_type: {
+            $ref: '#/components/schemas/ComponentType'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const SalaryPaymentMethodSchema = {
+    type: 'string',
+    enum: [
+        'Cash',
+        'BankTransfer',
+        'Cheque',
+        'Card',
+        'Other'
+    ]
+} as const;
+
+export const SalaryPaymentResponseSchema = {
+    title: 'SalaryPaymentResponse',
+    type: 'object',
+    required: [
+        'created_at',
+        'gross_salary',
+        'id',
+        'net_salary',
+        'payment_date',
+        'payment_method',
+        'payment_month',
+        'payment_year',
+        'staff_id',
+        'total_deductions',
+        'updated_at'
+    ],
+    properties: {
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        gross_salary: {
+            type: 'number',
+            format: 'float'
+        },
+        id: {
+            type: 'string'
+        },
+        net_salary: {
+            type: 'number',
+            format: 'float'
+        },
+        payment_date: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        payment_method: {
+            $ref: '#/components/schemas/SalaryPaymentMethod'
+        },
+        payment_month: {
+            type: 'integer',
+            format: 'int32'
+        },
+        payment_year: {
+            type: 'integer',
+            format: 'int32'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        staff_id: {
+            type: 'string'
+        },
+        total_deductions: {
+            type: 'number',
+            format: 'float'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const SchoolRoomResponseSchema = {
+    title: 'SchoolRoomResponse',
+    type: 'object',
+    required: [
+        'created_at',
+        'id',
+        'updated_at'
+    ],
+    properties: {
+        building: {
+            type: 'string',
+            nullable: true
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        floor: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        name: {
+            type: 'string',
+            nullable: true
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
         }
     }
 } as const;
@@ -4295,6 +8188,277 @@ export const SchoolTestTypeSchema = {
     ]
 } as const;
 
+export const SendAbsenceNotificationRequestSchema = {
+    title: 'SendAbsenceNotificationRequest',
+    type: 'object',
+    required: [
+        'class_id',
+        'date'
+    ],
+    properties: {
+        class_id: {
+            type: 'string'
+        },
+        date: {
+            type: 'string',
+            format: 'date'
+        }
+    }
+} as const;
+
+export const SendMessageRequestSchema = {
+    title: 'SendMessageRequest',
+    type: 'object',
+    required: [
+        'content'
+    ],
+    properties: {
+        content: {
+            type: 'string',
+            minLength: 1
+        }
+    }
+} as const;
+
+export const SetBudgetRequestSchema = {
+    title: 'SetBudgetRequest',
+    type: 'object',
+    required: [
+        'academic_year_id',
+        'allocated_amount',
+        'category_id'
+    ],
+    properties: {
+        academic_year_id: {
+            type: 'string'
+        },
+        allocated_amount: {
+            type: 'number',
+            format: 'float'
+        },
+        category_id: {
+            type: 'string'
+        },
+        spent_amount: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        }
+    }
+} as const;
+
+export const SetStaffSalaryRequestSchema = {
+    title: 'SetStaffSalaryRequest',
+    type: 'object',
+    required: [
+        'amount',
+        'component_id',
+        'effective_from',
+        'staff_id'
+    ],
+    properties: {
+        amount: {
+            type: 'number',
+            format: 'float'
+        },
+        component_id: {
+            type: 'string'
+        },
+        effective_from: {
+            type: 'string',
+            format: 'date'
+        },
+        staff_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const SportSchema = {
+    title: 'Sport',
+    type: 'object',
+    required: [
+        'category',
+        'created_at',
+        'id',
+        'sport_name',
+        'updated_at'
+    ],
+    properties: {
+        category: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        sport_name: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const SportTeamSchema = {
+    title: 'SportTeam',
+    type: 'object',
+    required: [
+        'coach_id',
+        'created_at',
+        'grade_level',
+        'id',
+        'sport_id',
+        'team_name',
+        'updated_at'
+    ],
+    properties: {
+        coach_id: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        grade_level: {
+            type: 'string'
+        },
+        id: {
+            type: 'string'
+        },
+        sport_id: {
+            type: 'string'
+        },
+        team_name: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const StaffAttendanceResponseSchema = {
+    title: 'StaffAttendanceResponse',
+    type: 'object',
+    required: [
+        'created_at',
+        'date',
+        'id',
+        'staff_id',
+        'status',
+        'updated_at'
+    ],
+    properties: {
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        date: {
+            type: 'string',
+            format: 'date'
+        },
+        id: {
+            type: 'string'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        staff_id: {
+            type: 'string'
+        },
+        status: {
+            $ref: '#/components/schemas/AttendanceStatus'
+        },
+        time_in: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        time_out: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const StaffLeaveResponseSchema = {
+    title: 'StaffLeaveResponse',
+    type: 'object',
+    required: [
+        'created_at',
+        'from_date',
+        'id',
+        'leave_type',
+        'reason',
+        'staff_id',
+        'status',
+        'to_date',
+        'updated_at'
+    ],
+    properties: {
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        from_date: {
+            type: 'string',
+            format: 'date'
+        },
+        id: {
+            type: 'string'
+        },
+        leave_type: {
+            $ref: '#/components/schemas/StaffLeaveType'
+        },
+        reason: {
+            type: 'string'
+        },
+        staff_id: {
+            type: 'string'
+        },
+        status: {
+            $ref: '#/components/schemas/LeaveStatus'
+        },
+        to_date: {
+            type: 'string',
+            format: 'date'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const StaffLeaveTypeSchema = {
+    type: 'string',
+    enum: [
+        'Sick',
+        'Casual',
+        'Annual',
+        'Study',
+        'Maternity',
+        'Other'
+    ]
+} as const;
+
 export const StaffResponseSchema = {
     title: 'StaffResponse',
     type: 'object',
@@ -4396,6 +8560,43 @@ export const StaffResponseSchema = {
     }
 } as const;
 
+export const StaffSalaryResponseSchema = {
+    title: 'StaffSalaryResponse',
+    type: 'object',
+    required: [
+        'amount',
+        'component_id',
+        'created_at',
+        'effective_from',
+        'staff_id',
+        'updated_at'
+    ],
+    properties: {
+        amount: {
+            type: 'number',
+            format: 'float'
+        },
+        component_id: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        effective_from: {
+            type: 'string',
+            format: 'date'
+        },
+        staff_id: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
 export const StaffTypeSchema = {
     type: 'string',
     enum: [
@@ -4403,6 +8604,331 @@ export const StaffTypeSchema = {
         'NonTeaching',
         'Administrative'
     ]
+} as const;
+
+export const StudentAttendanceReportResponseSchema = {
+    title: 'StudentAttendanceReportResponse',
+    type: 'object',
+    required: [
+        'days_absent',
+        'days_late',
+        'days_present',
+        'percentage',
+        'student_id',
+        'student_name',
+        'total_days'
+    ],
+    properties: {
+        days_absent: {
+            type: 'integer',
+            format: 'int64'
+        },
+        days_late: {
+            type: 'integer',
+            format: 'int64'
+        },
+        days_present: {
+            type: 'integer',
+            format: 'int64'
+        },
+        percentage: {
+            type: 'number',
+            format: 'double'
+        },
+        student_id: {
+            type: 'string'
+        },
+        student_name: {
+            type: 'string'
+        },
+        total_days: {
+            type: 'integer',
+            format: 'int64'
+        }
+    }
+} as const;
+
+export const StudentAttendanceResponseSchema = {
+    title: 'StudentAttendanceResponse',
+    type: 'object',
+    required: [
+        'class_id',
+        'created_at',
+        'date',
+        'id',
+        'is_locked',
+        'marked_by',
+        'status',
+        'student_id',
+        'updated_at'
+    ],
+    properties: {
+        class_id: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        date: {
+            type: 'string',
+            format: 'date'
+        },
+        id: {
+            type: 'string'
+        },
+        is_locked: {
+            type: 'boolean'
+        },
+        marked_by: {
+            type: 'string'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            $ref: '#/components/schemas/AttendanceStatus'
+        },
+        student_id: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const StudentClassAssignmentResponseSchema = {
+    title: 'StudentClassAssignmentResponse',
+    type: 'object',
+    required: [
+        'academic_year_id',
+        'class_id',
+        'created_at',
+        'from_date',
+        'grade_id',
+        'id',
+        'student_id',
+        'updated_at'
+    ],
+    properties: {
+        academic_year_id: {
+            type: 'string'
+        },
+        class_id: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        from_date: {
+            type: 'string',
+            format: 'date'
+        },
+        grade_id: {
+            type: 'string'
+        },
+        id: {
+            type: 'string'
+        },
+        student_id: {
+            type: 'string'
+        },
+        to_date: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const StudentGuardianResponseSchema = {
+    title: 'StudentGuardianResponse',
+    type: 'object',
+    required: [
+        'address',
+        'created_at',
+        'id',
+        'name',
+        'phone',
+        'relationship',
+        'student_id',
+        'updated_at'
+    ],
+    properties: {
+        address: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        email: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        },
+        phone: {
+            type: 'string'
+        },
+        relationship: {
+            type: 'string'
+        },
+        student_id: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        user_email: {
+            type: 'string',
+            nullable: true
+        },
+        user_id: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const StudentMarkEntryInputSchema = {
+    type: 'object',
+    required: [
+        'marking_scheme_part_id',
+        'marks_awarded'
+    ],
+    properties: {
+        marking_scheme_part_id: {
+            type: 'string'
+        },
+        marks_awarded: {
+            type: 'number',
+            format: 'float'
+        }
+    }
+} as const;
+
+export const StudentMarkEntryResponseSchema = {
+    type: 'object',
+    required: [
+        'id',
+        'marking_scheme_part_id',
+        'marks_awarded',
+        'max_marks'
+    ],
+    properties: {
+        id: {
+            type: 'string'
+        },
+        marking_scheme_part_id: {
+            type: 'string'
+        },
+        marks_awarded: {
+            type: 'number',
+            format: 'float'
+        },
+        max_marks: {
+            type: 'number',
+            format: 'float'
+        }
+    }
+} as const;
+
+export const StudentMarkResponseSchema = {
+    type: 'object',
+    required: [
+        'assessment_id',
+        'assessment_type',
+        'entered_at',
+        'entered_by',
+        'entries',
+        'id',
+        'is_absent',
+        'marking_scheme_id',
+        'student_id',
+        'subject_id',
+        'updated_at'
+    ],
+    properties: {
+        assessment_id: {
+            type: 'string'
+        },
+        assessment_type: {
+            $ref: '#/components/schemas/AssessmentType'
+        },
+        entered_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        entered_by: {
+            type: 'string'
+        },
+        entries: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/StudentMarkEntryResponse'
+            }
+        },
+        grade: {
+            type: 'string',
+            nullable: true
+        },
+        grade_point: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        is_absent: {
+            type: 'boolean'
+        },
+        marking_scheme_id: {
+            type: 'string'
+        },
+        percentage: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        student_id: {
+            type: 'string'
+        },
+        subject_id: {
+            type: 'string'
+        },
+        total_marks: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        updated_by: {
+            type: 'string',
+            nullable: true
+        }
+    }
 } as const;
 
 export const StudentResponseSchema = {
@@ -4516,6 +9042,189 @@ export const SubjectResponseSchema = {
     }
 } as const;
 
+export const SubmitAppealRequestSchema = {
+    title: 'SubmitAppealRequest',
+    type: 'object',
+    required: [
+        'appeal_reason',
+        'lesson_progress_id'
+    ],
+    properties: {
+        appeal_reason: {
+            type: 'string'
+        },
+        evidence_image_url: {
+            type: 'string',
+            nullable: true
+        },
+        lesson_progress_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const SubmitExcuseRequestSchema = {
+    title: 'SubmitExcuseRequest',
+    type: 'object',
+    required: [
+        'attendance_record_id',
+        'excuse_type'
+    ],
+    properties: {
+        attendance_record_id: {
+            type: 'string'
+        },
+        document_url: {
+            type: 'string',
+            nullable: true
+        },
+        excuse_type: {
+            $ref: '#/components/schemas/ExcuseType'
+        }
+    }
+} as const;
+
+export const SubmitReviewRequestSchema = {
+    title: 'SubmitReviewRequest',
+    type: 'object',
+    required: [
+        'lesson_progress_id',
+        'rating'
+    ],
+    properties: {
+        feedback: {
+            type: 'string',
+            nullable: true
+        },
+        lesson_progress_id: {
+            type: 'string'
+        },
+        rating: {
+            type: 'integer',
+            format: 'int32'
+        }
+    }
+} as const;
+
+export const SubstitutionPlanSchema = {
+    title: 'SubstitutionPlan',
+    type: 'object',
+    required: [
+        'created_at',
+        'id',
+        'medium',
+        'plan_name',
+        'subject_id',
+        'updated_at'
+    ],
+    properties: {
+        content_link: {
+            type: 'string',
+            nullable: true
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        medium: {
+            $ref: '#/components/schemas/Medium'
+        },
+        plan_name: {
+            type: 'string'
+        },
+        subject_id: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const SubstitutionResponseSchema = {
+    title: 'SubstitutionResponse',
+    type: 'object',
+    required: [
+        'date',
+        'id',
+        'original_teacher_id',
+        'status',
+        'substitute_teacher_id',
+        'timetable_id'
+    ],
+    properties: {
+        content_link: {
+            type: 'string',
+            nullable: true
+        },
+        date: {
+            type: 'string',
+            format: 'date'
+        },
+        id: {
+            type: 'string'
+        },
+        original_teacher_id: {
+            type: 'string'
+        },
+        plan_name: {
+            type: 'string',
+            nullable: true
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            type: 'string'
+        },
+        substitute_teacher_id: {
+            type: 'string'
+        },
+        timetable_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const SuggestSubstituteRequestSchema = {
+    title: 'SuggestSubstituteRequest',
+    type: 'object',
+    required: [
+        'date',
+        'timetable_id'
+    ],
+    properties: {
+        date: {
+            type: 'string',
+            format: 'date'
+        },
+        timetable_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const SuspicionFlagSchema = {
+    type: 'string',
+    enum: [
+        'None',
+        'FrequentExit',
+        'Avoidance',
+        'UnusualDrowsiness',
+        'SkippingAfterInterval',
+        'Other'
+    ]
+} as const;
+
 export const SyllabusResponseSchema = {
     title: 'SyllabusResponse',
     type: 'object',
@@ -4574,6 +9283,82 @@ export const SyllabusResponseSchema = {
     }
 } as const;
 
+export const TeacherPeriodAttendanceResponseSchema = {
+    title: 'TeacherPeriodAttendanceResponse',
+    type: 'object',
+    required: [
+        'date',
+        'id',
+        'is_substitution',
+        'status',
+        'teacher_id',
+        'timetable_id'
+    ],
+    properties: {
+        date: {
+            type: 'string',
+            format: 'date'
+        },
+        id: {
+            type: 'string'
+        },
+        is_substitution: {
+            type: 'boolean'
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            $ref: '#/components/schemas/TeacherPeriodStatus'
+        },
+        teacher_id: {
+            type: 'string'
+        },
+        timetable_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const TeacherPeriodStatusSchema = {
+    type: 'string',
+    enum: [
+        'Present',
+        'Absent',
+        'OnLeave',
+        'Meeting',
+        'Other'
+    ]
+} as const;
+
+export const TeacherRewardHistorySchema = {
+    title: 'TeacherRewardHistory',
+    type: 'object',
+    required: [
+        'created_at',
+        'id',
+        'points',
+        'teacher_id'
+    ],
+    properties: {
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        id: {
+            type: 'string'
+        },
+        points: {
+            type: 'integer',
+            format: 'int32'
+        },
+        teacher_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const TermResponseSchema = {
     title: 'TermResponse',
     type: 'object',
@@ -4620,6 +9405,67 @@ export const TermResponseSchema = {
     }
 } as const;
 
+export const TimetableResponseSchema = {
+    title: 'TimetableResponse',
+    type: 'object',
+    required: [
+        'academic_year_id',
+        'class_id',
+        'created_at',
+        'day_of_week',
+        'end_time',
+        'id',
+        'room',
+        'start_time',
+        'subject_id',
+        'teacher_id',
+        'updated_at'
+    ],
+    properties: {
+        academic_year_id: {
+            type: 'string'
+        },
+        class_id: {
+            type: 'string'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        day_of_week: {
+            type: 'string'
+        },
+        end_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        grade_period_id: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        room: {
+            type: 'string'
+        },
+        start_time: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        subject_id: {
+            type: 'string'
+        },
+        teacher_id: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
 export const TokenResponseSchema = {
     title: 'TokenResponse',
     type: 'object',
@@ -4632,6 +9478,190 @@ export const TokenResponseSchema = {
             type: 'string'
         },
         token: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const TransactionTypeSchema = {
+    type: 'string',
+    enum: [
+        'Received',
+        'Spent'
+    ]
+} as const;
+
+export const UniformIssueResponseSchema = {
+    title: 'UniformIssueResponse',
+    type: 'object',
+    required: [
+        'amount_collected',
+        'created_at',
+        'id',
+        'issue_date',
+        'issued_by',
+        'quantity',
+        'student_id',
+        'uniform_item_id',
+        'updated_at'
+    ],
+    properties: {
+        amount_collected: {
+            type: 'number',
+            format: 'float'
+        },
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        id: {
+            type: 'string'
+        },
+        issue_date: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        issued_by: {
+            type: 'string'
+        },
+        quantity: {
+            type: 'integer',
+            format: 'int32'
+        },
+        student_id: {
+            type: 'string'
+        },
+        uniform_item_id: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const UniformItemResponseSchema = {
+    title: 'UniformItemResponse',
+    type: 'object',
+    required: [
+        'created_at',
+        'gender',
+        'id',
+        'item_name',
+        'price',
+        'quantity',
+        'size',
+        'updated_at'
+    ],
+    properties: {
+        created_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        },
+        gender: {
+            type: 'string'
+        },
+        grade_level: {
+            type: 'string',
+            nullable: true
+        },
+        id: {
+            type: 'string'
+        },
+        item_name: {
+            type: 'string'
+        },
+        price: {
+            type: 'number',
+            format: 'float'
+        },
+        quantity: {
+            type: 'integer',
+            format: 'int32'
+        },
+        size: {
+            type: 'string'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time'
+        }
+    }
+} as const;
+
+export const UnitAllocationResponseSchema = {
+    title: 'UnitAllocationResponse',
+    type: 'object',
+    required: [
+        'buffer_periods',
+        'class_id',
+        'curriculum_topic_id',
+        'id',
+        'planned_periods'
+    ],
+    properties: {
+        buffer_periods: {
+            type: 'integer',
+            format: 'int32'
+        },
+        class_id: {
+            type: 'string'
+        },
+        curriculum_topic_id: {
+            type: 'string'
+        },
+        id: {
+            type: 'string'
+        },
+        planned_periods: {
+            type: 'integer',
+            format: 'int32'
+        },
+        target_date: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+        }
+    }
+} as const;
+
+export const UnitPacingReportSchema = {
+    title: 'UnitPacingReport',
+    type: 'object',
+    required: [
+        'actual_periods_spent',
+        'buffer_periods',
+        'lag_periods',
+        'planned_periods',
+        'status',
+        'syllabus_id',
+        'topic_name'
+    ],
+    properties: {
+        actual_periods_spent: {
+            type: 'integer',
+            format: 'int64'
+        },
+        buffer_periods: {
+            type: 'integer',
+            format: 'int32'
+        },
+        lag_periods: {
+            type: 'integer',
+            format: 'int64'
+        },
+        planned_periods: {
+            type: 'integer',
+            format: 'int32'
+        },
+        status: {
+            type: 'string'
+        },
+        syllabus_id: {
+            type: 'string'
+        },
+        topic_name: {
             type: 'string'
         }
     }
@@ -4656,6 +9686,99 @@ export const UpdateAcademicYearRequestSchema = {
         year_start: {
             type: 'integer',
             format: 'int32',
+            nullable: true
+        }
+    }
+} as const;
+
+export const UpdateBehaviorIncidentRequestSchema = {
+    type: 'object',
+    properties: {
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        incident_date: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        incident_type_id: {
+            type: 'string',
+            nullable: true
+        },
+        points_awarded: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        reported_by_user_id: {
+            type: 'string',
+            nullable: true
+        },
+        resolved_at: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        resolved_by: {
+            type: 'string',
+            nullable: true
+        },
+        severity_id: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            type: 'string',
+            nullable: true
+        },
+        student_id: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const UpdateBehaviorIncidentTypeRequestSchema = {
+    type: 'object',
+    properties: {
+        default_points: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        type_name: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const UpdateBudgetRequestSchema = {
+    title: 'UpdateBudgetRequest',
+    type: 'object',
+    properties: {
+        academic_year_id: {
+            type: 'string',
+            nullable: true
+        },
+        allocated_amount: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        category_id: {
+            type: 'string',
+            nullable: true
+        },
+        spent_amount: {
+            type: 'number',
+            format: 'float',
             nullable: true
         }
     }
@@ -4692,7 +9815,6 @@ export const UpdateClassRequestSchema = {
 } as const;
 
 export const UpdateCurriculumStandardRequestSchema = {
-    title: 'UpdateCurriculumStandardRequest',
     type: 'object',
     properties: {
         description: {
@@ -4736,6 +9858,23 @@ export const UpdateCurriculumStandardRequestSchema = {
         version_name: {
             type: 'string',
             nullable: true
+        }
+    }
+} as const;
+
+export const UpdateEmergencyStatusRequestSchema = {
+    title: 'UpdateEmergencyStatusRequest',
+    type: 'object',
+    required: [
+        'status'
+    ],
+    properties: {
+        location: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            $ref: '#/components/schemas/EmergencyStatus'
         }
     }
 } as const;
@@ -4812,6 +9951,37 @@ export const UpdateExamStructureRequestSchema = {
         valid_to: {
             type: 'string',
             format: 'date',
+            nullable: true
+        }
+    }
+} as const;
+
+export const UpdateExamSubjectRequestSchema = {
+    type: 'object',
+    properties: {
+        date: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+        },
+        duration: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        max_marks: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        pass_marks: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        time: {
+            type: 'string',
+            format: 'partial-date-time',
             nullable: true
         }
     }
@@ -4993,6 +10163,60 @@ export const UpdateGradeLevelRequestSchema = {
     }
 } as const;
 
+export const UpdateGradePeriodRequestSchema = {
+    type: 'object',
+    properties: {
+        end_time: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        is_break: {
+            type: 'boolean',
+            nullable: true
+        },
+        is_optional: {
+            type: 'boolean',
+            nullable: true
+        },
+        start_time: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        }
+    }
+} as const;
+
+export const UpdateGradingCriterionSchema = {
+    title: 'UpdateGradingCriterion',
+    type: 'object',
+    properties: {
+        grade: {
+            type: 'string',
+            nullable: true
+        },
+        max_mark: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        min_mark: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        scheme_id: {
+            type: 'string',
+            nullable: true
+        },
+        updated_at: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        }
+    }
+} as const;
+
 export const UpdateGradingSchemeRequestSchema = {
     type: 'object',
     properties: {
@@ -5028,6 +10252,89 @@ export const UpdateGradingSchemeRequestSchema = {
                 }
             ],
             nullable: true
+        }
+    }
+} as const;
+
+export const UpdateInventoryItemRequestSchema = {
+    title: 'UpdateInventoryItemRequest',
+    type: 'object',
+    properties: {
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        item_name: {
+            type: 'string',
+            nullable: true
+        },
+        reorder_level: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        unit: {
+            type: 'string',
+            nullable: true
+        },
+        unit_price: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        }
+    }
+} as const;
+
+export const UpdateLibrarySettingsRequestSchema = {
+    title: 'UpdateLibrarySettingsRequest',
+    type: 'object',
+    properties: {
+        fine_per_day: {
+            type: 'number',
+            format: 'float',
+            nullable: true
+        },
+        issue_duration_days_staff: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        issue_duration_days_student: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        max_books_per_staff: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        },
+        max_books_per_student: {
+            type: 'integer',
+            format: 'int32',
+            nullable: true
+        }
+    }
+} as const;
+
+export const UpdateMaintenanceStatusRequestSchema = {
+    title: 'UpdateMaintenanceStatusRequest',
+    type: 'object',
+    required: [
+        'status'
+    ],
+    properties: {
+        assigned_to: {
+            type: 'string',
+            nullable: true
+        },
+        resolved_date: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        status: {
+            $ref: '#/components/schemas/MaintenanceStatus'
         }
     }
 } as const;
@@ -5146,6 +10453,28 @@ export const UpdateRoleSetRequestSchema = {
     }
 } as const;
 
+export const UpdateSchoolRoomRequestSchema = {
+    type: 'object',
+    properties: {
+        building: {
+            type: 'string',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        floor: {
+            type: 'string',
+            nullable: true
+        },
+        name: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
 export const UpdateSchoolSettingRequestSchema = {
     title: 'UpdateSchoolSettingRequest',
     type: 'object',
@@ -5250,12 +10579,61 @@ export const UpdateSchoolTestSubjectRequestSchema = {
     }
 } as const;
 
+export const UpdateStaffAttendanceRequestSchema = {
+    title: 'UpdateStaffAttendanceRequest',
+    type: 'object',
+    properties: {
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/AttendanceStatus'
+                }
+            ],
+            nullable: true
+        },
+        time_in: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        time_out: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        }
+    }
+} as const;
+
 export const UpdateStaffRequestSchema = {
     type: 'object',
     properties: {
+        address: {
+            type: 'string',
+            nullable: true
+        },
         dob: {
             type: 'string',
             format: 'date',
+            nullable: true
+        },
+        email: {
+            type: 'string',
+            nullable: true
+        },
+        employee_id: {
+            type: 'string',
+            nullable: true
+        },
+        employment_status: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/EmploymentStatus'
+                }
+            ],
             nullable: true
         },
         gender: {
@@ -5270,6 +10648,26 @@ export const UpdateStaffRequestSchema = {
             type: 'string',
             nullable: true
         },
+        nic: {
+            type: 'string',
+            nullable: true
+        },
+        phone: {
+            type: 'string',
+            nullable: true
+        },
+        photo_url: {
+            type: 'string',
+            nullable: true
+        },
+        profile_id: {
+            type: 'string',
+            nullable: true
+        },
+        profile_name: {
+            type: 'string',
+            nullable: true
+        },
         staff_type: {
             allOf: [
                 {
@@ -5281,18 +10679,161 @@ export const UpdateStaffRequestSchema = {
     }
 } as const;
 
+export const UpdateStockRequestSchema = {
+    title: 'UpdateStockRequest',
+    type: 'object',
+    required: [
+        'quantity'
+    ],
+    properties: {
+        quantity: {
+            type: 'integer',
+            format: 'int32'
+        }
+    }
+} as const;
+
+export const UpdateStudentAttendanceRequestSchema = {
+    title: 'UpdateStudentAttendanceRequest',
+    type: 'object',
+    properties: {
+        date: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+        },
+        is_locked: {
+            type: 'boolean',
+            nullable: true
+        },
+        marked_by: {
+            type: 'string',
+            nullable: true
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/AttendanceStatus'
+                }
+            ],
+            nullable: true
+        }
+    }
+} as const;
+
+export const UpdateStudentGuardianRequestSchema = {
+    title: 'UpdateStudentGuardianRequest',
+    type: 'object',
+    properties: {
+        address: {
+            type: 'string',
+            nullable: true
+        },
+        email: {
+            type: 'string',
+            nullable: true
+        },
+        name: {
+            type: 'string',
+            nullable: true
+        },
+        phone: {
+            type: 'string',
+            nullable: true
+        },
+        relationship: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
+export const UpdateStudentMarkRequestSchema = {
+    title: 'UpdateStudentMarkRequest',
+    type: 'object',
+    properties: {
+        entries: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/StudentMarkEntryInput'
+            },
+            nullable: true
+        },
+        is_absent: {
+            type: 'boolean',
+            nullable: true
+        },
+        remarks: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
 export const UpdateStudentRequestSchema = {
     type: 'object',
     properties: {
+        address: {
+            type: 'string',
+            nullable: true
+        },
+        admission_number: {
+            type: 'string',
+            nullable: true
+        },
         dob: {
             type: 'string',
             format: 'date',
+            nullable: true
+        },
+        email: {
+            type: 'string',
             nullable: true
         },
         gender: {
             allOf: [
                 {
                     $ref: '#/components/schemas/Gender'
+                }
+            ],
+            nullable: true
+        },
+        name_english: {
+            type: 'string',
+            nullable: true
+        },
+        name_sinhala: {
+            type: 'string',
+            nullable: true
+        },
+        name_tamil: {
+            type: 'string',
+            nullable: true
+        },
+        phone: {
+            type: 'string',
+            nullable: true
+        },
+        photo_url: {
+            type: 'string',
+            nullable: true
+        },
+        profile_id: {
+            type: 'string',
+            nullable: true
+        },
+        profile_name: {
+            type: 'string',
+            nullable: true
+        },
+        status: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/StudentStatus'
                 }
             ],
             nullable: true
@@ -5326,8 +10867,37 @@ export const UpdateSubjectRequestSchema = {
     }
 } as const;
 
+export const UpdateSubstitutionPlanRequestSchema = {
+    type: 'object',
+    properties: {
+        content_link: {
+            type: 'string',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        medium: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/Medium'
+                }
+            ],
+            nullable: true
+        },
+        plan_name: {
+            type: 'string',
+            nullable: true
+        },
+        subject_id: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
 export const UpdateSyllabusRequestSchema = {
-    title: 'UpdateSyllabusRequest',
     type: 'object',
     properties: {
         buffer_periods: {
@@ -5393,10 +10963,107 @@ export const UpdateTermRequestSchema = {
     }
 } as const;
 
+export const UpdateTimetableRequestSchema = {
+    type: 'object',
+    properties: {
+        academic_year_id: {
+            type: 'string',
+            nullable: true
+        },
+        class_id: {
+            type: 'string',
+            nullable: true
+        },
+        day_of_week: {
+            type: 'string',
+            nullable: true
+        },
+        end_time: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        grade_period_id: {
+            type: 'string',
+            nullable: true
+        },
+        room: {
+            type: 'string',
+            nullable: true
+        },
+        start_time: {
+            type: 'string',
+            format: 'partial-date-time',
+            nullable: true
+        },
+        subject_id: {
+            type: 'string',
+            nullable: true
+        },
+        teacher_id: {
+            type: 'string',
+            nullable: true
+        }
+    }
+} as const;
+
 export const UpdateUserRequestSchema = {
     type: 'object',
     properties: {
+        address: {
+            type: 'string',
+            nullable: true
+        },
+        disabled_reason: {
+            type: 'string',
+            nullable: true
+        },
+        dob: {
+            type: 'string',
+            format: 'date',
+            nullable: true
+        },
         email: {
+            type: 'string',
+            nullable: true
+        },
+        gender: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/Gender'
+                }
+            ],
+            nullable: true
+        },
+        is_active: {
+            type: 'boolean',
+            nullable: true
+        },
+        is_verified: {
+            type: 'boolean',
+            nullable: true
+        },
+        name: {
+            type: 'string',
+            nullable: true
+        },
+        name_sinhala: {
+            type: 'string',
+            nullable: true
+        },
+        name_tamil: {
+            type: 'string',
+            nullable: true
+        },
+        password: {
+            type: 'string',
+            nullable: true
+        },
+        phone: {
+            type: 'string',
+            nullable: true
+        },
+        photo_url: {
             type: 'string',
             nullable: true
         },
@@ -5404,6 +11071,14 @@ export const UpdateUserRequestSchema = {
             allOf: [
                 {
                     $ref: '#/components/schemas/RoleEnum'
+                }
+            ],
+            nullable: true
+        },
+        staff_type: {
+            allOf: [
+                {
+                    $ref: '#/components/schemas/StaffType'
                 }
             ],
             nullable: true
@@ -5421,6 +11096,35 @@ export const UpdateUserSetRequestSchema = {
         name: {
             type: 'string',
             nullable: true
+        }
+    }
+} as const;
+
+export const UserPermissionRequestSchema = {
+    title: 'UserPermissionRequest',
+    type: 'object',
+    required: [
+        'permission'
+    ],
+    properties: {
+        permission: {
+            $ref: '#/components/schemas/PermissionEnum'
+        }
+    }
+} as const;
+
+export const UserPermissionsResponseSchema = {
+    title: 'UserPermissionsResponse',
+    type: 'object',
+    required: [
+        'permissions'
+    ],
+    properties: {
+        permissions: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
         }
     }
 } as const;
@@ -5544,6 +11248,19 @@ export const UserSetSchema = {
         },
         name: {
             type: 'string'
+        }
+    }
+} as const;
+
+export const UserSetPermissionRequestSchema = {
+    title: 'UserSetPermissionRequest',
+    type: 'object',
+    required: [
+        'permission'
+    ],
+    properties: {
+        permission: {
+            $ref: '#/components/schemas/PermissionEnum'
         }
     }
 } as const;

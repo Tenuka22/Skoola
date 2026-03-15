@@ -8,6 +8,8 @@ pub mod user_permissions;
 pub mod user_set_permissions;
 pub mod users;
 pub mod verification;
+pub mod admin_tokens;
+pub mod admin_sessions;
 
 pub use auth::login;
 pub use auth::logout;

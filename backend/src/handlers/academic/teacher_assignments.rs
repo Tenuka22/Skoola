@@ -13,7 +13,11 @@ use crate::{
         AssignClassToTeacherRequest, AssignSubjectToTeacherRequest, TeacherClassAssignmentResponse,
         TeacherSubjectAssignmentResponse, TeacherWorkloadResponse,
     },
-    schema::{teacher_class_assignments, teacher_subject_assignments},
+    models::academic::class::ClassResponse,
+    models::academic::subject::SubjectResponse,
+    models::academic::timetable::TimetableResponse,
+    schema::{teacher_class_assignments, teacher_subject_assignments, classes, subjects, timetable},
+    utils::jwt::UserId,
 };
 
 #[api_operation(
@@ -151,4 +155,60 @@ pub async fn get_teacher_workload(
         total_classes_assigned,
         total_subjects_assigned,
     }))
+}
+
+#[api_operation(
+    summary = "Get teacher's assigned classes",
+    tag = "teacher_assignments",
+    operation_id = "get_teacher_classes"
+)]
+pub async fn get_teacher_classes(
+    data: web::Data<AppState>,
+    user_id: UserId,
+) -> Result<Json<Vec<ClassResponse>>, APIError> {
+    let mut conn = data.db_pool.get()?;
+    let res = classes::table
+        .inner_join(teacher_class_assignments::table.on(classes::id.eq(teacher_class_assignments::class_id)))
+        .filter(teacher_class_assignments::teacher_id.eq(&user_id.0))
+        .select(crate::models::academic::class::Class::as_select())
+        .load::<crate::models::academic::class::Class>(&mut conn)?;
+    
+    Ok(Json(res.into_iter().map(ClassResponse::from).collect()))
+}
+
+#[api_operation(
+    summary = "Get teacher's assigned subjects",
+    tag = "teacher_assignments",
+    operation_id = "get_teacher_subjects"
+)]
+pub async fn get_teacher_subjects(
+    data: web::Data<AppState>,
+    user_id: UserId,
+) -> Result<Json<Vec<SubjectResponse>>, APIError> {
+    let mut conn = data.db_pool.get()?;
+    let res = subjects::table
+        .inner_join(teacher_subject_assignments::table.on(subjects::id.eq(teacher_subject_assignments::subject_id)))
+        .filter(teacher_subject_assignments::teacher_id.eq(&user_id.0))
+        .select(crate::models::academic::subject::Subject::as_select())
+        .load::<crate::models::academic::subject::Subject>(&mut conn)?;
+    
+    Ok(Json(res.into_iter().map(SubjectResponse::from).collect()))
+}
+
+#[api_operation(
+    summary = "Get teacher's timetable",
+    tag = "teacher_assignments",
+    operation_id = "get_teacher_timetable"
+)]
+pub async fn get_teacher_timetable(
+    data: web::Data<AppState>,
+    user_id: UserId,
+) -> Result<Json<Vec<TimetableResponse>>, APIError> {
+    let mut conn = data.db_pool.get()?;
+    let res = timetable::table
+        .filter(timetable::teacher_id.eq(&user_id.0))
+        .select(crate::models::academic::timetable::Timetable::as_select())
+        .load::<crate::models::academic::timetable::Timetable>(&mut conn)?;
+    
+    Ok(Json(res.into_iter().map(TimetableResponse::from).collect()))
 }

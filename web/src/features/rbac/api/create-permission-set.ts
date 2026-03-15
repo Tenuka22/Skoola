@@ -1,23 +1,47 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import type { CreatePermissionSetData } from '@/lib/api/types.gen'
-import type { Options } from '@/lib/api/sdk.gen'
-import {
-  createPermissionSetMutation,
-  getAllPermissionSetsQueryKey,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 
-export const useCreatePermissionSet = (
-  options?: Partial<Options<CreatePermissionSetData>>,
-) => {
+type CreatePermissionSetInput = {
+  body: {
+    name: string
+    description?: string
+  }
+}
+
+type CreatePermissionSetResponse = {
+  id?: string
+}
+
+const getAllUserSetQueryKey = () => ['permission-sets']
+
+export const useCreatePermissionSet = () => {
   const queryClient = useQueryClient()
-  return useMutation({
-    ...createPermissionSetMutation({ client: authClient, ...options }),
+  return useMutation<
+    CreatePermissionSetResponse,
+    Error,
+    CreatePermissionSetInput
+  >({
+    mutationFn: async (variables) => {
+      const result = await authClient.request<
+        CreatePermissionSetResponse,
+        unknown,
+        false,
+        'data'
+      >({
+        url: '/admin/user-sets',
+        method: 'POST',
+        responseStyle: 'data',
+        throwOnError: false,
+        body: variables.body,
+      })
+
+      return result ?? {}
+    },
     onSuccess: () => {
       toast.success('Permission set created successfully')
       queryClient.invalidateQueries({
-        queryKey: getAllPermissionSetsQueryKey(),
+        queryKey: getAllUserSetQueryKey(),
       })
     },
     onError: (error) => {

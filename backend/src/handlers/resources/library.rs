@@ -1,486 +1,322 @@
-use actix_web::web;
-use actix_web::web::Json;
-use apistos::ApiComponent;
-use apistos::api_operation;
-use diesel::SqliteConnection;
-use diesel::r2d2::ConnectionManager;
-use diesel::r2d2::Pool;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-
+use actix_web::web::{Data, Json, Path, Query};
+use apistos::{web as apistos_web, api_operation};
 use crate::errors::APIError;
 use crate::models::MessageResponse;
-use crate::models::resources::library::LibraryCategory;
 use crate::models::resources::library::*;
-use crate::services::resources::library;
+use crate::services::resources::library::{
+    LibraryCategoryService, LibraryBookService, LibraryIssueService, LibrarySettingsService,
+    self as library_service
+};
+use crate::utils::jwt::UserId;
+use crate::AppState;
+use crate::services::admin_db::AdminQuery;
 
-pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
+use crate::create_admin_handlers_i32;
 
-// New Query, Paginated Response, and Bulk Request/Update structs for Library Categories
-#[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
-pub struct LibraryCategoryQuery {
-    pub search: Option<String>,
-    pub sort_by: Option<String>,
-    pub sort_order: Option<String>,
-    pub page: Option<i64>,
-    pub limit: Option<i64>,
-    pub last_id: Option<i32>,
-}
+create_admin_handlers_i32!(
+    tag => "library_settings",
+    entity => LibrarySettings,
+    response => LibrarySettingsResponse,
+    query => LibrarySettingsQuery,
+    create => LibrarySettings,
+    update => LibrarySettings, // Placeholder
+    service => LibrarySettingsService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
 
-#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
-pub struct PaginatedLibraryCategoryResponse {
-    pub data: Vec<LibraryCategory>,
-    pub total: i64,
-    pub page: i64,
-    pub limit: i64,
-    pub total_pages: i64,
-    pub next_last_id: Option<i32>,
-}
+create_admin_handlers_i32!(
+    tag => "library_categories",
+    entity => LibraryCategory,
+    response => LibraryCategory,
+    query => LibraryCategoryQuery,
+    create => CreateLibraryCategoryRequest,
+    update => UpdateLibraryCategoryRequest,
+    service => LibraryCategoryService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
-pub struct BulkDeleteLibraryCategoriesRequest {
-    pub category_ids: Vec<i32>,
-}
+create_admin_handlers_i32!(
+    tag => "library_books",
+    entity => LibraryBook,
+    response => LibraryBook,
+    query => LibraryBookQuery,
+    create => CreateLibraryBookRequest,
+    update => UpdateLibraryBookRequest,
+    service => LibraryBookService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
 
-#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
-pub struct BulkUpdateLibraryCategoriesRequest {
-    pub category_ids: Vec<i32>,
-    pub category_name: Option<String>,
-    pub description: Option<String>,
-}
-
-#[derive(Debug, Deserialize, JsonSchema, ApiComponent, Clone)]
-pub struct LibraryBookQuery {
-    pub search: Option<String>,
-    pub category_id: Option<i32>,
-    pub sort_by: Option<String>,
-    pub sort_order: Option<String>,
-    pub page: Option<i64>,
-    pub limit: Option<i64>,
-    pub last_id: Option<i32>,
-}
-
-#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
-pub struct PaginatedLibraryBookResponse {
-    pub data: Vec<LibraryBookResponse>,
-    pub total: i64,
-    pub page: i64,
-    pub limit: i64,
-    pub total_pages: i64,
-    pub next_last_id: Option<i32>,
-}
-
-#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
-pub struct BulkDeleteLibraryBooksRequest {
-    pub book_ids: Vec<i32>,
-}
-
-#[derive(Debug, Deserialize, Serialize, JsonSchema, ApiComponent)]
-pub struct BulkUpdateLibraryBooksRequest {
-    pub book_ids: Vec<i32>,
-    pub isbn: Option<String>,
-    pub title: Option<String>,
-    pub author: Option<String>,
-    pub publisher: Option<String>,
-    pub category_id: Option<i32>,
-    pub quantity: Option<i32>,
-    pub available_quantity: Option<i32>,
-    pub rack_number: Option<String>,
-}
-
-// ============= Category Handlers =============
-
-#[api_operation(
-    summary = "Get all library categories",
-    description = "Retrieves all book categories in the library with pagination, search, and sorting.",
-    tag = "library",
-    operation_id = "get_all_library_categories"
-)]
-pub async fn get_all_categories(
-    pool: web::Data<DbPool>,
-    query: web::Query<LibraryCategoryQuery>,
-) -> Result<Json<PaginatedLibraryCategoryResponse>, APIError> {
-    let inner_query = query.into_inner();
-    let (categories, total_categories, total_pages) =
-        library::get_all_categories_paginated(&pool, inner_query.clone()).await?;
-    let next_last_id = categories.last().map(|c| c.id);
-    Ok(Json(PaginatedLibraryCategoryResponse {
-        data: categories,
-        total: total_categories,
-        page: inner_query.page.unwrap_or(1),
-        limit: inner_query.limit.unwrap_or(10),
-        total_pages,
-        next_last_id,
-    }))
-}
-
-#[api_operation(
-    summary = "Create a library category",
-    description = "Creates a new book category.",
-    tag = "library",
-    operation_id = "create_library_category"
-)]
-pub async fn create_category(
-    pool: web::Data<DbPool>,
-    req: web::Json<CreateLibraryCategoryRequest>,
-) -> Result<Json<LibraryCategory>, APIError> {
-    let category = library::create_category(&pool, req.into_inner())?;
-    Ok(Json(category))
-}
-
-#[api_operation(
-    summary = "Bulk delete library categories",
-    description = "Deletes multiple library categories by their IDs.",
-    tag = "library",
-    operation_id = "bulk_delete_library_categories"
-)]
-pub async fn bulk_delete_library_categories(
-    pool: web::Data<DbPool>,
-    body: web::Json<BulkDeleteLibraryCategoriesRequest>,
-) -> Result<Json<MessageResponse>, APIError> {
-    library::bulk_delete_library_categories(&pool, body.into_inner().category_ids).await?;
-    Ok(Json(MessageResponse {
-        message: "Library categories deleted successfully".to_string(),
-    }))
-}
-
-#[api_operation(
-    summary = "Bulk update library categories",
-    description = "Updates multiple library categories' information.",
-    tag = "library",
-    operation_id = "bulk_update_library_categories"
-)]
-pub async fn bulk_update_library_categories(
-    pool: web::Data<DbPool>,
-    body: web::Json<BulkUpdateLibraryCategoriesRequest>,
-) -> Result<Json<MessageResponse>, APIError> {
-    library::bulk_update_library_categories(&pool, body.into_inner()).await?;
-    Ok(Json(MessageResponse {
-        message: "Library categories updated successfully".to_string(),
-    }))
-}
-
-// ============= Book Handlers =============
-
-#[api_operation(
-    summary = "Get all books",
-    description = "Retrieves all books with their categories with pagination, search, and sorting.",
-    tag = "library",
-    operation_id = "get_all_library_books"
-)]
-pub async fn get_all_books(
-    pool: web::Data<DbPool>,
-    query: web::Query<LibraryBookQuery>,
-) -> Result<Json<PaginatedLibraryBookResponse>, APIError> {
-    let inner_query = query.into_inner();
-    let (books, total_books, total_pages) =
-        library::get_all_books_paginated(&pool, inner_query.clone()).await?;
-    let next_last_id = books.last().map(|b| b.id);
-    Ok(Json(PaginatedLibraryBookResponse {
-        data: books,
-        total: total_books,
-        page: inner_query.page.unwrap_or(1),
-        limit: inner_query.limit.unwrap_or(10),
-        total_pages,
-        next_last_id,
-    }))
-}
-
-#[api_operation(
-    summary = "Bulk delete library books",
-    description = "Deletes multiple library books by their IDs.",
-    tag = "library",
-    operation_id = "bulk_delete_library_books"
-)]
-pub async fn bulk_delete_library_books(
-    pool: web::Data<DbPool>,
-    body: web::Json<BulkDeleteLibraryBooksRequest>,
-) -> Result<Json<MessageResponse>, APIError> {
-    library::bulk_delete_library_books(&pool, body.into_inner().book_ids).await?;
-    Ok(Json(MessageResponse {
-        message: "Library books deleted successfully".to_string(),
-    }))
-}
-
-#[api_operation(
-    summary = "Bulk update library books",
-    description = "Updates multiple library books' information.",
-    tag = "library",
-    operation_id = "bulk_update_library_books"
-)]
-pub async fn bulk_update_library_books(
-    pool: web::Data<DbPool>,
-    body: web::Json<BulkUpdateLibraryBooksRequest>,
-) -> Result<Json<MessageResponse>, APIError> {
-    library::bulk_update_library_books(&pool, body.into_inner()).await?;
-    Ok(Json(MessageResponse {
-        message: "Library books updated successfully".to_string(),
-    }))
-}
-
-#[api_operation(
-    summary = "Get book by ID",
-    description = "Retrieves a book by its serial ID.",
-    tag = "library",
-    operation_id = "get_library_book_by_id"
-)]
-pub async fn get_book_by_id(
-    pool: web::Data<DbPool>,
-    book_id: web::Path<i32>,
-) -> Result<Json<LibraryBookResponse>, APIError> {
-    let book = library::get_book_by_id(&pool, book_id.into_inner())?;
-    Ok(Json(book))
-}
-
-#[api_operation(
-    summary = "Search books",
-    description = "Search for books by title, author, or ISBN.",
-    tag = "library",
-    operation_id = "search_library_books"
-)]
-pub async fn search_books(
-    pool: web::Data<DbPool>,
-    query: web::Query<std::collections::HashMap<String, String>>,
-) -> Result<Json<Vec<LibraryBookResponse>>, APIError> {
-    let search_query = query
-        .get("q")
-        .ok_or_else(|| APIError::bad_request("Missing search query parameter 'q'"))?;
-    let books = library::search_books(&pool, search_query)?;
-    Ok(Json(books))
-}
-
-#[api_operation(
-    summary = "Get books by category",
-    description = "Retrieves all books in a specific category.",
-    tag = "library",
-    operation_id = "get_library_books_by_category"
-)]
-pub async fn get_books_by_category(
-    pool: web::Data<DbPool>,
-    category_id: web::Path<i32>,
-) -> Result<Json<Vec<LibraryBookResponse>>, APIError> {
-    let books = library::get_books_by_category(&pool, category_id.into_inner())?;
-    Ok(Json(books))
-}
-
-#[api_operation(
-    summary = "Add a book",
-    description = "Adds a new book to the library.",
-    tag = "library",
-    operation_id = "create_library_book"
-)]
-pub async fn create_book(
-    pool: web::Data<DbPool>,
-    req: web::Json<CreateLibraryBookRequest>,
-) -> Result<Json<LibraryBookResponse>, APIError> {
-    let book = library::create_book(&pool, req.into_inner())?;
-    Ok(Json(book))
-}
-
-#[api_operation(
-    summary = "Update a book",
-    description = "Updates an existing book.",
-    tag = "library",
-    operation_id = "update_library_book"
-)]
-pub async fn update_book(
-    pool: web::Data<DbPool>,
-    book_id: web::Path<i32>,
-    req: web::Json<UpdateLibraryBookRequest>,
-) -> Result<Json<LibraryBookResponse>, APIError> {
-    let book = library::update_book(&pool, book_id.into_inner(), req.into_inner())?;
-    Ok(Json(book))
-}
-
-#[api_operation(
-    summary = "Delete a book",
-    description = "Removes a book from the library.",
-    tag = "library",
-    operation_id = "delete_library_book"
-)]
-pub async fn delete_book(
-    pool: web::Data<DbPool>,
-    book_id: web::Path<i32>,
-) -> Result<Json<MessageResponse>, APIError> {
-    library::delete_book(&pool, book_id.into_inner())?;
-    Ok(Json(MessageResponse {
-        message: "Book deleted successfully".to_string(),
-    }))
-}
-
-use crate::models::CurrentUser;
-
-// ============= Issue/Return Handlers =============
+create_admin_handlers_i32!(
+    tag => "library_issues",
+    entity => LibraryIssue,
+    response => LibraryIssue,
+    query => AdminQuery,
+    create => IssueBookRequest,
+    update => UpdateLibraryIssueRequest,
+    service => LibraryIssueService,
+    methods => {
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
 
 #[api_operation(
     summary = "Issue a book",
-    description = "Issues a book to a student or staff member.",
-    tag = "library",
-    operation_id = "issue_library_book"
+    tag = "Library Ops",
+    operation_id = "issue_book"
 )]
 pub async fn issue_book(
-    pool: web::Data<DbPool>,
-    current_user: CurrentUser,
-    req: web::Json<IssueBookRequest>,
-) -> Result<Json<LibraryIssueResponse>, crate::errors::APIError> {
-    let issue = library::issue_book(&pool, req.into_inner(), current_user.id)?;
-    Ok(Json(issue))
+    data: Data<AppState>,
+    user_id: UserId,
+    req: Json<IssueBookRequest>,
+) -> Result<Json<LibraryIssue>, APIError> {
+    let res = library_service::issue_book(data, req.into_inner(), user_id.0).await?;
+    Ok(Json(res))
 }
 
 #[api_operation(
     summary = "Return a book",
-    description = "Records a book return and calculates fine if overdue.",
-    tag = "library",
-    operation_id = "return_library_book"
+    tag = "Library Ops",
+    operation_id = "return_book"
 )]
 pub async fn return_book(
-    pool: web::Data<DbPool>,
-    issue_id: web::Path<i32>,
-    req: web::Json<ReturnBookRequest>,
+    data: Data<AppState>,
+    path: Path<i32>,
 ) -> Result<Json<LibraryIssueResponse>, APIError> {
-    let issue = library::return_book(&pool, issue_id.into_inner(), req.into_inner())?;
-    Ok(Json(issue))
+    let res = library_service::return_book(data, path.into_inner()).await?;
+    Ok(Json(res))
 }
 
 #[api_operation(
-    summary = "Get issue record",
-    description = "Retrieves a specific book issue record.",
-    tag = "library",
-    operation_id = "get_library_issue_by_id"
+    summary = "Renew a book",
+    tag = "Library Ops",
+    operation_id = "renew_book"
 )]
-pub async fn get_issue_by_id(
-    pool: web::Data<DbPool>,
-    issue_id: web::Path<i32>,
+pub async fn renew_book(
+    data: Data<AppState>,
+    path: Path<i32>,
 ) -> Result<Json<LibraryIssueResponse>, APIError> {
-    let issue = library::get_issue_by_id(&pool, issue_id.into_inner())?;
-    Ok(Json(issue))
+    let res = library_service::renew_book(data, path.into_inner()).await?;
+    Ok(Json(res))
 }
-
-#[api_operation(
-    summary = "Get student issues",
-    description = "Retrieves all book issues for a specific student.",
-    tag = "library",
-    operation_id = "get_library_issues_by_student"
-)]
-pub async fn get_issued_books_by_student(
-    pool: web::Data<DbPool>,
-    student_id: web::Path<String>,
-) -> Result<Json<Vec<LibraryIssueResponse>>, APIError> {
-    let issues = library::get_issued_books_by_student(&pool, student_id.into_inner())?;
-    Ok(Json(issues))
-}
-
-#[api_operation(
-    summary = "Get staff issues",
-    description = "Retrieves all book issues for a specific staff member.",
-    tag = "library",
-    operation_id = "get_library_issues_by_staff"
-)]
-pub async fn get_issued_books_by_staff(
-    pool: web::Data<DbPool>,
-    staff_id: web::Path<String>,
-) -> Result<Json<Vec<LibraryIssueResponse>>, APIError> {
-    let issues = library::get_issued_books_by_staff(&pool, staff_id.into_inner())?;
-    Ok(Json(issues))
-}
-
-#[api_operation(
-    summary = "Get overdue books",
-    description = "Retrieves all books that are currently overdue.",
-    tag = "library",
-    operation_id = "get_overdue_library_books"
-)]
-pub async fn get_overdue_books(
-    pool: web::Data<DbPool>,
-) -> Result<Json<Vec<LibraryIssueResponse>>, APIError> {
-    let issues = library::get_overdue_books(&pool)?;
-    Ok(Json(issues))
-}
-
-// ============= Fine Handlers =============
 
 #[api_operation(
     summary = "Pay a fine",
-    description = "Records a payment for a library fine.",
-    tag = "library",
-    operation_id = "pay_library_fine"
+    tag = "Library Ops",
+    operation_id = "pay_fine"
 )]
 pub async fn pay_fine(
-    pool: web::Data<DbPool>,
-    issue_id: web::Path<i32>,
-    req: web::Json<PayFineRequest>,
+    data: Data<AppState>,
+    path: Path<i32>,
 ) -> Result<Json<LibraryIssueResponse>, APIError> {
-    let issue = library::pay_fine(&pool, issue_id.into_inner(), req.into_inner())?;
-    Ok(Json(issue))
+    let res = library_service::pay_fine(data, path.into_inner()).await?;
+    Ok(Json(res))
 }
 
 #[api_operation(
     summary = "Waive a fine",
-    description = "Waives a library fine for a specific issue.",
-    tag = "library",
-    operation_id = "waive_library_fine"
+    tag = "Library Ops",
+    operation_id = "waive_fine"
 )]
 pub async fn waive_fine(
-    pool: web::Data<DbPool>,
-    issue_id: web::Path<i32>,
+    data: Data<AppState>,
+    path: Path<i32>,
 ) -> Result<Json<LibraryIssueResponse>, APIError> {
-    let issue = library::waive_fine(&pool, issue_id.into_inner())?;
-    Ok(Json(issue))
+    let res = library_service::waive_fine(data, path.into_inner()).await?;
+    Ok(Json(res))
+}
+
+#[api_operation(
+    summary = "Check overdue books",
+    tag = "Library Ops",
+    operation_id = "check_overdue"
+)]
+pub async fn check_overdue(
+    data: Data<AppState>,
+) -> Result<Json<MessageResponse>, APIError> {
+    library_service::check_overdue_books(data).await?;
+    Ok(Json(MessageResponse { message: "Overdue books checked successfully".into() }))
+}
+
+#[api_operation(
+    summary = "Search books",
+    tag = "Library Ops",
+    operation_id = "search_books"
+)]
+pub async fn search_books(
+    data: Data<AppState>,
+    query: Query<LibraryBookQuery>,
+) -> Result<Json<Vec<LibraryBookResponse>>, APIError> {
+    let res = library_service::search_books(data, query.into_inner()).await?;
+    Ok(Json(res))
+}
+
+#[api_operation(
+    summary = "Get books by category",
+    tag = "Library Ops",
+    operation_id = "get_books_by_category"
+)]
+pub async fn get_books_by_category(
+    data: Data<AppState>,
+    path: Path<i32>,
+) -> Result<Json<Vec<LibraryBookResponse>>, APIError> {
+    let res = library_service::get_books_by_category(data, path.into_inner()).await?;
+    Ok(Json(res))
+}
+
+#[api_operation(
+    summary = "Get issued books by student",
+    tag = "Library Ops",
+    operation_id = "get_issued_books_by_student"
+)]
+pub async fn get_issued_books_by_student(
+    data: Data<AppState>,
+    path: Path<String>,
+) -> Result<Json<Vec<LibraryIssueResponse>>, APIError> {
+    let res = library_service::get_issued_books_by_student(data, path.into_inner()).await?;
+    Ok(Json(res))
+}
+
+#[api_operation(
+    summary = "Get issued books by staff",
+    tag = "Library Ops",
+    operation_id = "get_issued_books_by_staff"
+)]
+pub async fn get_issued_books_by_staff(
+    data: Data<AppState>,
+    path: Path<String>,
+) -> Result<Json<Vec<LibraryIssueResponse>>, APIError> {
+    let res = library_service::get_issued_books_by_staff(data, path.into_inner()).await?;
+    Ok(Json(res))
+}
+
+#[api_operation(
+    summary = "Get overdue books",
+    tag = "Library Ops",
+    operation_id = "get_overdue_books"
+)]
+pub async fn get_overdue_books(
+    data: Data<AppState>,
+) -> Result<Json<Vec<LibraryIssueResponse>>, APIError> {
+    let res = library_service::get_overdue_books(data).await?;
+    Ok(Json(res))
 }
 
 #[api_operation(
     summary = "Get fine history",
-    description = "Retrieves all issues where a fine was recorded.",
-    tag = "library",
-    operation_id = "get_library_fine_history"
+    tag = "Library Ops",
+    operation_id = "get_fine_history"
 )]
 pub async fn get_fine_history(
-    pool: web::Data<DbPool>,
+    data: Data<AppState>,
 ) -> Result<Json<Vec<LibraryIssueResponse>>, APIError> {
-    let issues = library::get_fine_history(&pool)?;
-    Ok(Json(issues))
+    let res = library_service::get_fine_history(data).await?;
+    Ok(Json(res))
 }
-
-// ============= Settings Handlers =============
-
-#[api_operation(
-    summary = "Get library settings",
-    description = "Retrieves current library settings.",
-    tag = "library",
-    operation_id = "get_library_settings"
-)]
-pub async fn get_library_settings(
-    pool: web::Data<DbPool>,
-) -> Result<Json<LibrarySettings>, APIError> {
-    let settings = library::get_library_settings(&pool)?;
-    Ok(Json(settings))
-}
-
-#[api_operation(
-    summary = "Update library settings",
-    description = "Updates library settings.",
-    tag = "library",
-    operation_id = "update_library_settings"
-)]
-pub async fn update_library_settings(
-    pool: web::Data<DbPool>,
-    req: web::Json<UpdateLibrarySettingsRequest>,
-) -> Result<Json<LibrarySettings>, APIError> {
-    let settings = library::update_library_settings(&pool, req.into_inner())?;
-    Ok(Json(settings))
-}
-
-// ============= Statistics Handlers =============
 
 #[api_operation(
     summary = "Get library stats",
-    description = "Retrieves library statistics.",
-    tag = "library",
+    tag = "Library Ops",
     operation_id = "get_library_stats"
 )]
 pub async fn get_library_stats(
-    pool: web::Data<DbPool>,
+    data: Data<AppState>,
 ) -> Result<Json<LibraryStatsResponse>, APIError> {
-    let stats = library::get_library_stats(&pool)?;
-    Ok(Json(stats))
+    let res = library_service::get_library_stats(data).await?;
+    Ok(Json(res))
+}
+
+pub fn config(cfg: &mut apistos_web::ServiceConfig) {
+    cfg.service(
+        apistos_web::scope("/library-categories")
+            // .wrap(Authenticated)
+            // .wrap(PermissionVerification { required_permission: PermissionEnum::LibraryManage })
+            .route("", apistos_web::post().to(create_library_category))
+            .route("/{id}", apistos_web::get().to(get_library_category_by_id))
+            .route("", apistos_web::get().to(get_all_library_category))
+            .route("/{id}", apistos_web::put().to(update_library_category))
+            .route("/{id}", apistos_web::delete().to(delete_library_category))
+            .route("/bulk", apistos_web::delete().to(bulk_delete_library_category))
+            .route("/bulk", apistos_web::patch().to(bulk_update_library_category)),
+    )
+    .service(
+        apistos_web::scope("/library-books")
+            // .wrap(Authenticated)
+            // .wrap(PermissionVerification { required_permission: PermissionEnum::LibraryManage })
+            .route("", apistos_web::post().to(create_library_book))
+            .route("/{id}", apistos_web::get().to(get_library_book_by_id))
+            .route("", apistos_web::get().to(get_all_library_book))
+            .route("/{id}", apistos_web::put().to(update_library_book))
+            .route("/{id}", apistos_web::delete().to(delete_library_book))
+            .route("/bulk", apistos_web::delete().to(bulk_delete_library_book))
+            .route("/bulk", apistos_web::patch().to(bulk_update_library_book)),
+    )
+    .service(
+        apistos_web::scope("/library-issues")
+            // .wrap(Authenticated)
+            // .wrap(PermissionVerification { required_permission: PermissionEnum::LibraryManage })
+            .route("/{id}", apistos_web::get().to(get_library_issue_by_id))
+            .route("", apistos_web::get().to(get_all_library_issue))
+            .route("/{id}", apistos_web::put().to(update_library_issue))
+            .route("/{id}", apistos_web::delete().to(delete_library_issue))
+            .route("/bulk", apistos_web::delete().to(bulk_delete_library_issue))
+            .route("/bulk", apistos_web::patch().to(bulk_update_library_issue)),
+    )
+    .service(
+        apistos_web::scope("/library-settings")
+            // .wrap(Authenticated)
+            // .wrap(PermissionVerification { required_permission: PermissionEnum::LibraryManage })
+            .route("", apistos_web::post().to(create_library_settings))
+            .route("/{id}", apistos_web::get().to(get_library_settings_by_id))
+            .route("", apistos_web::get().to(get_all_library_settings))
+            .route("/{id}", apistos_web::put().to(update_library_settings))
+            .route("/{id}", apistos_web::delete().to(delete_library_settings))
+            .route("/bulk", apistos_web::delete().to(bulk_delete_library_settings))
+            .route("/bulk", apistos_web::patch().to(bulk_update_library_settings)),
+    )
+    .service(
+        apistos_web::scope("/library-ops")
+            // .wrap(Authenticated)
+            // .wrap(PermissionVerification { required_permission: PermissionEnum::LibraryManage })
+            .route("/issue", apistos_web::post().to(issue_book))
+            .route("/return/{id}", apistos_web::post().to(return_book))
+            .route("/renew/{id}", apistos_web::post().to(renew_book))
+            .route("/books/search", apistos_web::get().to(search_books))
+            .route("/books/category/{category_id}", apistos_web::get().to(get_books_by_category))
+            .route("/issues/student/{student_id}", apistos_web::get().to(get_issued_books_by_student))
+            .route("/issues/staff/{staff_id}", apistos_web::get().to(get_issued_books_by_staff))
+            .route("/issues/overdue", apistos_web::get().to(get_overdue_books))
+            .route("/fines/pay/{id}", apistos_web::post().to(pay_fine))
+            .route("/fines/waive/{id}", apistos_web::post().to(waive_fine))
+            .route("/fines/history", apistos_web::get().to(get_fine_history))
+            .route("/stats", apistos_web::get().to(get_library_stats)),
+    );
 }

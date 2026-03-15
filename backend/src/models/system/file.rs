@@ -28,6 +28,14 @@ pub struct NewFile {
     pub file_size: i32,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct CreateFileRequest {
+    pub file_name: String,
+    pub file_path: String,
+    pub mime_type: String,
+    pub file_size: i32,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, ApiComponent, JsonSchema)]
 #[diesel(table_name = files)]
 pub struct UpdateFileRequest {

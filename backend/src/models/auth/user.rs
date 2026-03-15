@@ -1,7 +1,7 @@
-use crate::database::enums::RoleEnum;
+use crate::database::enums::{Gender, RoleEnum, StaffType};
 use crate::schema::users;
 use apistos::ApiComponent;
-use chrono::NaiveDateTime;
+use chrono::{NaiveDate, NaiveDateTime};
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -166,12 +166,37 @@ pub struct CreateUserRequest {
     pub role: RoleEnum,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
-#[diesel(table_name = users)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct UpdateUserRequest {
+    // users
     pub email: Option<String>,
+    pub password: Option<String>,
     pub role: Option<RoleEnum>,
+
+    // user_status
+    pub is_verified: Option<bool>,
+    pub is_active: Option<bool>,
+    pub disabled_reason: Option<String>,
+
+    // From Profile
+    pub name: Option<String>,
+    pub address: Option<String>,
+    pub phone: Option<String>,
+    pub photo_url: Option<String>,
+
+    // staff-specific
+    pub staff_type: Option<StaffType>,
+
+    // student-specific
+    pub name_sinhala: Option<String>,
+    pub name_tamil: Option<String>,
+
+    pub lockout_until: Option<NaiveDateTime>,
+    // common for student and staff
+    pub gender: Option<Gender>,
+    pub dob: Option<NaiveDate>,
 }
+
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct UserPermissionsResponse {

@@ -2,10 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { authClient } from '@/lib/clients'
 import { registerUser } from '@/lib/api/sdk.gen'
-import {
-  getAllUsersQueryKey,
-  getUserStatisticsQueryKey,
-} from '@/lib/api/@tanstack/react-query.gen'
+import { getAllUserQueryKey } from '@/lib/api/@tanstack/react-query.gen'
 
 export interface ImportUserRecord {
   email?: string
@@ -61,10 +58,7 @@ export const useBulkImportUsers = () => {
       if (results.success > 0) {
         toast.success(`Successfully imported ${results.success} users.`)
         queryClient.invalidateQueries({
-          queryKey: getAllUsersQueryKey(),
-        })
-        queryClient.invalidateQueries({
-          queryKey: getUserStatisticsQueryKey(),
+          queryKey: getAllUserQueryKey(),
         })
       }
 

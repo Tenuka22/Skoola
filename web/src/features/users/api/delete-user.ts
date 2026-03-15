@@ -5,8 +5,7 @@ import type { DeleteUserData } from '@/lib/api/types.gen'
 import type { Options } from '@/lib/api/sdk.gen'
 import {
   deleteUserMutation,
-  getAllUsersQueryKey,
-  getUserStatisticsQueryKey,
+  getAllUserQueryKey,
 } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 
@@ -18,10 +17,7 @@ export const useDeleteUser = (options?: Partial<Options<DeleteUserData>>) => {
     onSuccess: () => {
       toast.success('User deleted successfully')
       queryClient.invalidateQueries({
-        queryKey: getAllUsersQueryKey(),
-      })
-      queryClient.invalidateQueries({
-        queryKey: getUserStatisticsQueryKey(),
+        queryKey: getAllUserQueryKey(),
       })
     },
     onError: (error) => {

@@ -5,6 +5,8 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use crate::database::enums::{AuthTokenType, VerificationPurpose};
 
+use crate::services::admin_db::{AdminQuery, AsAdminQuery};
+
 #[derive(
     Debug,
     Serialize,
@@ -28,6 +30,76 @@ pub struct AuthToken {
     pub revoked_at: Option<NaiveDateTime>,
     pub is_active: bool,
     pub metadata: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct AuthTokenResponse {
+    pub id: String,
+    pub user_id: String,
+    pub token_type: AuthTokenType,
+    pub issued_at: NaiveDateTime,
+    pub expires_at: NaiveDateTime,
+    pub revoked_at: Option<NaiveDateTime>,
+    pub is_active: bool,
+    pub metadata: Option<String>,
+}
+
+impl From<AuthToken> for AuthTokenResponse {
+    fn from(t: AuthToken) -> Self {
+        Self {
+            id: t.id,
+            user_id: t.user_id,
+            token_type: t.token_type,
+            issued_at: t.issued_at,
+            expires_at: t.expires_at,
+            revoked_at: t.revoked_at,
+            is_active: t.is_active,
+            metadata: t.metadata,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct CreateAuthTokenRequest {
+    pub user_id: String,
+    pub token_hash: String,
+    pub token_type: AuthTokenType,
+    pub expires_at: NaiveDateTime,
+    pub metadata: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent, Clone)]
+#[diesel(table_name = crate::schema::auth_tokens)]
+pub struct UpdateAuthTokenRequest {
+    pub revoked_at: Option<NaiveDateTime>,
+    pub is_active: Option<bool>,
+    pub metadata: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct AuthTokenQuery {
+    pub user_id: Option<String>,
+    pub token_type: Option<AuthTokenType>,
+    pub is_active: Option<bool>,
+    pub search: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+    pub last_id: Option<String>,
+}
+
+impl AsAdminQuery for AuthTokenQuery {
+    fn as_admin_query(&self) -> AdminQuery {
+        AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: self.last_id.clone(),
+        }
+    }
 }
 
 #[derive(

@@ -3,12 +3,12 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use apistos::ApiComponent;
 
 #[derive(
-    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema,
+    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent
 )]
 #[diesel(table_name = student_medical_info)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct StudentMedicalInfo {
     pub id: String,
     pub student_id: String,
@@ -31,7 +31,7 @@ pub struct StudentMedicalInfo {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct CreateStudentMedicalInfoRequest {
     pub student_id: String,
     pub blood_group: Option<String>,
@@ -51,15 +51,15 @@ pub struct CreateStudentMedicalInfoRequest {
     pub insurance_policy_number: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = student_medical_info)]
 pub struct UpdateStudentMedicalInfoRequest {
     pub blood_group: Option<String>,
     pub medical_risk_level: Option<String>,
-    pub has_allergies: bool,
-    pub has_medications: bool,
-    pub has_chronic_conditions: bool,
-    pub requires_emergency_plan: bool,
+    pub has_allergies: Option<bool>,
+    pub has_medications: Option<bool>,
+    pub has_chronic_conditions: Option<bool>,
+    pub requires_emergency_plan: Option<bool>,
     pub emergency_plan_details: Option<String>,
     pub allergies: Option<String>,
     pub medical_conditions: Option<String>,
@@ -71,7 +71,7 @@ pub struct UpdateStudentMedicalInfoRequest {
     pub insurance_policy_number: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct StudentMedicalInfoResponse {
     pub id: String,
     pub student_id: String,

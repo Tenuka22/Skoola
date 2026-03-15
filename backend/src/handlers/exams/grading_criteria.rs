@@ -1,94 +1,43 @@
-use crate::AppState;
-use crate::errors::APIError;
-use crate::models::MessageResponse;
 use crate::models::exams::grading_criterion::{
-    GradingCriterion, NewGradingCriterion, UpdateGradingCriterion,
+    GradingCriterionQuery, GradingCriterionResponse, CreateGradingCriterionRequest,
+    UpdateGradingCriterionRequest,
 };
-use crate::services::exams::grading_criteria;
-use actix_web::web::{self, Json};
+use crate::services::exams::grading_criteria::GradingCriteriaService;
+use crate::create_admin_handlers;
+use actix_web::web;
+use actix_web::web::Json;
+use crate::{AppState, APIError};
 use apistos::api_operation;
 
-#[api_operation(
-    summary = "Create Grading Criterion",
-    description = "Creates a new grading criterion for a grading scheme.",
-    tag = "Grading Criteria",
-    operation_id = "create_grading_criterion"
-)]
-pub async fn create_grading_criterion_handler(
-    pool: web::Data<AppState>,
-    new_criterion_json: web::Json<NewGradingCriterion>,
-) -> Result<Json<GradingCriterion>, APIError> {
-    // Changed return type
-    let new_criterion = new_criterion_json.into_inner();
-    let created_criterion = grading_criteria::create_grading_criterion(pool, new_criterion).await?;
-    Ok(Json(created_criterion))
-}
+create_admin_handlers!(
+    tag => "grading_criteria",
+    entity => GradingCriterion,
+    response => GradingCriterionResponse,
+    query => GradingCriterionQuery,
+    create => CreateGradingCriterionRequest,
+    update => UpdateGradingCriterionRequest,
+    service => GradingCriteriaService,
+    methods => {
+        create => create_grading_criterion,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
 
 #[api_operation(
     summary = "Get Grading Criteria by Scheme ID",
-    description = "Retrieves all grading criteria associated with a specific grading scheme.",
-    tag = "Grading Criteria",
+    tag = "grading_criteria",
     operation_id = "get_grading_criteria_by_scheme_id"
 )]
 pub async fn get_grading_criteria_by_scheme_id_handler(
     pool: web::Data<AppState>,
     path: web::Path<String>,
-) -> Result<Json<Vec<GradingCriterion>>, APIError> {
-    // Changed return type
+) -> Result<Json<Vec<GradingCriterionResponse>>, APIError> {
     let scheme_id = path.into_inner();
-    let criteria = grading_criteria::get_grading_criteria_by_scheme_id(pool, scheme_id).await?;
+    let criteria = GradingCriteriaService::get_grading_criteria_by_scheme_id(pool, scheme_id).await?;
     Ok(Json(criteria))
-}
-
-#[api_operation(
-    summary = "Get Grading Criterion by ID",
-    description = "Retrieves a single grading criterion by its ID.",
-    tag = "Grading Criteria",
-    operation_id = "get_grading_criterion_by_id"
-)]
-pub async fn get_grading_criterion_by_id_handler(
-    pool: web::Data<AppState>,
-    path: web::Path<String>,
-) -> Result<Json<GradingCriterion>, APIError> {
-    // Changed return type
-    let criterion_id = path.into_inner();
-    let criterion = grading_criteria::get_grading_criterion_by_id(pool, criterion_id).await?;
-    Ok(Json(criterion))
-}
-
-#[api_operation(
-    summary = "Update Grading Criterion",
-    description = "Updates an existing grading criterion.",
-    tag = "Grading Criteria",
-    operation_id = "update_grading_criterion"
-)]
-pub async fn update_grading_criterion_handler(
-    pool: web::Data<AppState>,
-    path: web::Path<String>,
-    updated_criterion_json: web::Json<UpdateGradingCriterion>,
-) -> Result<Json<GradingCriterion>, APIError> {
-    // Changed return type
-    let criterion_id = path.into_inner();
-    let updated_criterion = updated_criterion_json.into_inner();
-    let criterion =
-        grading_criteria::update_grading_criterion(pool, criterion_id, updated_criterion).await?;
-    Ok(Json(criterion))
-}
-
-#[api_operation(
-    summary = "Delete Grading Criterion",
-    description = "Deletes a grading criterion by its ID.",
-    tag = "Grading Criteria",
-    operation_id = "delete_grading_criterion"
-)]
-pub async fn delete_grading_criterion_handler(
-    pool: web::Data<AppState>,
-    path: web::Path<String>,
-) -> Result<Json<MessageResponse>, APIError> {
-    // Changed return type
-    let criterion_id = path.into_inner();
-    grading_criteria::delete_grading_criterion(pool, criterion_id).await?;
-    Ok(Json(MessageResponse {
-        message: "Grading criterion deleted successfully".to_string(),
-    }))
 }

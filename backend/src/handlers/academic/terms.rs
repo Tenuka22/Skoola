@@ -1,5 +1,5 @@
 use crate::models::academic::terms::{CreateTermRequest, UpdateTermRequest, TermResponse, TermQuery};
-use crate::services::academic::terms::TermService;
+use crate::services::academic::TermService;
 use crate::create_admin_handlers;
 
 create_admin_handlers!(

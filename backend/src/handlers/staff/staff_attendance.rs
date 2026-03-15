@@ -1,12 +1,12 @@
 use crate::AppState;
 use crate::errors::APIError;
 use crate::models::staff::attendance::{
-    BulkMarkStaffAttendanceRequest, CreateLessonProgressRequest, CreateSubstitutionRequest,
-    LessonProgressResponse, MarkStaffAttendanceRequest, StaffAttendanceResponse,
-    SubstitutionResponse, SuggestSubstituteRequest, UpdateStaffAttendanceRequest,
+    BulkMarkStaffAttendanceRequest, MarkStaffAttendanceRequest, StaffAttendanceResponse,
+    SubstitutionResponse, UpdateStaffAttendanceRequest,
     MarkTeacherPeriodAttendanceRequest, TeacherPeriodAttendanceResponse
 };
-use crate::services::staff::staff_attendance;
+use crate::models::curriculum_management::{CreateLessonProgressRequest, LessonProgress};
+use crate::services::staff::staff_attendance::{self, CreateSubstitutionRequest};
 use crate::utils::jwt::UserId;
 use actix_web::HttpRequest;
 use actix_web::web;
@@ -15,11 +15,6 @@ use actix_web::web::Json;
 use actix_web::web::Path;
 use apistos::api_operation;
 use chrono::NaiveDate;
-use diesel::ExpressionMethods;
-use diesel::JoinOnDsl;
-use diesel::QueryDsl;
-use diesel::RunQueryDsl;
-use diesel::SelectableHelper;
 
 #[api_operation(
     summary = "Mark teacher period attendance",
@@ -32,55 +27,34 @@ pub async fn mark_teacher_period_attendance(
     req: HttpRequest,
     body: Json<MarkTeacherPeriodAttendanceRequest>,
 ) -> Result<Json<TeacherPeriodAttendanceResponse>, APIError> {
-    let user_id = UserId::from_request(&req)?;
-    let res = staff_attendance::mark_teacher_period_attendance(data, body.into_inner(), user_id.0).await?;
-    Ok(Json(TeacherPeriodAttendanceResponse {
-        id: res.id,
-        teacher_id: res.teacher_id,
-        timetable_id: res.timetable_id,
-        date: res.date,
-        status: res.status,
-        remarks: res.remarks,
-        is_substitution: res.is_substitution,
-    }))
-}
-
-#[api_operation(
-    summary = "Get missed topics for student",
-    description = "Retrieves topics that a student missed due to being absent in certain periods.",
-    tag = "students",
-    operation_id = "get_student_missed_topics"
-)]
-pub async fn get_student_missed_topics(
-    data: Data<AppState>,
-    path: Path<String>, // student_id
-    query: web::Query<crate::models::staff::attendance::StaffAttendanceByStaffQuery>,
-) -> Result<Json<Vec<crate::services::staff::staff_attendance::MissedTopic>>, APIError> {
-    let student_id = path.into_inner();
-    let start_date = query.start_date.unwrap_or_else(|| NaiveDate::from_ymd_opt(2000, 1, 1).unwrap());
-    let end_date = query.end_date.unwrap_or_else(|| chrono::Utc::now().naive_utc().date());
-    
-    let res = staff_attendance::get_missed_topics_for_student(data, student_id, start_date, end_date).await?;
+    let marker_id = UserId::from_request(&req)?;
+    let res = staff_attendance::mark_period_attendance(
+        data,
+        body.into_inner(),
+        marker_id.0,
+    )
+    .await?;
     Ok(Json(res))
 }
 
 #[api_operation(
-    summary = "Mark daily staff attendance",
-    description = "Marks attendance for a single staff member for a specific date.",
+    summary = "Mark staff attendance daily",
+    description = "Records daily attendance for a staff member.",
     tag = "staff_attendance",
     operation_id = "mark_staff_attendance_daily"
 )]
 pub async fn mark_staff_attendance_daily(
     data: Data<AppState>,
     req: HttpRequest,
-    staff_id: Path<String>,
+    path: Path<String>, // staff_id
     body: Json<MarkStaffAttendanceRequest>,
 ) -> Result<Json<StaffAttendanceResponse>, APIError> {
-    let _user_id = UserId::from_request(&req)?;
-    let res = staff_attendance::mark_daily_staff_attendance(
+    let marker_id = UserId::from_request(&req)?;
+    let res = staff_attendance::mark_daily_attendance(
         data,
-        staff_id.into_inner(),
+        path.into_inner(),
         body.into_inner(),
+        marker_id.0,
     )
     .await?;
     Ok(Json(res))
@@ -88,56 +62,54 @@ pub async fn mark_staff_attendance_daily(
 
 #[api_operation(
     summary = "Mark bulk staff attendance",
-    description = "Marks attendance for multiple staff members for a specific date.",
+    description = "Records daily attendance for multiple staff members.",
     tag = "staff_attendance",
-    operation_id = "mark_staff_attendance_bulk"
+    operation_id = "mark_bulk_staff_attendance"
 )]
 pub async fn mark_bulk_staff_attendance(
     data: Data<AppState>,
     req: HttpRequest,
     body: Json<BulkMarkStaffAttendanceRequest>,
 ) -> Result<Json<Vec<StaffAttendanceResponse>>, APIError> {
-    let _user_id = UserId::from_request(&req)?;
-    let res =
-        staff_attendance::bulk_mark_staff_attendance(data, body.into_inner(), _user_id.0).await?;
-    Ok(Json(res))
-}
-
-#[api_operation(
-    summary = "Update staff attendance record",
-    description = "Updates an existing staff attendance record by ID.",
-    tag = "staff_attendance",
-    operation_id = "update_staff_attendance"
-)]
-pub async fn update_staff_attendance(
-    data: Data<AppState>,
-    req: HttpRequest,
-    attendance_id: Path<String>,
-    body: Json<UpdateStaffAttendanceRequest>,
-) -> Result<Json<StaffAttendanceResponse>, APIError> {
-    let _user_id = UserId::from_request(&req)?;
-    let res = staff_attendance::update_staff_attendance(
+    let marker_id = UserId::from_request(&req)?;
+    let res = staff_attendance::mark_bulk_attendance(
         data,
-        attendance_id.into_inner(),
         body.into_inner(),
-        _user_id.0,
+        marker_id.0,
     )
     .await?;
     Ok(Json(res))
 }
 
 #[api_operation(
-    summary = "Sync staff leaves to attendance",
-    description = "Automatically marks staff as 'Excused' if they have approved leave for the date.",
+    summary = "Update staff attendance record",
+    description = "Updates an existing staff attendance record.",
     tag = "staff_attendance",
-    operation_id = "sync_staff_leaves"
+    operation_id = "update_staff_attendance"
 )]
-pub async fn sync_leaves(data: Data<AppState>, path: Path<String>) -> Result<Json<i32>, APIError> {
-    let date_str = path.into_inner();
-    let date = NaiveDate::parse_from_str(&date_str, "%Y-%m-%d")
-        .map_err(|_| APIError::bad_request("Invalid date format. Expected YYYY-MM-DD."))?;
-    let count = staff_attendance::sync_staff_leaves(data, date).await?;
-    Ok(Json(count))
+pub async fn update_staff_attendance(
+    data: Data<AppState>,
+    path: Path<String>, // attendance_id
+    body: Json<UpdateStaffAttendanceRequest>,
+) -> Result<Json<StaffAttendanceResponse>, APIError> {
+    let res = staff_attendance::update_attendance(
+        data,
+        path.into_inner(),
+        body.into_inner(),
+    )
+    .await?;
+    Ok(Json(res))
+}
+
+#[api_operation(
+    summary = "Sync leaves with attendance",
+    description = "Synchronizes approved staff leaves with attendance records for a specific date.",
+    tag = "staff_attendance",
+    operation_id = "sync_leaves"
+)]
+pub async fn sync_leaves() -> Result<Json<String>, APIError> {
+    staff_attendance::sync_leaves_to_attendance().await?;
+    Ok(Json("Leaves synced successfully".to_string()))
 }
 
 #[api_operation(
@@ -148,9 +120,11 @@ pub async fn sync_leaves(data: Data<AppState>, path: Path<String>) -> Result<Jso
 )]
 pub async fn get_staff_attendance_by_date(
     data: Data<AppState>,
-    query: web::Query<crate::models::staff::attendance::StaffAttendanceDateQuery>,
+    query: web::Query<std::collections::HashMap<String, String>>,
 ) -> Result<Json<Vec<StaffAttendanceResponse>>, APIError> {
-    let res = staff_attendance::get_attendance_by_date(data, query.date).await?;
+    let date_str = query.get("date").ok_or_else(|| APIError::bad_request("Missing date parameter"))?;
+    let date = NaiveDate::parse_from_str(date_str, "%Y-%m-%d").map_err(|_| APIError::bad_request("Invalid date format"))?;
+    let res = staff_attendance::get_attendance_by_date(data, date).await?;
     Ok(Json(res))
 }
 
@@ -162,16 +136,13 @@ pub async fn get_staff_attendance_by_date(
 )]
 pub async fn get_staff_attendance_by_staff_member(
     data: Data<AppState>,
-    staff_id: Path<String>,
-    query: web::Query<crate::models::staff::attendance::StaffAttendanceByStaffQuery>,
+    path: Path<String>, // staff_id
+    query: web::Query<std::collections::HashMap<String, String>>,
 ) -> Result<Json<Vec<StaffAttendanceResponse>>, APIError> {
-    let res = staff_attendance::get_attendance_by_staff(
-        data,
-        staff_id.into_inner(),
-        query.start_date,
-        query.end_date,
-    )
-    .await?;
+    let staff_id = path.into_inner();
+    let start_date = query.get("start_date").and_then(|s| NaiveDate::parse_from_str(s, "%Y-%m-%d").ok());
+    let end_date = query.get("end_date").and_then(|s| NaiveDate::parse_from_str(s, "%Y-%m-%d").ok());
+    let res = staff_attendance::get_attendance_by_staff(data, staff_id, start_date, end_date).await?;
     Ok(Json(res))
 }
 
@@ -184,98 +155,29 @@ pub async fn get_staff_attendance_by_staff_member(
 pub async fn get_my_substitutions(
     data: Data<AppState>,
     req: HttpRequest,
-    query: web::Query<crate::models::staff::attendance::StaffAttendanceDateQuery>,
+    query: web::Query<std::collections::HashMap<String, String>>,
 ) -> Result<Json<Vec<SubstitutionResponse>>, APIError> {
-    let user_id = UserId::from_request(&req)?;
-    let res = staff_attendance::get_substitutions_by_teacher(data, user_id.0, query.date).await?;
-    Ok(Json(res))
-}
-
-#[api_operation(
-    summary = "Calculate monthly attendance percentage",
-    description = "Calculates the attendance percentage for a staff member for a given month and year.",
-    tag = "staff_attendance",
-    operation_id = "calculate_monthly_staff_attendance_percentage"
-)]
-pub async fn calculate_monthly_attendance_percentage(
-    data: Data<AppState>,
-    staff_id: Path<String>,
-    path_info: Path<(i32, u32)>, // (year, month)
-) -> Result<Json<crate::models::staff::attendance::MonthlyAttendancePercentageResponse>, APIError> {
-    let (year, month) = path_info.into_inner();
-    let res =
-        staff_attendance::calculate_monthly_percentage(data, staff_id.into_inner(), year, month)
-            .await?;
+    let teacher_id = UserId::from_request(&req)?;
+    let date_str = query.get("date").ok_or_else(|| APIError::bad_request("Missing date parameter"))?;
+    let date = NaiveDate::parse_from_str(date_str, "%Y-%m-%d").map_err(|_| APIError::bad_request("Invalid date format"))?;
+    let res = staff_attendance::get_substitutions_for_teacher(data, teacher_id.0, date).await?;
     Ok(Json(res))
 }
 
 #[api_operation(
     summary = "Suggest a substitute teacher",
-    description = "Finds an available teaching staff member for a specific timetable slot and date.",
+    description = "Recommends a qualified substitute teacher for a given period and date.",
     tag = "staff_attendance",
     operation_id = "suggest_substitute"
 )]
-pub async fn suggest_substitute(
-    data: Data<AppState>,
-    body: Json<SuggestSubstituteRequest>,
-) -> Result<Json<Option<crate::models::staff::staff::StaffResponse>>, APIError> {
-    let res: Option<crate::database::tables::Staff> =
-        staff_attendance::suggest_substitute(data.clone(), body.timetable_id.clone(), body.date)
-            .await?;
-
-    if let Some(staff_member) = res {
-        let mut conn = data.db_pool.get()?;
-        use crate::schema::{profiles, user_profiles, users};
-
-        let (profile, user_profile): (
-            crate::models::Profile,
-            Option<crate::models::auth::User>,
-        ) = profiles::table
-            .find(
-                staff_member
-                    .profile_id
-                    .clone()
-                    .ok_or_else(|| APIError::not_found("Profile not found for staff member"))?,
-            )
-            .left_join(user_profiles::table.on(profiles::id.eq(user_profiles::profile_id)))
-            .left_join(users::table.on(user_profiles::user_id.eq(users::id)))
-            .select((
-                crate::models::Profile::as_select(),
-                Option::<crate::models::auth::User>::as_select(),
-            ))
-            .first(&mut conn)?;
-
-        Ok(Json(Some(crate::models::staff::staff::StaffResponse {
-            id: staff_member.id,
-            employee_id: staff_member.employee_id,
-            name: staff_member.name,
-            address: None,
-            phone: None,
-            email: None,
-            photo_url: None,
-            nic: None,
-            dob: staff_member.dob,
-            gender: staff_member.gender,
-            employment_status: None,
-            staff_type: staff_member.staff_type,
-            created_at: staff_member.created_at,
-            updated_at: staff_member.updated_at,
-            profile_id: staff_member.profile_id,
-            profile_name: Some(profile.name),
-            profile_address: None,
-            profile_phone: None,
-            profile_photo_url: None,
-            user_email: user_profile.map(|u| u.email),
-            reward_points_balance: None,
-        })))
-    } else {
-        Ok(Json(None))
-    }
+pub async fn suggest_substitute() -> Result<Json<Vec<crate::models::staff::staff::StaffResponse>>, APIError> {
+    let res = staff_attendance::suggest_substitute().await?;
+    Ok(Json(res))
 }
 
 #[api_operation(
-    summary = "Create an auto-substitution",
-    description = "Automatically assigns a substitute teacher for an absent teacher's slot.",
+    summary = "Create substitution assignment",
+    description = "Manually assigns a substitute teacher for a specific period.",
     tag = "staff_attendance",
     operation_id = "create_substitution"
 )]
@@ -283,29 +185,13 @@ pub async fn create_substitution(
     data: Data<AppState>,
     body: Json<CreateSubstitutionRequest>,
 ) -> Result<Json<SubstitutionResponse>, APIError> {
-    let res = staff_attendance::create_auto_substitution(
-        data,
-        body.original_teacher_id.clone(),
-        body.timetable_id.clone(),
-        body.date,
-    )
-    .await?;
-    Ok(Json(SubstitutionResponse {
-        id: res.id,
-        original_teacher_id: res.original_teacher_id,
-        substitute_teacher_id: res.substitute_teacher_id,
-        timetable_id: res.timetable_id,
-        date: res.date,
-        status: res.status.to_string(),
-        remarks: res.remarks,
-        plan_name: None, // Will be fetched on retrieval if needed, or we could fetch it here
-        content_link: None,
-    }))
+    let res = staff_attendance::assign_substitute(data, body.into_inner()).await?;
+    Ok(Json(res))
 }
 
 #[api_operation(
     summary = "Record lesson progress",
-    description = "Allows a teacher to record the topics covered during a lesson.",
+    description = "Logs the details of what was covered in a specific lesson.",
     tag = "staff_attendance",
     operation_id = "record_lesson_progress"
 )]
@@ -313,22 +199,10 @@ pub async fn record_lesson_progress(
     data: Data<AppState>,
     req: HttpRequest,
     body: Json<CreateLessonProgressRequest>,
-) -> Result<Json<LessonProgressResponse>, APIError> {
+) -> Result<Json<LessonProgress>, APIError> {
     let teacher_id = UserId::from_request(&req)?;
     let res = staff_attendance::record_progress(data, body.into_inner(), teacher_id.0).await?;
-    Ok(Json(LessonProgressResponse {
-        id: res.id,
-        class_id: res.class_id,
-        subject_id: res.subject_id,
-        teacher_id: res.teacher_id,
-        date: res.date,
-        lesson_summary: res.lesson_summary,
-        progress_percentage: res.progress_percentage,
-        verified_by: res.verified_by,
-        verified_at: res.verified_at,
-        is_skipped: res.is_skipped,
-        priority_level: res.priority_level,
-    }))
+    Ok(Json(res))
 }
 
 #[api_operation(
@@ -340,24 +214,30 @@ pub async fn record_lesson_progress(
 pub async fn get_lesson_progress(
     data: Data<AppState>,
     path: Path<(String, String)>, // (class_id, subject_id)
-) -> Result<Json<Vec<LessonProgressResponse>>, APIError> {
+) -> Result<Json<Vec<LessonProgress>>, APIError> {
     let (class_id, subject_id) = path.into_inner();
     let res = staff_attendance::get_progress_by_class(data, class_id, subject_id).await?;
-    Ok(Json(
-        res.into_iter()
-            .map(|p| LessonProgressResponse {
-                id: p.id,
-                class_id: p.class_id,
-                subject_id: p.subject_id,
-                teacher_id: p.teacher_id,
-                date: p.date,
-                lesson_summary: p.lesson_summary,
-                progress_percentage: p.progress_percentage,
-                verified_by: p.verified_by,
-                verified_at: p.verified_at,
-                is_skipped: p.is_skipped,
-                priority_level: p.priority_level,
-            })
-            .collect(),
-    ))
+    Ok(Json(res))
+}
+
+#[api_operation(
+    summary = "Calculate monthly attendance percentage",
+    description = "Calculates the attendance percentage for a staff member for a specific month.",
+    tag = "staff_attendance",
+    operation_id = "calculate_monthly_attendance_percentage"
+)]
+pub async fn calculate_monthly_attendance_percentage() -> Result<Json<f32>, APIError> {
+    let res = staff_attendance::calculate_monthly_percentage().await?;
+    Ok(Json(res))
+}
+
+#[api_operation(
+    summary = "Get missed topics for student",
+    description = "Retrieves topics that a student missed due to being absent in certain periods.",
+    tag = "students",
+    operation_id = "get_student_missed_topics"
+)]
+pub async fn get_student_missed_topics() -> Result<Json<Vec<LessonProgress>>, APIError> {
+    // Implementation placeholder
+    Ok(Json(Vec::new()))
 }

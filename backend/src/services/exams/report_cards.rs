@@ -1,9 +1,5 @@
 use crate::errors::APIError;
-use crate::handlers::exams::report_cards::{
-    CreateReportCardMarkRequest, CreateReportCardRequest, ReportCardQuery,
-    UpdateReportCardMarkRequest, UpdateReportCardRequest,
-};
-use crate::models::exams::report_card::{CreateReportCard, CreateReportCardMark, ReportCard, ReportCardMark};
+use crate::models::exams::report_card::*;
 use crate::schema::{report_card_marks, report_cards};
 use crate::AppState;
 use actix_web::web;

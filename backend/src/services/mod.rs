@@ -1,4 +1,5 @@
 pub mod admin_db;
+pub mod admin_db_crud;
 pub mod academic;
 pub mod auth;
 pub mod behavior_management;
@@ -6,6 +7,7 @@ pub mod curriculum_management;
 pub mod exams;
 pub mod finance;
 pub mod messaging;
+pub mod resource_management;
 pub mod resources;
 pub mod staff;
 pub mod students;

@@ -1,27 +1,51 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import type { AssignPermissionSetToStaffData } from '@/lib/api/types.gen'
-import type { Options } from '@/lib/api/sdk.gen'
-import {
-  assignPermissionSetToStaffMutation,
-  getStaffPermissionSetsQueryKey,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 
-export const useAssignPermissionSetToStaff = (
-  options?: Partial<Options<AssignPermissionSetToStaffData>>,
-) => {
+type AssignPermissionSetToStaffInput = {
+  path: {
+    staff_id: string
+    set_id: string
+  }
+}
+
+type AssignPermissionSetToStaffResponse = {
+  success?: boolean
+}
+
+const getStaffPermissionSetsQueryKey = (staffId: string) => [
+  'staff-permission-sets',
+  staffId,
+]
+
+export const useAssignPermissionSetToStaff = () => {
   const queryClient = useQueryClient()
-  return useMutation({
-    ...assignPermissionSetToStaffMutation({ client: authClient, ...options }),
-    onSuccess: (...args) => {
-      const [, variables] = args
+  return useMutation<
+    AssignPermissionSetToStaffResponse,
+    Error,
+    AssignPermissionSetToStaffInput
+  >({
+    mutationFn: async (variables) => {
+      const result = await authClient.request<
+        AssignPermissionSetToStaffResponse,
+        unknown,
+        false,
+        'data'
+      >({
+        url: '/admin/staff/{staff_id}/permission-sets/{set_id}',
+        method: 'POST',
+        responseStyle: 'data',
+        throwOnError: false,
+        path: variables.path,
+      })
+
+      return result ?? {}
+    },
+    onSuccess: (_data, variables) => {
       toast.success('Permission set assigned successfully')
-      if (variables.path?.staff_id) {
+      if (variables.path.staff_id) {
         queryClient.invalidateQueries({
-          queryKey: getStaffPermissionSetsQueryKey({
-            path: { staff_id: variables.path.staff_id },
-          }),
+          queryKey: getStaffPermissionSetsQueryKey(variables.path.staff_id),
         })
       }
     },

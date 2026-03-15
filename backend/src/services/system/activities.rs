@@ -2,89 +2,123 @@ use crate::schema::{activities, activity_attendance, activity_participants, acti
 use crate::{
     AppState,
     database::enums::AttendanceStatus,
-    database::tables::{Activity, ActivityAttendance, ActivityParticipant, ActivityType},
     errors::APIError,
-    models::system::activity::{
-        ActivityResponse, ActivityTypeResponse, CreateActivityRequest, CreateActivityTypeRequest,
-        EnrollParticipantRequest,
-    },
+    models::system::activity::*,
 };
 use actix_web::web;
 use chrono::Utc;
 use diesel::prelude::*;
 use crate::models::ids::{generate_prefixed_id, IdPrefix};
+use crate::impl_admin_entity_service;
+use crate::services::admin_db::AdminQuery;
 
-pub async fn create_activity_type(
-    pool: web::Data<AppState>,
-    req: CreateActivityTypeRequest,
-) -> Result<ActivityTypeResponse, APIError> {
-    let mut conn = pool.db_pool.get()?;
-    let id = generate_prefixed_id(&mut conn, IdPrefix::ACTIVITY)?;
+impl_admin_entity_service!(
+    ActivityTypeService,
+    activity_types::table,
+    ActivityType,
+    ActivityType,
+    activity_types::id,
+    AdminQuery,
+    |q: activity_types::BoxedQuery<'static, diesel::sqlite::Sqlite>, search| {
+        q.filter(activity_types::name.like(search))
+    },
+    |q: activity_types::BoxedQuery<'static, diesel::sqlite::Sqlite>, _sort_by, _sort_order| {
+        q.order(activity_types::created_at.desc())
+    }
+);
 
-    let new_type = ActivityType {
-        id: id.clone(),
-        name: req.name,
-        description: req.description,
-        created_at: Utc::now().naive_utc(),
-    };
+impl_admin_entity_service!(
+    ActivityService,
+    activities::table,
+    Activity,
+    Activity,
+    activities::id,
+    AdminQuery,
+    |q: activities::BoxedQuery<'static, diesel::sqlite::Sqlite>, search| {
+        q.filter(activities::name.like(search))
+    },
+    |q: activities::BoxedQuery<'static, diesel::sqlite::Sqlite>, _sort_by, _sort_order| {
+        q.order(activities::created_at.desc())
+    }
+);
 
-    diesel::insert_into(activity_types::table)
-        .values(&new_type)
-        .execute(&mut conn)?;
+impl_admin_entity_service!(
+    ActivityParticipantService,
+    activity_participants::table,
+    ActivityParticipant,
+    ActivityParticipant,
+    activity_participants::activity_id,
+    activity_id,
+    AdminQuery,
+    |q: activity_participants::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
+    |q: activity_participants::BoxedQuery<'static, diesel::sqlite::Sqlite>, _sort_by, _sort_order| {
+        q.order(activity_participants::created_at.desc())
+    }
+);
 
-    Ok(ActivityTypeResponse {
-        id: new_type.id,
-        name: new_type.name,
-        description: new_type.description,
-    })
+
+impl ActivityTypeService {
+    pub async fn create_with_logic(
+        data: web::Data<AppState>,
+        req: CreateActivityTypeRequest,
+    ) -> Result<ActivityType, APIError> {
+        let mut conn = data.db_pool.get()?;
+        let id = generate_prefixed_id(&mut conn, IdPrefix::ACTIVITY)?;
+        let new_item = ActivityType {
+            id,
+            name: req.name,
+            description: req.description,
+            created_at: Utc::now().naive_utc(),
+        };
+        Self::generic_create(data, new_item).await
+    }
 }
 
-pub async fn get_all_activity_types(
-    pool: web::Data<AppState>,
-) -> Result<Vec<ActivityTypeResponse>, APIError> {
-    let mut conn = pool.db_pool.get()?;
-    let types = activity_types::table.load::<ActivityType>(&mut conn)?;
-
-    Ok(types
-        .into_iter()
-        .map(|t| ActivityTypeResponse {
-            id: t.id,
-            name: t.name,
-            description: t.description,
-        })
-        .collect())
+impl ActivityService {
+    pub async fn create_with_logic(
+        data: web::Data<AppState>,
+        req: CreateActivityRequest,
+        creator_id: String,
+    ) -> Result<Activity, APIError> {
+        let mut conn = data.db_pool.get()?;
+        let id = generate_prefixed_id(&mut conn, IdPrefix::ACTIVITY)?;
+        let new_item = Activity {
+            id,
+            activity_type_id: req.activity_type_id,
+            name: req.name,
+            description: req.description,
+            location: req.location,
+            start_time: req.start_time,
+            end_time: req.end_time,
+            is_mandatory: req.is_mandatory,
+            academic_year_id: req.academic_year_id,
+            created_by: creator_id,
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
+        };
+        Self::generic_create(data, new_item).await
+    }
 }
+
+// --- Specialized Services ---
 
 pub async fn get_activities(
     pool: web::Data<AppState>,
     academic_year_id: Option<String>,
-) -> Result<Vec<ActivityResponse>, APIError> {
+) -> Result<Vec<Activity>, APIError> {
     let mut conn = pool.db_pool.get()?;
     let mut query = activities::table.into_boxed();
     if let Some(ay_id) = academic_year_id {
         query = query.filter(activities::academic_year_id.eq(ay_id));
     }
     let list = query.load::<Activity>(&mut conn)?;
-    Ok(list
-        .into_iter()
-        .map(|a| ActivityResponse {
-            id: a.id,
-            activity_type_id: a.activity_type_id,
-            name: a.name,
-            description: a.description,
-            location: a.location,
-            start_time: a.start_time,
-            end_time: a.end_time,
-            is_mandatory: a.is_mandatory,
-            created_by: a.created_by,
-        })
-        .collect())
+    Ok(list)
 }
 
 pub async fn get_user_activities(
     pool: web::Data<AppState>,
     user_id: String,
-) -> Result<Vec<ActivityResponse>, APIError> {
+) -> Result<Vec<Activity>, APIError> {
     let mut conn = pool.db_pool.get()?;
     let list = activities::table
         .inner_join(
@@ -94,60 +128,7 @@ pub async fn get_user_activities(
         .select(activities::all_columns)
         .load::<Activity>(&mut conn)?;
 
-    Ok(list
-        .into_iter()
-        .map(|a| ActivityResponse {
-            id: a.id,
-            activity_type_id: a.activity_type_id,
-            name: a.name,
-            description: a.description,
-            location: a.location,
-            start_time: a.start_time,
-            end_time: a.end_time,
-            is_mandatory: a.is_mandatory,
-            created_by: a.created_by,
-        })
-        .collect())
-}
-
-pub async fn create_activity(
-    pool: web::Data<AppState>,
-    req: CreateActivityRequest,
-    creator_id: String,
-) -> Result<ActivityResponse, APIError> {
-    let mut conn = pool.db_pool.get()?;
-    let activity_id = generate_prefixed_id(&mut conn, IdPrefix::ACTIVITY)?;
-
-    let new_activity = Activity {
-        id: activity_id.clone(),
-        activity_type_id: req.activity_type_id,
-        name: req.name,
-        description: req.description,
-        location: req.location,
-        start_time: req.start_time,
-        end_time: req.end_time,
-        is_mandatory: req.is_mandatory,
-        academic_year_id: req.academic_year_id,
-        created_by: creator_id,
-        created_at: Utc::now().naive_utc(),
-        updated_at: Utc::now().naive_utc(),
-    };
-
-    diesel::insert_into(activities::table)
-        .values(&new_activity)
-        .execute(&mut conn)?;
-
-    Ok(ActivityResponse {
-        id: new_activity.id,
-        activity_type_id: new_activity.activity_type_id,
-        name: new_activity.name,
-        description: new_activity.description,
-        location: new_activity.location,
-        start_time: new_activity.start_time,
-        end_time: new_activity.end_time,
-        is_mandatory: new_activity.is_mandatory,
-        created_by: new_activity.created_by,
-    })
+    Ok(list)
 }
 
 pub async fn enroll_participant(
@@ -160,7 +141,7 @@ pub async fn enroll_participant(
     let new_participant = ActivityParticipant {
         activity_id,
         user_id: req.user_id,
-        participant_type: req.participant_type.to_string(),
+        participant_type: req.participant_type,
         enrollment_reason: req.enrollment_reason,
         created_at: Utc::now().naive_utc(),
     };
@@ -193,7 +174,7 @@ pub async fn mark_activity_attendance(
         id: generate_prefixed_id(&mut conn, IdPrefix::ATTENDANCE)?,
         activity_id: activity_id.clone(),
         user_id: user_id.clone(),
-        status: activity_status.to_string(),
+        status: activity_status,
         check_in_time: Some(Utc::now().naive_utc()),
         check_out_time: None,
         remarks: None,
@@ -218,7 +199,7 @@ pub async fn mark_activity_attendance(
             let hours_served = (duration.num_minutes() as f32) / 60.0;
 
             use crate::schema::detention_balances;
-            if let Ok(balance) = detention_balances::table.find(&user_id).first::<crate::database::tables::DetentionBalance>(&mut conn) {
+            if let Ok(balance) = detention_balances::table.find(&user_id).first::<crate::models::behavior_management::detention_balance::DetentionBalance>(&mut conn) {
                 diesel::update(detention_balances::table.find(&user_id))
                     .set((
                         detention_balances::total_hours_served.eq(balance.total_hours_served + hours_served),

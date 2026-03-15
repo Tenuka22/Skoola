@@ -1,7 +1,8 @@
 use crate::database::enums::PermissionEnum;
 use crate::handlers::exams::{
-    exam_structures, government_exams, grading_schemes, marking_schemes,
-    school_tests, exam_types, exams,
+    exam_structure_subjects, exam_structures, exam_subjects, exam_types, exams, government_exams,
+    grading_criteria, grading_schemes, marking_schemes, school_tests, special_exams,
+    zscore,
 };
 use crate::utils::jwt::Authenticated;
 use crate::utils::permission_verification::PermissionVerification;
@@ -38,9 +39,33 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                     .wrap(PermissionVerification { required_permission: PermissionEnum::ExamTypeManage })
                     .route("", web::post().to(exam_structures::create_exam_structure))
                     .route("/{id}", web::get().to(exam_structures::get_exam_structure_by_id))
-                    .route("", web::get().to(exam_structures::get_all_exam_structures))
+                    .route("", web::get().to(exam_structures::get_all_exam_structure))
                     .route("/{id}", web::put().to(exam_structures::update_exam_structure))
                     .route("/{id}", web::delete().to(exam_structures::delete_exam_structure)),
+            )
+            .service(
+                web::scope("/structure-subjects")
+                    .wrap(PermissionVerification { required_permission: PermissionEnum::ExamTypeManage })
+                    .wrap(Authenticated)
+                    .route("", web::post().to(exam_structure_subjects::create_exam_structure_subject))
+                    .route("/{id}", web::get().to(exam_structure_subjects::get_exam_structure_subject_by_id))
+                    .route("", web::get().to(exam_structure_subjects::get_all_exam_structure_subject))
+                    .route("/{id}", web::put().to(exam_structure_subjects::update_exam_structure_subject))
+                    .route("/{id}", web::delete().to(exam_structure_subjects::delete_exam_structure_subject))
+                    .route("/bulk", web::delete().to(exam_structure_subjects::bulk_delete_exam_structure_subject))
+                    .route("/bulk", web::patch().to(exam_structure_subjects::bulk_update_exam_structure_subject)),
+            )
+            .service(
+                web::scope("/subjects")
+                    .wrap(PermissionVerification { required_permission: PermissionEnum::ExamSubjectManage })
+                    .wrap(Authenticated)
+                    .route("", web::post().to(exam_subjects::create_exam_subject))
+                    .route("/{id}", web::get().to(exam_subjects::get_exam_subject_by_id))
+                    .route("", web::get().to(exam_subjects::get_all_exam_subject))
+                    .route("/{id}", web::put().to(exam_subjects::update_exam_subject))
+                    .route("/{id}", web::delete().to(exam_subjects::delete_exam_subject))
+                    .route("/bulk", web::delete().to(exam_subjects::bulk_delete_exam_subject))
+                    .route("/bulk", web::patch().to(exam_subjects::bulk_update_exam_subject)),
             )
             .service(
                 web::scope("/government-exams")
@@ -119,7 +144,19 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                     .route("/bulk", web::delete().to(grading_schemes::bulk_delete_grading_scheme))
                     .route("/bulk", web::patch().to(grading_schemes::bulk_update_grading_scheme)),
             )
+            .service(
+                web::scope("/grading-criteria")
+                    .wrap(PermissionVerification { required_permission: PermissionEnum::ExamManage })
+                    .route("", web::post().to(grading_criteria::create_grading_criterion))
+                    .route("/{id}", web::get().to(grading_criteria::get_grading_criterion_by_id))
+                    .route("", web::get().to(grading_criteria::get_all_grading_criterion))
+                    .route("/{id}", web::put().to(grading_criteria::update_grading_criterion))
+                    .route("/{id}", web::delete().to(grading_criteria::delete_grading_criterion))
+                    .route("/bulk", web::delete().to(grading_criteria::bulk_delete_grading_criterion))
+                    .route("/bulk", web::patch().to(grading_criteria::bulk_update_grading_criterion)),
+            )
     );
 
-    // Removed zscore and report_cards config as they are functional, not pure CRUD admin routes.
+    special_exams::config(cfg);
+    zscore::config(cfg);
 }

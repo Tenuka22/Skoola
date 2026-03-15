@@ -1,14 +1,46 @@
 use crate::schema::school_settings;
 use crate::{
     AppState,
-    database::tables::SchoolSetting,
     errors::APIError,
-    models::system::setting::{SchoolSettingResponse, UpdateSchoolSettingRequest},
+    models::system::setting::*,
 };
 use actix_web::web;
 use chrono::Utc;
 use diesel::prelude::*;
 use diesel::upsert::excluded;
+use crate::impl_admin_entity_service;
+use crate::services::admin_db::AdminQuery;
+
+impl_admin_entity_service!(
+    SchoolSettingService,
+    school_settings::table,
+    SchoolSetting,
+    SchoolSetting,
+    school_settings::setting_key,
+    setting_key,
+    AdminQuery,
+    |q: school_settings::BoxedQuery<'static, diesel::sqlite::Sqlite>, search| {
+        q.filter(school_settings::setting_key.like(search))
+    },
+    |q: school_settings::BoxedQuery<'static, diesel::sqlite::Sqlite>, _sort_by, _sort_order| {
+        q.order(school_settings::setting_key.asc())
+    }
+);
+
+impl SchoolSettingService {
+    pub async fn create_with_logic(
+        data: web::Data<AppState>,
+        req: CreateSchoolSettingRequest,
+    ) -> Result<SchoolSetting, APIError> {
+        let new_item = SchoolSetting {
+            setting_key: req.setting_key,
+            setting_value: req.setting_value,
+            description: req.description,
+            updated_at: Utc::now().naive_utc(),
+        };
+        Self::generic_create(data, new_item).await
+    }
+}
 
 pub async fn get_all_settings(
     pool: web::Data<AppState>,

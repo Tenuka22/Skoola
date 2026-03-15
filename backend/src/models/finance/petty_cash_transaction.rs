@@ -1,19 +1,18 @@
 use apistos::ApiComponent;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use schemars::JsonSchema; // Added for JsonSchema derive
-use serde::{Deserialize, Serialize}; // Added for ApiComponent derive
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, JsonSchema, ApiComponent)] // Added JsonSchema, ApiComponent
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::petty_cash_transactions)]
-
 pub struct PettyCashTransaction {
     pub id: String,
     pub amount: f32,
     pub transaction_type: crate::database::enums::TransactionType,
     pub date: NaiveDateTime,
     pub description: Option<String>,
-    pub handled_by: String, // staff_id
+    pub handled_by: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }

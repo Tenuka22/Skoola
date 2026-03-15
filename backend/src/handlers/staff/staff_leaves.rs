@@ -1,105 +1,50 @@
 use actix_web::web;
 use actix_web::web::Json;
 use apistos::api_operation;
-use chrono::Utc;
-use diesel::prelude::*;
 
 use crate::{
     AppState,
-    database::enums::LeaveStatus,
-    database::tables::StaffLeave,
     errors::APIError,
-    models::ids::{generate_prefixed_id, IdPrefix},
     models::staff::leave::{
-        ApplyLeaveRequest, ApproveRejectLeaveRequest, LeaveBalanceResponse, StaffLeaveChangeset,
-        StaffLeaveResponse,
+        ApplyLeaveRequest, ApproveRejectLeaveRequest, StaffLeaveResponse,
+        LeaveBalanceResponse,
     },
-    schema::staff_leaves,
+    services::staff::staff_leaves,
 };
 
 #[api_operation(
     summary = "Apply for leave",
-    description = "Allows a staff member to apply for leave.",
+    description = "Allows a staff member to submit a leave request.",
     tag = "staff_leaves",
     operation_id = "apply_for_leave"
 )]
 pub async fn apply_for_leave(
     data: web::Data<AppState>,
     staff_id: web::Path<String>,
-    body: web::Json<ApplyLeaveRequest>,
+    body: Json<ApplyLeaveRequest>,
 ) -> Result<Json<StaffLeaveResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let staff_id_inner = staff_id.into_inner();
-
-    if body.from_date > body.to_date {
-        return Err(APIError::bad_request("From date cannot be after to date"));
-    }
-
-    let new_leave = StaffLeave {
-        id: generate_prefixed_id(&mut conn, IdPrefix::LEAVE)?,
-        staff_id: staff_id_inner,
-        leave_type: body.leave_type.clone(),
-        from_date: body.from_date,
-        to_date: body.to_date,
-        reason: body.reason.clone(),
-        status: LeaveStatus::Pending, // New leave applications are pending by default
-        created_at: Utc::now().naive_utc(),
-        updated_at: Utc::now().naive_utc(),
-    };
-
-    diesel::insert_into(staff_leaves::table)
-        .values(&new_leave)
-        .execute(&mut conn)?;
-
-    Ok(Json(StaffLeaveResponse::from(new_leave)))
+    let res = staff_leaves::apply_for_leave(data, staff_id.into_inner(), body.into_inner()).await?;
+    Ok(Json(StaffLeaveResponse::from(res)))
 }
 
 #[api_operation(
-    summary = "Approve or reject staff leave",
-    description = "Approves or rejects a pending staff leave application.",
+    summary = "Approve or reject leave",
+    description = "Allows an admin or supervisor to approve or reject a pending leave request.",
     tag = "staff_leaves",
     operation_id = "approve_reject_leave"
 )]
 pub async fn approve_reject_leave(
     data: web::Data<AppState>,
     leave_id: web::Path<String>,
-    body: web::Json<ApproveRejectLeaveRequest>,
+    body: Json<ApproveRejectLeaveRequest>,
 ) -> Result<Json<StaffLeaveResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let leave_id_inner = leave_id.into_inner();
-
-    // Check if the leave application exists
-    let existing_leave: StaffLeave = staff_leaves::table
-        .find(&leave_id_inner)
-        .select(StaffLeave::as_select())
-        .first(&mut conn)?;
-
-    if existing_leave.status != LeaveStatus::Pending {
-        return Err(APIError::bad_request(
-            "Only pending leave applications can be approved or rejected",
-        ));
-    }
-
-    let changeset = StaffLeaveChangeset {
-        status: Some(body.status.clone()),
-        updated_at: Utc::now().naive_utc(),
-    };
-
-    diesel::update(staff_leaves::table.find(&leave_id_inner))
-        .set(changeset)
-        .execute(&mut conn)?;
-
-    let updated_leave = staff_leaves::table
-        .find(&leave_id_inner)
-        .select(StaffLeave::as_select())
-        .first::<StaffLeave>(&mut conn)?;
-
-    Ok(Json(StaffLeaveResponse::from(updated_leave)))
+    let res = staff_leaves::approve_reject_leave(data, leave_id.into_inner(), body.into_inner().status).await?;
+    Ok(Json(StaffLeaveResponse::from(res)))
 }
 
 #[api_operation(
-    summary = "View staff leave balance",
-    description = "Retrieves the leave balance for a specific staff member.",
+    summary = "View leave balance",
+    description = "Retrieves the current leave balance for a specific staff member.",
     tag = "staff_leaves",
     operation_id = "view_leave_balance"
 )]
@@ -108,8 +53,6 @@ pub async fn view_leave_balance(
     staff_id: web::Path<String>,
 ) -> Result<Json<Vec<LeaveBalanceResponse>>, APIError> {
     let staff_id_inner = staff_id.into_inner();
-    let leave_balances =
-        crate::services::staff::staff_leaves::get_staff_leave_balance(data.clone(), staff_id_inner)
-            .await?;
+    let leave_balances = staff_leaves::get_staff_leave_balance(data, staff_id_inner).await?;
     Ok(Json(leave_balances))
 }

@@ -1,6 +1,6 @@
 use crate::AppState;
 use crate::errors::APIError;
-use crate::models::system::file::{FileModel, FileQuery, FileResponse};
+use crate::models::system::file::{CreateFileRequest, FileModel, FileQuery, FileResponse};
 use crate::schema::files;
 use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::impl_admin_entity_service;
@@ -30,6 +30,51 @@ impl_admin_entity_service!(
 );
 
 impl FileService {
+    pub async fn create_with_logic(
+        pool: web::Data<AppState>,
+        req: CreateFileRequest,
+    ) -> Result<FileResponse, APIError> {
+        Self::create_record(
+            pool,
+            req.file_name,
+            req.file_path,
+            req.mime_type,
+            req.file_size,
+        )
+        .await
+    }
+
+    pub async fn bulk_create_with_logic(
+        pool: web::Data<AppState>,
+        reqs: Vec<CreateFileRequest>,
+    ) -> Result<(), APIError> {
+        let mut conn = pool.db_pool.get()?;
+        let now = Utc::now().naive_utc();
+
+        let models: Vec<FileModel> = conn.transaction::<_, APIError, _>(|conn| {
+            let mut out = Vec::with_capacity(reqs.len());
+            for req in &reqs {
+                let id = generate_prefixed_id(conn, IdPrefix::FILE)?;
+                out.push(FileModel {
+                    id,
+                    file_name: req.file_name.clone(),
+                    file_path: req.file_path.clone(),
+                    mime_type: req.mime_type.clone(),
+                    file_size: req.file_size,
+                    created_at: now,
+                    updated_at: now,
+                });
+            }
+            Ok(out)
+        })?;
+
+        diesel::insert_into(files::table)
+            .values(&models)
+            .execute(&mut conn)?;
+
+        Ok(())
+    }
+
     pub async fn create_record(
         pool: web::Data<AppState>,
         file_name: String,

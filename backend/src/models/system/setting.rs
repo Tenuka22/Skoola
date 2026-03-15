@@ -13,11 +13,12 @@ use serde::{Deserialize, Serialize};
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     ApiComponent,
 )]
 #[diesel(table_name = school_settings)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+#[diesel(primary_key(setting_key))]
 pub struct SchoolSetting {
     pub setting_key: String,
     pub setting_value: String,
@@ -33,7 +34,27 @@ pub struct SchoolSettingResponse {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
+impl From<SchoolSetting> for SchoolSettingResponse {
+    fn from(s: SchoolSetting) -> Self {
+        Self {
+            setting_key: s.setting_key,
+            setting_value: s.setting_value,
+            description: s.description,
+            updated_at: s.updated_at,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Insertable, JsonSchema, ApiComponent)]
+#[diesel(table_name = school_settings)]
+pub struct CreateSchoolSettingRequest {
+    pub setting_key: String,
+    pub setting_value: String,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
+#[diesel(table_name = school_settings)]
 pub struct UpdateSchoolSettingRequest {
     pub setting_value: String,
     pub description: Option<String>,

@@ -6,6 +6,7 @@ pub mod lesson_progress_period;
 pub mod student_missed_lesson;
 pub mod practical_lesson_appeals;
 pub mod lesson_reviews;
+pub mod materials;
 
 pub use curriculum_standard::*;
 pub use curriculum_topic::*;
@@ -15,3 +16,4 @@ pub use lesson_progress_period::*;
 pub use student_missed_lesson::*;
 pub use practical_lesson_appeals::*;
 pub use lesson_reviews::*;
+pub use materials::*;

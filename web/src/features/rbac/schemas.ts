@@ -1,17 +1,17 @@
 import { z } from 'zod'
 import {
-  zCreatePermissionSetRequest,
   zCreateRoleSetRequest,
-  zUpdatePermissionSetRequest,
+  zCreateUserSetRequest,
   zUpdateRoleSetRequest,
+  zUpdateUserSetRequest,
 } from '@/lib/api/zod.gen'
 
-export const createPermissionSetSchema = zCreatePermissionSetRequest.extend({
+export const createPermissionSetSchema = zCreateUserSetRequest.extend({
   name: z.string().min(3, 'Name must be at least 3 characters'),
   description: z.string().min(5, 'Description must be at least 5 characters'),
 })
 
-export const updatePermissionSetSchema = zUpdatePermissionSetRequest.extend({
+export const updatePermissionSetSchema = zUpdateUserSetRequest.extend({
   name: z.string().min(3, 'Name must be at least 3 characters').optional(),
   description: z
     .string()

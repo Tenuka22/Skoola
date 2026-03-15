@@ -1,132 +1,111 @@
-use actix_web::web::Json;
-use actix_web::web;
-
-use crate::AppState;
+use crate::services::admin_db::AdminQuery;
 use crate::models::curriculum_management::{
-    CurriculumStandard, CurriculumTopic, CurriculumStandardQuery, CurriculumTopicQuery,
-    CurriculumStandardResponse, SyllabusResponse, CreateCurriculumStandardRequest,
-    UpdateCurriculumStandardRequest, CreateSyllabusRequest, UpdateSyllabusRequest,
+    CurriculumStandard, CurriculumStandardQuery,
+    SyllabusResponse, CreateCurriculumStandardRequest, UpdateCurriculumStandardRequest, CreateSyllabusRequest,
+    LessonProgress, LessonProgressQuery, CreateLessonProgressRequest, UpdateLessonProgressRequest,
+    LessonMaterial, CreateLessonMaterialRequest,
 };
-use crate::services::curriculum_management::{CurriculumStandardService, SyllabusTopicService};
-
+use crate::models::curriculum_management::curriculum_topic::{CurriculumTopic, CurriculumTopicQuery, CurriculumTopicResponse, UpdateCurriculumTopicRequest};
+use crate::services::curriculum_management::{
+    CurriculumStandardService, SyllabusTopicService,
+    LessonProgressService, LessonMaterialService,
+};
 use apistos::api_operation;
+use actix_web::web;
+use actix_web::web::Json;
+use crate::AppState;
+
 use crate::create_admin_handlers;
 
-pub mod attachments;
+create_admin_handlers!(
+    tag => "lesson_progress",
+    entity => LessonProgress,
+    response => LessonProgress,
+    query => LessonProgressQuery,
+    create => CreateLessonProgressRequest,
+    update => UpdateLessonProgressRequest,
+    service => LessonProgressService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
+
+create_admin_handlers!(
+    tag => "lesson_materials",
+    entity => LessonMaterial,
+    response => LessonMaterial,
+    query => AdminQuery,
+    create => CreateLessonMaterialRequest,
+    update => AdminQuery,
+    service => LessonMaterialService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
+
 pub mod reports;
 pub mod unit_allocations;
 pub mod appeals;
 pub mod reviews;
+pub mod topics;
+pub mod attachments;
+pub mod ai_notes;
+
+pub use ai_notes::*;
+pub use topics::*;
 
 create_admin_handlers!(
-    tag => "Curriculum Standards",
+    tag => "curriculum_standards",
     entity => CurriculumStandard,
     response => CurriculumStandard,
     query => CurriculumStandardQuery,
-    create => CurriculumStandard, // Placeholder for macro logic
-    update => CurriculumStandard, // Placeholder for macro logic
+    create => CreateCurriculumStandardRequest,
+    update => UpdateCurriculumStandardRequest,
     service => CurriculumStandardService,
     methods => {
+        create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
+        update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update,
-        bulk_create => generic_bulk_create
+        bulk_update => generic_bulk_update
     }
 );
 
 create_admin_handlers!(
-    tag => "Syllabus Topics",
+    tag => "syllabus_topics",
     entity => SyllabusTopic,
-    response => CurriculumTopic,
+    response => CurriculumTopicResponse,
     query => CurriculumTopicQuery,
-    create => CurriculumTopic, // Placeholder for macro logic
-    update => CurriculumTopic, // Placeholder for macro logic
+    create => CreateSyllabusRequest,
+    update => UpdateCurriculumTopicRequest,
     service => SyllabusTopicService,
     methods => {
+        create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
+        update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update,
-        bulk_create => generic_bulk_create
+        bulk_update => generic_bulk_update
     }
 );
-
-#[api_operation(
-    summary = "Create Curriculum Standard",
-    description = "Creates a new curriculum standard.",
-    tag = "Curriculum Management",
-    operation_id = "create_curriculum_standard_v2"
-)]
-pub async fn create_curriculum_standard(
-    data: web::Data<AppState>,
-    body: web::Json<CreateCurriculumStandardRequest>,
-) -> Result<Json<CurriculumStandardResponse>, crate::errors::APIError> {
-    let standard =
-        crate::services::curriculum_management::create_curriculum_standard(data.clone(), body.into_inner()).await?;
-    Ok(Json(CurriculumStandardResponse::from(standard)))
-}
-
-#[api_operation(
-    summary = "Update Curriculum Standard",
-    description = "Updates a curriculum standard by its ID.",
-    tag = "Curriculum Management",
-    operation_id = "update_curriculum_standard_v2"
-)]
-pub async fn update_curriculum_standard(
-    data: web::Data<AppState>,
-    path: web::Path<String>,
-    body: web::Json<UpdateCurriculumStandardRequest>,
-) -> Result<Json<CurriculumStandardResponse>, crate::errors::APIError> {
-    let standard_id = path.into_inner();
-    let updated_standard = crate::services::curriculum_management::update_curriculum_standard(
-        data.clone(),
-        standard_id,
-        body.into_inner(),
-    )
-    .await?;
-    Ok(Json(CurriculumStandardResponse::from(updated_standard)))
-}
-
-#[api_operation(
-    summary = "Create Syllabus Topic",
-    description = "Creates a new syllabus topic.",
-    tag = "Curriculum Management",
-    operation_id = "create_syllabus_topic_v2"
-)]
-pub async fn create_syllabus_topic(
-    data: web::Data<AppState>,
-    body: web::Json<CreateSyllabusRequest>,
-) -> Result<Json<SyllabusResponse>, crate::errors::APIError> {
-    let syllabus_topic =
-        crate::services::curriculum_management::create_syllabus_topic(data.clone(), body.into_inner()).await?;
-    Ok(Json(SyllabusResponse::from(syllabus_topic)))
-}
-
-#[api_operation(
-    summary = "Update Syllabus Topic",
-    description = "Updates a syllabus topic by its ID.",
-    tag = "Curriculum Management",
-    operation_id = "update_syllabus_topic_v2"
-)]
-pub async fn update_syllabus_topic(
-    data: web::Data<AppState>,
-    path: web::Path<String>,
-    body: web::Json<UpdateSyllabusRequest>,
-) -> Result<Json<SyllabusResponse>, crate::errors::APIError> {
-    let syllabus_id = path.into_inner();
-    let updated_syllabus_topic =
-        crate::services::curriculum_management::update_syllabus_topic(data.clone(), syllabus_id, body.into_inner())
-            .await?;
-    Ok(Json(SyllabusResponse::from(updated_syllabus_topic)))
-}
 
 #[api_operation(
     summary = "Get Syllabus Topics for Standard",
     description = "Retrieves all syllabus topics for a specific curriculum standard.",
-    tag = "Curriculum Management",
+    tag = "syllabus_topics",
     operation_id = "get_syllabus_topics_for_standard"
 )]
 pub async fn get_syllabus_topics_for_standard(

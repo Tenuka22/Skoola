@@ -1,27 +1,54 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import type { AssignRoleToRoleSetData } from '@/lib/api/types.gen'
-import type { Options } from '@/lib/api/sdk.gen'
-import {
-  assignRoleToRoleSetMutation,
-  getRoleSetRolesQueryKey,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 
-export const useAssignRoleToRoleSet = (
-  options?: Partial<Options<AssignRoleToRoleSetData>>,
-) => {
+type AssignRoleToRoleSetInput = {
+  path: {
+    role_set_id: string
+  }
+  body: {
+    role_id: string
+  }
+}
+
+type AssignRoleToRoleSetResponse = {
+  success?: boolean
+}
+
+const getRoleSetRolesQueryKey = (roleSetId: string) => [
+  'role-set-roles',
+  roleSetId,
+]
+
+export const useAssignRoleToRoleSet = () => {
   const queryClient = useQueryClient()
-  return useMutation({
-    ...assignRoleToRoleSetMutation({ client: authClient, ...options }),
-    onSuccess: (...args) => {
-      const [, variables] = args
+  return useMutation<
+    AssignRoleToRoleSetResponse,
+    Error,
+    AssignRoleToRoleSetInput
+  >({
+    mutationFn: async (variables) => {
+      const result = await authClient.request<
+        AssignRoleToRoleSetResponse,
+        unknown,
+        false,
+        'data'
+      >({
+        url: '/admin/role-sets/{role_set_id}/roles',
+        method: 'POST',
+        responseStyle: 'data',
+        throwOnError: false,
+        path: variables.path,
+        body: variables.body,
+      })
+
+      return result ?? {}
+    },
+    onSuccess: (_data, variables) => {
       toast.success('Role assigned to set successfully')
-      if (variables.path?.role_set_id) {
+      if (variables.path.role_set_id) {
         queryClient.invalidateQueries({
-          queryKey: getRoleSetRolesQueryKey({
-            path: { role_set_id: variables.path.role_set_id },
-          }),
+          queryKey: getRoleSetRolesQueryKey(variables.path.role_set_id),
         })
       }
     },

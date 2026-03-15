@@ -1,0 +1,37 @@
+# Cargo configuration for faster builds
+# Copy this file to: C:\Users\tenuk\.cargo\config.toml
+# Or: %USERPROFILE%\.cargo\config.toml
+
+[build]
+# Use all available CPU cores for parallel compilation
+# Set this to your number of CPU cores (or slightly less)
+jobs = 8
+
+# Use sccache for compilation caching (if installed)
+# Uncomment if you have sccache installed:
+rustc-wrapper = "sccache"
+
+# Enable incremental compilation by default
+incremental = true
+
+[target.x86_64-pc-windows-msvc]
+# Use LLVM linker for faster linking (requires LLVM installed)
+# Uncomment if you have LLVM installed:
+# linker = "lld-link.exe"
+
+[profile.dev]
+# Reduce debug info level for faster compilation
+# Options: 0 (none), 1 (line-tables-only), 2 (full)
+debug = "line-tables-only"
+
+# Optimize dependencies for faster runtime (optional, increases compile time)
+# opt-level = 1
+
+[profile.dev.build-override]
+# Optimize build scripts and proc macros
+opt-level = 3
+
+[profile.release]
+# Enable LTO for smaller/faster binaries (increases compile time significantly)
+# lto = "thin"
+# codegen-units = 1

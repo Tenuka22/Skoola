@@ -1,368 +1,310 @@
-use crate::AppState;
-use crate::errors::APIError;
-use crate::models::resources::inventory::{
-    AllocateAssetRequest, AssetAllocationResponse, AssetCategoryResponse,
-    CreateAssetCategoryRequest, CreateInventoryItemRequest, CreateMaintenanceRequest,
-    CreateUniformItemRequest, InventoryItemResponse, IssueUniformRequest,
-    MaintenanceRequestResponse, ReturnAssetRequest, UniformIssueResponse, UniformItemResponse,
-    UpdateInventoryItemRequest, UpdateMaintenanceStatusRequest, UpdateStockRequest,
+use crate::models::resource_management::inventory_item::InventoryItemDetail;
+use crate::services::resources::property::InventoryItemService;
+use crate::models::resources::inventory::{UniformItem, UniformIssue};
+use crate::models::resource_management::*;
+use crate::services::resources::property::{
+    AssetCategoryService, InventoryTransactionService,
+    AssetMaintenanceLogService, MaintenanceRequestService, UniformItemService,
+    UniformIssueService, AssetAllocationService, InventoryItemDetailService,
 };
+use crate::services::admin_db::AdminQuery;
+use crate::create_admin_handlers;
 use crate::services::resources::property;
+
+create_admin_handlers!(
+    tag => "inventory_item_details",
+    entity => InventoryItemDetail,
+    response => InventoryItemDetail,
+    query => AdminQuery,
+    create => InventoryItemDetail,
+    update => AdminQuery, // Placeholder
+    service => InventoryItemDetailService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
+
 use actix_web::web::{Data, Json, Path};
 use apistos::api_operation;
 use apistos::web;
+use crate::AppState;
+use crate::errors::APIError;
+use crate::utils::jwt::Authenticated;
+use crate::utils::permission_verification::PermissionVerification;
+use crate::database::enums::PermissionEnum;
 
-#[api_operation(
-    summary = "Create asset category",
-    description = "Creates a new category for assets and inventory items.",
-    tag = "property",
-    operation_id = "create_asset_category"
-)]
-pub async fn create_category(
-    data: Data<AppState>,
-    req: Json<CreateAssetCategoryRequest>,
-) -> Result<Json<AssetCategoryResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let cat = property::create_category(&mut conn, req.into_inner())?;
-    Ok(Json(AssetCategoryResponse::from(cat)))
-}
+create_admin_handlers!(
+    tag => "asset_categories",
+    entity => AssetCategory,
+    response => AssetCategory,
+    query => AdminQuery,
+    create => CreateAssetCategoryRequest,
+    update => UpdateAssetCategoryRequest,
+    service => AssetCategoryService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
 
-#[api_operation(
-    summary = "Get all asset categories",
-    description = "Retrieves a list of all defined asset categories.",
-    tag = "property",
-    operation_id = "get_asset_categories"
-)]
-pub async fn get_categories(
-    data: Data<AppState>,
-) -> Result<Json<Vec<AssetCategoryResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let cats = property::get_categories(&mut conn)?;
-    Ok(Json(
-        cats.into_iter().map(AssetCategoryResponse::from).collect(),
-    ))
-}
+create_admin_handlers!(
+    tag => "inventory_items",
+    entity => InventoryItem,
+    response => InventoryItem,
+    query => AdminQuery,
+    create => CreateInventoryItemRequest,
+    update => UpdateInventoryItemRequest,
+    service => InventoryItemService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
 
-#[api_operation(
-    summary = "Add inventory item",
-    description = "Creates a new inventory item in a specific category.",
-    tag = "property",
-    operation_id = "add_inventory_item"
-)]
-pub async fn add_inventory_item(
-    data: Data<AppState>,
-    req: Json<CreateInventoryItemRequest>,
-) -> Result<Json<InventoryItemResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let item = property::create_inventory_item(&mut conn, req.into_inner())?;
-    Ok(Json(InventoryItemResponse::from(item)))
-}
+create_admin_handlers!(
+    tag => "inventory_transactions",
+    entity => InventoryTransaction,
+    response => InventoryTransaction,
+    query => AdminQuery,
+    create => CreateInventoryTransactionRequest,
+    update => AdminQuery, // Dummy
+    service => InventoryTransactionService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
 
-#[api_operation(
-    summary = "Get inventory by category",
-    description = "Retrieves all inventory items belonging to a specific category.",
-    tag = "property",
-    operation_id = "get_inventory_by_category"
-)]
-pub async fn get_inventory_by_category(
-    data: Data<AppState>,
-    path: Path<String>,
-) -> Result<Json<Vec<InventoryItemResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let items = property::get_inventory_by_category(&mut conn, &path.into_inner())?;
-    Ok(Json(
-        items.into_iter().map(InventoryItemResponse::from).collect(),
-    ))
-}
+create_admin_handlers!(
+    tag => "asset_maintenance_logs",
+    entity => AssetMaintenanceLog,
+    response => AssetMaintenanceLog,
+    query => AdminQuery,
+    create => CreateAssetMaintenanceLogRequest,
+    update => UpdateAssetMaintenanceLogRequest,
+    service => AssetMaintenanceLogService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
 
-#[api_operation(
-    summary = "Create uniform item",
-    description = "Adds a new school uniform item to the inventory.",
-    tag = "property",
-    operation_id = "create_uniform_item"
-)]
-pub async fn create_uniform_item(
-    data: Data<AppState>,
-    req: Json<CreateUniformItemRequest>,
-) -> Result<Json<UniformItemResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let item = property::create_uniform_item(&mut conn, req.into_inner())?;
-    Ok(Json(UniformItemResponse::from(item)))
-}
+create_admin_handlers!(
+    tag => "maintenance_requests",
+    entity => MaintenanceRequest,
+    response => MaintenanceRequest,
+    query => AdminQuery,
+    create => CreateMaintenanceRequest,
+    update => UpdateMaintenanceStatusRequest,
+    service => MaintenanceRequestService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
 
-#[api_operation(
-    summary = "Issue uniform to student",
-    description = "Records the issuance of a uniform item to a student.",
-    tag = "property",
-    operation_id = "issue_uniform"
-)]
-pub async fn issue_uniform(
-    data: Data<AppState>,
-    req: Json<IssueUniformRequest>,
-) -> Result<Json<UniformIssueResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let issue = property::issue_uniform(&mut conn, req.into_inner())?;
-    Ok(Json(UniformIssueResponse::from(issue)))
-}
+create_admin_handlers!(
+    tag => "uniform_items",
+    entity => UniformItem,
+    response => UniformItem,
+    query => AdminQuery,
+    create => CreateUniformItemRequest,
+    update => UpdateUniformItemRequest,
+    service => UniformItemService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
 
-#[api_operation(
-    summary = "Allocate asset",
-    description = "Allocates a specific asset to a student or staff member.",
-    tag = "property",
-    operation_id = "allocate_asset"
-)]
-pub async fn allocate_asset(
-    data: Data<AppState>,
-    req: Json<AllocateAssetRequest>,
-) -> Result<Json<AssetAllocationResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let alloc = property::allocate_asset(&mut conn, req.into_inner())?;
-    Ok(Json(AssetAllocationResponse::from(alloc.allocation)))
-}
+create_admin_handlers!(
+    tag => "uniform_issues",
+    entity => UniformIssue,
+    response => UniformIssue,
+    query => AdminQuery,
+    create => IssueUniformRequest,
+    update => AdminQuery, // Dummy
+    service => UniformIssueService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
 
-#[api_operation(
-    summary = "Create maintenance request",
-    description = "Submits a new request for asset maintenance or repair.",
-    tag = "property",
-    operation_id = "create_maintenance_request"
-)]
-pub async fn create_maintenance_request(
-    data: Data<AppState>,
-    req: Json<CreateMaintenanceRequest>,
-) -> Result<Json<MaintenanceRequestResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let m_req = property::create_maintenance_request(&mut conn, req.into_inner())?;
-    Ok(Json(MaintenanceRequestResponse::from(m_req)))
-}
-
-#[api_operation(
-    summary = "Update inventory item",
-    description = "Updates the details of an existing inventory item.",
-    tag = "property",
-    operation_id = "update_inventory_item"
-)]
-pub async fn update_inventory_item(
-    data: Data<AppState>,
-    path: Path<String>,
-    req: Json<UpdateInventoryItemRequest>,
-) -> Result<Json<InventoryItemResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let item = property::update_inventory_item(&mut conn, &path.into_inner(), req.into_inner())?;
-    Ok(Json(InventoryItemResponse::from(item)))
-}
+create_admin_handlers!(
+    tag => "asset_allocations",
+    entity => AssetAllocation,
+    response => AssetAllocation,
+    query => AdminQuery,
+    create => AllocateAssetRequest,
+    update => ReturnAssetRequest,
+    service => AssetAllocationService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => return_asset,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete
+    }
+);
 
 #[api_operation(
     summary = "Update stock quantity",
     description = "Updates the available stock quantity for an inventory item.",
     tag = "property",
-    operation_id = "update_stock_quantity"
+    operation_id = "update_stock_quantity_manual"
 )]
 pub async fn update_stock_quantity(
     data: Data<AppState>,
     path: Path<String>,
-    req: Json<UpdateStockRequest>,
+    body: Json<UpdateStockRequest>,
 ) -> Result<Json<InventoryItemResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let item = property::update_stock_quantity(&mut conn, &path.into_inner(), req.into_inner())?;
-    Ok(Json(InventoryItemResponse::from(item)))
+    let res = property::update_stock_quantity(data, path.into_inner(), body.into_inner()).await?;
+    Ok(Json(res))
 }
 
 #[api_operation(
     summary = "Get low stock items",
     description = "Retrieves all inventory items that are below their reorder level.",
     tag = "property",
-    operation_id = "get_low_stock_items"
+    operation_id = "get_low_stock_items_manual"
 )]
 pub async fn get_low_stock_items(
     data: Data<AppState>,
 ) -> Result<Json<Vec<InventoryItemResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let items = property::get_low_stock_items(&mut conn)?;
-    Ok(Json(
-        items.into_iter().map(InventoryItemResponse::from).collect(),
-    ))
+    let items = property::get_low_stock_items(data).await?;
+    Ok(Json(items))
 }
 
 #[api_operation(
     summary = "Search inventory",
     description = "Searches for inventory items by name or description.",
     tag = "property",
-    operation_id = "search_inventory"
+    operation_id = "search_inventory_manual"
 )]
 pub async fn search_inventory(
     data: Data<AppState>,
     path: Path<String>,
 ) -> Result<Json<Vec<InventoryItemResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let items = property::search_inventory(&mut conn, &path.into_inner())?;
-    Ok(Json(
-        items.into_iter().map(InventoryItemResponse::from).collect(),
-    ))
+    let items = property::search_inventory(data, path.into_inner()).await?;
+    Ok(Json(items))
 }
 
 #[api_operation(
     summary = "Get uniform issue history",
     description = "Retrieves the history of uniform issuance for a specific student.",
     tag = "property",
-    operation_id = "get_uniform_issue_history"
+    operation_id = "get_uniform_history_manual"
 )]
 pub async fn get_uniform_history(
     data: Data<AppState>,
     path: Path<String>,
-) -> Result<Json<Vec<UniformIssueResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let items = property::get_uniform_issue_history(&mut conn, &path.into_inner())?;
-    Ok(Json(
-        items.into_iter().map(UniformIssueResponse::from).collect(),
-    ))
-}
-
-#[api_operation(
-    summary = "Get uniform inventory",
-    description = "Retrieves a list of all school uniform items and their stock status.",
-    tag = "property",
-    operation_id = "get_uniform_inventory"
-)]
-pub async fn get_uniform_inventory(
-    data: Data<AppState>,
-) -> Result<Json<Vec<UniformItemResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let items = property::get_uniform_inventory(&mut conn)?;
-    Ok(Json(
-        items.into_iter().map(UniformItemResponse::from).collect(),
-    ))
-}
-
-#[api_operation(
-    summary = "Return allocated asset",
-    description = "Records the return of an allocated asset.",
-    tag = "property",
-    operation_id = "return_allocated_asset"
-)]
-pub async fn return_asset(
-    data: Data<AppState>,
-    path: Path<String>,
-    req: Json<ReturnAssetRequest>,
-) -> Result<Json<AssetAllocationResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let alloc = property::return_asset(&mut conn, &path.into_inner(), req.into_inner())?;
-    Ok(Json(AssetAllocationResponse::from(alloc.allocation)))
-}
-
-#[api_operation(
-    summary = "Update maintenance status",
-    description = "Updates the status of an existing maintenance request.",
-    tag = "property",
-    operation_id = "update_maintenance_status"
-)]
-pub async fn update_maintenance_status(
-    data: Data<AppState>,
-    path: Path<String>,
-    req: Json<UpdateMaintenanceStatusRequest>,
-) -> Result<Json<MaintenanceRequestResponse>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let m_req =
-        property::update_maintenance_status(&mut conn, &path.into_inner(), req.into_inner())?;
-    Ok(Json(MaintenanceRequestResponse::from(m_req)))
-}
-
-#[api_operation(
-    summary = "Get pending maintenance",
-    description = "Retrieves all maintenance requests that are currently pending.",
-    tag = "property",
-    operation_id = "get_pending_maintenance"
-)]
-pub async fn get_pending_maintenance(
-    data: Data<AppState>,
-) -> Result<Json<Vec<MaintenanceRequestResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let items = property::get_pending_maintenance(&mut conn)?;
-    Ok(Json(
-        items
-            .into_iter()
-            .map(MaintenanceRequestResponse::from)
-            .collect(),
-    ))
+) -> Result<Json<Vec<UniformIssue>>, APIError> {
+    let history = property::get_uniform_history(data, path.into_inner()).await?;
+    Ok(Json(history))
 }
 
 #[api_operation(
     summary = "Get allocations by item",
     description = "Retrieves all current and past allocations for a specific inventory item.",
     tag = "property",
-    operation_id = "get_allocations_by_item"
+    operation_id = "get_allocations_by_item_manual"
 )]
 pub async fn get_allocations_by_item(
     data: Data<AppState>,
     path: Path<String>,
-) -> Result<Json<Vec<AssetAllocationResponse>>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let items = property::get_allocations_by_item(&mut conn, &path.into_inner())?;
-    Ok(Json(
-        items
-            .into_iter()
-            .map(AssetAllocationResponse::from)
-            .collect(),
-    ))
+) -> Result<Json<Vec<DetailedAssetAllocationResponse>>, APIError> {
+    let res = property::get_allocations_by_item(data, path.into_inner()).await?;
+    Ok(Json(res))
 }
 
 #[api_operation(
     summary = "Get allocations by assignee",
     description = "Retrieves all current and past asset allocations for a specific student or staff member.",
     tag = "property",
-    operation_id = "get_allocations_by_assignee"
+    operation_id = "get_allocations_by_assignee_manual"
 )]
 pub async fn get_allocations_by_assignee(
     data: Data<AppState>,
     path: Path<String>,
-) -> Result<Json<Vec<crate::models::resources::inventory::DetailedAssetAllocationResponse>>, APIError>
-{
-    let mut conn = data.db_pool.get()?;
-    let items = property::get_detailed_allocations_by_assignee(&mut conn, &path.into_inner())?;
-    Ok(Json(items))
+) -> Result<Json<Vec<DetailedAssetAllocationResponse>>, APIError> {
+    let res = property::get_allocations_by_assignee(data, path.into_inner()).await?;
+    Ok(Json(res))
 }
 
 pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/property")
-            .route("/categories", web::post().to(create_category))
-            .route("/categories", web::get().to(get_categories))
-            .route("/inventory", web::post().to(add_inventory_item))
-            .route("/inventory/low-stock", web::get().to(get_low_stock_items))
+        web::scope("/inventory-items")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::ResourceCreate })
+            .route("", web::post().to(create_inventory_item))
+            .route("/{id}", web::get().to(get_inventory_item_by_id))
+            .route("", web::get().to(get_all_inventory_item))
+            .route("/{id}", web::put().to(update_inventory_item))
+            .route("/{id}", web::delete().to(delete_inventory_item))
+            .route("/bulk", web::delete().to(bulk_delete_inventory_item)),
+    )
+    .service(
+        web::scope("/inventory-movements")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::ResourceCreate })
+            .route("", web::post().to(create_inventory_transaction))
+            .route("/{id}", web::get().to(get_inventory_transaction_by_id))
+            .route("", web::get().to(get_all_inventory_transaction))
+            .route("/{id}", web::delete().to(delete_inventory_transaction))
+            .route("/bulk", web::delete().to(bulk_delete_inventory_transaction)),
+    )
+    .service(
+        web::scope("/asset-allocations")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::ResourceCreate })
+            .route("", web::post().to(create_asset_allocation))
+            .route("/{id}", web::get().to(get_asset_allocation_by_id))
+            .route("", web::get().to(get_all_asset_allocation))
+            .route("/{id}", web::put().to(update_asset_allocation))
+            .route("/{id}", web::delete().to(delete_asset_allocation))
+            .route("/bulk", web::delete().to(bulk_delete_asset_allocation)),
+    )
+    .service(
+        web::scope("/property-ops")
+            .wrap(Authenticated)
+            .wrap(PermissionVerification { required_permission: PermissionEnum::ResourceCreate })
+            .route("/stock/update/{id}", web::post().to(update_stock_quantity))
+            .route("/stock/low", web::get().to(get_low_stock_items))
             .route("/inventory/search/{query}", web::get().to(search_inventory))
-            .route(
-                "/inventory/category/{id}",
-                web::get().to(get_inventory_by_category),
-            )
-            .route("/inventory/{id}", web::patch().to(update_inventory_item))
-            .route(
-                "/inventory/{id}/stock",
-                web::patch().to(update_stock_quantity),
-            )
-            .route("/uniforms", web::post().to(create_uniform_item))
-            .route("/uniforms", web::get().to(get_uniform_inventory))
-            .route("/uniforms/issue", web::post().to(issue_uniform))
-            .route(
-                "/uniforms/history/{student_id}",
-                web::get().to(get_uniform_history),
-            )
-            .route("/allocations", web::post().to(allocate_asset))
-            .route(
-                "/allocations/item/{id}",
-                web::get().to(get_allocations_by_item),
-            )
-            .route(
-                "/allocations/assignee/{id}",
-                web::get().to(get_allocations_by_assignee),
-            )
-            .route("/allocations/{id}/return", web::post().to(return_asset))
-            .route("/maintenance", web::post().to(create_maintenance_request))
-            .route(
-                "/maintenance/pending",
-                web::get().to(get_pending_maintenance),
-            )
-            .route(
-                "/maintenance/{id}/status",
-                web::patch().to(update_maintenance_status),
-            ),
+            .route("/uniform/history/{student_id}", web::get().to(get_uniform_history))
+            .route("/allocations/item/{item_id}", web::get().to(get_allocations_by_item))
+            .route("/allocations/assignee/{assignee_id}", web::get().to(get_allocations_by_assignee)),
     );
 }

@@ -7,8 +7,28 @@ use std::fs::create_dir_all;
 use std::io::Write;
 use crate::AppState;
 use crate::errors::APIError;
-use crate::database::tables::LessonProgressAttachment;
-use crate::services::curriculum_management::attachments;
+use crate::services::curriculum_management::attachments::{self, LessonProgressAttachmentService};
+use crate::models::curriculum_management::lesson_progress_attachment::*;
+use crate::create_admin_handlers;
+
+create_admin_handlers!(
+    tag => "curriculum_attachments",
+    entity => LessonProgressAttachment,
+    response => LessonProgressAttachmentResponse,
+    query => LessonProgressAttachmentQuery,
+    create => CreateLessonProgressAttachmentRequest,
+    update => UpdateLessonProgressAttachmentRequest,
+    service => LessonProgressAttachmentService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update
+    }
+);
 
 #[api_operation(
     summary = "Upload Lesson Attachment",

@@ -2,13 +2,33 @@ use crate::{
     AppState,
     database::enums::PermissionEnum,
     errors::APIError,
-    models::system::setting::{SchoolSettingResponse, UpdateSchoolSettingRequest},
+    models::system::setting::*,
+    services::system::school_settings::*,
     services::system::school_settings,
     utils::{jwt::Authenticated, permission_verification::PermissionVerification},
 };
 use actix_web::web;
 use actix_web::web::Json;
 use apistos::api_operation;
+use crate::create_admin_handlers;
+use crate::services::admin_db::AdminQuery;
+
+create_admin_handlers!(
+    tag => "school_settings",
+    entity => SchoolSetting,
+    response => SchoolSetting,
+    query => AdminQuery,
+    create => CreateSchoolSettingRequest,
+    update => UpdateSchoolSettingRequest,
+    service => SchoolSettingService,
+    methods => {
+        create => create_with_logic,
+        get_by_id => generic_get_by_id,
+        get_all => generic_get_all,
+        update => generic_update,
+        delete => generic_delete
+    }
+);
 
 #[api_operation(
     summary = "Get all school settings",
@@ -39,6 +59,18 @@ pub async fn update_setting(
 }
 
 pub fn config(cfg: &mut apistos::web::ServiceConfig) {
+    cfg.service(
+        apistos::web::scope("/school-settings")
+            .wrap(PermissionVerification {
+                required_permission: PermissionEnum::SystemAdmin,
+            })
+            .wrap(Authenticated)
+            .route("", apistos::web::post().to(create_school_setting))
+            .route("/{id}", apistos::web::get().to(get_school_setting_by_id))
+            .route("", apistos::web::get().to(get_all_school_setting))
+            .route("/{id}", apistos::web::put().to(update_school_setting))
+            .route("/{id}", apistos::web::delete().to(delete_school_setting)),
+    );
     cfg.service(
         apistos::web::scope("/settings")
             .wrap(PermissionVerification {

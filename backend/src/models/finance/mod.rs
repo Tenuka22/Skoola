@@ -3,11 +3,14 @@ pub mod budget;
 pub mod budget_category;
 pub mod expense_category;
 pub mod fees;
+pub mod fees_v2;
 pub mod income_source;
 pub mod ledger;
 pub mod petty_cash_transaction;
 pub mod salary;
 pub mod transaction;
+pub mod procurement;
+pub mod detention;
 
 pub use account::*;
 pub use budget::{
@@ -17,6 +20,7 @@ pub use budget::{
 pub use budget_category::{BudgetCategory, BudgetCategoryResponse, CreateBudgetCategoryRequest};
 pub use expense_category::*;
 pub use fees::*;
+pub use fees_v2::*;
 pub use income_source::*;
 pub use ledger::*;
 pub use petty_cash_transaction::*;
@@ -25,3 +29,5 @@ pub use transaction::{
     ExpenseTransaction, ExpenseTransactionResponse, IncomeTransaction, IncomeTransactionResponse,
     ReconcilePettyCashRequest, RecordExpenseRequest, RecordIncomeRequest,
 };
+pub use procurement::*;
+pub use detention::*;

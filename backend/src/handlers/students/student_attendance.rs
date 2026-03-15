@@ -136,8 +136,8 @@ pub async fn get_attendance_by_student(
 
 #[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
 pub struct CalculateAttendancePercentageQuery {
-    pub from_date: NaiveDate,
-    pub to_date: NaiveDate,
+    pub from_date: String,
+    pub to_date: String,
 }
 
 #[api_operation(
@@ -152,11 +152,15 @@ pub async fn calculate_student_attendance_percentage(
     web::Query(query): web::Query<CalculateAttendancePercentageQuery>,
 ) -> Result<Json<f64>, APIError> {
     let student_id = path.into_inner();
+    let from_date = NaiveDate::parse_from_str(&query.from_date, "%Y-%m-%d")
+        .map_err(|_| APIError::bad_request("Invalid from_date format. Use YYYY-MM-DD"))?;
+    let to_date = NaiveDate::parse_from_str(&query.to_date, "%Y-%m-%d")
+        .map_err(|_| APIError::bad_request("Invalid to_date format. Use YYYY-MM-DD"))?;
     let percentage = student_attendance::calculate_attendance_percentage(
         data.clone(),
         student_id,
-        query.from_date,
-        query.to_date,
+        from_date,
+        to_date,
     )
     .await?;
     Ok(Json(percentage))

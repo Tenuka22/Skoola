@@ -1,33 +1,29 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import type { BulkDeleteUsersData } from '@/lib/api/types.gen'
+import type { BulkDeleteUserData } from '@/lib/api/types.gen'
 import type { Options } from '@/lib/api/sdk.gen'
 import {
-  bulkDeleteUsersMutation,
-  getAllUsersQueryKey,
-  getUserStatisticsQueryKey,
+  bulkDeleteUserMutation,
+  getAllUserQueryKey,
 } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 
 export const useBulkDeleteUsers = (
-  options?: Partial<Options<BulkDeleteUsersData>>,
+  options?: Partial<Options<BulkDeleteUserData>>,
 ) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...bulkDeleteUsersMutation({ client: authClient, ...options }),
+    ...bulkDeleteUserMutation({ client: authClient, ...options }),
     onSuccess: (...args) => {
       const [, variables] = args
-      const count = variables.body?.userIds?.length || 0
+      const count = variables.body?.ids.length ?? 0
       toast.success(
         `Successfully deleted ${count} user${count !== 1 ? 's' : ''}.`,
       )
       queryClient.invalidateQueries({
-        queryKey: getAllUsersQueryKey(),
-      })
-      queryClient.invalidateQueries({
-        queryKey: getUserStatisticsQueryKey(),
+        queryKey: getAllUserQueryKey(),
       })
     },
     onError: (error) => {

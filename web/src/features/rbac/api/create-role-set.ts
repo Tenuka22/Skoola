@@ -1,19 +1,39 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import type { CreateRoleSetData } from '@/lib/api/types.gen'
-import type { Options } from '@/lib/api/sdk.gen'
-import {
-  createRoleSetMutation,
-  getAllRoleSetsQueryKey,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 
-export const useCreateRoleSet = (
-  options?: Partial<Options<CreateRoleSetData>>,
-) => {
+type CreateRoleSetInput = {
+  body: {
+    name: string
+    description?: string
+  }
+}
+
+type CreateRoleSetResponse = {
+  id?: string
+}
+
+const getAllRoleSetsQueryKey = () => ['role-sets']
+
+export const useCreateRoleSet = () => {
   const queryClient = useQueryClient()
-  return useMutation({
-    ...createRoleSetMutation({ client: authClient, ...options }),
+  return useMutation<CreateRoleSetResponse, Error, CreateRoleSetInput>({
+    mutationFn: async (variables) => {
+      const result = await authClient.request<
+        CreateRoleSetResponse,
+        unknown,
+        false,
+        'data'
+      >({
+        url: '/admin/role-sets',
+        method: 'POST',
+        responseStyle: 'data',
+        throwOnError: false,
+        body: variables.body,
+      })
+
+      return result ?? {}
+    },
     onSuccess: () => {
       toast.success('Role set created successfully')
       queryClient.invalidateQueries({ queryKey: getAllRoleSetsQueryKey() })

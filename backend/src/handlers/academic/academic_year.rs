@@ -1,5 +1,5 @@
 use crate::models::academic::academic_year::{CreateAcademicYearRequest, UpdateAcademicYearRequest, AcademicYearResponse, AcademicYearQuery};
-use crate::services::academic::academic_year::AcademicYearService;
+use crate::services::academic::AcademicYearService;
 use crate::{create_admin_handlers, AppState};
 use actix_web::web;
 use actix_web::web::Json;

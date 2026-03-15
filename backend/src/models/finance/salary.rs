@@ -15,11 +15,11 @@ use serde::{Deserialize, Serialize};
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     ApiComponent,
 )]
 #[diesel(table_name = salary_components)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct SalaryComponent {
     pub id: String,
     pub name: String,
@@ -63,13 +63,13 @@ pub struct StaffSalary {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     Associations,
     ApiComponent,
 )]
 #[diesel(table_name = salary_payments)]
 #[diesel(belongs_to(Staff))]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct SalaryPayment {
     pub id: String,
     pub staff_id: String,

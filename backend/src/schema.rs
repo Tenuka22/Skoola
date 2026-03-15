@@ -652,6 +652,21 @@ diesel::table! {
 }
 
 diesel::table! {
+    exam_subjects (id) {
+        id -> Text,
+        exam_id -> Text,
+        subject_id -> Text,
+        date -> Nullable<Date>,
+        time -> Nullable<Time>,
+        duration -> Nullable<Integer>,
+        max_marks -> Nullable<Integer>,
+        pass_marks -> Nullable<Integer>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     exam_types (id) {
         id -> Text,
         name -> Text,
@@ -936,6 +951,18 @@ diesel::table! {
         pass_mark -> Nullable<Integer>,
         is_default -> Bool,
         description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    grading_criteria (id) {
+        id -> Text,
+        scheme_id -> Text,
+        grade -> Text,
+        min_mark -> Integer,
+        max_mark -> Integer,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -2695,12 +2722,15 @@ diesel::joinable!(fee_structure_schedule -> fee_structures (fee_structure_id));
 diesel::joinable!(fee_structures -> academic_years (academic_year_id));
 diesel::joinable!(fee_structures -> fee_categories (category_id));
 diesel::joinable!(fee_structures -> grade_levels (grade_id));
+diesel::joinable!(exam_subjects -> exams (exam_id));
+diesel::joinable!(exam_subjects -> subjects (subject_id));
 diesel::joinable!(government_exam_subjects -> government_exams (government_exam_id));
 diesel::joinable!(government_exam_subjects -> subjects (subject_id));
 diesel::joinable!(government_exams -> exam_structures (exam_structure_id));
 diesel::joinable!(grade_periods -> grade_levels (grade_id));
 diesel::joinable!(grade_subjects -> grade_levels (grade_id));
 diesel::joinable!(grade_subjects -> subjects (subject_id));
+diesel::joinable!(grading_criteria -> grading_schemes (scheme_id));
 diesel::joinable!(grading_schemes -> grade_levels (grade_level_id));
 diesel::joinable!(income_transactions -> income_sources (source_id));
 diesel::joinable!(income_transactions -> staff (received_by));
@@ -2949,8 +2979,10 @@ diesel::allow_tables_to_appear_in_same_query!(
     detention_balances,
     emergency_roll_call_entries,
     emergency_roll_calls,
+    exam_subjects,
     exam_structure_subjects,
     exam_structures,
+    exams,
     exit_passes,
     exit_passes_bulk,
     expense_categories,
@@ -2971,6 +3003,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     grade_levels,
     grade_periods,
     grade_subjects,
+    grading_criteria,
     grading_schemes,
     income_sources,
     income_transactions,

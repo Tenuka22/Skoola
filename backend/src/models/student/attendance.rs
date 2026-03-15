@@ -239,6 +239,7 @@ pub struct AttendanceExcuse {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     ApiComponent,
 )]
@@ -259,6 +260,190 @@ pub struct StudentPeriodAttendance {
     pub updated_at: NaiveDateTime,
     pub suspicion_flag: Option<SuspicionFlag>,
     pub detailed_status: Option<DetailedStatus>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct StudentPeriodAttendanceQuery {
+    pub search: Option<String>,
+    pub student_id: Option<String>,
+    pub class_id: Option<String>,
+    pub timetable_id: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+    pub last_id: Option<String>,
+}
+
+impl crate::services::admin_db::AsAdminQuery for StudentPeriodAttendanceQuery {
+    fn as_admin_query(&self) -> crate::services::admin_db::AdminQuery {
+        crate::services::admin_db::AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: self.last_id.clone(),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct CreateStudentPeriodAttendanceRequest {
+    pub student_id: String,
+    pub class_id: String,
+    pub timetable_id: String,
+    pub date: NaiveDate,
+    pub status: AttendanceStatus,
+    pub minutes_late: Option<i32>,
+    pub remarks: Option<String>,
+    pub marked_by: String,
+    pub suspicion_flag: Option<SuspicionFlag>,
+    pub detailed_status: Option<DetailedStatus>,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize, JsonSchema, ApiComponent, Clone, AsChangeset)]
+#[diesel(table_name = student_period_attendance)]
+pub struct UpdateStudentPeriodAttendanceRequest {
+    pub status: Option<AttendanceStatus>,
+    pub minutes_late: Option<i32>,
+    pub remarks: Option<String>,
+    pub is_locked: Option<bool>,
+    pub suspicion_flag: Option<SuspicionFlag>,
+    pub detailed_status: Option<DetailedStatus>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct StudentPeriodAttendanceResponse {
+    pub id: String,
+    pub student_id: String,
+    pub class_id: String,
+    pub timetable_id: String,
+    pub date: NaiveDate,
+    pub status: AttendanceStatus,
+    pub minutes_late: Option<i32>,
+    pub remarks: Option<String>,
+    pub is_locked: bool,
+    pub marked_by: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub suspicion_flag: Option<SuspicionFlag>,
+    pub detailed_status: Option<DetailedStatus>,
+}
+
+impl From<StudentPeriodAttendance> for StudentPeriodAttendanceResponse {
+    fn from(att: StudentPeriodAttendance) -> Self {
+        Self {
+            id: att.id,
+            student_id: att.student_id,
+            class_id: att.class_id,
+            timetable_id: att.timetable_id,
+            date: att.date,
+            status: att.status,
+            minutes_late: att.minutes_late,
+            remarks: att.remarks,
+            is_locked: att.is_locked,
+            marked_by: att.marked_by,
+            created_at: att.created_at,
+            updated_at: att.updated_at,
+            suspicion_flag: att.suspicion_flag,
+            detailed_status: att.detailed_status,
+        }
+    }
+}
+
+#[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Queryable,
+    Selectable,
+    Insertable,
+    AsChangeset,
+    Clone,
+    ApiComponent,
+)]
+#[diesel(table_name = crate::schema::student_missed_lessons)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct StudentMissedLesson {
+    pub id: String,
+    pub student_id: String,
+    pub lesson_progress_id: String,
+    pub status: String,
+    pub remarks: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub notified_at: Option<NaiveDateTime>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct StudentMissedLessonQuery {
+    pub search: Option<String>,
+    pub student_id: Option<String>,
+    pub lesson_progress_id: Option<String>,
+    pub status: Option<String>,
+    pub sort_by: Option<String>,
+    pub sort_order: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+    pub last_id: Option<String>,
+}
+
+impl crate::services::admin_db::AsAdminQuery for StudentMissedLessonQuery {
+    fn as_admin_query(&self) -> crate::services::admin_db::AdminQuery {
+        crate::services::admin_db::AdminQuery {
+            search: self.search.clone(),
+            sort_by: self.sort_by.clone(),
+            sort_order: self.sort_order.clone(),
+            page: self.page,
+            limit: self.limit,
+            last_id: self.last_id.clone(),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct CreateStudentMissedLessonRequest {
+    pub student_id: String,
+    pub lesson_progress_id: String,
+    pub status: String,
+    pub remarks: Option<String>,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize, JsonSchema, ApiComponent, Clone, AsChangeset)]
+#[diesel(table_name = crate::schema::student_missed_lessons)]
+pub struct UpdateStudentMissedLessonRequest {
+    pub status: Option<String>,
+    pub remarks: Option<String>,
+    pub notified_at: Option<NaiveDateTime>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct StudentMissedLessonResponse {
+    pub id: String,
+    pub student_id: String,
+    pub lesson_progress_id: String,
+    pub status: String,
+    pub remarks: Option<String>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub notified_at: Option<NaiveDateTime>,
+}
+
+impl From<StudentMissedLesson> for StudentMissedLessonResponse {
+    fn from(lesson: StudentMissedLesson) -> Self {
+        Self {
+            id: lesson.id,
+            student_id: lesson.student_id,
+            lesson_progress_id: lesson.lesson_progress_id,
+            status: lesson.status,
+            remarks: lesson.remarks,
+            created_at: lesson.created_at,
+            updated_at: lesson.updated_at,
+            notified_at: lesson.notified_at,
+        }
+    }
 }
 
 #[derive(

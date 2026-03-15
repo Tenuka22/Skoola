@@ -62,18 +62,6 @@ function Users() {
         page: page ?? 1,
         limit: limit ?? 10,
         search: search ?? undefined,
-        is_verified:
-          statusFilter === 'all'
-            ? undefined
-            : statusFilter === 'verified'
-              ? true
-              : false,
-        auth_method:
-          authFilter === 'all'
-            ? undefined
-            : isAuthMethod(authFilter)
-              ? authFilter
-              : undefined,
         sort_by: sort?.[0]?.id ?? 'created_at',
         sort_order: sort?.[0]?.desc ? 'desc' : 'asc',
       },
@@ -122,18 +110,6 @@ function Users() {
         page: 1,
         limit: 1000,
         search: search ?? undefined,
-        is_verified:
-          statusFilter === 'all'
-            ? undefined
-            : statusFilter === 'verified'
-              ? true
-              : false,
-        auth_method:
-          authFilter === 'all'
-            ? undefined
-            : isAuthMethod(authFilter)
-              ? authFilter
-              : undefined,
         sort_by: sort?.[0]?.id ?? 'created_at',
         sort_order: sort?.[0]?.desc ? 'desc' : 'asc',
       },
@@ -159,9 +135,7 @@ function Users() {
       if (user.lockout_until) {
         updateUser.mutate({
           path: { user_id: user.id },
-          body: {
-            lockout_until: null,
-          },
+          body: {},
         })
       } else {
         setUserToLock(user)

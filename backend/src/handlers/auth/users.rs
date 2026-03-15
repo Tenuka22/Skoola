@@ -13,9 +13,9 @@ create_admin_handlers!(
     methods => {
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
-        update => generic_update,
+        update => update_with_logic,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
+        bulk_update => bulk_update_users
     }
 );

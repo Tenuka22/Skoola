@@ -1,9 +1,14 @@
 pub mod exam_structures;
+pub mod exam_structure_subjects;
+pub mod exam_subjects;
 pub mod exam_types;
 pub mod exams;
 pub mod government_exams;
-pub mod school_tests;
-pub mod marking_schemes;
+pub mod grading_criteria;
 pub mod grading_schemes;
-pub mod report_cards;
+pub mod marking_schemes;
+pub mod report_card_marks;
+pub mod school_tests;
+pub mod special_exams;
 pub mod zscore;
+pub use zscore as zscore_handler;

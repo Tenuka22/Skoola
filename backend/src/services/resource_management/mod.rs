@@ -1,172 +1,161 @@
-use actix_web::web::Data;
-use chrono::Utc;
-use diesel::prelude::*;
-
 use crate::AppState;
 use crate::errors::APIError;
-use crate::handlers::resource_management::{
-    BookResourceRequest, CreateResourceRequest, UpdateResourceRequest,
-};
 use crate::models::ids::{generate_prefixed_id, IdPrefix};
-use crate::models::resource_management::{
-    NewResource, NewResourceBooking, Resource, ResourceBooking,
+use crate::models::resource_management::resource::{
+    Resource, ResourceQuery, CreateResourceRequest,
+    ResourceAsset, ResourceAssetQuery, CreateResourceAssetRequest,
+    ResourceDetail, ResourceDetailQuery, CreateResourceDetailRequest,
 };
-use crate::schema::{resource_bookings, resources};
+use crate::models::resource_management::resource_booking::{
+    ResourceBooking, BookResourceRequest,
+};
+use crate::schema::{resources, resource_assets, resource_details, resource_bookings};
+use diesel::prelude::*;
+use actix_web::web;
+use chrono::Utc;
+use crate::impl_admin_entity_service;
 
-// Service to create a new resource
-pub async fn create_resource(
-    data: Data<AppState>,
-    req: CreateResourceRequest,
-) -> Result<Resource, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let new_resource_id = generate_prefixed_id(&mut conn, IdPrefix::RESOURCE)?;
-    let new_resource = NewResource {
-        id: new_resource_id.clone(),
-        resource_name: req.resource_name,
-        resource_type: req.resource_type,
-        description: req.description,
-    };
+impl_admin_entity_service!(
+    ResourceService,
+    resources::table,
+    Resource,
+    Resource,
+    resources::id,
+    ResourceQuery,
+    |q: resources::BoxedQuery<'static, diesel::sqlite::Sqlite>, search: String| {
+        q.filter(
+            resources::resource_name
+                .like(search.clone())
+                .or(resources::resource_type.like(search)),
+        )
+    },
+    |q: resources::BoxedQuery<'static, diesel::sqlite::Sqlite>, _sort_by, _sort_order| {
+        q.order(resources::resource_name.asc())
+    }
+);
 
-    diesel::insert_into(resources::table)
-        .values(&new_resource)
-        .execute(&mut conn)?;
+impl_admin_entity_service!(
+    ResourceAssetService,
+    resource_assets::table,
+    ResourceAsset,
+    ResourceAsset,
+    resource_assets::id,
+    ResourceAssetQuery,
+    |q: resource_assets::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
+    |q: resource_assets::BoxedQuery<'static, diesel::sqlite::Sqlite>, _sort_by, _sort_order| {
+        q.order(resource_assets::created_at.desc())
+    }
+);
 
-    let resource = resources::table
-        .find(&new_resource_id)
-        .first::<Resource>(&mut conn)?;
+impl_admin_entity_service!(
+    ResourceDetailService,
+    resource_details::table,
+    ResourceDetail,
+    ResourceDetail,
+    resource_details::resource_id,
+    resource_id,
+    ResourceDetailQuery,
+    |q: resource_details::BoxedQuery<'static, diesel::sqlite::Sqlite>, search: String| {
+        q.filter(
+            resource_details::description
+                .like(search.clone())
+                .or(resource_details::location.like(search)),
+        )
+    },
+    |q: resource_details::BoxedQuery<'static, diesel::sqlite::Sqlite>, _sort_by, _sort_order| {
+        q.order(resource_details::resource_id.asc())
+    }
+);
 
-    Ok(resource)
-}
-
-// Service to get a resource by ID
-pub async fn get_resource_by_id(
-    data: Data<AppState>,
-    resource_id: String,
-) -> Result<Resource, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let resource = resources::table
-        .filter(resources::id.eq(resource_id.clone()))
-        .first::<Resource>(&mut conn)
-        .optional()?;
-
-    match resource {
-        Some(r) => Ok(r),
-        None => Err(APIError::not_found(&format!(
-            "Resource with ID {} not found",
-            resource_id
-        ))),
+impl ResourceService {
+    pub async fn create_with_logic(
+        data: web::Data<AppState>,
+        req: CreateResourceRequest,
+    ) -> Result<Resource, APIError> {
+        let mut conn = data.db_pool.get()?;
+        let id = generate_prefixed_id(&mut conn, IdPrefix::RESOURCE)?;
+        let new_item = Resource {
+            id,
+            resource_name: req.resource_name,
+            resource_type: req.resource_type,
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
+        };
+        Self::generic_create(data, new_item).await
     }
 }
 
-// Service to get all resources
-pub async fn get_all_resources(data: Data<AppState>) -> Result<Vec<Resource>, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let all_resources = resources::table.load::<Resource>(&mut conn)?;
-
-    Ok(all_resources)
-}
-
-// Service to update a resource
-pub async fn update_resource(
-    data: Data<AppState>,
-    resource_id: String,
-    req: UpdateResourceRequest,
-) -> Result<Resource, APIError> {
-    let mut conn = data.db_pool.get()?;
-    let target = resources::table.filter(resources::id.eq(&resource_id));
-
-    let updated_count = diesel::update(target)
-        .set((
-            req.resource_name.map(|n| resources::resource_name.eq(n)),
-            req.resource_type.map(|t| resources::resource_type.eq(t)),
-            req.description.map(|d| resources::description.eq(d)),
-            resources::updated_at.eq(Utc::now().naive_utc()),
-        ))
-        .execute(&mut conn)?;
-
-    if updated_count == 0 {
-        return Err(APIError::not_found(&format!(
-            "Resource with ID {} not found",
-            resource_id
-        )));
+impl ResourceAssetService {
+    pub async fn create_with_logic(
+        data: web::Data<AppState>,
+        req: CreateResourceAssetRequest,
+    ) -> Result<ResourceAsset, APIError> {
+        let mut conn = data.db_pool.get()?;
+        let id = generate_prefixed_id(&mut conn, IdPrefix::FINANCIAL)?; 
+        let new_item = ResourceAsset {
+            id,
+            resource_id: req.resource_id,
+            inventory_item_id: req.inventory_item_id,
+            quantity: req.quantity,
+            created_at: Utc::now().naive_utc(),
+        };
+        Self::generic_create(data, new_item).await
     }
-
-    let updated_resource = resources::table
-        .filter(resources::id.eq(resource_id))
-        .first::<Resource>(&mut conn)?;
-
-    Ok(updated_resource)
 }
 
-// Service to delete a resource
-pub async fn delete_resource(data: Data<AppState>, resource_id: String) -> Result<(), APIError> {
-    let mut conn = data.db_pool.get()?;
-    let num_deleted = diesel::delete(resources::table.filter(resources::id.eq(&resource_id)))
-        .execute(&mut conn)?;
-
-    if num_deleted == 0 {
-        return Err(APIError::not_found(&format!(
-            "Resource with ID {} not found",
-            resource_id
-        )));
+impl ResourceDetailService {
+    pub async fn create_with_logic(
+        data: web::Data<AppState>,
+        req: CreateResourceDetailRequest,
+    ) -> Result<ResourceDetail, APIError> {
+        let new_item = ResourceDetail {
+            resource_id: req.resource_id,
+            description: req.description,
+            status: req.status,
+            location: req.location,
+            capacity: req.capacity,
+            booking_policy: req.booking_policy,
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
+        };
+        Self::generic_create(data, new_item).await
     }
-
-    Ok(())
 }
 
-// Service to book a resource
 pub async fn book_resource(
-    data: Data<AppState>,
-    booked_by_user_id: String,
+    data: web::Data<AppState>,
+    booked_by_id: String,
     req: BookResourceRequest,
 ) -> Result<ResourceBooking, APIError> {
     let mut conn = data.db_pool.get()?;
-
-    // Check for booking conflicts
-    let existing_bookings = resource_bookings::table
-        .filter(resource_bookings::resource_id.eq(&req.resource_id))
-        .filter(resource_bookings::start_time.lt(req.end_time))
-        .filter(resource_bookings::end_time.gt(req.start_time))
-        .count()
-        .get_result::<i64>(&mut conn)?;
-
-    if existing_bookings > 0 {
-        return Err(APIError::conflict(
-            "Resource is already booked for the requested time slot.",
-        ));
-    }
-
-    let new_booking_id = generate_prefixed_id(&mut conn, IdPrefix::BOOKING)?;
-    let new_booking = NewResourceBooking {
-        id: new_booking_id.clone(),
+    let id = generate_prefixed_id(&mut conn, IdPrefix::RESOURCE)?;
+    let now = Utc::now().naive_utc();
+    
+    let new_booking = ResourceBooking {
+        id,
         resource_id: req.resource_id,
-        booked_by_user_id,
+        booked_by_user_id: booked_by_id,
         start_time: req.start_time,
         end_time: req.end_time,
         related_event_id: req.related_event_id,
+        created_at: now,
+        updated_at: now,
     };
 
     diesel::insert_into(resource_bookings::table)
         .values(&new_booking)
         .execute(&mut conn)?;
 
-    let booking = resource_bookings::table
-        .find(&new_booking_id)
-        .first::<ResourceBooking>(&mut conn)?;
-
-    Ok(booking)
+    Ok(new_booking)
 }
 
-// Service to get all bookings for a resource
 pub async fn get_resource_bookings(
-    data: Data<AppState>,
+    data: web::Data<AppState>,
     resource_id: String,
 ) -> Result<Vec<ResourceBooking>, APIError> {
     let mut conn = data.db_pool.get()?;
     let bookings = resource_bookings::table
         .filter(resource_bookings::resource_id.eq(resource_id))
-        .order(resource_bookings::start_time.asc())
         .load::<ResourceBooking>(&mut conn)?;
-
     Ok(bookings)
 }

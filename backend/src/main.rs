@@ -4,10 +4,8 @@ use actix_web::{
     middleware::{self, TrailingSlash},
     web::{self, Data},
 };
-use apistos::{
-    app::{BuildConfig, OpenApiWrapper},
-    spec::Spec,
-};
+use apistos::app::{BuildConfig, OpenApiWrapper};
+use apistos::spec::Spec;
 use apistos_models::info::Info;
 use apistos_scalar::ScalarConfig;
 use backend::config::{AppState, Config};
@@ -38,16 +36,6 @@ async fn main() -> Result<(), APIError> {
     info!("📄 OpenAPI Spec: {}", config.openapi_url());
     info!("🔒 CORS allowed origin: {}", config.allowed_origin);
 
-    let spec = Spec {
-        info: Info {
-            title: config.api_title.clone(),
-            description: Some(config.api_description.clone()),
-            version: config.api_version.clone(),
-            ..Default::default()
-        },
-        ..Default::default()
-    };
-
     let bind_address = (config.host.clone(), config.port);
     let _allowed_origin = config.allowed_origin.clone();
 
@@ -77,8 +65,18 @@ async fn main() -> Result<(), APIError> {
             .supports_credentials()
             .max_age(3600);
 
+        let spec = Spec {
+            info: Info {
+                title: config.api_title.clone(),
+                description: Some(config.api_description.clone()),
+                version: config.api_version.clone(),
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
         App::new()
-            .document(spec.clone())
+            .document(spec)
             .app_data(app_data.clone()) // Use the cloned app_data here
             .app_data(
                 web::JsonConfig::default()

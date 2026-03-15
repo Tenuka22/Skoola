@@ -1,16 +1,33 @@
 import { queryOptions } from '@tanstack/react-query'
-import type { Options } from '@/lib/api/sdk.gen'
-import type { GetAllRoleSetsData } from '@/lib/api/types.gen'
-import { getAllRoleSetsOptions } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 
+type RoleSet = {
+  id: string
+  name: string
+  description?: string
+}
+
+type GetRoleSetsOptions = {
+  query?: Record<string, string | number | boolean | undefined>
+}
+
 export const getRoleSetsQueryOptions = (
-  options?: Options<GetAllRoleSetsData>,
+  options?: GetRoleSetsOptions,
 ) => {
   return queryOptions({
-    ...getAllRoleSetsOptions({
-      client: authClient,
-      ...options,
-    }),
+    queryKey: ['role-sets', options?.query ?? {}],
+    queryFn: async () => {
+      const result = await authClient.request<RoleSet[], unknown, false, 'data'>(
+        {
+          url: '/admin/role-sets',
+          method: 'GET',
+          responseStyle: 'data',
+          throwOnError: false,
+          query: options?.query,
+        },
+      )
+
+      return result ?? []
+    },
   })
 }

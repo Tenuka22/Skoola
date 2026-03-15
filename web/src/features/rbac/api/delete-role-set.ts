@@ -1,19 +1,38 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import type { DeleteRoleSetData } from '@/lib/api/types.gen'
-import type { Options } from '@/lib/api/sdk.gen'
-import {
-  deleteRoleSetMutation,
-  getAllRoleSetsQueryKey,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 
-export const useDeleteRoleSet = (
-  options?: Partial<Options<DeleteRoleSetData>>,
-) => {
+type DeleteRoleSetInput = {
+  path: {
+    id: string
+  }
+}
+
+type DeleteRoleSetResponse = {
+  success?: boolean
+}
+
+const getAllRoleSetsQueryKey = () => ['role-sets']
+
+export const useDeleteRoleSet = () => {
   const queryClient = useQueryClient()
-  return useMutation({
-    ...deleteRoleSetMutation({ client: authClient, ...options }),
+  return useMutation<DeleteRoleSetResponse, Error, DeleteRoleSetInput>({
+    mutationFn: async (variables) => {
+      const result = await authClient.request<
+        DeleteRoleSetResponse,
+        unknown,
+        false,
+        'data'
+      >({
+        url: '/admin/role-sets/{id}',
+        method: 'DELETE',
+        responseStyle: 'data',
+        throwOnError: false,
+        path: variables.path,
+      })
+
+      return result ?? {}
+    },
     onSuccess: () => {
       toast.success('Role set deleted successfully')
       queryClient.invalidateQueries({ queryKey: getAllRoleSetsQueryKey() })

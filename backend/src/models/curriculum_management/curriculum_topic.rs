@@ -20,6 +20,48 @@ pub struct CurriculumTopic {
     pub updated_at: NaiveDateTime,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, ApiComponent)]
+pub struct CurriculumTopicResponse {
+    pub id: String,
+    pub curriculum_standard_id: String,
+    pub parent_id: Option<String>,
+    pub topic_name: String,
+    pub full_time_hours: f32,
+    pub extra_time_hours: f32,
+    pub practical_hours: f32,
+    pub order_index: Option<i32>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+impl From<CurriculumTopic> for CurriculumTopicResponse {
+    fn from(t: CurriculumTopic) -> Self {
+        Self {
+            id: t.id,
+            curriculum_standard_id: t.curriculum_standard_id,
+            parent_id: t.parent_id,
+            topic_name: t.topic_name,
+            full_time_hours: t.full_time_hours,
+            extra_time_hours: t.extra_time_hours,
+            practical_hours: t.practical_hours,
+            order_index: t.order_index,
+            created_at: t.created_at,
+            updated_at: t.updated_at,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent, Clone)]
+#[diesel(table_name = crate::schema::curriculum_topics)]
+pub struct UpdateCurriculumTopicRequest {
+    pub parent_id: Option<String>,
+    pub topic_name: Option<String>,
+    pub full_time_hours: Option<f32>,
+    pub extra_time_hours: Option<f32>,
+    pub practical_hours: Option<f32>,
+    pub order_index: Option<i32>,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct SyllabusResponse {
     pub id: String,

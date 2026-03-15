@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
   Edit01Icon,
@@ -7,17 +6,9 @@ import {
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
 import { updatePermissionSetSchema } from '../schemas'
-import { isPermissionEnum } from '../utils/permissions'
-import {
-  getUserSetMembersQueryOptions,
-  getUserSetPermissionsQueryOptions,
-  useAssignPermissionToUserSet,
-  useUnassignPermissionFromUserSet,
-  useUpdatePermissionSet,
-} from '../api'
-import { PermissionList } from './permission-list'
+import { useUpdatePermissionSet } from '../api'
 import type { UpdatePermissionSetInput as UpdatePermissionSetValues } from '../schemas'
-import type { PermissionEnum, UserSet } from '@/lib/api/types.gen'
+import type { UserSet } from '@/lib/api/types.gen'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -32,7 +23,6 @@ import {
 } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Box, HStack, Heading, Stack, Text } from '@/components/primitives'
-import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
@@ -47,49 +37,15 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
     setIsEditingInfo(false)
   }, [set.id])
 
-  const { data: rawPermissions } = useQuery(
-    getUserSetPermissionsQueryOptions({
-      path: { user_set_id: set.id },
-    }),
-  )
-
-  const assignedPermissions = React.useMemo(() => {
-    const perms = rawPermissions?.permissions || []
-    return perms.filter(isPermissionEnum)
-  }, [rawPermissions])
-
-  const { data: members = [], isLoading: isLoadingMembers } = useQuery(
-    getUserSetMembersQueryOptions({
-      path: { user_set_id: set.id },
-    }),
-  )
+  const assignedPermissions: Array<never> = []
+  const members: Array<{ id: string; email: string }> = []
 
   const updateSet = useUpdatePermissionSet()
-
-  const assignPerm = useAssignPermissionToUserSet()
-  const unassignPerm = useUnassignPermissionFromUserSet()
-
-  const handleTogglePermission = (
-    permission: PermissionEnum,
-    checked: boolean,
-  ) => {
-    if (checked) {
-      assignPerm.mutate({
-        path: { user_set_id: set.id },
-        body: { permission },
-      })
-    } else {
-      unassignPerm.mutate({
-        path: { user_set_id: set.id },
-        body: { permission },
-      })
-    }
-  }
 
   const handleSaveInfo = (values: UpdatePermissionSetValues) => {
     updateSet.mutate(
       {
-        path: { user_set_id: set.id },
+        path: { id: set.id },
         body: { name: values.name, description: values.description },
       },
       {
@@ -248,10 +204,9 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
               </HStack>
             </CardHeader>
             <CardContent>
-              <PermissionList
-                assignedPermissions={assignedPermissions}
-                onToggle={handleTogglePermission}
-              />
+              <Text size="sm" muted>
+                Permission assignments are not available in the current API.
+              </Text>
             </CardContent>
           </Card>
         </TabsContent>
@@ -266,57 +221,49 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
                     {members.length} Total
                   </Badge>
                 </HStack>
-                {isLoadingMembers ? (
-                  <Stack gap={2}>
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
-                  </Stack>
-                ) : (
-                  <ScrollArea className="h-60">
-                    <Stack gap={1} p={2}>
-                      {members.length === 0 ? (
-                        <Text className="text-center text-sm text-muted-foreground py-4">
-                          No users assigned to this set.
-                        </Text>
-                      ) : (
-                        members.map((user) => {
-                          const name = user.email
-                            .split('@')[0]
-                            .replace(/[._]/g, ' ')
-                            .replace(/\b\w/g, (l) => l.toUpperCase())
-                          const initials = name.substring(0, 2).toUpperCase()
+                <ScrollArea className="h-60">
+                  <Stack gap={1} p={2}>
+                    {members.length === 0 ? (
+                      <Text className="text-center text-sm text-muted-foreground py-4">
+                        Assigned users are not available in the current API.
+                      </Text>
+                    ) : (
+                      members.map((user) => {
+                        const name = user.email
+                          .split('@')[0]
+                          .replace(/[._]/g, ' ')
+                          .replace(/\b\w/g, (l) => l.toUpperCase())
+                        const initials = name.substring(0, 2).toUpperCase()
 
-                          return (
-                            <HStack
-                              key={user.id}
-                              align="center"
-                              gap={3}
-                              className={cn(
-                                'p-2 rounded-md transition-colors hover:bg-muted/50',
-                              )}
+                        return (
+                          <HStack
+                            key={user.id}
+                            align="center"
+                            gap={3}
+                            className={cn(
+                              'p-2 rounded-md transition-colors hover:bg-muted/50',
+                            )}
+                          >
+                            <Avatar className="h-8 w-8 border border-border/50">
+                              <AvatarImage
+                                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                              />
+                              <AvatarFallback className="text-[10px] font-semibold">
+                                {initials}
+                              </AvatarFallback>
+                            </Avatar>
+                            <label
+                              htmlFor={`user-${user.id}`}
+                              className="text-sm font-medium leading-none cursor-pointer"
                             >
-                              <Avatar className="h-8 w-8 border border-border/50">
-                                <AvatarImage
-                                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
-                                />
-                                <AvatarFallback className="text-[10px] font-semibold">
-                                  {initials}
-                                </AvatarFallback>
-                              </Avatar>
-                              <label
-                                htmlFor={`user-${user.id}`}
-                                className="text-sm font-medium leading-none cursor-pointer"
-                              >
-                                {user.email}
-                              </label>
-                            </HStack>
-                          )
-                        })
-                      )}
-                    </Stack>
-                  </ScrollArea>
-                )}
+                              {user.email}
+                            </label>
+                          </HStack>
+                        )
+                      })
+                    )}
+                  </Stack>
+                </ScrollArea>
               </Stack>
             </CardHeader>
           </Card>

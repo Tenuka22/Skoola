@@ -1,8 +1,8 @@
 use crate::database::enums::{
-    AttendanceStatus, LessonDeliveryMode, SubstitutionStatus, TeacherPeriodStatus,
+    AttendanceStatus, SubstitutionStatus, TeacherPeriodStatus,
 };
 use crate::models::staff::staff::Staff;
-use crate::schema::{lesson_progress, staff_attendance, substitutions, teacher_period_attendance};
+use crate::schema::{staff_attendance, substitutions, teacher_period_attendance};
 use apistos::ApiComponent;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use diesel::prelude::*;
@@ -17,13 +17,13 @@ use serde::{Deserialize, Serialize};
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     Associations,
     ApiComponent,
 )]
 #[diesel(table_name = staff_attendance)]
 #[diesel(belongs_to(Staff))]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct StaffAttendance {
     pub id: String,
     pub staff_id: String,
@@ -55,13 +55,13 @@ pub struct StaffAttendance {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     Associations,
     ApiComponent,
 )]
 #[diesel(table_name = teacher_period_attendance)]
 #[diesel(belongs_to(Staff, foreign_key = teacher_id))]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct TeacherPeriodAttendance {
     pub id: String,
     pub teacher_id: String,
@@ -76,6 +76,19 @@ pub struct TeacherPeriodAttendance {
     pub substitution_id: Option<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, Insertable, JsonSchema, ApiComponent)]
+#[diesel(table_name = teacher_period_attendance)]
+pub struct CreateTeacherPeriodAttendanceRequest {
+    pub teacher_id: String,
+    pub timetable_id: String,
+    pub date: NaiveDate,
+    pub status: TeacherPeriodStatus,
+    pub remarks: Option<String>,
+    pub marked_by: String,
+    pub is_substitution: bool,
+    pub substitution_id: Option<String>,
+}
+
 #[derive(
     Debug,
     Serialize,
@@ -84,11 +97,11 @@ pub struct TeacherPeriodAttendance {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     ApiComponent,
 )]
 #[diesel(table_name = substitutions)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Substitution {
     pub id: String,
     pub original_teacher_id: String,
@@ -100,39 +113,15 @@ pub struct Substitution {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(
-    Debug,
-    Serialize,
-    Deserialize,
-    JsonSchema,
-    Queryable,
-    Selectable,
-    Insertable,
-    Clone,
-    ApiComponent,
-)]
-#[diesel(table_name = lesson_progress)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct LessonProgress {
-    pub id: String,
-    pub class_id: String,
-    pub subject_id: String,
-    pub teacher_id: String,
-    pub timetable_id: Option<String>,
+#[derive(Debug, Clone, Serialize, Deserialize, Insertable, JsonSchema, ApiComponent)]
+#[diesel(table_name = substitutions)]
+pub struct CreateSubstitutionModelRequest {
+    pub original_teacher_id: String,
+    pub substitute_teacher_id: String,
+    pub timetable_id: String,
     pub date: NaiveDate,
-    pub lesson_summary: String,
-    pub homework_assigned: Option<String>,
-    pub resources_used: Option<String>,
-    pub progress_percentage: Option<i32>,
-    pub delivery_mode: LessonDeliveryMode,
-    pub planned_duration_minutes: Option<i32>,
-    pub actual_duration_minutes: Option<i32>,
-    pub created_at: NaiveDateTime,
-    pub curriculum_topic_id: Option<String>,
-    pub verified_by: Option<String>,
-    pub verified_at: Option<NaiveDateTime>,
-    pub is_skipped: bool,
-    pub priority_level: i32,
+    pub status: SubstitutionStatus,
+    pub remarks: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
@@ -166,21 +155,6 @@ pub struct TeacherPeriodAttendanceResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
-pub struct BulkMarkStaffAttendanceItem {
-    pub staff_id: String,
-    pub status: AttendanceStatus,
-    pub time_in: Option<NaiveTime>,
-    pub time_out: Option<NaiveTime>,
-    pub remarks: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
-pub struct BulkMarkStaffAttendanceRequest {
-    pub date: NaiveDate,
-    pub attendance_records: Vec<BulkMarkStaffAttendanceItem>,
-}
-
-#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct StaffAttendanceResponse {
     pub id: String,
     pub staff_id: String,
@@ -210,27 +184,6 @@ impl From<StaffAttendance> for StaffAttendanceResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
-pub struct StaffAttendanceDateQuery {
-    pub date: NaiveDate,
-}
-
-#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
-pub struct StaffAttendanceByStaffQuery {
-    pub start_date: Option<NaiveDate>,
-    pub end_date: Option<NaiveDate>,
-}
-
-#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
-pub struct MonthlyAttendancePercentageResponse {
-    pub staff_id: String,
-    pub month: u32,
-    pub year: i32,
-    pub present_days: i64,
-    pub total_working_days: i64,
-    pub attendance_percentage: f64,
-}
-
-#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct UpdateStaffAttendanceRequest {
     pub status: Option<AttendanceStatus>,
     pub time_in: Option<NaiveTime>,
@@ -238,27 +191,17 @@ pub struct UpdateStaffAttendanceRequest {
     pub remarks: Option<String>,
 }
 
-#[derive(Debug, AsChangeset, Serialize, Deserialize, ApiComponent, JsonSchema)]
-#[diesel(table_name = staff_attendance)]
-pub struct StaffAttendanceChangeset {
-    pub status: Option<AttendanceStatus>,
-    pub time_in: Option<NaiveTime>,
-    pub time_out: Option<NaiveTime>,
-    pub remarks: Option<String>,
-    pub updated_at: NaiveDateTime,
+#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
+pub struct BulkMarkStaffAttendanceRequest {
+    pub date: NaiveDate,
+    pub status: AttendanceStatus,
+    pub staff_ids: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct SuggestSubstituteRequest {
-    pub timetable_id: String,
     pub date: NaiveDate,
-}
-
-#[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
-pub struct CreateSubstitutionRequest {
-    pub original_teacher_id: String,
     pub timetable_id: String,
-    pub date: NaiveDate,
 }
 
 #[derive(Debug, Serialize, JsonSchema, ApiComponent)]
@@ -272,38 +215,4 @@ pub struct SubstitutionResponse {
     pub remarks: Option<String>,
     pub plan_name: Option<String>,
     pub content_link: Option<String>,
-}
-
-
-#[derive(Debug, Deserialize, JsonSchema, ApiComponent)]
-pub struct CreateLessonProgressRequest {
-    pub class_id: String,
-    pub subject_id: String,
-    pub timetable_id: String,
-    pub date: NaiveDate,
-    pub lesson_summary: String,
-    pub homework_assigned: Option<String>,
-    pub resources_used: Option<String>,
-    pub progress_percentage: Option<i32>,
-    pub delivery_mode: LessonDeliveryMode,
-    pub planned_duration_minutes: Option<i32>,
-    pub actual_duration_minutes: Option<i32>,
-    pub curriculum_topic_id: Option<String>,
-    pub is_skipped: bool,
-    pub priority_level: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
-pub struct LessonProgressResponse {
-    pub id: String,
-    pub class_id: String,
-    pub subject_id: String,
-    pub teacher_id: String,
-    pub date: NaiveDate,
-    pub lesson_summary: String,
-    pub progress_percentage: Option<i32>,
-    pub verified_by: Option<String>,
-    pub verified_at: Option<NaiveDateTime>,
-    pub is_skipped: bool,
-    pub priority_level: i32,
 }

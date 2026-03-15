@@ -31,11 +31,11 @@ export function RoleSetsTab() {
 
   const deleteSet = useDeleteRoleSet()
 
-  const filteredSets =
-    sets?.filter((s) => s.name.toLowerCase().includes(search.toLowerCase())) ||
-    []
+  const filteredSets = sets.filter((s) =>
+    s.name.toLowerCase().includes(search.toLowerCase()),
+  )
 
-  const selectedSet = sets?.find((s) => s.id === selectedRoleSetId)
+  const selectedSet = sets.find((s) => s.id === selectedRoleSetId)
 
   return (
     <Stack
@@ -115,7 +115,7 @@ export function RoleSetsTab() {
                         ) {
                           deleteSet.mutate(
                             {
-                              path: { role_set_id: set.id },
+                              path: { id: set.id },
                             },
                             {
                               onSuccess: () => {

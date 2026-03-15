@@ -5,8 +5,24 @@ use serde::Serialize;
 use crate::AppState;
 use crate::errors::APIError;
 use crate::models::ids::{generate_prefixed_id, IdPrefix};
-use crate::models::system::audit::{AuditLog, NewAuditLog};
+use crate::models::system::audit_log::{AuditLog, AuditLogQuery, NewAuditLog};
 use crate::schema::audit_log;
+use crate::impl_admin_entity_service;
+
+impl_admin_entity_service!(
+    AuditLogService,
+    audit_log::table,
+    AuditLog,
+    AuditLog,
+    audit_log::id,
+    AuditLogQuery,
+    |q: audit_log::BoxedQuery<'static, diesel::sqlite::Sqlite>, search| {
+        q.filter(audit_log::table_name.like(search))
+    },
+    |q: audit_log::BoxedQuery<'static, diesel::sqlite::Sqlite>, _sort_by, _sort_order| {
+        q.order(audit_log::timestamp.desc())
+    }
+);
 
 // Service to write an entry to the audit log
 pub async fn log_action<T: Serialize>(

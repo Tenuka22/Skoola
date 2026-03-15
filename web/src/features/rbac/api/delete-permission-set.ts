@@ -1,23 +1,46 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import type { DeletePermissionSetData } from '@/lib/api/types.gen'
-import type { Options } from '@/lib/api/sdk.gen'
-import {
-  deletePermissionSetMutation,
-  getAllPermissionSetsQueryKey,
-} from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 
-export const useDeletePermissionSet = (
-  options?: Partial<Options<DeletePermissionSetData>>,
-) => {
+type DeletePermissionSetInput = {
+  path: {
+    id: string
+  }
+}
+
+type DeletePermissionSetResponse = {
+  success?: boolean
+}
+
+const getAllUserSetQueryKey = () => ['permission-sets']
+
+export const useDeletePermissionSet = () => {
   const queryClient = useQueryClient()
-  return useMutation({
-    ...deletePermissionSetMutation({ client: authClient, ...options }),
+  return useMutation<
+    DeletePermissionSetResponse,
+    Error,
+    DeletePermissionSetInput
+  >({
+    mutationFn: async (variables) => {
+      const result = await authClient.request<
+        DeletePermissionSetResponse,
+        unknown,
+        false,
+        'data'
+      >({
+        url: '/admin/user-sets/{id}',
+        method: 'DELETE',
+        responseStyle: 'data',
+        throwOnError: false,
+        path: variables.path,
+      })
+
+      return result ?? {}
+    },
     onSuccess: () => {
       toast.success('Permission set deleted successfully')
       queryClient.invalidateQueries({
-        queryKey: getAllPermissionSetsQueryKey(),
+        queryKey: getAllUserSetQueryKey(),
       })
     },
     onError: (error) => {
