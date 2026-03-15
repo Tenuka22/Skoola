@@ -7,7 +7,7 @@ type PermissionSet = {
   description?: string
 }
 
-type GetPermissionSetsResponse = PermissionSet[]
+type GetPermissionSetsResponse = Array<PermissionSet>
 
 type GetPermissionSetsOptions = {
   query?: Record<string, string | number | boolean | undefined>

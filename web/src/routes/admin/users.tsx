@@ -42,8 +42,7 @@ export const Route = createFileRoute('/admin/users')({
 
 function Users() {
   const queryClient = useQueryClient()
-  const { page, limit, search, statusFilter, authFilter, sort } =
-    useUsersSearchParams()
+  const { page, limit, search, statusFilter, sort } = useUsersSearchParams()
 
   const [userToDelete, setUserToDelete] = React.useState<string | null>(null)
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = React.useState(false)
@@ -123,7 +122,7 @@ function Users() {
       meta: undefined,
     })
     return response.data
-  }, [search, statusFilter, authFilter, sort, queryClient])
+  }, [search, sort, queryClient])
 
   const columns = getUserColumns({
     onToggleVerify: (user: UserResponse) =>

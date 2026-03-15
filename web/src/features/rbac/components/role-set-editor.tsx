@@ -2,6 +2,8 @@ import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
+  Add01Icon,
+  Delete02Icon,
   Edit01Icon,
   Layers01Icon,
   Shield01Icon,
@@ -9,8 +11,11 @@ import {
 import { updateRoleSetSchema } from '../schemas'
 import { isPermissionEnum } from '../utils/permissions'
 import {
+  getAllRoleSetRoleQueryOptions,
   getRolePermissionsQueryOptions,
   useAssignPermissionToRole,
+  useCreateRoleSetRole,
+  useDeleteRoleSetRole,
   useUnassignPermissionFromRole,
   useUpdateRoleSet,
 } from '../api'
@@ -38,6 +43,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { cn } from '@/lib/utils'
 
 interface RoleSetEditorProps {
   set: RoleSet
@@ -108,15 +117,30 @@ function PermissionsForRoleEditor({ role }: { role: string }) {
 
 export function RoleSetEditor({ set }: RoleSetEditorProps) {
   const [isEditingInfo, setIsEditingInfo] = React.useState(false)
+  const [selectedRole, setSelectedRole] = React.useState<string>('')
 
   React.useEffect(() => {
     setIsEditingInfo(false)
   }, [set.id])
 
+  const { data: roleSetRolesData } = useQuery({
+    ...getAllRoleSetRoleQueryOptions({
+      query: { limit: 1000 },
+    }),
+    enabled: !!set.id,
+  })
+
+  const assignedRoles = React.useMemo(() => {
+    const all = roleSetRolesData?.data ?? []
+    return all.filter((r) => r.role_set_id === set.id).map((r) => r.role_id)
+  }, [roleSetRolesData, set.id])
+
   const allRoles = RoleEnumSchema.enum
-  const [selectedRole, setSelectedRole] = React.useState<string>(allRoles[0] ?? '')
+  const availableRoles = allRoles.filter((r) => !assignedRoles.includes(r))
 
   const updateSet = useUpdateRoleSet()
+  const addRoleToSet = useCreateRoleSetRole()
+  const removeRoleFromSet = useDeleteRoleSetRole()
 
   const handleSaveInfo = (values: UpdateRoleSetValues) => {
     updateSet.mutate(
@@ -226,8 +250,14 @@ export function RoleSetEditor({ set }: RoleSetEditorProps) {
         </Card>
       )}
 
-      <Tabs defaultValue="permissions" className="flex-1 flex flex-col min-h-0">
+      <Tabs defaultValue="roles" className="flex-1 flex flex-col min-h-0">
         <TabsList className="w-fit mb-2">
+          <TabsTrigger value="roles">
+            <HStack gap={2} p={0}>
+              <HugeiconsIcon icon={Shield01Icon} className="size-4" />
+              <span>Assigned Roles</span>
+            </HStack>
+          </TabsTrigger>
           <TabsTrigger value="permissions">
             <HStack gap={2} p={0}>
               <HugeiconsIcon icon={Layers01Icon} className="size-4" />
@@ -235,6 +265,117 @@ export function RoleSetEditor({ set }: RoleSetEditorProps) {
             </HStack>
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="roles" className="min-h-0">
+          <Card className="flex flex-col h-full">
+            <CardHeader className="border-b">
+              <Stack gap={2}>
+                <HStack justify="between">
+                  <CardTitle>Assigned Roles</CardTitle>
+                  <HStack gap={2}>
+                    <Badge variant="secondary" className="font-mono">
+                      {assignedRoles.length} Total
+                    </Badge>
+                    {availableRoles.length > 0 && (
+                      <Select
+                        onValueChange={(role) => {
+                          if (role) {
+                            addRoleToSet.mutate(
+                              {
+                                body: {
+                                  role_id: role,
+                                  role_set_id: set.id,
+                                },
+                              },
+                              {
+                                onSuccess: () => setSelectedRole(''),
+                              },
+                            )
+                          }
+                        }}
+                        value=""
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <HugeiconsIcon
+                            icon={Add01Icon}
+                            className="size-4 mr-2"
+                          />
+                          <SelectValue placeholder="Add role..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableRoles.map((role) => (
+                            <SelectItem key={role} value={role}>
+                              {role}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </HStack>
+                </HStack>
+                <ScrollArea className="h-60">
+                  <Stack gap={1} p={2}>
+                    {assignedRoles.length === 0 ? (
+                      <Text className="text-center text-sm text-muted-foreground py-4">
+                        No roles assigned to this role set yet.
+                      </Text>
+                    ) : (
+                      assignedRoles.map((roleId) => {
+                        const initials = roleId.substring(0, 2).toUpperCase()
+
+                        return (
+                          <HStack
+                            key={roleId}
+                            align="center"
+                            justify="between"
+                            gap={3}
+                            className={cn(
+                              'p-2 rounded-md transition-colors hover:bg-muted/50',
+                            )}
+                          >
+                            <HStack align="center" gap={3}>
+                              <Avatar className="h-8 w-8 border border-border/50">
+                                <AvatarFallback className="text-[10px] font-semibold bg-primary/10 text-primary">
+                                  {initials}
+                                </AvatarFallback>
+                              </Avatar>
+                              <Stack gap={0}>
+                                <Text size="sm" className="font-medium">
+                                  {roleId}
+                                </Text>
+                                <Text size="xs" muted>
+                                  Role ID
+                                </Text>
+                              </Stack>
+                            </HStack>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-destructive hover:text-destructive"
+                              onClick={() => {
+                                // Use role_id as the identifier since backend doesn't return separate ID
+                                removeRoleFromSet.mutate({
+                                  path: { id: roleId },
+                                })
+                              }}
+                              disabled={removeRoleFromSet.isPending}
+                            >
+                              <HugeiconsIcon
+                                icon={Delete02Icon}
+                                className="size-4"
+                              />
+                            </Button>
+                          </HStack>
+                        )
+                      })
+                    )}
+                  </Stack>
+                </ScrollArea>
+              </Stack>
+            </CardHeader>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="permissions" className="min-h-0">
           <Card className="flex flex-col h-full">
             <CardHeader>
@@ -253,10 +394,10 @@ export function RoleSetEditor({ set }: RoleSetEditorProps) {
                   value={selectedRole}
                 >
                   <SelectTrigger className="w-[280px]">
-                    <SelectValue placeholder="Select a role..." />
+                    <SelectValue placeholder="Select a role from assigned..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {allRoles.map((role) => (
+                    {assignedRoles.map((role) => (
                       <SelectItem key={role} value={role}>
                         {role}
                       </SelectItem>

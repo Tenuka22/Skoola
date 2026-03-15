@@ -112,13 +112,15 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
       sourceName?: string
     }> = []
 
-    rolePermissionsFromResponse.filter(isPermissionEnum).forEach((permission) => {
-      inherited.push({
-        permission,
-        source: 'role',
-        sourceName: user.role,
+    rolePermissionsFromResponse
+      .filter(isPermissionEnum)
+      .forEach((permission) => {
+        inherited.push({
+          permission,
+          source: 'role',
+          sourceName: user.role,
+        })
       })
-    })
 
     return inherited
   }, [rolePermissionsFromResponse, user.role])
@@ -149,7 +151,6 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
       })
     }
   }
-
 
   const name = user.email
     .split('@')[0]

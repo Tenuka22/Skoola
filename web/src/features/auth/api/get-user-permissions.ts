@@ -10,7 +10,7 @@ type GetUserPermissionsData = {
 }
 
 type GetUserPermissionsResponse = {
-  permissions: string[]
+  permissions: Array<string>
 }
 
 const getUserPermissionsQueryKey = (data: GetUserPermissionsData) => [

@@ -1,5 +1,5 @@
-import { authClient } from '@/lib/clients'
 import { queryOptions } from '@tanstack/react-query'
+import { authClient } from '@/lib/clients'
 
 type GetRolePermissionsInput = {
   path: {
@@ -8,7 +8,7 @@ type GetRolePermissionsInput = {
 }
 
 type GetRolePermissionsResponse = {
-  permissions: string[]
+  permissions: Array<string>
 }
 
 export const getRolePermissionsQueryOptions = (

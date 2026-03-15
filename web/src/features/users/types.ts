@@ -1,4 +1,7 @@
-import type { PaginatedResponseForUserResponse, UserResponse } from '@/lib/api/types.gen'
+import type {
+  PaginatedResponseForUserResponse,
+  UserResponse,
+} from '@/lib/api/types.gen'
 import type { UserAuthMethod } from './constants'
 
 export type User = UserResponse & {

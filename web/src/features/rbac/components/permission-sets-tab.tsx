@@ -38,7 +38,11 @@ export function PermissionSetsTab() {
   const { selectedPermissionSetId, setSelectedPermissionSetId } =
     useRBACSearchParams()
 
-  const { data: sets = [], isLoading } = useQuery(getPermissionSetsQueryOptions())
+  const { data: setsData, isLoading } = useQuery(
+    getPermissionSetsQueryOptions(),
+  )
+
+  const sets = React.useMemo(() => setsData?.data ?? [], [setsData])
 
   const deleteSet = useDeletePermissionSet()
 

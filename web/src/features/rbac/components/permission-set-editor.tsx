@@ -1,12 +1,20 @@
 import * as React from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
+  Add01Icon,
+  Delete02Icon,
   Edit01Icon,
   Layers01Icon,
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
 import { updatePermissionSetSchema } from '../schemas'
-import { useUpdatePermissionSet } from '../api'
+import {
+  getAllUserSetUserQueryOptions,
+  useCreateUserSetUser,
+  useDeleteUserSetUser,
+  useUpdatePermissionSet,
+} from '../api'
 import type { UpdatePermissionSetInput as UpdatePermissionSetValues } from '../schemas'
 import type { UserSet } from '@/lib/api/types.gen'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
@@ -25,6 +33,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Box, HStack, Heading, Stack, Text } from '@/components/primitives'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { authClient } from '@/lib/clients'
+import { getAllUserOptions } from '@/lib/api/@tanstack/react-query.gen'
 
 interface PermissionSetEditorProps {
   set: UserSet
@@ -32,15 +55,41 @@ interface PermissionSetEditorProps {
 
 export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
   const [isEditingInfo, setIsEditingInfo] = React.useState(false)
+  const [isAddingUser, setIsAddingUser] = React.useState(false)
+  const [searchQuery, setSearchQuery] = React.useState('')
 
   React.useEffect(() => {
     setIsEditingInfo(false)
+    setIsAddingUser(false)
   }, [set.id])
 
+  const { data: membersData } = useQuery({
+    ...getAllUserSetUserQueryOptions({
+      query: { limit: 1000 },
+    }),
+    enabled: !!set.id,
+  })
+
+  const members = React.useMemo(() => {
+    const all = membersData?.data ?? []
+    return all.filter((m) => m.user_set_id === set.id)
+  }, [membersData, set.id])
+
+  const { data: usersData } = useQuery({
+    ...getAllUserOptions({
+      client: authClient,
+      query: { limit: 100, search: searchQuery || undefined },
+    }),
+    enabled: isAddingUser,
+  })
+
+  const allUsers = usersData?.data ?? []
+
   const assignedPermissions: Array<never> = []
-  const members: Array<{ id: string; email: string }> = []
 
   const updateSet = useUpdatePermissionSet()
+  const addUserToSet = useCreateUserSetUser()
+  const removeUserFromSet = useDeleteUserSetUser()
 
   const handleSaveInfo = (values: UpdatePermissionSetValues) => {
     updateSet.mutate(
@@ -217,19 +266,86 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
               <Stack gap={2}>
                 <HStack justify="between">
                   <CardTitle>Assigned Users</CardTitle>
-                  <Badge variant="secondary" className="font-mono">
-                    {members.length} Total
-                  </Badge>
+                  <HStack gap={2}>
+                    <Badge variant="secondary" className="font-mono">
+                      {members.length} Total
+                    </Badge>
+                    <Popover open={isAddingUser} onOpenChange={setIsAddingUser}>
+                      <PopoverTrigger>
+                        <Button variant="outline" size="sm" className="gap-2">
+                          <HugeiconsIcon icon={Add01Icon} className="size-4" />
+                          Add User
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[300px] p-0" align="end">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search users..."
+                            value={searchQuery}
+                            onValueChange={setSearchQuery}
+                          />
+                          <CommandList>
+                            <CommandEmpty>No users found.</CommandEmpty>
+                            <CommandGroup>
+                              {allUsers
+                                .filter(
+                                  (u) =>
+                                    !members.some((m) => m.user_id === u.id),
+                                )
+                                .map((user) => (
+                                  <CommandItem
+                                    key={user.id}
+                                    onSelect={() => {
+                                      addUserToSet.mutate(
+                                        {
+                                          body: {
+                                            user_id: user.id,
+                                            user_set_id: set.id,
+                                          },
+                                        },
+                                        {
+                                          onSuccess: () => {
+                                            setIsAddingUser(false)
+                                            setSearchQuery('')
+                                          },
+                                        },
+                                      )
+                                    }}
+                                  >
+                                    <HStack gap={2}>
+                                      <Avatar className="h-6 w-6">
+                                        <AvatarImage
+                                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                                        />
+                                        <AvatarFallback className="text-[10px]">
+                                          {user.email
+                                            .substring(0, 2)
+                                            .toUpperCase()}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <Text size="sm">{user.email}</Text>
+                                    </HStack>
+                                  </CommandItem>
+                                ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </HStack>
                 </HStack>
                 <ScrollArea className="h-60">
                   <Stack gap={1} p={2}>
                     {members.length === 0 ? (
                       <Text className="text-center text-sm text-muted-foreground py-4">
-                        Assigned users are not available in the current API.
+                        No users assigned to this permission set yet.
                       </Text>
                     ) : (
-                      members.map((user) => {
-                        const name = user.email
+                      members.map((member) => {
+                        const userId = member.user_id
+                        const user = allUsers.find((u) => u.id === userId)
+                        const email = user?.email || member.user_set_id
+                        const name = email
                           .split('@')[0]
                           .replace(/[._]/g, ' ')
                           .replace(/\b\w/g, (l) => l.toUpperCase())
@@ -237,27 +353,58 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
 
                         return (
                           <HStack
-                            key={user.id}
+                            key={member.user_id}
                             align="center"
+                            justify="between"
                             gap={3}
                             className={cn(
                               'p-2 rounded-md transition-colors hover:bg-muted/50',
                             )}
                           >
-                            <Avatar className="h-8 w-8 border border-border/50">
-                              <AvatarImage
-                                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
-                              />
-                              <AvatarFallback className="text-[10px] font-semibold">
-                                {initials}
-                              </AvatarFallback>
-                            </Avatar>
-                            <label
-                              htmlFor={`user-${user.id}`}
-                              className="text-sm font-medium leading-none cursor-pointer"
+                            <HStack align="center" gap={3}>
+                              <Avatar className="h-8 w-8 border border-border/50">
+                                <AvatarImage
+                                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`}
+                                />
+                                <AvatarFallback className="text-[10px] font-semibold">
+                                  {initials}
+                                </AvatarFallback>
+                              </Avatar>
+                              <Stack gap={0}>
+                                <Text size="sm" className="font-medium">
+                                  {email}
+                                </Text>
+                                <Text size="xs" muted>
+                                  ID: {member.user_id}
+                                </Text>
+                              </Stack>
+                            </HStack>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-destructive hover:text-destructive"
+                              onClick={() => {
+                                // Find the actual ID from the member object
+                                const idProp: unknown =
+                                  Object.getOwnPropertyDescriptor(
+                                    member,
+                                    'id',
+                                  )?.value
+                                let memberId: string = member.user_id
+                                if (typeof idProp === 'string') {
+                                  memberId = idProp
+                                }
+                                removeUserFromSet.mutate({
+                                  path: { id: memberId },
+                                })
+                              }}
+                              disabled={removeUserFromSet.isPending}
                             >
-                              {user.email}
-                            </label>
+                              <HugeiconsIcon
+                                icon={Delete02Icon}
+                                className="size-4"
+                              />
+                            </Button>
                           </HStack>
                         )
                       })

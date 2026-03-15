@@ -20,7 +20,7 @@ export const getStaffPermissionSetsQueryOptions = (
     queryKey: ['staff-permission-sets', options.path.staff_id],
     queryFn: async () => {
       const result = await authClient.request<
-        PermissionSet[],
+        Array<PermissionSet>,
         unknown,
         false,
         'data'
