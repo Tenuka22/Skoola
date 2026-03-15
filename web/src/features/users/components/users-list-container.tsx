@@ -3,9 +3,8 @@ import { useUsersSearchParams } from '../search-params'
 import { UserGridView } from './user-grid-view'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import type {
-  MessageResponse,
   Options,
-  PaginatedUserResponse,
+  PaginatedResponseForUserResponse,
   UpdateUserData,
   UserResponse,
 } from '@/lib/api'
@@ -36,11 +35,11 @@ import {
 import { cn } from '@/lib/utils'
 
 interface UsersListContainerProps {
-  usersQuery: UseQueryResult<PaginatedUserResponse, Error>
+  usersQuery: UseQueryResult<PaginatedResponseForUserResponse, Error>
   limit: number
   columns: Array<DataTableColumnDef<UserResponse>>
   updateMutation: UseMutationResult<
-    MessageResponse,
+    UserResponse,
     Error,
     Options<UpdateUserData>,
     unknown
@@ -166,7 +165,7 @@ export function UsersListContainer({
   const [columnVisibility, setColumnVisibility] = React.useState({})
 
   const isUpdating = updateMutation.isPending
-  const updatingUserId = updateMutation.variables?.path?.user_id
+  const updatingUserId = updateMutation.variables?.path?.id
 
   return (
     <Tabs defaultValue="table" value={view ?? 'table'}>
@@ -228,7 +227,7 @@ export function UsersListContainer({
           onDelete={(id) => setUserToDelete(id)}
           onToggleVerify={(user) =>
             updateMutation.mutate({
-              path: { user_id: user.id },
+              path: { id: user.id },
               body: { is_verified: !user.is_verified },
             })
           }

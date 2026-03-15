@@ -16,7 +16,6 @@ import {
 } from '../../features/users/components/user-table-columns'
 import { UsersHeader } from '../../features/users/components/users-header'
 import { UsersListContainer } from '../../features/users/components/users-list-container'
-import { isAuthMethod } from '../../features/users/utils/user-guards'
 
 import type {
   BulkUpdateValues,
@@ -24,6 +23,7 @@ import type {
 } from '../../features/users/schemas'
 import type { UserResponse } from '@/lib/api'
 import { Stack } from '@/components/primitives'
+import { Button } from '@/components/ui/button'
 import {
   getUsersQueryOptions,
   useBulkDeleteUsers,
@@ -128,13 +128,13 @@ function Users() {
   const columns = getUserColumns({
     onToggleVerify: (user: UserResponse) =>
       updateUser.mutate({
-        path: { user_id: user.id },
+        path: { id: user.id },
         body: { is_verified: !user.is_verified },
       }),
     onToggleLock: (user: UserResponse) => {
       if (user.lockout_until) {
         updateUser.mutate({
-          path: { user_id: user.id },
+          path: { id: user.id },
           body: {},
         })
       } else {
@@ -145,7 +145,7 @@ function Users() {
     setUserToEdit,
     setUserToManagePermissions,
     isUpdating: updateUser.isPending,
-    updatingUserId: updateUser.variables?.path?.user_id ?? null,
+    updatingUserId: updateUser.variables?.path?.id ?? null,
     showProfilePictures,
   })
 
@@ -178,8 +178,10 @@ function Users() {
             bulkUpdateUsers.mutate(
               {
                 body: {
-                  user_ids: selectedRows.map((r) => r.id),
-                  is_verified: verify,
+                  updates: selectedRows.map((r) => ({
+                    id: r.id,
+                    data: { is_verified: verify },
+                  })),
                 },
               },
               {
@@ -204,14 +206,14 @@ function Users() {
               user={row}
               onToggleVerify={(user) =>
                 updateUser.mutate({
-                  path: { user_id: user.id },
+                  path: { id: user.id },
                   body: { is_verified: !user.is_verified },
                 })
               }
               onToggleLock={(user) => {
                 if (user.lockout_until) {
                   updateUser.mutate({
-                    path: { user_id: user.id },
+                    path: { id: user.id },
                     body: {
                       lockout_until: null,
                     },
@@ -224,10 +226,34 @@ function Users() {
               setUserToEdit={setUserToEdit}
               setUserToManagePermissions={setUserToManagePermissions}
               isUpdating={updateUser.isPending}
-              updatingUserId={updateUser.variables?.path?.user_id ?? null}
+              updatingUserId={updateUser.variables?.path?.id ?? null}
             />
           )
         }}
+        extraActions={
+          <Button
+            variant="outline"
+            onClick={() => {
+              const verified = statusFilter === 'verified'
+              bulkUpdateUsers.mutate(
+                {
+                  body: {
+                    updates: Object.keys(rowSelection).map((id) => ({
+                      id,
+                      data: { is_verified: !verified },
+                    })),
+                  },
+                },
+                {
+                  onSuccess: () => setRowSelection({}),
+                },
+              )
+            }}
+            disabled={Object.keys(rowSelection).length === 0}
+          >
+            Mark as {statusFilter === 'verified' ? 'Unverified' : 'Verified'}
+          </Button>
+        }
       />
 
       <UserModals
@@ -235,7 +261,7 @@ function Users() {
         setUserToDelete={setUserToDelete}
         onDeleteConfirm={(id: string) =>
           deleteUser.mutate(
-            { path: { user_id: id } },
+            { path: { id } },
             {
               onSuccess: () => {
                 setUserToDelete(null)
@@ -247,9 +273,7 @@ function Users() {
         setIsBulkDeleteOpen={setIsBulkDeleteOpen}
         onBulkDeleteConfirm={() =>
           bulkDeleteUsers.mutate(
-            {
-              body: { userIds: Object.keys(rowSelection) },
-            },
+            {},
             {
               onSuccess: () => {
                 setRowSelection({})
@@ -263,7 +287,16 @@ function Users() {
         onBulkEditConfirm={(data: BulkUpdateValues) =>
           bulkUpdateUsers.mutate(
             {
-              body: { user_ids: Object.keys(rowSelection), ...data },
+              body: {
+                updates: Object.keys(rowSelection).map((id) => ({
+                  id,
+                  data: {
+                    is_verified: data.updates?.[0]?.data?.is_verified,
+                    lockout_until: data.updates?.[0]?.data?.lockout_until,
+                    role: data.roles?.[0],
+                  },
+                })),
+              },
             },
             {
               onSuccess: () => {
@@ -281,7 +314,7 @@ function Users() {
           userToEdit &&
           updateUser.mutate(
             {
-              path: { user_id: userToEdit.id },
+              path: { id: userToEdit.id },
               body: data,
             },
             {
@@ -299,7 +332,7 @@ function Users() {
           userToLock &&
           updateUser.mutate(
             {
-              path: { user_id: userToLock.id },
+              path: { id: userToLock.id },
               body: { lockout_until: date.toISOString().slice(0, 19) },
             },
             {

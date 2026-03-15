@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { bulkUpdateSchema } from '../schemas'
-import type * as z from 'zod'
 import type { BulkUpdateValues } from '../schemas'
 import type { UseFormReturn } from 'react-hook-form'
 import { Badge } from '@/components/ui/badge'
@@ -10,6 +9,7 @@ import { DialogFooter } from '@/components/ui/dialog'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { zRoleEnum } from '@/lib/api/zod.gen'
+import type { z } from 'zod'
 import { Spinner } from '@/components/ui/spinner'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 
@@ -42,7 +42,9 @@ export function UserBulkEditForm({
     structure: [],
     extras: {
       top: (form) => {
-        const isVerified = form.watch('is_verified')
+        const updates = form.watch('updates') || []
+        const firstUpdate = updates[0]?.data || {}
+        const isVerified = firstUpdate.is_verified
         const selectedRoles = form.watch('roles') || []
         const toggleRole = (roleName: z.infer<typeof zRoleEnum>) => {
           const current = selectedRoles || []
@@ -69,9 +71,22 @@ export function UserBulkEditForm({
                 </div>
                 <Switch
                   checked={isVerified === true}
-                  onCheckedChange={(checked) =>
-                    form.setValue('is_verified', checked)
-                  }
+                  onCheckedChange={(checked) => {
+                    const currentUpdates = form.watch('updates') || []
+                    if (currentUpdates.length === 0) {
+                      form.setValue('updates', [
+                        { id: '', data: { is_verified: checked } },
+                      ])
+                    } else {
+                      form.setValue(
+                        'updates',
+                        currentUpdates.map((u) => ({
+                          ...u,
+                          data: { ...u.data, is_verified: checked },
+                        })),
+                      )
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -103,7 +118,9 @@ export function UserBulkEditForm({
         )
       },
       bottom: (form) => {
-        const isVerified = form.watch('is_verified')
+        const updates = form.watch('updates') || []
+        const firstUpdate = updates[0]?.data || {}
+        const isVerified = firstUpdate.is_verified
         const selectedRoles = form.watch('roles') || []
 
         return (
@@ -136,8 +153,7 @@ export function UserBulkEditForm({
       schema={bulkUpdateSchema}
       config={config}
       defaultValues={{
-        is_verified: undefined,
-        lockout_until: undefined,
+        updates: undefined,
         roles: undefined,
       }}
       onSubmit={(values) => onConfirm(values)}

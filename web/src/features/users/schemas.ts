@@ -1,11 +1,11 @@
 import { z } from 'zod'
 import {
-  zBulkUpdateRequest,
+  zBulkUpdateRequestForUpdateUserRequest,
   zRoleEnum,
   zUpdateUserRequest,
 } from '@/lib/api/zod.gen'
 
-export const bulkUpdateSchema = zBulkUpdateRequest
+export const bulkUpdateSchema = zBulkUpdateRequestForUpdateUserRequest
   .extend({
     roles: z.array(zRoleEnum, { message: 'Invalid role provided' }).optional(),
   })

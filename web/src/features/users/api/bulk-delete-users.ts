@@ -16,12 +16,8 @@ export const useBulkDeleteUsers = (
 
   return useMutation({
     ...bulkDeleteUserMutation({ client: authClient, ...options }),
-    onSuccess: (...args) => {
-      const [, variables] = args
-      const count = variables.body?.ids.length ?? 0
-      toast.success(
-        `Successfully deleted ${count} user${count !== 1 ? 's' : ''}.`,
-      )
+    onSuccess: () => {
+      toast.success('Successfully deleted users.')
       queryClient.invalidateQueries({
         queryKey: getAllUserQueryKey(),
       })
