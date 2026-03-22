@@ -39,6 +39,19 @@ pub struct CreateTeacherClassAssignmentRequest {
     pub academic_year_id: String,
 }
 
+impl From<CreateTeacherClassAssignmentRequest> for TeacherClassAssignment {
+    fn from(req: CreateTeacherClassAssignmentRequest) -> Self {
+        TeacherClassAssignment {
+            id: uuid::Uuid::new_v4().to_string(),
+            teacher_id: req.teacher_id,
+            class_id: req.class_id,
+            academic_year_id: req.academic_year_id,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(
     Debug,
     Serialize,
@@ -71,6 +84,20 @@ pub struct CreateTeacherSubjectAssignmentRequest {
     pub subject_id: String,
     pub academic_year_id: String,
     pub medium: Medium,
+}
+
+impl From<CreateTeacherSubjectAssignmentRequest> for TeacherSubjectAssignment {
+    fn from(req: CreateTeacherSubjectAssignmentRequest) -> Self {
+        TeacherSubjectAssignment {
+            id: uuid::Uuid::new_v4().to_string(),
+            teacher_id: req.teacher_id,
+            subject_id: req.subject_id,
+            academic_year_id: req.academic_year_id,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+            medium: req.medium,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]

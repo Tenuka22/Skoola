@@ -41,6 +41,20 @@ pub struct CreateAcademicYearRequest {
     pub current: Option<bool>,
 }
 
+impl From<CreateAcademicYearRequest> for AcademicYear {
+    fn from(req: CreateAcademicYearRequest) -> Self {
+        AcademicYear {
+            id: req.id,
+            year_start: req.year_start,
+            year_end: req.year_end,
+            name: req.name,
+            current: req.current.unwrap_or(false),
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = academic_years)]
 pub struct UpdateAcademicYearRequest {
@@ -69,7 +83,7 @@ impl crate::services::admin_db::AsAdminQuery for AcademicYearQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

@@ -72,7 +72,7 @@ impl crate::services::admin_db::AsAdminQuery for GeneralLedgerQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -120,6 +120,22 @@ pub struct UpdateGeneralLedgerRequest {
     pub debit_account_id: Option<String>,
     pub credit_account_id: Option<String>,
     pub amount: Option<f32>,
+}
+
+impl From<CreateGeneralLedgerRequest> for NewGeneralLedgerEntry {
+    fn from(req: CreateGeneralLedgerRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            transaction_date: req.transaction_date,
+            description: req.description,
+            debit_account_id: req.debit_account_id,
+            credit_account_id: req.credit_account_id,
+            amount: req.amount,
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }
 
 // Ledger Transaction
@@ -185,7 +201,7 @@ impl crate::services::admin_db::AsAdminQuery for LedgerTransactionQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -227,6 +243,20 @@ pub struct UpdateLedgerTransactionRequest {
     pub description: Option<String>,
     pub reference_type: Option<String>,
     pub reference_id: Option<String>,
+}
+
+impl From<CreateLedgerTransactionRequest> for NewLedgerTransaction {
+    fn from(req: CreateLedgerTransactionRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            transaction_date: req.transaction_date,
+            description: req.description,
+            reference_type: req.reference_type,
+            reference_id: req.reference_id,
+            created_at: now,
+        }
+    }
 }
 
 // Ledger Entry
@@ -295,7 +325,7 @@ impl crate::services::admin_db::AsAdminQuery for LedgerEntryQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -341,4 +371,19 @@ pub struct UpdateLedgerEntryRequest {
     pub entry_type: Option<String>,
     pub amount: Option<f32>,
     pub memo: Option<String>,
+}
+
+impl From<CreateLedgerEntryRequest> for NewLedgerEntry {
+    fn from(req: CreateLedgerEntryRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            transaction_id: req.transaction_id,
+            account_id: req.account_id,
+            entry_type: req.entry_type,
+            amount: req.amount,
+            memo: req.memo,
+            created_at: now,
+        }
+    }
 }

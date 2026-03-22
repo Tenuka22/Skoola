@@ -66,7 +66,7 @@ impl crate::services::admin_db::AsAdminQuery for ExamTypeQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -89,6 +89,19 @@ impl From<ExamType> for ExamTypeResponse {
             weightage: exam_type.weightage,
             created_at: exam_type.created_at,
             updated_at: exam_type.updated_at,
+        }
+    }
+}
+
+impl From<CreateExamTypeRequest> for ExamType {
+    fn from(req: CreateExamTypeRequest) -> Self {
+        Self {
+            id: req.id,
+            name: req.name,
+            description: req.description,
+            weightage: req.weightage.unwrap_or(0.0),
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

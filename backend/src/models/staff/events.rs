@@ -54,7 +54,7 @@ impl crate::services::admin_db::AsAdminQuery for StaffEventQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -67,6 +67,23 @@ pub struct CreateStaffEventRequest {
     pub location: Option<String>,
     pub organizer: Option<String>,
     pub counts_as_attendance: bool,
+}
+
+impl From<CreateStaffEventRequest> for StaffEvent {
+    fn from(req: CreateStaffEventRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            event_name: req.event_name,
+            event_type: req.event_type,
+            start_date: req.start_date,
+            end_date: req.end_date,
+            location: req.location,
+            organizer: req.organizer,
+            counts_as_attendance: req.counts_as_attendance,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, JsonSchema, ApiComponent, AsChangeset)]

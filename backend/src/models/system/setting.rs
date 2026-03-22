@@ -45,6 +45,17 @@ impl From<SchoolSetting> for SchoolSettingResponse {
     }
 }
 
+impl From<CreateSchoolSettingRequest> for SchoolSetting {
+    fn from(req: CreateSchoolSettingRequest) -> Self {
+        Self {
+            setting_key: req.setting_key,
+            setting_value: req.setting_value,
+            description: req.description,
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Insertable, JsonSchema, ApiComponent)]
 #[diesel(table_name = school_settings)]
 pub struct CreateSchoolSettingRequest {

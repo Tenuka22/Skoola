@@ -40,6 +40,19 @@ pub struct CreateGradeLevelRequest {
     pub education_level: EducationLevel,
 }
 
+impl From<CreateGradeLevelRequest> for GradeLevel {
+    fn from(req: CreateGradeLevelRequest) -> Self {
+        GradeLevel {
+            id: req.id,
+            grade_number: req.grade_number,
+            grade_name: req.grade_name,
+            education_level: req.education_level,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = grade_levels)]
 pub struct UpdateGradeLevelRequest {
@@ -67,7 +80,7 @@ impl crate::services::admin_db::AsAdminQuery for GradeLevelQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

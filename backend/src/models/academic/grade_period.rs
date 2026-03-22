@@ -40,6 +40,21 @@ pub struct CreateGradePeriodRequest {
     pub is_optional: bool,
 }
 
+impl From<CreateGradePeriodRequest> for GradePeriod {
+    fn from(req: CreateGradePeriodRequest) -> Self {
+        GradePeriod {
+            id: uuid::Uuid::new_v4().to_string(),
+            grade_id: req.grade_id,
+            start_time: req.start_time,
+            end_time: req.end_time,
+            is_break: req.is_break,
+            is_optional: req.is_optional,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = grade_periods)]
 pub struct UpdateGradePeriodRequest {
@@ -69,7 +84,7 @@ impl crate::services::admin_db::AsAdminQuery for GradePeriodQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

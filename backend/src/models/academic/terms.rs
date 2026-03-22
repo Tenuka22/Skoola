@@ -41,6 +41,21 @@ pub struct CreateTermRequest {
     pub end_date: NaiveDate,
 }
 
+impl From<CreateTermRequest> for Term {
+    fn from(req: CreateTermRequest) -> Self {
+        Term {
+            id: uuid::Uuid::new_v4().to_string(),
+            academic_year_id: req.academic_year_id,
+            term_number: req.term_number,
+            name: req.name,
+            start_date: req.start_date,
+            end_date: req.end_date,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = terms)]
 pub struct UpdateTermRequest {
@@ -71,7 +86,7 @@ impl crate::services::admin_db::AsAdminQuery for TermQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

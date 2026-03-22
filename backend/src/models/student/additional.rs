@@ -53,6 +53,21 @@ pub struct CreateStudentContactRequest {
     pub email: Option<String>,
 }
 
+impl From<CreateStudentContactRequest> for StudentContact {
+    fn from(req: CreateStudentContactRequest) -> Self {
+        Self {
+            student_id: req.student_id,
+            address: req.address,
+            address_latitude: req.address_latitude,
+            address_longitude: req.address_longitude,
+            phone: req.phone,
+            email: req.email,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent, Clone)]
 #[diesel(table_name = student_contacts)]
 pub struct UpdateStudentContactRequest {
@@ -82,7 +97,7 @@ impl AsAdminQuery for StudentContactQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -115,6 +130,17 @@ impl From<StudentMedia> for StudentMediaResponse {
 pub struct CreateStudentMediaRequest {
     pub student_id: String,
     pub photo_url: Option<String>,
+}
+
+impl From<CreateStudentMediaRequest> for StudentMedia {
+    fn from(req: CreateStudentMediaRequest) -> Self {
+        Self {
+            student_id: req.student_id,
+            photo_url: req.photo_url,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent, Clone)]
@@ -162,6 +188,20 @@ pub struct CreateStudentNicRequest {
     pub nic_number: String,
     pub issued_date: Option<chrono::NaiveDate>,
     pub document_url: Option<String>,
+}
+
+impl From<CreateStudentNicRequest> for StudentNic {
+    fn from(req: CreateStudentNicRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            nic_number: req.nic_number,
+            issued_date: req.issued_date,
+            document_url: req.document_url,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent, Clone)]

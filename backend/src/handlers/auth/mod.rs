@@ -18,3 +18,4 @@ pub use auth::register;
 pub use auth::request_password_reset;
 pub use auth::reset_password;
 pub use users::bulk_delete_user;
+

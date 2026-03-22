@@ -34,6 +34,17 @@ impl From<Seed> for SeedResponse {
     }
 }
 
+impl From<CreateSeedRequest> for Seed {
+    fn from(req: CreateSeedRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            table_name: req.table_name,
+            record_id: req.record_id,
+            created_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
 pub struct CreateSeedRequest {
     pub table_name: String,
@@ -67,6 +78,6 @@ impl AsAdminQuery for SeedQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }

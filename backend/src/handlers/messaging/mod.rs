@@ -178,3 +178,4 @@ pub async fn mark_message_as_read(
         messaging::mark_message_as_read(data.clone(), current_user.id, message_id).await?;
     Ok(Json(updated_rows))
 }
+

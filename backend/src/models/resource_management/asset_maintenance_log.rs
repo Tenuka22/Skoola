@@ -28,6 +28,22 @@ pub struct CreateAssetMaintenanceLogRequest {
     pub performed_by: Option<String>,
 }
 
+impl From<CreateAssetMaintenanceLogRequest> for AssetMaintenanceLog {
+    fn from(req: CreateAssetMaintenanceLogRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            item_id: req.item_id,
+            maintenance_date: req.maintenance_date,
+            maintenance_type: req.maintenance_type,
+            notes: req.notes,
+            cost: req.cost,
+            performed_by: req.performed_by,
+            created_at: now,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::asset_maintenance_logs)]
 pub struct UpdateAssetMaintenanceLogRequest {

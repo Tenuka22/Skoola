@@ -54,6 +54,19 @@ impl From<SchoolCalendar> for SchoolCalendarResponse {
     }
 }
 
+impl From<CreateSchoolCalendarRequest> for SchoolCalendar {
+    fn from(req: CreateSchoolCalendarRequest) -> Self {
+        Self {
+            date: req.date,
+            day_type: req.day_type,
+            name: req.name,
+            is_academic_day: req.is_academic_day,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
 pub struct CreateSchoolCalendarRequest {
     pub date: NaiveDate,
@@ -90,6 +103,6 @@ impl AsAdminQuery for SchoolCalendarQuery {
             page: self.page,
             limit: self.limit,
             last_id: None,
-        }
+        ..Default::default()}
     }
 }

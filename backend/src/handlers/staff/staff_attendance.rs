@@ -241,3 +241,4 @@ pub async fn get_student_missed_topics() -> Result<Json<Vec<LessonProgress>>, AP
     // Implementation placeholder
     Ok(Json(Vec::new()))
 }
+

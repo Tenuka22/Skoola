@@ -31,6 +31,22 @@ pub struct CreateStudentClassAssignmentRequest {
     pub to_date: Option<NaiveDate>,
 }
 
+impl From<CreateStudentClassAssignmentRequest> for StudentClassAssignment {
+    fn from(req: CreateStudentClassAssignmentRequest) -> Self {
+        StudentClassAssignment {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            academic_year_id: req.academic_year_id,
+            grade_id: req.grade_id,
+            class_id: req.class_id,
+            from_date: req.from_date,
+            to_date: req.to_date,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = student_class_assignments)]
 pub struct UpdateStudentClassAssignmentRequest {

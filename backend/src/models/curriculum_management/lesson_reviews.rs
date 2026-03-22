@@ -52,6 +52,21 @@ pub struct CreateLessonReviewRequest {
     pub feedback_text: Option<String>,
 }
 
+impl From<CreateLessonReviewRequest> for LessonReview {
+    fn from(req: CreateLessonReviewRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            lesson_progress_id: req.lesson_progress_id,
+            reviewer_type: req.reviewer_type,
+            reviewer_id: req.reviewer_id,
+            clarity_rating: req.clarity_rating,
+            feedback_text: req.feedback_text,
+            created_at: now,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent, Clone)]
 #[diesel(table_name = crate::schema::lesson_reviews)]
 pub struct UpdateLessonReviewRequest {
@@ -81,6 +96,6 @@ impl AsAdminQuery for LessonReviewQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }

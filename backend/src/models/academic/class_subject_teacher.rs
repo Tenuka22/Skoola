@@ -39,6 +39,19 @@ pub struct CreateClassSubjectTeacherRequest {
     pub academic_year_id: String,
 }
 
+impl From<CreateClassSubjectTeacherRequest> for ClassSubjectTeacher {
+    fn from(req: CreateClassSubjectTeacherRequest) -> Self {
+        ClassSubjectTeacher {
+            class_id: req.class_id,
+            subject_id: req.subject_id,
+            teacher_id: req.teacher_id,
+            academic_year_id: req.academic_year_id,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = class_subject_teachers)]
 pub struct UpdateClassSubjectTeacherRequest {

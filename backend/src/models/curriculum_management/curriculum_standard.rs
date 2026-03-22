@@ -76,6 +76,24 @@ pub struct CreateCurriculumStandardRequest {
     pub is_active: bool,
 }
 
+impl From<CreateCurriculumStandardRequest> for NewCurriculumStandard {
+    fn from(req: CreateCurriculumStandardRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            subject_id: req.subject_id,
+            grade_level_id: req.grade_level_id,
+            standard_code: req.standard_code,
+            description: req.description,
+            medium: req.medium,
+            version_name: req.version_name,
+            start_date: req.start_date,
+            end_date: req.end_date,
+            is_active: req.is_active,
+            stream_id: None,
+        }
+    }
+}
+
 #[derive(Debug, Deserialize, Validate, JsonSchema, ApiComponent, AsChangeset)]
 #[diesel(table_name = crate::schema::curriculum_standards)]
 pub struct UpdateCurriculumStandardRequest {
@@ -127,6 +145,6 @@ impl crate::services::admin_db::AsAdminQuery for CurriculumStandardQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }

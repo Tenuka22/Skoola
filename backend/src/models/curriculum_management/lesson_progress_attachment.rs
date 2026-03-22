@@ -52,7 +52,7 @@ impl crate::services::admin_db::AsAdminQuery for LessonProgressAttachmentQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

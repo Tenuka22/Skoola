@@ -20,6 +20,7 @@ use crate::schema::{
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -42,6 +43,7 @@ pub struct ActivityParticipantStaff {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -64,6 +66,7 @@ pub struct ActivityParticipantStudent {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -86,6 +89,7 @@ pub struct BehaviorIncidentParticipant {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -111,6 +115,7 @@ pub struct ExitPassBulk {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -133,6 +138,7 @@ pub struct RewardAdjustment {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -174,6 +180,7 @@ pub struct RoleSetRole {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -198,6 +205,7 @@ pub struct SportEvent {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -220,6 +228,7 @@ pub struct StaffEventParticipant {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -241,6 +250,7 @@ pub struct StaffLeaveBalance {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -283,6 +293,7 @@ pub struct StaffSubject {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -305,6 +316,7 @@ pub struct StudentDemographic {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -327,6 +339,7 @@ pub struct TeacherRewardBalance {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -355,6 +368,7 @@ pub struct TeacherRewardDetail {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -375,6 +389,7 @@ pub struct TeacherRewardHistory {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]
@@ -405,6 +420,7 @@ pub struct UserSecurity {
     Insertable,
     ApiComponent,
     JsonSchema,
+    AsChangeset,
 )]
 #[diesel(table_name = user_status)]
 #[diesel(primary_key(user_id))]

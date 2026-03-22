@@ -26,16 +26,7 @@ create_admin_handlers!(
     query => ResourceQuery,
     create => CreateResourceRequest,
     update => UpdateResourceRequest,
-    service => ResourceService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => ResourceService
 );
 
 create_admin_handlers!(
@@ -45,16 +36,7 @@ create_admin_handlers!(
     query => ResourceAssetQuery,
     create => CreateResourceAssetRequest,
     update => UpdateResourceAssetRequest,
-    service => ResourceAssetService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => ResourceAssetService
 );
 
 create_admin_handlers!(
@@ -64,16 +46,7 @@ create_admin_handlers!(
     query => ResourceDetailQuery,
     create => CreateResourceDetailRequest,
     update => UpdateResourceDetailRequest,
-    service => ResourceDetailService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => ResourceDetailService
 );
 
 #[api_operation(
@@ -141,3 +114,4 @@ pub fn config(cfg: &mut apistos_web::ServiceConfig) {
             .route("/details/bulk-update", apistos_web::post().to(bulk_update_resource_detail))
     );
 }
+

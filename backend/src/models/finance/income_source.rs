@@ -48,6 +48,19 @@ impl AsAdminQuery for IncomeSourceQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
+        ..Default::default()}
+    }
+}
+
+impl From<CreateIncomeSourceRequest> for IncomeSource {
+    fn from(req: CreateIncomeSourceRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: req.name,
+            description: req.description,
+            created_at: now,
+            updated_at: now,
         }
     }
 }

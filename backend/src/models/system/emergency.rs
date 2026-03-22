@@ -27,6 +27,20 @@ pub struct CreateEmergencyRollCallRequest {
     pub status: EmergencyRollCallStatus,
 }
 
+impl From<CreateEmergencyRollCallRequest> for EmergencyRollCall {
+    fn from(req: CreateEmergencyRollCallRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            event_name: req.event_name,
+            start_time: req.start_time,
+            end_time: req.end_time,
+            initiated_by: req.initiated_by,
+            status: req.status,
+            created_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = emergency_roll_calls)]
 pub struct UpdateEmergencyRollCallRequest {
@@ -55,7 +69,7 @@ impl crate::services::admin_db::AsAdminQuery for EmergencyRollCallQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

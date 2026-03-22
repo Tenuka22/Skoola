@@ -36,6 +36,20 @@ pub struct CreateFileRequest {
     pub file_size: i32,
 }
 
+impl From<CreateFileRequest> for FileModel {
+    fn from(req: CreateFileRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            file_name: req.file_name,
+            file_path: req.file_path,
+            mime_type: req.mime_type,
+            file_size: req.file_size,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, ApiComponent, JsonSchema)]
 #[diesel(table_name = files)]
 pub struct UpdateFileRequest {
@@ -61,7 +75,7 @@ impl crate::services::admin_db::AsAdminQuery for FileQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

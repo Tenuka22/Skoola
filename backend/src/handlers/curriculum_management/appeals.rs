@@ -49,3 +49,4 @@ pub async fn review_practical_appeal(
     let res = appeals::review_appeal(data, path.into_inner(), current_user.id, body.status.clone()).await?;
     Ok(Json(res))
 }
+

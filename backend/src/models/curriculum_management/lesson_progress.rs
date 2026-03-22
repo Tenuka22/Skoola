@@ -49,6 +49,33 @@ pub struct CreateLessonProgressRequest {
     pub priority_level: Option<i32>,
 }
 
+impl From<CreateLessonProgressRequest> for LessonProgress {
+    fn from(req: CreateLessonProgressRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            class_id: req.class_id,
+            subject_id: req.subject_id,
+            teacher_id: req.teacher_id,
+            timetable_id: req.timetable_id,
+            curriculum_topic_id: req.curriculum_topic_id,
+            date: req.date,
+            lesson_summary: req.lesson_summary,
+            homework_assigned: req.homework_assigned,
+            resources_used: req.resources_used,
+            progress_percentage: req.progress_percentage,
+            delivery_mode: req.delivery_mode,
+            planned_duration_minutes: req.planned_duration_minutes,
+            actual_duration_minutes: req.actual_duration_minutes,
+            is_skipped: req.is_skipped.unwrap_or(false),
+            priority_level: req.priority_level.unwrap_or(0),
+            verified_by: None,
+            verified_at: None,
+            created_at: now,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::lesson_progress)]
 pub struct UpdateLessonProgressRequest {
@@ -87,6 +114,6 @@ impl AsAdminQuery for LessonProgressQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }

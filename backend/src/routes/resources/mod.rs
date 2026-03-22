@@ -17,8 +17,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(financial::get_all_chart_of_account))
             .route("/{id}", web::put().to(financial::update_chart_of_account))
             .route("/{id}", web::delete().to(financial::delete_chart_of_account))
-            .route("/bulk", web::delete().to(financial::bulk_delete_chart_of_account))
-            .route("/bulk", web::patch().to(financial::bulk_update_chart_of_account)),
+            .route("/bulk", web::delete().to(financial::bulk_delete_chart_of_account)),
     )
     .service(
         web::scope("/general-ledger")
@@ -29,8 +28,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(financial::get_all_general_ledger_entry))
             .route("/{id}", web::put().to(financial::update_general_ledger_entry))
             .route("/{id}", web::delete().to(financial::delete_general_ledger_entry))
-            .route("/bulk", web::delete().to(financial::bulk_delete_general_ledger_entry))
-            .route("/bulk", web::patch().to(financial::bulk_update_general_ledger_entry)),
+            .route("/bulk", web::delete().to(financial::bulk_delete_general_ledger_entry)),
     )
     .service(
         web::scope("/ledger-transactions")
@@ -41,8 +39,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(financial::get_all_ledger_transaction))
             .route("/{id}", web::put().to(financial::update_ledger_transaction))
             .route("/{id}", web::delete().to(financial::delete_ledger_transaction))
-            .route("/bulk", web::delete().to(financial::bulk_delete_ledger_transaction))
-            .route("/bulk", web::patch().to(financial::bulk_update_ledger_transaction)),
+            .route("/bulk", web::delete().to(financial::bulk_delete_ledger_transaction)),
     )
     .service(
         web::scope("/ledger-entries")
@@ -53,8 +50,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(financial::get_all_ledger_entry))
             .route("/{id}", web::put().to(financial::update_ledger_entry))
             .route("/{id}", web::delete().to(financial::delete_ledger_entry))
-            .route("/bulk", web::delete().to(financial::bulk_delete_ledger_entry))
-            .route("/bulk", web::patch().to(financial::bulk_update_ledger_entry)),
+            .route("/bulk", web::delete().to(financial::bulk_delete_ledger_entry)),
     )
     .service(
         web::scope("/budget-categories")
@@ -65,8 +61,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(financial::get_all_budget_category))
             .route("/{id}", web::put().to(financial::update_budget_category))
             .route("/{id}", web::delete().to(financial::delete_budget_category))
-            .route("/bulk", web::delete().to(financial::bulk_delete_budget_category))
-            .route("/bulk", web::patch().to(financial::bulk_update_budget_category)),
+            .route("/bulk", web::delete().to(financial::bulk_delete_budget_category)),
     )
     .service(
         web::scope("/budgets")
@@ -77,8 +72,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(financial::get_all_budget))
             .route("/{id}", web::put().to(financial::update_budget))
             .route("/{id}", web::delete().to(financial::delete_budget))
-            .route("/bulk", web::delete().to(financial::bulk_delete_budget))
-            .route("/bulk", web::patch().to(financial::bulk_update_budget)),
+            .route("/bulk", web::delete().to(financial::bulk_delete_budget)),
     )
     .service(
         web::scope("/fee-invoices")
@@ -89,8 +83,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(financial::get_all_fee_invoice))
             .route("/{id}", web::put().to(financial::update_fee_invoice))
             .route("/{id}", web::delete().to(financial::delete_fee_invoice))
-            .route("/bulk", web::delete().to(financial::bulk_delete_fee_invoice))
-            .route("/bulk", web::patch().to(financial::bulk_update_fee_invoice)),
+            .route("/bulk", web::delete().to(financial::bulk_delete_fee_invoice)),
     )
     .service(
         web::scope("/fee-invoice-items")
@@ -180,8 +173,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{id}", web::get().to(library::get_library_category_by_id))
             .route("", web::get().to(library::get_all_library_category))
             .route("/{id}", web::put().to(library::update_library_category))
-            .route("/{id}", web::delete().to(library::delete_library_category))
-            .route("/bulk", web::delete().to(library::bulk_delete_library_category)),
+            .route("/{id}", web::delete().to(library::delete_library_category)),
     )
     .service(
         web::scope("/library-books")
@@ -191,9 +183,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{id}", web::get().to(library::get_library_book_by_id))
             .route("", web::get().to(library::get_all_library_book))
             .route("/{id}", web::put().to(library::update_library_book))
-            .route("/{id}", web::delete().to(library::delete_library_book))
-            .route("/bulk", web::delete().to(library::bulk_delete_library_book))
-            .route("/bulk", web::patch().to(library::bulk_update_library_book)),
+            .route("/{id}", web::delete().to(library::delete_library_book)),
     )
     .service(
         web::scope("/library-issues")
@@ -202,8 +192,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{id}", web::get().to(library::get_library_issue_by_id))
             .route("", web::get().to(library::get_all_library_issue))
             .route("/{id}", web::put().to(library::update_library_issue))
-            .route("/{id}", web::delete().to(library::delete_library_issue))
-            .route("/bulk", web::delete().to(library::bulk_delete_library_issue)),
+            .route("/{id}", web::delete().to(library::delete_library_issue)),
     )
     .service(
         web::scope("/library-settings")
@@ -213,8 +202,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/{id}", web::get().to(library::get_library_settings_by_id))
             .route("", web::get().to(library::get_all_library_settings))
             .route("/{id}", web::put().to(library::update_library_settings))
-            .route("/{id}", web::delete().to(library::delete_library_settings))
-            .route("/bulk", web::delete().to(library::bulk_delete_library_settings)),
+            .route("/{id}", web::delete().to(library::delete_library_settings)),
     );
 
     // Property

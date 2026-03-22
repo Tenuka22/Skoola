@@ -4,7 +4,7 @@ use anyhow::Result;
 use backend::config::Config;
 use backend::database::enums::{BehaviorIncidentStatus};
 use backend::models::behavior_management::{BehaviorIncident, BehaviorIncidentType, BehaviorIncidentDetail};
-use backend::models::student::DetentionBalance;
+use backend::models::DetentionBalance;
 use backend::models::ids::IdPrefix;
 use backend::schema::*;
 use chrono::Utc;
@@ -94,7 +94,7 @@ impl SeedModule for BehaviorManagementSeeder {
                     description: "Incident happened in class".to_string(),
                     points_awarded: 10,
                     severity_id: Some(get_random_id(&severity_ids)),
-                    status: BehaviorIncidentStatus::Open,
+                    status: BehaviorIncidentStatus::Open.to_string(),
                     resolved_by: None,
                     resolved_at: None,
                     created_at: Utc::now().naive_utc(),

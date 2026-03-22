@@ -49,6 +49,25 @@ pub struct CreateTimetableRequest {
     pub grade_period_id: Option<String>,
 }
 
+impl From<CreateTimetableRequest> for Timetable {
+    fn from(req: CreateTimetableRequest) -> Self {
+        Timetable {
+            id: uuid::Uuid::new_v4().to_string(),
+            class_id: req.class_id,
+            day_of_week: req.day_of_week,
+            subject_id: req.subject_id,
+            teacher_id: req.teacher_id,
+            start_time: req.start_time,
+            end_time: req.end_time,
+            room: req.room,
+            academic_year_id: req.academic_year_id,
+            grade_period_id: req.grade_period_id,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = timetable)]
 pub struct UpdateTimetableRequest {
@@ -86,7 +105,7 @@ impl crate::services::admin_db::AsAdminQuery for TimetableQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

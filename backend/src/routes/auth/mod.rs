@@ -42,10 +42,8 @@ pub fn configure_admin(cfg: &mut web::ServiceConfig) {
             .wrap(Authenticated)
             .route("/{id}", web::get().to(users::get_user_by_id))
             .route("", web::get().to(users::get_all_user))
-            .route("/{id}", web::put().to(users::update_user))
             .route("/{id}", web::delete().to(users::delete_user))
             .route("/bulk", web::delete().to(users::bulk_delete_user))
-            .route("/bulk", web::patch().to(users::bulk_update_user))
             .route("/{user_id}/permissions", web::post().to(user_permissions::assign_permission_to_user))
             .route("/{user_id}/permissions", web::delete().to(user_permissions::unassign_permission_from_user))
             .route("/{user_id}/permissions", web::get().to(user_permissions::get_user_permissions)),

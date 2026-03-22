@@ -451,3 +451,4 @@ pub async fn verify_excuse(
         message: "Excuse verified successfully.".to_string(),
     }))
 }
+

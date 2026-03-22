@@ -13,10 +13,8 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .wrap(Authenticated)
             .route("", web::get().to(staff::get_all_staff))
             .route("/{id}", web::get().to(staff::get_staff_by_id))
-            .route("/{id}", web::put().to(staff::update_staff))
             .route("/{id}", web::delete().to(staff::delete_staff))
-            .route("/bulk", web::delete().to(staff::bulk_delete_staff))
-            .route("/bulk", web::patch().to(staff::bulk_update_staff)),
+            .route("/bulk", web::delete().to(staff::bulk_delete_staff)),
     )
     .service(
         web::scope("/staff-contracts")

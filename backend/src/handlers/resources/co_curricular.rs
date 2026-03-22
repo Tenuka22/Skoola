@@ -29,7 +29,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -48,7 +47,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -67,7 +65,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -86,7 +83,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -105,7 +101,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -124,7 +119,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -143,7 +137,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -257,8 +250,7 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(get_all_sport))
             .route("/{id}", web::put().to(update_sport))
             .route("/{id}", web::delete().to(delete_sport))
-            .route("/bulk", web::delete().to(bulk_delete_sport))
-            .route("/bulk", web::patch().to(bulk_update_sport)),
+            .route("/bulk", web::delete().to(bulk_delete_sport)),
     )
     .service(
         web::scope("/sport-teams")
@@ -269,8 +261,7 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(get_all_sport_team))
             .route("/{id}", web::put().to(update_sport_team))
             .route("/{id}", web::delete().to(delete_sport_team))
-            .route("/bulk", web::delete().to(bulk_delete_sport_team))
-            .route("/bulk", web::patch().to(bulk_update_sport_team)),
+            .route("/bulk", web::delete().to(bulk_delete_sport_team)),
     )
     .service(
         web::scope("/clubs")
@@ -281,8 +272,7 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(get_all_club))
             .route("/{id}", web::put().to(update_club))
             .route("/{id}", web::delete().to(delete_club))
-            .route("/bulk", web::delete().to(bulk_delete_club))
-            .route("/bulk", web::patch().to(bulk_update_club)),
+            .route("/bulk", web::delete().to(bulk_delete_club)),
     )
     .service(
         web::scope("/club-activities")
@@ -293,8 +283,7 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(get_all_club_activity))
             .route("/{id}", web::put().to(update_club_activity))
             .route("/{id}", web::delete().to(delete_club_activity))
-            .route("/bulk", web::delete().to(bulk_delete_club_activity))
-            .route("/bulk", web::patch().to(bulk_update_club_activity)),
+            .route("/bulk", web::delete().to(bulk_delete_club_activity)),
     )
     .service(
         web::scope("/co-curricular-ops")
@@ -308,3 +297,4 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .route("/summary/student/{student_id}", web::get().to(get_student_summary)),
     );
 }
+

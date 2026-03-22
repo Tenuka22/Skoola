@@ -121,7 +121,7 @@ impl crate::services::admin_db::AsAdminQuery for StaffLeaveRequestQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -182,6 +182,23 @@ pub struct CreateStaffLeaveRequest {
     pub status: String,
 }
 
+impl From<CreateStaffLeaveRequest> for StaffLeaveRequest {
+    fn from(req: CreateStaffLeaveRequest) -> Self {
+        StaffLeaveRequest {
+            id: uuid::Uuid::new_v4().to_string(),
+            staff_id: req.staff_id,
+            leave_type_id: req.leave_type_id,
+            start_date: req.start_date,
+            end_date: req.end_date,
+            reason: req.reason,
+            status: req.status,
+            approved_by: None,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = staff_leave_requests)]
 pub struct UpdateStaffLeaveRequest {
@@ -209,7 +226,7 @@ impl crate::services::admin_db::AsAdminQuery for StaffLeaveTypeQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -250,6 +267,18 @@ pub struct CreateStaffLeaveTypeRequest {
     pub name: String,
     pub annual_quota: f32,
     pub requires_approval: bool,
+}
+
+impl From<CreateStaffLeaveTypeRequest> for StaffLeaveTypeModel {
+    fn from(req: CreateStaffLeaveTypeRequest) -> Self {
+        StaffLeaveTypeModel {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: req.name,
+            annual_quota: req.annual_quota,
+            requires_approval: req.requires_approval,
+            created_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]

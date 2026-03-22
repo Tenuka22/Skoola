@@ -48,3 +48,4 @@ pub async fn get_substitution_plans(
     let res = substitution_plans::get_plans_for_subject(data, query.subject_id.clone(), query.medium.clone()).await?;
     Ok(Json(res))
 }
+

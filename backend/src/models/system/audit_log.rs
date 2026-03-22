@@ -80,7 +80,7 @@ impl AsAdminQuery for AuditLogQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -109,6 +109,21 @@ pub struct AttendanceAuditLogResponse {
     pub changed_at: NaiveDateTime,
 }
 
+impl From<CreateAttendanceAuditLogRequest> for AttendanceAuditLog {
+    fn from(req: CreateAttendanceAuditLogRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            attendance_type: req.attendance_type,
+            attendance_record_id: req.attendance_record_id,
+            old_status: req.old_status,
+            new_status: req.new_status,
+            change_reason: req.change_reason,
+            changed_by: req.changed_by,
+            changed_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 impl From<AttendanceAuditLog> for AttendanceAuditLogResponse {
     fn from(a: AttendanceAuditLog) -> Self {
         Self {
@@ -123,6 +138,10 @@ impl From<AttendanceAuditLog> for AttendanceAuditLogResponse {
         }
     }
 }
+
+
+
+
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct CreateAttendanceAuditLogRequest {
@@ -166,6 +185,6 @@ impl AsAdminQuery for AttendanceAuditLogQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }

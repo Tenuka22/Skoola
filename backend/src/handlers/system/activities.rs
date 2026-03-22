@@ -23,15 +23,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateActivityTypeRequest,
     update => UpdateActivityTypeRequest,
-    service => ActivityTypeService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    service => ActivityTypeService
 );
 
 create_admin_handlers!(
@@ -47,7 +39,9 @@ create_admin_handlers!(
         get_all => generic_get_all,
         update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update,
+        bulk_create => generic_bulk_create,
     }
 );
 
@@ -57,13 +51,8 @@ create_admin_handlers!(
     response => ActivityParticipant,
     query => AdminQuery,
     create => EnrollParticipantRequest,
-    update => AdminQuery, // Dummy
-    service => ActivityParticipantService,
-    methods => {
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => ActivityParticipant,
+    service => ActivityParticipantService
 );
 
 #[api_operation(
@@ -196,3 +185,4 @@ pub fn config(cfg: &mut apistos::web::ServiceConfig) {
             .route("/{id}", apistos::web::delete().to(delete_activity_participant)),
     );
 }
+

@@ -177,7 +177,7 @@ impl crate::services::admin_db::AsAdminQuery for ReportCardMarkQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -227,4 +227,46 @@ pub struct ReportCardQuery {
     pub last_id: Option<String>,
     pub limit: Option<i64>,
     pub page: Option<i64>,
+}
+
+impl From<CreateReportCardRequest> for ReportCard {
+    fn from(req: CreateReportCardRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            academic_year_id: req.academic_year_id,
+            term_id: req.term_id,
+            class_id: req.class_id,
+            grading_scheme_id: req.grading_scheme_id,
+            generated_at: chrono::Utc::now().naive_utc(),
+            generated_by: String::new(), // Should be set by the caller
+            overall_percentage: req.overall_percentage,
+            overall_grade: req.overall_grade,
+            overall_gpa: req.overall_gpa,
+            rank: req.rank,
+            remarks: req.remarks,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
+impl From<CreateReportCardMarkRequest> for ReportCardMark {
+    fn from(req: CreateReportCardMarkRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            report_card_id: String::new(), // Should be set by the caller
+            subject_id: req.subject_id,
+            assessment_type: req.assessment_type,
+            assessment_id: req.assessment_id,
+            marking_scheme_id: req.marking_scheme_id,
+            total_marks: req.total_marks,
+            percentage: req.percentage,
+            grade: req.grade,
+            grade_point: req.grade_point,
+            remarks: req.remarks,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }

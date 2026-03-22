@@ -32,7 +32,7 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
+        bulk_update => generic_bulk_update,
     }
 );
 
@@ -42,14 +42,15 @@ create_admin_handlers!(
     response => LessonMaterial,
     query => AdminQuery,
     create => CreateLessonMaterialRequest,
-    update => AdminQuery,
+    update => LessonMaterial,
     service => LessonMaterialService,
     methods => {
         create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
+        update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -62,7 +63,7 @@ pub mod attachments;
 pub mod ai_notes;
 
 pub use ai_notes::*;
-pub use topics::*;
+
 
 create_admin_handlers!(
     tag => "curriculum_standards",
@@ -79,13 +80,13 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
+        bulk_update => generic_bulk_update,
     }
 );
 
 create_admin_handlers!(
     tag => "syllabus_topics",
-    entity => SyllabusTopic,
+    entity => CurriculumTopic,
     response => CurriculumTopicResponse,
     query => CurriculumTopicQuery,
     create => CreateSyllabusRequest,
@@ -95,10 +96,11 @@ create_admin_handlers!(
         create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
-        update => generic_update,
+        update => update_with_logic,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
+        bulk_create => bulk_create_with_logic,
+        bulk_update => bulk_update_with_logic,
     }
 );
 

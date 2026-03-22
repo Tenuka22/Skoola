@@ -40,7 +40,7 @@ impl crate::services::admin_db::AsAdminQuery for StudentMarkEntryQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -80,6 +80,20 @@ impl From<StudentMarkEntry> for StudentMarkEntryResponse {
             max_marks: entry.max_marks,
             created_at: entry.created_at,
             updated_at: entry.updated_at,
+        }
+    }
+}
+
+impl From<CreateStudentMarkEntryRequest> for StudentMarkEntry {
+    fn from(req: CreateStudentMarkEntryRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_mark_id: req.student_mark_id,
+            marking_scheme_part_id: req.marking_scheme_part_id,
+            marks_awarded: req.marks_awarded,
+            max_marks: req.max_marks,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

@@ -37,6 +37,7 @@ pub struct SalaryComponent {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     Associations,
     ApiComponent,
@@ -92,6 +93,20 @@ pub struct CreateSalaryComponentRequest {
     pub description: Option<String>,
 }
 
+impl From<CreateSalaryComponentRequest> for SalaryComponent {
+    fn from(req: CreateSalaryComponentRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: req.name,
+            component_type: req.component_type,
+            description: req.description,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct SalaryComponentResponse {
     pub id: String,
@@ -121,6 +136,20 @@ pub struct SetStaffSalaryRequest {
     pub component_id: String,
     pub amount: f32,
     pub effective_from: NaiveDate,
+}
+
+impl From<SetStaffSalaryRequest> for StaffSalary {
+    fn from(req: SetStaffSalaryRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            staff_id: req.staff_id,
+            component_id: req.component_id,
+            amount: req.amount,
+            effective_from: req.effective_from,
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]
@@ -157,6 +186,26 @@ pub struct RecordSalaryPaymentRequest {
     pub payment_date: Option<NaiveDateTime>,
     pub payment_method: SalaryPaymentMethod,
     pub remarks: Option<String>,
+}
+
+impl From<RecordSalaryPaymentRequest> for SalaryPayment {
+    fn from(req: RecordSalaryPaymentRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            staff_id: req.staff_id,
+            payment_month: req.payment_month,
+            payment_year: req.payment_year,
+            gross_salary: req.gross_salary,
+            total_deductions: req.total_deductions,
+            net_salary: req.net_salary,
+            payment_date: req.payment_date.unwrap_or(now),
+            payment_method: req.payment_method,
+            remarks: req.remarks,
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent)]

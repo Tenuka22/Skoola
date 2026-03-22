@@ -60,6 +60,22 @@ pub struct UpdateVendorRequest {
     pub address: Option<String>,
 }
 
+impl From<CreateVendorRequest> for Vendor {
+    fn from(req: CreateVendorRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: req.name,
+            contact_name: req.contact_name,
+            phone: req.phone,
+            email: req.email,
+            address: req.address,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Insertable, Clone, ApiComponent, JsonSchema)]
 #[diesel(table_name = purchase_orders)]
 pub struct PurchaseOrder {
@@ -88,6 +104,22 @@ pub struct UpdatePurchaseOrderRequest {
     pub order_date: Option<NaiveDate>,
     pub total_amount: Option<f32>,
     pub status: Option<String>,
+}
+
+impl From<CreatePurchaseOrderRequest> for PurchaseOrder {
+    fn from(req: CreatePurchaseOrderRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            vendor_id: req.vendor_id,
+            order_date: req.order_date,
+            status: req.status,
+            total_amount: req.total_amount,
+            created_by: uuid::Uuid::new_v4().to_string(),
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Insertable, Clone, ApiComponent, JsonSchema)]
@@ -119,4 +151,20 @@ pub struct UpdatePurchaseOrderItemRequest {
     pub quantity: Option<f32>,
     pub unit_price: Option<f32>,
     pub total_price: Option<f32>,
+}
+
+impl From<CreatePurchaseOrderItemRequest> for PurchaseOrderItem {
+    fn from(req: CreatePurchaseOrderItemRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            purchase_order_id: req.purchase_order_id,
+            item_name: req.item_name,
+            quantity: req.quantity,
+            unit_price: req.unit_price,
+            total_price: req.total_price,
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }

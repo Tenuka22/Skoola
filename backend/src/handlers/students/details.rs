@@ -16,16 +16,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentMedicalInfoRequest,
     update => UpdateStudentMedicalInfoRequest,
-    service => StudentMedicalInfoService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentMedicalInfoService
 );
 
 create_admin_handlers!(
@@ -35,16 +26,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentPreviousSchoolRequest,
     update => UpdateStudentPreviousSchoolRequest,
-    service => StudentPreviousSchoolService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentPreviousSchoolService
 );
 
 create_admin_handlers!(
@@ -54,16 +36,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentClassAssignmentRequest,
     update => UpdateStudentClassAssignmentRequest,
-    service => StudentClassAssignmentService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentClassAssignmentService
 );
 
 create_admin_handlers!(
@@ -73,16 +46,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentAllergyRequest,
     update => UpdateStudentAllergyRequest,
-    service => StudentAllergyService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentAllergyService
 );
 
 create_admin_handlers!(
@@ -92,16 +56,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentBirthCertificateRequest,
     update => UpdateStudentBirthCertificateRequest,
-    service => StudentBirthCertificateService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentBirthCertificateService
 );
 
 create_admin_handlers!(
@@ -111,16 +66,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentEmergencyContactRequest,
     update => UpdateStudentEmergencyContactRequest,
-    service => StudentEmergencyContactService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentEmergencyContactService
 );
 
 create_admin_handlers!(
@@ -130,16 +76,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentFeeRequest,
     update => UpdateStudentFeeRequest,
-    service => StudentFeeService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentFeeService
 );
 
 create_admin_handlers!(
@@ -149,16 +86,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentMarkEntryRequest,
     update => UpdateStudentMarkEntryRequest,
-    service => StudentMarkEntryService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentMarkEntryService
 );
 
 create_admin_handlers!(
@@ -168,16 +96,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentMedicalConditionRequest,
     update => UpdateStudentMedicalConditionRequest,
-    service => StudentMedicalConditionService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentMedicalConditionService
 );
 
 create_admin_handlers!(
@@ -187,16 +106,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentMedicationRequest,
     update => UpdateStudentMedicationRequest,
-    service => StudentMedicationService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentMedicationService
 );
 
 create_admin_handlers!(
@@ -206,16 +116,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentMissedLessonRequest,
     update => UpdateStudentMissedLessonRequest,
-    service => StudentMissedLessonService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentMissedLessonService
 );
 
 create_admin_handlers!(
@@ -225,16 +126,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentNicRequest,
     update => UpdateStudentNicRequest,
-    service => StudentNicService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentNicService
 );
 
 create_admin_handlers!(
@@ -244,16 +136,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentStatusRequest,
     update => UpdateStudentStatusRequest,
-    service => StudentStatusService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentStatusService
 );
 
 create_admin_handlers!(
@@ -263,16 +146,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentPeriodAttendanceRequest,
     update => UpdateStudentPeriodAttendanceRequest,
-    service => StudentPeriodAttendanceService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => StudentPeriodAttendanceService
 );
 
 create_admin_handlers!(
@@ -282,15 +156,7 @@ create_admin_handlers!(
     query => StudentContactQuery,
     create => CreateStudentContactRequest,
     update => UpdateStudentContactRequest,
-    service => StudentContactService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    service => StudentContactService
 );
 
 create_admin_handlers!(
@@ -300,14 +166,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateStudentMediaRequest,
     update => UpdateStudentMediaRequest,
-    service => StudentMediaService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    service => StudentMediaService
 );
+
 

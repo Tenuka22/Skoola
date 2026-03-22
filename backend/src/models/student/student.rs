@@ -7,7 +7,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[derive(
-    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema,
+    Debug, Serialize, Deserialize, Clone, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent,
 )]
 #[diesel(table_name = students)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -58,6 +58,23 @@ pub struct CreateStudentRequest {
     pub photo_url: Option<String>,
 }
 
+impl From<CreateStudentRequest> for Student {
+    fn from(req: CreateStudentRequest) -> Self {
+        Student {
+            id: req.id,
+            admission_number: req.admission_number,
+            name_english: req.name_english,
+            name_sinhala: req.name_sinhala,
+            name_tamil: req.name_tamil,
+            dob: req.dob,
+            gender: req.gender,
+            profile_id: None,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Default, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct UpdateStudentRequest {
     // students
@@ -106,7 +123,7 @@ impl crate::services::admin_db::AsAdminQuery for StudentQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -182,7 +199,7 @@ impl crate::services::admin_db::AsAdminQuery for StudentStatusQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -190,6 +207,17 @@ impl crate::services::admin_db::AsAdminQuery for StudentStatusQuery {
 pub struct CreateStudentStatusRequest {
     pub student_id: String,
     pub status: StudentStatus,
+}
+
+impl From<CreateStudentStatusRequest> for StudentStatusRecord {
+    fn from(req: CreateStudentStatusRequest) -> Self {
+        Self {
+            student_id: req.student_id,
+            status: req.status,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, JsonSchema, ApiComponent, Clone, AsChangeset)]

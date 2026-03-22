@@ -40,7 +40,7 @@ impl crate::services::admin_db::AsAdminQuery for StudentEmergencyContactQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -50,6 +50,20 @@ pub struct CreateStudentEmergencyContactRequest {
     pub name: String,
     pub relationship: String,
     pub phone: String,
+}
+
+impl From<CreateStudentEmergencyContactRequest> for StudentEmergencyContact {
+    fn from(req: CreateStudentEmergencyContactRequest) -> Self {
+        StudentEmergencyContact {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            name: req.name,
+            relationship: req.relationship,
+            phone: req.phone,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]

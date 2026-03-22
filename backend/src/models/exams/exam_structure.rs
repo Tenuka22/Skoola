@@ -42,7 +42,7 @@ impl AsAdminQuery for ExamStructureQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -129,6 +129,22 @@ impl AsAdminQuery for ExamStructureSubjectQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
+        ..Default::default()}
+    }
+}
+
+impl From<CreateExamStructureSubjectRequest> for ExamStructureSubject {
+    fn from(req: CreateExamStructureSubjectRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            structure_id: req.structure_id,
+            subject_id: req.subject_id,
+            duration_minutes: req.duration_minutes,
+            max_marks: req.max_marks,
+            pass_marks: req.pass_marks,
+            order_index: req.order_index,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

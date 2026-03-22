@@ -235,3 +235,4 @@ pub async fn github_callback(
     info!("GitHub OAuth successful | user_id: {}", user.id);
     Ok(Json(TokenResponse { token, refresh_token }))
 }
+

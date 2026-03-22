@@ -25,6 +25,21 @@ pub struct RolePermission {
     pub permission: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct CreateRolePermissionRequest {
+    pub role_id: String,
+    pub permission: String,
+}
+
+impl From<CreateRolePermissionRequest> for RolePermission {
+    fn from(req: CreateRolePermissionRequest) -> Self {
+        Self {
+            role_id: req.role_id,
+            permission: req.permission,
+        }
+    }
+}
+
 #[derive(
     Debug,
     Serialize,
@@ -45,6 +60,21 @@ pub struct UserPermission {
     pub permission: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct CreateUserPermissionRequest {
+    pub user_id: String,
+    pub permission: String,
+}
+
+impl From<CreateUserPermissionRequest> for UserPermission {
+    fn from(req: CreateUserPermissionRequest) -> Self {
+        Self {
+            user_id: req.user_id,
+            permission: req.permission,
+        }
+    }
+}
+
 #[derive(
     Debug,
     Serialize,
@@ -56,6 +86,7 @@ pub struct UserPermission {
     Clone,
     Associations,
     ApiComponent,
+    AsChangeset,
 )]
 #[diesel(table_name = user_set_permissions)]
 #[diesel(belongs_to(UserSet))]
@@ -65,10 +96,35 @@ pub struct UserSetPermission {
     pub permission: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct CreateUserSetPermissionRequest {
+    pub user_set_id: String,
+    pub permission: String,
+}
+
+impl From<CreateUserSetPermissionRequest> for UserSetPermission {
+    fn from(req: CreateUserSetPermissionRequest) -> Self {
+        Self {
+            user_set_id: req.user_set_id,
+            permission: req.permission,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema, Clone)]
 pub struct CreateUserSetRequest {
     pub name: String,
     pub description: Option<String>,
+}
+
+impl From<CreateUserSetRequest> for UserSet {
+    fn from(req: CreateUserSetRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: req.name,
+            description: req.description,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema, Clone, AsChangeset)]
@@ -97,7 +153,7 @@ impl crate::services::admin_db::AsAdminQuery for UserSetQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -131,6 +187,7 @@ pub struct UserSet {
     Clone,
     Associations,
     ApiComponent,
+    AsChangeset,
 )]
 #[diesel(table_name = user_set_users)]
 #[diesel(belongs_to(UserSet))]

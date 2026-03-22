@@ -71,7 +71,7 @@ impl crate::services::admin_db::AsAdminQuery for UserQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -164,6 +164,34 @@ pub struct CreateUserRequest {
     pub email: String,
     pub password: String,
     pub role: RoleEnum,
+}
+
+impl From<CreateUserRequest> for NewUser {
+    fn from(req: CreateUserRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            email: req.email,
+            password_hash: req.password,
+            role: req.role,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+}
+
+impl From<CreateUserRequest> for User {
+    fn from(req: CreateUserRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            email: req.email,
+            password_hash: req.password,
+            role: req.role,
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]

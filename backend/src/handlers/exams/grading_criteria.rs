@@ -16,16 +16,7 @@ create_admin_handlers!(
     query => GradingCriterionQuery,
     create => CreateGradingCriterionRequest,
     update => UpdateGradingCriterionRequest,
-    service => GradingCriteriaService,
-    methods => {
-        create => create_grading_criterion,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => GradingCriteriaService
 );
 
 #[api_operation(
@@ -41,3 +32,4 @@ pub async fn get_grading_criteria_by_scheme_id_handler(
     let criteria = GradingCriteriaService::get_grading_criteria_by_scheme_id(pool, scheme_id).await?;
     Ok(Json(criteria))
 }
+

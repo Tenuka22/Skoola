@@ -89,6 +89,25 @@ pub struct CreateTeacherPeriodAttendanceRequest {
     pub substitution_id: Option<String>,
 }
 
+impl From<CreateTeacherPeriodAttendanceRequest> for TeacherPeriodAttendance {
+    fn from(req: CreateTeacherPeriodAttendanceRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            teacher_id: req.teacher_id,
+            timetable_id: req.timetable_id,
+            date: req.date,
+            status: req.status,
+            remarks: req.remarks,
+            marked_by: req.marked_by,
+            created_at: now,
+            updated_at: now,
+            is_substitution: req.is_substitution,
+            substitution_id: req.substitution_id,
+        }
+    }
+}
+
 #[derive(
     Debug,
     Serialize,
@@ -122,6 +141,21 @@ pub struct CreateSubstitutionModelRequest {
     pub date: NaiveDate,
     pub status: SubstitutionStatus,
     pub remarks: Option<String>,
+}
+
+impl From<CreateSubstitutionModelRequest> for Substitution {
+    fn from(req: CreateSubstitutionModelRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            original_teacher_id: req.original_teacher_id,
+            substitute_teacher_id: req.substitute_teacher_id,
+            timetable_id: req.timetable_id,
+            date: req.date,
+            status: req.status,
+            remarks: req.remarks,
+            created_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]

@@ -1,4 +1,19 @@
+// ============================================================================
+// Advanced CRUD Services with Full Filtering, Sorting, Joins Support
+// ============================================================================
+// This file implements service structs for all admin entities using the
+// impl_admin_entity_service! macro with support for:
+// - Generic filtering (field:value, range filters, IN filters)
+// - Dynamic sorting (any field, asc/desc)
+// - Pagination (offset-based and cursor-based)
+// - Foreign key searches
+// - Bulk operations (create, update, delete)
+
 use crate::services::admin_db::AdminQuery;
+
+// ============================================================================
+// Activity & Event Services
+// ============================================================================
 
 crate::impl_admin_entity_service!(
     ActivityParticipantStaffAdminCrudService,
@@ -29,6 +44,10 @@ crate::impl_admin_entity_service!(
      _sort_by,
      _sort_order| { q }
 );
+
+// ============================================================================
+// Academic Structure Services (AL Streams, Subjects, Grade Levels)
+// ============================================================================
 
 crate::impl_admin_entity_service!(
     AlStreamGradeLevelAdminCrudService,
@@ -75,6 +94,10 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Asset Management Services
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     AssetAllocationStaffAdminCrudService,
     crate::schema::asset_allocations_staff::table,
@@ -105,6 +128,10 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Behavior Management Services
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     BehaviorIncidentParticipantAdminCrudService,
     crate::schema::behavior_incident_participants::table,
@@ -126,6 +153,10 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Class & Subject Management Services
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     ClassSubjectTeacherAdminCrudService,
     crate::schema::class_subject_teachers::table,
@@ -140,6 +171,10 @@ crate::impl_admin_entity_service!(
      _sort_by,
      _sort_order| { q }
 );
+
+// ============================================================================
+// Co-curricular Activities Services (Clubs, Competitions, Cultural Events)
+// ============================================================================
 
 crate::impl_admin_entity_service!(
     ClubMemberAdminCrudService,
@@ -171,6 +206,25 @@ crate::impl_admin_entity_service!(
 );
 
 crate::impl_admin_entity_service!(
+    CulturalEventParticipantAdminCrudService,
+    crate::schema::cultural_event_participants::table,
+    crate::models::resources::co_curricular::CulturalEventParticipant,
+    crate::models::resources::co_curricular::CulturalEventParticipant,
+    crate::schema::cultural_event_participants::event_id,
+    event_id,
+    AdminQuery,
+    |q: crate::schema::cultural_event_participants::BoxedQuery<'static, diesel::sqlite::Sqlite>,
+     _search| { q },
+    |q: crate::schema::cultural_event_participants::BoxedQuery<'static, diesel::sqlite::Sqlite>,
+     _sort_by,
+     _sort_order| { q }
+);
+
+// ============================================================================
+// Messaging Services
+// ============================================================================
+
+crate::impl_admin_entity_service!(
     ConversationParticipantAdminCrudService,
     crate::schema::conversation_participants::table,
     crate::models::messaging::ConversationParticipant,
@@ -185,20 +239,9 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
-crate::impl_admin_entity_service!(
-    CulturalEventParticipantAdminCrudService,
-    crate::schema::cultural_event_participants::table,
-    crate::models::resources::co_curricular::CulturalEventParticipant,
-    crate::models::resources::co_curricular::CulturalEventParticipant,
-    crate::schema::cultural_event_participants::event_id,
-    event_id,
-    AdminQuery,
-    |q: crate::schema::cultural_event_participants::BoxedQuery<'static, diesel::sqlite::Sqlite>,
-     _search| { q },
-    |q: crate::schema::cultural_event_participants::BoxedQuery<'static, diesel::sqlite::Sqlite>,
-     _sort_by,
-     _sort_order| { q }
-);
+// ============================================================================
+// Emergency & Attendance Services
+// ============================================================================
 
 crate::impl_admin_entity_service!(
     EmergencyRollCallEntryAdminCrudService,
@@ -221,6 +264,7 @@ crate::impl_admin_entity_service!(
     crate::models::student::attendance::ExitPass,
     crate::models::student::attendance::ExitPass,
     crate::schema::exit_passes::id,
+    id,
     AdminQuery,
     |q: crate::schema::exit_passes::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::exit_passes::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -228,11 +272,12 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
-crate::impl_admin_entity_service!(
+crate::impl_admin_entity_service_id!(
     ExitPassBulkAdminCrudService,
     crate::schema::exit_passes_bulk::table,
     crate::models::ExitPassBulk,
     crate::models::ExitPassBulk,
+    String,
     crate::schema::exit_passes_bulk::id,
     AdminQuery,
     |q: crate::schema::exit_passes_bulk::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
@@ -240,6 +285,10 @@ crate::impl_admin_entity_service!(
      _sort_by,
      _sort_order| { q }
 );
+
+// ============================================================================
+// Finance & Fee Management Services
+// ============================================================================
 
 crate::impl_admin_entity_service!(
     FeePaymentDetailAdminCrudService,
@@ -261,6 +310,7 @@ crate::impl_admin_entity_service!(
     crate::models::finance::fees::FeePayment,
     crate::models::finance::fees::FeePayment,
     crate::schema::fee_payments::id,
+    id,
     AdminQuery,
     |q: crate::schema::fee_payments::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::fee_payments::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -296,6 +346,10 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Academic Structure - Grade Subjects
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     GradeSubjectAdminCrudService,
     crate::schema::grade_subjects::table,
@@ -309,6 +363,10 @@ crate::impl_admin_entity_service!(
      _sort_by,
      _sort_order| { q }
 );
+
+// ============================================================================
+// Curriculum Management Services
+// ============================================================================
 
 crate::impl_admin_entity_service!(
     LessonProgressPeriodAdminCrudService,
@@ -331,6 +389,7 @@ crate::impl_admin_entity_service!(
     crate::models::curriculum_management::practical_lesson_appeals::PracticalLessonAppeal,
     crate::models::curriculum_management::practical_lesson_appeals::PracticalLessonAppeal,
     crate::schema::practical_lesson_appeals::id,
+    id,
     AdminQuery,
     |q: crate::schema::practical_lesson_appeals::BoxedQuery<'static, diesel::sqlite::Sqlite>,
      _search| { q },
@@ -339,12 +398,17 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Student Attendance - Pre-approved Absences
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     PreApprovedAbsenceAdminCrudService,
     crate::schema::pre_approved_absences::table,
     crate::models::student::attendance::PreApprovedAbsence,
     crate::models::student::attendance::PreApprovedAbsence,
     crate::schema::pre_approved_absences::id,
+    id,
     AdminQuery,
     |q: crate::schema::pre_approved_absences::BoxedQuery<'static, diesel::sqlite::Sqlite>,
      _search| { q },
@@ -352,6 +416,10 @@ crate::impl_admin_entity_service!(
      _sort_by,
      _sort_order| { q }
 );
+
+// ============================================================================
+// Profile & User Management Services
+// ============================================================================
 
 crate::impl_admin_entity_service!(
     ProfileContactAdminCrudService,
@@ -388,6 +456,7 @@ crate::impl_admin_entity_service!(
     crate::models::auth::profile_models::Profile,
     crate::models::auth::profile_models::Profile,
     crate::schema::profiles::id,
+    id,
     AdminQuery,
     |q: crate::schema::profiles::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::profiles::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -395,12 +464,17 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Exam & Report Card Services
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     ReportCardAdminCrudService,
     crate::schema::report_cards::table,
     crate::models::exams::report_card::ReportCard,
     crate::models::exams::report_card::ReportCard,
     crate::schema::report_cards::id,
+    id,
     AdminQuery,
     |q: crate::schema::report_cards::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::report_cards::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -408,12 +482,17 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Resource Management Services
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     ResourceBookingAdminCrudService,
     crate::schema::resource_bookings::table,
     crate::models::resource_management::resource_booking::ResourceBooking,
     crate::models::resource_management::resource_booking::ResourceBooking,
     crate::schema::resource_bookings::id,
+    id,
     AdminQuery,
     |q: crate::schema::resource_bookings::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::resource_bookings::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -421,12 +500,17 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Reward System Services
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     RewardAdjustmentAdminCrudService,
     crate::schema::reward_adjustments::table,
     crate::models::RewardAdjustment,
     crate::models::RewardAdjustment,
     crate::schema::reward_adjustments::id,
+    id,
     AdminQuery,
     |q: crate::schema::reward_adjustments::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::reward_adjustments::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -440,12 +524,17 @@ crate::impl_admin_entity_service!(
     crate::models::RewardType,
     crate::models::RewardType,
     crate::schema::reward_types::id,
+    id,
     AdminQuery,
     |q: crate::schema::reward_types::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::reward_types::BoxedQuery<'static, diesel::sqlite::Sqlite>,
      _sort_by,
      _sort_order| { q }
 );
+
+// ============================================================================
+// Authentication & Permission Services
+// ============================================================================
 
 crate::impl_admin_entity_service!(
     RolePermissionAdminCrudService,
@@ -475,6 +564,10 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// School Calendar Services
+// ============================================================================
+
 crate::impl_admin_entity_service_id!(
     SchoolCalendarAdminCrudService,
     crate::schema::school_calendar::table,
@@ -488,6 +581,10 @@ crate::impl_admin_entity_service_id!(
      _sort_by,
      _sort_order| { q }
 );
+
+// ============================================================================
+// Sports Management Services
+// ============================================================================
 
 crate::impl_admin_entity_service!(
     SportEventParticipantAdminCrudService,
@@ -509,6 +606,7 @@ crate::impl_admin_entity_service!(
     crate::models::SportEvent,
     crate::models::SportEvent,
     crate::schema::sport_events::id,
+    id,
     AdminQuery,
     |q: crate::schema::sport_events::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::sport_events::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -530,12 +628,17 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Staff Management Services
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     StaffAttendanceAdminCrudService,
     crate::schema::staff_attendance::table,
     crate::models::staff::attendance::StaffAttendance,
     crate::models::staff::attendance::StaffAttendance,
     crate::schema::staff_attendance::id,
+    id,
     AdminQuery,
     |q: crate::schema::staff_attendance::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::staff_attendance::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -577,6 +680,7 @@ crate::impl_admin_entity_service!(
     crate::models::staff::leave::StaffLeaveRequest,
     crate::models::staff::leave::StaffLeaveRequest,
     crate::schema::staff_leave_requests::id,
+    id,
     AdminQuery,
     |q: crate::schema::staff_leave_requests::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::staff_leave_requests::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -590,6 +694,7 @@ crate::impl_admin_entity_service!(
     crate::models::staff::leave::StaffLeaveTypeModel,
     crate::models::staff::leave::StaffLeaveTypeModel,
     crate::schema::staff_leave_types::id,
+    id,
     AdminQuery,
     |q: crate::schema::staff_leave_types::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::staff_leave_types::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -603,6 +708,7 @@ crate::impl_admin_entity_service!(
     crate::models::staff::leave::StaffLeave,
     crate::models::staff::leave::StaffLeave,
     crate::schema::staff_leaves::id,
+    id,
     AdminQuery,
     |q: crate::schema::staff_leaves::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::staff_leaves::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -652,12 +758,17 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Student Attendance Services
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     StudentAttendanceAdminCrudService,
     crate::schema::student_attendance::table,
     crate::models::student::attendance::StudentAttendance,
     crate::models::student::attendance::StudentAttendance,
     crate::schema::student_attendance::id,
+    id,
     AdminQuery,
     |q: crate::schema::student_attendance::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::student_attendance::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -665,12 +776,17 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Student History Services
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     StudentClassAssignmentHistoryAdminCrudService,
     crate::schema::student_class_assignments_history::table,
     crate::models::student::history::StudentClassAssignmentHistory,
     crate::models::student::history::StudentClassAssignmentHistory,
     crate::schema::student_class_assignments_history::id,
+    id,
     AdminQuery,
     |q: crate::schema::student_class_assignments_history::BoxedQuery<'static, diesel::sqlite::Sqlite>,
      _search| { q },
@@ -678,6 +794,10 @@ crate::impl_admin_entity_service!(
      _sort_by,
      _sort_order| { q }
 );
+
+// ============================================================================
+// Student Demographics & Guardian Services
+// ============================================================================
 
 crate::impl_admin_entity_service!(
     StudentDemographicAdminCrudService,
@@ -699,6 +819,7 @@ crate::impl_admin_entity_service!(
     crate::models::student::guardian::StudentGuardian,
     crate::models::student::guardian::StudentGuardian,
     crate::schema::student_guardians::id,
+    id,
     AdminQuery,
     |q: crate::schema::student_guardians::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::student_guardians::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -706,12 +827,17 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Student Mark & Exam Services
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     StudentMarkEntryHistoryAdminCrudService,
     crate::schema::student_mark_entries_history::table,
     crate::models::exams::student_marks::StudentMarkEntryHistory,
     crate::models::exams::student_marks::StudentMarkEntryHistory,
     crate::schema::student_mark_entries_history::id,
+    id,
     AdminQuery,
     |q: crate::schema::student_mark_entries_history::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::student_mark_entries_history::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -725,6 +851,7 @@ crate::impl_admin_entity_service!(
     crate::models::exams::student_marks::StudentMark,
     crate::models::exams::student_marks::StudentMark,
     crate::schema::student_marks::id,
+    id,
     AdminQuery,
     |q: crate::schema::student_marks::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::student_marks::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -738,6 +865,7 @@ crate::impl_admin_entity_service!(
     crate::models::exams::student_marks::StudentMarkHistory,
     crate::models::exams::student_marks::StudentMarkHistory,
     crate::schema::student_marks_history::id,
+    id,
     AdminQuery,
     |q: crate::schema::student_marks_history::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::student_marks_history::BoxedQuery<'static, diesel::sqlite::Sqlite>,
@@ -759,6 +887,10 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Academic Subject Enrollment Services
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     SubjectEnrollmentAdminCrudService,
     crate::schema::subject_enrollments::table,
@@ -772,6 +904,10 @@ crate::impl_admin_entity_service!(
      _sort_by,
      _sort_order| { q }
 );
+
+// ============================================================================
+// Teacher Reward Services
+// ============================================================================
 
 crate::impl_admin_entity_service!(
     TeacherRewardBalanceAdminCrudService,
@@ -807,12 +943,17 @@ crate::impl_admin_entity_service!(
     crate::models::TeacherRewardHistory,
     crate::models::TeacherRewardHistory,
     crate::schema::teacher_reward_history::id,
+    id,
     AdminQuery,
     |q: crate::schema::teacher_reward_history::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::teacher_reward_history::BoxedQuery<'static, diesel::sqlite::Sqlite>,
      _sort_by,
      _sort_order| { q }
 );
+
+// ============================================================================
+// User Permission & Profile Services
+// ============================================================================
 
 crate::impl_admin_entity_service!(
     UserPermissionAdminCrudService,
@@ -898,18 +1039,27 @@ crate::impl_admin_entity_service!(
      _sort_order| { q }
 );
 
+// ============================================================================
+// Authentication Token Services
+// ============================================================================
+
 crate::impl_admin_entity_service!(
     VerificationTokenAdminCrudService,
     crate::schema::verification_tokens::table,
     crate::models::auth::tokens::VerificationToken,
     crate::models::auth::tokens::VerificationToken,
     crate::schema::verification_tokens::id,
+    id,
     AdminQuery,
     |q: crate::schema::verification_tokens::BoxedQuery<'static, diesel::sqlite::Sqlite>, _search| { q },
     |q: crate::schema::verification_tokens::BoxedQuery<'static, diesel::sqlite::Sqlite>,
      _sort_by,
      _sort_order| { q }
 );
+
+// ============================================================================
+// Z-Score Calculation Services
+// ============================================================================
 
 crate::impl_admin_entity_service!(
     ZScoreCalculationAdminCrudService,

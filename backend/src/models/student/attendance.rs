@@ -5,7 +5,7 @@ use crate::database::enums::{
 };
 use crate::schema::{
     attendance_audit_log, attendance_discrepancies, attendance_excuses, attendance_policies,
-    detention_balances, emergency_roll_call_entries, emergency_roll_calls, exit_passes,
+    emergency_roll_call_entries, emergency_roll_calls, exit_passes,
     pre_approved_absences, student_attendance, student_period_attendance,
 };
 use apistos::ApiComponent;
@@ -72,6 +72,7 @@ pub struct AttendancePolicy {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     ApiComponent,
 )]
@@ -99,6 +100,7 @@ pub struct ExitPass {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     ApiComponent,
 )]
@@ -148,6 +150,7 @@ pub struct EmergencyRollCall {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     ApiComponent,
 )]
@@ -187,26 +190,6 @@ pub struct AttendanceDiscrepancy {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(
-    Debug,
-    Serialize,
-    Deserialize,
-    JsonSchema,
-    Queryable,
-    Selectable,
-    Insertable,
-    Clone,
-    ApiComponent,
-)]
-#[diesel(table_name = detention_balances)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct DetentionBalance {
-    pub student_id: String,
-    pub total_hours_assigned: f32,
-    pub total_hours_served: f32,
-    pub remaining_hours: f32,
-    pub updated_at: NaiveDateTime,
-}
 
 #[derive(
     Debug,
@@ -284,7 +267,7 @@ impl crate::services::admin_db::AsAdminQuery for StudentPeriodAttendanceQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -300,6 +283,27 @@ pub struct CreateStudentPeriodAttendanceRequest {
     pub marked_by: String,
     pub suspicion_flag: Option<SuspicionFlag>,
     pub detailed_status: Option<DetailedStatus>,
+}
+
+impl From<CreateStudentPeriodAttendanceRequest> for StudentPeriodAttendance {
+    fn from(req: CreateStudentPeriodAttendanceRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            class_id: req.class_id,
+            timetable_id: req.timetable_id,
+            date: req.date,
+            status: req.status,
+            minutes_late: req.minutes_late,
+            remarks: req.remarks,
+            is_locked: false,
+            marked_by: req.marked_by,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+            suspicion_flag: req.suspicion_flag,
+            detailed_status: req.detailed_status,
+        }
+    }
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, JsonSchema, ApiComponent, Clone, AsChangeset)]
@@ -399,7 +403,7 @@ impl crate::services::admin_db::AsAdminQuery for StudentMissedLessonQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -409,6 +413,21 @@ pub struct CreateStudentMissedLessonRequest {
     pub lesson_progress_id: String,
     pub status: String,
     pub remarks: Option<String>,
+}
+
+impl From<CreateStudentMissedLessonRequest> for StudentMissedLesson {
+    fn from(req: CreateStudentMissedLessonRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            lesson_progress_id: req.lesson_progress_id,
+            status: req.status,
+            remarks: req.remarks,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+            notified_at: None,
+        }
+    }
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, JsonSchema, ApiComponent, Clone, AsChangeset)]

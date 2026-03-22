@@ -314,3 +314,4 @@ pub async fn link_github(
     );
     Ok(Json(UserResponse::from(updated_user)))
 }
+

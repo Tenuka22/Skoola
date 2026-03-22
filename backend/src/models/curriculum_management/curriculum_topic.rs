@@ -108,6 +108,21 @@ pub struct NewCurriculumTopic {
     pub order_index: Option<i32>,
 }
 
+impl From<UpdateCurriculumTopicRequest> for NewCurriculumTopic {
+    fn from(req: UpdateCurriculumTopicRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            curriculum_standard_id: uuid::Uuid::new_v4().to_string(),
+            parent_id: req.parent_id,
+            topic_name: req.topic_name.unwrap_or_default(),
+            full_time_hours: req.full_time_hours.unwrap_or(0.0),
+            extra_time_hours: req.extra_time_hours.unwrap_or(0.0),
+            practical_hours: req.practical_hours.unwrap_or(0.0),
+            order_index: req.order_index,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, ApiComponent)]
 pub struct CurriculumTopicQuery {
     pub search: Option<String>,
@@ -129,7 +144,7 @@ impl crate::services::admin_db::AsAdminQuery for CurriculumTopicQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

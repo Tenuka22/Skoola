@@ -27,6 +27,21 @@ pub struct CreateSubstitutionPlanRequest {
     pub description: Option<String>,
 }
 
+impl From<CreateSubstitutionPlanRequest> for SubstitutionPlan {
+    fn from(req: CreateSubstitutionPlanRequest) -> Self {
+        SubstitutionPlan {
+            id: uuid::Uuid::new_v4().to_string(),
+            subject_id: req.subject_id,
+            medium: req.medium,
+            plan_name: req.plan_name,
+            content_link: req.content_link,
+            description: req.description,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, ApiComponent, JsonSchema, AsChangeset)]
 #[diesel(table_name = crate::schema::substitution_plans)]
 pub struct UpdateSubstitutionPlanRequest {

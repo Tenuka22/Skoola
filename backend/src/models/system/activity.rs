@@ -16,6 +16,73 @@ pub struct ActivityType {
     pub created_at: NaiveDateTime,
 }
 
+
+
+impl From<CreateActivityTypeRequest> for ActivityType {
+    fn from(req: CreateActivityTypeRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: req.name,
+            description: req.description,
+            created_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
+
+
+impl From<CreateActivityRequest> for Activity {
+    fn from(req: CreateActivityRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            activity_type_id: req.activity_type_id,
+            name: req.name,
+            description: req.description,
+            location: req.location,
+            start_time: req.start_time,
+            end_time: req.end_time,
+            is_mandatory: req.is_mandatory,
+            academic_year_id: req.academic_year_id,
+            created_by: "system".to_string(), // Default or should be handled by service
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
+
+
+impl From<EnrollParticipantRequest> for ActivityParticipant {
+    fn from(req: EnrollParticipantRequest) -> Self {
+        Self {
+            activity_id: "".to_string(), // Should be set by caller or handle differently
+            user_id: req.user_id,
+            participant_type: req.participant_type,
+            enrollment_reason: req.enrollment_reason,
+            created_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
+
+
+impl From<CreateActivityAttendanceRequest> for ActivityAttendance {
+    fn from(req: CreateActivityAttendanceRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            activity_id: req.activity_id,
+            user_id: req.user_id,
+            status: req.status,
+            check_in_time: req.check_in_time,
+            check_out_time: req.check_out_time,
+            remarks: req.remarks,
+            marked_by: req.marked_by,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
 pub struct ActivityTypeQuery {
     pub search: Option<String>,
@@ -35,7 +102,7 @@ impl AsAdminQuery for ActivityTypeQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -234,7 +301,7 @@ impl AsAdminQuery for ActivityAttendanceQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

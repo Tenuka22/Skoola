@@ -1,4 +1,4 @@
-use crate::models::finance::detention::*;
+use crate::models::behavior_management::detention::*;
 use crate::schema::detention_balances;
 use crate::{AppState, errors::APIError};
 use crate::impl_admin_entity_service;
@@ -13,11 +13,13 @@ impl_admin_entity_service!(
     detention_balances::student_id,
     student_id,
     DetentionBalanceQuery,
-    |q: detention_balances::BoxedQuery<'static, diesel::sqlite::Sqlite>, pattern: String| {
+    |q: detention_balances::BoxedQuery<'static, diesel::sqlite::Sqlite>, pattern| {
         q.filter(detention_balances::student_id.like(pattern))
     },
     |q: detention_balances::BoxedQuery<'static, diesel::sqlite::Sqlite>, sort_by, sort_order| {
         match (sort_by, sort_order) {
+            ("student_id", "asc") => q.order(detention_balances::student_id.asc()),
+            ("student_id", "desc") => q.order(detention_balances::student_id.desc()),
             _ => q.order(detention_balances::updated_at.desc()),
         }
     }

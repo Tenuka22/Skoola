@@ -55,7 +55,7 @@ impl crate::services::admin_db::AsAdminQuery for StaffContractQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -68,6 +68,24 @@ pub struct CreateStaffContractRequest {
     pub salary_amount: Option<f32>,
     pub currency: String,
     pub status: String,
+}
+
+impl From<CreateStaffContractRequest> for StaffContract {
+    fn from(req: CreateStaffContractRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            staff_id: req.staff_id,
+            contract_type: req.contract_type,
+            start_date: req.start_date,
+            end_date: req.end_date,
+            salary_amount: req.salary_amount,
+            currency: req.currency,
+            status: req.status,
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, JsonSchema, ApiComponent, AsChangeset)]

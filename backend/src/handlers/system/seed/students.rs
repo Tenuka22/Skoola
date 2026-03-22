@@ -108,3 +108,4 @@ pub fn seed_all(
         seeded_attendance_ids,
     ))
 }
+

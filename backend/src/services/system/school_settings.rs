@@ -15,7 +15,7 @@ impl_admin_entity_service!(
     SchoolSettingService,
     school_settings::table,
     SchoolSetting,
-    SchoolSetting,
+    SchoolSettingResponse,
     school_settings::setting_key,
     setting_key,
     AdminQuery,
@@ -31,7 +31,7 @@ impl SchoolSettingService {
     pub async fn create_with_logic(
         data: web::Data<AppState>,
         req: CreateSchoolSettingRequest,
-    ) -> Result<SchoolSetting, APIError> {
+    ) -> Result<SchoolSettingResponse, APIError> {
         let new_item = SchoolSetting {
             setting_key: req.setting_key,
             setting_value: req.setting_value,

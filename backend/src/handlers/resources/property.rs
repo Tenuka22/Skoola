@@ -17,15 +17,8 @@ create_admin_handlers!(
     response => InventoryItemDetail,
     query => AdminQuery,
     create => InventoryItemDetail,
-    update => AdminQuery, // Placeholder
-    service => InventoryItemDetailService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => InventoryItemDetail,
+    service => InventoryItemDetailService
 );
 
 use actix_web::web::{Data, Json, Path};
@@ -44,15 +37,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateAssetCategoryRequest,
     update => UpdateAssetCategoryRequest,
-    service => AssetCategoryService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    service => AssetCategoryService
 );
 
 create_admin_handlers!(
@@ -62,15 +47,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateInventoryItemRequest,
     update => UpdateInventoryItemRequest,
-    service => InventoryItemService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    service => InventoryItemService
 );
 
 create_admin_handlers!(
@@ -79,15 +56,8 @@ create_admin_handlers!(
     response => InventoryTransaction,
     query => AdminQuery,
     create => CreateInventoryTransactionRequest,
-    update => AdminQuery, // Dummy
-    service => InventoryTransactionService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => InventoryTransaction,
+    service => InventoryTransactionService
 );
 
 create_admin_handlers!(
@@ -97,15 +67,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateAssetMaintenanceLogRequest,
     update => UpdateAssetMaintenanceLogRequest,
-    service => AssetMaintenanceLogService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    service => AssetMaintenanceLogService
 );
 
 create_admin_handlers!(
@@ -122,7 +84,7 @@ create_admin_handlers!(
         get_all => generic_get_all,
         update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -140,7 +102,7 @@ create_admin_handlers!(
         get_all => generic_get_all,
         update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -150,14 +112,16 @@ create_admin_handlers!(
     response => UniformIssue,
     query => AdminQuery,
     create => IssueUniformRequest,
-    update => AdminQuery, // Dummy
+    update => UniformIssue,
     service => UniformIssueService,
     methods => {
         create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
+        update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
+        bulk_update => generic_bulk_update,
     }
 );
 
@@ -168,15 +132,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => AllocateAssetRequest,
     update => ReturnAssetRequest,
-    service => AssetAllocationService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => return_asset,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    service => AssetAllocationService
 );
 
 #[api_operation(
@@ -308,3 +264,4 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .route("/allocations/assignee/{assignee_id}", web::get().to(get_allocations_by_assignee)),
     );
 }
+

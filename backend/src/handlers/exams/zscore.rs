@@ -33,3 +33,4 @@ pub fn config(cfg: &mut api_web::ServiceConfig) {
         api_web::resource("/zscores/calculate").route(api_web::post().to(calculate_zscores)),
     );
 }
+

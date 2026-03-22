@@ -84,7 +84,7 @@ impl crate::services::admin_db::AsAdminQuery for GovernmentExamQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -107,7 +107,7 @@ impl crate::services::admin_db::AsAdminQuery for GovernmentExamSubjectQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -157,4 +157,39 @@ pub struct UpdateGovernmentExamSubjectRequest {
     pub duration_minutes: Option<i32>,
     pub max_marks: Option<i32>,
     pub pass_marks: Option<i32>,
+}
+
+impl From<CreateGovernmentExamRequest> for GovernmentExam {
+    fn from(req: CreateGovernmentExamRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            exam_structure_id: req.exam_structure_id,
+            name: req.name,
+            authority: req.authority,
+            level: req.level,
+            exam_year: req.exam_year,
+            start_date: req.start_date,
+            end_date: req.end_date,
+            status: req.status,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
+impl From<CreateGovernmentExamSubjectRequest> for GovernmentExamSubject {
+    fn from(req: CreateGovernmentExamSubjectRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            government_exam_id: req.government_exam_id,
+            subject_id: req.subject_id,
+            exam_date: req.exam_date,
+            exam_time: req.exam_time,
+            duration_minutes: req.duration_minutes,
+            max_marks: req.max_marks,
+            pass_marks: req.pass_marks,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }

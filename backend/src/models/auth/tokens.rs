@@ -68,6 +68,23 @@ pub struct CreateAuthTokenRequest {
     pub metadata: Option<String>,
 }
 
+impl From<CreateAuthTokenRequest> for AuthToken {
+    fn from(req: CreateAuthTokenRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            user_id: req.user_id,
+            token_hash: req.token_hash,
+            token_type: req.token_type,
+            issued_at: now,
+            expires_at: req.expires_at,
+            revoked_at: None,
+            is_active: true,
+            metadata: req.metadata,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent, Clone)]
 #[diesel(table_name = crate::schema::auth_tokens)]
 pub struct UpdateAuthTokenRequest {
@@ -98,7 +115,7 @@ impl AsAdminQuery for AuthTokenQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -110,6 +127,7 @@ impl AsAdminQuery for AuthTokenQuery {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     ApiComponent,
 )]
@@ -125,4 +143,30 @@ pub struct VerificationToken {
     pub consumed_at: Option<NaiveDateTime>,
     pub is_active: bool,
     pub metadata: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]
+pub struct CreateVerificationTokenRequest {
+    pub user_id: String,
+    pub token_hash: String,
+    pub purpose: VerificationPurpose,
+    pub expires_at: NaiveDateTime,
+    pub metadata: Option<String>,
+}
+
+impl From<CreateVerificationTokenRequest> for VerificationToken {
+    fn from(req: CreateVerificationTokenRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            user_id: req.user_id,
+            token_hash: req.token_hash,
+            purpose: req.purpose,
+            issued_at: now,
+            expires_at: req.expires_at,
+            consumed_at: None,
+            is_active: true,
+            metadata: req.metadata,
+        }
+    }
 }

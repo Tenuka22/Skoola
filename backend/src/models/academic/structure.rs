@@ -46,6 +46,22 @@ pub struct CreateAlStreamRequest {
     pub is_active: bool,
 }
 
+impl From<CreateAlStreamRequest> for AlStream {
+    fn from(req: CreateAlStreamRequest) -> Self {
+        AlStream {
+            id: req.id,
+            name: req.name,
+            description: req.description,
+            version_name: req.version_name,
+            start_date: req.start_date,
+            end_date: req.end_date,
+            is_active: req.is_active,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = al_streams)]
 pub struct UpdateAlStreamRequest {
@@ -76,7 +92,7 @@ impl crate::services::admin_db::AsAdminQuery for AlStreamQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -167,7 +183,7 @@ impl crate::services::admin_db::AsAdminQuery for GradeSubjectQuery {
             page: None,
             limit: None,
             last_id: None,
-        }
+        ..Default::default()}
     }
 }
 
@@ -207,7 +223,7 @@ impl crate::services::admin_db::AsAdminQuery for AlStreamRequiredSubjectQuery {
             page: None,
             limit: None,
             last_id: None,
-        }
+        ..Default::default()}
     }
 }
 
@@ -245,6 +261,20 @@ pub struct CreateAlStreamOptionalGroupRequest {
     pub max_select: Option<i32>,
 }
 
+impl From<CreateAlStreamOptionalGroupRequest> for AlStreamOptionalGroup {
+    fn from(req: CreateAlStreamOptionalGroupRequest) -> Self {
+        AlStreamOptionalGroup {
+            id: req.id,
+            stream_id: req.stream_id,
+            group_name: req.group_name,
+            min_select: req.min_select,
+            max_select: req.max_select,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = al_stream_optional_groups)]
 pub struct UpdateAlStreamOptionalGroupRequest {
@@ -274,7 +304,7 @@ impl crate::services::admin_db::AsAdminQuery for AlStreamOptionalGroupQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -339,6 +369,6 @@ impl crate::services::admin_db::AsAdminQuery for AlStreamOptionalSubjectQuery {
             page: None,
             limit: None,
             last_id: None,
-        }
+        ..Default::default()}
     }
 }

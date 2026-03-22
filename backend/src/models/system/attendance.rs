@@ -28,6 +28,20 @@ pub struct CreateAttendancePolicyRequest {
     pub is_active: bool,
 }
 
+impl From<CreateAttendancePolicyRequest> for AttendancePolicy {
+    fn from(req: CreateAttendancePolicyRequest) -> Self {
+        AttendancePolicy {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: req.name,
+            rule_type: req.rule_type,
+            threshold: req.threshold,
+            consequence_type: req.consequence_type,
+            consequence_value: req.consequence_value,
+            is_active: req.is_active,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = attendance_policies)]
 pub struct UpdateAttendancePolicyRequest {
@@ -58,7 +72,7 @@ impl crate::services::admin_db::AsAdminQuery for AttendancePolicyQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -109,6 +123,20 @@ pub struct CreateAttendanceExcuseRequest {
     pub verified_by: Option<String>,
 }
 
+impl From<CreateAttendanceExcuseRequest> for AttendanceExcuse {
+    fn from(req: CreateAttendanceExcuseRequest) -> Self {
+        AttendanceExcuse {
+            id: uuid::Uuid::new_v4().to_string(),
+            attendance_record_id: req.attendance_record_id,
+            excuse_type: req.excuse_type,
+            document_url: req.document_url,
+            is_verified: req.is_verified,
+            verified_by: req.verified_by,
+            created_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = attendance_excuses)]
 pub struct UpdateAttendanceExcuseRequest {
@@ -138,7 +166,7 @@ impl crate::services::admin_db::AsAdminQuery for AttendanceExcuseQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -193,6 +221,22 @@ pub struct CreateAttendanceDiscrepancyRequest {
     pub resolved_by: Option<String>,
 }
 
+impl From<CreateAttendanceDiscrepancyRequest> for AttendanceDiscrepancy {
+    fn from(req: CreateAttendanceDiscrepancyRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            date: req.date,
+            discrepancy_type: req.discrepancy_type,
+            details: req.details,
+            severity: req.severity,
+            is_resolved: req.is_resolved,
+            resolved_by: req.resolved_by,
+            created_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = attendance_discrepancies)]
 pub struct UpdateAttendanceDiscrepancyRequest {
@@ -223,7 +267,7 @@ impl crate::services::admin_db::AsAdminQuery for AttendanceDiscrepancyQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

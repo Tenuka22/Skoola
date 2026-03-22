@@ -33,6 +33,18 @@ pub struct CreateStaffDepartmentRequest {
     pub description: Option<String>,
 }
 
+impl From<CreateStaffDepartmentRequest> for StaffDepartment {
+    fn from(req: CreateStaffDepartmentRequest) -> Self {
+        StaffDepartment {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: req.name,
+            description: req.description,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = staff_departments)]
 pub struct UpdateStaffDepartmentRequest {

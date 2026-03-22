@@ -65,7 +65,7 @@ impl AsAdminQuery for LibraryCategoryQuery {
             page: self.page,
             limit: self.limit,
             last_id: None,
-        }
+        ..Default::default()}
     }
 }
 
@@ -116,7 +116,7 @@ impl AsAdminQuery for LibraryBookQuery {
             page: self.page,
             limit: self.limit,
             last_id: None,
-        }
+        ..Default::default()}
     }
 }
 
@@ -185,7 +185,7 @@ impl AsAdminQuery for LibrarySettingsQuery {
             page: self.page,
             limit: self.limit,
             last_id: None,
-        }
+        ..Default::default()}
     }
 }
 
@@ -240,7 +240,7 @@ impl AsAdminQuery for LibraryIssueQuery {
             page: self.page,
             limit: self.limit,
             last_id: None,
-        }
+        ..Default::default()}
     }
 }
 

@@ -63,7 +63,7 @@ impl crate::services::admin_db::AsAdminQuery for ResourceQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -99,6 +99,32 @@ pub struct CreateResourceRequest {
 pub struct UpdateResourceRequest {
     pub resource_name: Option<String>,
     pub resource_type: Option<String>,
+}
+
+impl From<CreateResourceRequest> for NewResource {
+    fn from(req: CreateResourceRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            resource_name: req.resource_name,
+            resource_type: req.resource_type,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+}
+
+impl From<CreateResourceRequest> for Resource {
+    fn from(req: CreateResourceRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            resource_name: req.resource_name,
+            resource_type: req.resource_type,
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }
 
 // Resource Asset
@@ -161,7 +187,7 @@ impl crate::services::admin_db::AsAdminQuery for ResourceAssetQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -199,6 +225,32 @@ pub struct UpdateResourceAssetRequest {
     pub resource_id: Option<String>,
     pub inventory_item_id: Option<String>,
     pub quantity: Option<f32>,
+}
+
+impl From<CreateResourceAssetRequest> for NewResourceAsset {
+    fn from(req: CreateResourceAssetRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            resource_id: req.resource_id,
+            inventory_item_id: req.inventory_item_id,
+            quantity: req.quantity,
+            created_at: now,
+        }
+    }
+}
+
+impl From<CreateResourceAssetRequest> for ResourceAsset {
+    fn from(req: CreateResourceAssetRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            resource_id: req.resource_id,
+            inventory_item_id: req.inventory_item_id,
+            quantity: req.quantity,
+            created_at: now,
+        }
+    }
 }
 
 // Resource Detail
@@ -269,7 +321,7 @@ impl crate::services::admin_db::AsAdminQuery for ResourceDetailQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -318,6 +370,38 @@ pub struct UpdateResourceDetailRequest {
     pub location: Option<String>,
     pub capacity: Option<i32>,
     pub booking_policy: Option<String>,
+}
+
+impl From<CreateResourceDetailRequest> for NewResourceDetail {
+    fn from(req: CreateResourceDetailRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            resource_id: req.resource_id,
+            description: req.description,
+            status: req.status,
+            location: req.location,
+            capacity: req.capacity,
+            booking_policy: req.booking_policy,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+}
+
+impl From<CreateResourceDetailRequest> for ResourceDetail {
+    fn from(req: CreateResourceDetailRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            resource_id: req.resource_id,
+            description: req.description,
+            status: req.status,
+            location: req.location,
+            capacity: req.capacity,
+            booking_policy: req.booking_policy,
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Clone)]

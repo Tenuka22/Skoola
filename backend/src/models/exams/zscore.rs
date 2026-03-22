@@ -6,7 +6,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use crate::database::enums::AssessmentType;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable, Insertable, ApiComponent, JsonSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable, Insertable, AsChangeset, ApiComponent, JsonSchema)]
 #[diesel(table_name = zscore_calculations)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct ZScoreCalculation {
@@ -36,6 +36,7 @@ pub struct CreateZScoreCalculation {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     ApiComponent,
     JsonSchema,
 )]

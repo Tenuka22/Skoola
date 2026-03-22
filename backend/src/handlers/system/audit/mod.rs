@@ -1,7 +1,9 @@
 use actix_web::web;
 use actix_web::web::Json;
 
-use crate::models::system::audit_log::{AuditLog, AuditLogQuery, AuditLogResponse};
+use crate::models::system::audit_log::{AuditLog, AuditLogQuery};
+#[allow(unused_imports)]
+use crate::models::system::audit_log::NewAuditLog;
 use crate::services::system::audit::AuditLogService;
 use crate::services::system::audit;
 use crate::{APIError, AppState};
@@ -14,12 +16,12 @@ create_admin_handlers!(
     entity => AuditLog,
     response => AuditLog,
     query => AuditLogQuery,
-    create => AuditLog, // Dummy
-    update => AuditLog, // Dummy
+    create => NewAuditLog,
+    update => AuditLog,
     service => AuditLogService,
     methods => {
         get_by_id => generic_get_by_id,
-        get_all => generic_get_all
+        get_all => generic_get_all,
     }
 );
 
@@ -32,8 +34,9 @@ create_admin_handlers!(
 pub async fn get_record_audit_logs(
     data: web::Data<AppState>,
     path: web::Path<(String, String)>,
-) -> Result<Json<Vec<AuditLogResponse>>, APIError> {
+) -> Result<Json<Vec<AuditLog>>, APIError> {
     let (table_name, record_pk) = path.into_inner();
     let logs = audit::get_record_audit_logs(data.clone(), table_name, record_pk).await?;
-    Ok(Json(logs.into_iter().map(AuditLogResponse::from).collect()))
+    Ok(Json(logs))
 }
+

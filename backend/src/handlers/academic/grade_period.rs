@@ -73,3 +73,4 @@ pub async fn delete_grade_period_handler(
 ) -> Result<HttpResponse, APIError> {
     grade_period_service::delete_grade_period(pool, period_id.into_inner()).await
 }
+

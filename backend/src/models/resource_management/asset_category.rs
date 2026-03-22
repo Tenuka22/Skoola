@@ -26,3 +26,16 @@ pub struct UpdateAssetCategoryRequest {
     pub name: Option<String>,
     pub description: Option<String>,
 }
+
+impl From<CreateAssetCategoryRequest> for AssetCategory {
+    fn from(req: CreateAssetCategoryRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: req.name,
+            description: req.description,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+}

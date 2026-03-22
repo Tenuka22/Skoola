@@ -100,7 +100,7 @@ impl crate::services::admin_db::AsAdminQuery for ConversationQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -156,7 +156,7 @@ impl crate::services::admin_db::AsAdminQuery for MessageQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

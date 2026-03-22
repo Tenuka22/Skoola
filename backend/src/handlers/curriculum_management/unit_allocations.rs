@@ -50,3 +50,4 @@ pub async fn get_unit_allocations_by_class(
 ) -> Result<Json<Vec<UnitAllocationResponse>>, APIError> {
     Ok(Json(Vec::new()))
 }
+

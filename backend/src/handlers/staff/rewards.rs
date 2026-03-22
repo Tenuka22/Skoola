@@ -32,3 +32,4 @@ pub async fn get_teacher_reward_history(
     let history = rewards::get_reward_history(data, path.into_inner()).await?;
     Ok(Json(history))
 }
+

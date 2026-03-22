@@ -43,3 +43,4 @@ pub async fn bulk_delete_users_handler(
         }
     }
 }
+

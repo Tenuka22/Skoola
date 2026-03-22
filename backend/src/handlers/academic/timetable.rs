@@ -116,3 +116,4 @@ pub async fn delete_timetable_entry(
         message: "Timetable entry deleted successfully".to_string(),
     }))
 }
+

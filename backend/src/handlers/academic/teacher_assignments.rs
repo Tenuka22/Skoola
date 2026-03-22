@@ -212,3 +212,4 @@ pub async fn get_teacher_timetable(
     
     Ok(Json(res.into_iter().map(TimetableResponse::from).collect()))
 }
+

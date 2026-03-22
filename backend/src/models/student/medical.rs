@@ -51,6 +51,32 @@ pub struct CreateStudentMedicalInfoRequest {
     pub insurance_policy_number: Option<String>,
 }
 
+impl From<CreateStudentMedicalInfoRequest> for StudentMedicalInfo {
+    fn from(req: CreateStudentMedicalInfoRequest) -> Self {
+        StudentMedicalInfo {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            blood_group: req.blood_group,
+            medical_risk_level: req.medical_risk_level,
+            has_allergies: req.has_allergies,
+            has_medications: req.has_medications,
+            has_chronic_conditions: req.has_chronic_conditions,
+            requires_emergency_plan: req.requires_emergency_plan,
+            emergency_plan_details: req.emergency_plan_details,
+            allergies: req.allergies,
+            medical_conditions: req.medical_conditions,
+            emergency_contact_name: req.emergency_contact_name,
+            emergency_contact_phone: req.emergency_contact_phone,
+            primary_physician_name: req.primary_physician_name,
+            primary_physician_phone: req.primary_physician_phone,
+            insurance_provider: req.insurance_provider,
+            insurance_policy_number: req.insurance_policy_number,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = student_medical_info)]
 pub struct UpdateStudentMedicalInfoRequest {

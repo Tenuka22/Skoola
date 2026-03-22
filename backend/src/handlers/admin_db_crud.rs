@@ -8,15 +8,8 @@ create_admin_handlers!(
     response => crate::models::ActivityParticipantStaff,
     query => AdminQuery,
     create => crate::models::ActivityParticipantStaff,
-    update => AdminQuery,
-    service => ActivityParticipantStaffAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::ActivityParticipantStaff,
+    service => ActivityParticipantStaffAdminCrudService
 );
 
 create_admin_handlers!(
@@ -25,15 +18,8 @@ create_admin_handlers!(
     response => crate::models::ActivityParticipantStudent,
     query => AdminQuery,
     create => crate::models::ActivityParticipantStudent,
-    update => AdminQuery,
-    service => ActivityParticipantStudentAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::ActivityParticipantStudent,
+    service => ActivityParticipantStudentAdminCrudService
 );
 
 create_admin_handlers!(
@@ -42,15 +28,8 @@ create_admin_handlers!(
     response => crate::models::academic::structure::AlStreamGradeLevel,
     query => AdminQuery,
     create => crate::models::academic::structure::AlStreamGradeLevel,
-    update => AdminQuery,
-    service => AlStreamGradeLevelAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::academic::structure::AlStreamGradeLevel,
+    service => AlStreamGradeLevelAdminCrudService
 );
 
 create_admin_handlers!(
@@ -59,15 +38,8 @@ create_admin_handlers!(
     response => crate::models::academic::structure::AlStreamOptionalSubject,
     query => AdminQuery,
     create => crate::models::academic::structure::AlStreamOptionalSubject,
-    update => AdminQuery,
-    service => AlStreamOptionalSubjectAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::academic::structure::AlStreamOptionalSubject,
+    service => AlStreamOptionalSubjectAdminCrudService
 );
 
 create_admin_handlers!(
@@ -76,15 +48,8 @@ create_admin_handlers!(
     response => crate::models::academic::structure::AlStreamRequiredSubject,
     query => AdminQuery,
     create => crate::models::academic::structure::AlStreamRequiredSubject,
-    update => AdminQuery,
-    service => AlStreamRequiredSubjectAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::academic::structure::AlStreamRequiredSubject,
+    service => AlStreamRequiredSubjectAdminCrudService
 );
 
 create_admin_handlers!(
@@ -93,15 +58,8 @@ create_admin_handlers!(
     response => crate::models::resource_management::asset_allocation_staff::AssetAllocationStaff,
     query => AdminQuery,
     create => crate::models::resource_management::asset_allocation_staff::AssetAllocationStaff,
-    update => AdminQuery,
-    service => AssetAllocationStaffAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::resource_management::asset_allocation_staff::AssetAllocationStaff,
+    service => AssetAllocationStaffAdminCrudService
 );
 
 create_admin_handlers!(
@@ -110,15 +68,8 @@ create_admin_handlers!(
     response => crate::models::resource_management::asset_allocation_student::AssetAllocationStudent,
     query => AdminQuery,
     create => crate::models::resource_management::asset_allocation_student::AssetAllocationStudent,
-    update => AdminQuery,
-    service => AssetAllocationStudentAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::resource_management::asset_allocation_student::AssetAllocationStudent,
+    service => AssetAllocationStudentAdminCrudService
 );
 
 create_admin_handlers!(
@@ -127,15 +78,8 @@ create_admin_handlers!(
     response => crate::models::BehaviorIncidentParticipant,
     query => AdminQuery,
     create => crate::models::BehaviorIncidentParticipant,
-    update => AdminQuery,
-    service => BehaviorIncidentParticipantAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::BehaviorIncidentParticipant,
+    service => BehaviorIncidentParticipantAdminCrudService
 );
 
 create_admin_handlers!(
@@ -144,15 +88,8 @@ create_admin_handlers!(
     response => crate::models::academic::class_subject_teacher::ClassSubjectTeacher,
     query => AdminQuery,
     create => crate::models::academic::class_subject_teacher::ClassSubjectTeacher,
-    update => AdminQuery,
-    service => ClassSubjectTeacherAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::academic::class_subject_teacher::ClassSubjectTeacher,
+    service => ClassSubjectTeacherAdminCrudService
 );
 
 create_admin_handlers!(
@@ -161,15 +98,8 @@ create_admin_handlers!(
     response => crate::models::resources::co_curricular::ClubMember,
     query => AdminQuery,
     create => crate::models::resources::co_curricular::ClubMember,
-    update => AdminQuery,
-    service => ClubMemberAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::resources::co_curricular::ClubMember,
+    service => ClubMemberAdminCrudService
 );
 
 create_admin_handlers!(
@@ -178,15 +108,8 @@ create_admin_handlers!(
     response => crate::models::resources::co_curricular::CompetitionParticipant,
     query => AdminQuery,
     create => crate::models::resources::co_curricular::CompetitionParticipant,
-    update => AdminQuery,
-    service => CompetitionParticipantAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::resources::co_curricular::CompetitionParticipant,
+    service => CompetitionParticipantAdminCrudService
 );
 
 create_admin_handlers!(
@@ -195,14 +118,15 @@ create_admin_handlers!(
     response => crate::models::messaging::ConversationParticipant,
     query => AdminQuery,
     create => crate::models::messaging::ConversationParticipant,
-    update => AdminQuery,
+    update => crate::models::messaging::ConversationParticipant,
     service => ConversationParticipantAdminCrudService,
     methods => {
         create => generic_create,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
+        bulk_create => generic_bulk_create,
     }
 );
 
@@ -212,15 +136,8 @@ create_admin_handlers!(
     response => crate::models::resources::co_curricular::CulturalEventParticipant,
     query => AdminQuery,
     create => crate::models::resources::co_curricular::CulturalEventParticipant,
-    update => AdminQuery,
-    service => CulturalEventParticipantAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::resources::co_curricular::CulturalEventParticipant,
+    service => CulturalEventParticipantAdminCrudService
 );
 
 create_admin_handlers!(
@@ -229,15 +146,8 @@ create_admin_handlers!(
     response => crate::models::student::attendance::EmergencyRollCallEntry,
     query => AdminQuery,
     create => crate::models::student::attendance::EmergencyRollCallEntry,
-    update => AdminQuery,
-    service => EmergencyRollCallEntryAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::student::attendance::EmergencyRollCallEntry,
+    service => EmergencyRollCallEntryAdminCrudService
 );
 
 create_admin_handlers!(
@@ -246,15 +156,8 @@ create_admin_handlers!(
     response => crate::models::student::attendance::ExitPass,
     query => AdminQuery,
     create => crate::models::student::attendance::ExitPass,
-    update => AdminQuery,
-    service => ExitPassAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::student::attendance::ExitPass,
+    service => ExitPassAdminCrudService
 );
 
 create_admin_handlers!(
@@ -263,14 +166,15 @@ create_admin_handlers!(
     response => crate::models::ExitPassBulk,
     query => AdminQuery,
     create => crate::models::ExitPassBulk,
-    update => AdminQuery,
+    update => crate::models::ExitPassBulk,
     service => ExitPassBulkAdminCrudService,
     methods => {
         create => generic_create,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
+        update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -280,15 +184,8 @@ create_admin_handlers!(
     response => crate::models::finance::fees::FeePaymentDetail,
     query => AdminQuery,
     create => crate::models::finance::fees::FeePaymentDetail,
-    update => AdminQuery,
-    service => FeePaymentDetailAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::finance::fees::FeePaymentDetail,
+    service => FeePaymentDetailAdminCrudService
 );
 
 create_admin_handlers!(
@@ -297,15 +194,8 @@ create_admin_handlers!(
     response => crate::models::finance::fees::FeePayment,
     query => AdminQuery,
     create => crate::models::finance::fees::FeePayment,
-    update => AdminQuery,
-    service => FeePaymentAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::finance::fees::FeePayment,
+    service => FeePaymentAdminCrudService
 );
 
 create_admin_handlers!(
@@ -314,15 +204,8 @@ create_admin_handlers!(
     response => crate::models::finance::fees::FeeStructurePricing,
     query => AdminQuery,
     create => crate::models::finance::fees::FeeStructurePricing,
-    update => AdminQuery,
-    service => FeeStructurePricingAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::finance::fees::FeeStructurePricing,
+    service => FeeStructurePricingAdminCrudService
 );
 
 create_admin_handlers!(
@@ -331,15 +214,8 @@ create_admin_handlers!(
     response => crate::models::finance::fees::FeeStructureSchedule,
     query => AdminQuery,
     create => crate::models::finance::fees::FeeStructureSchedule,
-    update => AdminQuery,
-    service => FeeStructureScheduleAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::finance::fees::FeeStructureSchedule,
+    service => FeeStructureScheduleAdminCrudService
 );
 
 create_admin_handlers!(
@@ -348,15 +224,8 @@ create_admin_handlers!(
     response => crate::models::academic::structure::GradeSubject,
     query => AdminQuery,
     create => crate::models::academic::structure::GradeSubject,
-    update => AdminQuery,
-    service => GradeSubjectAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::academic::structure::GradeSubject,
+    service => GradeSubjectAdminCrudService
 );
 
 create_admin_handlers!(
@@ -365,15 +234,8 @@ create_admin_handlers!(
     response => crate::models::curriculum_management::lesson_progress_period::LessonProgressPeriod,
     query => AdminQuery,
     create => crate::models::curriculum_management::lesson_progress_period::LessonProgressPeriod,
-    update => AdminQuery,
-    service => LessonProgressPeriodAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::curriculum_management::lesson_progress_period::LessonProgressPeriod,
+    service => LessonProgressPeriodAdminCrudService
 );
 
 create_admin_handlers!(
@@ -382,15 +244,8 @@ create_admin_handlers!(
     response => crate::models::curriculum_management::practical_lesson_appeals::PracticalLessonAppeal,
     query => AdminQuery,
     create => crate::models::curriculum_management::practical_lesson_appeals::PracticalLessonAppeal,
-    update => AdminQuery,
-    service => PracticalLessonAppealAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::curriculum_management::practical_lesson_appeals::PracticalLessonAppeal,
+    service => PracticalLessonAppealAdminCrudService
 );
 
 create_admin_handlers!(
@@ -399,15 +254,8 @@ create_admin_handlers!(
     response => crate::models::student::attendance::PreApprovedAbsence,
     query => AdminQuery,
     create => crate::models::student::attendance::PreApprovedAbsence,
-    update => AdminQuery,
-    service => PreApprovedAbsenceAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::student::attendance::PreApprovedAbsence,
+    service => PreApprovedAbsenceAdminCrudService
 );
 
 create_admin_handlers!(
@@ -416,15 +264,8 @@ create_admin_handlers!(
     response => crate::models::auth::profile_models::ProfileContact,
     query => AdminQuery,
     create => crate::models::auth::profile_models::ProfileContact,
-    update => AdminQuery,
-    service => ProfileContactAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::auth::profile_models::ProfileContact,
+    service => ProfileContactAdminCrudService
 );
 
 create_admin_handlers!(
@@ -433,15 +274,8 @@ create_admin_handlers!(
     response => crate::models::auth::profile_models::ProfileMedia,
     query => AdminQuery,
     create => crate::models::auth::profile_models::ProfileMedia,
-    update => AdminQuery,
-    service => ProfileMediaAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::auth::profile_models::ProfileMedia,
+    service => ProfileMediaAdminCrudService
 );
 
 create_admin_handlers!(
@@ -450,15 +284,8 @@ create_admin_handlers!(
     response => crate::models::auth::profile_models::Profile,
     query => AdminQuery,
     create => crate::models::auth::profile_models::Profile,
-    update => AdminQuery,
-    service => ProfileAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::auth::profile_models::Profile,
+    service => ProfileAdminCrudService
 );
 
 create_admin_handlers!(
@@ -467,15 +294,8 @@ create_admin_handlers!(
     response => crate::models::exams::report_card::ReportCard,
     query => AdminQuery,
     create => crate::models::exams::report_card::ReportCard,
-    update => AdminQuery,
-    service => ReportCardAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::exams::report_card::ReportCard,
+    service => ReportCardAdminCrudService
 );
 
 create_admin_handlers!(
@@ -484,15 +304,8 @@ create_admin_handlers!(
     response => crate::models::resource_management::resource_booking::ResourceBooking,
     query => AdminQuery,
     create => crate::models::resource_management::resource_booking::ResourceBooking,
-    update => AdminQuery,
-    service => ResourceBookingAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::resource_management::resource_booking::ResourceBooking,
+    service => ResourceBookingAdminCrudService
 );
 
 create_admin_handlers!(
@@ -501,15 +314,8 @@ create_admin_handlers!(
     response => crate::models::RewardAdjustment,
     query => AdminQuery,
     create => crate::models::RewardAdjustment,
-    update => AdminQuery,
-    service => RewardAdjustmentAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::RewardAdjustment,
+    service => RewardAdjustmentAdminCrudService
 );
 
 create_admin_handlers!(
@@ -518,15 +324,8 @@ create_admin_handlers!(
     response => crate::models::RewardType,
     query => AdminQuery,
     create => crate::models::RewardType,
-    update => AdminQuery,
-    service => RewardTypeAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::RewardType,
+    service => RewardTypeAdminCrudService
 );
 
 create_admin_handlers!(
@@ -535,14 +334,15 @@ create_admin_handlers!(
     response => crate::models::auth::permission::RolePermission,
     query => AdminQuery,
     create => crate::models::auth::permission::RolePermission,
-    update => AdminQuery,
+    update => crate::models::auth::permission::RolePermission,
     service => RolePermissionAdminCrudService,
     methods => {
         create => generic_create,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
+        bulk_create => generic_bulk_create,
     }
 );
 
@@ -552,14 +352,15 @@ create_admin_handlers!(
     response => crate::models::RoleSetRole,
     query => AdminQuery,
     create => crate::models::RoleSetRole,
-    update => AdminQuery,
+    update => crate::models::RoleSetRole,
     service => RoleSetRoleAdminCrudService,
     methods => {
         create => generic_create,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
+        bulk_create => generic_bulk_create,
     }
 );
 
@@ -569,7 +370,7 @@ create_admin_handlers!(
     response => crate::models::system::calendar::SchoolCalendarResponse,
     query => AdminQuery,
     create => crate::models::system::calendar::SchoolCalendar,
-    update => AdminQuery,
+    update => crate::models::system::calendar::SchoolCalendar,
     service => SchoolCalendarAdminCrudService,
     id_type => chrono::NaiveDate,
     methods => {
@@ -584,15 +385,8 @@ create_admin_handlers!(
     response => crate::models::resources::co_curricular::SportEventParticipant,
     query => AdminQuery,
     create => crate::models::resources::co_curricular::SportEventParticipant,
-    update => AdminQuery,
-    service => SportEventParticipantAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::resources::co_curricular::SportEventParticipant,
+    service => SportEventParticipantAdminCrudService
 );
 
 create_admin_handlers!(
@@ -601,15 +395,8 @@ create_admin_handlers!(
     response => crate::models::SportEvent,
     query => AdminQuery,
     create => crate::models::SportEvent,
-    update => AdminQuery,
-    service => SportEventAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::SportEvent,
+    service => SportEventAdminCrudService
 );
 
 create_admin_handlers!(
@@ -618,15 +405,8 @@ create_admin_handlers!(
     response => crate::models::resources::co_curricular::SportTeamMember,
     query => AdminQuery,
     create => crate::models::resources::co_curricular::SportTeamMember,
-    update => AdminQuery,
-    service => SportTeamMemberAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::resources::co_curricular::SportTeamMember,
+    service => SportTeamMemberAdminCrudService
 );
 
 create_admin_handlers!(
@@ -635,15 +415,8 @@ create_admin_handlers!(
     response => crate::models::staff::attendance::StaffAttendance,
     query => AdminQuery,
     create => crate::models::staff::attendance::StaffAttendance,
-    update => AdminQuery,
-    service => StaffAttendanceAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::staff::attendance::StaffAttendance,
+    service => StaffAttendanceAdminCrudService
 );
 
 create_admin_handlers!(
@@ -652,15 +425,8 @@ create_admin_handlers!(
     response => crate::models::StaffEventParticipant,
     query => AdminQuery,
     create => crate::models::StaffEventParticipant,
-    update => AdminQuery,
-    service => StaffEventParticipantAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::StaffEventParticipant,
+    service => StaffEventParticipantAdminCrudService
 );
 
 create_admin_handlers!(
@@ -669,15 +435,8 @@ create_admin_handlers!(
     response => crate::models::StaffLeaveBalance,
     query => AdminQuery,
     create => crate::models::StaffLeaveBalance,
-    update => AdminQuery,
-    service => StaffLeaveBalanceAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::StaffLeaveBalance,
+    service => StaffLeaveBalanceAdminCrudService
 );
 
 create_admin_handlers!(
@@ -686,15 +445,8 @@ create_admin_handlers!(
     response => crate::models::staff::leave::StaffLeaveRequest,
     query => AdminQuery,
     create => crate::models::staff::leave::StaffLeaveRequest,
-    update => AdminQuery,
-    service => StaffLeaveRequestAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::staff::leave::StaffLeaveRequest,
+    service => StaffLeaveRequestAdminCrudService
 );
 
 create_admin_handlers!(
@@ -703,15 +455,8 @@ create_admin_handlers!(
     response => crate::models::staff::leave::StaffLeaveTypeModel,
     query => AdminQuery,
     create => crate::models::staff::leave::StaffLeaveTypeModel,
-    update => AdminQuery,
-    service => StaffLeaveTypeAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::staff::leave::StaffLeaveTypeModel,
+    service => StaffLeaveTypeAdminCrudService
 );
 
 create_admin_handlers!(
@@ -720,15 +465,8 @@ create_admin_handlers!(
     response => crate::models::staff::leave::StaffLeave,
     query => AdminQuery,
     create => crate::models::staff::leave::StaffLeave,
-    update => AdminQuery,
-    service => StaffLeaveAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::staff::leave::StaffLeave,
+    service => StaffLeaveAdminCrudService
 );
 
 create_admin_handlers!(
@@ -737,15 +475,8 @@ create_admin_handlers!(
     response => crate::models::finance::salary::StaffSalary,
     query => AdminQuery,
     create => crate::models::finance::salary::StaffSalary,
-    update => AdminQuery,
-    service => StaffSalaryAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::finance::salary::StaffSalary,
+    service => StaffSalaryAdminCrudService
 );
 
 create_admin_handlers!(
@@ -754,15 +485,8 @@ create_admin_handlers!(
     response => crate::models::StaffSubjectExpertise,
     query => AdminQuery,
     create => crate::models::StaffSubjectExpertise,
-    update => AdminQuery,
-    service => StaffSubjectExpertiseAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::StaffSubjectExpertise,
+    service => StaffSubjectExpertiseAdminCrudService
 );
 
 create_admin_handlers!(
@@ -771,14 +495,15 @@ create_admin_handlers!(
     response => crate::models::StaffSubject,
     query => AdminQuery,
     create => crate::models::StaffSubject,
-    update => AdminQuery,
+    update => crate::models::StaffSubject,
     service => StaffSubjectAdminCrudService,
     methods => {
         create => generic_create,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
+        bulk_create => generic_bulk_create,
     }
 );
 
@@ -788,15 +513,8 @@ create_admin_handlers!(
     response => crate::models::student::attendance::StudentAttendance,
     query => AdminQuery,
     create => crate::models::student::attendance::StudentAttendance,
-    update => AdminQuery,
-    service => StudentAttendanceAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::student::attendance::StudentAttendance,
+    service => StudentAttendanceAdminCrudService
 );
 
 create_admin_handlers!(
@@ -805,15 +523,8 @@ create_admin_handlers!(
     response => crate::models::student::history::StudentClassAssignmentHistory,
     query => AdminQuery,
     create => crate::models::student::history::StudentClassAssignmentHistory,
-    update => AdminQuery,
-    service => StudentClassAssignmentHistoryAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::student::history::StudentClassAssignmentHistory,
+    service => StudentClassAssignmentHistoryAdminCrudService
 );
 
 create_admin_handlers!(
@@ -822,15 +533,8 @@ create_admin_handlers!(
     response => crate::models::StudentDemographic,
     query => AdminQuery,
     create => crate::models::StudentDemographic,
-    update => AdminQuery,
-    service => StudentDemographicAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::StudentDemographic,
+    service => StudentDemographicAdminCrudService
 );
 
 create_admin_handlers!(
@@ -839,15 +543,8 @@ create_admin_handlers!(
     response => crate::models::student::guardian::StudentGuardian,
     query => AdminQuery,
     create => crate::models::student::guardian::StudentGuardian,
-    update => AdminQuery,
-    service => StudentGuardianAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::student::guardian::StudentGuardian,
+    service => StudentGuardianAdminCrudService
 );
 
 create_admin_handlers!(
@@ -856,15 +553,8 @@ create_admin_handlers!(
     response => crate::models::exams::student_marks::StudentMarkEntryHistory,
     query => AdminQuery,
     create => crate::models::exams::student_marks::StudentMarkEntryHistory,
-    update => AdminQuery,
-    service => StudentMarkEntryHistoryAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::exams::student_marks::StudentMarkEntryHistory,
+    service => StudentMarkEntryHistoryAdminCrudService
 );
 
 create_admin_handlers!(
@@ -873,15 +563,8 @@ create_admin_handlers!(
     response => crate::models::exams::student_marks::StudentMark,
     query => AdminQuery,
     create => crate::models::exams::student_marks::StudentMark,
-    update => AdminQuery,
-    service => StudentMarkAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::exams::student_marks::StudentMark,
+    service => StudentMarkAdminCrudService
 );
 
 create_admin_handlers!(
@@ -890,15 +573,8 @@ create_admin_handlers!(
     response => crate::models::exams::student_marks::StudentMarkHistory,
     query => AdminQuery,
     create => crate::models::exams::student_marks::StudentMarkHistory,
-    update => AdminQuery,
-    service => StudentMarkHistoryAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::exams::student_marks::StudentMarkHistory,
+    service => StudentMarkHistoryAdminCrudService
 );
 
 create_admin_handlers!(
@@ -907,15 +583,8 @@ create_admin_handlers!(
     response => crate::models::exams::zscore::StudentZScore,
     query => AdminQuery,
     create => crate::models::exams::zscore::StudentZScore,
-    update => AdminQuery,
-    service => StudentZScoreAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::exams::zscore::StudentZScore,
+    service => StudentZScoreAdminCrudService
 );
 
 create_admin_handlers!(
@@ -924,15 +593,8 @@ create_admin_handlers!(
     response => crate::models::academic::subject::SubjectEnrollment,
     query => AdminQuery,
     create => crate::models::academic::subject::SubjectEnrollment,
-    update => AdminQuery,
-    service => SubjectEnrollmentAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::academic::subject::SubjectEnrollment,
+    service => SubjectEnrollmentAdminCrudService
 );
 
 create_admin_handlers!(
@@ -941,15 +603,8 @@ create_admin_handlers!(
     response => crate::models::TeacherRewardBalance,
     query => AdminQuery,
     create => crate::models::TeacherRewardBalance,
-    update => AdminQuery,
-    service => TeacherRewardBalanceAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::TeacherRewardBalance,
+    service => TeacherRewardBalanceAdminCrudService
 );
 
 create_admin_handlers!(
@@ -958,15 +613,8 @@ create_admin_handlers!(
     response => crate::models::TeacherRewardDetail,
     query => AdminQuery,
     create => crate::models::TeacherRewardDetail,
-    update => AdminQuery,
-    service => TeacherRewardDetailAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::TeacherRewardDetail,
+    service => TeacherRewardDetailAdminCrudService
 );
 
 create_admin_handlers!(
@@ -975,15 +623,8 @@ create_admin_handlers!(
     response => crate::models::TeacherRewardHistory,
     query => AdminQuery,
     create => crate::models::TeacherRewardHistory,
-    update => AdminQuery,
-    service => TeacherRewardHistoryAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::TeacherRewardHistory,
+    service => TeacherRewardHistoryAdminCrudService
 );
 
 create_admin_handlers!(
@@ -992,14 +633,15 @@ create_admin_handlers!(
     response => crate::models::auth::permission::UserPermission,
     query => AdminQuery,
     create => crate::models::auth::permission::UserPermission,
-    update => AdminQuery,
+    update => crate::models::auth::permission::UserPermission,
     service => UserPermissionAdminCrudService,
     methods => {
         create => generic_create,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
+        bulk_create => generic_bulk_create,
     }
 );
 
@@ -1009,15 +651,8 @@ create_admin_handlers!(
     response => crate::models::auth::profile_models::UserProfile,
     query => AdminQuery,
     create => crate::models::auth::profile_models::UserProfile,
-    update => AdminQuery,
-    service => UserProfileAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::auth::profile_models::UserProfile,
+    service => UserProfileAdminCrudService
 );
 
 create_admin_handlers!(
@@ -1026,15 +661,8 @@ create_admin_handlers!(
     response => crate::models::UserSecurity,
     query => AdminQuery,
     create => crate::models::UserSecurity,
-    update => AdminQuery,
-    service => UserSecurityAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::UserSecurity,
+    service => UserSecurityAdminCrudService
 );
 
 create_admin_handlers!(
@@ -1043,15 +671,8 @@ create_admin_handlers!(
     response => crate::models::auth::permission::UserSetPermission,
     query => AdminQuery,
     create => crate::models::auth::permission::UserSetPermission,
-    update => AdminQuery,
-    service => UserSetPermissionAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::auth::permission::UserSetPermission,
+    service => UserSetPermissionAdminCrudService
 );
 
 create_admin_handlers!(
@@ -1060,15 +681,8 @@ create_admin_handlers!(
     response => crate::models::auth::permission::UserSetUser,
     query => AdminQuery,
     create => crate::models::auth::permission::UserSetUser,
-    update => AdminQuery,
-    service => UserSetUserAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::auth::permission::UserSetUser,
+    service => UserSetUserAdminCrudService
 );
 
 create_admin_handlers!(
@@ -1077,15 +691,8 @@ create_admin_handlers!(
     response => crate::models::UserStatus,
     query => AdminQuery,
     create => crate::models::UserStatus,
-    update => AdminQuery,
-    service => UserStatusAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::UserStatus,
+    service => UserStatusAdminCrudService
 );
 
 create_admin_handlers!(
@@ -1094,15 +701,8 @@ create_admin_handlers!(
     response => crate::models::auth::tokens::VerificationToken,
     query => AdminQuery,
     create => crate::models::auth::tokens::VerificationToken,
-    update => AdminQuery,
-    service => VerificationTokenAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::auth::tokens::VerificationToken,
+    service => VerificationTokenAdminCrudService
 );
 
 create_admin_handlers!(
@@ -1111,13 +711,7 @@ create_admin_handlers!(
     response => crate::models::exams::zscore::ZScoreCalculation,
     query => AdminQuery,
     create => crate::models::exams::zscore::ZScoreCalculation,
-    update => AdminQuery,
-    service => ZScoreCalculationAdminCrudService,
-    methods => {
-        create => generic_create,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => crate::models::exams::zscore::ZScoreCalculation,
+    service => ZScoreCalculationAdminCrudService
 );
+

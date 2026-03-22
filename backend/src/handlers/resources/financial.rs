@@ -39,10 +39,10 @@ use crate::services::resources::financial::{
 use crate::services::finance::fees_v2::{FeeInvoiceService, FeeInvoiceItemService, FeePaymentAllocationService, FeeStructureItemService};
 use crate::services::finance::procurement::{VendorService, PurchaseOrderService, PurchaseOrderItemService};
 // use crate::services::finance::procurement::VendorCategoryService;
-use crate::services::finance::detention::DetentionBalanceService;
+use crate::services::behavior_management::detention::DetentionBalanceService;
 use crate::models::finance::fees_v2::*;
 use crate::models::finance::procurement::*;
-use crate::models::finance::detention::*;
+use crate::models::behavior_management::detention::*;
 use crate::services::resources::financial;
 use actix_web::web::{Data, Json, Path};
 use apistos::web;
@@ -68,7 +68,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -87,7 +86,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -106,7 +104,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -125,7 +122,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -144,7 +140,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -163,7 +158,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -182,7 +176,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -192,14 +185,15 @@ create_admin_handlers!(
     response => IncomeTransaction,
     query => AdminQuery,
     create => RecordIncomeRequest,
-    update => AdminQuery, // Dummy
+    update => IncomeTransaction,
     service => IncomeTransactionService,
     methods => {
         create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
+        update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -218,7 +212,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -228,14 +221,15 @@ create_admin_handlers!(
     response => ExpenseTransaction,
     query => AdminQuery,
     create => RecordExpenseRequest,
-    update => AdminQuery, // Dummy
+    update => ExpenseTransaction,
     service => ExpenseTransactionService,
     methods => {
         create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
+        update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -245,14 +239,15 @@ create_admin_handlers!(
     response => PettyCashTransaction,
     query => AdminQuery,
     create => RecordPettyCashRequest,
-    update => AdminQuery, // Dummy
+    update => PettyCashTransaction,
     service => PettyCashTransactionService,
     methods => {
         create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
+        update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -262,14 +257,15 @@ create_admin_handlers!(
     response => SalaryComponent,
     query => AdminQuery,
     create => CreateSalaryComponentRequest,
-    update => AdminQuery, // Dummy
+    update => SalaryComponent,
     service => SalaryComponentService,
     methods => {
         create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
+        update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -279,14 +275,15 @@ create_admin_handlers!(
     response => SalaryPayment,
     query => AdminQuery,
     create => RecordSalaryPaymentRequest,
-    update => AdminQuery, // Dummy
+    update => SalaryPayment,
     service => SalaryPaymentService,
     methods => {
         create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
+        update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -305,7 +302,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -315,14 +311,15 @@ create_admin_handlers!(
     response => FeeInvoiceItem,
     query => AdminQuery,
     create => CreateFeeInvoiceItemRequest,
-    update => AdminQuery, // Placeholder
+    update => FeeInvoiceItem,
     service => FeeInvoiceItemService,
     methods => {
         create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
+        update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -332,14 +329,15 @@ create_admin_handlers!(
     response => FeePaymentAllocation,
     query => AdminQuery,
     create => CreateFeePaymentAllocationRequest,
-    update => AdminQuery, // Placeholder
+    update => FeePaymentAllocation,
     service => FeePaymentAllocationService,
     methods => {
         create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
+        update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -349,14 +347,15 @@ create_admin_handlers!(
     response => FeeStructureItem,
     query => AdminQuery,
     create => CreateFeeStructureItemRequest,
-    update => AdminQuery, // Placeholder
+    update => FeeStructureItem,
     service => FeeStructureItemService,
     methods => {
         create => create_with_logic,
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
+        update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -367,16 +366,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateVendorRequest,
     update => UpdateVendorRequest,
-    service => VendorService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => VendorService
 );
 
 /*
@@ -387,15 +377,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateVendorCategoryRequest,
     update => AdminQuery, // Placeholder
-    service => VendorCategoryService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    service => VendorCategoryService
 );
 */
 
@@ -412,7 +394,7 @@ create_admin_handlers!(
         get_all => generic_get_all,
         update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -423,15 +405,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreatePurchaseOrderItemRequest,
     update => UpdatePurchaseOrderItemRequest,
-    service => PurchaseOrderItemService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    service => PurchaseOrderItemService
 );
 
 #[api_operation(
@@ -458,6 +432,7 @@ create_admin_handlers!(
     create => CreateDetentionBalanceRequest,
     update => UpdateDetentionBalanceRequest,
     service => DetentionBalanceService,
+    id_type => String,
     methods => {
         create => create_with_logic,
         get_by_id => generic_get_by_id,
@@ -465,7 +440,7 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
+        bulk_update => generic_bulk_update,
     }
 );
 
@@ -576,8 +551,7 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(get_all_fee_invoice))
             .route("/{id}", web::put().to(update_fee_invoice))
             .route("/{id}", web::delete().to(delete_fee_invoice))
-            .route("/bulk", web::delete().to(bulk_delete_fee_invoice))
-            .route("/bulk", web::patch().to(bulk_update_fee_invoice)),
+            .route("/bulk", web::delete().to(bulk_delete_fee_invoice)),
     )
     .service(
         web::scope("/fee-invoice-items")
@@ -669,3 +643,4 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .route("/bulk", web::patch().to(bulk_update_detention_balance)),
     );
 }
+

@@ -4,7 +4,7 @@ use crate::models::academic::{
     AlStreamOptionalGroupResponse, AlStreamQuery, AlStreamResponse, ClassQuery, ClassResponse,
     CreateAcademicYearRequest, CreateAlStreamOptionalGroupRequest, CreateAlStreamRequest,
     CreateClassRequest, CreateGradeLevelRequest, CreateGradePeriodRequest, CreateSchoolRoomRequest,
-    CreateSubjectRequest, CreateTermRequest, CreateTimetableRequest, GradeLevelQuery,
+    CreateSubjectRequest, CreateSubstitutionPlanRequest, CreateTermRequest, CreateTimetableRequest, GradeLevelQuery,
     GradeLevelResponse, GradePeriodQuery, GradePeriodResponse, SchoolRoomQuery, SchoolRoomResponse,
     SubjectQuery, SubjectResponse, SubstitutionPlan, TermQuery, TermResponse, TimetableQuery,
     TimetableResponse, UpdateAcademicYearRequest, UpdateAlStreamOptionalGroupRequest,
@@ -26,16 +26,7 @@ create_admin_handlers!(
     query => AcademicYearQuery,
     create => CreateAcademicYearRequest,
     update => UpdateAcademicYearRequest,
-    service => AcademicYearService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => update_with_logic,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => AcademicYearService
 );
 
 create_admin_handlers!(
@@ -45,16 +36,7 @@ create_admin_handlers!(
     query => ClassQuery,
     create => CreateClassRequest,
     update => UpdateClassRequest,
-    service => ClassService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => ClassService
 );
 
 create_admin_handlers!(
@@ -64,16 +46,7 @@ create_admin_handlers!(
     query => GradeLevelQuery,
     create => CreateGradeLevelRequest,
     update => UpdateGradeLevelRequest,
-    service => GradeLevelService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => GradeLevelService
 );
 
 create_admin_handlers!(
@@ -83,16 +56,7 @@ create_admin_handlers!(
     query => SubjectQuery,
     create => CreateSubjectRequest,
     update => UpdateSubjectRequest,
-    service => SubjectService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => SubjectService
 );
 
 create_admin_handlers!(
@@ -102,16 +66,7 @@ create_admin_handlers!(
     query => TermQuery,
     create => CreateTermRequest,
     update => UpdateTermRequest,
-    service => TermService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => TermService
 );
 
 create_admin_handlers!(
@@ -121,16 +76,7 @@ create_admin_handlers!(
     query => TimetableQuery,
     create => CreateTimetableRequest,
     update => UpdateTimetableRequest,
-    service => TimetableService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => TimetableService
 );
 
 create_admin_handlers!(
@@ -140,16 +86,7 @@ create_admin_handlers!(
     query => GradePeriodQuery,
     create => CreateGradePeriodRequest,
     update => UpdateGradePeriodRequest,
-    service => GradePeriodService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => GradePeriodService
 );
 
 create_admin_handlers!(
@@ -159,16 +96,7 @@ create_admin_handlers!(
     query => SchoolRoomQuery,
     create => CreateSchoolRoomRequest,
     update => UpdateSchoolRoomRequest,
-    service => SchoolRoomService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => SchoolRoomService
 );
 
 create_admin_handlers!(
@@ -178,15 +106,7 @@ create_admin_handlers!(
     query => AdminQuery,
     create => CreateSubstitutionPlanRequest,
     update => UpdateSubstitutionPlanRequest,
-    service => SubstitutionPlanService,
-    methods => {
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => update_with_logic,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => bulk_update_with_logic
-    }
+    service => SubstitutionPlanService
 );
 
 create_admin_handlers!(
@@ -196,16 +116,7 @@ create_admin_handlers!(
     query => AlStreamQuery,
     create => CreateAlStreamRequest,
     update => UpdateAlStreamRequest,
-    service => AlStreamService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => AlStreamService
 );
 
 create_admin_handlers!(
@@ -215,16 +126,7 @@ create_admin_handlers!(
     query => AlStreamOptionalGroupQuery,
     create => CreateAlStreamOptionalGroupRequest,
     update => UpdateAlStreamOptionalGroupRequest,
-    service => AlStreamOptionalGroupService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => AlStreamOptionalGroupService
 );
 
 pub mod academic_year;
@@ -237,3 +139,4 @@ pub mod substitution_plans;
 pub mod teacher_assignments;
 pub mod terms;
 pub mod timetable;
+

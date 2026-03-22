@@ -40,6 +40,21 @@ pub struct CreateStaffCvRequest {
     pub file_type: String,
 }
 
+impl From<CreateStaffCvRequest> for StaffCv {
+    fn from(req: CreateStaffCvRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            staff_id: req.staff_id,
+            file_name: req.file_name,
+            file_url: req.file_url,
+            file_type: req.file_type,
+            uploaded_at: now,
+            created_at: now,
+        }
+    }
+}
+
 #[derive(
     Debug,
     Serialize,
@@ -75,6 +90,21 @@ pub struct CreateStaffDocumentRequest {
     pub expiry_date: Option<NaiveDate>,
 }
 
+impl From<CreateStaffDocumentRequest> for StaffDocument {
+    fn from(req: CreateStaffDocumentRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            staff_id: req.staff_id,
+            doc_type: req.doc_type,
+            file_url: req.file_url,
+            issued_date: req.issued_date,
+            expiry_date: req.expiry_date,
+            created_at: now,
+        }
+    }
+}
+
 #[derive(
     Debug,
     Serialize,
@@ -106,6 +136,20 @@ pub struct CreateStaffNoteRequest {
     pub note_type: String,
     pub note_text: String,
     pub created_by: Option<String>,
+}
+
+impl From<CreateStaffNoteRequest> for StaffNote {
+    fn from(req: CreateStaffNoteRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            staff_id: req.staff_id,
+            note_type: req.note_type,
+            note_text: req.note_text,
+            created_by: req.created_by,
+            created_at: now,
+        }
+    }
 }
 
 #[derive(
@@ -148,6 +192,24 @@ pub struct CreateStaffOvertimeRequest {
     pub is_paid: bool,
 }
 
+impl From<CreateStaffOvertimeRequest> for StaffOvertime {
+    fn from(req: CreateStaffOvertimeRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            staff_id: req.staff_id,
+            date: req.date,
+            hours: req.hours,
+            reason: req.reason,
+            approved_by: req.approved_by,
+            reward_points: req.reward_points,
+            is_paid: req.is_paid,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+}
+
 #[derive(
     Debug,
     Serialize,
@@ -180,4 +242,19 @@ pub struct CreateStaffSkillRequest {
     pub skill_name: String,
     pub proficiency_level: String,
     pub notes: Option<String>,
+}
+
+impl From<CreateStaffSkillRequest> for StaffSkill {
+    fn from(req: CreateStaffSkillRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            staff_id: req.staff_id,
+            skill_name: req.skill_name,
+            proficiency_level: req.proficiency_level,
+            notes: req.notes,
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }

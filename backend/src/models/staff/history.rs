@@ -48,6 +48,26 @@ pub struct CreateStaffEmploymentHistoryRequest {
     pub reason_for_leaving: Option<String>,
 }
 
+impl From<CreateStaffEmploymentHistoryRequest> for StaffEmploymentHistory {
+    fn from(req: CreateStaffEmploymentHistoryRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            staff_id: req.staff_id,
+            previous_school: req.previous_school,
+            position: req.position,
+            start_date: req.start_date,
+            end_date: req.end_date,
+            reason_for_leaving: req.reason_for_leaving,
+            created_at: now,
+            updated_at: now,
+            workplace_address: None,
+            workplace_contact_number: None,
+            workplace_email: None,
+        }
+    }
+}
+
 #[derive(
     Debug,
     Serialize,
@@ -89,4 +109,23 @@ pub struct CreateTeacherTeachingHistoryRequest {
     pub start_date: NaiveDate,
     pub end_date: Option<NaiveDate>,
     pub notes: Option<String>,
+}
+
+impl From<CreateTeacherTeachingHistoryRequest> for TeacherTeachingHistory {
+    fn from(req: CreateTeacherTeachingHistoryRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            staff_id: req.staff_id,
+            school_name: req.school_name,
+            subject_id: req.subject_id,
+            grade_level_id: req.grade_level_id,
+            role_title: req.role_title,
+            start_date: req.start_date,
+            end_date: req.end_date,
+            notes: req.notes,
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }

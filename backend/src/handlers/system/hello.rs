@@ -32,3 +32,4 @@ pub async fn hello_error() -> Result<Json<MessageResponse>, APIError> {
         StatusCode::FORBIDDEN,
     ));
 }
+

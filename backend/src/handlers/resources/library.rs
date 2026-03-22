@@ -20,16 +20,7 @@ create_admin_handlers_i32!(
     query => LibrarySettingsQuery,
     create => LibrarySettings,
     update => LibrarySettings, // Placeholder
-    service => LibrarySettingsService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => LibrarySettingsService
 );
 
 create_admin_handlers_i32!(
@@ -46,8 +37,6 @@ create_admin_handlers_i32!(
         get_all => generic_get_all,
         update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -65,8 +54,6 @@ create_admin_handlers_i32!(
         get_all => generic_get_all,
         update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -83,8 +70,6 @@ create_admin_handlers_i32!(
         get_all => generic_get_all,
         update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -263,9 +248,7 @@ pub fn config(cfg: &mut apistos_web::ServiceConfig) {
             .route("/{id}", apistos_web::get().to(get_library_category_by_id))
             .route("", apistos_web::get().to(get_all_library_category))
             .route("/{id}", apistos_web::put().to(update_library_category))
-            .route("/{id}", apistos_web::delete().to(delete_library_category))
-            .route("/bulk", apistos_web::delete().to(bulk_delete_library_category))
-            .route("/bulk", apistos_web::patch().to(bulk_update_library_category)),
+            .route("/{id}", apistos_web::delete().to(delete_library_category)),
     )
     .service(
         apistos_web::scope("/library-books")
@@ -275,9 +258,7 @@ pub fn config(cfg: &mut apistos_web::ServiceConfig) {
             .route("/{id}", apistos_web::get().to(get_library_book_by_id))
             .route("", apistos_web::get().to(get_all_library_book))
             .route("/{id}", apistos_web::put().to(update_library_book))
-            .route("/{id}", apistos_web::delete().to(delete_library_book))
-            .route("/bulk", apistos_web::delete().to(bulk_delete_library_book))
-            .route("/bulk", apistos_web::patch().to(bulk_update_library_book)),
+            .route("/{id}", apistos_web::delete().to(delete_library_book)),
     )
     .service(
         apistos_web::scope("/library-issues")
@@ -286,9 +267,7 @@ pub fn config(cfg: &mut apistos_web::ServiceConfig) {
             .route("/{id}", apistos_web::get().to(get_library_issue_by_id))
             .route("", apistos_web::get().to(get_all_library_issue))
             .route("/{id}", apistos_web::put().to(update_library_issue))
-            .route("/{id}", apistos_web::delete().to(delete_library_issue))
-            .route("/bulk", apistos_web::delete().to(bulk_delete_library_issue))
-            .route("/bulk", apistos_web::patch().to(bulk_update_library_issue)),
+            .route("/{id}", apistos_web::delete().to(delete_library_issue)),
     )
     .service(
         apistos_web::scope("/library-settings")
@@ -320,3 +299,4 @@ pub fn config(cfg: &mut apistos_web::ServiceConfig) {
             .route("/stats", apistos_web::get().to(get_library_stats)),
     );
 }
+

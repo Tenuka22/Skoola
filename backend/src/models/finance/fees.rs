@@ -67,6 +67,7 @@ pub struct FeeStructure {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     Associations,
     ApiComponent,
@@ -91,6 +92,7 @@ pub struct FeeStructurePricing {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     Associations,
     ApiComponent,
@@ -149,6 +151,7 @@ pub struct StudentFee {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     Associations,
     ApiComponent,
@@ -175,6 +178,7 @@ pub struct FeePayment {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     Associations,
     ApiComponent,
@@ -229,7 +233,7 @@ impl crate::services::admin_db::AsAdminQuery for FeeCategoryQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -293,7 +297,7 @@ impl crate::services::admin_db::AsAdminQuery for FeeStructureQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

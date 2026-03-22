@@ -55,7 +55,7 @@ impl crate::services::admin_db::AsAdminQuery for StudentAllergyQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -160,7 +160,7 @@ impl crate::services::admin_db::AsAdminQuery for StudentMedicalConditionQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -260,7 +260,7 @@ impl crate::services::admin_db::AsAdminQuery for StudentMedicationQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -309,6 +309,55 @@ impl From<StudentMedication> for StudentMedicationResponse {
             notes: medication.notes,
             created_at: medication.created_at,
             updated_at: medication.updated_at,
+        }
+    }
+}
+
+impl From<CreateStudentAllergyRequest> for StudentAllergy {
+    fn from(req: CreateStudentAllergyRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            allergen_type: req.allergen_type,
+            allergen_name: req.allergen_name,
+            reaction_severity: req.reaction_severity,
+            reaction_description: req.reaction_description,
+            requires_epipen: req.requires_epipen,
+            notes: req.notes,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
+impl From<CreateStudentMedicalConditionRequest> for StudentMedicalCondition {
+    fn from(req: CreateStudentMedicalConditionRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            condition_type: req.condition_type,
+            condition_name: req.condition_name,
+            severity: req.severity,
+            diagnosis_date: req.diagnosis_date,
+            notes: req.notes,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
+impl From<CreateStudentMedicationRequest> for StudentMedication {
+    fn from(req: CreateStudentMedicationRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            medication_name: req.medication_name,
+            dosage: req.dosage,
+            frequency: req.frequency,
+            is_emergency_med: req.is_emergency_med,
+            notes: req.notes,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

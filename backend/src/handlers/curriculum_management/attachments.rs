@@ -26,7 +26,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -96,3 +95,4 @@ pub async fn get_lesson_attachments(
     let list = attachments::get_lesson_attachments(data, path.into_inner()).await?;
     Ok(Json(list))
 }
+

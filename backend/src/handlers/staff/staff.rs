@@ -1,4 +1,4 @@
-use crate::models::staff::staff::{CreateStaffRequest, UpdateStaffRequest, StaffResponse, StaffQuery, StaffContactResponse, StaffContactQuery, CreateStaffContactRequest, UpdateStaffContactRequest, StaffMediaResponse, CreateStaffMediaRequest, UpdateStaffMediaRequest, StaffRewardSnapshotResponse, CreateStaffRewardSnapshotRequest, UpdateStaffRewardSnapshotRequest};
+use crate::models::staff::staff::{CreateStaffRequest, StaffResponse, StaffQuery, StaffContactResponse, StaffContactQuery, CreateStaffContactRequest, UpdateStaffContactRequest, StaffMediaResponse, CreateStaffMediaRequest, UpdateStaffMediaRequest, StaffRewardSnapshotResponse, CreateStaffRewardSnapshotRequest, UpdateStaffRewardSnapshotRequest, UpdateStaffRequest};
 use crate::services::staff::staff::{StaffService, StaffContactService, StaffMediaService, StaffRewardSnapshotService};
 use crate::create_admin_handlers;
 use crate::services::admin_db::AdminQuery;
@@ -18,7 +18,7 @@ create_admin_handlers!(
         update => update_with_logic,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => bulk_update_staff
+        bulk_update => bulk_update_staff,
     }
 );
 
@@ -36,7 +36,7 @@ create_admin_handlers!(
         get_all => generic_get_all,
         update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -54,7 +54,7 @@ create_admin_handlers!(
         get_all => generic_get_all,
         update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -72,7 +72,8 @@ create_admin_handlers!(
         get_all => generic_get_all,
         update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
+
 

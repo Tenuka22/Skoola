@@ -16,7 +16,6 @@ pub mod system;
 pub use academic::*;
 pub use admin_db_crud::*;
 pub use auth::*;
-#[allow(ambiguous_glob_reexports)]
 pub use behavior_management::*;
 pub use curriculum_management::*;
 pub use exams::*;
@@ -30,7 +29,7 @@ pub use staff::{
 };
 pub use student::{
     Student, StudentQuery, StudentResponse, attendance as StudentAttendance,
-    history as StudentHistory, DetentionBalance as StudentDetentionBalance,
+    history as StudentHistory,
 };
 pub use system::{
     FileModel, FileQuery, FileResponse,

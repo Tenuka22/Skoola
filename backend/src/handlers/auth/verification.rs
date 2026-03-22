@@ -144,3 +144,4 @@ pub async fn resend_verification_email(
         message: "Verification email sent! Please check your inbox.".to_string(),
     }))
 }
+

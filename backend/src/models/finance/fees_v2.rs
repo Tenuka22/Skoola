@@ -96,7 +96,7 @@ impl AsAdminQuery for FeeInvoiceQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

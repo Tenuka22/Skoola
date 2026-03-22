@@ -12,16 +12,7 @@ create_admin_handlers!(
     query => GovernmentExamQuery,
     create => CreateGovernmentExamRequest,
     update => UpdateGovernmentExamRequest,
-    service => GovernmentExamService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => update_with_logic,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => GovernmentExamService
 );
 
 create_admin_handlers!(
@@ -31,14 +22,6 @@ create_admin_handlers!(
     query => GovernmentExamSubjectQuery,
     create => CreateGovernmentExamSubjectRequest,
     update => UpdateGovernmentExamSubjectRequest,
-    service => GovernmentExamSubjectService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => GovernmentExamSubjectService
 );
+

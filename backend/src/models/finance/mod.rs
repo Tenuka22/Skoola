@@ -10,7 +10,6 @@ pub mod petty_cash_transaction;
 pub mod salary;
 pub mod transaction;
 pub mod procurement;
-pub mod detention;
 
 pub use account::*;
 pub use budget::{
@@ -30,4 +29,3 @@ pub use transaction::{
     ReconcilePettyCashRequest, RecordExpenseRequest, RecordIncomeRequest,
 };
 pub use procurement::*;
-pub use detention::*;

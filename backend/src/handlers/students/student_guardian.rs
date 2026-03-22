@@ -84,3 +84,4 @@ pub async fn get_all_guardians_for_student(
         student_guardian::get_all_guardians_for_student(data.clone(), student_id).await?;
     Ok(Json(guardians))
 }
+

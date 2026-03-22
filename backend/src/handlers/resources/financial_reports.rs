@@ -22,3 +22,4 @@ pub async fn get_trial_balance(
     let account_balances = ledger::generate_trial_balance(data).await?;
     Ok(web::Json(TrialBalanceResponse { account_balances }))
 }
+

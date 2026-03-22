@@ -11,6 +11,7 @@ use diesel::prelude::*;
 use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::impl_admin_entity_service;
 use crate::services::admin_db::AdminQuery;
+use crate::models::behavior_management::DetentionBalance;
 
 impl_admin_entity_service!(
     ActivityTypeService,
@@ -199,7 +200,7 @@ pub async fn mark_activity_attendance(
             let hours_served = (duration.num_minutes() as f32) / 60.0;
 
             use crate::schema::detention_balances;
-            if let Ok(balance) = detention_balances::table.find(&user_id).first::<crate::models::behavior_management::detention_balance::DetentionBalance>(&mut conn) {
+            if let Ok(balance) = detention_balances::table.find(&user_id).first::<DetentionBalance>(&mut conn) {
                 diesel::update(detention_balances::table.find(&user_id))
                     .set((
                         detention_balances::total_hours_served.eq(balance.total_hours_served + hours_served),

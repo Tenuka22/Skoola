@@ -6,3 +6,4 @@ pub mod details;
 pub mod assignments;
 pub mod contracts;
 pub mod events;
+

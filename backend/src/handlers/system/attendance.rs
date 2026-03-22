@@ -18,16 +18,7 @@ create_admin_handlers!(
     query => AttendancePolicyQuery,
     create => CreateAttendancePolicyRequest,
     update => UpdateAttendancePolicyRequest,
-    service => AttendancePoliciesService,
-    methods => {
-        create => create_attendance_policy,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => AttendancePoliciesService
 );
 
 create_admin_handlers!(
@@ -37,16 +28,7 @@ create_admin_handlers!(
     query => AttendanceExcuseQuery,
     create => CreateAttendanceExcuseRequest,
     update => UpdateAttendanceExcuseRequest,
-    service => AttendanceExcusesService,
-    methods => {
-        create => create_attendance_excuse,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => AttendanceExcusesService
 );
 
 create_admin_handlers!(
@@ -56,14 +38,6 @@ create_admin_handlers!(
     query => AttendanceDiscrepancyQuery,
     create => CreateAttendanceDiscrepancyRequest,
     update => UpdateAttendanceDiscrepancyRequest,
-    service => AttendanceDiscrepanciesService,
-    methods => {
-        create => create_attendance_discrepancy,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => AttendanceDiscrepanciesService
 );
+

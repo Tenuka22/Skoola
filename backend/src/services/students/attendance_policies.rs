@@ -5,8 +5,9 @@ use crate::schema::{
 use crate::{
     AppState,
     database::enums::{AttendanceStatus, ConsequenceType, ExitReason, PolicyRuleType},
-    database::tables::{AttendancePolicy, DetentionBalance, ExitPass},
+    database::tables::{AttendancePolicy, ExitPass},
     errors::APIError,
+    models::behavior_management::DetentionBalance,
 };
 use actix_web::web;
 use chrono::{NaiveTime, Utc};

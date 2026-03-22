@@ -1,9 +1,10 @@
-use crate::database::enums::BehaviorIncidentStatus;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use apistos::ApiComponent;
 use schemars::JsonSchema;
+
+use crate::models::behavior_management::incident_details::{RecordBehaviorIncidentRequest, CreateBehaviorIncidentDetailsRequest};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::behavior_incidents)]
@@ -27,18 +28,16 @@ pub struct NewBehaviorIncident {
     pub incident_date: NaiveDateTime,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
-#[diesel(table_name = crate::schema::behavior_incident_details)]
-pub struct BehaviorIncidentDetail {
-    pub incident_id: String,
-    pub description: String,
-    pub points_awarded: i32,
-    pub severity_id: Option<String>,
-    pub status: BehaviorIncidentStatus,
-    pub resolved_by: Option<String>,
-    pub resolved_at: Option<NaiveDateTime>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+impl From<RecordBehaviorIncidentRequest> for NewBehaviorIncident {
+    fn from(req: RecordBehaviorIncidentRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            reported_by_user_id: uuid::Uuid::new_v4().to_string(),
+            incident_type_id: req.incident_type_id,
+            incident_date: req.incident_date,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Insertable, JsonSchema, ApiComponent)]
@@ -49,6 +48,18 @@ pub struct NewBehaviorIncidentDetail {
     pub points_awarded: i32,
     pub severity_id: Option<String>,
     pub status: String,
+}
+
+impl From<CreateBehaviorIncidentDetailsRequest> for NewBehaviorIncidentDetail {
+    fn from(req: CreateBehaviorIncidentDetailsRequest) -> Self {
+        Self {
+            incident_id: req.incident_id,
+            description: req.description,
+            points_awarded: req.points_awarded,
+            severity_id: req.severity_id,
+            status: req.status,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, ApiComponent)]
@@ -73,6 +84,6 @@ impl crate::services::admin_db::AsAdminQuery for BehaviorIncidentQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }

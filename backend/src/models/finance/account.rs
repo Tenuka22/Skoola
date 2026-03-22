@@ -82,7 +82,7 @@ impl crate::services::admin_db::AsAdminQuery for ChartOfAccountQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -142,4 +142,23 @@ pub struct UpdateChartOfAccountRequest {
     pub parent_account_id: Option<String>,
     pub is_active: Option<bool>,
     pub currency: Option<String>,
+}
+
+impl From<CreateChartOfAccountRequest> for NewChartOfAccount {
+    fn from(req: CreateChartOfAccountRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            account_code: req.account_code,
+            account_name: req.account_name,
+            account_type: req.account_type,
+            normal_balance: req.normal_balance,
+            description: req.description,
+            parent_account_id: req.parent_account_id,
+            is_active: req.is_active,
+            currency: req.currency,
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }

@@ -9,15 +9,8 @@ create_admin_handlers!(
     response => AiProcessedNote,
     query => AdminQuery,
     create => CreateAiProcessedNoteRequest,
-    update => AdminQuery, // Placeholder
-    service => AiProcessedNoteAdminService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => AiProcessedNote,
+    service => AiProcessedNoteAdminService
 );
 
 create_admin_handlers!(
@@ -26,13 +19,7 @@ create_admin_handlers!(
     response => AiProcessedNoteSection,
     query => AdminQuery,
     create => CreateAiProcessedNoteSectionRequest,
-    update => AdminQuery, // Placeholder
-    service => AiProcessedNoteSectionAdminService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => AiProcessedNoteSection,
+    service => AiProcessedNoteSectionAdminService
 );
+

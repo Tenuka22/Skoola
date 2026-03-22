@@ -47,6 +47,22 @@ pub struct CreateStudentPreviousSchoolRequest {
     pub reason_for_leaving: Option<String>,
 }
 
+impl From<CreateStudentPreviousSchoolRequest> for StudentPreviousSchool {
+    fn from(req: CreateStudentPreviousSchoolRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            school_name: req.school_name,
+            grade_left: req.grade_left,
+            date_left: req.date_left,
+            reason_for_leaving: req.reason_for_leaving,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = student_previous_schools)]
 pub struct UpdateStudentPreviousSchoolRequest {

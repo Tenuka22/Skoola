@@ -44,6 +44,21 @@ pub struct CreateClassRequest {
     pub room_id: Option<String>,
 }
 
+impl From<CreateClassRequest> for Class {
+    fn from(req: CreateClassRequest) -> Self {
+        Class {
+            id: req.id,
+            grade_id: req.grade_id,
+            academic_year_id: req.academic_year_id,
+            class_teacher_id: req.class_teacher_id,
+            medium: req.medium,
+            room_id: req.room_id,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = classes)]
 pub struct UpdateClassRequest {
@@ -75,7 +90,7 @@ impl crate::services::admin_db::AsAdminQuery for ClassQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

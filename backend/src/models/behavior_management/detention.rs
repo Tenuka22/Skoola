@@ -9,6 +9,7 @@ use crate::services::admin_db::{AdminQuery, AsAdminQuery};
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, AsChangeset, Clone, ApiComponent)]
 #[diesel(table_name = detention_balances)]
 #[diesel(primary_key(student_id))]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct DetentionBalance {
     pub student_id: String,
     pub total_hours_assigned: f32,
@@ -46,6 +47,19 @@ pub struct CreateDetentionBalanceRequest {
     pub remaining_hours: f32,
 }
 
+impl From<CreateDetentionBalanceRequest> for DetentionBalance {
+    fn from(req: CreateDetentionBalanceRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            student_id: req.student_id,
+            total_hours_assigned: req.total_hours_assigned,
+            total_hours_served: req.total_hours_served,
+            remaining_hours: req.remaining_hours,
+            updated_at: now,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent, Clone)]
 #[diesel(table_name = detention_balances)]
 pub struct UpdateDetentionBalanceRequest {
@@ -74,6 +88,6 @@ impl AsAdminQuery for DetentionBalanceQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }

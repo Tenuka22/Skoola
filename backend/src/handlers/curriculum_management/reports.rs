@@ -33,3 +33,4 @@ pub async fn trigger_catch_up_notifications(
     let count = catch_up_notifications::notify_guardians_of_missed_lessons(data, path.into_inner()).await?;
     Ok(Json(count))
 }
+

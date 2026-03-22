@@ -9,13 +9,6 @@ create_admin_handlers!(
     query => StaffEventQuery,
     create => CreateStaffEventRequest,
     update => UpdateStaffEventRequest,
-    service => StaffEventService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => update_with_logic,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    service => StaffEventService
 );
+

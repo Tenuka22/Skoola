@@ -40,6 +40,20 @@ pub struct CreateSchoolRoomRequest {
     pub description: Option<String>,
 }
 
+impl From<CreateSchoolRoomRequest> for SchoolRoom {
+    fn from(req: CreateSchoolRoomRequest) -> Self {
+        SchoolRoom {
+            id: req.id,
+            name: req.name,
+            building: req.building,
+            floor: req.floor,
+            description: req.description,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = school_rooms)]
 pub struct UpdateSchoolRoomRequest {
@@ -70,7 +84,7 @@ impl crate::services::admin_db::AsAdminQuery for SchoolRoomQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 

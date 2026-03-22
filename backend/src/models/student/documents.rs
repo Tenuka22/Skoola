@@ -52,7 +52,7 @@ impl crate::services::admin_db::AsAdminQuery for StudentBirthCertificateQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -93,6 +93,20 @@ impl From<StudentBirthCertificate> for StudentBirthCertificateResponse {
             document_url: doc.document_url,
             created_at: doc.created_at,
             updated_at: doc.updated_at,
+        }
+    }
+}
+
+impl From<CreateStudentBirthCertificateRequest> for StudentBirthCertificate {
+    fn from(req: CreateStudentBirthCertificateRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            certificate_number: req.certificate_number,
+            issued_date: req.issued_date,
+            document_url: req.document_url,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }
@@ -143,7 +157,7 @@ impl crate::services::admin_db::AsAdminQuery for StudentNicQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -153,6 +167,20 @@ pub struct CreateStudentNicRequest {
     pub nic_number: String,
     pub issued_date: Option<NaiveDate>,
     pub document_url: Option<String>,
+}
+
+impl From<CreateStudentNicRequest> for StudentNic {
+    fn from(req: CreateStudentNicRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            nic_number: req.nic_number,
+            issued_date: req.issued_date,
+            document_url: req.document_url,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, JsonSchema, ApiComponent, Clone, AsChangeset)]

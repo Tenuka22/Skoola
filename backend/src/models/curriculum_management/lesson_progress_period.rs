@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use apistos::ApiComponent;
 use schemars::JsonSchema;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, JsonSchema, ApiComponent)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable, Insertable, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::lesson_progress_periods)]
 pub struct LessonProgressPeriod {
     pub lesson_progress_id: String,

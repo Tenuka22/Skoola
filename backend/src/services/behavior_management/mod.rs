@@ -1,3 +1,5 @@
+pub mod detention;
+
 use actix_web::web::Data;
 use chrono::Utc;
 use diesel::prelude::*;
@@ -5,17 +7,19 @@ use diesel::{Connection, QueryDsl, ExpressionMethods};
 
 use crate::AppState;
 use crate::errors::APIError;
-use crate::handlers::behavior_management::{
+use crate::models::behavior_management::{
     CreateBehaviorIncidentTypeRequest, RecordBehaviorIncidentRequest,
     UpdateBehaviorIncidentRequest, UpdateBehaviorIncidentTypeRequest,
+    UpdateBehaviorIncidentSeverityLevelRequest, UpdateBehaviorIncidentActionRequest,
+    UpdateBehaviorIncidentDetailsRequest,
 };
 use crate::models::ids::{generate_prefixed_id, IdPrefix};
 use crate::models::behavior_management::{
     BehaviorIncident, BehaviorIncidentType,
-    BehaviorIncidentDetails,
     NewBehaviorIncidentDetail,
     BehaviorIncidentSeverityLevel, BehaviorIncidentAction,
     BehaviorIncidentEvidence, BehaviorIncidentFollowup,
+    BehaviorIncidentDetail,
 };
 use crate::schema::{
     behavior_incident_details, behavior_incident_types, behavior_incidents,
@@ -125,8 +129,8 @@ impl_admin_entity_service!(
 impl_admin_entity_service!(
     BehaviorIncidentDetailsService,
     behavior_incident_details::table,
-    BehaviorIncidentDetails,
-    BehaviorIncidentDetails,
+    BehaviorIncidentDetail,
+    BehaviorIncidentDetail,
     behavior_incident_details::incident_id,
     incident_id,
     AdminQuery,
@@ -146,8 +150,8 @@ impl BehaviorIncidentDetailsService {
     pub async fn create_with_logic(
         data: actix_web::web::Data<AppState>,
         req: crate::models::behavior_management::CreateBehaviorIncidentDetailsRequest,
-    ) -> Result<BehaviorIncidentDetails, APIError> {
-        let new_item = BehaviorIncidentDetails {
+    ) -> Result<BehaviorIncidentDetail, APIError> {
+        let new_item = BehaviorIncidentDetail {
             incident_id: req.incident_id,
             description: req.description,
             points_awarded: req.points_awarded,
@@ -165,13 +169,23 @@ impl BehaviorIncidentDetailsService {
         data: actix_web::web::Data<AppState>,
         id: String,
         req: crate::models::behavior_management::UpdateBehaviorIncidentDetailsRequest,
-    ) -> Result<BehaviorIncidentDetails, APIError> {
+    ) -> Result<BehaviorIncidentDetail, APIError> {
         Self::generic_update(
             data,
             id,
             (req, behavior_incident_details::updated_at.eq(Utc::now().naive_utc())),
         )
         .await
+    }
+
+    pub async fn bulk_update_with_logic(
+        data: actix_web::web::Data<AppState>,
+        req: BulkUpdateRequest<UpdateBehaviorIncidentDetailsRequest>,
+    ) -> Result<(), APIError> {
+        for update in req.updates {
+            Self::update_with_logic(data.clone(), update.id, update.data).await?;
+        }
+        Ok(())
     }
 }
 
@@ -190,6 +204,16 @@ impl BehaviorIncidentSeverityLevelService {
             created_at: Utc::now().naive_utc(),
         };
         Self::generic_create(data, new_item).await
+    }
+
+    pub async fn bulk_update_with_logic(
+        data: actix_web::web::Data<AppState>,
+        req: BulkUpdateRequest<UpdateBehaviorIncidentSeverityLevelRequest>,
+    ) -> Result<(), APIError> {
+        for update in req.updates {
+            Self::generic_update(data.clone(), update.id, update.data).await?;
+        }
+        Ok(())
     }
 }
 
@@ -212,6 +236,16 @@ impl BehaviorIncidentActionService {
             updated_at: Utc::now().naive_utc(),
         };
         Self::generic_create(data, new_item).await
+    }
+
+    pub async fn bulk_update_with_logic(
+        data: actix_web::web::Data<AppState>,
+        req: BulkUpdateRequest<UpdateBehaviorIncidentActionRequest>,
+    ) -> Result<(), APIError> {
+        for update in req.updates {
+            Self::generic_update(data.clone(), update.id, update.data).await?;
+        }
+        Ok(())
     }
 }
 
@@ -313,7 +347,7 @@ impl BehaviorIncidentService {
     ) -> Result<BehaviorIncident, APIError> {
         let mut conn = data.db_pool.get()?;
         let new_incident_id = generate_prefixed_id(&mut conn, IdPrefix::BEHAVIOR)?;
-        
+
         let res = conn.transaction::<_, APIError, _>(|conn| {
             let new_incident = BehaviorIncident {
                 id: new_incident_id.clone(),
@@ -331,8 +365,8 @@ impl BehaviorIncidentService {
 
             let incident_detail = NewBehaviorIncidentDetail {
                 incident_id: new_incident_id.clone(),
-                description: req.description.unwrap_or_default(),
-                points_awarded: req.points_awarded.unwrap_or(0),
+                description: String::new(),
+                points_awarded: 0,
                 severity_id: None,
                 status: "Open".to_string(),
             };
@@ -352,16 +386,16 @@ impl BehaviorIncidentService {
         req: UpdateBehaviorIncidentRequest,
     ) -> Result<BehaviorIncident, APIError> {
         let mut conn = data.db_pool.get()?;
-        
+
         conn.transaction::<BehaviorIncident, APIError, _>(|conn| {
             let now = Utc::now().naive_utc();
-            
-            // 1. Update behavior_incidents table
+
+            // Update behavior_incidents table
             if req.student_id.is_some() || req.reported_by_user_id.is_some() || req.incident_type_id.is_some() || req.incident_date.is_some() {
                 diesel::update(behavior_incidents::table.filter(behavior_incidents::id.eq(&id)))
                     .set(behavior_incidents::updated_at.eq(now))
                     .execute(conn)?;
-                
+
                 if let Some(val) = &req.student_id {
                     diesel::update(behavior_incidents::table.filter(behavior_incidents::id.eq(&id))).set(behavior_incidents::student_id.eq(val)).execute(conn)?;
                 }
@@ -373,40 +407,6 @@ impl BehaviorIncidentService {
                 }
                 if let Some(val) = req.incident_date {
                     diesel::update(behavior_incidents::table.filter(behavior_incidents::id.eq(&id))).set(behavior_incidents::incident_date.eq(val)).execute(conn)?;
-                }
-            }
-
-            // 2. Update behavior_incident_details table
-            if req.description.is_some() || req.points_awarded.is_some() || req.severity_id.is_some() || req.status.is_some() || req.resolved_by.is_some() || req.resolved_at.is_some() {
-                if let Some(val) = &req.description {
-                    diesel::update(behavior_incident_details::table.filter(behavior_incident_details::incident_id.eq(&id)))
-                        .set(behavior_incident_details::description.eq(val))
-                        .execute(conn)?;
-                }
-                if let Some(val) = req.points_awarded {
-                    diesel::update(behavior_incident_details::table.filter(behavior_incident_details::incident_id.eq(&id)))
-                        .set(behavior_incident_details::points_awarded.eq(val))
-                        .execute(conn)?;
-                }
-                if let Some(val) = &req.severity_id {
-                    diesel::update(behavior_incident_details::table.filter(behavior_incident_details::incident_id.eq(&id)))
-                        .set(behavior_incident_details::severity_id.eq(val))
-                        .execute(conn)?;
-                }
-                if let Some(val) = &req.status {
-                    diesel::update(behavior_incident_details::table.filter(behavior_incident_details::incident_id.eq(&id)))
-                        .set(behavior_incident_details::status.eq(val))
-                        .execute(conn)?;
-                }
-                if let Some(val) = &req.resolved_by {
-                    diesel::update(behavior_incident_details::table.filter(behavior_incident_details::incident_id.eq(&id)))
-                        .set(behavior_incident_details::resolved_by.eq(val))
-                        .execute(conn)?;
-                }
-                if let Some(val) = req.resolved_at {
-                    diesel::update(behavior_incident_details::table.filter(behavior_incident_details::incident_id.eq(&id)))
-                        .set(behavior_incident_details::resolved_at.eq(val))
-                        .execute(conn)?;
                 }
             }
 

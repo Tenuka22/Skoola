@@ -52,7 +52,7 @@ impl crate::services::admin_db::AsAdminQuery for StudentFeeQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -97,6 +97,21 @@ impl From<StudentFee> for StudentFeeResponse {
             exemption_reason: fee.exemption_reason,
             created_at: fee.created_at,
             updated_at: fee.updated_at,
+        }
+    }
+}
+
+impl From<CreateStudentFeeRequest> for StudentFee {
+    fn from(req: CreateStudentFeeRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            student_id: req.student_id,
+            fee_structure_id: req.fee_structure_id,
+            amount: req.amount,
+            is_exempted: req.is_exempted,
+            exemption_reason: req.exemption_reason,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

@@ -16,18 +16,11 @@ use crate::services::admin_db::AdminQuery;
 create_admin_handlers!(
     tag => "school_settings",
     entity => SchoolSetting,
-    response => SchoolSetting,
+    response => SchoolSettingResponse,
     query => AdminQuery,
     create => CreateSchoolSettingRequest,
     update => UpdateSchoolSettingRequest,
-    service => SchoolSettingService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete
-    }
+    service => SchoolSettingService
 );
 
 #[api_operation(
@@ -81,3 +74,4 @@ pub fn config(cfg: &mut apistos::web::ServiceConfig) {
             .route("/{key}", apistos::web::put().to(update_setting)),
     );
 }
+

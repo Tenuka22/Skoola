@@ -68,6 +68,23 @@ impl From<ExamSubject> for ExamSubjectResponse {
     }
 }
 
+impl From<CreateExamSubjectRequest> for ExamSubject {
+    fn from(req: CreateExamSubjectRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            exam_id: req.exam_id,
+            subject_id: req.subject_id,
+            date: req.date,
+            time: req.time,
+            duration: req.duration,
+            max_marks: req.max_marks,
+            pass_marks: req.pass_marks,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, ApiComponent)]
 pub struct ExamSubjectQuery {
     pub exam_id: Option<String>,
@@ -89,6 +106,6 @@ impl AsAdminQuery for ExamSubjectQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }

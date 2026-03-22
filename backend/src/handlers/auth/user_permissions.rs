@@ -87,3 +87,4 @@ pub async fn get_user_permissions(
         permissions: user_perms,
     }))
 }
+

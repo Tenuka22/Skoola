@@ -35,6 +35,23 @@ pub struct CreateStudentGuardianRequest {
     pub address: String,
 }
 
+impl From<CreateStudentGuardianRequest> for StudentGuardian {
+    fn from(req: CreateStudentGuardianRequest) -> Self {
+        StudentGuardian {
+            id: req.id,
+            student_id: req.student_id,
+            name: req.name,
+            relationship: req.relationship,
+            phone: req.phone,
+            email: req.email,
+            address: req.address,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+            user_id: None,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = student_guardians)]
 pub struct UpdateStudentGuardianRequest {

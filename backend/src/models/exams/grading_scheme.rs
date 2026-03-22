@@ -27,7 +27,7 @@ impl crate::services::admin_db::AsAdminQuery for GradingSchemeQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -67,4 +67,21 @@ pub struct GradingScheme {
     pub description: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+impl From<CreateGradingSchemeRequest> for GradingScheme {
+    fn from(req: CreateGradingSchemeRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: req.name,
+            scheme_type: req.scheme_type,
+            grade_level_id: req.grade_level_id,
+            scale_definition: req.scale_definition,
+            pass_mark: req.pass_mark,
+            is_default: req.is_default.unwrap_or(false),
+            description: req.description,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }

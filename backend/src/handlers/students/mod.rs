@@ -3,3 +3,4 @@ pub mod student_attendance;
 pub mod student_class_assignment;
 pub mod student_guardian;
 pub mod details;
+

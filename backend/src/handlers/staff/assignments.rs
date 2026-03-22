@@ -9,15 +9,8 @@ create_admin_handlers!(
     response => TeacherClassAssignment,
     query => AdminQuery,
     create => CreateTeacherClassAssignmentRequest,
-    update => AdminQuery, // Dummy
-    service => TeacherClassAssignmentService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => TeacherClassAssignment,
+    service => TeacherClassAssignmentService
 );
 
 create_admin_handlers!(
@@ -26,15 +19,8 @@ create_admin_handlers!(
     response => TeacherSubjectAssignment,
     query => AdminQuery,
     create => CreateTeacherSubjectAssignmentRequest,
-    update => AdminQuery, // Dummy
-    service => TeacherSubjectAssignmentService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => TeacherSubjectAssignment,
+    service => TeacherSubjectAssignmentService
 );
 
 create_admin_handlers!(
@@ -43,15 +29,8 @@ create_admin_handlers!(
     response => TeacherPeriodAttendance,
     query => AdminQuery,
     create => CreateTeacherPeriodAttendanceRequest,
-    update => AdminQuery, // Dummy
-    service => TeacherPeriodAttendanceService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => TeacherPeriodAttendance,
+    service => TeacherPeriodAttendanceService
 );
 
 create_admin_handlers!(
@@ -60,13 +39,7 @@ create_admin_handlers!(
     response => Substitution,
     query => AdminQuery,
     create => CreateSubstitutionModelRequest,
-    update => AdminQuery, // Dummy
-    service => SubstitutionService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete
-    }
+    update => Substitution,
+    service => SubstitutionService
 );
+

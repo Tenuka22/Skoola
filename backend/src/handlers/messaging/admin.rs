@@ -21,7 +21,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -40,6 +39,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
+

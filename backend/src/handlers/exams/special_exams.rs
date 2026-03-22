@@ -24,3 +24,4 @@ pub fn config(cfg: &mut api_web::ServiceConfig) {
         api_web::resource("/special-exams/register").route(api_web::post().to(register_student)),
     );
 }
+

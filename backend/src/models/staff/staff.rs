@@ -71,7 +71,7 @@ impl crate::services::admin_db::AsAdminQuery for StaffQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -89,6 +89,22 @@ pub struct CreateStaffRequest {
     pub photo_url: Option<String>,
     pub employment_status: EmploymentStatus,
     pub staff_type: StaffType,
+}
+
+impl From<CreateStaffRequest> for Staff {
+    fn from(req: CreateStaffRequest) -> Self {
+        Staff {
+            id: req.id,
+            employee_id: req.employee_id,
+            name: req.name,
+            dob: req.dob,
+            gender: req.gender,
+            staff_type: req.staff_type,
+            profile_id: None,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
@@ -230,6 +246,21 @@ pub struct CreateStaffContactRequest {
     pub address_longitude: Option<f32>,
 }
 
+impl From<CreateStaffContactRequest> for StaffContact {
+    fn from(req: CreateStaffContactRequest) -> Self {
+        StaffContact {
+            staff_id: req.staff_id,
+            address: req.address,
+            phone: req.phone,
+            email: req.email,
+            address_latitude: req.address_latitude,
+            address_longitude: req.address_longitude,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent, Clone)]
 #[diesel(table_name = crate::schema::staff_contacts)]
 pub struct UpdateStaffContactRequest {
@@ -259,7 +290,7 @@ impl crate::services::admin_db::AsAdminQuery for StaffContactQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -303,6 +334,17 @@ impl From<StaffMedia> for StaffMediaResponse {
 pub struct CreateStaffMediaRequest {
     pub staff_id: String,
     pub photo_url: Option<String>,
+}
+
+impl From<CreateStaffMediaRequest> for StaffMedia {
+    fn from(req: CreateStaffMediaRequest) -> Self {
+        StaffMedia {
+            staff_id: req.staff_id,
+            photo_url: req.photo_url,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent, Clone)]
@@ -354,6 +396,16 @@ pub struct CreateStaffRewardSnapshotRequest {
     pub reward_points_balance: i32,
 }
 
+impl From<CreateStaffRewardSnapshotRequest> for StaffRewardSnapshot {
+    fn from(req: CreateStaffRewardSnapshotRequest) -> Self {
+        StaffRewardSnapshot {
+            staff_id: req.staff_id,
+            reward_points_balance: req.reward_points_balance,
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent, Clone)]
 #[diesel(table_name = crate::schema::staff_reward_snapshots)]
 pub struct UpdateStaffRewardSnapshotRequest {
@@ -401,7 +453,7 @@ impl crate::services::admin_db::AsAdminQuery for StaffEmploymentStatusQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -409,6 +461,17 @@ impl crate::services::admin_db::AsAdminQuery for StaffEmploymentStatusQuery {
 pub struct CreateStaffEmploymentStatusRequest {
     pub staff_id: String,
     pub employment_status: String,
+}
+
+impl From<CreateStaffEmploymentStatusRequest> for StaffEmploymentStatus {
+    fn from(req: CreateStaffEmploymentStatusRequest) -> Self {
+        StaffEmploymentStatus {
+            staff_id: req.staff_id,
+            employment_status: req.employment_status,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
@@ -476,7 +539,7 @@ impl crate::services::admin_db::AsAdminQuery for StaffIdentityQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -484,6 +547,17 @@ impl crate::services::admin_db::AsAdminQuery for StaffIdentityQuery {
 pub struct CreateStaffIdentityRequest {
     pub staff_id: String,
     pub nic: String,
+}
+
+impl From<CreateStaffIdentityRequest> for StaffIdentity {
+    fn from(req: CreateStaffIdentityRequest) -> Self {
+        StaffIdentity {
+            staff_id: req.staff_id,
+            nic: req.nic,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]

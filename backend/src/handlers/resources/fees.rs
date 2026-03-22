@@ -25,7 +25,7 @@ impl crate::services::admin_db::AsAdminQuery for FeeCategoryQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -51,7 +51,7 @@ impl crate::services::admin_db::AsAdminQuery for FeeStructureQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -75,7 +75,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -94,7 +93,6 @@ create_admin_handlers!(
         update => generic_update,
         delete => generic_delete,
         bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
     }
 );
 
@@ -108,8 +106,7 @@ pub fn config(cfg: &mut apistos::web::ServiceConfig) {
                     .route("", apistos::web::get().to(get_all_fee_category))
                     .route("/{id}", apistos::web::put().to(update_fee_category))
                     .route("/{id}", apistos::web::delete().to(delete_fee_category))
-                    .route("/bulk", apistos::web::delete().to(bulk_delete_fee_category))
-                    .route("/bulk", apistos::web::patch().to(bulk_update_fee_category)),
+                    .route("/bulk", apistos::web::delete().to(bulk_delete_fee_category)),
             )
             .service(
                 apistos::web::scope("/structures")
@@ -118,8 +115,8 @@ pub fn config(cfg: &mut apistos::web::ServiceConfig) {
                     .route("", apistos::web::get().to(get_all_fee_structure))
                     .route("/{id}", apistos::web::put().to(update_fee_structure))
                     .route("/{id}", apistos::web::delete().to(delete_fee_structure))
-                    .route("/bulk", apistos::web::delete().to(bulk_delete_fee_structure))
-                    .route("/bulk", apistos::web::patch().to(bulk_update_fee_structure)),
+                    .route("/bulk", apistos::web::delete().to(bulk_delete_fee_structure)),
             ),
     );
 }
+

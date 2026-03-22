@@ -113,3 +113,4 @@ pub async fn promote_student_to_next_grade(
             .await?;
     Ok(Json(new_assignment))
 }
+

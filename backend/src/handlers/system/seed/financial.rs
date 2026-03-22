@@ -150,3 +150,4 @@ pub fn seed_all(
         seeded_salary_payment_ids,
     ))
 }
+

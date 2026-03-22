@@ -56,3 +56,4 @@ pub async fn view_leave_balance(
     let leave_balances = staff_leaves::get_staff_leave_balance(data, staff_id_inner).await?;
     Ok(Json(leave_balances))
 }
+

@@ -38,6 +38,32 @@ pub struct CreateInventoryItemRequest {
     pub unit_price: f32,
 }
 
+impl From<CreateInventoryItemRequest> for InventoryItem {
+    fn from(req: CreateInventoryItemRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            category_id: req.category_id,
+            item_name: req.item_name,
+            unit: req.unit,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+}
+
+impl From<CreateInventoryItemRequest> for CreateInventoryItemDetailRequest {
+    fn from(req: CreateInventoryItemRequest) -> Self {
+        Self {
+            item_id: uuid::Uuid::new_v4().to_string(),
+            description: req.description,
+            quantity: req.quantity,
+            reorder_level: req.reorder_level,
+            unit_price: req.unit_price,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::inventory_items)]
 pub struct UpdateInventoryItemRequest {

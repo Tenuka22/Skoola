@@ -65,7 +65,7 @@ impl crate::services::admin_db::AsAdminQuery for GradingCriterionQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -90,6 +90,20 @@ impl From<GradingCriterion> for GradingCriterionResponse {
             max_mark: gc.max_mark,
             created_at: gc.created_at,
             updated_at: gc.updated_at,
+        }
+    }
+}
+
+impl From<CreateGradingCriterionRequest> for GradingCriterion {
+    fn from(req: CreateGradingCriterionRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            scheme_id: req.scheme_id,
+            grade: req.grade,
+            min_mark: req.min_mark,
+            max_mark: req.max_mark,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

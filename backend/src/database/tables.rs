@@ -802,17 +802,7 @@ pub struct AttendancePolicy {
     pub is_active: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
-#[diesel(table_name = detention_balances)]
-#[diesel(primary_key(student_id))]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub struct DetentionBalance {
-    pub student_id: String,
-    pub total_hours_assigned: f32,
-    pub total_hours_served: f32,
-    pub remaining_hours: f32,
-    pub updated_at: NaiveDateTime,
-}
+
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Queryable, Selectable, Insertable, Clone, ApiComponent)]
 #[diesel(table_name = exit_passes)]

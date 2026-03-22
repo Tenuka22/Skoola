@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use apistos::ApiComponent;
 use schemars::JsonSchema;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, ApiComponent, JsonSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, AsChangeset, ApiComponent, JsonSchema)]
 #[diesel(table_name = crate::schema::resource_bookings)]
 pub struct ResourceBooking {
     pub id: String,

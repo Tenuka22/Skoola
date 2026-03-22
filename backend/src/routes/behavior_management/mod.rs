@@ -6,7 +6,7 @@ use crate::handlers::behavior_management::{
     create_behavior_incident_action, get_all_behavior_incident_action, get_behavior_incident_action_by_id, update_behavior_incident_action, delete_behavior_incident_action, bulk_delete_behavior_incident_action, bulk_update_behavior_incident_action,
     create_behavior_incident_evidence, get_all_behavior_incident_evidence, get_behavior_incident_evidence_by_id, delete_behavior_incident_evidence, bulk_delete_behavior_incident_evidence,
     create_behavior_incident_followup, get_all_behavior_incident_followup, get_behavior_incident_followup_by_id, delete_behavior_incident_followup, bulk_delete_behavior_incident_followup,
-    create_behavior_incident_details, get_all_behavior_incident_details, get_behavior_incident_details_by_id, update_behavior_incident_details, delete_behavior_incident_details, bulk_delete_behavior_incident_details, bulk_update_behavior_incident_details
+    create_behavior_incident_detail, get_all_behavior_incident_detail, get_behavior_incident_detail_by_id, update_behavior_incident_detail, delete_behavior_incident_detail, bulk_delete_behavior_incident_detail, bulk_update_behavior_incident_detail
 };
 use crate::utils::jwt::Authenticated;
 use crate::utils::permission_verification::PermissionVerification;
@@ -19,13 +19,13 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 required_permission: PermissionEnum::BehaviorIncidentManage,
             })
             .wrap(Authenticated)
-            .route("", web::post().to(create_behavior_incident_details))
-            .route("/{id}", web::get().to(get_behavior_incident_details_by_id))
-            .route("", web::get().to(get_all_behavior_incident_details))
-            .route("/{id}", web::put().to(update_behavior_incident_details))
-            .route("/{id}", web::delete().to(delete_behavior_incident_details))
-            .route("/bulk", web::delete().to(bulk_delete_behavior_incident_details))
-            .route("/bulk", web::patch().to(bulk_update_behavior_incident_details)),
+            .route("", web::post().to(create_behavior_incident_detail))
+            .route("/{id}", web::get().to(get_behavior_incident_detail_by_id))
+            .route("", web::get().to(get_all_behavior_incident_detail))
+            .route("/{id}", web::put().to(update_behavior_incident_detail))
+            .route("/{id}", web::delete().to(delete_behavior_incident_detail))
+            .route("/bulk", web::delete().to(bulk_delete_behavior_incident_detail))
+            .route("/bulk", web::patch().to(bulk_update_behavior_incident_detail)),
     )
     .service(
         web::scope("/incident-types")

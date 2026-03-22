@@ -78,7 +78,7 @@ impl crate::services::admin_db::AsAdminQuery for ExamQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -107,6 +107,22 @@ impl From<Exam> for ExamResponse {
             end_date: exam.end_date,
             created_at: exam.created_at,
             updated_at: exam.updated_at,
+        }
+    }
+}
+
+impl From<CreateExamRequest> for Exam {
+    fn from(req: CreateExamRequest) -> Self {
+        Self {
+            id: req.id.unwrap_or_else(|| uuid::Uuid::new_v4().to_string()),
+            exam_type_id: req.exam_type_id,
+            name: req.name,
+            academic_year_id: req.academic_year_id,
+            term_id: req.term_id,
+            start_date: req.start_date,
+            end_date: req.end_date,
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

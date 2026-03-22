@@ -27,7 +27,7 @@ create_admin_handlers!(
         get_all => generic_get_all,
         update => generic_update,
         delete => generic_delete,
-        bulk_delete => generic_bulk_delete
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -43,7 +43,8 @@ create_admin_handlers!(
         get_by_id => generic_get_by_id,
         get_all => generic_get_all,
         update => generic_update,
-        delete => generic_delete
+        delete => generic_delete,
+        bulk_delete => generic_bulk_delete,
     }
 );
 
@@ -148,3 +149,4 @@ pub async fn create_exam_structure_subject_with_logic(
     .await?;
     Ok(Json(created))
 }
+

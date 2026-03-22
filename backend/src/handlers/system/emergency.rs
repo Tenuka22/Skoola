@@ -11,14 +11,6 @@ create_admin_handlers!(
     query => EmergencyRollCallQuery,
     create => CreateEmergencyRollCallRequest,
     update => UpdateEmergencyRollCallRequest,
-    service => EmergencyRollCallsService,
-    methods => {
-        create => create_emergency_roll_call,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => generic_delete,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update
-    }
+    service => EmergencyRollCallsService
 );
+

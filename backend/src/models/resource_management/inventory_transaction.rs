@@ -30,6 +30,23 @@ pub struct CreateInventoryTransactionRequest {
     pub reference_id: Option<String>,
 }
 
+impl From<CreateInventoryTransactionRequest> for InventoryTransaction {
+    fn from(req: CreateInventoryTransactionRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            item_id: req.item_id,
+            transaction_type: req.transaction_type,
+            quantity: req.quantity,
+            unit_cost: req.unit_cost,
+            transaction_date: now,
+            reference_type: req.reference_type,
+            reference_id: req.reference_id,
+            created_at: now,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = crate::schema::inventory_transactions)]
 pub struct UpdateInventoryTransactionRequest {

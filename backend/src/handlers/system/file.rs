@@ -15,17 +15,7 @@ create_admin_handlers!(
     query => FileQuery,
     create => CreateFileRequest,
     update => UpdateFileRequest,
-    service => FileService,
-    methods => {
-        create => create_with_logic,
-        get_by_id => generic_get_by_id,
-        get_all => generic_get_all,
-        update => generic_update,
-        delete => delete_with_file,
-        bulk_delete => generic_bulk_delete,
-        bulk_update => generic_bulk_update,
-        bulk_create => bulk_create_with_logic
-    }
+    service => FileService
 );
 
 #[api_operation(
@@ -125,3 +115,4 @@ pub fn configure(cfg: &mut apistos::web::ServiceConfig) {
             .route("/bulk", apistos::web::post().to(bulk_create_file)),
     );
 }
+

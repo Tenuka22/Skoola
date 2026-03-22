@@ -72,6 +72,26 @@ pub struct CreateSessionRequest {
     pub expires_at: NaiveDateTime,
 }
 
+impl From<CreateSessionRequest> for Session {
+    fn from(req: CreateSessionRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            user_id: req.user_id,
+            auth_token_id: req.auth_token_id,
+            verification_token_id: req.verification_token_id,
+            user_agent: req.user_agent,
+            ip_address: req.ip_address,
+            created_at: now,
+            expires_at: req.expires_at,
+            is_active: true,
+            disabled_at: None,
+            disabled_reason: None,
+            last_seen_at: None,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, AsChangeset, JsonSchema, ApiComponent, Clone)]
 #[diesel(table_name = sessions)]
 pub struct UpdateSessionRequest {
@@ -102,6 +122,6 @@ impl AsAdminQuery for SessionQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }

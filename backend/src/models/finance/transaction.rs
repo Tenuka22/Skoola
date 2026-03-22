@@ -14,6 +14,7 @@ use serde::{Deserialize, Serialize};
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     ApiComponent,
 )]
@@ -39,6 +40,7 @@ pub struct IncomeTransaction {
     Queryable,
     Selectable,
     Insertable,
+    AsChangeset,
     Clone,
     ApiComponent,
 )]

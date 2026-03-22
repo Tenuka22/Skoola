@@ -31,6 +31,16 @@ pub struct CreateRoleRequest {
     pub parent_id: Option<String>,
 }
 
+impl From<CreateRoleRequest> for RoleSet {
+    fn from(req: CreateRoleRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: req.name,
+            description: None,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, ApiComponent, JsonSchema)]
 pub struct UpdateRoleRequest {
     pub name: String,
@@ -55,6 +65,16 @@ pub struct UpdateRoleSetRequest {
     pub description: Option<String>,
 }
 
+impl From<CreateRoleSetRequest> for RoleSet {
+    fn from(req: CreateRoleSetRequest) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: req.name,
+            description: req.description,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, ApiComponent)]
 pub struct RoleSetQuery {
     pub search: Option<String>,
@@ -74,6 +94,6 @@ impl crate::services::admin_db::AsAdminQuery for RoleSetQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }

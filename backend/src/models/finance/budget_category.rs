@@ -59,7 +59,7 @@ impl crate::services::admin_db::AsAdminQuery for BudgetCategoryQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -80,6 +80,19 @@ impl From<BudgetCategory> for BudgetCategoryResponse {
             description: cat.description,
             created_at: cat.created_at,
             updated_at: cat.updated_at,
+        }
+    }
+}
+
+impl From<CreateBudgetCategoryRequest> for BudgetCategory {
+    fn from(req: CreateBudgetCategoryRequest) -> Self {
+        let now = chrono::Utc::now().naive_utc();
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: req.name,
+            description: req.description,
+            created_at: now,
+            updated_at: now,
         }
     }
 }

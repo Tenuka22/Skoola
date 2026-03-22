@@ -43,6 +43,21 @@ pub struct CreateSubjectRequest {
     pub is_core: Option<bool>,
 }
 
+impl From<CreateSubjectRequest> for Subject {
+    fn from(req: CreateSubjectRequest) -> Self {
+        Subject {
+            id: req.id,
+            subject_code: req.subject_code,
+            subject_name_en: req.subject_name_en,
+            subject_name_si: req.subject_name_si,
+            subject_name_ta: req.subject_name_ta,
+            is_core: req.is_core.unwrap_or(false),
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, AsChangeset, JsonSchema, ApiComponent)]
 #[diesel(table_name = subjects)]
 pub struct UpdateSubjectRequest {
@@ -72,7 +87,7 @@ impl crate::services::admin_db::AsAdminQuery for SubjectQuery {
             page: self.page,
             limit: self.limit,
             last_id: self.last_id.clone(),
-        }
+        ..Default::default()}
     }
 }
 
@@ -130,7 +145,7 @@ pub struct SubjectEnrollmentResponse {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, Clone)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, ApiComponent, Queryable, Selectable, Insertable, AsChangeset, Clone)]
 #[diesel(table_name = subject_enrollments)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 #[diesel(primary_key(student_id, subject_id, academic_year_id))]

@@ -23,8 +23,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(messaging::admin::get_all_conversation))
             .route("/{id}", web::put().to(messaging::admin::update_conversation))
             .route("/{id}", web::delete().to(messaging::admin::delete_conversation))
-            .route("/bulk", web::delete().to(messaging::admin::bulk_delete_conversation))
-            .route("/bulk", web::patch().to(messaging::admin::bulk_update_conversation)),
+            .route("/bulk", web::delete().to(messaging::admin::bulk_delete_conversation)),
     )
     .service(
         web::scope("/admin/messages")
@@ -35,7 +34,6 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(messaging::admin::get_all_message))
             .route("/{id}", web::put().to(messaging::admin::update_message))
             .route("/{id}", web::delete().to(messaging::admin::delete_message))
-            .route("/bulk", web::delete().to(messaging::admin::bulk_delete_message))
-            .route("/bulk", web::patch().to(messaging::admin::bulk_update_message)),
+            .route("/bulk", web::delete().to(messaging::admin::bulk_delete_message)),
     );
 }
