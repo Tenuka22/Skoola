@@ -3,8 +3,8 @@ use crate::handlers::curriculum_management::{
     appeals, reports, reviews, unit_allocations, topics, ai_notes,
     create_curriculum_standard, get_all_curriculum_standard, get_curriculum_standard_by_id, update_curriculum_standard, delete_curriculum_standard,
     bulk_delete_curriculum_standard, bulk_update_curriculum_standard,
-    create_curriculum_topic, get_all_curriculum_topic, get_curriculum_topic_by_id, update_curriculum_topic, delete_curriculum_topic,
-    bulk_delete_curriculum_topic, bulk_update_curriculum_topic, get_syllabus_topics_for_standard,
+    create_syllabus_topic, get_all_syllabus_topic, get_syllabus_topic_by_id, update_syllabus_topic, delete_syllabus_topic,
+    bulk_delete_syllabus_topic, bulk_update_syllabus_topic, get_syllabus_topics_for_standard,
     create_lesson_progress, get_all_lesson_progress, get_lesson_progress_by_id, update_lesson_progress, delete_lesson_progress, bulk_delete_lesson_progress, bulk_update_lesson_progress,
     create_lesson_material, get_all_lesson_material, get_lesson_material_by_id, delete_lesson_material, bulk_delete_lesson_material,
     create_ai_processed_note, get_all_ai_processed_note, get_ai_processed_note_by_id, delete_ai_processed_note, bulk_delete_ai_processed_note,
@@ -97,14 +97,14 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 required_permission: PermissionEnum::SyllabusManage,
             })
             .wrap(Authenticated)
-            .route("", web::post().to(create_curriculum_topic))
-            .route("/{id}", web::get().to(get_curriculum_topic_by_id))
-            .route("", web::get().to(get_all_curriculum_topic))
+            .route("", web::post().to(create_syllabus_topic))
+            .route("/{id}", web::get().to(get_syllabus_topic_by_id))
+            .route("", web::get().to(get_all_syllabus_topic))
             .route("/standard/{standard_id}", web::get().to(get_syllabus_topics_for_standard))
-            .route("/{id}", web::put().to(update_curriculum_topic))
-            .route("/{id}", web::delete().to(delete_curriculum_topic))
-            .route("/bulk", web::delete().to(bulk_delete_curriculum_topic))
-            .route("/bulk", web::patch().to(bulk_update_curriculum_topic)),
+            .route("/{id}", web::put().to(update_syllabus_topic))
+            .route("/{id}", web::delete().to(delete_syllabus_topic))
+            .route("/bulk", web::delete().to(bulk_delete_syllabus_topic))
+            .route("/bulk", web::patch().to(bulk_update_syllabus_topic)),
     )
     .service(
         web::scope("/lesson-progress")

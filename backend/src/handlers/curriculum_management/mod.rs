@@ -86,7 +86,7 @@ create_admin_handlers!(
 
 create_admin_handlers!(
     tag => "syllabus_topics",
-    entity => CurriculumTopic,
+    entity => SyllabusTopic,
     response => CurriculumTopicResponse,
     query => CurriculumTopicQuery,
     create => CreateSyllabusRequest,

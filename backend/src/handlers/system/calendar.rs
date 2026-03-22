@@ -4,7 +4,7 @@ use crate::create_admin_handlers;
 
 create_admin_handlers!(
     tag => "school_calendar",
-    entity => SchoolCalendar,
+    entity => SchoolCalendarSystem,
     response => SchoolCalendarResponse,
     query => SchoolCalendarQuery,
     create => CreateSchoolCalendarRequest,

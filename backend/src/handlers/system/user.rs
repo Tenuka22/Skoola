@@ -17,7 +17,7 @@ pub struct MessageResponse {
 ///
 /// This endpoint allows for the bulk deletion of users by providing a list of user IDs.
 /// Only authenticated users with `admin` role are allowed to perform this action.
-#[api_operation(tag = "System")]
+#[api_operation(tag = "System", operation_id = "bulk_delete_users")]
 pub async fn bulk_delete_users_handler(
     data: web::Data<AppState>,
     req: web::Json<BulkDeleteUsersRequest>,

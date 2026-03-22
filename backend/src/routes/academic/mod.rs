@@ -200,11 +200,10 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 required_permission: PermissionEnum::TimetableManage,
             })
             .wrap(Authenticated)
+            .route("", web::post().to(academic_handlers::create_substitution_plan_handler))
+            .route("", web::get().to(academic_handlers::get_substitution_plans_handler))
             .route("/{id}", web::get().to(academic_handlers::get_substitution_plan_by_id))
-            .route("", web::get().to(academic_handlers::get_all_substitution_plan))
-            .route("/{id}", web::put().to(academic_handlers::update_substitution_plan))
             .route("/{id}", web::delete().to(academic_handlers::delete_substitution_plan))
-            .route("/bulk", web::delete().to(academic_handlers::bulk_delete_substitution_plan))
-            .route("/bulk", web::patch().to(academic_handlers::bulk_update_substitution_plan)),
+            .route("/bulk", web::delete().to(academic_handlers::bulk_delete_substitution_plan)),
     );
 }

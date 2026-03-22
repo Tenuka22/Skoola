@@ -37,7 +37,7 @@ macro_rules! __admin_handler_fn {
     (@create $entity_name:ident, $tag:expr, $resp:ty, $create_req:ty, $service:path, $method:ident, $summary:expr) => {
         ::paste::paste! {
             #[doc = $summary]
-            #[apistos::api_operation(tag = $tag)]
+            #[apistos::api_operation(tag = $tag, operation_id = "[<create_ $entity_name:snake>]")]
             pub async fn [<create_ $entity_name:snake>](
                 data: actix_web::web::Data<crate::AppState>,
                 body: actix_web::web::Json<$create_req>
@@ -51,7 +51,7 @@ macro_rules! __admin_handler_fn {
     (@get_by_id $entity_name:ident, $tag:expr, $resp:ty, $service:path, $method:ident, $id_type:ty, $summary:expr) => {
         ::paste::paste! {
             #[doc = $summary]
-            #[apistos::api_operation(tag = $tag)]
+            #[apistos::api_operation(tag = $tag, operation_id = "[<get_ $entity_name:snake _by_id>]")]
             pub async fn [<get_ $entity_name:snake _by_id>](
                 data: actix_web::web::Data<crate::AppState>,
                 path: actix_web::web::Path<$id_type>
@@ -65,7 +65,7 @@ macro_rules! __admin_handler_fn {
     (@get_all $entity_name:ident, $tag:expr, $resp:ty, $query:ty, $service:path, $method:ident, $id_type:ty, $summary:expr) => {
         ::paste::paste! {
             #[doc = $summary]
-            #[apistos::api_operation(tag = $tag)]
+            #[apistos::api_operation(tag = $tag, operation_id = "[<get_all_ $entity_name:snake>]")]
             pub async fn [<get_all_ $entity_name:snake>](
                 data: actix_web::web::Data<crate::AppState>,
                 query: actix_web::web::Query<$query>
@@ -91,7 +91,7 @@ macro_rules! __admin_handler_fn {
     (@update $entity_name:ident, $tag:expr, $resp:ty, $update_req:ty, $service:path, $method:ident, $id_type:ty, $summary:expr) => {
         ::paste::paste! {
             #[doc = $summary]
-            #[apistos::api_operation(tag = $tag)]
+            #[apistos::api_operation(tag = $tag, operation_id = "[<update_ $entity_name:snake>]")]
             pub async fn [<update_ $entity_name:snake>](
                 data: actix_web::web::Data<crate::AppState>,
                 path: actix_web::web::Path<$id_type>,
@@ -107,7 +107,7 @@ macro_rules! __admin_handler_fn {
     (@delete $entity_name:ident, $tag:expr, $service:path, $method:ident, $id_type:ty, $summary:expr) => {
         ::paste::paste! {
             #[doc = $summary]
-            #[apistos::api_operation(tag = $tag)]
+            #[apistos::api_operation(tag = $tag, operation_id = "[<delete_ $entity_name:snake>]")]
             pub async fn [<delete_ $entity_name:snake>](
                 data: actix_web::web::Data<crate::AppState>,
                 path: actix_web::web::Path<$id_type>
@@ -123,7 +123,7 @@ macro_rules! __admin_handler_fn {
     (@bulk_delete $entity_name:ident, $tag:expr, $service:path, $method:ident, $id_type:ty, $summary:expr) => {
         ::paste::paste! {
             #[doc = $summary]
-            #[apistos::api_operation(tag = $tag)]
+            #[apistos::api_operation(tag = $tag, operation_id = "[<bulk_delete_ $entity_name:snake>]")]
             pub async fn [<bulk_delete_ $entity_name:snake>](
                 data: actix_web::web::Data<crate::AppState>,
                 body: actix_web::web::Json<Vec<$id_type>>
@@ -139,7 +139,7 @@ macro_rules! __admin_handler_fn {
     (@bulk_update $entity_name:ident, $tag:expr, $resp:ty, $update_req:ty, $service:path, $method:ident, $id_type:ty, $summary:expr) => {
         ::paste::paste! {
             #[doc = $summary]
-            #[apistos::api_operation(tag = $tag)]
+            #[apistos::api_operation(tag = $tag, operation_id = "[<bulk_update_ $entity_name:snake>]")]
             pub async fn [<bulk_update_ $entity_name:snake>](
                 data: actix_web::web::Data<crate::AppState>,
                 body: actix_web::web::Json<crate::services::admin_db::BulkUpdateRequest<$update_req, $id_type>>
@@ -155,7 +155,7 @@ macro_rules! __admin_handler_fn {
     (@bulk_create $entity_name:ident, $tag:expr, $create_req:ty, $service:path, $method:ident, $summary:expr) => {
         ::paste::paste! {
             #[doc = $summary]
-            #[apistos::api_operation(tag = $tag)]
+            #[apistos::api_operation(tag = $tag, operation_id = "[<bulk_create_ $entity_name:snake>]")]
             pub async fn [<bulk_create_ $entity_name:snake>](
                 data: actix_web::web::Data<crate::AppState>,
                 body: actix_web::web::Json<crate::services::admin_db::BulkCreateRequest<$create_req>>

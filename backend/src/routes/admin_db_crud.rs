@@ -94,7 +94,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .service(crud_scope!("/reward-types", RewardType))
             .service(crud_scope!("/role-permissions", RolePermission))
             .service(crud_scope!("/role-set-roles", RoleSetRole))
-            .service(crud_scope_limited!("/school-calendar", SchoolCalendar))
+            .service(crud_scope_limited!("/school-calendar", SchoolCalendarAdmin))
             .service(crud_scope!(
                 "/sport-event-participants",
                 SportEventParticipant

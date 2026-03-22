@@ -6,16 +6,28 @@ use crate::{
     AppState,
     errors::APIError,
     models::academic::grade_period::{
-        CreateGradePeriodRequest, GradePeriodResponse, UpdateGradePeriodRequest,
+        CreateGradePeriodRequest, GradePeriodResponse, UpdateGradePeriodRequest, GradePeriodQuery
     },
     services::academic::grade_period as grade_period_service,
+    services::academic::GradePeriodService,
+    create_admin_handlers
 };
 
+create_admin_handlers!(
+    tag => "grade_periods",
+    entity => GradePeriod,
+    response => GradePeriodResponse,
+    query => GradePeriodQuery,
+    create => CreateGradePeriodRequest,
+    update => UpdateGradePeriodRequest,
+    service => GradePeriodService
+);
+
 #[api_operation(
-    summary = "Create Grade Period",
-    description = "Creates a new predefined period for a grade.",
+    summary = "Create Grade Period (manual logic)",
+    description = "Creates a new predefined period for a grade using custom service logic.",
     tag = "grade_periods",
-    operation_id = "create_grade_period"
+    operation_id = "create_grade_period_manual"
 )]
 pub async fn create_grade_period_handler(
     pool: web::Data<AppState>,
@@ -45,7 +57,7 @@ pub async fn get_grade_periods_by_grade_handler(
     summary = "Update Grade Period",
     description = "Updates an existing grade period.",
     tag = "grade_periods",
-    operation_id = "update_grade_period"
+    operation_id = "update_grade_period_handler_manual"
 )]
 pub async fn update_grade_period_handler(
     pool: web::Data<AppState>,
@@ -65,7 +77,7 @@ pub async fn update_grade_period_handler(
     summary = "Delete Grade Period",
     description = "Deletes a grade period.",
     tag = "grade_periods",
-    operation_id = "delete_grade_period"
+    operation_id = "delete_grade_period_handler_manual"
 )]
 pub async fn delete_grade_period_handler(
     pool: web::Data<AppState>,
@@ -73,4 +85,3 @@ pub async fn delete_grade_period_handler(
 ) -> Result<HttpResponse, APIError> {
     grade_period_service::delete_grade_period(pool, period_id.into_inner()).await
 }
-

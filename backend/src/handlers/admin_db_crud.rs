@@ -366,7 +366,7 @@ create_admin_handlers!(
 
 create_admin_handlers!(
     tag => "school_calendar",
-    entity => SchoolCalendar,
+    entity => SchoolCalendarAdmin,
     response => crate::models::system::calendar::SchoolCalendarResponse,
     query => AdminQuery,
     create => crate::models::system::calendar::SchoolCalendar,

@@ -36,13 +36,13 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
         web::scope("/school-calendar")
             .wrap(PermissionVerification { required_permission: PermissionEnum::SystemAdmin })
             .wrap(Authenticated)
-            .route("", web::post().to(calendar::create_school_calendar))
-            .route("/{id}", web::get().to(calendar::get_school_calendar_by_id))
-            .route("", web::get().to(calendar::get_all_school_calendar))
-            .route("/{id}", web::put().to(calendar::update_school_calendar))
-            .route("/{id}", web::delete().to(calendar::delete_school_calendar))
-            .route("/bulk", web::delete().to(calendar::bulk_delete_school_calendar))
-            .route("/bulk", web::patch().to(calendar::bulk_update_school_calendar)),
+            .route("", web::post().to(calendar::create_school_calendar_system))
+            .route("/{id}", web::get().to(calendar::get_school_calendar_system_by_id))
+            .route("", web::get().to(calendar::get_all_school_calendar_system))
+            .route("/{id}", web::put().to(calendar::update_school_calendar_system))
+            .route("/{id}", web::delete().to(calendar::delete_school_calendar_system))
+            .route("/bulk", web::delete().to(calendar::bulk_delete_school_calendar_system))
+            .route("/bulk", web::patch().to(calendar::bulk_update_school_calendar_system)),
     )
     .service(
         web::scope("/seeds")

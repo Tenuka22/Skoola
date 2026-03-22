@@ -2468,23 +2468,6 @@ export const BulkUpdateRequest_for_UpdateSubjectRequest_and_StringSchema = {
     }
 } as const;
 
-export const BulkUpdateRequest_for_UpdateSubstitutionPlanRequest_and_StringSchema = {
-    title: 'BulkUpdateRequest_for_UpdateSubstitutionPlanRequest_and_String',
-    description: 'Bulk update request with entity updates',
-    type: 'object',
-    required: [
-        'updates'
-    ],
-    properties: {
-        updates: {
-            type: 'array',
-            items: {
-                $ref: '#/components/schemas/EntityUpdate_for_UpdateSubstitutionPlanRequest_and_String'
-            }
-        }
-    }
-} as const;
-
 export const BulkUpdateRequest_for_UpdateTermRequest_and_StringSchema = {
     title: 'BulkUpdateRequest_for_UpdateTermRequest_and_String',
     description: 'Bulk update request with entity updates',
@@ -6367,6 +6350,35 @@ export const CreateStudentStatusRequestSchema = {
     }
 } as const;
 
+export const CreateSubPlanRequestSchema = {
+    title: 'CreateSubPlanRequest',
+    type: 'object',
+    required: [
+        'medium',
+        'plan_name',
+        'subject_id'
+    ],
+    properties: {
+        content_link: {
+            type: 'string',
+            nullable: true
+        },
+        description: {
+            type: 'string',
+            nullable: true
+        },
+        medium: {
+            $ref: '#/components/schemas/Medium'
+        },
+        plan_name: {
+            type: 'string'
+        },
+        subject_id: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const CreateSubjectRequestSchema = {
     title: 'CreateSubjectRequest',
     type: 'object',
@@ -7959,23 +7971,6 @@ export const EntityUpdate_for_UpdateSubjectRequest_and_StringSchema = {
     properties: {
         data: {
             $ref: '#/components/schemas/UpdateSubjectRequest'
-        },
-        id: {
-            type: 'string'
-        }
-    }
-} as const;
-
-export const EntityUpdate_for_UpdateSubstitutionPlanRequest_and_StringSchema = {
-    description: 'Single entity update',
-    type: 'object',
-    required: [
-        'data',
-        'id'
-    ],
-    properties: {
-        data: {
-            $ref: '#/components/schemas/UpdateSubstitutionPlanRequest'
         },
         id: {
             type: 'string'
@@ -19350,55 +19345,6 @@ export const PaginatedResponse_for_SubstitutionSchema = {
     }
 } as const;
 
-export const PaginatedResponse_for_SubstitutionPlanSchema = {
-    title: 'PaginatedResponse_for_SubstitutionPlan',
-    description: 'Paginated response wrapper',
-    type: 'object',
-    required: [
-        'data',
-        'has_next',
-        'has_prev',
-        'limit',
-        'page',
-        'total',
-        'total_pages'
-    ],
-    properties: {
-        data: {
-            type: 'array',
-            items: {
-                $ref: '#/components/schemas/SubstitutionPlan'
-            }
-        },
-        has_next: {
-            type: 'boolean'
-        },
-        has_prev: {
-            type: 'boolean'
-        },
-        limit: {
-            type: 'integer',
-            format: 'int64'
-        },
-        next_last_id: {
-            type: 'string',
-            nullable: true
-        },
-        page: {
-            type: 'integer',
-            format: 'int64'
-        },
-        total: {
-            type: 'integer',
-            format: 'int64'
-        },
-        total_pages: {
-            type: 'integer',
-            format: 'int64'
-        }
-    }
-} as const;
-
 export const PaginatedResponse_for_TeacherClassAssignmentSchema = {
     title: 'PaginatedResponse_for_TeacherClassAssignment',
     description: 'Paginated response wrapper',
@@ -28437,36 +28383,6 @@ export const UpdateSubjectRequestSchema = {
             nullable: true
         },
         subject_name_ta: {
-            type: 'string',
-            nullable: true
-        }
-    }
-} as const;
-
-export const UpdateSubstitutionPlanRequestSchema = {
-    type: 'object',
-    properties: {
-        content_link: {
-            type: 'string',
-            nullable: true
-        },
-        description: {
-            type: 'string',
-            nullable: true
-        },
-        medium: {
-            allOf: [
-                {
-                    $ref: '#/components/schemas/Medium'
-                }
-            ],
-            nullable: true
-        },
-        plan_name: {
-            type: 'string',
-            nullable: true
-        },
-        subject_id: {
             type: 'string',
             nullable: true
         }

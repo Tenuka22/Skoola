@@ -7,16 +7,28 @@ use crate::{
     errors::APIError,
     models::MessageResponse,
     models::academic::timetable::{
-        CreateTimetableRequest, TimetableResponse, UpdateTimetableRequest,
+        CreateTimetableRequest, TimetableResponse, UpdateTimetableRequest, TimetableQuery
     },
     services::academic::timetable,
+    services::academic::TimetableService,
+    create_admin_handlers
 };
 
+create_admin_handlers!(
+    tag => "timetable",
+    entity => Timetable,
+    response => TimetableResponse,
+    query => TimetableQuery,
+    create => CreateTimetableRequest,
+    update => UpdateTimetableRequest,
+    service => TimetableService
+);
+
 #[api_operation(
-    summary = "Create Timetable Entry",
-    description = "Creates a new entry in the timetable.",
+    summary = "Create Timetable Entry (custom)",
+    description = "Creates a new entry in the timetable using custom logic.",
     tag = "timetable",
-    operation_id = "create_timetable_entry"
+    operation_id = "create_timetable_entry_custom"
 )]
 pub async fn create_timetable_entry(
     data: web::Data<AppState>,
@@ -30,7 +42,7 @@ pub async fn create_timetable_entry(
     summary = "Get Timetable Entry by ID",
     description = "Retrieves a single timetable entry by its ID.",
     tag = "timetable",
-    operation_id = "get_timetable_entry_by_id"
+    operation_id = "get_timetable_entry_by_id_manual"
 )]
 pub async fn get_timetable_entry_by_id(
     data: web::Data<AppState>,
@@ -87,7 +99,7 @@ pub async fn get_timetable_by_teacher(
     summary = "Update Timetable Entry",
     description = "Updates an existing timetable entry.",
     tag = "timetable",
-    operation_id = "update_timetable_entry"
+    operation_id = "update_timetable_entry_manual"
 )]
 pub async fn update_timetable_entry(
     data: web::Data<AppState>,
@@ -104,7 +116,7 @@ pub async fn update_timetable_entry(
     summary = "Delete Timetable Entry",
     description = "Deletes a timetable entry by its ID.",
     tag = "timetable",
-    operation_id = "delete_timetable_entry"
+    operation_id = "delete_timetable_entry_manual"
 )]
 pub async fn delete_timetable_entry(
     data: web::Data<AppState>,
@@ -116,4 +128,3 @@ pub async fn delete_timetable_entry(
         message: "Timetable entry deleted successfully".to_string(),
     }))
 }
-
