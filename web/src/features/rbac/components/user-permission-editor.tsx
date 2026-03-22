@@ -7,11 +7,7 @@ import {
   Shield01Icon,
   ViewIcon,
 } from '@hugeicons/core-free-icons'
-import {
-  ALL_ROLE_ENUM_VALUES,
-  isPermissionEnum,
-  isRoleEnum,
-} from '../utils/permissions'
+import { ALL_ROLE_ENUM_VALUES, isPermissionEnum } from '../utils/permissions'
 import { ALL_PERMISSION_ENUM_VALUES } from '../utils/constants'
 import {
   getRolePermissionsQueryOptions,
@@ -20,11 +16,7 @@ import {
   useUnassignPermissionFromUser,
 } from '../api'
 import { PermissionList } from './permission-list'
-import type {
-  PermissionEnum,
-  RoleEnum,
-  UserResponse,
-} from '@/lib/api/types.gen'
+import type { PermissionEnum, UserResponse } from '@/lib/api/types.gen'
 import { Badge } from '@/components/ui/badge'
 
 import {
@@ -52,7 +44,6 @@ import {
 } from '@/components/primitives'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
-import { useUpdateUser } from '@/features/users/api'
 
 interface UserPermissionEditorProps {
   user: UserResponse
@@ -125,14 +116,8 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
     return inherited
   }, [rolePermissionsFromResponse, user.role])
 
-  const updateUserRole = useUpdateUser()
-
   const assignDirectPermission = useAssignPermissionToUser()
   const unassignDirectPermission = useUnassignPermissionFromUser()
-
-  const handleRoleChange = (role: RoleEnum) => {
-    updateUserRole.mutate({ path: { id: user.id }, body: { role } })
-  }
 
   const handleToggleDirectPermission = (
     permission: PermissionEnum,
@@ -186,10 +171,10 @@ export function UserPermissionEditor({ user }: UserPermissionEditorProps) {
             <CardAction>
               <Select
                 value={user.role || 'Guest'}
-                onValueChange={(val) => {
-                  if (val && isRoleEnum(val)) handleRoleChange(val)
+                onValueChange={() => {
+                  // Note: Role updates are not supported by the API
+                  // This is a read-only display
                 }}
-                disabled={updateUserRole.isPending}
               >
                 <SelectTrigger className="w-35 h-8">
                   <HStack gap={2} p={0}>

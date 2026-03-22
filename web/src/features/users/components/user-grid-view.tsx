@@ -9,7 +9,6 @@ import {
   MoreVerticalIcon,
   PencilEdit01Icon,
   Shield02Icon,
-  Tick01Icon,
 } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
 import { Link } from '@tanstack/react-router'
@@ -32,7 +31,6 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
-import { Spinner } from '@/components/ui/spinner'
 import { Card } from '@/components/ui/card'
 import { Box, Grid, HStack, Stack, Text } from '@/components/primitives'
 import {
@@ -50,11 +48,8 @@ interface UserGridViewProps {
   isLoading?: boolean
   onEdit: (user: UserResponse) => void
   onDelete: (id: string) => void
-  onToggleVerify: (user: UserResponse) => void
   onToggleLock: (user: UserResponse) => void
   onManagePermissions: (user: UserResponse) => void
-  isUpdating?: boolean
-  updatingUserId?: string | null
   onCreateUser: () => void
 }
 
@@ -64,11 +59,8 @@ export function UserGridView({
   isLoading,
   onEdit,
   onDelete,
-  onToggleVerify,
   onToggleLock,
   onManagePermissions,
-  isUpdating,
-  updatingUserId,
   onCreateUser,
 }: UserGridViewProps) {
   if (isLoading) {
@@ -122,8 +114,6 @@ export function UserGridView({
         const lockUntil = user.lockout_until
           ? new Date(user.lockout_until)
           : null
-
-        const isBeingUpdated = isUpdating && updatingUserId === user.id
 
         const isLocked = lockUntil ? lockUntil > new Date() : false
 
@@ -194,30 +184,9 @@ export function UserGridView({
 
             <ContextMenuSeparator />
 
-            <ContextMenuItem
-              onClick={() => onToggleVerify(user)}
-              disabled={isBeingUpdated}
-            >
+            <ContextMenuItem onClick={() => onToggleLock(user)}>
               <HStack gap={2} p={0}>
-                {isBeingUpdated ? (
-                  <Spinner className="size-4" />
-                ) : (
-                  <HugeiconsIcon icon={Tick01Icon} className="size-4" />
-                )}
-                <span>{user.is_verified ? 'Unverify' : 'Verify'}</span>
-              </HStack>
-            </ContextMenuItem>
-
-            <ContextMenuItem
-              onClick={() => onToggleLock(user)}
-              disabled={isBeingUpdated}
-            >
-              <HStack gap={2} p={0}>
-                {isBeingUpdated ? (
-                  <Spinner className="size-4" />
-                ) : (
-                  <HugeiconsIcon icon={LockIcon} className="size-4" />
-                )}
+                <HugeiconsIcon icon={LockIcon} className="size-4" />
                 <span>{isLocked ? 'Unlock' : 'Lock'}</span>
               </HStack>
             </ContextMenuItem>
@@ -339,37 +308,12 @@ export function UserGridView({
 
                           <DropdownMenuSeparator />
 
-                          <DropdownMenuItem
-                            onClick={() => onToggleVerify(user)}
-                            disabled={isBeingUpdated}
-                          >
+                          <DropdownMenuItem onClick={() => onToggleLock(user)}>
                             <HStack gap={2} p={0}>
-                              {isBeingUpdated ? (
-                                <Spinner className="size-4" />
-                              ) : (
-                                <HugeiconsIcon
-                                  icon={Tick01Icon}
-                                  className="size-4 opacity-70"
-                                />
-                              )}
-                              <span>
-                                {user.is_verified ? 'Unverify' : 'Verify'}
-                              </span>
-                            </HStack>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => onToggleLock(user)}
-                            disabled={isBeingUpdated}
-                          >
-                            <HStack gap={2} p={0}>
-                              {isBeingUpdated ? (
-                                <Spinner className="size-4" />
-                              ) : (
-                                <HugeiconsIcon
-                                  icon={LockIcon}
-                                  className="size-4 opacity-70"
-                                />
-                              )}
+                              <HugeiconsIcon
+                                icon={LockIcon}
+                                className="size-4 opacity-70"
+                              />
                               <span>{isLocked ? 'Unlock' : 'Lock'}</span>
                             </HStack>
                           </DropdownMenuItem>

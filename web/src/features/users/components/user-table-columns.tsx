@@ -5,7 +5,6 @@ import {
   MoreHorizontalCircle01Icon,
   PencilEdit01Icon,
   Shield02Icon,
-  UserCheckIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { toast } from 'sonner'
@@ -28,35 +27,27 @@ import {
   ContextMenuItem,
   ContextMenuSeparator,
 } from '@/components/ui/context-menu'
-import { Spinner } from '@/components/ui/spinner'
 import { HStack, Stack, Text } from '@/components/primitives'
 import { DataTableColumnHeader } from '@/components/data-table'
 
 interface GetColumnsProps {
   users?: Array<User>
-  onToggleVerify: (user: User) => void
   onToggleLock: (user: User) => void
   setUserToDelete: (id: string | null) => void
   setUserToEdit: (user: User | null) => void
   setUserToManagePermissions: (user: User | null) => void
-  isUpdating?: boolean
-  updatingUserId?: string | null
   showProfilePictures?: boolean
 }
 
 export function UserContextMenuItems({
   user,
-  onToggleVerify,
   onToggleLock,
   setUserToDelete,
   setUserToEdit,
   setUserToManagePermissions,
-  isUpdating,
-  updatingUserId,
 }: Omit<GetColumnsProps, 'users' | 'showProfilePictures'> & { user: User }) {
   const isLocked =
     user.lockout_until && new Date(user.lockout_until) > new Date()
-  const isBeingUpdated = isUpdating && updatingUserId === user.id
 
   return (
     <>
@@ -106,33 +97,9 @@ export function UserContextMenuItems({
 
       <ContextMenuSeparator />
 
-      <ContextMenuItem
-        onSelect={(e) => e.preventDefault()}
-        onClick={() => {
-          onToggleVerify(user)
-        }}
-        disabled={isBeingUpdated}
-      >
+      <ContextMenuItem onClick={() => onToggleLock(user)}>
         <HStack gap={2} p={0}>
-          {isBeingUpdated ? (
-            <Spinner className="h-4 w-4" />
-          ) : (
-            <HugeiconsIcon icon={UserCheckIcon} className="h-4 w-4" />
-          )}
-          <span>{user.is_verified ? 'Unverify' : 'Verify'}</span>
-        </HStack>
-      </ContextMenuItem>
-
-      <ContextMenuItem
-        onClick={() => onToggleLock(user)}
-        disabled={isBeingUpdated}
-      >
-        <HStack gap={2} p={0}>
-          {isBeingUpdated ? (
-            <Spinner className="h-4 w-4" />
-          ) : (
-            <HugeiconsIcon icon={LockIcon} className="h-4 w-4" />
-          )}
+          <HugeiconsIcon icon={LockIcon} className="h-4 w-4" />
           <span>{isLocked ? 'Unlock' : 'Lock'}</span>
         </HStack>
       </ContextMenuItem>
@@ -153,13 +120,10 @@ export function UserContextMenuItems({
 }
 
 export function getUserColumns({
-  onToggleVerify,
   setUserToDelete,
   setUserToEdit,
   onToggleLock,
   setUserToManagePermissions,
-  isUpdating,
-  updatingUserId,
   showProfilePictures = true,
 }: GetColumnsProps): Array<DataTableColumnDef<User>> {
   return [
@@ -325,7 +289,6 @@ export function getUserColumns({
         const user = row.original
         const isLocked =
           user.lockout_until && new Date(user.lockout_until) > new Date()
-        const isBeingUpdated = isUpdating && updatingUserId === user.id
 
         return (
           <DropdownMenu>
@@ -394,36 +357,11 @@ export function getUserColumns({
               <DropdownMenuSeparator />
 
               <DropdownMenuItem
-                onSelect={(e) => e.preventDefault()}
-                onClick={() => {
-                  if (typeof user !== 'function') {
-                    onToggleVerify(user)
-                  }
-                }}
-                disabled={isBeingUpdated}
-                closeOnClick={false}
-              >
-                <HStack gap={2} p={0}>
-                  {isBeingUpdated ? (
-                    <Spinner className="h-4 w-4" />
-                  ) : (
-                    <HugeiconsIcon icon={UserCheckIcon} className="h-4 w-4" />
-                  )}
-                  <span>{user.is_verified ? 'Unverify' : 'Verify'}</span>
-                </HStack>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
                 onClick={() => onToggleLock(user)}
-                disabled={isBeingUpdated}
                 closeOnClick={false}
               >
                 <HStack gap={2} p={0}>
-                  {isBeingUpdated ? (
-                    <Spinner className="h-4 w-4" />
-                  ) : (
-                    <HugeiconsIcon icon={LockIcon} className="h-4 w-4" />
-                  )}
+                  <HugeiconsIcon icon={LockIcon} className="h-4 w-4" />
                   <span>{isLocked ? 'Unlock' : 'Lock'}</span>
                 </HStack>
               </DropdownMenuItem>

@@ -8,6 +8,7 @@ import {
 } from '@hugeicons/core-free-icons'
 import { useRBACSearchParams } from '../search-params'
 import { UserPermissionEditor } from './user-permission-editor'
+import type { UserResponse } from '@/lib/api/types.gen'
 import { useDebounce } from '@/hooks/use-debounce'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -33,7 +34,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { getUsersQueryOptions } from '@/features/users/api'
+import { getUsersQueryOptions } from '@/features/users/api/get-all-users'
 
 const PAGE_SIZE = 15
 
@@ -53,8 +54,11 @@ export function UsersTab() {
     }),
   )
 
-  const users = React.useMemo(() => usersData?.data || [], [usersData])
-  const totalUsers = usersData?.total || 0
+  const users: Array<UserResponse> = React.useMemo(
+    () => usersData?.data ?? [],
+    [usersData],
+  )
+  const totalUsers = usersData?.total ?? 0
   const selectedUser = users.find((u) => u.id === selectedUserId)
   const totalPages = Math.ceil(totalUsers / PAGE_SIZE)
 
@@ -65,7 +69,7 @@ export function UsersTab() {
 
   React.useEffect(() => {
     if (users.length > 0 && !selectedUser && !selectedUserId) {
-      setSelectedUserId(users[0].id)
+      setSelectedUserId(users[0]?.id ?? null)
     }
   }, [users, selectedUser, setSelectedUserId, selectedUserId])
 

@@ -1,13 +1,8 @@
 import * as React from 'react'
 import { useUsersSearchParams } from '../search-params'
 import { UserGridView } from './user-grid-view'
-import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
-import type {
-  Options,
-  PaginatedResponseForUserResponse,
-  UpdateUserData,
-  UserResponse,
-} from '@/lib/api'
+import type { UseQueryResult } from '@tanstack/react-query'
+import type { PaginatedResponseForUserResponse, UserResponse } from '@/lib/api'
 import type {
   DataTableColumnDef,
   DataTableFacetedFilter,
@@ -38,12 +33,6 @@ interface UsersListContainerProps {
   usersQuery: UseQueryResult<PaginatedResponseForUserResponse, Error>
   limit: number
   columns: Array<DataTableColumnDef<UserResponse>>
-  updateMutation: UseMutationResult<
-    UserResponse,
-    Error,
-    Options<UpdateUserData>,
-    unknown
-  >
   rowSelection: Record<string, boolean>
   setRowSelection: (
     selection:
@@ -74,7 +63,6 @@ export function UsersListContainer({
   usersQuery,
   limit,
   columns,
-  updateMutation,
   rowSelection,
   setRowSelection,
   contextMenuItems,
@@ -164,9 +152,6 @@ export function UsersListContainer({
 
   const [columnVisibility, setColumnVisibility] = React.useState({})
 
-  const isUpdating = updateMutation.isPending
-  const updatingUserId = updateMutation.variables?.path?.id
-
   return (
     <Tabs defaultValue="table" value={view ?? 'table'}>
       <TabsContent value="table" className="flex w-full">
@@ -225,16 +210,8 @@ export function UsersListContainer({
           isLoading={usersQuery.isFetching}
           onEdit={(user) => setUserToEdit(user)}
           onDelete={(id) => setUserToDelete(id)}
-          onToggleVerify={(user) =>
-            updateMutation.mutate({
-              path: { id: user.id },
-              body: { is_verified: !user.is_verified },
-            })
-          }
           onToggleLock={(user) => setUserToLock(user)}
           onManagePermissions={(user) => setUserToManagePermissions(user)}
-          isUpdating={isUpdating}
-          updatingUserId={updatingUserId}
           onCreateUser={onCreateUser}
         />
         {(usersQuery.data?.data?.length || 0) > 0 && (

@@ -29,15 +29,15 @@ export function RoleSetsTab() {
 
   const { data: setsData, isLoading } = useQuery(getRoleSetsQueryOptions())
 
-  const sets = React.useMemo(() => setsData?.data ?? [], [setsData])
+  const sets = React.useMemo(() => setsData ?? [], [setsData])
 
   const deleteSet = useDeleteRoleSet()
 
-  const filteredSets = sets?.filter((s) =>
+  const filteredSets = sets.filter((s) =>
     s.name.toLowerCase().includes(search.toLowerCase()),
   )
 
-  const selectedSet = sets?.find((s) => s.id === selectedRoleSetId)
+  const selectedSet = sets.find((s) => s.id === selectedRoleSetId)
 
   return (
     <Stack

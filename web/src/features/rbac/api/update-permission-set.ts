@@ -1,23 +1,23 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import type { UpdateUserSetData } from '@/lib/api/types.gen'
+import type { UserSetUpdateData } from '@/lib/api/types.gen'
 import type { Options } from '@/lib/api/sdk.gen'
 import {
-  getAllUserSetQueryKey,
-  updateUserSetMutation,
+  userSetGetAllQueryKey,
+  userSetUpdateMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 
 export const useUpdatePermissionSet = (
-  options?: Partial<Options<UpdateUserSetData>>,
+  options?: Partial<Options<UserSetUpdateData>>,
 ) => {
   const queryClient = useQueryClient()
   return useMutation({
-    ...updateUserSetMutation({ client: authClient, ...options }),
+    ...userSetUpdateMutation({ client: authClient, ...options }),
     onSuccess: () => {
       toast.success('Permission set updated successfully')
       queryClient.invalidateQueries({
-        queryKey: getAllUserSetQueryKey(),
+        queryKey: userSetGetAllQueryKey(),
       })
     },
     onError: (error) => {

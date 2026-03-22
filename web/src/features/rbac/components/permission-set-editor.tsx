@@ -16,7 +16,7 @@ import {
   useUpdatePermissionSet,
 } from '../api'
 import type { UpdatePermissionSetInput as UpdatePermissionSetValues } from '../schemas'
-import type { UserSet } from '@/lib/api/types.gen'
+import type { UserResponse, UserSet, UserSetUser } from '@/lib/api/types.gen'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -47,7 +47,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { authClient } from '@/lib/clients'
-import { getAllUserOptions } from '@/lib/api/@tanstack/react-query.gen'
+import { userGetAllOptions } from '@/lib/api/@tanstack/react-query.gen'
 
 interface PermissionSetEditorProps {
   set: UserSet
@@ -71,19 +71,19 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
   })
 
   const members = React.useMemo(() => {
-    const all = membersData?.data ?? []
+    const all: Array<UserSetUser> = membersData?.data ?? []
     return all.filter((m) => m.user_set_id === set.id)
   }, [membersData, set.id])
 
   const { data: usersData } = useQuery({
-    ...getAllUserOptions({
+    ...userGetAllOptions({
       client: authClient,
       query: { limit: 100, search: searchQuery || undefined },
     }),
     enabled: isAddingUser,
   })
 
-  const allUsers = usersData?.data ?? []
+  const allUsers: Array<UserResponse> = usersData?.data ?? []
 
   const assignedPermissions: Array<never> = []
 
@@ -344,7 +344,7 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
                       members.map((member) => {
                         const userId = member.user_id
                         const user = allUsers.find((u) => u.id === userId)
-                        const email = user?.email || member.user_set_id
+                        const email: string = user?.email ?? member.user_set_id
                         const name = email
                           .split('@')[0]
                           .replace(/[._]/g, ' ')
@@ -384,18 +384,9 @@ export function PermissionSetEditor({ set }: PermissionSetEditorProps) {
                               size="icon"
                               className="size-8 text-destructive hover:text-destructive"
                               onClick={() => {
-                                // Find the actual ID from the member object
-                                const idProp: unknown =
-                                  Object.getOwnPropertyDescriptor(
-                                    member,
-                                    'id',
-                                  )?.value
-                                let memberId: string = member.user_id
-                                if (typeof idProp === 'string') {
-                                  memberId = idProp
-                                }
+                                // Use user_id as the identifier for deletion
                                 removeUserFromSet.mutate({
-                                  path: { id: memberId },
+                                  path: { id: member.user_id },
                                 })
                               }}
                               disabled={removeUserFromSet.isPending}

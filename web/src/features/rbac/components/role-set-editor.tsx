@@ -21,7 +21,7 @@ import {
 } from '../api'
 import { PermissionList } from './permission-list'
 import type { UpdateRoleSetInput as UpdateRoleSetValues } from '../schemas'
-import type { PermissionEnum, RoleSet } from '@/lib/api/types.gen'
+import type { PermissionEnum, RoleSet, RoleSetRole } from '@/lib/api/types.gen'
 import { FormBuilder, defineFormConfig } from '@/components/form-builder'
 import { Button } from '@/components/ui/button'
 import {
@@ -69,7 +69,7 @@ function PermissionsForRoleEditor({ role }: { role: string }) {
 
     const candidate = rawPermissions.permissions
     return Array.isArray(candidate)
-      ? candidate.filter((p: unknown) => typeof p === 'string')
+      ? candidate.filter((p: unknown): p is string => typeof p === 'string')
       : []
   }, [rawPermissions])
 
@@ -131,7 +131,7 @@ export function RoleSetEditor({ set }: RoleSetEditorProps) {
   })
 
   const assignedRoles = React.useMemo(() => {
-    const all = roleSetRolesData?.data ?? []
+    const all: Array<RoleSetRole> = roleSetRolesData?.data ?? []
     return all.filter((r) => r.role_set_id === set.id).map((r) => r.role_id)
   }, [roleSetRolesData, set.id])
 

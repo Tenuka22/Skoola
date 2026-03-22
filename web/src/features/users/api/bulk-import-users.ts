@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { authClient } from '@/lib/clients'
 import { registerUser } from '@/lib/api/sdk.gen'
-import { getAllUserQueryKey } from '@/lib/api/@tanstack/react-query.gen'
+import { userGetAllQueryKey } from '@/lib/api/@tanstack/react-query.gen'
 
 export interface ImportUserRecord {
   email?: string
@@ -58,7 +58,7 @@ export const useBulkImportUsers = () => {
       if (results.success > 0) {
         toast.success(`Successfully imported ${results.success} users.`)
         queryClient.invalidateQueries({
-          queryKey: getAllUserQueryKey(),
+          queryKey: userGetAllQueryKey(),
         })
       }
 
@@ -69,7 +69,7 @@ export const useBulkImportUsers = () => {
         console.error('Import errors:', results.errors)
       }
     },
-    onError: (error: unknown) => {
+    onError: (error: Error) => {
       const message = error instanceof Error ? error.message : 'Unknown error'
       toast.error(`Import failed: ${message}`)
     },

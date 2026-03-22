@@ -42,7 +42,7 @@ export function PermissionSetsTab() {
     getPermissionSetsQueryOptions(),
   )
 
-  const sets = React.useMemo(() => setsData?.data ?? [], [setsData])
+  const sets = React.useMemo(() => setsData ?? [], [setsData])
 
   const deleteSet = useDeletePermissionSet()
 

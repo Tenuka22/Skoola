@@ -81,8 +81,8 @@ export function UserBulkEditForm({
                       form.setValue(
                         'updates',
                         currentUpdates.map((u) => ({
-                          ...u,
-                          data: { ...u.data, is_verified: checked },
+                          id: u.id,
+                          data: { is_verified: checked },
                         })),
                       )
                     }
