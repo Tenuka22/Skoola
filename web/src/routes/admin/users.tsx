@@ -35,6 +35,7 @@ import { UserGridView } from '../../features/users/components/user-grid-view'
 import type { UserResponse } from '@/lib/api'
 import { Box, HStack, Heading, Stack, Text } from '@/components/primitives'
 import {
+  getProfileQueryOptions,
   getUserProfilesQueryOptions,
   getUsersQueryOptions,
   useBulkDeleteUsers,
@@ -145,6 +146,13 @@ function UsersDashboard() {
     }),
   })
 
+  // Fetch current user profile
+  const profileQuery = useQuery({
+    ...getProfileQueryOptions({
+      client: authClient,
+    }),
+  })
+
   const deleteUser = useDeleteUser()
   const bulkDeleteUsers = useBulkDeleteUsers()
   const createUser = useRegisterUser()
@@ -209,7 +217,7 @@ function UsersDashboard() {
       signal: new AbortController().signal,
       meta: undefined,
     })
-     
+
     return (result as unknown as { data: Array<UserResponse> }).data
   }, [debouncedSearch, sort, queryClient])
 
