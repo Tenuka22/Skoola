@@ -36,7 +36,6 @@ interface GetColumnsProps {
   setUserToDelete: (id: string | null) => void
   setUserToEdit: (user: User | null) => void
   setUserToManagePermissions: (user: User | null) => void
-  showProfilePictures?: boolean
 }
 
 export function UserContextMenuItems({
@@ -124,7 +123,6 @@ export function getUserColumns({
   setUserToEdit,
   onToggleLock,
   setUserToManagePermissions,
-  showProfilePictures = true,
 }: GetColumnsProps): Array<DataTableColumnDef<User>> {
   return [
     {
@@ -142,16 +140,14 @@ export function getUserColumns({
 
         return (
           <HStack gap={3}>
-            {showProfilePictures && (
-              <Avatar className="h-9 w-9 border border-border/50">
-                <AvatarImage
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
-                />
-                <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-            )}
+            <Avatar className="h-9 w-9 border border-border/50">
+              <AvatarImage
+                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+              />
+              <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
             <Stack gap={0}>
               <HStack gap={2} align="center">
                 <Text

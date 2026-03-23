@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/consistent-type-assertions */
 import { createFileRoute } from '@tanstack/react-router'
 import {
   keepPreviousData,
@@ -7,17 +6,17 @@ import {
 } from '@tanstack/react-query'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  ExportIcon,
-  Grid01Icon,
-  ImportIcon,
-  List01Icon,
+  FileExportIcon,
+  FileImportIcon,
+  GridViewIcon,
+  ListViewIcon,
   LockIcon,
   Search01Icon,
-  TablePropertiesIcon,
-  User01Icon,
+  Table01Icon,
+  User02Icon,
+  UserAdd01Icon,
   UserCheckIcon,
-  UserPlusIcon,
-  UserXIcon,
+  UserRemove01Icon,
 } from '@hugeicons/core-free-icons'
 
 import * as React from 'react'
@@ -35,8 +34,6 @@ import { UserGridView } from '../../features/users/components/user-grid-view'
 import type { UserResponse } from '@/lib/api'
 import { Box, HStack, Heading, Stack, Text } from '@/components/primitives'
 import {
-  getProfileQueryOptions,
-  getUserProfilesQueryOptions,
   getUsersQueryOptions,
   useBulkDeleteUsers,
   useBulkImportUsers,
@@ -46,7 +43,7 @@ import {
 import { useUsersSearchParams } from '@/features/users/search-params'
 import { authClient } from '@/lib/clients'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Card,
   CardContent,
@@ -54,7 +51,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import {
   InputGroup,
   InputGroupAddon,
@@ -104,7 +100,7 @@ function StatsCard({
 
 function UsersDashboard() {
   const queryClient = useQueryClient()
-  const { page, limit, search, sort } = useUsersSearchParams()
+  const { page, limit, sort } = useUsersSearchParams()
   const [searchQuery, setSearchQuery] = React.useState('')
   const debouncedSearch = useDebounce(searchQuery, 300)
 
@@ -115,7 +111,6 @@ function UsersDashboard() {
   const [userToEdit, setUserToEdit] = React.useState<UserResponse | null>(null)
   const [userToManagePermissions, setUserToManagePermissions] =
     React.useState<UserResponse | null>(null)
-  const [showProfilePictures, setShowProfilePictures] = React.useState(true)
   const [activeTab, setActiveTab] = React.useState<
     'all' | 'verified' | 'unverified' | 'locked'
   >('all')
@@ -136,23 +131,6 @@ function UsersDashboard() {
     placeholderData: keepPreviousData,
   })
 
-  // Fetch user profiles for stats
-  const profilesQuery = useQuery({
-    ...getUserProfilesQueryOptions({
-      client: authClient,
-      query: {
-        limit: 1000,
-      },
-    }),
-  })
-
-  // Fetch current user profile
-  const profileQuery = useQuery({
-    ...getProfileQueryOptions({
-      client: authClient,
-    }),
-  })
-
   const deleteUser = useDeleteUser()
   const bulkDeleteUsers = useBulkDeleteUsers()
   const createUser = useRegisterUser()
@@ -163,7 +141,6 @@ function UsersDashboard() {
   >({})
 
   // Calculate stats
-  const usersData = usersQuery.data?.data ?? []
   const totalUsers = usersQuery.data?.total ?? 0
   const verifiedCount = usersQuery.data?.data?.filter(
     (u) => u.is_verified,
@@ -218,7 +195,7 @@ function UsersDashboard() {
       meta: undefined,
     })
 
-    return (result as unknown as { data: Array<UserResponse> }).data
+    return result.data
   }, [debouncedSearch, sort, queryClient])
 
   const columns = getUserColumns({
@@ -232,7 +209,6 @@ function UsersDashboard() {
       }
     },
     setUserToManagePermissions,
-    showProfilePictures,
   })
 
   // Filter users based on active tab
@@ -269,7 +245,7 @@ function UsersDashboard() {
                 /* Export functionality */
               }}
             >
-              <HugeiconsIcon icon={ExportIcon} className="size-4 mr-2" />
+              <HugeiconsIcon icon={FileExportIcon} className="size-4 mr-2" />
               Export
             </Button>
             <Button
@@ -279,11 +255,11 @@ function UsersDashboard() {
                 /* Import functionality */
               }}
             >
-              <HugeiconsIcon icon={ImportIcon} className="size-4 mr-2" />
+              <HugeiconsIcon icon={FileImportIcon} className="size-4 mr-2" />
               Import
             </Button>
             <Button size="sm" onClick={() => setIsCreateUserOpen(true)}>
-              <HugeiconsIcon icon={UserPlusIcon} className="size-4 mr-2" />
+              <HugeiconsIcon icon={UserAdd01Icon} className="size-4 mr-2" />
               Add User
             </Button>
           </HStack>
@@ -310,7 +286,7 @@ function UsersDashboard() {
         <StatsCard
           icon={
             <HugeiconsIcon
-              icon={User01Icon}
+              icon={User02Icon}
               className="size-4 text-muted-foreground"
             />
           }
@@ -332,7 +308,7 @@ function UsersDashboard() {
         <StatsCard
           icon={
             <HugeiconsIcon
-              icon={UserXIcon}
+              icon={UserRemove01Icon}
               className="size-4 text-yellow-500"
             />
           }
@@ -377,28 +353,36 @@ function UsersDashboard() {
                 </TabsList>
               </Tabs>
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <HugeiconsIcon
-                      icon={TablePropertiesIcon}
-                      className="size-4 mr-2"
-                    />
-                    View
-                  </Button>
-                </DropdownMenuTrigger>
+                <DropdownMenuTrigger
+                  render={
+                    <Button variant="outline" size="sm">
+                      <HugeiconsIcon
+                        icon={Table01Icon}
+                        className="size-4 mr-2"
+                      />
+                      View
+                    </Button>
+                  }
+                ></DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
                     onClick={() => setViewMode('table')}
                     className={viewMode === 'table' ? 'bg-muted' : ''}
                   >
-                    <HugeiconsIcon icon={List01Icon} className="size-4 mr-2" />
+                    <HugeiconsIcon
+                      icon={ListViewIcon}
+                      className="size-4 mr-2"
+                    />
                     List
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setViewMode('grid')}
                     className={viewMode === 'grid' ? 'bg-muted' : ''}
                   >
-                    <HugeiconsIcon icon={Grid01Icon} className="size-4 mr-2" />
+                    <HugeiconsIcon
+                      icon={GridViewIcon}
+                      className="size-4 mr-2"
+                    />
                     Grid
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -459,12 +443,13 @@ function UsersDashboard() {
             <Box p={4}>
               <UserGridView
                 users={filteredUsers}
+                limit={limit ?? 10}
                 isLoading={usersQuery.isFetching}
                 onEdit={setUserToEdit}
                 onDelete={setUserToDelete}
                 onToggleLock={setUserToLock}
                 onManagePermissions={setUserToManagePermissions}
-                showProfilePictures={showProfilePictures}
+                onCreateUser={() => setIsCreateUserOpen(true)}
               />
             </Box>
           )}
