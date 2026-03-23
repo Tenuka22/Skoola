@@ -64,8 +64,27 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useDebounce } from '@/hooks/use-debounce'
 
+interface UsersSearch {
+  page: number
+  limit: number
+  sort: Array<{ id: string; desc: boolean }>
+  search: string
+}
+
 export const Route = createFileRoute('/admin/users')({
   component: UsersDashboard,
+  validateSearch: (search: Record<string, unknown>): UsersSearch => {
+    return {
+      page: typeof search.page === 'number' ? search.page : 1,
+      limit: typeof search.limit === 'number' ? search.limit : 10,
+      sort: Array.isArray(search.sort) 
+        ? search.sort.filter((item): item is { id: string; desc: boolean } =>
+            typeof item === 'object' && item !== null && 'id' in item && 'desc' in item
+          )
+        : [],
+      search: typeof search.search === 'string' ? search.search : '',
+    }
+  },
 })
 
 // Stats Card Component
@@ -340,9 +359,10 @@ function UsersDashboard() {
               <Tabs
                 value={activeTab}
                 onValueChange={(v) => {
-                  setActiveTab(
-                    v as 'all' | 'verified' | 'unverified' | 'locked',
-                  )
+                  if (v === 'all') setActiveTab('all')
+                  else if (v === 'verified') setActiveTab('verified')
+                  else if (v === 'unverified') setActiveTab('unverified')
+                  else if (v === 'locked') setActiveTab('locked')
                 }}
               >
                 <TabsList>

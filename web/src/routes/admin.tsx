@@ -4,6 +4,7 @@ import {
   Book01Icon,
   Home01Icon,
   Shield01Icon,
+  User02Icon,
   UserGroupIcon,
 } from '@hugeicons/core-free-icons'
 import type { RoleEnum } from '@/lib/api/types.gen'
@@ -144,13 +145,40 @@ function AdminLayout() {
                 </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <Link to="/admin/users">
+                <Link
+                  search={{
+                    limit: 10,
+                    page: 1,
+                    search: '',
+                    sort: [],
+                  }}
+                  to="/admin/users"
+                >
                   <SidebarMenuButton
                     tooltip="Users"
                     className="hover:bg-accent/50 transition-colors"
                   >
                     <HugeiconsIcon icon={UserGroupIcon} size={18} />
                     <span className="font-medium">Users</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link
+                  search={{
+                    limit: 10,
+                    page: 1,
+                    search: '',
+                    sort: [],
+                  }}
+                  to="/admin/staff"
+                >
+                  <SidebarMenuButton
+                    tooltip="Staff"
+                    className="hover:bg-accent/50 transition-colors"
+                  >
+                    <HugeiconsIcon icon={User02Icon} size={18} />
+                    <span className="font-medium">Staff</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>

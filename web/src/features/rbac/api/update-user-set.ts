@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import type { Options, UserSetUpdateData } from '@/lib/api'
 import {
-  userSetUpdateMutation,
   userSetGetAllQueryKey,
+  userSetUpdateMutation,
 } from '@/lib/api/@tanstack/react-query.gen'
 import { authClient } from '@/lib/clients'
 
